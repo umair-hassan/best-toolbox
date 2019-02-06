@@ -1,3 +1,15 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% BEST Input Output Curve function
+% best_inputoutputcurve.m
+% pause matlab while maintaining communication via serial COM port(s)
+
+% by Ing. Umair Hassan (umair.hassan@drz-mainz.de)
+% last edited 2019/02/06 by UH
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
 classdef best_inputoutputcurve < handle
     
     properties
