@@ -21,9 +21,39 @@ classdef best_inputoutputcurve < handle
                 obj.SI=SI;
                 obj.MEP=MEP;
                 obj.SEM=SEM;
+                obj = best_ioc_outliers(obj); %TODO Add if loop here and develop its handle script
                 obj = best_ioc_fitting(obj);
                 obj = best_ioc_plot(obj);
            
+        end
+        
+        
+        function obj=best_ioc_outliers(obj)
+            % function best_ioc_outliers removes the outliers in the MEPs collected using 
+            % Levenberg-Marquardt (LM) algorithm and iterative reweighted least squares method
+            
+            %% Data management
+            data=[obj.SI,obj.MEP];
+            data_sort=sortrows(data);
+            s1=data_sort(:,1); m1=data_sort(:,2);
+            
+            
+            %% Outliers detection 
+            outliers = isoutlier(m1,'movmean',15); %TODO Make 15 relative to # of trials 
+            index_outliers=find(outliers==1);  
+            
+            
+            %% Outliers removal from data 
+            m1(index_outliers)=[];                 
+            s1(index_outliers)=[];
+            
+            %% Randomized inverse transformation of data
+            [s2,ia,idx] = unique(s1,'stable');
+            m2 = accumarray(idx,m1,[],@median); 
+            M=[s2,m2];
+            M1 = M(randperm(size(M,1)),:);
+            obj.SI=M1(:,1); 
+            obj.MEP=M1(:,2);
         end
         
         function obj=best_ioc_fitting(obj)
@@ -60,7 +90,7 @@ classdef best_inputoutputcurve < handle
         function obj = best_ioc_plot(obj)
             % function best_ioc_plot performs plotting of fitted parameters
             
-           
+           format short g
             %% Inflection point (ip) detection on fitted curve
             index_ip=find(abs(obj.curve(1).XData-obj.fitresult.SI50)<10^-1, 1, 'first');
             obj.ip_x=obj.curve(1).XData(index_ip);
@@ -68,7 +98,7 @@ classdef best_inputoutputcurve < handle
             
             
             %% Plateau (pt) detection on fitted curve
-            index_pt=find(abs(obj.curve(1).YData-obj.fitresult.MEPmax)<10^-1, 1, 'first');
+            index_pt=find(abs(obj.curve(1).YData-obj.fitresult.MEPmax)<10^-2, 1, 'first');
             obj.pt_x=obj.curve(1).XData(index_pt);
             pt_y=obj.curve(1).YData(index_pt);
             
@@ -106,17 +136,17 @@ classdef best_inputoutputcurve < handle
             set(gcf, 'color', 'w')
             
             % Plotting Inflection point's horizontal & vertical dotted lines
-            plot([obj.ip_x,30],[ip_y,ip_y],'--','Color' , [0.75 0.75 0.75]); % will have to be referneced with GUI
+            plot([obj.ip_x,45],[ip_y,ip_y],'--','Color' , [0.75 0.75 0.75]); % will have to be referneced with GUI
             plot([obj.ip_x,obj.ip_x],[ip_y,0],'--','Color' , [0.75 0.75 0.75]);
             legend_ip=plot(obj.ip_x,ip_y,'rs','MarkerSize',15);
             
             % Plotting Plateau's horizontal & vertical dotted lines
-            plot([obj.pt_x,30],[pt_y,pt_y],'--','Color' , [0.75 0.75 0.75]); % will have to be referneced with GUI
+            plot([obj.pt_x,45],[pt_y,pt_y],'--','Color' , [0.75 0.75 0.75]); % will have to be referneced with GUI
             plot([obj.pt_x,obj.pt_x],[pt_y,0],'--','Color' , [0.75 0.75 0.75]);
             legend_pt=plot(obj.pt_x,pt_y,'rd','MarkerSize',15);
             
             % Plotting Threshold's horizontal & vertical dotted lines
-            plot([obj.th,30],[0.05,0.05],'--','Color' , [0.75 0.75 0.75]); % will have to be referneced with GUI
+            plot([obj.th,45],[0.05,0.05],'--','Color' , [0.75 0.75 0.75]); % will have to be referneced with GUI
             plot([obj.th,obj.th],[0.05,0],'--','Color' , [0.75 0.75 0.75]);
             legend_th=plot(obj.th, 0.05,'r*','MarkerSize',15);
             
@@ -128,9 +158,11 @@ classdef best_inputoutputcurve < handle
             
             
             %% Creating Properties annotation box
-            str_ip=['Inflection Point: ',num2str(obj.ip_x),' %MSO'];
-            str_pt=['Plateau: ',num2str(obj.pt_x),' %MSO'];
-            str_th=['Thershold: ',num2str(obj.th),' %MSO'];
+            
+            str_ip=['Inflection Point: ',num2str(obj.ip_x),' (%MSO)',' , ',num2str(ip_y),' (mV)'];
+            str_pt=['Plateau: ',num2str(obj.pt_x),' (%MSO)',' , ',num2str(pt_y),' (mV)'];
+            str_th=['Thershold: ',num2str(obj.th),' (%MSO)',' , ', '0.05',' (mV)'];
+            
             dim = [0.69 0.35 0 0];
             str = {str_ip,[],str_th,[],str_pt};
             annotation('textbox',dim,'String',str,'FitBoxToText','on','FontSize',12);
