@@ -5,10 +5,9 @@
 % pause matlab while maintaining communication via serial COM port(s)
 
 % by Ing. Umair Hassan (umair.hassan@drz-mainz.de)
-% last edited 2019/02/06 by UH
+% last edited 2019/02/14 by UH
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 
 classdef best_inputoutputcurve < handle
     
@@ -16,12 +15,12 @@ classdef best_inputoutputcurve < handle
         
         curve;      % fitted curve (x,y) points goes here
         fitresult;  % results of fitted equation parameters goes here
-        gof;        % results of fit goodnes rsquare, rmse etc goes here    
+        gof;        % results of fit goodnes rsquare, rmse etc goes here
         SI;         % stimulation intensities object values
         MEP;        % mep's object values
         SEM;        % standard error of mean (sem) object values
         ip_x;       % Inflection Point
-        pt_x;       % Plateau 
+        pt_x;       % Plateau
         th;         % Threshold
         
     end
@@ -30,18 +29,18 @@ classdef best_inputoutputcurve < handle
         
         function obj=best_inputoutputcurve (SI, MEP, SEM)
             
-                obj.SI=SI;
-                obj.MEP=MEP;
-                obj.SEM=SEM;
-                obj = best_ioc_outliers(obj); %TODO Add if loop here and develop its handle script
-                obj = best_ioc_fitting(obj);
-                obj = best_ioc_plot(obj);
-           
+            obj.SI=SI;
+            obj.MEP=MEP;
+            obj.SEM=SEM;
+            obj = best_ioc_outliers(obj); %TODO Add if loop here and develop its handle script
+            obj = best_ioc_fitting(obj);
+            obj = best_ioc_plot(obj);
+            
         end
         
         
         function obj=best_ioc_outliers(obj)
-            % function best_ioc_outliers removes the outliers in the MEPs collected using 
+            % function best_ioc_outliers removes the outliers in the MEPs collected using
             % Levenberg-Marquardt (LM) algorithm and iterative reweighted least squares method
             
             %% Data management
@@ -50,21 +49,21 @@ classdef best_inputoutputcurve < handle
             s1=data_sort(:,1); m1=data_sort(:,2);
             
             
-            %% Outliers detection 
-            outliers = isoutlier(m1,'movmean',15); %TODO Make 15 relative to # of trials 
-            index_outliers=find(outliers==1);  
+            %% Outliers detection
+            outliers = isoutlier(m1,'movmean',15); %TODO Make 15 relative to # of trials
+            index_outliers=find(outliers==1);
             
             
-            %% Outliers removal from data 
-            m1(index_outliers)=[];                 
+            %% Outliers removal from data
+            m1(index_outliers)=[];
             s1(index_outliers)=[];
             
             %% Randomized inverse transformation of data
             [s2,ia,idx] = unique(s1,'stable');
-            m2 = accumarray(idx,m1,[],@median); 
+            m2 = accumarray(idx,m1,[],@median);
             M=[s2,m2];
             M1 = M(randperm(size(M,1)),:);
-            obj.SI=M1(:,1); 
+            obj.SI=M1(:,1);
             obj.MEP=M1(:,2);
         end
         
@@ -102,15 +101,23 @@ classdef best_inputoutputcurve < handle
         function obj = best_ioc_plot(obj)
             % function best_ioc_plot performs plotting of fitted parameters
             
-           format short g
+            format short g
             %% Inflection point (ip) detection on fitted curve
-            index_ip=find(abs(obj.curve(1).XData-obj.fitresult.SI50)<10^-1, 1, 'first');
-            obj.ip_x=obj.curve(1).XData(index_ip);
-            ip_y=obj.curve(1).YData(index_ip);
+            %             index_ip=find(abs(obj.curve(1).XData-obj.fitresult.SI50)<10^-1, 1, 'first');
+            %              obj.ip_x=obj.curve(1).XData(index_ip);
+            %             ip_y = obj.curve(1).YData(index_ip)
+            
+            [value_ip , index_ip] = min(abs(obj.curve(1).XData-obj.fitresult.SI50));
+            obj.ip_x = obj.curve(1).XData(index_ip);
+            ip_y = obj.curve(1).YData(index_ip)
             
             
             %% Plateau (pt) detection on fitted curve
-            index_pt=find(abs(obj.curve(1).YData-obj.fitresult.MEPmax)<10^-2, 1, 'first');
+            %             index_pt=find(abs(obj.curve(1).YData-obj.fitresult.MEPmax)<10^1, 1, 'first');
+            %             obj.pt_x=obj.curve(1).XData(index_pt);
+            %             pt_y=obj.curve(1).YData(index_pt);
+            %
+            [value_pt , index_pt] = min(abs(obj.curve(1).YData-(0.993*(obj.fitresult.MEPmax) ) ) );   %99.3 % of MEP max %TODO: Test it with longer plateu
             obj.pt_x=obj.curve(1).XData(index_pt);
             pt_y=obj.curve(1).YData(index_pt);
             
@@ -126,7 +133,7 @@ classdef best_inputoutputcurve < handle
             
             
             %% Creating plot
-            hold on; 
+            hold on;
             h = plot( obj.fitresult, obj.SI, obj.MEP);
             set(h(1), 'MarkerFaceColor',[0 0 0],'MarkerEdgeColor',[0 0 0],'Marker','square','LineStyle','none');
             
@@ -135,30 +142,33 @@ classdef best_inputoutputcurve < handle
             set(h(2),'LineWidth',2);
             
             % Create xlabel
-            xlabel('Intensity (% MSO)','FontSize',14,'FontName','Calibri');
+            xlabel('Intensity (% MSO)','FontSize',14,'FontName','Calibri');   %TODO: Put if loop of RMT or MSO
             
             % Create ylabel
             ylabel('MEP Amplitude (mV)','FontSize',14,'FontName','Calibri');
+            
             % x & y ticks and labels
-            yticks(-1:0.5:24);  % will have to be referneced with GUI
-            xticks(0:5:200);    % will have to be referneced with GUI
+            yticks(-1:0.5:1000000);  % will have to be referneced with GUI
+            xticks(0:5:1000);    % will have to be referneced with GUI
             
             % Create title
             title({'Input Output Curve'},'FontWeight','bold','FontSize',14,'FontName','Calibri');
             set(gcf, 'color', 'w')
             
+            SI_min_point = round(min(obj.SI)/5)*5-5; % Referncing the dotted lines wrt to lowest 5ths of SI_min
+         
             % Plotting Inflection point's horizontal & vertical dotted lines
-            plot([obj.ip_x,45],[ip_y,ip_y],'--','Color' , [0.75 0.75 0.75]); % will have to be referneced with GUI
+            plot([obj.ip_x,SI_min_point],[ip_y,ip_y],'--','Color' , [0.75 0.75 0.75]); 
             plot([obj.ip_x,obj.ip_x],[ip_y,0],'--','Color' , [0.75 0.75 0.75]);
             legend_ip=plot(obj.ip_x,ip_y,'rs','MarkerSize',15);
             
             % Plotting Plateau's horizontal & vertical dotted lines
-            plot([obj.pt_x,45],[pt_y,pt_y],'--','Color' , [0.75 0.75 0.75]); % will have to be referneced with GUI
+            plot([obj.pt_x,SI_min_point],[pt_y,pt_y],'--','Color' , [0.75 0.75 0.75]); 
             plot([obj.pt_x,obj.pt_x],[pt_y,0],'--','Color' , [0.75 0.75 0.75]);
             legend_pt=plot(obj.pt_x,pt_y,'rd','MarkerSize',15);
             
             % Plotting Threshold's horizontal & vertical dotted lines
-            plot([obj.th,45],[0.05,0.05],'--','Color' , [0.75 0.75 0.75]); % will have to be referneced with GUI
+            plot([obj.th,SI_min_point],[0.05,0.05],'--','Color' , [0.75 0.75 0.75]); 
             plot([obj.th,obj.th],[0.05,0],'--','Color' , [0.75 0.75 0.75]);
             legend_th=plot(obj.th, 0.05,'r*','MarkerSize',15);
             
@@ -166,7 +176,7 @@ classdef best_inputoutputcurve < handle
             %% Creating legends
             h_legend=[h(1); h(2); legend_ip;legend_pt;legend_th];
             l=legend(h_legend, 'Amp(MEP) vs Stim. Inten', 'Sigmoid Fit', 'Inflection Point','Plateau','Threshold');
-            set(l,'Orientation','horizontal','Location', 'southoutside','FontSize',12); 
+            set(l,'Orientation','horizontal','Location', 'southoutside','FontSize',12);
             
             
             %% Creating Properties annotation box
@@ -186,3 +196,4 @@ classdef best_inputoutputcurve < handle
         end
     end
 end
+
