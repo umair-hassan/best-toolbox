@@ -1,3 +1,14 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% BEST Main class 
+% All the low-level functions of BEST Toolbox goes here
+%
+% by Ing. Umair Hassan (umair.hassan@drz-mainz.de)
+% last edited 2019/02/15 by UH
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
 classdef best_main < handle
     
     properties
