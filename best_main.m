@@ -4,7 +4,7 @@
 % All the low-level functions of BEST Toolbox goes here
 %
 % by Ing. Umair Hassan (umair.hassan@drz-mainz.de)
-% last edited 2019/02/26 by UH
+% last edited 2019/03/02 by UH
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -31,7 +31,7 @@ classdef best_main < handle
     
     methods
         
-        function obj=best_main ()
+        function obj= best_main ()
             
             
         end
@@ -133,7 +133,7 @@ classdef best_main < handle
                     obj.MEP(i)=xmin+rand(1)*(xmax-xmin);
                     
                     
-                    %                     obj.MEP(i)=rand(1)*obj.SI(i)*0.4;
+%                     obj.MEP(i)=rand(1)*obj.SI(i)*0.4;
                 end
                 i=i+1;
             end
@@ -230,7 +230,6 @@ classdef best_main < handle
             % function best_ioc_plot performs plotting of fitted parameters
             
             format short g
-            
             %% Inflection point (ip) detection on fitted curve
             %             index_ip=find(abs(obj.curve(1).XData-obj.fitresult.SI50)<10^-1, 1, 'first');
             %              obj.ip_x=obj.curve(1).XData(index_ip);
@@ -240,52 +239,6 @@ classdef best_main < handle
             obj.ip_x = obj.curve(1).XData(index_ip);
             ip_y = obj.curve(1).YData(index_ip);
             
-            %% Threshold (th) detection on fitted curve
-            index_ip1=index_ip+50;
-            ip1_x=obj.curve(1).XData(index_ip1);
-            ip1_y=obj.curve(1).YData(index_ip1);
-            % Calculating slope (m) using two-points equation
-            m1=(ip1_y-ip_y)/(ip1_x-obj.ip_x)
-            m=m1+0.40
-            % Calculating threshold (th) using point-slope equation
-            
-            
-            
-            %% Creating plot
-            hold on;
-            a=obj.fitresult.MEPmax;
-            c=obj.fitresult.SI50;
-            b=m;
-            x=linspace (min(obj.SI),max(obj.SI),4000);
-            sigmoid=a ./ (1+exp(-b*(x-c)));
-            cla;
-            
-            
-            
-            h= plot (x,sigmoid);
-            obj.curve= get(gca,'Children');
-            h1=plot(obj.SI,obj.MEP);
-            
-            
-            
-            %             h = plot( obj.fitresult, obj.SI, obj.MEP);
-            set(h(1),'Marker','.','LineStyle','-','Color','r');
-            set(h1(1), 'MarkerFaceColor',[0 0 0],'MarkerEdgeColor',[0 0 0],'Marker','square','LineStyle','none');
-            
-            % Plotting SEM on Curve points
-            errorbar(obj.SI, obj.MEP ,obj.SEM, 'or');
-            set(h(1),'LineWidth',0.25);
-            set(h1(1),'LineWidth',2);
-            
-            
-            %% Inflection point (ip) detection on fitted curve
-            %             index_ip=find(abs(obj.curve(1).XData-obj.fitresult.SI50)<10^-1, 1, 'first');
-            %              obj.ip_x=obj.curve(1).XData(index_ip);
-            %             ip_y = obj.curve(1).YData(index_ip)
-            
-            [value_ip , index_ip] = min(abs(obj.curve(1).XData-obj.fitresult.SI50));
-            obj.ip_x = obj.curve(1).XData(index_ip);
-            ip_y = obj.curve(1).YData(index_ip);
             
             %% Plateau (pt) detection on fitted curve
             %             index_pt=find(abs(obj.curve(1).YData-obj.fitresult.MEPmax)<10^1, 1, 'first');
@@ -295,6 +248,7 @@ classdef best_main < handle
             [value_pt , index_pt] = min(abs(obj.curve(1).YData-(0.993*(obj.fitresult.MEPmax) ) ) );   %99.3 % of MEP max %TODO: Test it with longer plateu
             obj.pt_x=obj.curve(1).XData(index_pt);
             pt_y=obj.curve(1).YData(index_pt);
+            
             
             %% Threshold (th) detection on fitted curve
             index_ip1=index_ip+50;
@@ -307,6 +261,14 @@ classdef best_main < handle
             obj.th=obj.ip_x-(ip_y/m);
             
             
+            %% Creating plot
+            hold on;
+            h = plot( obj.fitresult, obj.SI, obj.MEP);
+            set(h(1), 'MarkerFaceColor',[0 0 0],'MarkerEdgeColor',[0 0 0],'Marker','square','LineStyle','none');
+            
+            % Plotting SEM on Curve points
+            errorbar(obj.SI, obj.MEP ,obj.SEM, 'o');
+            set(h(2),'LineWidth',2);
             
             % Create xlabel
             xlabel('Intensity (% MSO)','FontSize',14,'FontName','Calibri');   %TODO: Put if loop of RMT or MSO
@@ -323,25 +285,28 @@ classdef best_main < handle
             set(gcf, 'color', 'w')
             
             SI_min_point = (round(min(obj.SI)/5)*5)-5; % Referncing the dotted lines wrt to lowest 5ths of SI_min
+            SI_min_point = 30;
+            seet=-0.5;
+            
             
             % Plotting Inflection point's horizontal & vertical dotted lines
-            plot([obj.ip_x,30],[ip_y,ip_y],'--','Color' , [0.75 0.75 0.75]);
-            plot([obj.ip_x,obj.ip_x],[ip_y,0],'--','Color' , [0.75 0.75 0.75]);
+            plot([obj.ip_x,SI_min_point],[ip_y,ip_y],'--','Color' , [0.75 0.75 0.75]);
+            plot([obj.ip_x,obj.ip_x],[ip_y,seet],'--','Color' , [0.75 0.75 0.75]);
             legend_ip=plot(obj.ip_x,ip_y,'rs','MarkerSize',15);
             
             % Plotting Plateau's horizontal & vertical dotted lines
-            plot([obj.pt_x,30],[pt_y,pt_y],'--','Color' , [0.75 0.75 0.75]);
-            plot([obj.pt_x,obj.pt_x],[pt_y,0],'--','Color' , [0.75 0.75 0.75]);
+            plot([obj.pt_x,SI_min_point],[pt_y,pt_y],'--','Color' , [0.75 0.75 0.75]);
+            plot([obj.pt_x,obj.pt_x],[pt_y,seet],'--','Color' , [0.75 0.75 0.75]);
             legend_pt=plot(obj.pt_x,pt_y,'rd','MarkerSize',15);
             
             % Plotting Threshold's horizontal & vertical dotted lines
-            plot([obj.th,30],[0.05,0.05],'--','Color' , [0.75 0.75 0.75]);
-            plot([obj.th,obj.th],[0.05,0],'--','Color' , [0.75 0.75 0.75]);
+            plot([obj.th,SI_min_point],[0.05,0.05],'--','Color' , [0.75 0.75 0.75]);
+            plot([obj.th,obj.th],[0.05,seet],'--','Color' , [0.75 0.75 0.75]);
             legend_th=plot(obj.th, 0.05,'r*','MarkerSize',15);
             
             
             %% Creating legends
-            h_legend=[h1(1);h(1); legend_ip;legend_pt;legend_th];
+            h_legend=[h(1); h(2); legend_ip;legend_pt;legend_th];
             l=legend(h_legend, 'Amp(MEP) vs Stim. Inten', 'Sigmoid Fit', 'Inflection Point','Plateau','Threshold');
             set(l,'Orientation','horizontal','Location', 'southoutside','FontSize',12);
             
