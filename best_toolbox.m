@@ -84,9 +84,20 @@ classdef best_toolbox < handle
             %MAIN NAME CAN BE CHANGED TO BEST INITILIZE
             
             
+            %%
+            % 
+            %  
+            % 
+            %  
+            % 
+            % 
             
 %             ----------------------------------
 %make another function for loading default values
+%%
+% 
+
+% 
 
 % common
             obj.inputs.stimuli=NaN;
@@ -121,19 +132,15 @@ classdef best_toolbox < handle
                 stimuli=stimuli(randperm(length(stimuli)));
                 obj.data.(obj.info.str).outputs(:,1)=stimuli';
                
-            % 2. made timing sequence vector ;
-% todo3 make sured thaat the timing seequence and iti follow same difference or make the one from iti for timing sequence           
-           
+            % 2. iti vector (for timer func) and timing sequence (for dbsp) vector ;
+
             jitter=(obj.data.(obj.info.str).inputs.iti(2)-obj.data.(obj.info.str).inputs.iti(1));
-            timing_seq=(1:length(stimuli))*obj.data.(obj.info.str).inputs.iti(1);
-            timing_seq=timing_seq+rand(1,length(timing_seq))*jitter;
-            obj.data.(obj.info.str).outputs(:,2)=timing_seq';
-            
-            % 3. made iti vector;
-            
             iti=ones(1,length(stimuli))*obj.data.(obj.info.str).inputs.iti(1);
             iti=iti+rand(1,length(iti))*jitter;
-            obj.data.(obj.info.str).outputs(:,3)=iti';
+            obj.data.(obj.info.str).outputs(:,2)=iti';
+            obj.data.(obj.info.str).outputs(:,3)=(movsum(iti,[length(iti) 0]))';
+            
+          
             
             % 4. start making stim loop and further from here on wards for
             % tomorrow
