@@ -1,16 +1,14 @@
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%
-% BEST Main class
-% This class defines a main object for entire toolbox functions
-%
-% by Ing. Umair Hassan (umair.hassan@drz-mainz.de)
-% last edited 2019/02/15 by UH
-%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-
 classdef best_toolbox < handle
-    
+    %%
+    % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %
+    % BEST Toolbox class
+    % This class defines a main object for entire toolbox functions
+    %
+    % by Ing. Umair Hassan (umair.hassan@drz-mainz.de)
+    %
+    % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %%
     properties
         
         inputs; % 17.07 all inputs (arguments from the hl func and prepared trials from prepare trials functions goes here indexed wrt to method
@@ -85,21 +83,20 @@ classdef best_toolbox < handle
             
             
             %%
-            % 
-            %  
-            % 
-            %  
-            % 
-            % 
+            %
+            %
+            %
+            %
+            %
+            %
             
-%             ----------------------------------
-%make another function for loading default values
-%%
-% 
-
-% 
-
-% common
+            %             ----------------------------------
+            %make another function for loading default values
+            %
+            
+            %
+            
+            % common
             obj.inputs.stimuli=NaN;
             obj.inputs.iti=NaN;
             obj.inputs.isi=NaN;
@@ -117,44 +114,115 @@ classdef best_toolbox < handle
         function best_mep(obj)
             obj.info.method=obj.info.method+1;
             obj.info.str=strcat('mep_',num2str(obj.info.method));
-            obj.data.(obj.info.str).inputs=obj.inputs; 
+            obj.data.(obj.info.str).inputs=obj.inputs;
             % todo: obj.data.str.inputs should only save non NaN fields of
+            
+            obj.info.event.best_mep_read=1;
+            obj.info.event.best_mep_amp=1;
+            obj.info.event.best_mep_plot=1;
+            obj.best_trialprep
+            obj.best_stimloop
             
         end
         
         function best_trialprep(obj)
             
-%             1. make stimulation vector ; 
-% todo2 assert an error here if the stim vector is not equal to trials
-% vector
+            %%  1. made stimulation vector ;
+            % todo2 assert an error here if the stim vector is not equal to trials vector
             
-                stimuli=repelem(obj.data.(obj.info.str).inputs.stimuli,obj.data.(obj.info.str).inputs.trials);
-                stimuli=stimuli(randperm(length(stimuli)));
-                obj.data.(obj.info.str).outputs(:,1)=stimuli';
-               
-            % 2. iti vector (for timer func) and timing sequence (for dbsp) vector ;
-
+            stimuli=repelem(obj.data.(obj.info.str).inputs.stimuli,obj.data.(obj.info.str).inputs.trials);
+            stimuli=stimuli(randperm(length(stimuli)));
+            obj.data.(obj.info.str).outputs.trials(:,1)=stimuli';
+            
+            %% 2. iti vector (for timer func) and timing sequence (for dbsp) vector ;
+            
             jitter=(obj.data.(obj.info.str).inputs.iti(2)-obj.data.(obj.info.str).inputs.iti(1));
             iti=ones(1,length(stimuli))*obj.data.(obj.info.str).inputs.iti(1);
             iti=iti+rand(1,length(iti))*jitter;
-            obj.data.(obj.info.str).outputs(:,2)=iti';
-            obj.data.(obj.info.str).outputs(:,3)=(movsum(iti,[length(iti) 0]))';
-            
-          
-            
-            % 4. start making stim loop and further from here on wards for
-            % tomorrow
-            
-            
-            
-           
-           
-            
-            
+            obj.data.(obj.info.str).outputs.trials(:,2)=(round(iti,3))';
+            obj.data.(obj.info.str).outputs.trials(:,3)=(movsum(iti,[length(iti) 0]))';
             
         end
+        
+        function best_stimloop(obj)
+            obj.info.trial=0;
+            %% initiliaze MAGIC
+            % rapid and magstim caluses have to be added up here too and its handling will have to be formulated
+            %             delete(instrfindall);
+            %             magventureObject = magventure('COM4'); %0808a
+            %             magventureObject.connect;
+            %             magventureObject.arm
             
+            %% initiliaze DBSP
+            rtcls = dbsp('10.10.10.1');
+            clab = neurone_digitalout_clab_from_xml(xmlread('neuroneprotocol.xml')); %adapt this file name as per the inserted file name in the hardware handling module
+            
+            % % % % %             if(obj.info.event.mt==1)
+            % % % % %                 obj.mt_initialize;
+            % % % % %             end
+            
+            %% set stimulation amp for the first trial using magic
+            % use switch case to imply the mag vencture , mag stim and
+            % rapid object
+            %             magventureObject.setAmplitude(obj.data.(obj.info.str).outputs.trials((obj.info.trial+1),1));
+            
+            %% make timer call back, then stop fcn call back and then the loop stuff and put events marker into it
+            
+            function best_timerfcn(tobj,event,obj,rtcls)
+                obj.info.trial=obj.info.trial+1;
+                rtcls.sendPulse;
+                obj.data.(obj.info.str).outputs.rawdata(obj.info.trial,:)=rtcls.mep(1); % will have to pur the handle of right, left and APB or FDI muscle here, also there is a third muscle pinky muscle which is used sometime so add for that t00
+                % also have to create for customizing scope but that will go in
+                % hardware seetings
+                
+                
+                
+                
+                
+                % % % % % % % %             obj.data.(obj.info.str).outputs.results
+                % % % % % % % %             obj.data.(obj.info.str).outputs.rawdata
+                % % % % % % % %             obj.data.(obj.info.str).outputs.trials
+            end
+            
+            function best_timer_stopfcn(tobj,event,obj) % also give arg in magven for magstim and rapid
+                obj.info.timeA(obj.info.trial,:)=toc;
+                tic;
+                %             magventureObject.setAmplitude(obj.data.(obj.info.str).outputs.trials((obj.info.trial+1),1));
+                tobj.StartDelay=(obj.data.(obj.info.str).outputs.trials((obj.info.trial),2));
+                if (obj.info.trial==length(obj.data.(obj.info.str).outputs.trials(:,2)))
+                    stop(tobj);
+                else
+                    start(tobj);
+                end
+            end
+            
+            
+            t=timer('StartDelay', 0.1,'TasksToExecute', 1,'ExecutionMode', 'fixedRate');
+            
+            t.TimerFcn={@best_timerfcn,obj,rtcls};
+            t.StopFcn={@best_timer_stopfcn,obj};
+            start(t)
+            tic
+            
+           pause(4)
+            for trials=1:length(obj.data.(obj.info.str).outputs.trials(:,1))
+                
+%                 pause(5)
+                
+%                 obj.info.timeB(obj.info.trial,:)=toc;
+               
+                plot(obj.data.(obj.info.str).outputs.rawdata(obj.info.trial,:))
+%                 tic
+                hold on;
+            end
+        end
+        
+        
+        % % % %         function mt_initialize(obj)
+        % % % %             %% copy n paste n edit as per se
+        % % % %         end
+        
+        
         
     end
 end
-
