@@ -222,7 +222,14 @@ classdef best_toolbox < handle
         % % % %             %% copy n paste n edit as per se
         % % % %         end
         
+       
         
         
     end
 end
+
+%% FURTHER STEPS
+%1. make a simulation of mep scope using the random number generator (rand func of the matlab)
+%2. test it for the timing vector and see if it stills gives 6 somthing mainly seconds
+%3. use the new flexi grid layout system for gui making and simulate it too
+
