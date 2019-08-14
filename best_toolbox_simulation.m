@@ -48,6 +48,7 @@ classdef best_toolbox_simulation < handle
         nextInt;
         SIcopy
         RMT;
+        sim_mep;
         
         
         
@@ -57,6 +58,8 @@ classdef best_toolbox_simulation < handle
         
         function obj= best_toolbox_simulation ()
             
+            load sim_mep.mat;
+            obj.sim_mep=sim_mep';
             delete(instrfindall);
             obj.best_ioc_fitting.event=0;
             obj.best_mep_measurement.event=0;
@@ -103,8 +106,10 @@ classdef best_toolbox_simulation < handle
             obj.inputs.trials=NaN;
             obj.inputs.stimunits=NaN;
             obj.inputs.mep_rmthreshold=NaN;
-            obj.inputs.mep_amthreshold=NaN;     %active motor (am) threshold
-            obj.inputs.mt_method=NaN;           %motor thresholding (mt) method
+            obj.inputs.mep_amthreshold=NaN;     %active motor (am) threshold in volts %set default
+            obj.inputs.mt_method=NaN;           %motor thresholding (mt) method in volts %set default
+            obj.inputs.mep_onset=0.015;           %mep post trigger onset in seconds %set default
+            obj.inputs.mep_offset=0.050;          %mep post trigger offset in seconds %set default
             
             
             
@@ -116,8 +121,6 @@ classdef best_toolbox_simulation < handle
             obj.info.str=strcat('mep_',num2str(obj.info.method));
             obj.data.(obj.info.str).inputs=obj.inputs;
             % todo: obj.data.str.inputs should only save non NaN fields of
-            
-            obj.info.event.best_mep_read=1;
             obj.info.event.best_mep_amp=1;
             obj.info.event.best_mep_plot=1;
             obj.best_trialprep
@@ -169,6 +172,7 @@ classdef best_toolbox_simulation < handle
             
             %% make timer call back, then stop fcn call back and then the loop stuff and put events marker into it
             
+            %% timer callback
             function best_timerfcn(tobj,event,obj)
                 obj.info.trial=obj.info.trial+1;
                 tt=obj.info.trial
@@ -176,8 +180,8 @@ classdef best_toolbox_simulation < handle
                 %                 obj.data.(obj.info.str).outputs.rawdata(obj.info.trial,:)=rtcls.mep(1); % will have to pur the handle of right, left and APB or FDI muscle here, also there is a third muscle pinky muscle which is used sometime so add for that t00
                 % also have to create for customizing scope but that will go in
                 % hardware seetings
-                obj.data.(obj.info.str).outputs.rawdata(obj.info.trial,:)=rand(1,1000);
-     
+%                 obj.data.(obj.info.str).outputs.rawdata(obj.info.trial,:)=rand(1,1000);
+                 obj.data.(obj.info.str).outputs.rawdata(obj.info.trial,:)=(obj.sim_mep)*(obj.data.(obj.info.str).outputs.trials((obj.info.trial),1));
                 
                 
                 
@@ -187,6 +191,7 @@ classdef best_toolbox_simulation < handle
                 % % % % % % % %             obj.data.(obj.info.str).outputs.trials
             end
             
+         
             function best_timer_stopfcn(tobj,event,obj) % also give arg in magven for magstim and rapid
                
                 obj.info.timeA(obj.info.trial,:)=toc;
@@ -204,30 +209,23 @@ classdef best_toolbox_simulation < handle
                 end
             end
             
+
             function best_gtimerfcn(gobj,event,obj)
                 obj.info.trial_plotted=obj.info.trial_plotted+1;
                 gg=obj.info.trial_plotted
-                obj.best_mep_plot;
-% %                 tic
-% %                 figure(1);
-% %                
-% %                 plot(obj.data.(obj.info.str).outputs.rawdata(obj.info.trial_plotted,:))
-% %                 hold on;
-% %                 toc
-% %                 tic
-% %                 figure(2);
-% %                
-% %                 
-% %                 ran=rand(100,100);
-% %                 plot(ran);
-% %                 hold on;
-% %                 ran=(ran)+rand(100,100)*rand(100,100)/rand(100,100)*rand(100,100)-rand(100,100);
-% %                 plot(ran);
-% %                 hold on;
-% %                 toc
+                
+                
+                %add all the events handles here
+                if (obj.info.event.best_mep_plot==1)
+                    obj.best_mep_plot; end
+                if (obj.info.event.best_mep_amp==1)
+                    obj.best_mep_amp; end
+                
+                
             end
+          
             t=timer('StartDelay', 0.1,'TasksToExecute', 1,'ExecutionMode', 'fixedRate');
-            g=timer('StartDelay', 4,'Period',8,'TasksToExecute',length(obj.data.(obj.info.str).outputs.trials(:,1)),'ExecutionMode', 'fixedRate');
+            g=timer('StartDelay', 4,'Period',4,'TasksToExecute',length(obj.data.(obj.info.str).outputs.trials(:,1)),'ExecutionMode', 'fixedRate');
             t.TimerFcn={@best_timerfcn,obj};
             t.StopFcn={@best_timer_stopfcn,obj};
             
@@ -238,44 +236,54 @@ classdef best_toolbox_simulation < handle
             
  
         end
-        
-        
-        % % % %         function mt_initialize(obj)
-        % % % %             %% copy n paste n edit as per se
-        % % % %         end
-        
         function best_mep_plot(obj)
             figure(1)
             if (obj.info.trial_plotted>1) 
                 if(obj.info.trial_plotted>2)
                 delete(obj.info.handles.mean_mep_plot);
                 end
-                set(obj.info.handles.current_mep_plot,'color',[0.75 0.75 0.75]);
-                
+                delete(obj.info.handles.current_mep_plot)
+%                 set(obj.info.handles.current_mep_plot,'color',[0.75 0.75 0.75]);
+                obj.info.handles.past_mep_plot=plot(obj.data.(obj.info.str).outputs.rawdata(obj.info.trial_plotted-1,:),'Color',[0.75 0.75 0.75]);
+                hold on;
                 obj.info.handles.mean_mep_plot=plot(mean(obj.data.(obj.info.str).outputs.rawdata),'color',[0,0,0],'LineWidth',1.5);
                 hold on;
                 
+                
             end
-            % remove the mean plot
-            % change colour of plot curves
-            
             % plotting current trial
             obj.info.handles.current_mep_plot=plot(obj.data.(obj.info.str).outputs.rawdata(obj.info.trial_plotted,:),'Color',[1 0 0],'LineWidth',2);
             hold on;
+            if (obj.info.trial_plotted>1)
+                h_legend=[obj.info.handles.past_mep_plot; obj.info.handles.mean_mep_plot; obj.info.handles.current_mep_plot];
+                l=legend(h_legend, 'Previous MEPs', 'Mean Plot', 'Current MEP');
+                set(l,'Orientation','horizontal','Location', 'southoutside','FontSize',12);
+            end
+             
             
-            %update mean
-            % plotting updated mean with its colour and width
             
+        end
+        function best_mep_amp(obj)
+            
+            % give handle of post trigger offset and onset
+            obj.data.(obj.info.str).outputs.trials(obj.info.trial_plotted,4)=abs(max(obj.data.(obj.info.str).outputs.rawdata(obj.info.trial_plotted,201:800)))+abs(min(obj.data.(obj.info.str).outputs.rawdata(obj.info.trial_plotted,201:800)));
+            
+            
+            % epoch in the window
+            % find max in that eopched 
+            % find min in that eopch
+            % take abs of that epoch
+            % add both to find p2p
+            % add it to corrosponding trial
             
             
         end
         
+        %% function best_mep_descriptives(obj)
         
     end
 end
 
 %% FURTHER STEPS
-%1. make a simulation of mep scope using the random number generator (rand func of the matlab)
-
-%2. test it for the timing vector and see if it stills gives 6 somthing mainly seconds
+%1. 
 %3. use the new flexi grid layout system for gui making and simulate it too
