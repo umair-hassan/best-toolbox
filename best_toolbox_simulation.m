@@ -285,5 +285,11 @@ classdef best_toolbox_simulation < handle
 end
 
 %% FURTHER STEPS
-%1. 
-%3. use the new flexi grid layout system for gui making and simulate it too
+%1. best_hotspot
+%2. best_threshold am, mt as well as others
+%3. ioc
+%4. pp functions (mep n ioc)
+%5. multiple stimulators mep, threshold, ioc 
+%6. use the new flexi grid layout system for gui making and simulate it too
+%7. rs EEG
+
