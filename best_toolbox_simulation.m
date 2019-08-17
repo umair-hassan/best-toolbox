@@ -288,6 +288,7 @@ end
 %1. best_hotspot
 %2. best_threshold am, mt as well as others
 %% then make gui
+%% also inclide TMS fMRI stuff
 %3. ioc
 %4. pp functions (mep n ioc)
 %5. multiple stimulators mep, threshold, ioc 
