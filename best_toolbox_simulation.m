@@ -136,7 +136,7 @@ classdef best_toolbox_simulation < handle
             stimuli=repelem(obj.data.(obj.info.str).inputs.stimuli,obj.data.(obj.info.str).inputs.trials);
             stimuli=stimuli(randperm(length(stimuli)));
             obj.data.(obj.info.str).outputs.trials(:,1)=stimuli';
-            
+            obj.info.total_trials=length(stimuli');
             %% 2. iti vector (for timer func) and timing sequence (for dbsp) vector ;
             
             jitter=(obj.data.(obj.info.str).inputs.iti(2)-obj.data.(obj.info.str).inputs.iti(1));
@@ -180,8 +180,8 @@ classdef best_toolbox_simulation < handle
                 %                 obj.data.(obj.info.str).outputs.rawdata(obj.info.trial,:)=rtcls.mep(1); % will have to pur the handle of right, left and APB or FDI muscle here, also there is a third muscle pinky muscle which is used sometime so add for that t00
                 % also have to create for customizing scope but that will go in
                 % hardware seetings
-%                 obj.data.(obj.info.str).outputs.rawdata(obj.info.trial,:)=rand(1,1000);
-                 obj.data.(obj.info.str).outputs.rawdata(obj.info.trial,:)=(obj.sim_mep)*(obj.data.(obj.info.str).outputs.trials((obj.info.trial),1));
+                %                 obj.data.(obj.info.str).outputs.rawdata(obj.info.trial,:)=rand(1,1000);
+                obj.data.(obj.info.str).outputs.rawdata(obj.info.trial,:)=(obj.sim_mep)*(obj.data.(obj.info.str).outputs.trials((obj.info.trial),1));
                 
                 
                 
@@ -191,9 +191,9 @@ classdef best_toolbox_simulation < handle
                 % % % % % % % %             obj.data.(obj.info.str).outputs.trials
             end
             
-         
+            
             function best_timer_stopfcn(tobj,event,obj) % also give arg in magven for magstim and rapid
-               
+                
                 obj.info.timeA(obj.info.trial,:)=toc;
                 tic;
                 %             magventureObject.setAmplitude(obj.data.(obj.info.str).outputs.trials((obj.info.trial+1),1));
@@ -209,7 +209,7 @@ classdef best_toolbox_simulation < handle
                 end
             end
             
-
+            
             function best_gtimerfcn(gobj,event,obj)
                 obj.info.trial_plotted=obj.info.trial_plotted+1;
                 gg=obj.info.trial_plotted
@@ -223,7 +223,7 @@ classdef best_toolbox_simulation < handle
                 
                 
             end
-          
+            
             t=timer('StartDelay', 0.1,'TasksToExecute', 1,'ExecutionMode', 'fixedRate');
             g=timer('StartDelay', 4,'Period',4,'TasksToExecute',length(obj.data.(obj.info.str).outputs.trials(:,1)),'ExecutionMode', 'fixedRate');
             t.TimerFcn={@best_timerfcn,obj};
@@ -234,20 +234,23 @@ classdef best_toolbox_simulation < handle
             start(t)
             tic
             
- 
+            
         end
         function best_mep_plot(obj)
             figure(1)
-            if (obj.info.trial_plotted>1) 
+            if (obj.info.trial_plotted>1)
                 if(obj.info.trial_plotted>2)
-                delete(obj.info.handles.mean_mep_plot);
+                    delete(obj.info.handles.mean_mep_plot);
                 end
                 delete(obj.info.handles.current_mep_plot)
-%                 set(obj.info.handles.current_mep_plot,'color',[0.75 0.75 0.75]);
+                %                 set(obj.info.handles.current_mep_plot,'color',[0.75 0.75 0.75]);
                 obj.info.handles.past_mep_plot=plot(obj.data.(obj.info.str).outputs.rawdata(obj.info.trial_plotted-1,:),'Color',[0.75 0.75 0.75]);
                 hold on;
                 obj.info.handles.mean_mep_plot=plot(mean(obj.data.(obj.info.str).outputs.rawdata),'color',[0,0,0],'LineWidth',1.5);
                 hold on;
+                
+                
+               
                 
                 
             end
@@ -255,12 +258,33 @@ classdef best_toolbox_simulation < handle
             obj.info.handles.current_mep_plot=plot(obj.data.(obj.info.str).outputs.rawdata(obj.info.trial_plotted,:),'Color',[1 0 0],'LineWidth',2);
             hold on;
             if (obj.info.trial_plotted>1)
+                delete(obj.info.handles.annotated_trialsNo)
+            end
+                
+                str_plottedTrials=['Trial Plotted: ',num2str(obj.info.trial_plotted),'/',num2str(obj.info.total_trials)];
+                str_triggeredTrials=['Trial Triggered: ',num2str(obj.info.trial),'/',num2str(obj.info.total_trials)];
+%                 str_totalTrials=['Total Trials: ',num2str(obj.info.total_trials)];
+                
+%                 dim = [0.65 0.35 0 0];
+%                 str = {str_plottedTrials,str_triggeredTrials,str_totalTrials};
+                str = {str_plottedTrials,str_triggeredTrials};
+%                 obj.info.handles.annotated_trialsNo=annotation('textbox',dim,'String',str,'FitBoxToText','on','FontSize',11);
+aaa=xlim;
+bbb=ylim;
+obj.info.handles.annotated_trialsNo=text(0.65*aaa(1,2), 0.85*bbb(1,2),str);
+
+                drawnow;
+            if (obj.info.trial_plotted>1)
                 h_legend=[obj.info.handles.past_mep_plot; obj.info.handles.mean_mep_plot; obj.info.handles.current_mep_plot];
                 l=legend(h_legend, 'Previous MEPs', 'Mean Plot', 'Current MEP');
                 set(l,'Orientation','horizontal','Location', 'southoutside','FontSize',12);
             end
-             
             
+             % Create xlabel
+            xlabel('Time (ms)','FontSize',14,'FontName','Arial');   
+            
+            % Create ylabel
+            ylabel('EMG Potential (\mu V)','FontSize',14,'FontName','Arial');
             
         end
         function best_mep_amp(obj)
@@ -270,7 +294,7 @@ classdef best_toolbox_simulation < handle
             
             
             % epoch in the window
-            % find max in that eopched 
+            % find max in that eopched
             % find min in that eopch
             % take abs of that epoch
             % add both to find p2p
@@ -291,7 +315,6 @@ end
 %% also inclide TMS fMRI stuff
 %3. ioc
 %4. pp functions (mep n ioc)
-%5. multiple stimulators mep, threshold, ioc 
+%5. multiple stimulators mep, threshold, ioc
 %6. use the new flexi grid layout system for gui making and simulate it too
 %7. rs EEG
-
