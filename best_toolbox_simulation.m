@@ -224,13 +224,24 @@ classdef best_toolbox_simulation < handle
                 
             end
             
-            t=timer('StartDelay', 0.1,'TasksToExecute', 1,'ExecutionMode', 'fixedRate');
-            g=timer('StartDelay', 4,'Period',4,'TasksToExecute',length(obj.data.(obj.info.str).outputs.trials(:,1)),'ExecutionMode', 'fixedRate');
+            function best_gtimer_stopfcn(gobj,event,obj)
+                gobj.StartDelay=(obj.data.(obj.info.str).outputs.trials((obj.info.trial),2));
+                if (obj.info.trial_plotted==length(obj.data.(obj.info.str).outputs.trials(:,2)))
+                    stop(gobj);
+                    disp('end');
+                else
+                    start(gobj);
+                end
+            end
+            
+            t=timer('StartDelay', 0,'TasksToExecute', 1,'ExecutionMode', 'fixedRate');
+            g=timer('StartDelay', 0.5,'TasksToExecute',1,'ExecutionMode', 'fixedRate');
             t.TimerFcn={@best_timerfcn,obj};
             t.StopFcn={@best_timer_stopfcn,obj};
             
             g.TimerFcn={@best_gtimerfcn,obj};
             g.BusyMode       = 'queue';
+            g.StopFcn={@best_gtimer_stopfcn,obj};
             start(t)
             tic
             
@@ -318,3 +329,7 @@ end
 %5. multiple stimulators mep, threshold, ioc
 %6. use the new flexi grid layout system for gui making and simulate it too
 %7. rs EEG
+
+%% things to do for training
+%a. try to synchronize the trial triggered and trial plotted timing 
+%b. try to use the trial info timing vector for this
