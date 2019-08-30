@@ -276,11 +276,17 @@ classdef best_toolbox_simulation < handle
                 
                 set(obj.info.handles.current_mep_plot,'YData',(obj.data.(obj.info.str).outputs.rawdata(obj.info.trial_plotted,:)))
                
+               hold on;
                 set(obj.info.handles.mean_mep_plot,'YData',mean(obj.data.(obj.info.str).outputs.rawdata))
-                for loop=1:obj.info.trial_plotted-1
-                set(obj.info.handles.past_mep_plot,'YData',(obj.data.(obj.info.str).outputs.rawdata(loop,:)));
+                
                 hold on;
-                end
+               
+%                 set(obj.info.handles.past_mep_plot,'YData',(obj.data.(obj.info.str).outputs.rawdata(loop,:)));
+%                 drawnow
+                obj.info.handles.past_mep_plot=plot(obj.data.(obj.info.str).outputs.rawdata(obj.info.trial_plotted-1,:),'Color',[0.75 0.75 0.75]);
+
+                hold on;
+               
             end
             
             
