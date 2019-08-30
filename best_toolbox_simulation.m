@@ -139,9 +139,16 @@ classdef best_toolbox_simulation < handle
             obj.info.total_trials=length(stimuli');
             %% 2. iti vector (for timer func) and timing sequence (for dbsp) vector ;
             
+            
+            if (length(obj.inputs.iti)==2)
             jitter=(obj.data.(obj.info.str).inputs.iti(2)-obj.data.(obj.info.str).inputs.iti(1));
             iti=ones(1,length(stimuli))*obj.data.(obj.info.str).inputs.iti(1);
             iti=iti+rand(1,length(iti))*jitter;
+            elseif (length(obj.inputs.iti)==1)
+                iti=ones(1,length(stimuli))*(obj.data.(obj.info.str).inputs.iti(1));
+            else
+                 error(' BEST Toolbox Error: Inter-Trial Interval (ITI) input vector must be a scalar e.g. 2 or a row vector with 2 elements e.g. [3 4]')
+            end
             obj.data.(obj.info.str).outputs.trials(:,2)=(round(iti,3))';
             obj.data.(obj.info.str).outputs.trials(:,3)=(movsum(iti,[length(iti) 0]))';
             
@@ -194,8 +201,8 @@ classdef best_toolbox_simulation < handle
             
             function best_timer_stopfcn(tobj,event,obj) % also give arg in magven for magstim and rapid
                 
-                obj.info.timeA(obj.info.trial,:)=toc;
-                tic;
+%                 obj.info.timeA(obj.info.trial,:)=toc;
+%                 tic;
                 %             magventureObject.setAmplitude(obj.data.(obj.info.str).outputs.trials((obj.info.trial+1),1));
                 tobj.StartDelay=(obj.data.(obj.info.str).outputs.trials((obj.info.trial),2));
                 if (obj.info.trial==length(obj.data.(obj.info.str).outputs.trials(:,2)))
@@ -218,14 +225,17 @@ classdef best_toolbox_simulation < handle
                 %add all the events handles here
                 if (obj.info.event.best_mep_plot==1)
                     obj.best_mep_plot; end
-                if (obj.info.event.best_mep_amp==1)
-                    obj.best_mep_amp; end
+                 if (obj.info.event.best_mep_amp==1)
+                     obj.best_mep_amp; end
                 
                 
             end
             
             function best_gtimer_stopfcn(gobj,event,obj)
-                gobj.StartDelay=(obj.data.(obj.info.str).outputs.trials((obj.info.trial),2));
+                 obj.info.timeA(obj.info.trial,:)=toc;
+                tic;
+                
+                gobj.StartDelay=(obj.data.(obj.info.str).outputs.trials((obj.info.trial_plotted),2));
                 if (obj.info.trial_plotted==length(obj.data.(obj.info.str).outputs.trials(:,2)))
                     stop(gobj);
                     disp('end');
@@ -235,7 +245,7 @@ classdef best_toolbox_simulation < handle
             end
             
             t=timer('StartDelay', 0,'TasksToExecute', 1,'ExecutionMode', 'fixedRate');
-            g=timer('StartDelay', 0.5,'TasksToExecute',1,'ExecutionMode', 'fixedRate');
+            g=timer('StartDelay', 0,'TasksToExecute',1,'ExecutionMode', 'fixedRate');
             t.TimerFcn={@best_timerfcn,obj};
             t.StopFcn={@best_timer_stopfcn,obj};
             
@@ -248,54 +258,58 @@ classdef best_toolbox_simulation < handle
             
         end
         function best_mep_plot(obj)
-            figure(1)
-            if (obj.info.trial_plotted>1)
-                if(obj.info.trial_plotted>2)
-                    delete(obj.info.handles.mean_mep_plot);
-                end
-                delete(obj.info.handles.current_mep_plot)
-                %                 set(obj.info.handles.current_mep_plot,'color',[0.75 0.75 0.75]);
-                obj.info.handles.past_mep_plot=plot(obj.data.(obj.info.str).outputs.rawdata(obj.info.trial_plotted-1,:),'Color',[0.75 0.75 0.75]);
+            if (obj.info.trial_plotted==1)
+                obj.info.handles.current_mep_plot=plot(obj.data.(obj.info.str).outputs.rawdata(obj.info.trial_plotted,:),'Color',[1 0 0],'LineWidth',2);
+                hold on;
+                obj.info.handles.past_mep_plot=plot(obj.data.(obj.info.str).outputs.rawdata(obj.info.trial_plotted,:),'Color',[0.75 0.75 0.75]);
                 hold on;
                 obj.info.handles.mean_mep_plot=plot(mean(obj.data.(obj.info.str).outputs.rawdata),'color',[0,0,0],'LineWidth',1.5);
                 hold on;
-                
-                
-               
-                
-                
-            end
-            % plotting current trial
-            obj.info.handles.current_mep_plot=plot(obj.data.(obj.info.str).outputs.rawdata(obj.info.trial_plotted,:),'Color',[1 0 0],'LineWidth',2);
-            hold on;
-            if (obj.info.trial_plotted>1)
-                delete(obj.info.handles.annotated_trialsNo)
-            end
-                
-                str_plottedTrials=['Trial Plotted: ',num2str(obj.info.trial_plotted),'/',num2str(obj.info.total_trials)];
-                str_triggeredTrials=['Trial Triggered: ',num2str(obj.info.trial),'/',num2str(obj.info.total_trials)];
-%                 str_totalTrials=['Total Trials: ',num2str(obj.info.total_trials)];
-                
-%                 dim = [0.65 0.35 0 0];
-%                 str = {str_plottedTrials,str_triggeredTrials,str_totalTrials};
-                str = {str_plottedTrials,str_triggeredTrials};
-%                 obj.info.handles.annotated_trialsNo=annotation('textbox',dim,'String',str,'FitBoxToText','on','FontSize',11);
-aaa=xlim;
-bbb=ylim;
-obj.info.handles.annotated_trialsNo=text(0.65*aaa(1,2), 0.85*bbb(1,2),str);
-
-                drawnow;
-            if (obj.info.trial_plotted>1)
                 h_legend=[obj.info.handles.past_mep_plot; obj.info.handles.mean_mep_plot; obj.info.handles.current_mep_plot];
                 l=legend(h_legend, 'Previous MEPs', 'Mean Plot', 'Current MEP');
                 set(l,'Orientation','horizontal','Location', 'southoutside','FontSize',12);
+                % Create xlabel
+                xlabel('Time (ms)','FontSize',14,'FontName','Arial');
+                % Create ylabel
+                ylabel('EMG Potential (\mu V)','FontSize',14,'FontName','Arial'); 
+            else
+                
+                set(obj.info.handles.current_mep_plot,'YData',(obj.data.(obj.info.str).outputs.rawdata(obj.info.trial_plotted,:)))
+               
+                set(obj.info.handles.mean_mep_plot,'YData',mean(obj.data.(obj.info.str).outputs.rawdata))
+                for loop=1:obj.info.trial_plotted-1
+                set(obj.info.handles.past_mep_plot,'YData',(obj.data.(obj.info.str).outputs.rawdata(loop,:)));
+                hold on;
+                end
             end
             
-             % Create xlabel
-            xlabel('Time (ms)','FontSize',14,'FontName','Arial');   
             
-            % Create ylabel
-            ylabel('EMG Potential (\mu V)','FontSize',14,'FontName','Arial');
+            
+            
+% % % %             if (obj.info.trial_plotted>1)
+% % % %                 delete(obj.info.handles.annotated_trialsNo)
+% % % %             end
+                
+% % % %                 str_plottedTrials=['Trial Plotted: ',num2str(obj.info.trial_plotted),'/',num2str(obj.info.total_trials)];
+% % % %                 str_triggeredTrials=['Trial Triggered: ',num2str(obj.info.trial),'/',num2str(obj.info.total_trials)];
+% % % % %                 str_totalTrials=['Total Trials: ',num2str(obj.info.total_trials)];
+% % % %                 
+% % % % %                 dim = [0.65 0.35 0 0];
+% % % % %                 str = {str_plottedTrials,str_triggeredTrials,str_totalTrials};
+% % % %                 str = {str_plottedTrials,str_triggeredTrials};
+% % % % %                 obj.info.handles.annotated_trialsNo=annotation('textbox',dim,'String',str,'FitBoxToText','on','FontSize',11);
+% % % % aaa=xlim;
+% % % % bbb=ylim;
+% % % % obj.info.handles.annotated_trialsNo=text(0.65*aaa(1,2), 0.85*bbb(1,2),str);
+% % % % 
+% % % %                 drawnow;
+% % % %             if (obj.info.trial_plotted>1)
+% % % %                 h_legend=[obj.info.handles.past_mep_plot; obj.info.handles.mean_mep_plot; obj.info.handles.current_mep_plot];
+% % % %                 l=legend(h_legend, 'Previous MEPs', 'Mean Plot', 'Current MEP');
+% % % %                 set(l,'Orientation','horizontal','Location', 'southoutside','FontSize',12);
+% % % %             end
+            
+           
             
         end
         function best_mep_amp(obj)
