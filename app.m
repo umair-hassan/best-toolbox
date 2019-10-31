@@ -18,10 +18,12 @@ classdef app < handle
         mep_panel_stop_btn
         inputs
         axesH
+        this_is_to_check_github=0;
     end
     
     methods
         function obj = app()
+            obj.this_is_to_check_github=1;
             obj.bst=best_toolbox_gui(obj);
             f = figure('Tag','umi1','ToolBar','none','Name','BEST Toolbox','NumberTitle','off');
             
