@@ -196,8 +196,8 @@ classdef BEST < handle
         end
         
         function pi_mep(obj)
-            %             obj.pi.mep.panel=uix.Panel( 'Parent', obj.pi.empty_panel,'FontSize',14 ,'Units','normalized','Title','MEP Measurement' ,'FontWeight','Bold','TitlePosition','centertop');
-            obj.pi.mep.panel=uix.ScrollingPanel( 'Parent', obj.pi.empty_panel,'Units','normalized');
+                        obj.pi.mep.panel=uix.Panel( 'Parent', obj.pi.empty_panel,'FontSize',14 ,'Units','normalized','Title','MEP Measurement' ,'FontWeight','Bold','TitlePosition','centertop');
+%             obj.pi.mep.panel=uix.ScrollingPanel( 'Parent', obj.pi.empty_panel,'Units','normalized');
             
             
             obj.pi.mep.vb = uix.VBox( 'Parent', obj.pi.mep.panel, 'Spacing', 5, 'Padding', 5  );
@@ -292,9 +292,16 @@ classdef BEST < handle
             uicontrol( 'Style','text','Parent', mep_panel_15,'String','Trials No for Mean MEP Amp:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
             obj.pi.mep.trials_for_mean_annotation=uicontrol( 'Style','edit','Parent', mep_panel_15 ,'FontSize',11,'String','5','Callback',@(~,~)obj.cb_pi_mep_trials_for_mean_annotation);
             obj.pi.mep.trials_annotated_reset=uicontrol( 'Style','PushButton','Parent', mep_panel_15 ,'FontSize',10,'String','Reset Mean','Callback',@(~,~)obj.cb_pi_mep_trials_reset);
-            obj.pi.mep.trials_annotated_reset_plot=uicontrol( 'Style','PushButton','Parent', mep_panel_15 ,'FontSize',10,'String','Reset Plot','Callback',@(~,~)obj.cb_pi_mep_plot_reset);
-            
+            obj.pi.mep.trials_annotated_reset_plot=uicontrol( 'Style','PushButton','Parent', mep_panel_15 ,'FontSize',10,'String','Reset Plot','Callback',@(~,~)obj.cb_pi_mep_plot_reset);        
             set( mep_panel_15, 'Widths', [150 -1 -2 -2]);
+            
+
+             % row 16
+            mep_panel_16 = uix.HBox( 'Parent', obj.pi.mep.vb, 'Spacing', 5, 'Padding', 5  );
+            uicontrol( 'Style','text','Parent', mep_panel_16,'String','Save Plot:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+            obj.pi.mep.save_plt=uicontrol( 'Style','checkbox','Parent', mep_panel_16 ,'FontSize',11,'Value',obj.info.defaults.save_plt,'Callback',@(~,~)obj.cb_pi_mep_save_plt);
+            set( mep_panel_16, 'Widths', [-2 -2]);
+            
             
             
             uiextras.HBox( 'Parent', obj.pi.mep.vb)
@@ -305,7 +312,7 @@ classdef BEST < handle
             obj.pi.stop=uicontrol( 'Parent', mep_panel_17 ,'Style','PushButton','String','Stop','FontWeight','Bold','Callback',@(~,~)obj.stop,'Enable','on');
             set( mep_panel_17, 'Widths', [-2 -4 -2]);
             
-            set(obj.pi.mep.vb,'Heights',[-0.1 -0.4 -0.4 -0.4 -0.4 -0.1 -0.2 -0.4 -0.4 -0.4 -0.4 -0.4 -0.4 -0.4 -0.4 0 -0.5])
+            set(obj.pi.mep.vb,'Heights',[-0.02 -0.4 -0.4 -0.4 -0.4 -0.02 -0.2 -0.4 -0.4 -0.4 -0.4 -0.4 -0.4 -0.4 -0.4 -0.4 0 -0.4])
             
             
         end
@@ -394,6 +401,12 @@ classdef BEST < handle
             
             set( mep_panel_15, 'Widths', [150 -1 -2 -2]);
             
+             % row 16
+            mep_panel_16 = uix.HBox( 'Parent', obj.pi.hotspot.vb, 'Spacing', 5, 'Padding', 5  );
+            uicontrol( 'Style','text','Parent', mep_panel_16,'String','Save Plot:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+            obj.pi.hotspot.save_plt=uicontrol( 'Style','checkbox','Parent', mep_panel_16 ,'FontSize',11,'Value',obj.info.defaults.save_plt,'Callback',@(~,~)obj.cb_pi_hotspot_save_plt);
+            set( mep_panel_16, 'Widths', [-2 -2]);
+            
             uiextras.HBox( 'Parent', obj.pi.hotspot.vb);
             
             mep_panel_17 = uix.HBox( 'Parent', obj.pi.hotspot.vb, 'Spacing', 5, 'Padding', 5  );
@@ -402,7 +415,10 @@ classdef BEST < handle
             obj.pi.stop=uicontrol( 'Parent', mep_panel_17 ,'Style','PushButton','String','Stop','FontWeight','Bold','Callback',@(~,~)obj.stop,'Enable','on');
             set( mep_panel_17, 'Widths', [-2 -4 -2]);
             
-            set(obj.pi.hotspot.vb,'Heights',[-0.1 -0.4 -0.4 -0.4 -0.4 -0.2 -0.2 -0.4 -0.4 -0.4 -0.4 -0.4 -0.4 -1 -0.5])
+           
+            
+            
+            set(obj.pi.hotspot.vb,'Heights',[-0.1 -0.4 -0.4 -0.4 -0.4 -0.2 -0.2 -0.4 -0.5 -0.4 -0.4 -0.4 -0.4 -0.4 -1 -0.5])
             
             
         end
@@ -504,6 +520,13 @@ classdef BEST < handle
             
             set( mep_panel_16, 'Widths', [150 -1 -2 -2]);
             
+            % row 18
+            mep_panel_18 = uix.HBox( 'Parent', obj.pi.mt.vb, 'Spacing', 5, 'Padding', 5  );
+            uicontrol( 'Style','text','Parent', mep_panel_18,'String','Save Plot:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+            obj.pi.mt.save_plt=uicontrol( 'Style','checkbox','Parent', mep_panel_18 ,'FontSize',11,'Value',obj.info.defaults.save_plt,'Callback',@(~,~)obj.cb_pi_mt_save_plt);
+            set( mep_panel_18, 'Widths', [-2 -2]);
+            
+            
             
             uiextras.HBox( 'Parent', obj.pi.mt.vb)
             
@@ -513,7 +536,7 @@ classdef BEST < handle
             obj.pi.stop=uicontrol( 'Parent', mep_panel_17 ,'Style','PushButton','String','Stop','FontWeight','Bold','Callback',@(~,~)obj.stop,'Enable','on');
             set( mep_panel_17, 'Widths', [-2 -4 -2]);
             
-            set(obj.pi.mt.vb,'Heights',[-0.1 -0.4 -0.4 -0.4 -0.4 -0.4 -0.4 -0.2 -0.2 -0.4 -0.4 -0.4 -0.4 -0.4 -0.4 0 -0.5])
+            set(obj.pi.mt.vb,'Heights',[-0.1 -0.4 -0.4 -0.4 -0.4 -0.4 -0.4 -0.2 -0.2 -0.4 -0.4 -0.4 -0.4 -0.4 -0.4 -0.4 0 -0.5])
             
             
         end
@@ -616,6 +639,12 @@ classdef BEST < handle
             
             set( mep_panel_16, 'Widths', [150 -1 -2 -2]);
             
+            % row 18a
+            mep_panel_18a = uix.HBox( 'Parent', obj.pi.ioc.vb, 'Spacing', 5, 'Padding', 5  );
+            uicontrol( 'Style','text','Parent', mep_panel_18a,'String','Save Plot:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+            obj.pi.ioc.save_plt=uicontrol( 'Style','checkbox','Parent', mep_panel_18a ,'FontSize',11,'Value',obj.info.defaults.save_plt,'Callback',@(~,~)obj.cb_pi_ioc_save_plt);
+            set( mep_panel_18a, 'Widths', [-2 -2]);
+            
             uiextras.HBox( 'Parent', obj.pi.ioc.vb)
             
             mep_panel_17 = uix.HBox( 'Parent', obj.pi.ioc.vb, 'Spacing', 5, 'Padding', 5  );
@@ -624,7 +653,7 @@ classdef BEST < handle
             obj.pi.stop=uicontrol( 'Parent', mep_panel_17 ,'Style','PushButton','String','Stop','FontWeight','Bold','Callback',@(~,~)obj.stop,'Enable','on');
             set( mep_panel_17, 'Widths', [-2 -4 -2]);
             
-            set(obj.pi.ioc.vb,'Heights',[-0.1 -0.4 -0.4 -0.4 -0.4 -0.2 -0.2 -0.4 -0.4 -0.4 -0.4 -0.4 -0.4 -0.4 -0.4 0 -0.5])
+            set(obj.pi.ioc.vb,'Heights',[-0.1 -0.4 -0.4 -0.4 -0.4 -0.1 -0.2 -0.4 -0.4 -0.4 -0.4 -0.4 -0.4 -0.4 -0.4 -0.4 0 -0.5])
             
             
         end
@@ -1270,6 +1299,7 @@ classdef BEST < handle
             obj.info.defaults.reset_pressed=0;
             obj.info.defaults.plot_reset_pressed=0;
             obj.info.defaults.manual_stim_inten=1;
+            obj.info.defaults.save_plt=1;
             
             obj.info.defaults.mt_starting_stim_inten=25;
             
@@ -1545,30 +1575,22 @@ classdef BEST < handle
             
             obj.bst.best_mep;
             % saving figure
-            % % %             exp=obj.pmd.exp_title.editfield.String; exp(exp == ' ') = '_';
-            % % %             sub=obj.pmd.sub_code.editfield.String; sub(sub == ' ') = '_';
-            % % %             sess=obj.info.event.current_session;
-            % % %             meas=obj.info.event.current_measure_fullstr;
-            % % %             plt='MEP_Plot';
-            % % %             timestr=clock; times1=timestr(4);times2=timestr(5); time=[times1 times2]; time=num2str(time); time(time == ' ') = '_';
-            % % %             obj.info.file_name=[exp '_' sub '_' sess '_' meas '_' plt '_' time];
-            % % %             %             figg=figure('Visible','off','CreateFcn','set(gcf,''Visible'',''on'')');
-            % % %             obj.info.figg=figure('Visible','off','CloseRequestFcn',@(~,~)figclosereq);
-            % % %
-            % % %             copyobj(obj.pr.mep.axes1,obj.info.figg)
-            % % %             %             saveas(figg,file_name,'fig')
-            % % %             close(obj.info.figg)
-            % % %             function figclosereq(obj)
-            % % %                 set(obj.info.figg,'Visible','on');
-            % % %                 saveas(obj.info.figg,obj.info.file_name,'fig')
-            % % %
-            % % %             end
             
-            %
-            %             h = figure;set(h, 'Visible', 'off');
-            % copyobj(obj.pr.mep.axes1,h);               saveas(h,file_name,'fig')
-            
-            
+            if (obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).save_plt==1)
+            exp=obj.pmd.exp_title.editfield.String; exp(exp == ' ') = '_';
+            sub=obj.pmd.sub_code.editfield.String; sub(sub == ' ') = '_';
+            sess=obj.info.event.current_session;
+            meas=obj.info.event.current_measure_fullstr;
+            plt='MEP_Plot';
+            timestr=clock; times1=timestr(4);times2=timestr(5); time=[times1 times2]; time=num2str(time); time(time == ' ') = '_';
+            file_name=[exp '_' sub '_' sess '_' meas '_' plt '_' time];
+            figg=figure('Visible','off','CreateFcn','set(gcf,''Visible'',''on'')','Name',file_name,'NumberTitle','off');
+            copyobj(obj.pr.mep.axes1,figg)
+            set( gca, 'Units', 'normalized', 'Position', [0.2 0.2 0.7 0.7] );
+            saveas(figg,file_name,'fig');
+            close(figg)
+            end
+
             
             
             %             catch
@@ -1658,11 +1680,28 @@ classdef BEST < handle
             obj.bst.inputs.plot_reset_pressed=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).plot_reset_pressed;
             
             obj.pr_hotspot;
-            try
+%             try
                 
                 obj.bst.best_motorhotspot;
-            catch
-                disp('MEP Measurement Stopped | BEST Toolbox')
+%             catch
+%                 disp('MEP Measurement Stopped | BEST Toolbox')
+%             end
+
+
+
+            if (obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).save_plt==1)
+                exp=obj.pmd.exp_title.editfield.String; exp(exp == ' ') = '_';
+                sub=obj.pmd.sub_code.editfield.String; sub(sub == ' ') = '_';
+                sess=obj.info.event.current_session;
+                meas=obj.info.event.current_measure_fullstr;
+                plt='MEP_Plot';
+                timestr=clock; times1=timestr(4);times2=timestr(5); time=[times1 times2]; time=num2str(time); time(time == ' ') = '_';
+                file_name=[exp '_' sub '_' sess '_' meas '_' plt '_' time];
+                figg=figure('Visible','off','CreateFcn','set(gcf,''Visible'',''on'')','Name',file_name,'NumberTitle','off');
+                copyobj(obj.pr.hotspot.axes1,figg)
+                set( gca, 'Units', 'normalized', 'Position', [0.2 0.2 0.7 0.7] );
+                saveas(figg,file_name,'fig');
+                close(figg)
             end
         end
         
@@ -1747,11 +1786,34 @@ classdef BEST < handle
             obj.bst.inputs.plot_reset_pressed=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).plot_reset_pressed;
             
             obj.pr_mt;
-            try
+%             try
                 
                 obj.bst.best_motorthreshold;
-            catch
-                disp('MEP Measurement Stopped | BEST Toolbox')
+%             catch
+%                 disp('MEP Measurement Stopped | BEST Toolbox')
+%             end
+
+            if (obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).save_plt==1)
+                exp=obj.pmd.exp_title.editfield.String; exp(exp == ' ') = '_';
+                sub=obj.pmd.sub_code.editfield.String; sub(sub == ' ') = '_';
+                sess=obj.info.event.current_session;
+                meas=obj.info.event.current_measure_fullstr;
+                plt='MEP_Plot';
+                timestr=clock; times1=timestr(4);times2=timestr(5); time=[times1 times2]; time=num2str(time); time(time == ' ') = '_';
+                file_name=[exp '_' sub '_' sess '_' meas '_' plt '_' time];
+                figg=figure('Visible','off','CreateFcn','set(gcf,''Visible'',''on'')','Name',file_name,'NumberTitle','off');
+                copyobj(obj.pr.mt.axes_mep,figg)
+                set( gca, 'Units', 'normalized', 'Position', [0.2 0.2 0.7 0.7] );
+                saveas(figg,file_name,'fig');
+                close(figg)
+                
+                plt='MotorThreshold_Plot';
+                file_name=[exp '_' sub '_' sess '_' meas '_' plt '_' time];
+                figg=figure('Visible','off','CreateFcn','set(gcf,''Visible'',''on'')','Name',file_name,'NumberTitle','off');
+                copyobj(obj.pr.mt.axes_mtplot,figg)
+                set( gca, 'Units', 'normalized', 'Position', [0.2 0.2 0.7 0.7] );
+                saveas(figg,file_name,'fig');
+                close(figg)
             end
         end
         
@@ -1878,6 +1940,38 @@ classdef BEST < handle
             obj.pr_ioc;
             
             obj.bst.best_ioc;
+            
+            
+            if (obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).save_plt==1)
+                exp=obj.pmd.exp_title.editfield.String; exp(exp == ' ') = '_';
+                sub=obj.pmd.sub_code.editfield.String; sub(sub == ' ') = '_';
+                sess=obj.info.event.current_session;
+                meas=obj.info.event.current_measure_fullstr;
+                plt='MEP_Plot';
+                timestr=clock; times1=timestr(4);times2=timestr(5); time=[times1 times2]; time=num2str(time); time(time == ' ') = '_';
+                file_name=[exp '_' sub '_' sess '_' meas '_' plt '_' time];
+                figg=figure('Visible','off','CreateFcn','set(gcf,''Visible'',''on'')','Name',file_name,'NumberTitle','off');
+                copyobj(obj.pr.ioc.axes_mep,figg)
+                set( gca, 'Units', 'normalized', 'Position', [0.2 0.2 0.7 0.7] );
+                saveas(figg,file_name,'fig');
+                close(figg)
+                
+                plt='Scatter_Plot';
+                file_name=[exp '_' sub '_' sess '_' meas '_' plt '_' time];
+                figg=figure('Visible','off','CreateFcn','set(gcf,''Visible'',''on'')','Name',file_name,'NumberTitle','off');
+                copyobj(obj.pr.ioc.axes_scatplot,figg)
+                set( gca, 'Units', 'normalized', 'Position', [0.2 0.2 0.7 0.7] );
+                saveas(figg,file_name,'fig');
+                close(figg)
+                
+                plt='FittedIOC_Plot';
+                file_name=[exp '_' sub '_' sess '_' meas '_' plt '_' time];
+                figg=figure('Visible','off','CreateFcn','set(gcf,''Visible'',''on'')','Name',file_name,'NumberTitle','off');
+                copyobj(obj.pr.ioc.axes_fitplot,figg)
+                set( gca, 'Units', 'normalized', 'Position', [0.2 0.2 0.7 0.7] );
+                saveas(figg,file_name,'fig');
+                close(figg)
+            end
             
         end
         function cb_pi_ioc_update(obj)
@@ -2029,8 +2123,11 @@ classdef BEST < handle
         function cb_pi_mep_plot_reset(obj)
             obj.bst.sessions.(obj.bst.inputs.current_session).(obj.bst.inputs.current_measurement).inputs.plot_reset_pressed=1;
             obj.bst.sessions.(obj.bst.inputs.current_session).(obj.bst.inputs.current_measurement).inputs.plot_reset_idx=obj.bst.sessions.(obj.bst.inputs.current_session).(obj.bst.inputs.current_measurement).info.trial;
-            
-            
+  
+        end
+        
+        function cb_pi_mep_save_plt(obj)
+            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).save_plt=obj.pi.mep.save_plt.Value;
         end
         
         %% hitspot inputs callbacks
@@ -2096,6 +2193,10 @@ classdef BEST < handle
         function cb_pi_hotspot_plot_reset(obj)
             obj.bst.sessions.(obj.bst.inputs.current_session).(obj.bst.inputs.current_measurement).inputs.plot_reset_pressed=1;
             obj.bst.sessions.(obj.bst.inputs.current_session).(obj.bst.inputs.current_measurement).inputs.plot_reset_idx=obj.bst.sessions.(obj.bst.inputs.current_session).(obj.bst.inputs.current_measurement).info.trial;
+        end
+        
+        function cb_pi_hotspot_save_plt(obj)
+            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).save_plt=obj.pi.hotspot.save_plt.Value;
         end
         
         %% motor thresholding inputs callbacks
@@ -2166,6 +2267,11 @@ classdef BEST < handle
         function cb_pi_mt_plot_reset(obj)
             obj.bst.sessions.(obj.bst.inputs.current_session).(obj.bst.inputs.current_measurement).inputs.plot_reset_pressed=1;
             obj.bst.sessions.(obj.bst.inputs.current_session).(obj.bst.inputs.current_measurement).inputs.plot_reset_idx=obj.bst.sessions.(obj.bst.inputs.current_session).(obj.bst.inputs.current_measurement).info.trial;
+        end
+        
+        
+        function cb_pi_mt_save_plt(obj)
+            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).save_plt=obj.pi.mt.save_plt.Value;
         end
         
         %% ioc calbacks
@@ -2252,6 +2358,10 @@ classdef BEST < handle
         function cb_pi_ioc_plot_reset(obj)
             obj.bst.sessions.(obj.bst.inputs.current_session).(obj.bst.inputs.current_measurement).inputs.plot_reset_pressed=1;
             obj.bst.sessions.(obj.bst.inputs.current_session).(obj.bst.inputs.current_measurement).inputs.plot_reset_idx=obj.bst.sessions.(obj.bst.inputs.current_session).(obj.bst.inputs.current_measurement).info.trial;
+        end
+        
+        function cb_pi_ioc_save_plt(obj)
+            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).save_plt=obj.pi.ioc.save_plt.Value;
         end
         
         %% tms fmri callbacks
@@ -2511,6 +2621,12 @@ classdef BEST < handle
             
             set( mep_panel_16, 'Widths', [150 -1 -2 -2]);
             
+            % row 18a
+            mep_panel_18a = uix.HBox( 'Parent', obj.pi.mt_ptc.vb, 'Spacing', 5, 'Padding', 5  );
+            uicontrol( 'Style','text','Parent', mep_panel_18a,'String','Save Plot:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+            obj.pi.mt_ptc.save_plt=uicontrol( 'Style','checkbox','Parent', mep_panel_18a ,'FontSize',11,'Value',obj.info.defaults.save_plt,'Callback',@(~,~)obj.cb_pi_mt_ptc_save_plt);
+            set( mep_panel_18a, 'Widths', [-2 -2]);
+            
             
             uiextras.HBox( 'Parent', obj.pi.mt_ptc.vb)
             
@@ -2520,7 +2636,7 @@ classdef BEST < handle
             obj.pi.stop=uicontrol( 'Parent', mep_panel_17 ,'Style','PushButton','String','Stop','FontWeight','Bold','Callback',@(~,~)obj.stop,'Enable','on');
             set( mep_panel_17, 'Widths', [-2 -4 -2]);
             
-            set(obj.pi.mt_ptc.vb,'Heights',[-0.1 -0.4 -0.4 -0.4 -0.4 -0.4 -0.4 -0.4 -0.2 -0.2 -0.4 -0.4 -0.4 -0.4 -0.4 -0.4 0 -0.5])
+            set(obj.pi.mt_ptc.vb,'Heights',[-0.1 -0.4 -0.4 -0.4 -0.4 -0.4 -0.4 -0.4 -0.04 -0.2 -0.4 -0.4 -0.4 -0.4 -0.4 -0.4 -0.4 0 -0.5])
             
             
         end
@@ -2610,6 +2726,29 @@ classdef BEST < handle
             obj.pr_mt;
             
             obj.bst.best_motorthreshold_pest_tc;
+            
+            if (obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).save_plt==1)
+                exp=obj.pmd.exp_title.editfield.String; exp(exp == ' ') = '_';
+                sub=obj.pmd.sub_code.editfield.String; sub(sub == ' ') = '_';
+                sess=obj.info.event.current_session;
+                meas=obj.info.event.current_measure_fullstr;
+                plt='MEP_Plot';
+                timestr=clock; times1=timestr(4);times2=timestr(5); time=[times1 times2]; time=num2str(time); time(time == ' ') = '_';
+                file_name=[exp '_' sub '_' sess '_' meas '_' plt '_' time];
+                figg=figure('Visible','off','CreateFcn','set(gcf,''Visible'',''on'')','Name',file_name,'NumberTitle','off');
+                copyobj(obj.pr.mt.axes_mep,figg)
+                set( gca, 'Units', 'normalized', 'Position', [0.2 0.2 0.7 0.7] );
+                saveas(figg,file_name,'fig');
+                close(figg)
+                
+                plt='MotorThreshold_Plot';
+                file_name=[exp '_' sub '_' sess '_' meas '_' plt '_' time];
+                figg=figure('Visible','off','CreateFcn','set(gcf,''Visible'',''on'')','Name',file_name,'NumberTitle','off');
+                copyobj(obj.pr.mt.axes_mtplot,figg)
+                set( gca, 'Units', 'normalized', 'Position', [0.2 0.2 0.7 0.7] );
+                saveas(figg,file_name,'fig');
+                close(figg)
+            end
             
         end
         
@@ -2744,6 +2883,9 @@ classdef BEST < handle
         function cb_pi_mt_ptc_plot_reset(obj)
             obj.bst.sessions.(obj.bst.inputs.current_session).(obj.bst.inputs.current_measurement).inputs.plot_reset_pressed=1;
             obj.bst.sessions.(obj.bst.inputs.current_session).(obj.bst.inputs.current_measurement).inputs.plot_reset_idx=obj.bst.sessions.(obj.bst.inputs.current_session).(obj.bst.inputs.current_measurement).info.trial;
+        end
+        function cb_pi_mt_ptc_save_plt(obj)
+            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).save_plt=obj.pi.mt_ptc.save_plt.Value;
         end
         
         function cb_pr_mep_export(obj)
