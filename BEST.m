@@ -3,42 +3,23 @@ classdef BEST < handle
         par
         bst
         info
-        data
-        
-        
-        
-        
+        data 
         
     end
     
     properties (Hidden)
         pmd %panel_measurement_designer
         pi  %panel_inputs
-        pr %panel_results
-        
-        
-        
-        
+        pr %panel_results 
         var
         grid % bottom most 3 panels
         panel
         pulse
         a1
         a2
-        
-        
-        vp
-        mrtms_panel_stimulation_paradigm
-        mep_panel_update_btn
-        mep_panel_run_btn
-        mep_panel_stop_btn
-        %         inputs
-        axesH
-        
+        axesH       
         fig
-        menu
-        
-        
+        menu    
     end
     
     methods
