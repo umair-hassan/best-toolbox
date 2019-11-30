@@ -13,7 +13,7 @@
 % % 10. disarm the device
 % % 11. run it in the loop for required no of trials (or there shuld be some infinite)
 
-making_this_change='intentional'
+now_iremoved that ='new'
 
 totaltrials=20;
 phase_target=0; %0 for peak, pi for trough
