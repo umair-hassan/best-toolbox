@@ -6,6 +6,7 @@ function obj=best_ioc_outliers(obj)
             data=[obj.SI,obj.MEP];
             data_sort=sortrows(data);
             s1=data_sort(:,1); m1=data_sort(:,2);
+            outliers=NaN;
             
             
             %% Outliers detection
@@ -19,6 +20,7 @@ function obj=best_ioc_outliers(obj)
             
             obj.SI_clean=s1;
             obj.MEP_clean=m1;
+            %make another change
             
             
             
