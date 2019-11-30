@@ -1,16 +1,8 @@
-General plan
-1. update the saving feature ability to all of the functions 
-2. introduce pause unpause fully into all function along with its info vector
-3. correct listboxes issue 1
-tomorrow start with
-4. 3d printing
-5. input box 
-lets try this out
 NEXT STEPS
 
+Make sure that best toolbox GUI makes the designed folder as cd so that whatever figures and data is saved is done with in same cd
 1-listboxes error, when there is a error in the run command, make the listbox enabled again, put try and catch
-save the trial by trial in a proper time effeicient manner so that its not lost at all
-make sure that previously written info is not overwritten otherwis that would need to be saved everytime
+
 when a new measurement is added after copying and pasting, the new measurement number (the digit at the end is equivalent to total session's no but it should be equivalent to whats the max in the list and +1 to it or somewhat stronger
 The MT measure is sstill shown in TMS-fMRI panel rather show that drop down and link that drop here for easy use
 
@@ -104,7 +96,11 @@ the uicontextmenu copy paste delete etc for listboxes
 disable the listbox movements before a stop is actually pressed for ongoing measure + disable the uimenu for both of listboxes
 if anything was copied but not pasted on the list, that would count towards the copybuffer so make copy buffer in the paste func
 sessions listbox delet copy paste up paste down moveup move down funcs
-
+If paused is pressed, and then stopped is pressed, the uiwait will not let the stop happen or update happen too, so just atlest put uiresumt when the stop is pressed
+update the saving feature ability to all of the functions
+introduce pause unpause fully into all function along with its info vector
+save the trial by trial in a proper time effeicient manner so that its not lost at all
+make sure that previously written info is not overwritten otherwis that would need to be saved everytime
 
 
 %% For RTCLS
