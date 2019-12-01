@@ -1,36 +1,39 @@
 NEXT STEPS
-kk
 
-Make sure that best toolbox GUI makes the designed folder as cd so that whatever figures and data is saved is done with in same cd
-1-listboxes error, when there is a error in the run command, make the listbox enabled again, put try and catch
-
-when a new measurement is added after copying and pasting, the new measurement number (the digit at the end is equivalent to total session's no but it should be equivalent to whats the max in the list and +1 to it or somewhat stronger
-The MT measure is sstill shown in TMS-fMRI panel rather show that drop down and link that drop here for easy use
 
 
 while copy pasting the session or its measurements, make all enable on that are required by default in any func so 
-when copying an already runned session because of current general settings for making a plot, it immediately throws an error because its copy is not runned yet and therefore have no data yet
+cwhen copying an already runned session because of current general settings for making a plot, it immediately throws an error because its copy is not runned yet and therefore have no data yet
 delete then delete the bst data and show warning dialog box, if dialogi is ok delete then delete it
 if listbox is empty create a handle for every listbox uimenu function as create in listbox measure delete func
 
 the results (means graphs) of already runned to be shown when the show results is clicked from uimenu
-update/pause correction  (just make it written as unpause when pause is pressed) thats it, reproduce it for all input functions works with uiwait but later on or store the trial number and the duration of pause in another matrix thats even better
-multiple muscles target for same stimulation (MEP-IOC - Thresholding)
-multiple muscles target for different stimulation (MEP-IOC-Thresholding)
-paired pulse paradigms for each of meas (MEP - IOC)
-make the documentation and send it to til for further review 
+
+
 
 
 Ability to be able to change no of trials to average for calculation of MT
 The next stim intensity to be shown on the top of results write next stim intnesity stuff on the top of results anywhere
 make a seperate default load func for each of seperate function
+listboxes error, when there is a error in the run command, make the listbox enabled again, put try and catch
 
+
+
+Optional
+multiple muscles target for same stimulation (MEP-IOC - Thresholding)
+multiple muscles target for different stimulation (MEP-IOC-Thresholding)
+paired pulse paradigms for each of meas (MEP - IOC)
+make the documentation and send it to til for further review 
 subject specific panel_row and tables for extra info
+Make sure that best toolbox GUI makes the designed folder as cd so that whatever figures and data is saved is done with in same cd
+when a new measurement is added after copying and pasting, the new measurement number (the digit at the end is equivalent to total session's no but it should be equivalent to whats the max in the list and +1 to it or somewhat stronger
+The MT measure is sstill shown in TMS-fMRI panel rather show that drop down and link that drop here for easy use
 
 
 
 
-OPTIONAL
+
+Super OPTIONAL
 
 make a flag for sim_mode so that when its 0 actual experiment is hapenning when its 1 its loading mat sim data and running simulations only
 Enable Motor Threshold (%MSO) lines in MEP meas and IOC only when %MT units are selected otherwise off
@@ -102,6 +105,8 @@ update the saving feature ability to all of the functions
 introduce pause unpause fully into all function along with its info vector
 save the trial by trial in a proper time effeicient manner so that its not lost at all
 make sure that previously written info is not overwritten otherwis that would need to be saved everytime
+update/pause correction  (just make it written as unpause when pause is pressed) thats it, reproduce it for all input functions works with uiwait but later on or store the trial number and the duration of pause in another matrix thats even better
+
 
 
 %% For RTCLS
