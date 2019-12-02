@@ -391,14 +391,17 @@ classdef BEST < handle
             end           
         end
         function cb_pmd_lb_measures_pasteup(obj)
-            if(numel(obj.pmd.lb_measures.listbox.String)==0)
-                return
-            else
-                if(obj.pmd.lb_measures.listbox.Value-1~=0)
+                if(obj.pmd.lb_measures.listbox.Value-1>=0)
+                    if(obj.pmd.lb_measures.listbox.Value-1==0)
+                        paste_value=obj.pmd.lb_measures.listbox.Value;
+                    else
                     paste_value=obj.pmd.lb_measures.listbox.Value-1;
+                    end
                 else
                     return;
                 end
+                obj.data.(obj.info.event.current_session).info.meas_copy_id=obj.data.(obj.info.event.current_session).info.meas_copy_id+1;
+
                 obj.data.(obj.info.event.current_session).info.meas_matrix_copybuffer(1,obj.data.(obj.info.event.current_session).info.meas_copy_id)=obj.data.meas_copied;
                 
                 any(strcmp(obj.data.(obj.info.event.current_session).info.meas_matrix_copybuffer,obj.data.meas_copied))
@@ -422,35 +425,62 @@ classdef BEST < handle
                     disp('error at cb_pmd_lb_measures_pasteup')
                 end   
                 index=obj.pmd.lb_measures.listbox.Value;
-                str_a=obj.data.(obj.info.event.current_session).info.measurement_str_to_listbox(1:index-1);
-                str_b=new_session;
-                str_c=obj.data.(obj.info.event.current_session).info.measurement_str_to_listbox(index:numel(obj.data.(obj.info.event.current_session).info.measurement_str_to_listbox));
                 
-                obj.data.(obj.info.event.current_session).info.measurement_str_to_listbox=[str_a str_b str_c];
-                str_a=obj.data.(obj.info.event.current_session).info.measurement_str_original(1:index-1);
-                str_b=obj.data.meas_copied_orignial;
-                str_c=obj.data.(obj.info.event.current_session).info.measurement_str_original(index:numel(obj.data.(obj.info.event.current_session).info.measurement_str_original));
-                obj.data.(obj.info.event.current_session).info.measurement_str=[str_a str_b str_c];
-                obj.data.(obj.info.event.current_session).info.measurement_str_original=[str_a str_b str_c];
-                
+                switch numel(obj.pmd.lb_measures.listbox.String)
+                    case 0
+                        obj.data.(obj.info.event.current_session).info.measurement_str_to_listbox={new_session};
+                        obj.data.meas_copied_orignial
+                        obj.data.(obj.info.event.current_session).info.measurement_str_to_listbox
+                        obj.data.(obj.info.event.current_session).info.measurement_str=obj.data.meas_copied_orignial;
+                        obj.data.(obj.info.event.current_session).info.measurement_str_original=obj.data.meas_copied_orignial;
+                        obj.pmd.lb_measures.listbox.Value=1;
+                        
+                    case 1
+                        str_b=obj.data.(obj.info.event.current_session).info.measurement_str_to_listbox(1);
+                        str_a=new_session;
+                        obj.data.(obj.info.event.current_session).info.measurement_str_to_listbox=[str_a str_b];
+                        str_b=obj.data.(obj.info.event.current_session).info.measurement_str_original(1);
+                        str_a=obj.data.meas_copied_orignial;
+                        obj.data.(obj.info.event.current_session).info.measurement_str=[str_a str_b];
+                        obj.data.(obj.info.event.current_session).info.measurement_str_original=[str_a str_b];
+                        obj.pmd.lb_measures.listbox.Value=1;
+                        
+                    otherwise
+                        if(obj.pmd.lb_sessions.listbox.Value>1)
+                            str_a=obj.data.(obj.info.event.current_session).info.measurement_str_to_listbox(1:index-1);
+                            str_b=new_session;
+                            str_c=obj.data.(obj.info.event.current_session).info.measurement_str_to_listbox(index:numel(obj.data.(obj.info.event.current_session).info.measurement_str_to_listbox));
+                            obj.data.(obj.info.event.current_session).info.measurement_str_to_listbox=[str_a str_b str_c];
+                            str_a=obj.data.(obj.info.event.current_session).info.measurement_str_original(1:index-1);
+                            str_b=obj.data.meas_copied_orignial;
+                            str_c=obj.data.(obj.info.event.current_session).info.measurement_str_original(index:numel(obj.data.(obj.info.event.current_session).info.measurement_str_original));
+                            obj.data.(obj.info.event.current_session).info.measurement_str=[str_a str_b str_c];
+                            obj.data.(obj.info.event.current_session).info.measurement_str_original=[str_a str_b str_c];
+                            obj.pmd.lb_measures.listbox.Value=paste_value;
+                            
+                        else
+                            str_b=obj.data.(obj.info.event.current_session).info.measurement_str_to_listbox(1:index);
+                            str_a=new_session;
+                            obj.data.(obj.info.event.current_session).info.measurement_str_to_listbox=[str_a str_b];
+                            str_b=obj.data.(obj.info.event.current_session).info.measurement_str_original(1:index);
+                            str_a=obj.data.meas_copied_orignial;
+                            obj.data.(obj.info.event.current_session).info.measurement_str=[str_a str_b];
+                            obj.data.(obj.info.event.current_session).info.measurement_str_original=[str_a str_b];
+                            obj.pmd.lb_measures.listbox.Value=paste_value;
+                            
+                        end
+                end 
                 obj.pmd.lb_measures.listbox.String=obj.data.(obj.info.event.current_session).info.measurement_str_to_listbox;
-                obj.pmd.lb_measures.listbox.Value=paste_value;
                 obj.data.(obj.info.event.current_session).info.measurement_no=obj.data.(obj.info.event.current_session).info.measurement_no+1;
                 obj.data.meas_copied=[];
                 obj.info.event.current_measure_fullstr=new_session_forpar;
+                obj.info.event.current_measure=obj.data.meas_copied_orignial;
+                obj.info.event.current_measure=obj.info.event.current_measure{1};
                 obj.enable_default_fields;
-                obj.cb_measure_listbox;
-                
-                
-            end
-            
-            % make sure the enable is on all for all the new pars becaue runned sesssions might
-            % be copied as well
+                obj.cb_measure_listbox; 
+
         end
         function cb_pmd_lb_measures_pastedown(obj)
-%             if(numel(obj.pmd.lb_measures.listbox.String)==0)
-%                 return
-%             else
                 obj.data.(obj.info.event.current_session).info.meas_copy_id=obj.data.(obj.info.event.current_session).info.meas_copy_id+1;
                 paste_value=obj.pmd.lb_measures.listbox.Value+1;
                 obj.data.(obj.info.event.current_session).info.meas_matrix_copybuffer(1,obj.data.(obj.info.event.current_session).info.meas_copy_id)=obj.data.meas_copied;
@@ -471,7 +501,7 @@ classdef BEST < handle
                     meas_copied(meas_copied == ' ') = '_';
                     obj.par.(obj.info.event.current_session).(new_session_forpar)=obj.par.(obj.data.copied_frm_session).(meas_copied);
                 catch
-                    disp('error at cb_pmd_lb_measures_pasteup')
+                    disp('error at cb_pmd_lb_measures_pastedown')
                 end   
                 index=obj.pmd.lb_measures.listbox.Value;
                 switch numel(obj.pmd.lb_measures.listbox.String)
@@ -525,12 +555,7 @@ classdef BEST < handle
                 obj.info.event.current_measure=obj.data.meas_copied_orignial;
                 obj.info.event.current_measure=obj.info.event.current_measure{1};
                 obj.enable_default_fields;
-                obj.info.measurement_paste_marker=1;
                 obj.cb_measure_listbox;
-%             end
-            
-            % make sure the enable is on all for all the new pars becaue runned sesssions might
-            % be copied as well
         end
         function cb_pmd_lb_measures_moveup(obj)
             if(numel(obj.pmd.lb_measures.listbox.String)>1 && obj.pmd.lb_measures.listbox.Value~=1)
@@ -1601,36 +1626,16 @@ classdef BEST < handle
             
         end
         function cb_measure_listbox(obj)
-             if(((numel(obj.pmd.lb_measures.listbox.String))==0) || strcmp(obj.info.event.current_session,''))
-                 return
-             end
-numel(obj.pmd.lb_measures.listbox.String)
-% % % % % %             if (obj.info.measurement_paste_marker==1 && numel(obj.pmd.lb_measures.listbox.String)==1)
-% % % % % %                 obj.info.measurement_paste_marker=0;
-% % % % % %                 
-% % % % % %                         obj.info.event.current_measure_fullstr=obj.pmd.lb_measures.listbox.String
-% % % % % %     
-% % % % % %             else
+            if(((numel(obj.pmd.lb_measures.listbox.String))==0) || strcmp(obj.info.event.current_session,''))
+                return
+            end            
             obj.info.event.current_measure_fullstr=obj.pmd.lb_measures.listbox.String(obj.pmd.lb_measures.listbox.Value);
-                                obj.info.event.current_measure_fullstr
-obj.info.event.current_measure_fullstr=obj.info.event.current_measure_fullstr{1};
-%             try 
-%                 
-%                                     obj.info.event.current_measure_fullstr
-% 
-%                 
-%             catch
-%             end
+            obj.info.event.current_measure_fullstr
+            obj.info.event.current_measure_fullstr=obj.info.event.current_measure_fullstr{1};
             obj.info.event.current_measure_fullstr(obj.info.event.current_measure_fullstr == ' ') = '_';
-            
-                                obj.info.event.current_measure_fullstr
-            
-                               
-
-            
+            obj.info.event.current_measure_fullstr
             obj.info.event.current_measure=obj.data.(obj.info.event.current_session).info.measurement_str_original(obj.pmd.lb_measures.listbox.Value);
             obj.info.event.current_measure=obj.info.event.current_measure{1};
-            
             switch obj.info.event.current_measure
                 case 'MEP Measurement'
                     
@@ -1648,8 +1653,6 @@ obj.info.event.current_measure_fullstr=obj.info.event.current_measure_fullstr{1}
                         obj.bst.inputs.current_session=obj.info.event.current_session;
                         obj.bst.inputs.current_measurement=obj.info.event.current_measure_fullstr;
                         obj.bst.best_mep_posthoc();
-                        
-                        
                     end
                     
                     
@@ -3499,29 +3502,29 @@ obj.info.event.current_measure_fullstr=obj.info.event.current_measure_fullstr{1}
                     obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).mt_btnEnable=obj.pi.mep.mt_btn.Enable;
                     obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).prestim_scope_extEnable=obj.pi.mep.prestim_scope_ext.Enable;
                     obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).poststim_scope_extEnable=obj.pi.mep.poststim_scope_ext.Enable;
-
+                    
                 case 'MEP Hotspot Search'
-                    obj.pi.hotspot.run.Enable='off';
-                    obj.pi.hotspot.target_muscle.Enable='off';
-                    obj.pi.hotspot.prestim_scope_ext.Enable='off';
-                    obj.pi.hotspot.poststim_scope_ext.Enable='off';
+                    obj.pi.hotspot.run.Enable='on';
+                    obj.pi.hotspot.target_muscle.Enable='on';
+                    obj.pi.hotspot.prestim_scope_ext.Enable='on';
+                    obj.pi.hotspot.poststim_scope_ext.Enable='on';
                     
                     obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).runEnable=obj.pi.hotspot.run.Enable;
                     obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).target_muscleEnable=obj.pi.hotspot.target_muscle.Enable;
                     obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).prestim_scope_extEnable=obj.pi.hotspot.prestim_scope_ext.Enable;
                     obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).poststim_scope_extEnable=obj.pi.hotspot.poststim_scope_ext.Enable;
                     
-                   
+                    
                 case 'MEP Motor Threshold Hunting'
                     
-                    obj.pi.mt_ptc.thresholding_method.Enable='off';
-                    obj.pi.mt_ptc.mt_mv.Enable='off';
-                    obj.pi.mt_ptc.run.Enable='off';
-                    obj.pi.mt_ptc.target_muscle.Enable='off';
-                    obj.pi.mt_ptc.trials_per_condition.Enable='off';
-                    obj.pi.mt_ptc.mt_starting_stim_inten.Enable='off';
-                    obj.pi.mt_ptc.prestim_scope_ext.Enable='off';
-                    obj.pi.mt_ptc.poststim_scope_ext.Enable='off';
+                    obj.pi.mt_ptc.thresholding_method.Enable='on';
+                    obj.pi.mt_ptc.mt_mv.Enable='on';
+                    obj.pi.mt_ptc.run.Enable='on';
+                    obj.pi.mt_ptc.target_muscle.Enable='on';
+                    obj.pi.mt_ptc.trials_per_condition.Enable='on';
+                    obj.pi.mt_ptc.mt_starting_stim_inten.Enable='on';
+                    obj.pi.mt_ptc.prestim_scope_ext.Enable='on';
+                    obj.pi.mt_ptc.poststim_scope_ext.Enable='on';
                     
                     obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).runEnable=obj.pi.mt_ptc.run.Enable;
                     obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).target_muscleEnable=obj.pi.mt_ptc.target_muscle.Enable;
@@ -3534,17 +3537,17 @@ obj.info.event.current_measure_fullstr=obj.info.event.current_measure_fullstr{1}
     
                 case 'MEP Dose Response Curve_sp'
                     
-                    obj.pi.ioc.run.Enable='off';
-                    obj.pi.ioc.target_muscle.Enable='off';
-                    obj.pi.ioc.units_mso.Enable='off';
-                    obj.pi.ioc.units_mt.Enable='off';
-                    obj.pi.ioc.mt.Enable='off';
-                    obj.pi.ioc.mt_btn.Enable='off';
-                    obj.pi.ioc.iti.Enable='off';
-                    obj.pi.ioc.trials_per_condition.Enable='off';
-                    obj.pi.ioc.stimulation_intensities.Enable='off';
-                    obj.pi.ioc.prestim_scope_ext.Enable='off';
-                    obj.pi.ioc.poststim_scope_ext.Enable='off';
+                    obj.pi.ioc.run.Enable='on';
+                    obj.pi.ioc.target_muscle.Enable='on';
+                    obj.pi.ioc.units_mso.Enable='on';
+                    obj.pi.ioc.units_mt.Enable='on';
+                    obj.pi.ioc.mt.Enable='on';
+                    obj.pi.ioc.mt_btn.Enable='on';
+                    obj.pi.ioc.iti.Enable='on';
+                    obj.pi.ioc.trials_per_condition.Enable='on';
+                    obj.pi.ioc.stimulation_intensities.Enable='on';
+                    obj.pi.ioc.prestim_scope_ext.Enable='on';
+                    obj.pi.ioc.poststim_scope_ext.Enable='on';
                     
                     obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).runEnable=obj.pi.ioc.run.Enable;
                     obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).target_muscleEnable=obj.pi.ioc.target_muscle.Enable;
@@ -3559,17 +3562,17 @@ obj.info.event.current_measure_fullstr=obj.info.event.current_measure_fullstr{1}
                                         
                 case 'TMS fMRI'
                     
-                    obj.pi.tmsfmri.ta.Enable='off';
-                    obj.pi.tmsfmri.trigdelay.Enable='off';
-                    obj.pi.tmsfmri.totalvolumes.Enable='off';
-                    obj.pi.tmsfmri.volumes_cond.Enable='off';
-                    obj.pi.tmsfmri.stimulation_intensities.Enable='off';
-                    obj.pi.tmsfmri.manual_stim_inten.Enable='off';
-                    obj.pi.tmsfmri.units_mso.Enable='off';
-                    obj.pi.tmsfmri.units_mt.Enable='off';
-                    obj.pi.tmsfmri.mt.Enable='off';
-                    obj.pi.tmsfmri.mt_btn.Enable='off';
-                    obj.pi.tmsfmri.run.Enable='off';
+                    obj.pi.tmsfmri.ta.Enable='on';
+                    obj.pi.tmsfmri.trigdelay.Enable='on';
+                    obj.pi.tmsfmri.totalvolumes.Enable='on';
+                    obj.pi.tmsfmri.volumes_cond.Enable='on';
+                    obj.pi.tmsfmri.stimulation_intensities.Enable='on';
+                    obj.pi.tmsfmri.manual_stim_inten.Enable='on';
+                    obj.pi.tmsfmri.units_mso.Enable='on';
+                    obj.pi.tmsfmri.units_mt.Enable='on';
+                    obj.pi.tmsfmri.mt.Enable='on';
+                    obj.pi.tmsfmri.mt_btn.Enable='on';
+                    obj.pi.tmsfmri.run.Enable='on';
                     
                     obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).taEnable=obj.pi.tmsfmri.ta.Enable;
                     obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).trigdelayEnable=obj.pi.tmsfmri.trigdelay.Enable;
