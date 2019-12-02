@@ -63,6 +63,7 @@ classdef BEST < handle
             obj.pr.ioc.axes_fitplot=axes;
             obj.info.pause=0;
             obj.info.session_copy_id=0;
+            obj.info.measurement_paste_marker=0;
 
         end
         function create_menu(obj)
@@ -384,11 +385,9 @@ classdef BEST < handle
             if(numel(obj.pmd.lb_measures.listbox.String)==0)
                 return
             else
-                obj.data.(obj.info.event.current_session).info.meas_copy_id=obj.data.(obj.info.event.current_session).info.meas_copy_id+1;
-                obj.data.(obj.info.event.current_session).info.meas_copied=obj.pmd.lb_measures.listbox.String(obj.pmd.lb_measures.listbox.Value);               
-                obj.data.(obj.info.event.current_session).info.meas_copied_orignial=obj.data.(obj.info.event.current_session).info.measurement_str_original(obj.pmd.lb_measures.listbox.Value);
-                obj.data.(obj.info.event.current_session).info.meas_copied
-                obj.data.(obj.info.event.current_session).info.meas_copied_orignial
+                obj.data.meas_copied=obj.pmd.lb_measures.listbox.String(obj.pmd.lb_measures.listbox.Value);               
+                obj.data.meas_copied_orignial=obj.data.(obj.info.event.current_session).info.measurement_str_original(obj.pmd.lb_measures.listbox.Value);
+                obj.data.copied_frm_session=obj.info.event.current_session;
             end           
         end
         function cb_pmd_lb_measures_pasteup(obj)
@@ -400,25 +399,25 @@ classdef BEST < handle
                 else
                     return;
                 end
-                obj.data.(obj.info.event.current_session).info.meas_matrix_copybuffer(1,obj.data.(obj.info.event.current_session).info.meas_copy_id)=obj.data.(obj.info.event.current_session).info.meas_copied;
+                obj.data.(obj.info.event.current_session).info.meas_matrix_copybuffer(1,obj.data.(obj.info.event.current_session).info.meas_copy_id)=obj.data.meas_copied;
                 
-                any(strcmp(obj.data.(obj.info.event.current_session).info.meas_matrix_copybuffer,obj.data.(obj.info.event.current_session).info.meas_copied))
-                if any(strcmp(obj.data.(obj.info.event.current_session).info.meas_matrix_copybuffer,obj.data.(obj.info.event.current_session).info.meas_copied))
-                    idx_exist=find(strcmp(obj.data.(obj.info.event.current_session).info.meas_matrix_copybuffer,obj.data.(obj.info.event.current_session).info.meas_copied));
+                any(strcmp(obj.data.(obj.info.event.current_session).info.meas_matrix_copybuffer,obj.data.meas_copied))
+                if any(strcmp(obj.data.(obj.info.event.current_session).info.meas_matrix_copybuffer,obj.data.meas_copied))
+                    idx_exist=find(strcmp(obj.data.(obj.info.event.current_session).info.meas_matrix_copybuffer,obj.data.meas_copied));
                     idx_exist=num2str(numel(idx_exist));
-                    new_session=obj.data.(obj.info.event.current_session).info.meas_copied{1};
+                    new_session=obj.data.meas_copied{1};
                     new_session=[new_session '_' 'copy' '_' idx_exist];
                     idx_exist=[];
                 else            
-                    new_session=obj.data.(obj.info.event.current_session).info.meas_copied;
+                    new_session=obj.data.meas_copied;
                     new_session=[new_session '_' 'copy'];
                 end
                 try                
                     new_session_forpar=new_session;
                     new_session_forpar(new_session_forpar == ' ') = '_';                  
-                    meas_copied=obj.data.(obj.info.event.current_session).info.meas_copied{1};
+                    meas_copied=obj.data.meas_copied{1};
                     meas_copied(meas_copied == ' ') = '_';
-                    obj.par.(obj.info.event.current_session).(new_session_forpar)=obj.par.(obj.info.event.current_session).(meas_copied);
+                    obj.par.(obj.info.event.current_session).(new_session_forpar)=obj.par.(obj.data.copied_frm_session).(meas_copied);
                 catch
                     disp('error at cb_pmd_lb_measures_pasteup')
                 end   
@@ -429,7 +428,7 @@ classdef BEST < handle
                 
                 obj.data.(obj.info.event.current_session).info.measurement_str_to_listbox=[str_a str_b str_c];
                 str_a=obj.data.(obj.info.event.current_session).info.measurement_str_original(1:index-1);
-                str_b=obj.data.(obj.info.event.current_session).info.meas_copied_orignial;
+                str_b=obj.data.meas_copied_orignial;
                 str_c=obj.data.(obj.info.event.current_session).info.measurement_str_original(index:numel(obj.data.(obj.info.event.current_session).info.measurement_str_original));
                 obj.data.(obj.info.event.current_session).info.measurement_str=[str_a str_b str_c];
                 obj.data.(obj.info.event.current_session).info.measurement_str_original=[str_a str_b str_c];
@@ -437,7 +436,7 @@ classdef BEST < handle
                 obj.pmd.lb_measures.listbox.String=obj.data.(obj.info.event.current_session).info.measurement_str_to_listbox;
                 obj.pmd.lb_measures.listbox.Value=paste_value;
                 obj.data.(obj.info.event.current_session).info.measurement_no=obj.data.(obj.info.event.current_session).info.measurement_no+1;
-                obj.data.(obj.info.event.current_session).info.meas_copied=[];
+                obj.data.meas_copied=[];
                 obj.info.event.current_measure_fullstr=new_session_forpar;
                 obj.enable_default_fields;
                 obj.cb_measure_listbox;
@@ -449,53 +448,86 @@ classdef BEST < handle
             % be copied as well
         end
         function cb_pmd_lb_measures_pastedown(obj)
-            if(numel(obj.pmd.lb_measures.listbox.String)==0)
-                return
-            else
-                    paste_value=obj.pmd.lb_measures.listbox.Value+1;
-                obj.data.(obj.info.event.current_session).info.meas_matrix_copybuffer(1,obj.data.(obj.info.event.current_session).info.meas_copy_id)=obj.data.(obj.info.event.current_session).info.meas_copied;
-                if any(strcmp(obj.data.(obj.info.event.current_session).info.meas_matrix_copybuffer,obj.data.(obj.info.event.current_session).info.meas_copied))
-                    idx_exist=find(strcmp(obj.data.(obj.info.event.current_session).info.meas_matrix_copybuffer,obj.data.(obj.info.event.current_session).info.meas_copied));
+%             if(numel(obj.pmd.lb_measures.listbox.String)==0)
+%                 return
+%             else
+                obj.data.(obj.info.event.current_session).info.meas_copy_id=obj.data.(obj.info.event.current_session).info.meas_copy_id+1;
+                paste_value=obj.pmd.lb_measures.listbox.Value+1;
+                obj.data.(obj.info.event.current_session).info.meas_matrix_copybuffer(1,obj.data.(obj.info.event.current_session).info.meas_copy_id)=obj.data.meas_copied;
+                if any(strcmp(obj.data.(obj.info.event.current_session).info.meas_matrix_copybuffer,obj.data.meas_copied))
+                    idx_exist=find(strcmp(obj.data.(obj.info.event.current_session).info.meas_matrix_copybuffer,obj.data.meas_copied));
                     idx_exist=num2str(numel(idx_exist));
-                    new_session=obj.data.(obj.info.event.current_session).info.meas_copied{1};
+                    new_session=obj.data.meas_copied{1};
                     new_session=[new_session '_' 'copy' '_' idx_exist];
                     idx_exist=[];
                 else            
-                    new_session=obj.data.(obj.info.event.current_session).info.meas_copied;
+                    new_session=obj.data.meas_copied;
                     new_session=[new_session '_' 'copy'];
                 end
                 try                
                     new_session_forpar=new_session;
                     new_session_forpar(new_session_forpar == ' ') = '_';                  
-                    meas_copied=obj.data.(obj.info.event.current_session).info.meas_copied{1};
+                    meas_copied=obj.data.meas_copied{1};
                     meas_copied(meas_copied == ' ') = '_';
-                    obj.par.(obj.info.event.current_session).(new_session_forpar)=obj.par.(obj.info.event.current_session).(meas_copied);
+                    obj.par.(obj.info.event.current_session).(new_session_forpar)=obj.par.(obj.data.copied_frm_session).(meas_copied);
                 catch
                     disp('error at cb_pmd_lb_measures_pasteup')
                 end   
                 index=obj.pmd.lb_measures.listbox.Value;
-                str_a=obj.data.(obj.info.event.current_session).info.measurement_str_to_listbox(1:index);
-                str_b=new_session;
-                str_c=obj.data.(obj.info.event.current_session).info.measurement_str_to_listbox(index+1:numel(obj.data.(obj.info.event.current_session).info.measurement_str_to_listbox));
-                
-                obj.data.(obj.info.event.current_session).info.measurement_str_to_listbox=[str_a str_b str_c];
-                str_a=obj.data.(obj.info.event.current_session).info.measurement_str_original(1:index);
-                str_b=obj.data.(obj.info.event.current_session).info.meas_copied_orignial;
-                str_c=obj.data.(obj.info.event.current_session).info.measurement_str_original(index+1:numel(obj.data.(obj.info.event.current_session).info.measurement_str_original));
-                obj.data.(obj.info.event.current_session).info.measurement_str=[str_a str_b str_c];
-                obj.data.(obj.info.event.current_session).info.measurement_str_original=[str_a str_b str_c];
-                
+                switch numel(obj.pmd.lb_measures.listbox.String)
+                    case 0
+                        obj.data.(obj.info.event.current_session).info.measurement_str_to_listbox={new_session};
+                        obj.data.meas_copied_orignial
+                        obj.data.(obj.info.event.current_session).info.measurement_str_to_listbox
+                        obj.data.(obj.info.event.current_session).info.measurement_str=obj.data.meas_copied_orignial;
+                        obj.data.(obj.info.event.current_session).info.measurement_str_original=obj.data.meas_copied_orignial;
+                        obj.pmd.lb_measures.listbox.Value=1;
+                        
+                    case 1
+                        str_a=obj.data.(obj.info.event.current_session).info.measurement_str_to_listbox(1);
+                        str_b=new_session;
+                        obj.data.(obj.info.event.current_session).info.measurement_str_to_listbox=[str_a str_b];
+                        str_a=obj.data.(obj.info.event.current_session).info.measurement_str_original(1);
+                        str_b=obj.data.meas_copied_orignial;
+                        obj.data.(obj.info.event.current_session).info.measurement_str=[str_a str_b];
+                        obj.data.(obj.info.event.current_session).info.measurement_str_original=[str_a str_b];
+                        obj.pmd.lb_measures.listbox.Value=2;
+                        
+                    otherwise
+                        if(obj.pmd.lb_sessions.listbox.Value<(numel(obj.pmd.lb_measures.listbox.String)))
+                            str_a=obj.data.(obj.info.event.current_session).info.measurement_str_to_listbox(1:index);
+                            str_b=new_session;
+                            str_c=obj.data.(obj.info.event.current_session).info.measurement_str_to_listbox(index+1:numel(obj.data.(obj.info.event.current_session).info.measurement_str_to_listbox));
+                            obj.data.(obj.info.event.current_session).info.measurement_str_to_listbox=[str_a str_b str_c];
+                            str_a=obj.data.(obj.info.event.current_session).info.measurement_str_original(1:index);
+                            str_b=obj.data.meas_copied_orignial;
+                            str_c=obj.data.(obj.info.event.current_session).info.measurement_str_original(index+1:numel(obj.data.(obj.info.event.current_session).info.measurement_str_original));
+                            obj.data.(obj.info.event.current_session).info.measurement_str=[str_a str_b str_c];
+                            obj.data.(obj.info.event.current_session).info.measurement_str_original=[str_a str_b str_c];
+                            obj.pmd.lb_measures.listbox.Value=paste_value;
+                            
+                        else
+                            str_a=obj.data.(obj.info.event.current_session).info.measurement_str_to_listbox(1:index);
+                            str_b=new_session;
+                            obj.data.(obj.info.event.current_session).info.measurement_str_to_listbox=[str_a str_b];
+                            str_a=obj.data.(obj.info.event.current_session).info.measurement_str_original(1:index);
+                            str_b=obj.data.meas_copied_orignial;
+                            obj.data.(obj.info.event.current_session).info.measurement_str=[str_a str_b];
+                            obj.data.(obj.info.event.current_session).info.measurement_str_original=[str_a str_b];
+                            obj.pmd.lb_measures.listbox.Value=paste_value;
+                            
+                        end
+                end
                 obj.pmd.lb_measures.listbox.String=obj.data.(obj.info.event.current_session).info.measurement_str_to_listbox;
-                obj.pmd.lb_measures.listbox.Value=paste_value;
                 obj.data.(obj.info.event.current_session).info.measurement_no=obj.data.(obj.info.event.current_session).info.measurement_no+1;
-                obj.data.(obj.info.event.current_session).info.meas_copied=[];
+                obj.data.meas_copied=[];
                 obj.info.event.current_measure_fullstr=new_session_forpar;
-                obj.info.event.current_measure=obj.data.(obj.info.event.current_session).info.meas_copied_orignial;
+                obj.info.event.current_measure=obj.data.meas_copied_orignial;
                 obj.info.event.current_measure=obj.info.event.current_measure{1};
                 obj.enable_default_fields;
+                obj.info.measurement_paste_marker=1;
                 obj.cb_measure_listbox;
-                
-            end
+%             end
             
             % make sure the enable is on all for all the new pars becaue runned sesssions might
             % be copied as well
@@ -1479,6 +1511,7 @@ classdef BEST < handle
                 obj.data.(session_name).info.measurement_str={};
                 obj.data.(session_name).info.measurement_no=0;
                 obj.data.(session_name).info.measurement_str_to_listbox={};
+                obj.data.(session_name).info.meas_copy_id=0;
                 session_name=[];
                 
                 
@@ -1571,12 +1604,29 @@ classdef BEST < handle
              if(((numel(obj.pmd.lb_measures.listbox.String))==0) || strcmp(obj.info.event.current_session,''))
                  return
              end
-            
+numel(obj.pmd.lb_measures.listbox.String)
+% % % % % %             if (obj.info.measurement_paste_marker==1 && numel(obj.pmd.lb_measures.listbox.String)==1)
+% % % % % %                 obj.info.measurement_paste_marker=0;
+% % % % % %                 
+% % % % % %                         obj.info.event.current_measure_fullstr=obj.pmd.lb_measures.listbox.String
+% % % % % %     
+% % % % % %             else
             obj.info.event.current_measure_fullstr=obj.pmd.lb_measures.listbox.String(obj.pmd.lb_measures.listbox.Value);
-            obj.info.event.current_measure_fullstr=obj.info.event.current_measure_fullstr{1};
+                                obj.info.event.current_measure_fullstr
+obj.info.event.current_measure_fullstr=obj.info.event.current_measure_fullstr{1};
+%             try 
+%                 
+%                                     obj.info.event.current_measure_fullstr
+% 
+%                 
+%             catch
+%             end
             obj.info.event.current_measure_fullstr(obj.info.event.current_measure_fullstr == ' ') = '_';
             
+                                obj.info.event.current_measure_fullstr
             
+                               
+
             
             obj.info.event.current_measure=obj.data.(obj.info.event.current_session).info.measurement_str_original(obj.pmd.lb_measures.listbox.Value);
             obj.info.event.current_measure=obj.info.event.current_measure{1};
