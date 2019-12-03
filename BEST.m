@@ -193,6 +193,9 @@ classdef BEST < handle
             end
         end
         function cb_pmd_lb_sessions_del(obj)
+            answer = questdlg('If you want to delete this session, the data saved associated with this session will also be deleted, press DELETE to continue.','BEST Toolbox','Return','DELETE','Return');
+            switch answer
+                case 'DELETE'
             selected_session=obj.pmd.lb_sessions.listbox.String(obj.pmd.lb_sessions.listbox.Value);
             selected_session=selected_session{1};
             obj.par.(selected_session)=[];
@@ -208,6 +211,9 @@ classdef BEST < handle
                 return;
             end
             obj.cb_session_listbox
+                case 'Return'
+                    return
+            end
             % summary of above steps
             % find the value of listbox 
             % get the session name from the session listbox
@@ -361,9 +367,13 @@ classdef BEST < handle
    
         end
         function cb_pmd_lb_measures_del(obj)
+            
             if(numel(obj.pmd.lb_measures.listbox.String)==0)
                 return
             else
+                answer = questdlg('If you want to delete this measurement, the data saved associated with this measurement will also be deleted, press DELETE to continue.','BEST Toolbox','Return','DELETE','Return');
+            switch answer
+                case 'DELETE'
             obj.info.event.current_session
             obj.info.event.current_measure_fullstr
             
@@ -380,6 +390,9 @@ classdef BEST < handle
                 return;
             end
             obj.cb_measure_listbox
+                case 'Return'
+                    return
+            end
             end
         end 
         function cb_pmd_lb_measures_copy(obj)
