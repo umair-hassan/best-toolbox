@@ -32,7 +32,7 @@ classdef BT911sim < handle
         function obj= BT911sim (app)
             %put app in the argument of this above func declreation
             load sim_mep.mat;
-                        obj.app=app;
+            obj.app=app;
             obj.sim_mep=sim_mep';
             
             delete(instrfindall);
@@ -81,8 +81,6 @@ classdef BT911sim < handle
             
             
         end
-        
-        
         function best_mep(obj)
             obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs=obj.inputs;
             obj.info.event.best_mep_amp=1;
@@ -101,11 +99,10 @@ classdef BT911sim < handle
             obj.info.axes.mep=findobj( panelhandle,'Type','axes','Tag','mep')
             obj.best_trialprep;
             obj.best_stimloop;
-
+            
             
             
         end
-        
         function best_motorhotspot(obj)
             obj.info.method=obj.info.method+1;
             obj.info.str=strcat('motorhotspot_',num2str(obj.info.method));
@@ -126,7 +123,6 @@ classdef BT911sim < handle
             obj.best_trialprep;
             obj.best_stimloop;
         end
-        
         function best_motorthreshold(obj)
             obj.info.method=obj.info.method+1;
             obj.info.str=strcat('motorthreshold_',num2str(obj.info.method));
@@ -158,8 +154,6 @@ classdef BT911sim < handle
             
             
         end
-        
-        
         function best_ioc(obj)
             obj.info.method=obj.info.method+1;
             obj.info.str=strcat('ioc_',num2str(obj.info.method));
@@ -186,7 +180,6 @@ classdef BT911sim < handle
             obj.best_stimloop;
             
         end
-        
         function best_motorthreshold_pest_tc(obj)
             obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs=obj.inputs;
             obj.info.event.pest_tc=1;
@@ -215,11 +208,9 @@ classdef BT911sim < handle
             disp('printing mt value');
             obj.info.handles.annotated_trialsNo=text(x_lim, y_lim,str_mt,'FontSize',obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.FontSize);
             
-
+            
             
         end
-        
-        
         function best_trialprep(obj)
             %% scope extraction preperation
             obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.sc_ext_samples=((obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.prestim_scope_ext)+(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.poststim_scope_ext))*5;
@@ -246,42 +237,42 @@ classdef BT911sim < handle
             %%  1. made stimulation vector ;
             % todo2 assert an error here if the stim vector is not equal to trials vector
             if(obj.info.event.hotspot==1)
-            obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).trials(1:obj.inputs.trials,1)=NaN;
-            obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.total_trials=obj.inputs.trials;
+                obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).trials(1:obj.inputs.trials,1)=NaN;
+                obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.total_trials=obj.inputs.trials;
             else
-            
-            if(obj.info.event.best_mt_pest==1 || obj.info.event.best_mt_pest_tc==1)
-                obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.total_trials=obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.trials;
-                obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).trials(:,1)=zeros(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.total_trials,1);
-            else
-% % %                 stimuli=repelem(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.stimuli,obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.trials);
-% % %                 stimuli=stimuli(randperm(length(stimuli)));
-% % %                 obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).trials(:,1)=stimuli';
-% % %                 obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.total_trials=length(stimuli');
-% % %        
-stimuli=[];
-if(numel(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.trials)==1)
-            
-            for i=1:(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.trials)
-                stimuli = [stimuli, obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.stimuli(randperm(numel(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.stimuli)))];
-            end
-            
-else
-                    stimuli=repelem(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.stimuli,obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.trials);
-                    stimuli=stimuli(randperm(length(stimuli)));
-    
-end
-            obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).trials(:,1)=stimuli';
-            obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.total_trials=length(stimuli');
-
                 
-                
-                
-                if(strcmp(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.stim_mode,'MT'))
-                    obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).trials(:,5)=round(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).trials(:,1)*(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.mt_mso/100));
+                if(obj.info.event.best_mt_pest==1 || obj.info.event.best_mt_pest_tc==1)
+                    obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.total_trials=obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.trials;
+                    obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).trials(:,1)=zeros(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.total_trials,1);
+                else
+                    % % %                 stimuli=repelem(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.stimuli,obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.trials);
+                    % % %                 stimuli=stimuli(randperm(length(stimuli)));
+                    % % %                 obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).trials(:,1)=stimuli';
+                    % % %                 obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.total_trials=length(stimuli');
+                    % % %
+                    stimuli=[];
+                    if(numel(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.trials)==1)
+                        
+                        for i=1:(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.trials)
+                            stimuli = [stimuli, obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.stimuli(randperm(numel(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.stimuli)))];
+                        end
+                        
+                    else
+                        stimuli=repelem(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.stimuli,obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.trials);
+                        stimuli=stimuli(randperm(length(stimuli)));
+                        
+                    end
+                    obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).trials(:,1)=stimuli';
+                    obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.total_trials=length(stimuli');
+                    
+                    
+                    
+                    
+                    if(strcmp(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.stim_mode,'MT'))
+                        obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).trials(:,5)=round(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).trials(:,1)*(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.mt_mso/100));
+                    end
+                    
                 end
-                
-            end
             end
             
             if (length(obj.inputs.trials==1))
@@ -337,7 +328,6 @@ end
             
             
         end
-        
         function best_stimloop(obj)
             
             % % % % % % % % % % % % % % % % % % % % % % % % % % % %             try
@@ -345,12 +335,12 @@ end
             obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.trial_plotted=0;
             
             if(obj.info.event.hotspot~=1)
-            %% initiliaze MAGIC
-            % rapid and magstim caluses have to be added up here too and its handling will have to be formulated
-            % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %             delete(instrfindall);
-            % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %             magventureObject = magventure('COM3'); %0808a
-            % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %             magventureObject.connect;
-            % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %             magventureObject.arm
+                %% initiliaze MAGIC
+                % rapid and magstim caluses have to be added up here too and its handling will have to be formulated
+                % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %             delete(instrfindall);
+                % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %             magventureObject = magventure('COM3'); %0808a
+                % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %             magventureObject.connect;
+                % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %             magventureObject.arm
             end
             
             %% initiliaze DBSP
@@ -366,17 +356,17 @@ end
             % rapid object
             %             magventureObject.setAmplitude(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).trials((obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.trial+1),1));
             if(obj.info.event.hotspot~=1)
-            % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %             if(strcmp(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.stim_mode,'MT'))
-            % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                 if(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.trial==obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.total_trials)
-            % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                 else
-            % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                     magventureObject.setAmplitude(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).trials((obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.trial+1),5));
-            % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                 end
-            % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %             else
-            % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                 if(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.trial==obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.total_trials)
-            % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                 else
-            % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                     magventureObject.setAmplitude(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).trials((obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.trial+1),1));
-            % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                 end
-            % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %             end
+                % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %             if(strcmp(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.stim_mode,'MT'))
+                % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                 if(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.trial==obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.total_trials)
+                % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                 else
+                % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                     magventureObject.setAmplitude(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).trials((obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.trial+1),5));
+                % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                 end
+                % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %             else
+                % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                 if(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.trial==obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.total_trials)
+                % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                 else
+                % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                     magventureObject.setAmplitude(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).trials((obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.trial+1),1));
+                % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                 end
+                % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %             end
             end
             tic
             %% make timer call back, then stop fcn call back and then the loop stuff and put events marker into it
@@ -396,12 +386,12 @@ end
                 tic
                 % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                 obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).rawdata(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.trial,:)=rtcls.mep(1); % will have to pur the handle of right, left and APB or FDI muscle here, also there is a third muscle pinky muscle which is used sometime so add for that t00
                 
-              %% SIM MEP Simulation starts here
+                %% SIM MEP Simulation starts here
                 if(obj.info.event.hotspot~=1)
-                obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).rawdata(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.trial,:)=rand*(obj.sim_mep(1,1:NumSamp))*(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).trials((obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.trial),1));
+                    obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).rawdata(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.trial,:)=rand*(obj.sim_mep(1,1:NumSamp))*(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).trials((obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.trial),1));
                 else
-                                    obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).rawdata(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.trial,:)=rand*(obj.sim_mep(1,1:NumSamp));
-
+                    obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).rawdata(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.trial,:)=rand*(obj.sim_mep(1,1:NumSamp));
+                    
                 end
                 if (obj.info.event.best_mep_amp==1)
                     obj.best_mep_amp; end
@@ -410,19 +400,19 @@ end
                 
                 if (obj.info.event.best_mt_pest_tc==1)
                     obj.best_mt_pest_tc; end
-               if(obj.info.event.hotspot~=1)
-                % % % % % % % % % % %                 if(strcmp(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.stim_mode,'MT'))
-                % % % % % % % % % % %                     if(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.trial==obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.total_trials)
-                % % % % % % % % % % %                     else
-                % % % % % % % % % % %                         magventureObject.setAmplitude(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).trials((obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.trial+1),5));
-                % % % % % % % % % % %                     end
-                % % % % % % % % % % %                 else
-                % % % % % % % % % % %                     if(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.trial==obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.total_trials)
-                % % % % % % % % % % %                     else
-                % % % % % % % % % % %                         magventureObject.setAmplitude(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).trials((obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.trial+1),1));
-                % % % % % % % % % % %                     end
-                % % % % % % % % % % %                 end
-               end
+                if(obj.info.event.hotspot~=1)
+                    % % % % % % % % % % %                 if(strcmp(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.stim_mode,'MT'))
+                    % % % % % % % % % % %                     if(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.trial==obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.total_trials)
+                    % % % % % % % % % % %                     else
+                    % % % % % % % % % % %                         magventureObject.setAmplitude(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).trials((obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.trial+1),5));
+                    % % % % % % % % % % %                     end
+                    % % % % % % % % % % %                 else
+                    % % % % % % % % % % %                     if(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.trial==obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.total_trials)
+                    % % % % % % % % % % %                     else
+                    % % % % % % % % % % %                         magventureObject.setAmplitude(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).trials((obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.trial+1),1));
+                    % % % % % % % % % % %                     end
+                    % % % % % % % % % % %                 end
+                end
                 obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.trial_plotted=obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.trial_plotted+1;
                 gg=obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.trial_plotted
                 
@@ -444,7 +434,7 @@ end
                 
                 if (obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.trial_plotted==obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.total_trials)
                     break;
-                  
+                    
                 end
                 
                 if(obj.inputs.stop_event==1)
@@ -454,10 +444,10 @@ end
                 end
                 time_to_subtract_iti=toc;
                 time_to_wait= obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).trials(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.trial,2)-time_to_subtract_iti;
-%                                   obj.best_wait(time_to_wait)
-
-%  trick for executing stop in between pause time interval is to just divide pause into like 6 or 10
-%  intervals and then put the stop check statement everywhere
+                %                                   obj.best_wait(time_to_wait)
+                
+                %  trick for executing stop in between pause time interval is to just divide pause into like 6 or 10
+                %  intervals and then put the stop check statement everywhere
                 pause(time_to_wait/6)
                 
                 if(obj.inputs.stop_event==1)
@@ -512,49 +502,49 @@ end
             % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %             catch
             % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                  save best_toolbox_backup
             % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %             end
-              obj.best_mep_stats;
+            obj.best_mep_stats;
+            
+            if(obj.info.event.best_ioc_plot==1)
+                obj.best_ioc_fit;
+                
+                obj.best_ioc_plot;
+                
+            end
+            if(obj.info.event.best_mt_pest==1)
+                
+                obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).results.mt=ceil(mean(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).trials((obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.total_trials-(obj.inputs.mt_trialstoavg-1):obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.total_trials),1)));
+                obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.rmt=obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).results.mt;
+            end
+            
+            if(obj.info.event.pest_tc==1)
+                
+                if(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.trial_plotted~=obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.total_trials)
+                    total_trials=obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.trial_plotted;
+                    obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).results.mt=ceil(mean(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).trials((total_trials-(obj.inputs.mt_trialstoavg-1):total_trials),1)));
+                    obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.rmt=obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).results.mt;
+                    total_trials=[]
+                else
                     
-                    if(obj.info.event.best_ioc_plot==1)
-                        obj.best_ioc_fit;
-                        
-                        obj.best_ioc_plot;
-                        
-                    end
-                    if(obj.info.event.best_mt_pest==1)
-                        
-                        obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).results.mt=ceil(mean(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).trials((obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.total_trials-(obj.inputs.mt_trialstoavg-1):obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.total_trials),1)));
-                        obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.rmt=obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).results.mt;
-                    end
                     
-                     if(obj.info.event.pest_tc==1)
-                         
-                         if(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.trial_plotted~=obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.total_trials)
-                         total_trials=obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.trial_plotted;
-                         obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).results.mt=ceil(mean(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).trials((total_trials-(obj.inputs.mt_trialstoavg-1):total_trials),1)));
-                        obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.rmt=obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).results.mt;
-                   total_trials=[]
-                         else
-                         
-                        
-                        obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).results.mt=ceil(mean(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).trials((obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.total_trials-(obj.inputs.mt_trialstoavg-1):obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.total_trials),1)));
-                        obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.rmt=obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).results.mt;
-                   obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).results.mt
-                   obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.total_trials
-                   obj.inputs.mt_trialstoavg
-    obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).trials((obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.total_trials-(obj.inputs.mt_trialstoavg-1):obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.total_trials),1)
-                         end
-                         
-                     end
+                    obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).results.mt=ceil(mean(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).trials((obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.total_trials-(obj.inputs.mt_trialstoavg-1):obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.total_trials),1)));
+                    obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.rmt=obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).results.mt;
+                    obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).results.mt
+                    obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.total_trials
+                    obj.inputs.mt_trialstoavg
+                    obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).trials((obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.total_trials-(obj.inputs.mt_trialstoavg-1):obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.total_trials),1)
+                end
+                
+            end
             
         end
-        function save_data_runtime(obj)         
+        function save_data_runtime(obj)
             varr_runtime.sessions=obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement);
             varr_runtime.inputs=obj.inputs;
             varr_runtime.info=obj.info;
             varr_runtime.info.axes=[];
             best_toolbox_runtime_backup=varr_runtime;
-%             matfilstr=[obj.info.save_str '_matfile.mat']
-            save(obj.info.save_str_runtime,'best_toolbox_runtime_backup'); 
+            %             matfilstr=[obj.info.save_str '_matfile.mat']
+            save(obj.info.save_str_runtime,'best_toolbox_runtime_backup');
         end
         function best_mep_plot(obj)
             %              figHandle = findobj('Tag','umi1')
@@ -611,10 +601,10 @@ end
                 xticks(mat);
                 obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.handle_gridxy=gridxy([0 (obj.inputs.mep_onset*1000):0.25:(obj.inputs.mep_offset*1000)],'Color',[219/255 246/255 255/255],'linewidth',1) ;
                 if(obj.info.event.best_mt_pest==1 || obj.info.event.pest_tc==1)
-                obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.handle_gridxy_mt_lines=gridxy([],[-obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.motor_threshold*1000 obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.motor_threshold*1000],'Color',[0.45 0.45 0.45],'linewidth',1,'LineStyle','--') ;
-                uistack(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.handle_gridxy_mt_lines,'top');
-                uistack(obj.info.handles.current_mep_plot,'top')
-
+                    obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.handle_gridxy_mt_lines=gridxy([],[-obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.motor_threshold*1000 obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.motor_threshold*1000],'Color',[0.45 0.45 0.45],'linewidth',1,'LineStyle','--') ;
+                    uistack(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.handle_gridxy_mt_lines,'top');
+                    uistack(obj.info.handles.current_mep_plot,'top')
+                    
                 end
                 %23.10
                 %  xticks(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.prestimulustime:20:(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.totaltime+obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.prestimulustime));
@@ -756,7 +746,7 @@ end
                 
                 
                 if(obj.info.event.best_mt_pest==1 || obj.info.event.pest_tc==1)
-                uistack(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.handle_gridxy_mt_lines,'top');
+                    uistack(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.handle_gridxy_mt_lines,'top');
                 end
                 uistack(obj.info.handles.mean_mep_plot,'top')
                 uistack(obj.info.handles.current_mep_plot,'top')
@@ -933,12 +923,9 @@ end
             obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).trials(1,1)=obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.mt.nextInt;
             
         end
-        
         function best_mt_pest_tc_boot(obj)
             obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).trials(1,1)=obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.mt_starting_stim_inten;
         end
-        
-        
         function best_mt_pest(obj)
             
             
@@ -1000,7 +987,6 @@ end
             %             obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).trials((obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.trial+1),1)=obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.mt.nextInt; end
             
         end
-        
         function best_mt_pest_tc(obj)
             if((obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.trial==1))
                 experimental_condition = [];
@@ -1109,7 +1095,7 @@ end
             end
             
             if obj.tc.stimvalue(StimDevice) > obj.tc.maxvalue
-                obj.tc.stimvaluestimvalue(StimDevice) = obj.tc.maxvalue;
+                obj.tc.stimvalue(StimDevice) = obj.tc.maxvalue;
                 disp('Max value reached.')
             end
             
@@ -1118,9 +1104,6 @@ end
             
             
         end
-        
-        
-        
         function best_mt_plot(obj)
             axes(obj.info.axes.mt)
             %             obj.info.axes.mt.FontSize=obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.FontSize
@@ -1146,17 +1129,16 @@ end
                 %                 title({'Threshold Hunting - Stimulation Intensities Trace'},'FontWeight','bold','FontSize',obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.FontSize,'FontName','Calibri');
                 set(gcf, 'color', 'w')
             else
-if(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.trial_plotted==obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.total_trials)
-obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).trials(end,:)=[];
-else
-% obj.info.handles.mt_plot=plot(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).trials(1:obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.trial_plotted+1,1),'Parent',obj.info.axes.mt,'LineWidth',2);
-            set(obj.info.handles.mt_plot,'YData',(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).trials(1:obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.trial_plotted+1,1)))
-
-end
+                if(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.trial_plotted==obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.total_trials)
+                    obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).trials(end,:)=[];
+                else
+                    % obj.info.handles.mt_plot=plot(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).trials(1:obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.trial_plotted+1,1),'Parent',obj.info.axes.mt,'LineWidth',2);
+                    set(obj.info.handles.mt_plot,'YData',(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).trials(1:obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.trial_plotted+1,1)))
+                    
+                end
             end
             
         end
-        
         function best_mep_stats(obj)
             
             % handle to put 0 in case of unequal trials vector
@@ -1188,41 +1170,38 @@ end
             obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).results.mep_stats(:,8)=(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).results.mep_stats(:,4))/sqrt(numel(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).results.mep_stats(:,4)));    %TODO: Make it modular by replacing 15 to # trials per intensity object value
             obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.SEM=obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).results.mep_stats(:,8);
         end
-        
-        
         function best_ioc_fit(obj)
             %obj.info.handles.ioc_plot_fig=figure('name',' MEP Dose-Response Curve');
             axes(obj.info.axes.ioc_second)
             %  set(gcf,'Visible', 'off');
             [SIData, MEPData] = prepareCurveData(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).results.mep_stats(:,1) ,obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).results.mep_stats(:,2));
-           ft = fittype( 'MEPmax*SI^n/(SI^n+SI50^n)', 'independent', 'SI', 'dependent', 'MEP' );
-%             ft = best_fittype( 'MEPmax*SI^n/(SI^n+SI50^n)', 'independent', 'SI', 'dependent', 'MEP' );
-
+            ft = fittype( 'MEPmax*SI^n/(SI^n+SI50^n)', 'independent', 'SI', 'dependent', 'MEP' );
+            %             ft = best_fittype( 'MEPmax*SI^n/(SI^n+SI50^n)', 'independent', 'SI', 'dependent', 'MEP' );
+            
             %% Optimization of fit paramters;
             
             opts = fitoptions( ft );
             opts.Display = 'Off';
-             opts.Lower = [0 0 0 ];
-             opts.StartPoint = [10 10 10];
-             opts.Upper = [Inf Inf Inf];
+            opts.Lower = [0 0 0 ];
+            opts.StartPoint = [10 10 10];
+            opts.Upper = [Inf Inf Inf];
             
             %% Fit sigmoid model to data
             
             [obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.ioc.fitresult,obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.ioc.gof] = fit( SIData, MEPData, ft, opts);
             %% Extract fitted curve points
             
-             plot( obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.ioc.fitresult, SIData, MEPData);
-
+            plot( obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.ioc.fitresult, SIData, MEPData);
+            
             obj.info.handle.ioc_curve= get(gca,'Children');
             x1lim=xlim
             y1lim=ylim
             
-           
+            
             
             bg = gca; legend(bg,'off');
             
         end
-        
         function best_ioc_plot(obj)
             %             figure(obj.info.handles.ioc_plot_fig)
             %             set(gcf,'Visible', 'off');
@@ -1247,21 +1226,21 @@ end
             pt_y=obj.info.handle.ioc_curve(1).YData(index_pt);
             
             %% Threshold (th) detection on fitted curve
-%             if(strcmp(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.stim_mode,'MSO'))
-%                 
-%                     index_ip1=index_ip+2;
-%                 ip1_x=obj.info.handle.ioc_curve(1).XData(index_ip1);
-%                 ip1_y=obj.info.handle.ioc_curve(1).YData(index_ip1);
-%                 % Calculating slope (m) using two-points equation
-%                 m1=(ip1_y-ip_y)/(ip1_x-obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.ip_x)
-%                 m=m1
-%                 % Calculating threshold (th) using point-slope equation
-%                 obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.th=obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.ip_x-(ip_y/m);
-%             end
+            %             if(strcmp(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.stim_mode,'MSO'))
+            %
+            %                     index_ip1=index_ip+2;
+            %                 ip1_x=obj.info.handle.ioc_curve(1).XData(index_ip1);
+            %                 ip1_y=obj.info.handle.ioc_curve(1).YData(index_ip1);
+            %                 % Calculating slope (m) using two-points equation
+            %                 m1=(ip1_y-ip_y)/(ip1_x-obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.ip_x)
+            %                 m=m1
+            %                 % Calculating threshold (th) using point-slope equation
+            %                 obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.th=obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.ip_x-(ip_y/m);
+            %             end
             
-               [value_th , index_th] = min(abs(obj.info.handle.ioc_curve(1).YData-50 ) );   % change the 50 to be adaptive to what threshold in mV or microV is given
+            [value_th , index_th] = min(abs(obj.info.handle.ioc_curve(1).YData-50 ) );   % change the 50 to be adaptive to what threshold in mV or microV is given
             obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.th=obj.info.handle.ioc_curve(1).XData(index_th);
-
+            
             
             
             
@@ -1299,9 +1278,9 @@ end
             
             
             % Plotting Inflection point's horizontal & vertical dotted lines
-% %             plot([obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.ip_x,SI_min_point],[ip_y,ip_y],'--','Color' , [0.75 0.75 0.75]);
-% %             plot([obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.ip_x,obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.ip_x],[ip_y,seet],'--','Color' , [0.75 0.75 0.75]);
-% %             legend_ip=plot(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.ip_x,ip_y,'rs','MarkerSize',15);
+            % %             plot([obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.ip_x,SI_min_point],[ip_y,ip_y],'--','Color' , [0.75 0.75 0.75]);
+            % %             plot([obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.ip_x,obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.ip_x],[ip_y,seet],'--','Color' , [0.75 0.75 0.75]);
+            % %             legend_ip=plot(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.ip_x,ip_y,'rs','MarkerSize',15);
             
             plot([obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.ip_x,min(xlim)],[ip_y,ip_y],'--','Color' , [0.75 0.75 0.75]);
             plot([obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.ip_x,obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.ip_x],[ip_y,ylim_ioc],'--','Color' , [0.75 0.75 0.75]);
@@ -1350,8 +1329,8 @@ end
                 
                 dim = [0 0 0.5 0.5];
                 str = {str_ip,[],str_th,[],str_pt};
-%                 annotation('textbox',dim,'String',str,'FitBoxToText','on','FontSize',12,'units','normalized');
-
+                %                 annotation('textbox',dim,'String',str,'FitBoxToText','on','FontSize',12,'units','normalized');
+                
             end
             xlim
             ylim([-500 Inf])
@@ -1361,21 +1340,21 @@ end
             xticklabels
             yticklabels
             xlim([min(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.SI)-5 max(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.SI)+5]);
-% %             store2=get(gca,'YTick')
-%             xlim([min(xlim) (max(xlim)+5)])
-%             y_limm=ylim
-%             yt=yticks
-%             xt=xticks
-%             xl=xlim
-                        text((max(xlim)-30), -200,str,'FontSize',12);
-
+            % %             store2=get(gca,'YTick')
+            %             xlim([min(xlim) (max(xlim)+5)])
+            %             y_limm=ylim
+            %             yt=yticks
+            %             xt=xticks
+            %             xl=xlim
+            text((max(xlim)-30), -200,str,'FontSize',12);
+            
             bt = gca; legend(bt,'off');
             box on; drawnow;
             
-% %             code for copying the axes from one fig to another fig
+            % %             code for copying the axes from one fig to another fig
             
-% % % % % % %              f1 = figure('Units','normalized', 'Position', [0 0 0.8 0.8]); % Open a new figure with handle f1
-% % % % % % % s = copyobj(obj.info.axes.ioc_second,f1) 
+            % % % % % % %              f1 = figure('Units','normalized', 'Position', [0 0 0.8 0.8]); % Open a new figure with handle f1
+            % % % % % % % s = copyobj(obj.info.axes.ioc_second,f1)
             
             % set(gcf,'Visible', 'on');
             
@@ -1383,7 +1362,6 @@ end
             
             
         end
-        
         function best_ioc_scatplot(obj)
             axes(obj.info.axes.ioc_first)
             set(obj.info.axes.ioc_first,'FontSize',obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.FontSize)
@@ -1427,9 +1405,6 @@ end
             %             hold on;
             
         end
-        
-        
-        
         function best_wait(obj,varargin)
             tic;
             disp('entered')
@@ -1439,19 +1414,18 @@ end
                     break
                 end
                 
-                 if(obj.inputs.stop_event==1)
-                     disp('entered stoppped')
-                     
-                     obj.inputs.stop_event=0;
+                if(obj.inputs.stop_event==1)
+                    disp('entered stoppped')
+                    
+                    obj.inputs.stop_event=0;
                     break
                 end
             end
             return
             disp('returned')
             % reuturn, type return here as it would take this entire function out of the entire
-            % execution mode and thats how it becomes the auto wait func 
+            % execution mode and thats how it becomes the auto wait func
         end
-        
         function best_posthoc_mep_plot(obj)
             axes(obj.info.axes.mep)
             set(obj.info.axes.mep,'FontSize',obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.FontSize)
@@ -1478,10 +1452,10 @@ end
             %                 mat=unique(mat)
             xticks(mat);
             try
-             if(obj.info.event.mep_plot_ph==1)
-                obj.info.event.mep_plot_ph=0;
-              obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.handle_gridxy_mt_lines=gridxy([],[-obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.motor_threshold*1000 obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.motor_threshold*1000],'Color',[0.45 0.45 0.45],'linewidth',1,'LineStyle','--') ;
-             end
+                if(obj.info.event.mep_plot_ph==1)
+                    obj.info.event.mep_plot_ph=0;
+                    obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.handle_gridxy_mt_lines=gridxy([],[-obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.motor_threshold*1000 obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.motor_threshold*1000],'Color',[0.45 0.45 0.45],'linewidth',1,'LineStyle','--') ;
+                end
             catch
             end
             obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.handle_gridxy=gridxy([0 (obj.inputs.mep_onset*1000):0.25:(obj.inputs.mep_offset*1000)],'Color',[219/255 246/255 255/255],'linewidth',1) ;
@@ -1500,7 +1474,7 @@ end
             mat=unique(sort([mat1 mat2]));
             mat=unique(mat);
             xticks(mat);
-           
+            
             obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.handle_gridxy=gridxy([0 (obj.inputs.mep_onset*1000):0.25:(obj.inputs.mep_offset*1000)],'Color',[219/255 246/255 255/255],'linewidth',1) ;
             
             obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.update_event=0;
@@ -1512,10 +1486,10 @@ end
             n3=5;
             str_amp2=num2str(  ((obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).trials(n1,4))/1000));
             if(n1>n3)
-            str_amp4=num2str(((mean  (obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).trials(n1-n3:n1,4)))/1000));
+                str_amp4=num2str(((mean  (obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).trials(n1-n3:n1,4)))/1000));
             else
-                            str_amp4=num2str(((mean  (obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).trials(n1-(n3-3):n1,4)))/1000));
-
+                str_amp4=num2str(((mean  (obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).trials(n1-(n3-3):n1,4)))/1000));
+                
             end
             str_amp_final=[obj.info.str_amp1 str_amp2 ' | ' str_amp4];
             obj.info.handles.annotated_mep=text(0, obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.ylim_max+(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.ylim_max*(0.05)),str_amp_final,'FontSize',obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.FontSize);
@@ -1523,7 +1497,7 @@ end
             
             
             
-           
+            
             obj.info.handles.past_mep_plot_ph=plot(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.timevector,obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).rawdata(:,obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.sc_plot_first+1:obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.sc_plot_last),'Color',[0.75 0.75 0.75]);
             hold on;
             obj.info.handles.mean_mep_plot_ph=plot(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.timevector,mean(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).rawdata(:,obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.sc_plot_first+1:obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.sc_plot_last)),'color',[0,0,0],'LineWidth',1.5);
@@ -1531,10 +1505,9 @@ end
             obj.info.handles.current_mep_plot_ph=plot(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.timevector,obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).rawdata(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.trial_plotted,obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.sc_plot_first+1:obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.sc_plot_last),'Color',[1 0 0],'LineWidth',2);
             
         end
-        
         function best_posthoc_mt_plot(obj)
-             axes(obj.info.axes.mt)
-                        set(obj.info.axes.mt,'FontSize',obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.FontSize);
+            axes(obj.info.axes.mt)
+            set(obj.info.axes.mt,'FontSize',obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.FontSize);
             obj.info.handles.mt_plot=plot(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).trials(:,1),'LineWidth',2);
             xlabel('Trial Number','FontSize',obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.FontSize);   %TODO: Put if loop of RMT or MSO
             ylabel('Stimulation Intensities (%MSO)','FontSize',obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.FontSize);
@@ -1544,8 +1517,6 @@ end
             xticks(1:2:100);    % will have to be referneced with GUI
             set(gcf, 'color', 'w')
         end
-        
-        
         function best_posthoc_ioc_scatplot(obj)
             axes(obj.info.axes.ioc_first)
             set(obj.info.axes.ioc_first,'FontSize',obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.FontSize)
@@ -1563,9 +1534,6 @@ end
             xticks(temp_str)
             
         end
-        
-        
-        
         function best_mep_posthoc(obj)
             figHandle = findobj('Tag','umi1');
             panelhandle=findobj(figHandle,'Type','axes');
@@ -1573,7 +1541,6 @@ end
             obj.best_posthoc_mep_plot;
             obj.info.axes.mep
         end
-        
         function best_mt_posthoc(obj)
             figHandle = findobj('Tag','umi1');
             panelhandle=findobj(figHandle,'Type','axes');
@@ -1582,7 +1549,7 @@ end
             obj.info.event.mep_plot_ph=1;
             obj.best_posthoc_mep_plot;
             obj.best_posthoc_mt_plot;
-             axes(obj.info.axes.mt);
+            axes(obj.info.axes.mt);
             str_mt1='Motor Threshold (%MSO): ';
             str_mt2=num2str(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).results.mt);
             str_mt=[str_mt1 str_mt2];
@@ -1592,15 +1559,14 @@ end
             
             
         end
-        
         function best_hotspot_posthoc(obj)
-             figHandle = findobj('Tag','umi1');
+            figHandle = findobj('Tag','umi1');
             panelhandle=findobj(figHandle,'Type','axes');
             obj.info.axes.mep=findobj( panelhandle,'Type','axes','Tag','mep');
             obj.best_posthoc_mep_plot;
         end
         function best_ioc_posthoc(obj)
-             figHandle = findobj('Tag','umi1');
+            figHandle = findobj('Tag','umi1');
             panelhandle=findobj(figHandle,'Type','axes');
             obj.info.axes.mep=findobj( panelhandle,'Type','axes','Tag','mep');
             obj.info.axes.ioc_first=findobj( panelhandle,'Type','axes','Tag','ioc');
@@ -1613,29 +1579,5 @@ end
             
             
         end
-        
-        
-        
-        
-        
-        
     end
 end
-
-%% FURTHER STEPS
-%1. best_hotspot
-%2. best_threshold am, mt as well as others
-%% then make gui
-%% also inclide TMS fMRI stuff
-%3. ioc
-%4. pp functions (mep n ioc)
-%5. multiple stimulators mep, threshold, ioc
-%6. use the new flexi grid layout system for gui making and simulate it too
-%7. rs EEG
-
-%% things to do for training
-%a. try to synchronize the trial triggered and trial plotted timing
-%b. try to use the trial info timing vector for this
-
-
-% task to do for tomorrow
