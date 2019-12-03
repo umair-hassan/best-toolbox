@@ -64,6 +64,7 @@ classdef BEST < handle
             obj.info.pause=0;
             obj.info.session_copy_id=0;
             obj.info.measurement_paste_marker=0;
+            obj.info.copy_index=0;
 
         end
         function create_menu(obj)
@@ -168,20 +169,28 @@ classdef BEST < handle
             
         end
         function cb_pmd_lb_session_keypressfcn(obj)
+            if (numel(obj.pmd.lb_sessions.listbox.String)==0 || obj.pmd.lb_sessions.listbox.Value==0)
+                return
+            else
             value = double(get(gcf,'CurrentCharacter'));
             if(value==117)
                 obj.cb_pmd_lb_sessions_moveup
             elseif(value==100)
                 obj.cb_pmd_lb_sessions_movedown
             end
+            end
                 
         end
         function cb_pmd_lb_measure_keypressfcn(obj)
+            if (numel(obj.pmd.lb_measures.listbox.String)==0 || obj.pmd.lb_measures.listbox.Value==0)
+                return
+            else
             value = double(get(gcf,'CurrentCharacter'));
             if(value==117)
                 obj.cb_pmd_lb_measures_moveup
             elseif(value==100)
                 obj.cb_pmd_lb_measures_movedown
+            end
             end
                 
          end
@@ -193,6 +202,9 @@ classdef BEST < handle
             end
         end
         function cb_pmd_lb_sessions_del(obj)
+            if (numel(obj.pmd.lb_sessions.listbox.String)==0 || obj.pmd.lb_sessions.listbox.Value==0)
+                return
+            else
             answer = questdlg('If you want to delete this session, the data saved associated with this session will also be deleted, press DELETE to continue.','BEST Toolbox','Return','DELETE','Return');
             switch answer
                 case 'DELETE'
@@ -214,6 +226,7 @@ classdef BEST < handle
                 case 'Return'
                     return
             end
+            end
             % summary of above steps
             % find the value of listbox 
             % get the session name from the session listbox
@@ -226,10 +239,17 @@ classdef BEST < handle
             
         end 
         function cb_pmd_lb_sessions_copy(obj)
+            if (numel(obj.pmd.lb_sessions.listbox.String)==0 || obj.pmd.lb_sessions.listbox.Value==0)
+                return
+            else
             obj.info.session_copy_id=obj.info.session_copy_id+1;
-            obj.info.session_copied=obj.pmd.lb_sessions.listbox.String(obj.pmd.lb_sessions.listbox.Value) 
+            obj.info.session_copied=obj.pmd.lb_sessions.listbox.String(obj.pmd.lb_sessions.listbox.Value)
+            end
         end
         function cb_pmd_lb_sessions_pasteup(obj)
+            if (obj.info.session_copy_id==0)
+                return
+            else
             if(obj.pmd.lb_sessions.listbox.Value-1~=0)
             paste_value=obj.pmd.lb_sessions.listbox.Value-1;
             else
@@ -280,10 +300,12 @@ classdef BEST < handle
             obj.info.session_copied=[];
             obj.cb_session_listbox;
 
-            
+            end
         end
         function cb_pmd_lb_sessions_pastedown(obj)
-            
+            if (obj.info.session_copy_id==0)
+                return
+            else
             paste_value=obj.pmd.lb_sessions.listbox.Value+1;           
             obj.info.session_matrix_copybuffer(1,obj.info.session_copy_id)=obj.info.session_copied
             obj.info.session_copied=obj.info.session_copied{1}
@@ -328,9 +350,12 @@ classdef BEST < handle
             obj.info.session_copied=[];
             obj.cb_session_listbox;
 
-
+            end
         end
         function cb_pmd_lb_sessions_moveup(obj)
+            if (numel(obj.pmd.lb_sessions.listbox.String)==0 || obj.pmd.lb_sessions.listbox.Value==0)
+                return
+            else
             if(numel(obj.pmd.lb_sessions.listbox.String)>1 && obj.pmd.lb_sessions.listbox.Value~=1)
             moveup_session=obj.info.session_matrix(obj.pmd.lb_sessions.listbox.Value);
             movedown_session=obj.info.session_matrix(obj.pmd.lb_sessions.listbox.Value-1);
@@ -345,10 +370,13 @@ classdef BEST < handle
             else
                 return
             end
-            
+            end
 
         end
         function cb_pmd_lb_sessions_movedown(obj)
+            if (numel(obj.pmd.lb_sessions.listbox.String)==0 || obj.pmd.lb_sessions.listbox.Value==0)
+                return
+            else
             if(numel(obj.pmd.lb_sessions.listbox.String)>1 && obj.pmd.lb_sessions.listbox.Value<obj.info.session_no)
             moveup_session=obj.info.session_matrix(obj.pmd.lb_sessions.listbox.Value+1);
             movedown_session=obj.info.session_matrix(obj.pmd.lb_sessions.listbox.Value);
@@ -363,12 +391,12 @@ classdef BEST < handle
             else 
                 return
             end
+            end
             
-   
         end
         function cb_pmd_lb_measures_del(obj)
             
-            if(numel(obj.pmd.lb_measures.listbox.String)==0)
+            if(numel(obj.pmd.lb_measures.listbox.String)==0 || obj.pmd.lb_measures.listbox.Value==0)
                 return
             else
                 answer = questdlg('If you want to delete this measurement, the data saved associated with this measurement will also be deleted, press DELETE to continue.','BEST Toolbox','Return','DELETE','Return');
@@ -396,15 +424,20 @@ classdef BEST < handle
             end
         end 
         function cb_pmd_lb_measures_copy(obj)
-            if(numel(obj.pmd.lb_measures.listbox.String)==0)
+            if(numel(obj.pmd.lb_measures.listbox.String)==0 || obj.pmd.lb_measures.listbox.Value==0)
                 return
             else
                 obj.data.meas_copied=obj.pmd.lb_measures.listbox.String(obj.pmd.lb_measures.listbox.Value);               
                 obj.data.meas_copied_orignial=obj.data.(obj.info.event.current_session).info.measurement_str_original(obj.pmd.lb_measures.listbox.Value);
                 obj.data.copied_frm_session=obj.info.event.current_session;
+                obj.info.copy_index=obj.info.copy_index+1;
             end           
         end
         function cb_pmd_lb_measures_pasteup(obj)
+  
+           if(obj.info.copy_index<1)
+               return
+           else
                 if(obj.pmd.lb_measures.listbox.Value-1>=0)
                     if(obj.pmd.lb_measures.listbox.Value-1==0)
                         paste_value=obj.pmd.lb_measures.listbox.Value;
@@ -492,9 +525,13 @@ classdef BEST < handle
                 obj.info.event.current_measure=obj.info.event.current_measure{1};
                 obj.enable_default_fields;
                 obj.cb_measure_listbox; 
-
+           end
         end
         function cb_pmd_lb_measures_pastedown(obj)
+            if(obj.info.copy_index<1)
+               return
+           else
+           
                 obj.data.(obj.info.event.current_session).info.meas_copy_id=obj.data.(obj.info.event.current_session).info.meas_copy_id+1;
                 paste_value=obj.pmd.lb_measures.listbox.Value+1;
                 obj.data.(obj.info.event.current_session).info.meas_matrix_copybuffer(1,obj.data.(obj.info.event.current_session).info.meas_copy_id)=obj.data.meas_copied;
@@ -570,8 +607,12 @@ classdef BEST < handle
                 obj.info.event.current_measure=obj.info.event.current_measure{1};
                 obj.enable_default_fields;
                 obj.cb_measure_listbox;
+           end
         end
         function cb_pmd_lb_measures_moveup(obj)
+            if(numel(obj.pmd.lb_measures.listbox.String)==0 || obj.pmd.lb_measures.listbox.Value==0)
+                return
+            else
             if(numel(obj.pmd.lb_measures.listbox.String)>1 && obj.pmd.lb_measures.listbox.Value~=1)
             moveup_session=obj.data.(obj.info.event.current_session).info.measurement_str_to_listbox(obj.pmd.lb_measures.listbox.Value);
             movedown_session=obj.data.(obj.info.event.current_session).info.measurement_str_to_listbox(obj.pmd.lb_measures.listbox.Value-1);
@@ -595,10 +636,14 @@ classdef BEST < handle
             else
                 return
             end
+            end
             
 
         end
         function cb_pmd_lb_measures_movedown(obj)
+            if(numel(obj.pmd.lb_measures.listbox.String)==0 || obj.pmd.lb_measures.listbox.Value==0)
+                return
+            else
             if(numel(obj.pmd.lb_measures.listbox.String)>1 && obj.pmd.lb_measures.listbox.Value<obj.data.(obj.info.event.current_session).info.measurement_no)
                 moveup_session=obj.data.(obj.info.event.current_session).info.measurement_str_to_listbox(obj.pmd.lb_measures.listbox.Value+1);
             movedown_session=obj.data.(obj.info.event.current_session).info.measurement_str_to_listbox(obj.pmd.lb_measures.listbox.Value);
@@ -622,8 +667,7 @@ classdef BEST < handle
             else 
                 return
             end
-            
-   
+            end
         end
         function cb_pmd_sub_code_editfield(obj)
             if(isvarname(obj.pmd.sub_code.editfield.String)==0)
@@ -633,6 +677,9 @@ classdef BEST < handle
             end
         end
         function cb_pmd_lb_measure_menu_loadresult(obj)
+            if(numel(obj.pmd.lb_measures.listbox.String)==0)
+                return
+            else
             if(strcmp(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).runEnable,'off'))
                 delete(obj.pr.mep.axes1)
                 delete(obj.pr.hotspot.axes1)
@@ -666,6 +713,7 @@ classdef BEST < handle
             else
                 errordlg('No results exist for this measurement, Please collect the data if you wish to see the results for this particular measure.','BEST Toolbox');
                 return
+            end
             end
         end
         function create_inputs_panel(obj)
