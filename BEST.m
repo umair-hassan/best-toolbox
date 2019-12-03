@@ -817,8 +817,8 @@ classdef BEST < handle
             % row 15
             mep_panel_15 = uix.HBox( 'Parent', obj.pi.mep.vb, 'Spacing', 5, 'Padding', 5  );
             uicontrol( 'Style','text','Parent', mep_panel_15,'String','Y Axis Max/Min (microV):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            obj.pi.mep.ylim_max=uicontrol( 'Style','edit','Parent', mep_panel_15 ,'FontSize',11,'String','8000','Callback',@(~,~)obj.cb_pi_mep_ylim_max);
             obj.pi.mep.ylim_min=uicontrol( 'Style','edit','Parent', mep_panel_15 ,'FontSize',11,'String','-8000','Callback',@(~,~)obj.cb_pi_mep_ylim_min);
+            obj.pi.mep.ylim_max=uicontrol( 'Style','edit','Parent', mep_panel_15 ,'FontSize',11,'String','8000','Callback',@(~,~)obj.cb_pi_mep_ylim_max);
             set( mep_panel_15, 'Widths', [150 -2 -2]);
             
             
@@ -833,7 +833,7 @@ classdef BEST < handle
             uicontrol( 'Style','text','Parent', mep_panel_15,'String','Trials No for Mean MEP Amp:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
             obj.pi.mep.trials_for_mean_annotation=uicontrol( 'Style','edit','Parent', mep_panel_15 ,'FontSize',11,'String','5','Callback',@(~,~)obj.cb_pi_mep_trials_for_mean_annotation);
             obj.pi.mep.trials_annotated_reset=uicontrol( 'Style','PushButton','Parent', mep_panel_15 ,'FontSize',10,'String','Reset Mean','Callback',@(~,~)obj.cb_pi_mep_trials_reset);
-            obj.pi.mep.trials_annotated_reset_plot=uicontrol( 'Style','PushButton','Parent', mep_panel_15 ,'FontSize',10,'String','Reset Plot','Callback',@(~,~)obj.cb_pi_mep_plot_reset);        
+            obj.pi.mep.trials_annotated_reset_plot=uicontrol( 'Style','PushButton','Parent', mep_panel_15 ,'FontSize',10,'String','Reset Mean Plot','Callback',@(~,~)obj.cb_pi_mep_plot_reset);        
             set( mep_panel_15, 'Widths', [150 -1 -2 -2]);
             
 
@@ -934,8 +934,8 @@ classdef BEST < handle
             % row 15
             mep_panel_15 = uix.HBox( 'Parent', obj.pi.hotspot.vb, 'Spacing', 5, 'Padding', 5  );
             uicontrol( 'Style','text','Parent', mep_panel_15,'String','Y Axis Max/Min (microV):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            obj.pi.hotspot.ylim_max=uicontrol( 'Style','edit','Parent', mep_panel_15 ,'FontSize',11,'String','8000','Callback',@(~,~)obj.cb_pi_hotspot_ylim_max);
             obj.pi.hotspot.ylim_min=uicontrol( 'Style','edit','Parent', mep_panel_15 ,'FontSize',11,'String','-8000','Callback',@(~,~)obj.cb_pi_hotspot_ylim_min);
+            obj.pi.hotspot.ylim_max=uicontrol( 'Style','edit','Parent', mep_panel_15 ,'FontSize',11,'String','8000','Callback',@(~,~)obj.cb_pi_hotspot_ylim_max);
             set( mep_panel_15, 'Widths', [150 -2 -2]);
             
             
@@ -950,7 +950,7 @@ classdef BEST < handle
             uicontrol( 'Style','text','Parent', mep_panel_15,'String','Trials No for Mean MEP Amp:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
             obj.pi.hotspot.trials_for_mean_annotation=uicontrol( 'Style','edit','Parent', mep_panel_15 ,'FontSize',11,'String','5','Callback',@(~,~)obj.cb_pi_hotspot_trials_for_mean_annotation);
             obj.pi.hotspot.trials_annotated_reset=uicontrol( 'Style','PushButton','Parent', mep_panel_15 ,'FontSize',10,'String','Reset Mean','Callback',@(~,~)obj.cb_pi_hotspot_trials_reset);
-            obj.pi.hotspot.trials_annotated_reset_plot=uicontrol( 'Style','PushButton','Parent', mep_panel_15 ,'FontSize',10,'String','Reset Plot','Callback',@(~,~)obj.cb_pi_hotspot_plot_reset);
+            obj.pi.hotspot.trials_annotated_reset_plot=uicontrol( 'Style','PushButton','Parent', mep_panel_15 ,'FontSize',10,'String','Reset Mean Plot','Callback',@(~,~)obj.cb_pi_hotspot_plot_reset);
             
             set( mep_panel_15, 'Widths', [150 -1 -2 -2]);
             
@@ -1051,8 +1051,8 @@ classdef BEST < handle
             % row 15
             mep_panel_15 = uix.HBox( 'Parent', obj.pi.mt.vb, 'Spacing', 5, 'Padding', 5  );
             uicontrol( 'Style','text','Parent', mep_panel_15,'String','Y Axis Max/Min (microV):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            obj.pi.mt.ylim_max=uicontrol( 'Style','edit','Parent', mep_panel_15 ,'FontSize',11,'String','8000','Callback',@(~,~)obj.cb_pi_mt_ylim_max);
             obj.pi.mt.ylim_min=uicontrol( 'Style','edit','Parent', mep_panel_15 ,'FontSize',11,'String','-8000','Callback',@(~,~)obj.cb_pi_mt_ylim_min);
+            obj.pi.mt.ylim_max=uicontrol( 'Style','edit','Parent', mep_panel_15 ,'FontSize',11,'String','8000','Callback',@(~,~)obj.cb_pi_mt_ylim_max);
             set( mep_panel_15, 'Widths', [150 -2 -2]);
             
             
@@ -1069,7 +1069,7 @@ classdef BEST < handle
             uicontrol( 'Style','text','Parent', mep_panel_16,'String','Trials No for Mean MEP Amp:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
             obj.pi.mt.trials_for_mean_annotation=uicontrol( 'Style','edit','Parent', mep_panel_16 ,'FontSize',11,'String','5','Callback',@(~,~)obj.cb_pi_mt_trials_for_mean_annotation);
             obj.pi.mt.trials_annotated_reset=uicontrol( 'Style','PushButton','Parent', mep_panel_16 ,'FontSize',10,'String','Reset Mean','Callback',@(~,~)obj.cb_pi_mt_trials_reset);
-            obj.pi.mt.trials_annotated_reset_plot=uicontrol( 'Style','PushButton','Parent', mep_panel_16 ,'FontSize',10,'String','Reset Plot','Callback',@(~,~)obj.cb_pi_mt_plot_reset);
+            obj.pi.mt.trials_annotated_reset_plot=uicontrol( 'Style','PushButton','Parent', mep_panel_16 ,'FontSize',10,'String','Reset Mean Plot','Callback',@(~,~)obj.cb_pi_mt_plot_reset);
             
             set( mep_panel_16, 'Widths', [150 -1 -2 -2]);
             
@@ -1178,8 +1178,8 @@ classdef BEST < handle
             % row 15
             mep_panel_15 = uix.HBox( 'Parent', obj.pi.ioc.vb, 'Spacing', 5, 'Padding', 5  );
             uicontrol( 'Style','text','Parent', mep_panel_15,'String','Y Axis Max/Min (microV):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            obj.pi.ioc.ylim_max=uicontrol( 'Style','edit','Parent', mep_panel_15 ,'FontSize',11,'String','8000','Callback',@(~,~)obj.cb_pi_ioc_ylim_max);
             obj.pi.ioc.ylim_min=uicontrol( 'Style','edit','Parent', mep_panel_15 ,'FontSize',11,'String','-8000','Callback',@(~,~)obj.cb_pi_ioc_ylim_min);
+            obj.pi.ioc.ylim_max=uicontrol( 'Style','edit','Parent', mep_panel_15 ,'FontSize',11,'String','8000','Callback',@(~,~)obj.cb_pi_ioc_ylim_max);
             set( mep_panel_15, 'Widths', [150 -2 -2]);
             
             
@@ -1194,7 +1194,7 @@ classdef BEST < handle
             uicontrol( 'Style','text','Parent', mep_panel_16,'String','Trials No for Mean MEP Amp:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
             obj.pi.ioc.trials_for_mean_annotation=uicontrol( 'Style','edit','Parent', mep_panel_16 ,'FontSize',11,'String','5','Callback',@(~,~)obj.cb_pi_ioc_trials_for_mean_annotation);
             obj.pi.ioc.trials_annotated_reset=uicontrol( 'Style','PushButton','Parent', mep_panel_16 ,'FontSize',10,'String','Reset Mean','Callback',@(~,~)obj.cb_pi_ioc_trials_reset);
-            obj.pi.ioc.trials_annotated_reset_plot=uicontrol( 'Style','PushButton','Parent', mep_panel_16 ,'FontSize',10,'String','Reset Plot','Callback',@(~,~)obj.cb_pi_ioc_plot_reset);
+            obj.pi.ioc.trials_annotated_reset_plot=uicontrol( 'Style','PushButton','Parent', mep_panel_16 ,'FontSize',10,'String','Reset Mena Plot','Callback',@(~,~)obj.cb_pi_ioc_plot_reset);
             
             set( mep_panel_16, 'Widths', [150 -1 -2 -2]);
             
@@ -1674,7 +1674,8 @@ classdef BEST < handle
             
             measure_name=obj.pmd.select_measure.string(obj.pmd.select_measure.popupmenu.Value);
             obj.data.(obj.info.event.current_session).info.measurement_str_original(1,obj.data.(obj.info.event.current_session).info.measurement_no)=measure_name;
-            
+            obj.info.event.measure_being_added_original=measure_name;
+            obj.info.event.measure_being_added_original=obj.info.event.measure_being_added_original{1}
             measure_EXIST=1;
             
             if  obj.data.(obj.info.event.current_session).info.measurement_no>1
@@ -1771,10 +1772,25 @@ classdef BEST < handle
         %% load defaults and pars
         function func_create_defaults(obj)
             disp('defaults entered ------------------------------------------------------------------------')
+             switch obj.info.event.measure_being_added_original
+                case 'MEP Measurement'
+                    obj.default_par_mep;
+                 case 'MEP Hotspot Search'
+                    obj.default_par_hotspot;
+                 case 'MEP Motor Threshold Hunting'
+                    obj.default_par_mt;
+                case 'TMS fMRI'
+                    obj.default_par_tmsfmri;
+                case 'MEP Dose Response Curve_sp'
+                    obj.default_par_ioc;
+             end
+        end
+        
+        function default_par_mep(obj)
             obj.info.defaults.target_muscle='APBr';
             obj.info.defaults.stimulation_intensities=[30 40 50 60 70 80];
-            obj.info.defaults.trials_per_condition=[4];
-            obj.info.defaults.iti=[1];
+            obj.info.defaults.trials_per_condition=[10];
+            obj.info.defaults.iti=[4 6];
             obj.info.defaults.mep_onset=15;
             obj.info.defaults.mep_offset=50;
             obj.info.defaults.prestim_scope_ext=50;
@@ -1785,15 +1801,12 @@ classdef BEST < handle
             obj.info.defaults.units_mt=0;
             obj.info.defaults.mt=[];
             %             obj.info.defaults.mt_btn
-            obj.info.defaults.ylim_max=+2000;
-            obj.info.defaults.ylim_min=-2000;
+            obj.info.defaults.ylim_max=+5000;
+            obj.info.defaults.ylim_min=-5000;
             obj.info.defaults.FontSize=14;
-            
             obj.info.defaults.mt_mv=0.05;
-            
             obj.info.defaults.thresholding_method=1;
             obj.info.defaults.trials_to_avg=10;
-            
             %specifically for tms-fmri
             obj.info.defaults.ta=916;
             obj.info.defaults.trigdelay=14;
@@ -1804,12 +1817,9 @@ classdef BEST < handle
             obj.info.defaults.plot_reset_pressed=0;
             obj.info.defaults.manual_stim_inten=1;
             obj.info.defaults.save_plt=0;
-            obj.info.defaults.result_mt=11;
-            
+            obj.info.defaults.result_mt=[];
             obj.info.defaults.mt_starting_stim_inten=25;
-            
             obj.info.defaults.target_muscleEnable='on';
-            
             obj.info.defaults.runEnable='on';
             obj.info.defaults.units_msoEnable='on';
             obj.info.defaults.units_mtEnable='on';
@@ -1821,51 +1831,240 @@ classdef BEST < handle
             obj.info.defaults.mt_mvEnable='on';
             obj.info.defaults.thresholding_methodEnable='on';
             obj.info.defaults.stimulation_intensitiesEnable='on';
-            
-             obj.info.defaults.taEnable='on';
+            obj.info.defaults.taEnable='on';
             obj.info.defaults.trigdelayEnable='on';
             obj.info.defaults.totalvolumesEnable='on';
             obj.info.defaults.volumes_condEnable='on';
             obj.info.defaults.manual_stim_intenEnable='on';
             obj.info.defaults.units_msoEnable='on';
             obj.info.defaults.units_mtEnable='on';
-
-            
-            
-            
             obj.info.defaults.mt_mvEnable='on';
-            
             obj.info.defaults.mt_starting_stim_intenEnable='on';
-            
             obj.par.(obj.info.event.current_session).(obj.info.event.measure_being_added)=obj.info.defaults;
-            
-            
         end
-        function func_load_par(obj)
-            switch obj.info.event.current_measure
-                case 'MEP Measurement'
-                    
-                    obj.func_load_mep_par;
-                    
-                    
-                case 'MEP Hotspot Search'
-                    obj.hotspot_panel;
-                    
-                case 'MEP Motor Threshold Hunting'
-                    obj.thresholding_panel;
-                    
-                case 'fMRI triggered TMS'
-                    obj.mrtms_panel;
-                    
-                case 'MEP Dose Response Curve_sp'
-                    obj.ioc_panel;
-                    
-                otherwise
-                    
-                    disp('other value')
-                    
-            end
-            
+        function default_par_hotspot(obj)
+            obj.info.defaults.target_muscle='APBr';
+            obj.info.defaults.stimulation_intensities=[30 40 50 60 70 80];
+            obj.info.defaults.trials_per_condition=[1000];
+            obj.info.defaults.iti=[4 6];
+            obj.info.defaults.mep_onset=15;
+            obj.info.defaults.mep_offset=50;
+            obj.info.defaults.prestim_scope_ext=50;
+            obj.info.defaults.poststim_scope_ext=150;
+            obj.info.defaults.prestim_scope_plt=20;
+            obj.info.defaults.poststim_scope_plt=100;
+            obj.info.defaults.units_mso=1;
+            obj.info.defaults.units_mt=0;
+            obj.info.defaults.mt=[];
+            %             obj.info.defaults.mt_btn
+            obj.info.defaults.ylim_max=+5000;
+            obj.info.defaults.ylim_min=-5000;
+            obj.info.defaults.FontSize=14;
+            obj.info.defaults.mt_mv=0.05;
+            obj.info.defaults.thresholding_method=1;
+            obj.info.defaults.trials_to_avg=10;
+            %specifically for tms-fmri
+            obj.info.defaults.ta=916;
+            obj.info.defaults.trigdelay=14;
+            obj.info.defaults.volumes_cond=[18 19 20 21 22];
+            obj.info.defaults.totalvolumes=900;
+            obj.info.defaults.trials_for_mean_annotation=5;
+            obj.info.defaults.reset_pressed=0;
+            obj.info.defaults.plot_reset_pressed=0;
+            obj.info.defaults.manual_stim_inten=1;
+            obj.info.defaults.save_plt=0;
+            obj.info.defaults.result_mt=11;
+            obj.info.defaults.mt_starting_stim_inten=25;
+            obj.info.defaults.target_muscleEnable='on';
+            obj.info.defaults.runEnable='on';
+            obj.info.defaults.units_msoEnable='on';
+            obj.info.defaults.units_mtEnable='on';
+            obj.info.defaults.mtEnable='on';
+            obj.info.defaults.mt_btnEnable='on';
+            obj.info.defaults.prestim_scope_extEnable='on';
+            obj.info.defaults.poststim_scope_extEnable='on';
+            obj.info.defaults.trials_per_conditionEnable='on';
+            obj.info.defaults.mt_mvEnable='on';
+            obj.info.defaults.thresholding_methodEnable='on';
+            obj.info.defaults.stimulation_intensitiesEnable='on';
+            obj.info.defaults.taEnable='on';
+            obj.info.defaults.trigdelayEnable='on';
+            obj.info.defaults.totalvolumesEnable='on';
+            obj.info.defaults.volumes_condEnable='on';
+            obj.info.defaults.manual_stim_intenEnable='on';
+            obj.info.defaults.units_msoEnable='on';
+            obj.info.defaults.units_mtEnable='on';
+            obj.info.defaults.mt_mvEnable='on';
+            obj.info.defaults.mt_starting_stim_intenEnable='on';
+            obj.par.(obj.info.event.current_session).(obj.info.event.measure_being_added)=obj.info.defaults;
+        end
+        function default_par_mt(obj)
+            obj.info.defaults.target_muscle='APBr';
+            obj.info.defaults.stimulation_intensities=[30 40 50 60 70 80];
+            obj.info.defaults.trials_per_condition=[50];
+            obj.info.defaults.iti=[4 6];
+            obj.info.defaults.mep_onset=15;
+            obj.info.defaults.mep_offset=50;
+            obj.info.defaults.prestim_scope_ext=50;
+            obj.info.defaults.poststim_scope_ext=150;
+            obj.info.defaults.prestim_scope_plt=20;
+            obj.info.defaults.poststim_scope_plt=100;
+            obj.info.defaults.units_mso=1;
+            obj.info.defaults.units_mt=0;
+            obj.info.defaults.mt=[];
+            %             obj.info.defaults.mt_btn
+            obj.info.defaults.ylim_max=+5000;
+            obj.info.defaults.ylim_min=-5000;
+            obj.info.defaults.FontSize=14;
+            obj.info.defaults.mt_mv=0.05;
+            obj.info.defaults.thresholding_method=2;
+            obj.info.defaults.trials_to_avg=15;
+            %specifically for tms-fmri
+            obj.info.defaults.ta=916;
+            obj.info.defaults.trigdelay=14;
+            obj.info.defaults.volumes_cond=[18 19 20 21 22];
+            obj.info.defaults.totalvolumes=900;
+            obj.info.defaults.trials_for_mean_annotation=5;
+            obj.info.defaults.reset_pressed=0;
+            obj.info.defaults.plot_reset_pressed=0;
+            obj.info.defaults.manual_stim_inten=1;
+            obj.info.defaults.save_plt=0;
+            obj.info.defaults.result_mt=[];
+            obj.info.defaults.mt_starting_stim_inten=25;
+            obj.info.defaults.target_muscleEnable='on';
+            obj.info.defaults.runEnable='on';
+            obj.info.defaults.units_msoEnable='on';
+            obj.info.defaults.units_mtEnable='on';
+            obj.info.defaults.mtEnable='on';
+            obj.info.defaults.mt_btnEnable='on';
+            obj.info.defaults.prestim_scope_extEnable='on';
+            obj.info.defaults.poststim_scope_extEnable='on';
+            obj.info.defaults.trials_per_conditionEnable='on';
+            obj.info.defaults.mt_mvEnable='on';
+            obj.info.defaults.thresholding_methodEnable='on';
+            obj.info.defaults.stimulation_intensitiesEnable='on';
+            obj.info.defaults.taEnable='on';
+            obj.info.defaults.trigdelayEnable='on';
+            obj.info.defaults.totalvolumesEnable='on';
+            obj.info.defaults.volumes_condEnable='on';
+            obj.info.defaults.manual_stim_intenEnable='on';
+            obj.info.defaults.units_msoEnable='on';
+            obj.info.defaults.units_mtEnable='on';
+            obj.info.defaults.mt_mvEnable='on';
+            obj.info.defaults.mt_starting_stim_intenEnable='on';
+            obj.par.(obj.info.event.current_session).(obj.info.event.measure_being_added)=obj.info.defaults;
+        end
+        function default_par_ioc(obj)
+            obj.info.defaults.target_muscle='APBr';
+            obj.info.defaults.stimulation_intensities=[30 40 50 60 70 80];
+            obj.info.defaults.trials_per_condition=[15];
+            obj.info.defaults.iti=[4 6];
+            obj.info.defaults.mep_onset=15;
+            obj.info.defaults.mep_offset=50;
+            obj.info.defaults.prestim_scope_ext=50;
+            obj.info.defaults.poststim_scope_ext=150;
+            obj.info.defaults.prestim_scope_plt=20;
+            obj.info.defaults.poststim_scope_plt=100;
+            obj.info.defaults.units_mso=1;
+            obj.info.defaults.units_mt=0;
+            obj.info.defaults.mt=[];
+            %             obj.info.defaults.mt_btn
+            obj.info.defaults.ylim_max=+5000;
+            obj.info.defaults.ylim_min=-5000;
+            obj.info.defaults.FontSize=14;
+            obj.info.defaults.mt_mv=0.05;
+            obj.info.defaults.thresholding_method=2;
+            obj.info.defaults.trials_to_avg=15;
+            %specifically for tms-fmri
+            obj.info.defaults.ta=916;
+            obj.info.defaults.trigdelay=14;
+            obj.info.defaults.volumes_cond=[18 19 20 21 22];
+            obj.info.defaults.totalvolumes=900;
+            obj.info.defaults.trials_for_mean_annotation=5;
+            obj.info.defaults.reset_pressed=0;
+            obj.info.defaults.plot_reset_pressed=0;
+            obj.info.defaults.manual_stim_inten=1;
+            obj.info.defaults.save_plt=0;
+            obj.info.defaults.result_mt=11;
+            obj.info.defaults.mt_starting_stim_inten=25;
+            obj.info.defaults.target_muscleEnable='on';
+            obj.info.defaults.runEnable='on';
+            obj.info.defaults.units_msoEnable='on';
+            obj.info.defaults.units_mtEnable='on';
+            obj.info.defaults.mtEnable='on';
+            obj.info.defaults.mt_btnEnable='on';
+            obj.info.defaults.prestim_scope_extEnable='on';
+            obj.info.defaults.poststim_scope_extEnable='on';
+            obj.info.defaults.trials_per_conditionEnable='on';
+            obj.info.defaults.mt_mvEnable='on';
+            obj.info.defaults.thresholding_methodEnable='on';
+            obj.info.defaults.stimulation_intensitiesEnable='on';
+            obj.info.defaults.taEnable='on';
+            obj.info.defaults.trigdelayEnable='on';
+            obj.info.defaults.totalvolumesEnable='on';
+            obj.info.defaults.volumes_condEnable='on';
+            obj.info.defaults.manual_stim_intenEnable='on';
+            obj.info.defaults.units_msoEnable='on';
+            obj.info.defaults.units_mtEnable='on';
+            obj.info.defaults.mt_mvEnable='on';
+            obj.info.defaults.mt_starting_stim_intenEnable='on';
+            obj.par.(obj.info.event.current_session).(obj.info.event.measure_being_added)=obj.info.defaults;
+        end
+        function default_par_tmsfmri(obj)
+            obj.info.defaults.target_muscle='APBr';
+            obj.info.defaults.stimulation_intensities=[30 40 50 60 70 80];
+            obj.info.defaults.trials_per_condition=[15];
+            obj.info.defaults.iti=[4 6];
+            obj.info.defaults.mep_onset=15;
+            obj.info.defaults.mep_offset=50;
+            obj.info.defaults.prestim_scope_ext=50;
+            obj.info.defaults.poststim_scope_ext=150;
+            obj.info.defaults.prestim_scope_plt=20;
+            obj.info.defaults.poststim_scope_plt=100;
+            obj.info.defaults.units_mso=1;
+            obj.info.defaults.units_mt=0;
+            obj.info.defaults.mt=[];
+            %             obj.info.defaults.mt_btn
+            obj.info.defaults.ylim_max=+5000;
+            obj.info.defaults.ylim_min=-5000;
+            obj.info.defaults.FontSize=14;
+            obj.info.defaults.mt_mv=0.05;
+            obj.info.defaults.thresholding_method=2;
+            obj.info.defaults.trials_to_avg=15;
+            %specifically for tms-fmri
+            obj.info.defaults.ta=916;
+            obj.info.defaults.trigdelay=14;
+            obj.info.defaults.volumes_cond=[18 19 20 21 22];
+            obj.info.defaults.totalvolumes=900;
+            obj.info.defaults.trials_for_mean_annotation=5;
+            obj.info.defaults.reset_pressed=0;
+            obj.info.defaults.plot_reset_pressed=0;
+            obj.info.defaults.manual_stim_inten=1;
+            obj.info.defaults.save_plt=0;
+            obj.info.defaults.result_mt=11;
+            obj.info.defaults.mt_starting_stim_inten=25;
+            obj.info.defaults.target_muscleEnable='on';
+            obj.info.defaults.runEnable='on';
+            obj.info.defaults.units_msoEnable='on';
+            obj.info.defaults.units_mtEnable='on';
+            obj.info.defaults.mtEnable='on';
+            obj.info.defaults.mt_btnEnable='on';
+            obj.info.defaults.prestim_scope_extEnable='on';
+            obj.info.defaults.poststim_scope_extEnable='on';
+            obj.info.defaults.trials_per_conditionEnable='on';
+            obj.info.defaults.mt_mvEnable='on';
+            obj.info.defaults.thresholding_methodEnable='on';
+            obj.info.defaults.stimulation_intensitiesEnable='on';
+            obj.info.defaults.taEnable='on';
+            obj.info.defaults.trigdelayEnable='on';
+            obj.info.defaults.totalvolumesEnable='on';
+            obj.info.defaults.volumes_condEnable='on';
+            obj.info.defaults.manual_stim_intenEnable='on';
+            obj.info.defaults.units_msoEnable='on';
+            obj.info.defaults.units_mtEnable='on';
+            obj.info.defaults.mt_mvEnable='on';
+            obj.info.defaults.mt_starting_stim_intenEnable='on';
+            obj.par.(obj.info.event.current_session).(obj.info.event.measure_being_added)=obj.info.defaults;
         end
         function func_load_mep_par(obj)
             obj.pi.mep.target_muscle.String=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).target_muscle);
@@ -2135,27 +2334,27 @@ classdef BEST < handle
             obj.bst.sessions.(obj.bst.inputs.current_session).(obj.bst.inputs.current_measurement).inputs=obj.bst.inputs;
             obj.bst.best_trialprep;
             
-           %% Font updating
-           obj.bst.info.axes.mep
+            %% Font updating
+            obj.bst.info.axes.mep
             obj.bst.info.axes.mep.FontSize=obj.bst.inputs.FontSize;
             %% Graph Y lim setting
             set(obj.bst.info.axes.mep,'YLim',[obj.bst.inputs.ylim_min obj.bst.inputs.ylim_max])
-             y_ticks_mep=linspace(obj.bst.sessions.(obj.bst.inputs.current_session).(obj.bst.inputs.current_measurement).inputs.ylim_min,obj.bst.sessions.(obj.bst.inputs.current_session).(obj.bst.inputs.current_measurement).inputs.ylim_max,5);
-                yticks(y_ticks_mep);
+            y_ticks_mep=linspace(obj.bst.sessions.(obj.bst.inputs.current_session).(obj.bst.inputs.current_measurement).inputs.ylim_min,obj.bst.sessions.(obj.bst.inputs.current_session).(obj.bst.inputs.current_measurement).inputs.ylim_max,5);
+            yticks(y_ticks_mep);
             
             %% Graph X lim setting
-                xlim([obj.bst.sessions.(obj.bst.inputs.current_session).(obj.bst.inputs.current_measurement).info.timevector(1), obj.bst.sessions.(obj.bst.inputs.current_session).(obj.bst.inputs.current_measurement).info.timevector(end)]);
-
+            xlim([obj.bst.sessions.(obj.bst.inputs.current_session).(obj.bst.inputs.current_measurement).info.timevector(1), obj.bst.sessions.(obj.bst.inputs.current_session).(obj.bst.inputs.current_measurement).info.timevector(end)]);
             
-                %% MEP search window setting
-                delete(obj.bst.sessions.(obj.bst.inputs.current_session).(obj.bst.inputs.current_measurement).info.handle_gridxy);
-                mat1=obj.bst.sessions.(obj.bst.inputs.current_session).(obj.bst.inputs.current_measurement).inputs.prestim_scope_plt*(-1):10:obj.bst.sessions.(obj.bst.inputs.current_session).(obj.bst.inputs.current_measurement).inputs.poststim_scope_plt;
-                mat2=[0 obj.bst.inputs.mep_onset*1000 obj.bst.inputs.mep_offset*1000 obj.bst.sessions.(obj.bst.inputs.current_session).(obj.bst.inputs.current_measurement).info.timevector(end)];
-                mat=unique(sort([mat1 mat2]));
-                mat=unique(mat);
-                xticks(mat);
-                obj.bst.sessions.(obj.bst.inputs.current_session).(obj.bst.inputs.current_measurement).info.handle_gridxy=gridxy([0 (obj.bst.inputs.mep_onset*1000):0.25:(obj.bst.inputs.mep_offset*1000)],'Color',[219/255 246/255 255/255],'linewidth',1) ;
-                
+            
+            %% MEP search window setting
+            delete(obj.bst.sessions.(obj.bst.inputs.current_session).(obj.bst.inputs.current_measurement).info.handle_gridxy);
+            mat1=obj.bst.sessions.(obj.bst.inputs.current_session).(obj.bst.inputs.current_measurement).inputs.prestim_scope_plt*(-1):10:obj.bst.sessions.(obj.bst.inputs.current_session).(obj.bst.inputs.current_measurement).inputs.poststim_scope_plt;
+            mat2=[0 obj.bst.inputs.mep_onset*1000 obj.bst.inputs.mep_offset*1000 obj.bst.sessions.(obj.bst.inputs.current_session).(obj.bst.inputs.current_measurement).info.timevector(end)];
+            mat=unique(sort([mat1 mat2]));
+            mat=unique(mat);
+            xticks(mat);
+            obj.bst.sessions.(obj.bst.inputs.current_session).(obj.bst.inputs.current_measurement).info.handle_gridxy=gridxy([0 (obj.bst.inputs.mep_onset*1000):0.25:(obj.bst.inputs.mep_offset*1000)],'Color',[219/255 246/255 255/255],'linewidth',1) ;
+            
                 
             
         end
@@ -2256,6 +2455,28 @@ classdef BEST < handle
             obj.bst.inputs.plot_reset_pressed=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).plot_reset_pressed;
             obj.bst.sessions.(obj.bst.inputs.current_session).(obj.bst.inputs.current_measurement).inputs=obj.bst.inputs;
             obj.bst.best_trialprep;
+            
+            %% Font updating
+            obj.bst.info.axes.mep
+            obj.bst.info.axes.mep.FontSize=obj.bst.inputs.FontSize;
+            %% Graph Y lim setting
+            set(obj.bst.info.axes.mep,'YLim',[obj.bst.inputs.ylim_min obj.bst.inputs.ylim_max])
+            y_ticks_mep=linspace(obj.bst.sessions.(obj.bst.inputs.current_session).(obj.bst.inputs.current_measurement).inputs.ylim_min,obj.bst.sessions.(obj.bst.inputs.current_session).(obj.bst.inputs.current_measurement).inputs.ylim_max,5);
+            yticks(y_ticks_mep);
+            
+            %% Graph X lim setting
+            xlim([obj.bst.sessions.(obj.bst.inputs.current_session).(obj.bst.inputs.current_measurement).info.timevector(1), obj.bst.sessions.(obj.bst.inputs.current_session).(obj.bst.inputs.current_measurement).info.timevector(end)]);
+            
+            
+            %% MEP search window setting
+            delete(obj.bst.sessions.(obj.bst.inputs.current_session).(obj.bst.inputs.current_measurement).info.handle_gridxy);
+            mat1=obj.bst.sessions.(obj.bst.inputs.current_session).(obj.bst.inputs.current_measurement).inputs.prestim_scope_plt*(-1):10:obj.bst.sessions.(obj.bst.inputs.current_session).(obj.bst.inputs.current_measurement).inputs.poststim_scope_plt;
+            mat2=[0 obj.bst.inputs.mep_onset*1000 obj.bst.inputs.mep_offset*1000 obj.bst.sessions.(obj.bst.inputs.current_session).(obj.bst.inputs.current_measurement).info.timevector(end)];
+            mat=unique(sort([mat1 mat2]));
+            mat=unique(mat);
+            xticks(mat);
+            obj.bst.sessions.(obj.bst.inputs.current_session).(obj.bst.inputs.current_measurement).info.handle_gridxy=gridxy([0 (obj.bst.inputs.mep_onset*1000):0.25:(obj.bst.inputs.mep_offset*1000)],'Color',[219/255 246/255 255/255],'linewidth',1) ;
+            
         end
         function cb_pi_mt_run(obj)
             obj.disable_listboxes
@@ -3090,8 +3311,8 @@ classdef BEST < handle
             % row 15
             mep_panel_15 = uix.HBox( 'Parent', obj.pi.mt_ptc.vb, 'Spacing', 5, 'Padding', 2  );
             uicontrol( 'Style','text','Parent', mep_panel_15,'String','Y Axis Max/Min (microV):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            obj.pi.mt_ptc.ylim_max=uicontrol( 'Style','edit','Parent', mep_panel_15 ,'FontSize',11,'String','8000','Callback',@(~,~)obj.cb_pi_mt_ptc_ylim_max);
             obj.pi.mt_ptc.ylim_min=uicontrol( 'Style','edit','Parent', mep_panel_15 ,'FontSize',11,'String','-8000','Callback',@(~,~)obj.cb_pi_mt_ptc_ylim_min);
+            obj.pi.mt_ptc.ylim_max=uicontrol( 'Style','edit','Parent', mep_panel_15 ,'FontSize',11,'String','8000','Callback',@(~,~)obj.cb_pi_mt_ptc_ylim_max);
             set( mep_panel_15, 'Widths', [150 -2 -2]);
             
             
@@ -3108,7 +3329,7 @@ classdef BEST < handle
             uicontrol( 'Style','text','Parent', mep_panel_16,'String','Trials No for Mean MEP Amp:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
             obj.pi.mt_ptc.trials_for_mean_annotation=uicontrol( 'Style','edit','Parent', mep_panel_16 ,'FontSize',11,'String','5','Callback',@(~,~)obj.cb_pi_mt_ptc_trials_for_mean_annotation);
             obj.pi.mt_ptc.trials_annotated_reset=uicontrol( 'Style','PushButton','Parent', mep_panel_16 ,'FontSize',10,'String','Reset Mean','Callback',@(~,~)obj.cb_pi_mt_ptc_trials_reset);
-            obj.pi.mt_ptc.trials_annotated_reset_plot=uicontrol( 'Style','PushButton','Parent', mep_panel_16 ,'FontSize',10,'String','Reset Plot','Callback',@(~,~)obj.cb_pi_mt_ptc_plot_reset);
+            obj.pi.mt_ptc.trials_annotated_reset_plot=uicontrol( 'Style','PushButton','Parent', mep_panel_16 ,'FontSize',10,'String','Reset Mean Plot','Callback',@(~,~)obj.cb_pi_mt_ptc_plot_reset);
             
             set( mep_panel_16, 'Widths', [150 -1 -2 -2]);
             
@@ -3222,6 +3443,8 @@ classdef BEST < handle
             obj.bst.inputs.reset_pressed=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).reset_pressed;
             obj.bst.inputs.plot_reset_pressed=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).plot_reset_pressed;
             obj.pr_mt;
+            obj.cb_menu_save;
+
             
             obj.bst.best_motorthreshold_pest_tc;
             obj.bst.sessions.(obj.bst.inputs.current_session).(obj.bst.inputs.current_measurement).results.mt
@@ -3253,7 +3476,9 @@ classdef BEST < handle
                 close(figg)
             end
             obj.enable_listboxes
-            
+            obj.cb_menu_save;
+            delete(sprintf('%s.mat',obj.bst.info.save_str_runtime));
+
         end
         function cb_pi_mt_ptc_update(obj)
             
@@ -3319,7 +3544,7 @@ classdef BEST < handle
             obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).target_muscle=obj.pi.mt_ptc.target_muscle.String;
         end
         function cb_pi_mt_ptc_thresholding_method(obj)
-            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).thresholding_method=str2num(obj.pi.mt_ptc.thresholding_method.Value);
+            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).thresholding_method_value=(obj.pi.mt_ptc.thresholding_method.Value);
         end
         function cb_pi_mt_ptc_mt_mv(obj)
             obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).mt_mv=str2num(obj.pi.mt_ptc.mt_mv.String);
