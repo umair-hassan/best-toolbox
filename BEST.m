@@ -247,7 +247,8 @@ classdef BEST < handle
             end
         end
         function cb_pmd_lb_sessions_pasteup(obj)
-            if (obj.info.session_copy_id==0)
+            if (obj.info.session_copy_id==0 || isempty(obj.info.session_copied)==1)
+                errordlg('No Session is copied, if you are trying to paste already pasted session, please copy it again.','BEST Toolbox');
                 return
             else
             if(obj.pmd.lb_sessions.listbox.Value-1~=0)
@@ -298,12 +299,14 @@ classdef BEST < handle
             end
              
             obj.info.session_copied=[];
+             obj.info.session_no=obj.info.session_no+1;
             obj.cb_session_listbox;
 
             end
         end
         function cb_pmd_lb_sessions_pastedown(obj)
-            if (obj.info.session_copy_id==0)
+            if (obj.info.session_copy_id==0|| isempty(obj.info.session_copied)==1)
+                errordlg('No Session is copied, if you are trying to paste already pasted session, please copy it again.','BEST Toolbox');
                 return
             else
             paste_value=obj.pmd.lb_sessions.listbox.Value+1;           
@@ -348,6 +351,7 @@ classdef BEST < handle
              end
              
             obj.info.session_copied=[];
+             obj.info.session_no=obj.info.session_no+1;
             obj.cb_session_listbox;
 
             end
@@ -434,10 +438,12 @@ classdef BEST < handle
             end           
         end
         function cb_pmd_lb_measures_pasteup(obj)
-  
-           if(obj.info.copy_index<1)
+           if(obj.info.copy_index<1 || isempty(obj.data.meas_copied)==1)
+               errordlg('No Measurement is copied, if you are trying to paste already pasted measurement, please copy it again.','BEST Toolbox');
                return
            else
+              
+                   
                 if(obj.pmd.lb_measures.listbox.Value-1>=0)
                     if(obj.pmd.lb_measures.listbox.Value-1==0)
                         paste_value=obj.pmd.lb_measures.listbox.Value;
@@ -528,7 +534,8 @@ classdef BEST < handle
            end
         end
         function cb_pmd_lb_measures_pastedown(obj)
-            if(obj.info.copy_index<1)
+            if(obj.info.copy_index<1|| isempty(obj.data.meas_copied)==1)
+               errordlg('No Measurement is copied, if you are trying to paste already pasted measurement, please copy it again.','BEST Toolbox');
                return
            else
            
