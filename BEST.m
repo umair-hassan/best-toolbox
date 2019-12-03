@@ -3,7 +3,7 @@ classdef BEST < handle
         par
         bst
         info
-        data  
+        data
         save_buffer
     end
     
@@ -16,8 +16,8 @@ classdef BEST < handle
         panel
         pulse
         fig
-        menu 
-%         save_buffer
+        menu
+        %         save_buffer
     end
     
     methods
@@ -65,7 +65,7 @@ classdef BEST < handle
             obj.info.session_copy_id=0;
             obj.info.measurement_paste_marker=0;
             obj.info.copy_index=0;
-
+            
         end
         function create_menu(obj)
             
@@ -143,7 +143,7 @@ classdef BEST < handle
             mus4 = uimenu(m_sessions,'label','Delete','Callback',@(~,~)obj.cb_pmd_lb_sessions_del);
             mus5 = uimenu(m_sessions,'label','Move Up','Callback',@(~,~)obj.cb_pmd_lb_sessions_moveup);
             mus5 = uimenu(m_sessions,'label','Move Down','Callback',@(~,~)obj.cb_pmd_lb_sessions_movedown);
-
+            
             obj.pmd.lb_sessions.listbox=uicontrol( 'Style','listbox','Parent', pmd_vbox ,'KeyPressFcn',@(~,~)obj.cb_pmd_lb_session_keypressfcn,'FontSize',11,'String',obj.pmd.lb_sessions.string,'uicontextmenu',m_sessions,'Callback',@(~,~)obj.cb_session_listbox);
             
             %empty 8th horizontal row on first panel
@@ -160,7 +160,7 @@ classdef BEST < handle
             mu5 = uimenu(m,'label','Move Up','Callback',@(~,~)obj.cb_pmd_lb_measures_moveup);
             mu6 = uimenu(m,'label','Move Down','Callback',@(~,~)obj.cb_pmd_lb_measures_movedown);
             obj.pmd.lb_measure_menu_loadresults=uimenu(m,'label','Load Results','Callback',@(~,~)obj.cb_pmd_lb_measure_menu_loadresult);
-
+            
             obj.pmd.lb_measures.listbox=uicontrol( 'Style','listbox','Parent', pmd_vbox ,'KeyPressFcn',@(~,~)obj.cb_pmd_lb_measure_keypressfcn,'FontSize',11,'String',obj.pmd.lb_measures.string,'uicontextmenu',m,'Callback',@(~,~)obj.cb_measure_listbox);
             m=uicontextmenu(obj.fig.handle);
             
@@ -172,28 +172,28 @@ classdef BEST < handle
             if (numel(obj.pmd.lb_sessions.listbox.String)==0 || obj.pmd.lb_sessions.listbox.Value==0)
                 return
             else
-            value = double(get(gcf,'CurrentCharacter'));
-            if(value==117)
-                obj.cb_pmd_lb_sessions_moveup
-            elseif(value==100)
-                obj.cb_pmd_lb_sessions_movedown
+                value = double(get(gcf,'CurrentCharacter'));
+                if(value==117)
+                    obj.cb_pmd_lb_sessions_moveup
+                elseif(value==100)
+                    obj.cb_pmd_lb_sessions_movedown
+                end
             end
-            end
-                
+            
         end
         function cb_pmd_lb_measure_keypressfcn(obj)
             if (numel(obj.pmd.lb_measures.listbox.String)==0 || obj.pmd.lb_measures.listbox.Value==0)
                 return
             else
-            value = double(get(gcf,'CurrentCharacter'));
-            if(value==117)
-                obj.cb_pmd_lb_measures_moveup
-            elseif(value==100)
-                obj.cb_pmd_lb_measures_movedown
+                value = double(get(gcf,'CurrentCharacter'));
+                if(value==117)
+                    obj.cb_pmd_lb_measures_moveup
+                elseif(value==100)
+                    obj.cb_pmd_lb_measures_movedown
+                end
             end
-            end
-                
-         end
+            
+        end
         function cb_pmd_exp_title_editfield(obj)
             if(isvarname(obj.pmd.exp_title.editfield.String)==0)
                 errordlg('Experiment Title is an invalid string. Characters found in your string are not allowed by your operating system as filename. Please use a meaningful string that is not starting with a numeric character or space charachet and do not contain any special characters to proceed.','BEST Toolbox');
@@ -205,45 +205,45 @@ classdef BEST < handle
             if (numel(obj.pmd.lb_sessions.listbox.String)==0 || obj.pmd.lb_sessions.listbox.Value==0)
                 return
             else
-            answer = questdlg('If you want to delete this session, the data saved associated with this session will also be deleted, press DELETE to continue.','BEST Toolbox','Return','DELETE','Return');
-            switch answer
-                case 'DELETE'
-            selected_session=obj.pmd.lb_sessions.listbox.String(obj.pmd.lb_sessions.listbox.Value);
-            selected_session=selected_session{1};
-            obj.par.(selected_session)=[];
-            obj.bst.sessions.(selected_session)=[];
-            obj.info.session_matrix(obj.pmd.lb_sessions.listbox.Value)=[];
-            obj.pmd.lb_sessions.string(obj.pmd.lb_sessions.listbox.Value)=[];
-            obj.data.(selected_session)=[];
-            obj.info.session_no=obj.info.session_no-1;
-            obj.pmd.lb_sessions.listbox.String=obj.info.session_matrix;
-            if(obj.info.session_no~=0)
-            obj.pmd.lb_sessions.listbox.Value=1;
-            else
-                return;
-            end
-            obj.cb_session_listbox
-                case 'Return'
-                    return
-            end
+                answer = questdlg('If you want to delete this session, the data saved associated with this session will also be deleted, press DELETE to continue.','BEST Toolbox','Return','DELETE','Return');
+                switch answer
+                    case 'DELETE'
+                        selected_session=obj.pmd.lb_sessions.listbox.String(obj.pmd.lb_sessions.listbox.Value);
+                        selected_session=selected_session{1};
+                        obj.par.(selected_session)=[];
+                        obj.bst.sessions.(selected_session)=[];
+                        obj.info.session_matrix(obj.pmd.lb_sessions.listbox.Value)=[];
+                        obj.pmd.lb_sessions.string(obj.pmd.lb_sessions.listbox.Value)=[];
+                        obj.data.(selected_session)=[];
+                        obj.info.session_no=obj.info.session_no-1;
+                        obj.pmd.lb_sessions.listbox.String=obj.info.session_matrix;
+                        if(obj.info.session_no~=0)
+                            obj.pmd.lb_sessions.listbox.Value=1;
+                        else
+                            return;
+                        end
+                        obj.cb_session_listbox
+                    case 'Return'
+                        return
+                end
             end
             % summary of above steps
-            % find the value of listbox 
+            % find the value of listbox
             % get the session name from the session listbox
             % delete that from the par
             % delete that from the bst
             % delete that from anywhere in the listavailable
-            % minue one the session number 
+            % minue one the session number
             % update the session to be first one
-            % update the current session to be first one 
+            % update the current session to be first one
             
-        end 
+        end
         function cb_pmd_lb_sessions_copy(obj)
             if (numel(obj.pmd.lb_sessions.listbox.String)==0 || obj.pmd.lb_sessions.listbox.Value==0)
                 return
             else
-            obj.info.session_copy_id=obj.info.session_copy_id+1;
-            obj.info.session_copied=obj.pmd.lb_sessions.listbox.String(obj.pmd.lb_sessions.listbox.Value)
+                obj.info.session_copy_id=obj.info.session_copy_id+1;
+                obj.info.session_copied=obj.pmd.lb_sessions.listbox.String(obj.pmd.lb_sessions.listbox.Value)
             end
         end
         function cb_pmd_lb_sessions_pasteup(obj)
@@ -251,57 +251,57 @@ classdef BEST < handle
                 errordlg('No Session is copied, if you are trying to paste already pasted session, please copy it again.','BEST Toolbox');
                 return
             else
-            if(obj.pmd.lb_sessions.listbox.Value-1~=0)
-            paste_value=obj.pmd.lb_sessions.listbox.Value-1;
-            else
-                return;
-            end
-            obj.info.session_matrix_copybuffer(1,obj.info.session_copy_id)=obj.info.session_copied
-            obj.info.session_copied=obj.info.session_copied{1}
-            if any(strcmp(obj.info.session_matrix_copybuffer,obj.info.session_copied)) 
-                idx_exist=find(strcmp(obj.info.session_matrix_copybuffer, obj.info.session_copied));
-                idx_exist=num2str(numel(idx_exist));
-                new_session=obj.info.session_copied;
-            new_session=[new_session '_' 'copy' '_' idx_exist];
-            idx_exist=[];
-            else                
-
-            new_session=obj.info.session_copied;
-            new_session=[new_session '_' 'copy'];
-            end
-            
-
-            try
-            obj.par.(new_session)=obj.par.(obj.info.session_copied);
-            catch
-            end
-
-            index=obj.pmd.lb_sessions.listbox.Value;
-            str_a=obj.info.session_matrix(1:index-1);
-            str_b=new_session;
-            str_c=obj.info.session_matrix(index:numel(obj.info.session_matrix));
-            
-            obj.info.session_matrix=[str_a str_b str_c];
-            obj.pmd.lb_sessions.string=obj.info.session_matrix;
-            obj.pmd.lb_sessions.listbox.String=obj.info.session_matrix;
-            obj.pmd.lb_sessions.listbox.Value=paste_value;
-            obj.info.sessoin_no=obj.info.session_no+1;
-            obj.data.(new_session)=obj.data.(obj.info.session_copied);
-            
-            for i=1:numel(obj.data.(obj.info.session_copied).info.measurement_str_to_listbox)
-                obj.info.event.current_session=new_session;
-                obj.info.event.current_measure_fullstr=obj.data.(new_session).info.measurement_str_to_listbox(i);
-                obj.info.event.current_measure_fullstr=obj.info.event.current_measure_fullstr{1};
-                obj.info.event.current_measure_fullstr(obj.info.event.current_measure_fullstr == ' ') = '_';
-                obj.info.event.current_measure=obj.data.(new_session).info.measurement_str(i);
-                obj.info.event.current_measure=obj.info.event.current_measure{1};
-                obj.enable_default_fields;
-            end
-             
-            obj.info.session_copied=[];
-             obj.info.session_no=obj.info.session_no+1;
-            obj.cb_session_listbox;
-
+                if(obj.pmd.lb_sessions.listbox.Value-1~=0)
+                    paste_value=obj.pmd.lb_sessions.listbox.Value-1;
+                else
+                    return;
+                end
+                obj.info.session_matrix_copybuffer(1,obj.info.session_copy_id)=obj.info.session_copied
+                obj.info.session_copied=obj.info.session_copied{1}
+                if any(strcmp(obj.info.session_matrix_copybuffer,obj.info.session_copied))
+                    idx_exist=find(strcmp(obj.info.session_matrix_copybuffer, obj.info.session_copied));
+                    idx_exist=num2str(numel(idx_exist));
+                    new_session=obj.info.session_copied;
+                    new_session=[new_session '_' 'copy' '_' idx_exist];
+                    idx_exist=[];
+                else
+                    
+                    new_session=obj.info.session_copied;
+                    new_session=[new_session '_' 'copy'];
+                end
+                
+                
+                try
+                    obj.par.(new_session)=obj.par.(obj.info.session_copied);
+                catch
+                end
+                
+                index=obj.pmd.lb_sessions.listbox.Value;
+                str_a=obj.info.session_matrix(1:index-1);
+                str_b=new_session;
+                str_c=obj.info.session_matrix(index:numel(obj.info.session_matrix));
+                
+                obj.info.session_matrix=[str_a str_b str_c];
+                obj.pmd.lb_sessions.string=obj.info.session_matrix;
+                obj.pmd.lb_sessions.listbox.String=obj.info.session_matrix;
+                obj.pmd.lb_sessions.listbox.Value=paste_value;
+                obj.info.sessoin_no=obj.info.session_no+1;
+                obj.data.(new_session)=obj.data.(obj.info.session_copied);
+                
+                for i=1:numel(obj.data.(obj.info.session_copied).info.measurement_str_to_listbox)
+                    obj.info.event.current_session=new_session;
+                    obj.info.event.current_measure_fullstr=obj.data.(new_session).info.measurement_str_to_listbox(i);
+                    obj.info.event.current_measure_fullstr=obj.info.event.current_measure_fullstr{1};
+                    obj.info.event.current_measure_fullstr(obj.info.event.current_measure_fullstr == ' ') = '_';
+                    obj.info.event.current_measure=obj.data.(new_session).info.measurement_str(i);
+                    obj.info.event.current_measure=obj.info.event.current_measure{1};
+                    obj.enable_default_fields;
+                end
+                
+                obj.info.session_copied=[];
+                obj.info.session_no=obj.info.session_no+1;
+                obj.cb_session_listbox;
+                
             end
         end
         function cb_pmd_lb_sessions_pastedown(obj)
@@ -309,92 +309,92 @@ classdef BEST < handle
                 errordlg('No Session is copied, if you are trying to paste already pasted session, please copy it again.','BEST Toolbox');
                 return
             else
-            paste_value=obj.pmd.lb_sessions.listbox.Value+1;           
-            obj.info.session_matrix_copybuffer(1,obj.info.session_copy_id)=obj.info.session_copied
-            obj.info.session_copied=obj.info.session_copied{1}
-            if any(strcmp(obj.info.session_matrix_copybuffer,obj.info.session_copied))
-                idx_exist=find(strcmp(obj.info.session_matrix_copybuffer, obj.info.session_copied));
-                idx_exist=num2str(numel(idx_exist));
-                new_session=obj.info.session_copied;
-                new_session=[new_session '_' 'copy' '_' idx_exist];
-                idx_exist=[];
-            else
-                new_session=obj.info.session_copied;
-                new_session=[new_session '_' 'copy'];
-            end
-            
-            try
-                obj.par.(new_session)=obj.par.(obj.info.session_copied);
-            catch
-            end
-            
-            index=obj.pmd.lb_sessions.listbox.Value;
-            str_a=obj.info.session_matrix(1:index);
-            str_b=new_session;
-            str_c=obj.info.session_matrix(index+1:numel(obj.info.session_matrix));
-            
-            obj.info.session_matrix=[str_a str_b str_c];
-            obj.pmd.lb_sessions.string=obj.info.session_matrix;
-            obj.pmd.lb_sessions.listbox.String=obj.info.session_matrix;
-            obj.pmd.lb_sessions.listbox.Value=paste_value;
-            obj.info.sessoin_no=obj.info.session_no+1;
-            obj.data.(new_session)=obj.data.(obj.info.session_copied);
-    
-             for i=1:numel(obj.data.(obj.info.session_copied).info.measurement_str_to_listbox)
-                obj.info.event.current_session=new_session;
-                obj.info.event.current_measure_fullstr=obj.data.(new_session).info.measurement_str_to_listbox(i);
-                obj.info.event.current_measure_fullstr=obj.info.event.current_measure_fullstr{1};
-                obj.info.event.current_measure_fullstr(obj.info.event.current_measure_fullstr == ' ') = '_';
-                obj.info.event.current_measure=obj.data.(new_session).info.measurement_str(i);
-                obj.info.event.current_measure=obj.info.event.current_measure{1};
-                obj.enable_default_fields;
-             end
-             
-            obj.info.session_copied=[];
-             obj.info.session_no=obj.info.session_no+1;
-            obj.cb_session_listbox;
-
+                paste_value=obj.pmd.lb_sessions.listbox.Value+1;
+                obj.info.session_matrix_copybuffer(1,obj.info.session_copy_id)=obj.info.session_copied
+                obj.info.session_copied=obj.info.session_copied{1}
+                if any(strcmp(obj.info.session_matrix_copybuffer,obj.info.session_copied))
+                    idx_exist=find(strcmp(obj.info.session_matrix_copybuffer, obj.info.session_copied));
+                    idx_exist=num2str(numel(idx_exist));
+                    new_session=obj.info.session_copied;
+                    new_session=[new_session '_' 'copy' '_' idx_exist];
+                    idx_exist=[];
+                else
+                    new_session=obj.info.session_copied;
+                    new_session=[new_session '_' 'copy'];
+                end
+                
+                try
+                    obj.par.(new_session)=obj.par.(obj.info.session_copied);
+                catch
+                end
+                
+                index=obj.pmd.lb_sessions.listbox.Value;
+                str_a=obj.info.session_matrix(1:index);
+                str_b=new_session;
+                str_c=obj.info.session_matrix(index+1:numel(obj.info.session_matrix));
+                
+                obj.info.session_matrix=[str_a str_b str_c];
+                obj.pmd.lb_sessions.string=obj.info.session_matrix;
+                obj.pmd.lb_sessions.listbox.String=obj.info.session_matrix;
+                obj.pmd.lb_sessions.listbox.Value=paste_value;
+                obj.info.sessoin_no=obj.info.session_no+1;
+                obj.data.(new_session)=obj.data.(obj.info.session_copied);
+                
+                for i=1:numel(obj.data.(obj.info.session_copied).info.measurement_str_to_listbox)
+                    obj.info.event.current_session=new_session;
+                    obj.info.event.current_measure_fullstr=obj.data.(new_session).info.measurement_str_to_listbox(i);
+                    obj.info.event.current_measure_fullstr=obj.info.event.current_measure_fullstr{1};
+                    obj.info.event.current_measure_fullstr(obj.info.event.current_measure_fullstr == ' ') = '_';
+                    obj.info.event.current_measure=obj.data.(new_session).info.measurement_str(i);
+                    obj.info.event.current_measure=obj.info.event.current_measure{1};
+                    obj.enable_default_fields;
+                end
+                
+                obj.info.session_copied=[];
+                obj.info.session_no=obj.info.session_no+1;
+                obj.cb_session_listbox;
+                
             end
         end
         function cb_pmd_lb_sessions_moveup(obj)
             if (numel(obj.pmd.lb_sessions.listbox.String)==0 || obj.pmd.lb_sessions.listbox.Value==0)
                 return
             else
-            if(numel(obj.pmd.lb_sessions.listbox.String)>1 && obj.pmd.lb_sessions.listbox.Value~=1)
-            moveup_session=obj.info.session_matrix(obj.pmd.lb_sessions.listbox.Value);
-            movedown_session=obj.info.session_matrix(obj.pmd.lb_sessions.listbox.Value-1);
-            obj.info.session_matrix(obj.pmd.lb_sessions.listbox.Value-1)=moveup_session;
-            obj.info.session_matrix(obj.pmd.lb_sessions.listbox.Value)=movedown_session;
-            obj.pmd.lb_sessions.string=obj.info.session_matrix;
-            obj.pmd.lb_sessions.listbox.String=obj.info.session_matrix;
-            obj.pmd.lb_sessions.listbox.Value=obj.pmd.lb_sessions.listbox.Value-1;
-            moveup_session=[];
-            movedown_session=[];
-            obj.cb_session_listbox
-            else
-                return
+                if(numel(obj.pmd.lb_sessions.listbox.String)>1 && obj.pmd.lb_sessions.listbox.Value~=1)
+                    moveup_session=obj.info.session_matrix(obj.pmd.lb_sessions.listbox.Value);
+                    movedown_session=obj.info.session_matrix(obj.pmd.lb_sessions.listbox.Value-1);
+                    obj.info.session_matrix(obj.pmd.lb_sessions.listbox.Value-1)=moveup_session;
+                    obj.info.session_matrix(obj.pmd.lb_sessions.listbox.Value)=movedown_session;
+                    obj.pmd.lb_sessions.string=obj.info.session_matrix;
+                    obj.pmd.lb_sessions.listbox.String=obj.info.session_matrix;
+                    obj.pmd.lb_sessions.listbox.Value=obj.pmd.lb_sessions.listbox.Value-1;
+                    moveup_session=[];
+                    movedown_session=[];
+                    obj.cb_session_listbox
+                else
+                    return
+                end
             end
-            end
-
+            
         end
         function cb_pmd_lb_sessions_movedown(obj)
             if (numel(obj.pmd.lb_sessions.listbox.String)==0 || obj.pmd.lb_sessions.listbox.Value==0)
                 return
             else
-            if(numel(obj.pmd.lb_sessions.listbox.String)>1 && obj.pmd.lb_sessions.listbox.Value<obj.info.session_no)
-            moveup_session=obj.info.session_matrix(obj.pmd.lb_sessions.listbox.Value+1);
-            movedown_session=obj.info.session_matrix(obj.pmd.lb_sessions.listbox.Value);
-            obj.info.session_matrix(obj.pmd.lb_sessions.listbox.Value)=moveup_session;
-            obj.info.session_matrix(obj.pmd.lb_sessions.listbox.Value+1)=movedown_session;
-            obj.pmd.lb_sessions.string=obj.info.session_matrix;
-            obj.pmd.lb_sessions.listbox.String=obj.info.session_matrix;
-            obj.pmd.lb_sessions.listbox.Value=obj.pmd.lb_sessions.listbox.Value+1;
-            moveup_session=[];
-            movedown_session=[];
-            obj.cb_session_listbox
-            else 
-                return
-            end
+                if(numel(obj.pmd.lb_sessions.listbox.String)>1 && obj.pmd.lb_sessions.listbox.Value<obj.info.session_no)
+                    moveup_session=obj.info.session_matrix(obj.pmd.lb_sessions.listbox.Value+1);
+                    movedown_session=obj.info.session_matrix(obj.pmd.lb_sessions.listbox.Value);
+                    obj.info.session_matrix(obj.pmd.lb_sessions.listbox.Value)=moveup_session;
+                    obj.info.session_matrix(obj.pmd.lb_sessions.listbox.Value+1)=movedown_session;
+                    obj.pmd.lb_sessions.string=obj.info.session_matrix;
+                    obj.pmd.lb_sessions.listbox.String=obj.info.session_matrix;
+                    obj.pmd.lb_sessions.listbox.Value=obj.pmd.lb_sessions.listbox.Value+1;
+                    moveup_session=[];
+                    movedown_session=[];
+                    obj.cb_session_listbox
+                else
+                    return
+                end
             end
             
         end
@@ -404,57 +404,57 @@ classdef BEST < handle
                 return
             else
                 answer = questdlg('If you want to delete this measurement, the data saved associated with this measurement will also be deleted, press DELETE to continue.','BEST Toolbox','Return','DELETE','Return');
-            switch answer
-                case 'DELETE'
-            obj.info.event.current_session
-            obj.info.event.current_measure_fullstr
-            
-            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr)=[];
-            obj.bst.sessions.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr)=[];
-            obj.data.(obj.info.event.current_session).info.measurement_str(obj.pmd.lb_measures.listbox.Value)=[];
-            obj.data.(obj.info.event.current_session).info.measurement_str_to_listbox(obj.pmd.lb_measures.listbox.Value)=[];
-            obj.data.(obj.info.event.current_session).info.measurement_str_original(obj.pmd.lb_measures.listbox.Value)=[];
-            obj.data.(obj.info.event.current_session).info.measurement_no=obj.data.(obj.info.event.current_session).info.measurement_no-1;
-            obj.pmd.lb_measures.listbox.String=obj.data.(obj.info.event.current_session).info.measurement_str_to_listbox;          
-            if(obj.data.(obj.info.event.current_session).info.measurement_no~=0)
-                obj.pmd.lb_measures.listbox.Value=1;
-            else
-                return;
+                switch answer
+                    case 'DELETE'
+                        obj.info.event.current_session
+                        obj.info.event.current_measure_fullstr
+                        
+                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr)=[];
+                        obj.bst.sessions.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr)=[];
+                        obj.data.(obj.info.event.current_session).info.measurement_str(obj.pmd.lb_measures.listbox.Value)=[];
+                        obj.data.(obj.info.event.current_session).info.measurement_str_to_listbox(obj.pmd.lb_measures.listbox.Value)=[];
+                        obj.data.(obj.info.event.current_session).info.measurement_str_original(obj.pmd.lb_measures.listbox.Value)=[];
+                        obj.data.(obj.info.event.current_session).info.measurement_no=obj.data.(obj.info.event.current_session).info.measurement_no-1;
+                        obj.pmd.lb_measures.listbox.String=obj.data.(obj.info.event.current_session).info.measurement_str_to_listbox;
+                        if(obj.data.(obj.info.event.current_session).info.measurement_no~=0)
+                            obj.pmd.lb_measures.listbox.Value=1;
+                        else
+                            return;
+                        end
+                        obj.cb_measure_listbox
+                    case 'Return'
+                        return
+                end
             end
-            obj.cb_measure_listbox
-                case 'Return'
-                    return
-            end
-            end
-        end 
+        end
         function cb_pmd_lb_measures_copy(obj)
             if(numel(obj.pmd.lb_measures.listbox.String)==0 || obj.pmd.lb_measures.listbox.Value==0)
                 return
             else
-                obj.data.meas_copied=obj.pmd.lb_measures.listbox.String(obj.pmd.lb_measures.listbox.Value);               
+                obj.data.meas_copied=obj.pmd.lb_measures.listbox.String(obj.pmd.lb_measures.listbox.Value);
                 obj.data.meas_copied_orignial=obj.data.(obj.info.event.current_session).info.measurement_str_original(obj.pmd.lb_measures.listbox.Value);
                 obj.data.copied_frm_session=obj.info.event.current_session;
                 obj.info.copy_index=obj.info.copy_index+1;
-            end           
+            end
         end
         function cb_pmd_lb_measures_pasteup(obj)
-           if(obj.info.copy_index<1 || isempty(obj.data.meas_copied)==1)
-               errordlg('No Measurement is copied, if you are trying to paste already pasted measurement, please copy it again.','BEST Toolbox');
-               return
-           else
-              
-                   
+            if(obj.info.copy_index<1 || isempty(obj.data.meas_copied)==1)
+                errordlg('No Measurement is copied, if you are trying to paste already pasted measurement, please copy it again.','BEST Toolbox');
+                return
+            else
+                
+                
                 if(obj.pmd.lb_measures.listbox.Value-1>=0)
                     if(obj.pmd.lb_measures.listbox.Value-1==0)
                         paste_value=obj.pmd.lb_measures.listbox.Value;
                     else
-                    paste_value=obj.pmd.lb_measures.listbox.Value-1;
+                        paste_value=obj.pmd.lb_measures.listbox.Value-1;
                     end
                 else
                     return;
                 end
                 obj.data.(obj.info.event.current_session).info.meas_copy_id=obj.data.(obj.info.event.current_session).info.meas_copy_id+1;
-
+                
                 obj.data.(obj.info.event.current_session).info.meas_matrix_copybuffer(1,obj.data.(obj.info.event.current_session).info.meas_copy_id)=obj.data.meas_copied;
                 
                 any(strcmp(obj.data.(obj.info.event.current_session).info.meas_matrix_copybuffer,obj.data.meas_copied))
@@ -464,19 +464,19 @@ classdef BEST < handle
                     new_session=obj.data.meas_copied{1};
                     new_session=[new_session '_' 'copy' '_' idx_exist];
                     idx_exist=[];
-                else            
+                else
                     new_session=obj.data.meas_copied;
                     new_session=[new_session '_' 'copy'];
                 end
-                try                
+                try
                     new_session_forpar=new_session;
-                    new_session_forpar(new_session_forpar == ' ') = '_';                  
+                    new_session_forpar(new_session_forpar == ' ') = '_';
                     meas_copied=obj.data.meas_copied{1};
                     meas_copied(meas_copied == ' ') = '_';
                     obj.par.(obj.info.event.current_session).(new_session_forpar)=obj.par.(obj.data.copied_frm_session).(meas_copied);
                 catch
                     disp('error at cb_pmd_lb_measures_pasteup')
-                end   
+                end
                 index=obj.pmd.lb_measures.listbox.Value;
                 
                 switch numel(obj.pmd.lb_measures.listbox.String)
@@ -522,7 +522,7 @@ classdef BEST < handle
                             obj.pmd.lb_measures.listbox.Value=paste_value;
                             
                         end
-                end 
+                end
                 obj.pmd.lb_measures.listbox.String=obj.data.(obj.info.event.current_session).info.measurement_str_to_listbox;
                 obj.data.(obj.info.event.current_session).info.measurement_no=obj.data.(obj.info.event.current_session).info.measurement_no+1;
                 obj.data.meas_copied=[];
@@ -530,15 +530,15 @@ classdef BEST < handle
                 obj.info.event.current_measure=obj.data.meas_copied_orignial;
                 obj.info.event.current_measure=obj.info.event.current_measure{1};
                 obj.enable_default_fields;
-                obj.cb_measure_listbox; 
-           end
+                obj.cb_measure_listbox;
+            end
         end
         function cb_pmd_lb_measures_pastedown(obj)
             if(obj.info.copy_index<1|| isempty(obj.data.meas_copied)==1)
-               errordlg('No Measurement is copied, if you are trying to paste already pasted measurement, please copy it again.','BEST Toolbox');
-               return
-           else
-           
+                errordlg('No Measurement is copied, if you are trying to paste already pasted measurement, please copy it again.','BEST Toolbox');
+                return
+            else
+                
                 obj.data.(obj.info.event.current_session).info.meas_copy_id=obj.data.(obj.info.event.current_session).info.meas_copy_id+1;
                 paste_value=obj.pmd.lb_measures.listbox.Value+1;
                 obj.data.(obj.info.event.current_session).info.meas_matrix_copybuffer(1,obj.data.(obj.info.event.current_session).info.meas_copy_id)=obj.data.meas_copied;
@@ -548,19 +548,19 @@ classdef BEST < handle
                     new_session=obj.data.meas_copied{1};
                     new_session=[new_session '_' 'copy' '_' idx_exist];
                     idx_exist=[];
-                else            
+                else
                     new_session=obj.data.meas_copied;
                     new_session=[new_session '_' 'copy'];
                 end
-                try                
+                try
                     new_session_forpar=new_session;
-                    new_session_forpar(new_session_forpar == ' ') = '_';                  
+                    new_session_forpar(new_session_forpar == ' ') = '_';
                     meas_copied=obj.data.meas_copied{1};
                     meas_copied(meas_copied == ' ') = '_';
                     obj.par.(obj.info.event.current_session).(new_session_forpar)=obj.par.(obj.data.copied_frm_session).(meas_copied);
                 catch
                     disp('error at cb_pmd_lb_measures_pastedown')
-                end   
+                end
                 index=obj.pmd.lb_measures.listbox.Value;
                 switch numel(obj.pmd.lb_measures.listbox.String)
                     case 0
@@ -614,66 +614,66 @@ classdef BEST < handle
                 obj.info.event.current_measure=obj.info.event.current_measure{1};
                 obj.enable_default_fields;
                 obj.cb_measure_listbox;
-           end
+            end
         end
         function cb_pmd_lb_measures_moveup(obj)
             if(numel(obj.pmd.lb_measures.listbox.String)==0 || obj.pmd.lb_measures.listbox.Value==0)
                 return
             else
-            if(numel(obj.pmd.lb_measures.listbox.String)>1 && obj.pmd.lb_measures.listbox.Value~=1)
-            moveup_session=obj.data.(obj.info.event.current_session).info.measurement_str_to_listbox(obj.pmd.lb_measures.listbox.Value);
-            movedown_session=obj.data.(obj.info.event.current_session).info.measurement_str_to_listbox(obj.pmd.lb_measures.listbox.Value-1);
-            obj.data.(obj.info.event.current_session).info.measurement_str_to_listbox(obj.pmd.lb_measures.listbox.Value-1)=moveup_session;
-            obj.data.(obj.info.event.current_session).info.measurement_str_to_listbox(obj.pmd.lb_measures.listbox.Value)=movedown_session;
-            obj.pmd.lb_measures.listbox.String=obj.data.(obj.info.event.current_session).info.measurement_str_to_listbox;
-            
-            
-            moveup_session=obj.data.(obj.info.event.current_session).info.measurement_str(obj.pmd.lb_measures.listbox.Value);
-            movedown_session=obj.data.(obj.info.event.current_session).info.measurement_str(obj.pmd.lb_measures.listbox.Value-1);
-            obj.data.(obj.info.event.current_session).info.measurement_str(obj.pmd.lb_measures.listbox.Value-1)=moveup_session;
-            obj.data.(obj.info.event.current_session).info.measurement_str(obj.pmd.lb_measures.listbox.Value)=movedown_session;
-            
-            obj.data.(obj.info.event.current_session).info.measurement_str_original=obj.data.(obj.info.event.current_session).info.measurement_str
-            
-            
-            obj.pmd.lb_measures.listbox.Value=obj.pmd.lb_measures.listbox.Value-1;
-            moveup_session=[];
-            movedown_session=[];
-            obj.cb_measure_listbox
-            else
-                return
+                if(numel(obj.pmd.lb_measures.listbox.String)>1 && obj.pmd.lb_measures.listbox.Value~=1)
+                    moveup_session=obj.data.(obj.info.event.current_session).info.measurement_str_to_listbox(obj.pmd.lb_measures.listbox.Value);
+                    movedown_session=obj.data.(obj.info.event.current_session).info.measurement_str_to_listbox(obj.pmd.lb_measures.listbox.Value-1);
+                    obj.data.(obj.info.event.current_session).info.measurement_str_to_listbox(obj.pmd.lb_measures.listbox.Value-1)=moveup_session;
+                    obj.data.(obj.info.event.current_session).info.measurement_str_to_listbox(obj.pmd.lb_measures.listbox.Value)=movedown_session;
+                    obj.pmd.lb_measures.listbox.String=obj.data.(obj.info.event.current_session).info.measurement_str_to_listbox;
+                    
+                    
+                    moveup_session=obj.data.(obj.info.event.current_session).info.measurement_str(obj.pmd.lb_measures.listbox.Value);
+                    movedown_session=obj.data.(obj.info.event.current_session).info.measurement_str(obj.pmd.lb_measures.listbox.Value-1);
+                    obj.data.(obj.info.event.current_session).info.measurement_str(obj.pmd.lb_measures.listbox.Value-1)=moveup_session;
+                    obj.data.(obj.info.event.current_session).info.measurement_str(obj.pmd.lb_measures.listbox.Value)=movedown_session;
+                    
+                    obj.data.(obj.info.event.current_session).info.measurement_str_original=obj.data.(obj.info.event.current_session).info.measurement_str
+                    
+                    
+                    obj.pmd.lb_measures.listbox.Value=obj.pmd.lb_measures.listbox.Value-1;
+                    moveup_session=[];
+                    movedown_session=[];
+                    obj.cb_measure_listbox
+                else
+                    return
+                end
             end
-            end
             
-
+            
         end
         function cb_pmd_lb_measures_movedown(obj)
             if(numel(obj.pmd.lb_measures.listbox.String)==0 || obj.pmd.lb_measures.listbox.Value==0)
                 return
             else
-            if(numel(obj.pmd.lb_measures.listbox.String)>1 && obj.pmd.lb_measures.listbox.Value<obj.data.(obj.info.event.current_session).info.measurement_no)
-                moveup_session=obj.data.(obj.info.event.current_session).info.measurement_str_to_listbox(obj.pmd.lb_measures.listbox.Value+1);
-            movedown_session=obj.data.(obj.info.event.current_session).info.measurement_str_to_listbox(obj.pmd.lb_measures.listbox.Value);
-            obj.data.(obj.info.event.current_session).info.measurement_str_to_listbox(obj.pmd.lb_measures.listbox.Value)=moveup_session;
-            obj.data.(obj.info.event.current_session).info.measurement_str_to_listbox(obj.pmd.lb_measures.listbox.Value+1)=movedown_session;
-            obj.pmd.lb_measures.listbox.String=obj.data.(obj.info.event.current_session).info.measurement_str_to_listbox;
-            
-            
-            moveup_session=obj.data.(obj.info.event.current_session).info.measurement_str(obj.pmd.lb_measures.listbox.Value+1);
-            movedown_session=obj.data.(obj.info.event.current_session).info.measurement_str(obj.pmd.lb_measures.listbox.Value);
-            obj.data.(obj.info.event.current_session).info.measurement_str(obj.pmd.lb_measures.listbox.Value)=moveup_session;
-            obj.data.(obj.info.event.current_session).info.measurement_str(obj.pmd.lb_measures.listbox.Value+1)=movedown_session;
-            
-            obj.data.(obj.info.event.current_session).info.measurement_str_original=obj.data.(obj.info.event.current_session).info.measurement_str
-            
-            
-            obj.pmd.lb_measures.listbox.Value=obj.pmd.lb_measures.listbox.Value+1;
-            moveup_session=[];
-            movedown_session=[];
-            obj.cb_measure_listbox
-            else 
-                return
-            end
+                if(numel(obj.pmd.lb_measures.listbox.String)>1 && obj.pmd.lb_measures.listbox.Value<obj.data.(obj.info.event.current_session).info.measurement_no)
+                    moveup_session=obj.data.(obj.info.event.current_session).info.measurement_str_to_listbox(obj.pmd.lb_measures.listbox.Value+1);
+                    movedown_session=obj.data.(obj.info.event.current_session).info.measurement_str_to_listbox(obj.pmd.lb_measures.listbox.Value);
+                    obj.data.(obj.info.event.current_session).info.measurement_str_to_listbox(obj.pmd.lb_measures.listbox.Value)=moveup_session;
+                    obj.data.(obj.info.event.current_session).info.measurement_str_to_listbox(obj.pmd.lb_measures.listbox.Value+1)=movedown_session;
+                    obj.pmd.lb_measures.listbox.String=obj.data.(obj.info.event.current_session).info.measurement_str_to_listbox;
+                    
+                    
+                    moveup_session=obj.data.(obj.info.event.current_session).info.measurement_str(obj.pmd.lb_measures.listbox.Value+1);
+                    movedown_session=obj.data.(obj.info.event.current_session).info.measurement_str(obj.pmd.lb_measures.listbox.Value);
+                    obj.data.(obj.info.event.current_session).info.measurement_str(obj.pmd.lb_measures.listbox.Value)=moveup_session;
+                    obj.data.(obj.info.event.current_session).info.measurement_str(obj.pmd.lb_measures.listbox.Value+1)=movedown_session;
+                    
+                    obj.data.(obj.info.event.current_session).info.measurement_str_original=obj.data.(obj.info.event.current_session).info.measurement_str
+                    
+                    
+                    obj.pmd.lb_measures.listbox.Value=obj.pmd.lb_measures.listbox.Value+1;
+                    moveup_session=[];
+                    movedown_session=[];
+                    obj.cb_measure_listbox
+                else
+                    return
+                end
             end
         end
         function cb_pmd_sub_code_editfield(obj)
@@ -687,40 +687,40 @@ classdef BEST < handle
             if(numel(obj.pmd.lb_measures.listbox.String)==0)
                 return
             else
-            if(strcmp(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).runEnable,'off'))
-                delete(obj.pr.mep.axes1)
-                delete(obj.pr.hotspot.axes1)
-                delete(obj.pr.mt.axes_mep)
-                delete(obj.pr.mt.axes_mtplot)
-                delete(obj.pr.ioc.axes_mep)
-                delete(obj.pr.ioc.axes_scatplot)
-                delete(obj.pr.ioc.axes_fitplot)
-                switch obj.info.event.current_measure
-                    case 'MEP Measurement'
-                        obj.pr_mep;
-                        obj.bst.inputs.current_session=obj.info.event.current_session;
-                        obj.bst.inputs.current_measurement=obj.info.event.current_measure_fullstr;
-                        obj.bst.best_mep_posthoc();
-                    case 'MEP Hotspot Search'
-                        obj.pr_hotspot
-                        obj.bst.inputs.current_session=obj.info.event.current_session;
-                        obj.bst.inputs.current_measurement=obj.info.event.current_measure_fullstr;
-                        obj.bst.best_hotspot_posthoc();
-                    case 'MEP Motor Threshold Hunting'
-                        obj.pr_mt
-                        obj.bst.inputs.current_session=obj.info.event.current_session;
-                        obj.bst.inputs.current_measurement=obj.info.event.current_measure_fullstr;
-                        obj.bst.best_mt_posthoc();
-                    case 'MEP Dose Response Curve_sp'
-                        obj.pr_ioc
-                        obj.bst.inputs.current_session=obj.info.event.current_session;
-                        obj.bst.inputs.current_measurement=obj.info.event.current_measure_fullstr;
-                        obj.bst.best_ioc_posthoc();
+                if(strcmp(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).runEnable,'off'))
+                    delete(obj.pr.mep.axes1)
+                    delete(obj.pr.hotspot.axes1)
+                    delete(obj.pr.mt.axes_mep)
+                    delete(obj.pr.mt.axes_mtplot)
+                    delete(obj.pr.ioc.axes_mep)
+                    delete(obj.pr.ioc.axes_scatplot)
+                    delete(obj.pr.ioc.axes_fitplot)
+                    switch obj.info.event.current_measure
+                        case 'MEP Measurement'
+                            obj.pr_mep;
+                            obj.bst.inputs.current_session=obj.info.event.current_session;
+                            obj.bst.inputs.current_measurement=obj.info.event.current_measure_fullstr;
+                            obj.bst.best_mep_posthoc();
+                        case 'MEP Hotspot Search'
+                            obj.pr_hotspot
+                            obj.bst.inputs.current_session=obj.info.event.current_session;
+                            obj.bst.inputs.current_measurement=obj.info.event.current_measure_fullstr;
+                            obj.bst.best_hotspot_posthoc();
+                        case 'MEP Motor Threshold Hunting'
+                            obj.pr_mt
+                            obj.bst.inputs.current_session=obj.info.event.current_session;
+                            obj.bst.inputs.current_measurement=obj.info.event.current_measure_fullstr;
+                            obj.bst.best_mt_posthoc();
+                        case 'MEP Dose Response Curve_sp'
+                            obj.pr_ioc
+                            obj.bst.inputs.current_session=obj.info.event.current_session;
+                            obj.bst.inputs.current_measurement=obj.info.event.current_measure_fullstr;
+                            obj.bst.best_ioc_posthoc();
+                    end
+                else
+                    errordlg('No results exist for this measurement, Please collect the data if you wish to see the results for this particular measure.','BEST Toolbox');
+                    return
                 end
-            else
-                errordlg('No results exist for this measurement, Please collect the data if you wish to see the results for this particular measure.','BEST Toolbox');
-                return
-            end
             end
         end
         function create_inputs_panel(obj)
@@ -734,8 +734,8 @@ classdef BEST < handle
             set(obj.pi.no_measure_slctd_panel.vbox,'Heights',[-2 -0.5 -2])
         end
         function pi_mep(obj)
-                        obj.pi.mep.panel=uix.Panel( 'Parent', obj.pi.empty_panel,'FontSize',14 ,'Units','normalized','Title','MEP Measurement' ,'FontWeight','Bold','TitlePosition','centertop');
-%             obj.pi.mep.panel=uix.ScrollingPanel( 'Parent', obj.pi.empty_panel,'Units','normalized');
+            obj.pi.mep.panel=uix.Panel( 'Parent', obj.pi.empty_panel,'FontSize',14 ,'Units','normalized','Title','MEP Measurement' ,'FontWeight','Bold','TitlePosition','centertop');
+            %             obj.pi.mep.panel=uix.ScrollingPanel( 'Parent', obj.pi.empty_panel,'Units','normalized');
             
             
             obj.pi.mep.vb = uix.VBox( 'Parent', obj.pi.mep.panel, 'Spacing', 5, 'Padding', 5  );
@@ -833,11 +833,11 @@ classdef BEST < handle
             uicontrol( 'Style','text','Parent', mep_panel_15,'String','Trials No for Mean MEP Amp:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
             obj.pi.mep.trials_for_mean_annotation=uicontrol( 'Style','edit','Parent', mep_panel_15 ,'FontSize',11,'String','5','Callback',@(~,~)obj.cb_pi_mep_trials_for_mean_annotation);
             obj.pi.mep.trials_annotated_reset=uicontrol( 'Style','PushButton','Parent', mep_panel_15 ,'FontSize',10,'String','Reset Mean','Callback',@(~,~)obj.cb_pi_mep_trials_reset);
-            obj.pi.mep.trials_annotated_reset_plot=uicontrol( 'Style','PushButton','Parent', mep_panel_15 ,'FontSize',10,'String','Reset Mean Plot','Callback',@(~,~)obj.cb_pi_mep_plot_reset);        
+            obj.pi.mep.trials_annotated_reset_plot=uicontrol( 'Style','PushButton','Parent', mep_panel_15 ,'FontSize',10,'String','Reset Mean Plot','Callback',@(~,~)obj.cb_pi_mep_plot_reset);
             set( mep_panel_15, 'Widths', [150 -1 -2 -2]);
             
-
-             % row 16
+            
+            % row 16
             mep_panel_16 = uix.HBox( 'Parent', obj.pi.mep.vb, 'Spacing', 5, 'Padding', 5  );
             uicontrol( 'Style','text','Parent', mep_panel_16,'String','Save Plot:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
             obj.pi.mep.save_plt=uicontrol( 'Style','checkbox','Parent', mep_panel_16 ,'FontSize',11,'Value',obj.info.defaults.save_plt,'Callback',@(~,~)obj.cb_pi_mep_save_plt);
@@ -862,13 +862,13 @@ classdef BEST < handle
             obj.info.pause=obj.info.pause+1;
             if bitget(obj.info.pause,1) %odd
                 obj.pi.pause.String='Unpause';
-                uiwait 
+                uiwait
             else %even
                 
                 uiresume
                 obj.pi.pause.String='Pause';
             end
-
+            
         end
         function pi_hotspot(obj)
             obj.pi.hotspot.panel=uix.Panel( 'Parent', obj.pi.empty_panel,'FontSize',14 ,'Units','normalized','Title','Motor Hotspot Search' ,'FontWeight','Bold','TitlePosition','centertop');
@@ -884,12 +884,12 @@ classdef BEST < handle
             obj.pi.hotspot.target_muscle=uicontrol( 'Style','edit','Parent', mep_panel_row2 ,'FontSize',11,'Callback',@(~,~)obj.cb_pi_hotspot_target_muscle); %,'Callback',@obj.cb_hotspot_target_muscle
             set( mep_panel_row2, 'Widths', [150 -2]);
             
-% %             % row 3
-% %             mep_panel_row3 = uix.HBox( 'Parent', obj.pi.hotspot.vb, 'Spacing', 5, 'Padding', 5  );
-% %             uicontrol( 'Style','text','Parent', mep_panel_row3,'String','Stimulation Intensities:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-% %             obj.pi.hotspot.stimulation_intensities=uicontrol( 'Style','edit','Parent', mep_panel_row3 ,'FontSize',11,'Callback',@(~,~)obj.cb_pi_hotspot_stimulation_intensities);
-% %             set( mep_panel_row3, 'Widths', [150 -2]);
-% %             
+            % %             % row 3
+            % %             mep_panel_row3 = uix.HBox( 'Parent', obj.pi.hotspot.vb, 'Spacing', 5, 'Padding', 5  );
+            % %             uicontrol( 'Style','text','Parent', mep_panel_row3,'String','Stimulation Intensities:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+            % %             obj.pi.hotspot.stimulation_intensities=uicontrol( 'Style','edit','Parent', mep_panel_row3 ,'FontSize',11,'Callback',@(~,~)obj.cb_pi_hotspot_stimulation_intensities);
+            % %             set( mep_panel_row3, 'Widths', [150 -2]);
+            % %
             % row 4
             mep_panel_row4 = uix.HBox( 'Parent', obj.pi.hotspot.vb, 'Spacing', 5, 'Padding', 5  );
             uicontrol( 'Style','text','Parent', mep_panel_row4,'String','No. of Trials:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
@@ -954,7 +954,7 @@ classdef BEST < handle
             
             set( mep_panel_15, 'Widths', [150 -1 -2 -2]);
             
-             % row 16
+            % row 16
             mep_panel_16 = uix.HBox( 'Parent', obj.pi.hotspot.vb, 'Spacing', 5, 'Padding', 5  );
             uicontrol( 'Style','text','Parent', mep_panel_16,'String','Save Plot:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
             obj.pi.hotspot.save_plt=uicontrol( 'Style','checkbox','Parent', mep_panel_16 ,'FontSize',11,'Value',obj.info.defaults.save_plt,'Callback',@(~,~)obj.cb_pi_hotspot_save_plt);
@@ -969,7 +969,7 @@ classdef BEST < handle
             obj.pi.stop=uicontrol( 'Parent', mep_panel_17 ,'Style','PushButton','String','Stop','FontWeight','Bold','Callback',@(~,~)obj.stop,'Enable','on');
             set( mep_panel_17, 'Widths', [-2 -4 -2 -2]);
             
-           
+            
             
             
             set(obj.pi.hotspot.vb,'Heights',[-0.1 -0.4 -0.4 -0.4 -0.2 -0.2 -0.4 -0.5 -0.4 -0.4 -0.4 -0.4 -0.4 -1 -0.5])
@@ -1168,11 +1168,27 @@ classdef BEST < handle
             set( mep_panel_row12, 'Widths', [200 -2 -2]);
             
             % row 13
+%             %older row 13
+%             mep_panel_13 = uix.HBox( 'Parent', obj.pi.ioc.vb, 'Spacing', 5, 'Padding', 5  );
+%             uicontrol( 'Style','text','Parent', mep_panel_13,'String','Motor Threshold (%MSO):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+%             obj.pi.ioc.mt=uicontrol( 'Style','edit','Parent', mep_panel_13 ,'FontSize',11,'Callback',@(~,~)obj.cb_pi_ioc_mt);
+%             obj.pi.ioc.mt_btn=uicontrol( 'Style','pushbutton','Parent', mep_panel_13 ,'FontSize',11,'String','Measure','Callback',@(~,~)obj.cb_pi_ioc_mt_btn);
+%             set( mep_panel_13, 'Widths', [175 -2 -2]);
+            
             mep_panel_13 = uix.HBox( 'Parent', obj.pi.ioc.vb, 'Spacing', 5, 'Padding', 5  );
             uicontrol( 'Style','text','Parent', mep_panel_13,'String','Motor Threshold (%MSO):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
             obj.pi.ioc.mt=uicontrol( 'Style','edit','Parent', mep_panel_13 ,'FontSize',11,'Callback',@(~,~)obj.cb_pi_ioc_mt);
-            obj.pi.ioc.mt_btn=uicontrol( 'Style','pushbutton','Parent', mep_panel_13 ,'FontSize',11,'String','Measure','Callback',@(~,~)obj.cb_pi_ioc_mt_btn);
+            mt_btn_listbox_str_id= find(strcmp(obj.data.(obj.info.event.current_session).info.measurement_str_original,'MEP Motor Threshold Hunting'));
+            mt_btn_listbox_str=obj.data.(obj.info.event.current_session).info.measurement_str_to_listbox(mt_btn_listbox_str_id);
+            mt_btn_listbox_str=['Select' mt_btn_listbox_str];
+            obj.pi.ioc.mt_btn=uicontrol( 'Style','popupmenu','Parent', mep_panel_13 ,'FontSize',11,'String',mt_btn_listbox_str,'Callback',@(~,~)obj.cb_pi_ioc_mt_btn);
             set( mep_panel_13, 'Widths', [175 -2 -2]);
+            
+            
+            
+            
+            
+            
             
             
             % row 15
@@ -1204,7 +1220,7 @@ classdef BEST < handle
             obj.pi.ioc.save_plt=uicontrol( 'Style','checkbox','Parent', mep_panel_18a ,'FontSize',11,'Value',obj.info.defaults.save_plt,'Callback',@(~,~)obj.cb_pi_ioc_save_plt);
             set( mep_panel_18a, 'Widths', [-2 -2]);
             
-           
+            
             
             uiextras.HBox( 'Parent', obj.pi.ioc.vb)
             
@@ -1335,8 +1351,8 @@ classdef BEST < handle
             
             a=[];
             
-% %             a=arduino;
-          
+            % %             a=arduino;
+            
             
             exp=obj.pmd.exp_title.editfield.String; exp(exp == ' ') = '_';
             sub=obj.pmd.sub_code.editfield.String; sub(sub == ' ') = '_';
@@ -1398,7 +1414,7 @@ classdef BEST < handle
                 
                 while(1)
                     
-               
+                    
                     
                     t=t+1;
                     v(t)=readVoltage(a,'A5');
@@ -1463,9 +1479,9 @@ classdef BEST < handle
                 
                 magventureObject.setAmplitude(intensity_vector(1));
                 set(obj.pi.tmsfmri.status,'String','Ready!');
-
                 
-               
+                
+                
                 %% Triggering Condition Code Burnt to Arduino
                 
                 while(1)
@@ -1610,26 +1626,26 @@ classdef BEST < handle
                 return
             end
             
-%             session_name_space_checking=isspace(session_name_registering)
-%             if(all(session_name_space_checking)==1) || (session_name_space_checking(1)==1)
-%                 errordlg('Session Title cannot be an empty sring or start with a space character, please use a meaningful string to add the intended session again.','BEST Toolbox');
-%                  obj.info.session_no=obj.info.session_no-1;
-%             return
-%             end
-%             session_name_registering(session_name_registering == ' ') = '_';
-%             
-%             try
-%             eval(session_name_registering)
-%             errordlg('Session Title cannot be numeric data type, please use a meaningful string to add the intended session again','BEST Toolbox');
-%             obj.info.session_no=obj.info.session_no-1;
-%             return
-%             catch
-%                             end
-
-                
-                session_name=session_name_registering
+            %             session_name_space_checking=isspace(session_name_registering)
+            %             if(all(session_name_space_checking)==1) || (session_name_space_checking(1)==1)
+            %                 errordlg('Session Title cannot be an empty sring or start with a space character, please use a meaningful string to add the intended session again.','BEST Toolbox');
+            %                  obj.info.session_no=obj.info.session_no-1;
+            %             return
+            %             end
+            %             session_name_registering(session_name_registering == ' ') = '_';
+            %
+            %             try
+            %             eval(session_name_registering)
+            %             errordlg('Session Title cannot be numeric data type, please use a meaningful string to add the intended session again','BEST Toolbox');
+            %             obj.info.session_no=obj.info.session_no-1;
+            %             return
+            %             catch
+            %                             end
             
-            if ~any(strcmp(obj.info.session_matrix,session_name)) 
+            
+            session_name=session_name_registering
+            
+            if ~any(strcmp(obj.info.session_matrix,session_name))
                 obj.info.session_matrix(obj.info.session_no)={session_name};
                 obj.pmd.lb_sessions.string(obj.info.session_no)={session_name};
                 obj.pmd.lb_sessions.listbox.String=obj.pmd.lb_sessions.string;
@@ -1658,7 +1674,7 @@ classdef BEST < handle
             if((numel(obj.pmd.lb_sessions.listbox.String))==0 || obj.info.session_no==0 || obj.pmd.lb_sessions.listbox.Value==0)
                 errordlg('No session is selected for this measurement, please select a session from the listbox to proceed','BEST Toolbox');
                 return
-             end
+            end
             
             
             % %             obj.info.event.current_session=obj.pmd.lb_sessions.listbox.String(obj.pmd.lb_sessions.listbox.Value)
@@ -1713,10 +1729,10 @@ classdef BEST < handle
             
         end
         function cb_session_listbox(obj)
-             if((numel(obj.pmd.lb_sessions.listbox.String))==0 || obj.info.session_no==0)
-                 return
-             end
-                
+            if((numel(obj.pmd.lb_sessions.listbox.String))==0 || obj.info.session_no==0)
+                return
+            end
+            
             obj.info.event.current_session=obj.pmd.lb_sessions.listbox.String(obj.pmd.lb_sessions.listbox.Value);
             obj.info.event.current_session=obj.info.event.current_session{1};
             obj.pmd.lb_measures.listbox.String=obj.data.(obj.info.event.current_session).info.measurement_str_to_listbox;
@@ -1734,7 +1750,7 @@ classdef BEST < handle
         function cb_measure_listbox(obj)
             if(((numel(obj.pmd.lb_measures.listbox.String))==0) || strcmp(obj.info.event.current_session,''))
                 return
-            end            
+            end
             obj.info.event.current_measure_fullstr=obj.pmd.lb_measures.listbox.String(obj.pmd.lb_measures.listbox.Value);
             obj.info.event.current_measure_fullstr
             obj.info.event.current_measure_fullstr=obj.info.event.current_measure_fullstr{1};
@@ -1772,20 +1788,19 @@ classdef BEST < handle
         %% load defaults and pars
         function func_create_defaults(obj)
             disp('defaults entered ------------------------------------------------------------------------')
-             switch obj.info.event.measure_being_added_original
+            switch obj.info.event.measure_being_added_original
                 case 'MEP Measurement'
                     obj.default_par_mep;
-                 case 'MEP Hotspot Search'
+                case 'MEP Hotspot Search'
                     obj.default_par_hotspot;
-                 case 'MEP Motor Threshold Hunting'
+                case 'MEP Motor Threshold Hunting'
                     obj.default_par_mt;
                 case 'TMS fMRI'
                     obj.default_par_tmsfmri;
                 case 'MEP Dose Response Curve_sp'
                     obj.default_par_ioc;
-             end
+            end
         end
-        
         function default_par_mep(obj)
             obj.info.defaults.target_muscle='APBr';
             obj.info.defaults.stimulation_intensities=[30 40 50 60 70 80];
@@ -2279,21 +2294,21 @@ classdef BEST < handle
             % saving figure
             
             if (obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).save_plt==1)
-            exp=obj.pmd.exp_title.editfield.String; exp(exp == ' ') = '_';
-            sub=obj.pmd.sub_code.editfield.String; sub(sub == ' ') = '_';
-            sess=obj.info.event.current_session;
-            meas=obj.info.event.current_measure_fullstr;
-            plt='MEP_Plot';
-            timestr=clock; times1=timestr(4);times2=timestr(5); time=[times1 times2]; time=num2str(time); time(time == ' ') = '_';
-            file_name=[exp '_' sub '_' sess '_' meas '_' plt '_' time];
-            figg=figure('Visible','off','CreateFcn','set(gcf,''Visible'',''on'')','Name',file_name,'NumberTitle','off');
-            copyobj(obj.pr.mep.axes1,figg)
-            set( gca, 'Units', 'normalized', 'Position', [0.2 0.2 0.7 0.7] );
-            saveas(figg,file_name,'fig');
-            close(figg)
+                exp=obj.pmd.exp_title.editfield.String; exp(exp == ' ') = '_';
+                sub=obj.pmd.sub_code.editfield.String; sub(sub == ' ') = '_';
+                sess=obj.info.event.current_session;
+                meas=obj.info.event.current_measure_fullstr;
+                plt='MEP_Plot';
+                timestr=clock; times1=timestr(4);times2=timestr(5); time=[times1 times2]; time=num2str(time); time(time == ' ') = '_';
+                file_name=[exp '_' sub '_' sess '_' meas '_' plt '_' time];
+                figg=figure('Visible','off','CreateFcn','set(gcf,''Visible'',''on'')','Name',file_name,'NumberTitle','off');
+                copyobj(obj.pr.mep.axes1,figg)
+                set( gca, 'Units', 'normalized', 'Position', [0.2 0.2 0.7 0.7] );
+                saveas(figg,file_name,'fig');
+                close(figg)
             end
-
-           % Enable on the listboxes back
+            
+            % Enable on the listboxes back
             
             %             catch
             %                 disp('MEP Measurement Stopped | BEST Toolbox')
@@ -2312,9 +2327,9 @@ classdef BEST < handle
             str2='update_';
             str=[str2 str1];
             obj.bst.sessions.(obj.bst.inputs.current_session).(obj.bst.inputs.current_measurement).(str)=obj.bst.sessions.(obj.bst.inputs.current_session).(obj.bst.inputs.current_measurement);
-% % % %             obj.bst.sessions.(obj.bst.inputs.current_session).(obj.bst.inputs.current_measurement).inputs=[];
-% % % %             obj.bst.sessions.(obj.bst.inputs.current_session).(obj.bst.inputs.current_measurement).trials=[];
-% % % %             obj.bst.sessions.(obj.bst.inputs.current_session).(obj.bst.inputs.current_measurement).rawdata=[];
+            % % % %             obj.bst.sessions.(obj.bst.inputs.current_session).(obj.bst.inputs.current_measurement).inputs=[];
+            % % % %             obj.bst.sessions.(obj.bst.inputs.current_session).(obj.bst.inputs.current_measurement).trials=[];
+            % % % %             obj.bst.sessions.(obj.bst.inputs.current_session).(obj.bst.inputs.current_measurement).rawdata=[];
             
             obj.bst.inputs.stimuli=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).stimulation_intensities;
             obj.bst.inputs.iti=(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).iti);
@@ -2355,7 +2370,7 @@ classdef BEST < handle
             xticks(mat);
             obj.bst.sessions.(obj.bst.inputs.current_session).(obj.bst.inputs.current_measurement).info.handle_gridxy=gridxy([0 (obj.bst.inputs.mep_onset*1000):0.25:(obj.bst.inputs.mep_offset*1000)],'Color',[219/255 246/255 255/255],'linewidth',1) ;
             
-                
+            
             
         end
         function cb_pi_hotspot_run(obj)
@@ -2382,7 +2397,7 @@ classdef BEST < handle
             
             obj.bst.inputs.current_session=obj.info.event.current_session;
             obj.bst.inputs.current_measurement=obj.info.event.current_measure_fullstr;
-%             obj.bst.inputs.stimuli=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).stimulation_intensities;
+            %             obj.bst.inputs.stimuli=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).stimulation_intensities;
             obj.bst.inputs.iti=(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).iti);
             obj.bst.inputs.trials=(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).trials_per_condition);
             obj.bst.inputs.stim_mode='MSO';
@@ -2410,8 +2425,8 @@ classdef BEST < handle
             %             end
             obj.cb_menu_save;
             delete(sprintf('%s.mat',obj.bst.info.save_str_runtime));
-
-
+            
+            
             if (obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).save_plt==1)
                 exp=obj.pmd.exp_title.editfield.String; exp(exp == ' ') = '_';
                 sub=obj.pmd.sub_code.editfield.String; sub(sub == ' ') = '_';
@@ -2535,7 +2550,8 @@ classdef BEST < handle
             %             try
             
             obj.bst.best_motorthreshold;
-            obj.pi.mt.result_mt.String=obj.bst.sessions.(obj.info.event.current_session).(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).results.mt;
+            obj.pi.mt.result_mt.String=obj.bst.sessions.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).results.mt;
+            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).stop_event=1;
             %             catch
             %                 disp('MEP Measurement Stopped | BEST Toolbox')
             %             end
@@ -2567,62 +2583,74 @@ classdef BEST < handle
             obj.enable_listboxes
         end
         function cb_pi_mt_update(obj)
+            session=obj.info.event.current_session
+            measure=obj.info.event.current_measure_fullstr
+            % updating MT by updating no of trials to avg property
             
-            obj.bst.sessions.(obj.bst.inputs.current_session).(obj.bst.inputs.current_measurement).info.update_event=1;
+            obj.bst.sessions.(session).(measure).info.update_event=1;
             
-            obj.bst.inputs.mt_trialstoavg=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).trials_to_avg;
-            obj.bst.inputs.iti=(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).iti);
-            obj.bst.inputs.mep_onset=(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).mep_onset)/1000;
-            obj.bst.inputs.mep_offset=(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).mep_offset)/1000;
-            obj.bst.inputs.prestim_scope_ext=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).prestim_scope_ext;
-            obj.bst.inputs.poststim_scope_ext=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).poststim_scope_ext;
-            obj.bst.inputs.prestim_scope_plt=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).prestim_scope_plt;
-            obj.bst.inputs.poststim_scope_plt=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).poststim_scope_plt;
-            obj.bst.inputs.FontSize=(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).FontSize);
-            obj.bst.inputs.ylim_min=(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).ylim_min);
-            obj.bst.inputs.ylim_max=(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).ylim_max);
-            obj.bst.inputs.trials_for_mean_annotation=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).trials_for_mean_annotation;
+            obj.bst.inputs.mt_trialstoavg=obj.par.(session).(measure).trials_to_avg;
+            obj.bst.inputs.iti=(obj.par.(session).(measure).iti);
+            obj.bst.inputs.mep_onset=(obj.par.(session).(measure).mep_onset)/1000;
+            obj.bst.inputs.mep_offset=(obj.par.(session).(measure).mep_offset)/1000;
+            obj.bst.inputs.prestim_scope_ext=obj.par.(session).(measure).prestim_scope_ext;
+            obj.bst.inputs.poststim_scope_ext=obj.par.(session).(measure).poststim_scope_ext;
+            obj.bst.inputs.prestim_scope_plt=obj.par.(session).(measure).prestim_scope_plt;
+            obj.bst.inputs.poststim_scope_plt=obj.par.(session).(measure).poststim_scope_plt;
+            obj.bst.inputs.FontSize=(obj.par.(session).(measure).FontSize);
+            obj.bst.inputs.ylim_min=(obj.par.(session).(measure).ylim_min);
+            obj.bst.inputs.ylim_max=(obj.par.(session).(measure).ylim_max);
+            obj.bst.inputs.trials_for_mean_annotation=obj.par.(session).(measure).trials_for_mean_annotation;
             
-            obj.bst.inputs.plot_reset_pressed=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).plot_reset_pressed;
-            obj.bst.sessions.(obj.bst.inputs.current_session).(obj.bst.inputs.current_measurement).inputs=obj.bst.inputs;
+            obj.bst.inputs.plot_reset_pressed=obj.par.(session).(measure).plot_reset_pressed;
+            obj.bst.sessions.(session).(measure).inputs=obj.bst.inputs;
             
             %% scope extraction preperation
-            obj.bst.sessions.(obj.bst.inputs.current_session).(obj.bst.inputs.current_measurement).info.sc_ext_samples=((obj.bst.sessions.(obj.bst.inputs.current_session).(obj.bst.inputs.current_measurement).inputs.prestim_scope_ext)+(obj.bst.sessions.(obj.bst.inputs.current_session).(obj.bst.inputs.current_measurement).inputs.poststim_scope_ext))*5;
-            obj.bst.sessions.(obj.bst.inputs.current_session).(obj.bst.inputs.current_measurement).info.sc_ext_prepostsamples=(obj.bst.sessions.(obj.bst.inputs.current_session).(obj.bst.inputs.current_measurement).inputs.prestim_scope_ext)*(-5);
+            obj.bst.sessions.(session).(measure).info.sc_ext_samples=((obj.bst.sessions.(session).(measure).inputs.prestim_scope_ext)+(obj.bst.sessions.(session).(measure).inputs.poststim_scope_ext))*5;
+            obj.bst.sessions.(session).(measure).info.sc_ext_prepostsamples=(obj.bst.sessions.(session).(measure).inputs.prestim_scope_ext)*(-5);
             
             %% scope plotting preperation
-            obj.bst.sessions.(obj.bst.inputs.current_session).(obj.bst.inputs.current_measurement).info.sc_plot_last=(obj.bst.sessions.(obj.bst.inputs.current_session).(obj.bst.inputs.current_measurement).inputs.poststim_scope_plt)*5;
-            obj.bst.sessions.(obj.bst.inputs.current_session).(obj.bst.inputs.current_measurement).info.sc_plot_first=(obj.bst.sessions.(obj.bst.inputs.current_session).(obj.bst.inputs.current_measurement).inputs.prestim_scope_plt)*(5);
-            obj.bst.sessions.(obj.bst.inputs.current_session).(obj.bst.inputs.current_measurement).info.sc_plot_total=obj.bst.sessions.(obj.bst.inputs.current_session).(obj.bst.inputs.current_measurement).info.sc_plot_last+obj.bst.sessions.(obj.bst.inputs.current_session).(obj.bst.inputs.current_measurement).info.sc_plot_first;
+            obj.bst.sessions.(session).(measure).info.sc_plot_last=(obj.bst.sessions.(session).(measure).inputs.poststim_scope_plt)*5;
+            obj.bst.sessions.(session).(measure).info.sc_plot_first=(obj.bst.sessions.(session).(measure).inputs.prestim_scope_plt)*(5);
+            obj.bst.sessions.(session).(measure).info.sc_plot_total=obj.bst.sessions.(session).(measure).info.sc_plot_last+obj.bst.sessions.(session).(measure).info.sc_plot_first;
             %% making time vector
-            mep_plot_time_vector=1:obj.bst.sessions.(obj.bst.inputs.current_session).(obj.bst.inputs.current_measurement).info.sc_plot_total
-            mep_plot_time_vector=mep_plot_time_vector./obj.bst.inputs.sc_samplingrate
-            mep_plot_time_vector=mep_plot_time_vector*1000
-            mep_plot_time_vector=mep_plot_time_vector+(((-1)*obj.bst.sessions.(obj.bst.inputs.current_session).(obj.bst.inputs.current_measurement).info.sc_plot_first)/(obj.bst.sessions.(obj.bst.inputs.current_session).(obj.bst.inputs.current_measurement).inputs.sc_samplingrate)*1000)
-            obj.bst.sessions.(obj.bst.inputs.current_session).(obj.bst.inputs.current_measurement).info.timevector=mep_plot_time_vector
+            mep_plot_time_vector=1:obj.bst.sessions.(session).(measure).info.sc_plot_total;
+            mep_plot_time_vector=mep_plot_time_vector./obj.bst.inputs.sc_samplingrate;
+            mep_plot_time_vector=mep_plot_time_vector*1000;
+            mep_plot_time_vector=mep_plot_time_vector+(((-1)*obj.bst.sessions.(session).(measure).info.sc_plot_first)/(obj.bst.sessions.(session).(measure).inputs.sc_samplingrate)*1000);
+            obj.bst.sessions.(session).(measure).info.timevector=mep_plot_time_vector;
             
-            obj.bst.sessions.(obj.bst.inputs.current_session).(obj.bst.inputs.current_measurement).info.sc_plot_first=((obj.bst.sessions.(obj.bst.inputs.current_session).(obj.bst.inputs.current_measurement).info.sc_ext_prepostsamples)*-1)-obj.bst.sessions.(obj.bst.inputs.current_session).(obj.bst.inputs.current_measurement).info.sc_plot_first;
-            obj.bst.sessions.(obj.bst.inputs.current_session).(obj.bst.inputs.current_measurement).info.sc_plot_last=((obj.bst.sessions.(obj.bst.inputs.current_session).(obj.bst.inputs.current_measurement).info.sc_ext_prepostsamples)*-1)+obj.bst.sessions.(obj.bst.inputs.current_session).(obj.bst.inputs.current_measurement).info.sc_plot_last;
+            obj.bst.sessions.(session).(measure).info.sc_plot_first=((obj.bst.sessions.(session).(measure).info.sc_ext_prepostsamples)*-1)-obj.bst.sessions.(session).(measure).info.sc_plot_first;
+            obj.bst.sessions.(session).(measure).info.sc_plot_last=((obj.bst.sessions.(session).(measure).info.sc_ext_prepostsamples)*-1)+obj.bst.sessions.(session).(measure).info.sc_plot_last;
             
             
             if (length(obj.bst.inputs.iti)==2)
-                jitter=(obj.bst.sessions.(obj.bst.inputs.current_session).(obj.bst.inputs.current_measurement).inputs.iti(2)-obj.bst.sessions.(obj.bst.inputs.current_session).(obj.bst.inputs.current_measurement).inputs.iti(1));
-                iti=ones(1,obj.bst.sessions.(obj.bst.inputs.current_session).(obj.bst.inputs.current_measurement).info.total_trials)*obj.bst.sessions.(obj.bst.inputs.current_session).(obj.bst.inputs.current_measurement).inputs.iti(1);
+                jitter=(obj.bst.sessions.(session).(measure).inputs.iti(2)-obj.bst.sessions.(session).(measure).inputs.iti(1));
+                iti=ones(1,obj.bst.sessions.(session).(measure).info.total_trials)*obj.bst.sessions.(session).(measure).inputs.iti(1);
                 iti=iti+rand(1,length(iti))*jitter;
             elseif (length(obj.bst.inputs.iti)==1)
-                iti=ones(1,obj.bst.sessions.(obj.bst.inputs.current_session).(obj.bst.inputs.current_measurement).info.total_trials)*(obj.bst.sessions.(obj.bst.inputs.current_session).(obj.bst.inputs.current_measurement).inputs.iti(1));
+                iti=ones(1,obj.bst.sessions.(session).(measure).info.total_trials)*(obj.bst.sessions.(session).(measure).inputs.iti(1));
             else
                 error(' BEST Toolbox Error: Inter-Trial Interval (ITI) input vector must be a scalar e.g. 2 or a row vector with 2 elements e.g. [3 4]')
             end
-            obj.bst.sessions.(obj.bst.inputs.current_session).(obj.bst.inputs.current_measurement).trials(:,2)=(round(iti,3))';
-            obj.bst.sessions.(obj.bst.inputs.current_session).(obj.bst.inputs.current_measurement).trials(:,3)=(movsum(iti,[length(iti) 0]))';
+            obj.bst.sessions.(session).(measure).trials(:,2)=(round(iti,3))';
+            obj.bst.sessions.(session).(measure).trials(:,3)=(movsum(iti,[length(iti) 0]))';
             
             % onset offset MEP Amps
-            obj.bst.sessions.(obj.bst.inputs.current_session).(obj.bst.inputs.current_measurement).info.mep_onset_calib=obj.bst.inputs.mep_onset*5000;
-            obj.bst.sessions.(obj.bst.inputs.current_session).(obj.bst.inputs.current_measurement).info.mep_offset_calib=obj.bst.inputs.mep_offset*5000;
+            obj.bst.sessions.(session).(measure).info.mep_onset_calib=obj.bst.inputs.mep_onset*5000;
+            obj.bst.sessions.(session).(measure).info.mep_offset_calib=obj.bst.inputs.mep_offset*5000;
             
-            obj.bst.sessions.(obj.bst.inputs.current_session).(obj.bst.inputs.current_measurement).info.mep_onset_samp=abs(obj.bst.sessions.(obj.bst.inputs.current_session).(obj.bst.inputs.current_measurement).info.sc_ext_prepostsamples)+obj.bst.sessions.(obj.bst.inputs.current_session).(obj.bst.inputs.current_measurement).info.mep_onset_calib;
-            obj.bst.sessions.(obj.bst.inputs.current_session).(obj.bst.inputs.current_measurement).info.mep_offset_samp=abs(obj.bst.sessions.(obj.bst.inputs.current_session).(obj.bst.inputs.current_measurement).info.sc_ext_prepostsamples)+obj.bst.sessions.(obj.bst.inputs.current_session).(obj.bst.inputs.current_measurement).info.mep_offset_calib;
+            obj.bst.sessions.(session).(measure).info.mep_onset_samp=abs(obj.bst.sessions.(session).(measure).info.sc_ext_prepostsamples)+obj.bst.sessions.(session).(measure).info.mep_onset_calib;
+            obj.bst.sessions.(session).(measure).info.mep_offset_samp=abs(obj.bst.sessions.(session).(measure).info.sc_ext_prepostsamples)+obj.bst.sessions.(session).(measure).info.mep_offset_calib;
+            if(obj.par.(session).(measure).stop_event==1)
+                total_trials=obj.bst.sessions.(session).(measure).info.trial_plotted;
+                obj.bst.sessions.(session).(measure).results.mt=ceil(mean(obj.bst.sessions.(session).(measure).trials((total_trials-(obj.bst.inputs.mt_trialstoavg-1):total_trials),1)));
+                obj.bst.sessions.(session).(measure).info.rmt=obj.bst.sessions.(session).(measure).results.mt;
+                total_trials=[];
+                obj.pi.mt.result_mt.String=obj.bst.sessions.(session).(measure).results.mt;
+                obj.par.(session).(measure).result_mt=obj.bst.sessions.(session).(measure).results.mt;
+
+            end
             
             
         end
@@ -2834,19 +2862,19 @@ classdef BEST < handle
         end
         function cb_pi_mep_mt_btn(obj)
             obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).mt_btn=(obj.pi.mep.mt_btn);
-        meas=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).mt_btn.String(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).mt_btn.Value);
-        meas=meas{1}            
-        meas(meas == ' ') = '_';
-        if(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).mt_btn.Value>1)
-            try
-                obj.pi.mep.mt.String= obj.bst.sessions.(obj.info.event.current_session).(meas).results.mt       
-            catch
+            meas=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).mt_btn.String(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).mt_btn.Value);
+            meas=meas{1}
+            meas(meas == ' ') = '_';
+            if(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).mt_btn.Value>1)
+                try
+                    obj.pi.mep.mt.String= obj.bst.sessions.(obj.info.event.current_session).(meas).results.mt
+                catch
+                    obj.pi.mep.mt.String=[];
+                end
+            else
                 obj.pi.mep.mt.String=[];
             end
-        else 
-            obj.pi.mep.mt.String=[];
-        end
-        obj.cb_pi_mep_mt;
+            obj.cb_pi_mep_mt;
         end
         function cb_pi_mep_ylim_min(obj)
             obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).ylim_min=str2num(obj.pi.mep.ylim_min.String);
@@ -2869,7 +2897,7 @@ classdef BEST < handle
         function cb_pi_mep_plot_reset(obj)
             obj.bst.sessions.(obj.bst.inputs.current_session).(obj.bst.inputs.current_measurement).inputs.plot_reset_pressed=1;
             obj.bst.sessions.(obj.bst.inputs.current_session).(obj.bst.inputs.current_measurement).inputs.plot_reset_idx=obj.bst.sessions.(obj.bst.inputs.current_session).(obj.bst.inputs.current_measurement).info.trial;
-  
+            
         end
         function cb_pi_mep_save_plt(obj)
             obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).save_plt=obj.pi.mep.save_plt.Value;
@@ -3042,7 +3070,22 @@ classdef BEST < handle
             obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).mt=str2num(obj.pi.ioc.mt.String);
         end
         function cb_pi_ioc_mt_btn(obj)
-            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).mt_btn=(obj.pi.ioc.mt_btn.String);
+%                         obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).mt_btn=(obj.pi.ioc.mt_btn.String);
+
+            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).mt_btn=(obj.pi.ioc.mt_btn);
+            meas=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).mt_btn.String(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).mt_btn.Value);
+            meas=meas{1}
+            meas(meas == ' ') = '_';
+            if(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).mt_btn.Value>1)
+                try
+                    obj.pi.ioc.mt.String= obj.bst.sessions.(obj.info.event.current_session).(meas).results.mt
+                catch
+                    obj.pi.ioc.mt.String=[];
+                end
+            else
+                obj.pi.ioc.mt.String=[];
+            end
+            obj.cb_pi_ioc_mt;
         end
         function cb_pi_ioc_ylim_min(obj)
             obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).ylim_min=str2num(obj.pi.ioc.ylim_min.String);
@@ -3073,13 +3116,13 @@ classdef BEST < handle
             obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).ta=str2num(obj.pi.tmsfmri.ta.String);
         end
         function cb_pi_tmsfmri_stimulation_intensities(obj)
-           try
-            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).stimulation_intensities=eval(obj.pi.tmsfmri.stimulation_intensities.String);
-         obj.pi.tmsfmri.run.Enable='on';
-           catch
-               errordlg('Warning: Wrong Input for Stim. Intensities. Make sure you are writing matrix as if you would do on MATLAB command line i.e. [20 30 40 50] not 20 30 40 50. You would not be allowed to proceed until this is fixed','BEST Toolbox');
-          obj.pi.tmsfmri.run.Enable='off';
-           end
+            try
+                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).stimulation_intensities=eval(obj.pi.tmsfmri.stimulation_intensities.String);
+                obj.pi.tmsfmri.run.Enable='on';
+            catch
+                errordlg('Warning: Wrong Input for Stim. Intensities. Make sure you are writing matrix as if you would do on MATLAB command line i.e. [20 30 40 50] not 20 30 40 50. You would not be allowed to proceed until this is fixed','BEST Toolbox');
+                obj.pi.tmsfmri.run.Enable='off';
+            end
         end
         function cb_pi_tmsfmri_trigdelay(obj)
             obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).trigdelay=str2num(obj.pi.tmsfmri.trigdelay.String);
@@ -3098,7 +3141,7 @@ classdef BEST < handle
             obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).totalvolumes=str2num(obj.pi.tmsfmri.totalvolumes.String);
         end
         function cb_pi_tmsfmri_units_mso(obj)
-             if(obj.pi.tmsfmri.units_mso.Value==1)
+            if(obj.pi.tmsfmri.units_mso.Value==1)
                 obj.pi.tmsfmri.units_mt.Value=0;
                 obj.pi.tmsfmri.mt.Enable='off';
             end
@@ -3109,7 +3152,7 @@ classdef BEST < handle
             if(obj.pi.tmsfmri.units_mt.Value==1)
                 obj.pi.tmsfmri.units_mso.Value=0;
                 obj.pi.tmsfmri.mt.Enable='on';
-
+                
             end
             obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).units_mt=(obj.pi.tmsfmri.units_mt.Value);
         end
@@ -3120,6 +3163,7 @@ classdef BEST < handle
             obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).mt_btn=str2num(obj.pi.tmsfmri.mt_btn.String);
         end
         function cb_menu_save(obj)
+            try
             exp_name=obj.pmd.exp_title.editfield.String;
             exp_name(exp_name == ' ') = '_';
             
@@ -3134,47 +3178,48 @@ classdef BEST < handle
             variable_saved.(save_str).par.exp_name=exp_name;
             variable_saved.(save_str).par.subj_code=subj_code;
             variable_saved.(save_str).par.sess=obj.pmd.lb_sessions.string;
-
+            
             variable_saved.(save_str).data.sessions=obj.bst.sessions
             variable_saved.(save_str).data.global_info.inputs=obj.bst.inputs
             variable_saved.(save_str).data.global_info.info=obj.bst.info
             variable_saved.(save_str).data.global_info.info.axes=[];
-% %             varsav=variable_saved.(save_str)
-% %             save(save_str,'varsav')
-
-            matfilstr=[save_str '_matfile.mat']   
+            % %             varsav=variable_saved.(save_str)
+            % %             save(save_str,'varsav')
+            
+            matfilstr=[save_str '_matfile.mat']
             obj.bst.info.save_buffer = matfile(matfilstr,'Writable',true)
             obj.bst.info.save_buffer.(save_str)=variable_saved.(save_str)
-% % %             
-% %             
-% %             varr.info=obj.info
-% % 
-% %             varr.data=obj.data
-% % 
-% %             varr.bst.sessions=obj.bst.sessions
-% %             
-% % 
-% %             varr.bst.inputs=obj.bst.inputs
-% % 
-% %             varr.bst.info=obj.bst.info
-% %             varr.bst.info.axes=[];
-% %            
-% %                                                                         
-% % 
-% %             varr.bst.sim_mep=obj.bst.sim_mep
-% %             varr.exp_name=exp_name;
-% %             varr.subj_code=subj_code;
-% %             varr.sess=obj.pmd.lb_sessions.string;
+            % % %
+            % %
+            % %             varr.info=obj.info
+            % %
+            % %             varr.data=obj.data
+            % %
+            % %             varr.bst.sessions=obj.bst.sessions
+            % %
+            % %
+            % %             varr.bst.inputs=obj.bst.inputs
+            % %
+            % %             varr.bst.info=obj.bst.info
+            % %             varr.bst.info.axes=[];
+            % %
+            % %
+            % %
+            % %             varr.bst.sim_mep=obj.bst.sim_mep
+            % %             varr.exp_name=exp_name;
+            % %             varr.subj_code=subj_code;
+            % %             varr.sess=obj.pmd.lb_sessions.string;
             
             
             
             
             
             %             save('C:\0. HARD DISK\BEST Toolbox\BEST-04.08\GUI\save',save_str,'obj')
-%             save(save_str,'varr')
+            %             save(save_str,'varr')
+            catch
+                disp prob is here
+            end
             
-            
-            %% save the information from graphics handle into the par handle in a organized way and then save that par and then it ll be good to go without any of
         end
         function cb_menu_load(obj)
             
@@ -3193,7 +3238,7 @@ classdef BEST < handle
             obj.cb_session_listbox;
             
             
-          
+            
             
         end
         function cb_menu_md(obj)
@@ -3352,7 +3397,7 @@ classdef BEST < handle
             obj.pi.mt_ptc.update=uicontrol( 'Parent', mep_panel_17 ,'Style','PushButton','String','Update','FontWeight','Bold','Callback',@(~,~)obj.cb_pi_mt_ptc_update);
             obj.pi.mt_ptc.run=uicontrol( 'Parent', mep_panel_17 ,'Style','PushButton','String','Run','FontWeight','Bold','Callback',@(~,~)obj.cb_pi_mt_ptc_run);
             obj.pi.pause=uicontrol( 'Parent', mep_panel_17 ,'Style','PushButton','String','Pause','FontWeight','Bold','Callback',@(~,~)obj.pause,'Enable','on');
-
+            
             obj.pi.stop=uicontrol( 'Parent', mep_panel_17 ,'Style','PushButton','String','Stop','FontWeight','Bold','Callback',@(~,~)obj.stop,'Enable','on');
             set( mep_panel_17, 'Widths', [-2 -4 -2 -2]);
             
@@ -3380,7 +3425,7 @@ classdef BEST < handle
             obj.pi.mt_ptc.FontSize.String=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).FontSize);
             obj.pi.mt_ptc.trials_for_mean_annotation.String=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).trials_for_mean_annotation);
             obj.pi.mt_ptc.result_mt.String=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).result_mt);
-
+            
             
             obj.pi.mt_ptc.run.Enable=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).runEnable;
             obj.pi.mt_ptc.target_muscle.Enable=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).target_muscleEnable;
@@ -3444,13 +3489,13 @@ classdef BEST < handle
             obj.bst.inputs.plot_reset_pressed=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).plot_reset_pressed;
             obj.pr_mt;
             obj.cb_menu_save;
-
+            
             
             obj.bst.best_motorthreshold_pest_tc;
             obj.bst.sessions.(obj.bst.inputs.current_session).(obj.bst.inputs.current_measurement).results.mt
             
             obj.pi.mt_ptc.result_mt.String=num2str(obj.bst.sessions.(obj.bst.inputs.current_session).(obj.bst.inputs.current_measurement).results.mt);
-            obj.pi.mt_ptc.result_mt.String
+            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).stop_event=1;
             obj.cb_pi_mt_ptc_result_mt
             
             if (obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).save_plt==1)
@@ -3478,66 +3523,81 @@ classdef BEST < handle
             obj.enable_listboxes
             obj.cb_menu_save;
             delete(sprintf('%s.mat',obj.bst.info.save_str_runtime));
-
+            
         end
         function cb_pi_mt_ptc_update(obj)
+            disp entered
+            session=obj.info.event.current_session
+            measure=obj.info.event.current_measure_fullstr
+            % updating MT by updating no of trials to avg property
             
-            obj.bst.sessions.(obj.bst.inputs.current_session).(obj.bst.inputs.current_measurement).info.update_event=1;
+            obj.bst.sessions.(session).(measure).info.update_event=1;
             
-            obj.bst.inputs.mt_trialstoavg=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).trials_to_avg;
-            obj.bst.inputs.iti=(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).iti);
-            obj.bst.inputs.mep_onset=(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).mep_onset)/1000;
-            obj.bst.inputs.mep_offset=(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).mep_offset)/1000;
-            obj.bst.inputs.prestim_scope_ext=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).prestim_scope_ext;
-            obj.bst.inputs.poststim_scope_ext=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).poststim_scope_ext;
-            obj.bst.inputs.prestim_scope_plt=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).prestim_scope_plt;
-            obj.bst.inputs.poststim_scope_plt=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).poststim_scope_plt;
-            obj.bst.inputs.FontSize=(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).FontSize);
-            obj.bst.inputs.ylim_min=(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).ylim_min);
-            obj.bst.inputs.ylim_max=(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).ylim_max);
-            obj.bst.inputs.trials_for_mean_annotation=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).trials_for_mean_annotation;
+            obj.bst.inputs.mt_trialstoavg=obj.par.(session).(measure).trials_to_avg;
+            obj.bst.inputs.iti=(obj.par.(session).(measure).iti);
+            obj.bst.inputs.mep_onset=(obj.par.(session).(measure).mep_onset)/1000;
+            obj.bst.inputs.mep_offset=(obj.par.(session).(measure).mep_offset)/1000;
+            obj.bst.inputs.prestim_scope_ext=obj.par.(session).(measure).prestim_scope_ext;
+            obj.bst.inputs.poststim_scope_ext=obj.par.(session).(measure).poststim_scope_ext;
+            obj.bst.inputs.prestim_scope_plt=obj.par.(session).(measure).prestim_scope_plt;
+            obj.bst.inputs.poststim_scope_plt=obj.par.(session).(measure).poststim_scope_plt;
+            obj.bst.inputs.FontSize=(obj.par.(session).(measure).FontSize);
+            obj.bst.inputs.ylim_min=(obj.par.(session).(measure).ylim_min);
+            obj.bst.inputs.ylim_max=(obj.par.(session).(measure).ylim_max);
+            obj.bst.inputs.trials_for_mean_annotation=obj.par.(session).(measure).trials_for_mean_annotation;
             
-            obj.bst.inputs.plot_reset_pressed=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).plot_reset_pressed;
-            obj.bst.sessions.(obj.bst.inputs.current_session).(obj.bst.inputs.current_measurement).inputs=obj.bst.inputs;
+            obj.bst.inputs.plot_reset_pressed=obj.par.(session).(measure).plot_reset_pressed;
+            obj.bst.sessions.(session).(measure).inputs=obj.bst.inputs;
             
             %% scope extraction preperation
-            obj.bst.sessions.(obj.bst.inputs.current_session).(obj.bst.inputs.current_measurement).info.sc_ext_samples=((obj.bst.sessions.(obj.bst.inputs.current_session).(obj.bst.inputs.current_measurement).inputs.prestim_scope_ext)+(obj.bst.sessions.(obj.bst.inputs.current_session).(obj.bst.inputs.current_measurement).inputs.poststim_scope_ext))*5;
-            obj.bst.sessions.(obj.bst.inputs.current_session).(obj.bst.inputs.current_measurement).info.sc_ext_prepostsamples=(obj.bst.sessions.(obj.bst.inputs.current_session).(obj.bst.inputs.current_measurement).inputs.prestim_scope_ext)*(-5);
+            obj.bst.sessions.(session).(measure).info.sc_ext_samples=((obj.bst.sessions.(session).(measure).inputs.prestim_scope_ext)+(obj.bst.sessions.(session).(measure).inputs.poststim_scope_ext))*5;
+            obj.bst.sessions.(session).(measure).info.sc_ext_prepostsamples=(obj.bst.sessions.(session).(measure).inputs.prestim_scope_ext)*(-5);
             
             %% scope plotting preperation
-            obj.bst.sessions.(obj.bst.inputs.current_session).(obj.bst.inputs.current_measurement).info.sc_plot_last=(obj.bst.sessions.(obj.bst.inputs.current_session).(obj.bst.inputs.current_measurement).inputs.poststim_scope_plt)*5;
-            obj.bst.sessions.(obj.bst.inputs.current_session).(obj.bst.inputs.current_measurement).info.sc_plot_first=(obj.bst.sessions.(obj.bst.inputs.current_session).(obj.bst.inputs.current_measurement).inputs.prestim_scope_plt)*(5);
-            obj.bst.sessions.(obj.bst.inputs.current_session).(obj.bst.inputs.current_measurement).info.sc_plot_total=obj.bst.sessions.(obj.bst.inputs.current_session).(obj.bst.inputs.current_measurement).info.sc_plot_last+obj.bst.sessions.(obj.bst.inputs.current_session).(obj.bst.inputs.current_measurement).info.sc_plot_first;
+            obj.bst.sessions.(session).(measure).info.sc_plot_last=(obj.bst.sessions.(session).(measure).inputs.poststim_scope_plt)*5;
+            obj.bst.sessions.(session).(measure).info.sc_plot_first=(obj.bst.sessions.(session).(measure).inputs.prestim_scope_plt)*(5);
+            obj.bst.sessions.(session).(measure).info.sc_plot_total=obj.bst.sessions.(session).(measure).info.sc_plot_last+obj.bst.sessions.(session).(measure).info.sc_plot_first;
             %% making time vector
-            mep_plot_time_vector=1:obj.bst.sessions.(obj.bst.inputs.current_session).(obj.bst.inputs.current_measurement).info.sc_plot_total;
+            mep_plot_time_vector=1:obj.bst.sessions.(session).(measure).info.sc_plot_total;
             mep_plot_time_vector=mep_plot_time_vector./obj.bst.inputs.sc_samplingrate;
             mep_plot_time_vector=mep_plot_time_vector*1000;
-            mep_plot_time_vector=mep_plot_time_vector+(((-1)*obj.bst.sessions.(obj.bst.inputs.current_session).(obj.bst.inputs.current_measurement).info.sc_plot_first)/(obj.bst.sessions.(obj.bst.inputs.current_session).(obj.bst.inputs.current_measurement).inputs.sc_samplingrate)*1000);
-            obj.bst.sessions.(obj.bst.inputs.current_session).(obj.bst.inputs.current_measurement).info.timevector=mep_plot_time_vector;
+            mep_plot_time_vector=mep_plot_time_vector+(((-1)*obj.bst.sessions.(session).(measure).info.sc_plot_first)/(obj.bst.sessions.(session).(measure).inputs.sc_samplingrate)*1000);
+            obj.bst.sessions.(session).(measure).info.timevector=mep_plot_time_vector;
             
-            obj.bst.sessions.(obj.bst.inputs.current_session).(obj.bst.inputs.current_measurement).info.sc_plot_first=((obj.bst.sessions.(obj.bst.inputs.current_session).(obj.bst.inputs.current_measurement).info.sc_ext_prepostsamples)*-1)-obj.bst.sessions.(obj.bst.inputs.current_session).(obj.bst.inputs.current_measurement).info.sc_plot_first;
-            obj.bst.sessions.(obj.bst.inputs.current_session).(obj.bst.inputs.current_measurement).info.sc_plot_last=((obj.bst.sessions.(obj.bst.inputs.current_session).(obj.bst.inputs.current_measurement).info.sc_ext_prepostsamples)*-1)+obj.bst.sessions.(obj.bst.inputs.current_session).(obj.bst.inputs.current_measurement).info.sc_plot_last;
+            obj.bst.sessions.(session).(measure).info.sc_plot_first=((obj.bst.sessions.(session).(measure).info.sc_ext_prepostsamples)*-1)-obj.bst.sessions.(session).(measure).info.sc_plot_first;
+            obj.bst.sessions.(session).(measure).info.sc_plot_last=((obj.bst.sessions.(session).(measure).info.sc_ext_prepostsamples)*-1)+obj.bst.sessions.(session).(measure).info.sc_plot_last;
             
             
             if (length(obj.bst.inputs.iti)==2)
-                jitter=(obj.bst.sessions.(obj.bst.inputs.current_session).(obj.bst.inputs.current_measurement).inputs.iti(2)-obj.bst.sessions.(obj.bst.inputs.current_session).(obj.bst.inputs.current_measurement).inputs.iti(1));
-                iti=ones(1,obj.bst.sessions.(obj.bst.inputs.current_session).(obj.bst.inputs.current_measurement).info.total_trials)*obj.bst.sessions.(obj.bst.inputs.current_session).(obj.bst.inputs.current_measurement).inputs.iti(1);
+                jitter=(obj.bst.sessions.(session).(measure).inputs.iti(2)-obj.bst.sessions.(session).(measure).inputs.iti(1));
+                iti=ones(1,obj.bst.sessions.(session).(measure).info.total_trials)*obj.bst.sessions.(session).(measure).inputs.iti(1);
                 iti=iti+rand(1,length(iti))*jitter;
             elseif (length(obj.bst.inputs.iti)==1)
-                iti=ones(1,obj.bst.sessions.(obj.bst.inputs.current_session).(obj.bst.inputs.current_measurement).info.total_trials)*(obj.bst.sessions.(obj.bst.inputs.current_session).(obj.bst.inputs.current_measurement).inputs.iti(1));
+                iti=ones(1,obj.bst.sessions.(session).(measure).info.total_trials)*(obj.bst.sessions.(session).(measure).inputs.iti(1));
             else
                 error(' BEST Toolbox Error: Inter-Trial Interval (ITI) input vector must be a scalar e.g. 2 or a row vector with 2 elements e.g. [3 4]')
             end
-            obj.bst.sessions.(obj.bst.inputs.current_session).(obj.bst.inputs.current_measurement).trials(:,2)=(round(iti,3))';
-            obj.bst.sessions.(obj.bst.inputs.current_session).(obj.bst.inputs.current_measurement).trials(:,3)=(movsum(iti,[length(iti) 0]))';
+            obj.bst.sessions.(session).(measure).trials(:,2)=(round(iti,3))';
+            obj.bst.sessions.(session).(measure).trials(:,3)=(movsum(iti,[length(iti) 0]))';
             
             % onset offset MEP Amps
-            obj.bst.sessions.(obj.bst.inputs.current_session).(obj.bst.inputs.current_measurement).info.mep_onset_calib=obj.bst.inputs.mep_onset*5000;
-            obj.bst.sessions.(obj.bst.inputs.current_session).(obj.bst.inputs.current_measurement).info.mep_offset_calib=obj.bst.inputs.mep_offset*5000;
+            obj.bst.sessions.(session).(measure).info.mep_onset_calib=obj.bst.inputs.mep_onset*5000;
+            obj.bst.sessions.(session).(measure).info.mep_offset_calib=obj.bst.inputs.mep_offset*5000;
             
-            obj.bst.sessions.(obj.bst.inputs.current_session).(obj.bst.inputs.current_measurement).info.mep_onset_samp=abs(obj.bst.sessions.(obj.bst.inputs.current_session).(obj.bst.inputs.current_measurement).info.sc_ext_prepostsamples)+obj.bst.sessions.(obj.bst.inputs.current_session).(obj.bst.inputs.current_measurement).info.mep_onset_calib;
-            obj.bst.sessions.(obj.bst.inputs.current_session).(obj.bst.inputs.current_measurement).info.mep_offset_samp=abs(obj.bst.sessions.(obj.bst.inputs.current_session).(obj.bst.inputs.current_measurement).info.sc_ext_prepostsamples)+obj.bst.sessions.(obj.bst.inputs.current_session).(obj.bst.inputs.current_measurement).info.mep_offset_calib;
-            
+            obj.bst.sessions.(session).(measure).info.mep_onset_samp=abs(obj.bst.sessions.(session).(measure).info.sc_ext_prepostsamples)+obj.bst.sessions.(session).(measure).info.mep_onset_calib;
+            obj.bst.sessions.(session).(measure).info.mep_offset_samp=abs(obj.bst.sessions.(session).(measure).info.sc_ext_prepostsamples)+obj.bst.sessions.(session).(measure).info.mep_offset_calib;
+            obj.par.(session).(measure).stop_event
+            if(obj.par.(session).(measure).stop_event==1)
+                disp('entered heree')
+                total_trials=obj.bst.sessions.(session).(measure).info.trial_plotted;
+                obj.bst.sessions.(session).(measure).results.mt=ceil(mean(obj.bst.sessions.(session).(measure).trials((total_trials-(obj.bst.inputs.mt_trialstoavg-1):total_trials),1)));
+                obj.bst.sessions.(session).(measure).info.rmt=obj.bst.sessions.(session).(measure).results.mt;
+                total_trials=[];
+                obj.bst.sessions.(session).(measure).results.mt
+                obj.pi.mt_ptc.result_mt.String=obj.bst.sessions.(session).(measure).results.mt;
+                obj.par.(session).(measure).result_mt=obj.bst.sessions.(session).(measure).results.mt;
+                
+            end
             
         end
         function cb_pi_mt_ptc_target_muscle(obj)
@@ -3604,9 +3664,7 @@ classdef BEST < handle
             obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).save_plt=obj.pi.mt_ptc.save_plt.Value;
         end
         function cb_pi_mt_ptc_result_mt(obj)
-            obj.pi.mt_ptc.result_mt.String
             obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).result_mt=str2num(obj.pi.mt_ptc.result_mt.String);
-        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).result_mt
         end
         function cb_pr_mep_export(obj)
             exp=obj.pmd.exp_title.editfield.String; exp(exp == ' ') = '_';
@@ -3797,7 +3855,7 @@ classdef BEST < handle
                     obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).thresholding_methodEnable=obj.pi.mt_ptc.thresholding_method.Enable;
                     obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).trials_per_conditionEnable=obj.pi.mt_ptc.trials_per_condition.Enable;
                     obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).mt_starting_stim_intenEnable=obj.pi.mt_ptc.mt_starting_stim_inten.Enable;
-    
+                    
                 case 'MEP Dose Response Curve_sp'
                     
                     obj.pi.ioc.run.Enable='on';
@@ -3822,7 +3880,7 @@ classdef BEST < handle
                     obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).poststim_scope_extEnable=obj.pi.ioc.poststim_scope_ext.Enable;
                     obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).trials_per_conditionEnable=obj.pi.ioc.trials_per_condition.Enable;
                     obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).stimulation_intensitiesEnable=obj.pi.ioc.stimulation_intensities.Enable;
-                                        
+                    
                 case 'TMS fMRI'
                     
                     obj.pi.tmsfmri.ta.Enable='on';
