@@ -158,6 +158,7 @@ classdef BEST < handle
             mu4 = uimenu(m,'label','Delete','Callback',@(~,~)obj.cb_pmd_lb_measures_del);
             mu5 = uimenu(m,'label','Move Up','Callback',@(~,~)obj.cb_pmd_lb_measures_moveup);
             mu6 = uimenu(m,'label','Move Down','Callback',@(~,~)obj.cb_pmd_lb_measures_movedown);
+            obj.pmd.lb_measure_menu_loadresults=uimenu(m,'label','Load Results','Callback',@(~,~)obj.cb_pmd_lb_measure_menu_loadresult);
 
             obj.pmd.lb_measures.listbox=uicontrol( 'Style','listbox','Parent', pmd_vbox ,'KeyPressFcn',@(~,~)obj.cb_pmd_lb_measure_keypressfcn,'FontSize',11,'String',obj.pmd.lb_measures.string,'uicontextmenu',m,'Callback',@(~,~)obj.cb_measure_listbox);
             m=uicontextmenu(obj.fig.handle);
@@ -615,6 +616,42 @@ classdef BEST < handle
             if(isvarname(obj.pmd.sub_code.editfield.String)==0)
                 errordlg('Subject is an invalid string. Characters found in your string are not allowed by your operating system as filename. Please use a meaningful string that is not starting with a numeric character or space charachet and do not contain any special characters to proceed.','BEST Toolbox');
                 obj.pmd.sub_code.editfield.String=[];
+                return
+            end
+        end
+        function cb_pmd_lb_measure_menu_loadresult(obj)
+            if(strcmp(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).runEnable,'off'))
+                delete(obj.pr.mep.axes1)
+                delete(obj.pr.hotspot.axes1)
+                delete(obj.pr.mt.axes_mep)
+                delete(obj.pr.mt.axes_mtplot)
+                delete(obj.pr.ioc.axes_mep)
+                delete(obj.pr.ioc.axes_scatplot)
+                delete(obj.pr.ioc.axes_fitplot)
+                switch obj.info.event.current_measure
+                    case 'MEP Measurement'
+                        obj.pr_mep;
+                        obj.bst.inputs.current_session=obj.info.event.current_session;
+                        obj.bst.inputs.current_measurement=obj.info.event.current_measure_fullstr;
+                        obj.bst.best_mep_posthoc();
+                    case 'MEP Hotspot Search'
+                        obj.pr_hotspot
+                        obj.bst.inputs.current_session=obj.info.event.current_session;
+                        obj.bst.inputs.current_measurement=obj.info.event.current_measure_fullstr;
+                        obj.bst.best_hotspot_posthoc();
+                    case 'MEP Motor Threshold Hunting'
+                        obj.pr_mt
+                        obj.bst.inputs.current_session=obj.info.event.current_session;
+                        obj.bst.inputs.current_measurement=obj.info.event.current_measure_fullstr;
+                        obj.bst.best_mt_posthoc();
+                    case 'MEP Dose Response Curve_sp'
+                        obj.pr_ioc
+                        obj.bst.inputs.current_session=obj.info.event.current_session;
+                        obj.bst.inputs.current_measurement=obj.info.event.current_measure_fullstr;
+                        obj.bst.best_ioc_posthoc();
+                end
+            else
+                errordlg('No results exist for this measurement, Please collect the data if you wish to see the results for this particular measure.','BEST Toolbox');
                 return
             end
         end
@@ -1638,87 +1675,20 @@ classdef BEST < handle
             obj.info.event.current_measure=obj.info.event.current_measure{1};
             switch obj.info.event.current_measure
                 case 'MEP Measurement'
-                    
                     obj.pi_mep;
                     obj.func_load_mep_par;
-                    if(strcmp(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).runEnable,'off'))
-                        delete(obj.pr.mep.axes1)
-                        delete(obj.pr.hotspot.axes1)
-                        delete(obj.pr.mt.axes_mep)
-                        delete(obj.pr.mt.axes_mtplot)
-                        delete(obj.pr.ioc.axes_mep)
-                        delete(obj.pr.ioc.axes_scatplot)
-                        delete(obj.pr.ioc.axes_fitplot)
-                        obj.pr_mep;
-                        obj.bst.inputs.current_session=obj.info.event.current_session;
-                        obj.bst.inputs.current_measurement=obj.info.event.current_measure_fullstr;
-                        obj.bst.best_mep_posthoc();
-                    end
-                    
-                    
                 case 'MEP Hotspot Search'
-                    
                     obj.pi_hotspot;
                     obj.func_load_hotspot_par;
-                    if(strcmp(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).runEnable,'off'))
-                        delete(obj.pr.mep.axes1)
-                        delete(obj.pr.hotspot.axes1)
-                        delete(obj.pr.mt.axes_mep)
-                        delete(obj.pr.mt.axes_mtplot)
-                        delete(obj.pr.ioc.axes_mep)
-                        delete(obj.pr.ioc.axes_scatplot)
-                        delete(obj.pr.ioc.axes_fitplot)
-                        obj.pr_hotspot
-                        obj.bst.inputs.current_session=obj.info.event.current_session;
-                        obj.bst.inputs.current_measurement=obj.info.event.current_measure_fullstr;
-                        obj.bst.best_hotspot_posthoc();
-                        
-                    end
-                    
                 case 'MEP Motor Threshold Hunting'
-                    % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                     obj.pi_mt;
-                    % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                     obj.func_load_mt_par;
                     obj.pi_mt_ptc;
                     obj.func_load_mt_ptc_par;
-                    if(strcmp(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).runEnable,'off'))
-                        delete(obj.pr.mep.axes1)
-                        delete(obj.pr.hotspot.axes1)
-                        delete(obj.pr.mt.axes_mep)
-                        delete(obj.pr.mt.axes_mtplot)
-                        delete(obj.pr.ioc.axes_mep)
-                        delete(obj.pr.ioc.axes_scatplot)
-                        delete(obj.pr.ioc.axes_fitplot)
-                        obj.pr_mt
-                        obj.bst.inputs.current_session=obj.info.event.current_session;
-                        obj.bst.inputs.current_measurement=obj.info.event.current_measure_fullstr;
-                        obj.bst.best_mt_posthoc();
-                        
-                    end
                 case 'TMS fMRI'
                     obj.pi_tmsfmri;
                     obj.func_load_tmsfmri_par;
-                    
                 case 'MEP Dose Response Curve_sp'
                     obj.pi_ioc;
                     obj.func_load_ioc_par;
-                    if(strcmp(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).runEnable,'off'))
-                        delete(obj.pr.mep.axes1)
-                        delete(obj.pr.hotspot.axes1)
-                        delete(obj.pr.mt.axes_mep)
-                        delete(obj.pr.mt.axes_mtplot)
-                        delete(obj.pr.ioc.axes_mep)
-                        delete(obj.pr.ioc.axes_scatplot)
-                        delete(obj.pr.ioc.axes_fitplot)
-                        obj.pr_ioc
-                        obj.bst.inputs.current_session=obj.info.event.current_session;
-                        obj.bst.inputs.current_measurement=obj.info.event.current_measure_fullstr;
-                        obj.bst.best_ioc_posthoc();
-                        
-                    end
-                otherwise
-                    
-                    disp('other value')
-                    
             end
             % obj.info.event.current_measure(obj.info.event.current_measure == ' ') = '_';
             
