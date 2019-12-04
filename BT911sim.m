@@ -1364,6 +1364,7 @@ classdef BT911sim < handle
         end
         function best_ioc_scatplot(obj)
             axes(obj.info.axes.ioc_first)
+            ylim auto
             set(obj.info.axes.ioc_first,'FontSize',obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.FontSize)
             % x & y ticks and labels
             % will have to be referneced with GUI
@@ -1403,7 +1404,7 @@ classdef BT911sim < handle
             hold on;
             %             set(obj.info.handles.ioc_scatplot,'XData',obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).trials(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.trial_plotted,1),'YData',obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).trials(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.trial_plotted,4));
             %             hold on;
-            
+            uistack(obj.info.handles.ioc_scatplot,'top')
         end
         function best_wait(obj,varargin)
             tic;
