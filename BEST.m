@@ -1548,7 +1548,7 @@ classdef BEST < handle
             obj.pr.mep.handle= uix.Panel( 'Parent', obj.pr.empty_panel, 'Padding', 5 ,'Units','normalized','Title', 'Results','FontWeight','bold','FontSize',14,'TitlePosition','centertop' );
             m_mep=uicontextmenu(obj.fig.handle);
             uimenu(m_mep,'label','Export as Matlab Figure','Callback',@(~,~)obj.cb_pr_mep_export);
-            obj.pr.mep.axes1=axes( 'Parent', obj.pr.mep.handle,'Units','normalized','Tag','mep','uicontextmenu',m_mep);
+            obj.pr.mep.axes1=axes( 'Parent', obj.pr.mep.handle,'Units','normalized','Tag','mep','uicontextmenu',m_mep,'UserData','umikhankhan');
         end
         function pr_hotspot(obj)
             obj.pr.hotspot.handle= uix.Panel( 'Parent', obj.pr.empty_panel, 'Padding', 5 ,'Units','normalized','Title', 'Results','FontWeight','bold','FontSize',14,'TitlePosition','centertop' );
@@ -2226,7 +2226,7 @@ classdef BEST < handle
         %% run n update
         function cb_pi_mep_run(obj)
             obj.disable_listboxes
-            delete(obj.pr.mep.axes1)
+%             delete(obj.pr.mep.axes1)
             delete(obj.pr.hotspot.axes1)
             delete(obj.pr.mt.axes_mep)
             delete(obj.pr.mt.axes_mtplot)
@@ -2318,6 +2318,12 @@ classdef BEST < handle
             
             
             obj.enable_listboxes
+            obj.pr.mep.axes1
+            obj.pr.mep.axes1.Tag
+            obj.pr.mep.axes1.UserData
+            obj.bst.info.axes.mep
+            obj.bst.info.axes.mep.Tag
+            obj.bst.info.axes.mep.UserData
             
         end
         function cb_pi_mep_update(obj)
@@ -3236,24 +3242,20 @@ classdef BEST < handle
             
         end
         function cb_menu_load(obj)
-            
-            [file,path] = uigetfile;
-            load(file,'varr');
-            obj.par=varr.par;
-            obj.info=varr.info;
-            obj.data=varr.data;
-            obj.bst.sessions=varr.bst.sessions;
-            obj.bst.inputs=varr.bst.inputs;
-            obj.bst.info=varr.bst.info;
-            obj.pmd.exp_title.editfield.String=varr.exp_name;
-            obj.pmd.sub_code.editfield.String=varr.subj_code;
-            
-            obj.pmd.lb_sessions.listbox.String=varr.sess;
+            file = uigetfile;
+            varname=file;
+            varname=erase(varname,'_matfile.mat');
+            saved_struct=load(file,varname);
+            obj.par=saved_struct.(varname).par;
+            obj.info=saved_struct.(varname).par.global_info;
+            obj.data=saved_struct.(varname).par.global_data;
+            obj.bst.sessions=saved_struct.(varname).data.sessions;
+            obj.bst.inputs=saved_struct.(varname).data.global_info.inputs;
+            obj.bst.info=saved_struct.(varname).data.global_info.info;
+            obj.pmd.exp_title.editfield.String=saved_struct.(varname).par.exp_name;
+            obj.pmd.sub_code.editfield.String=saved_struct.(varname).par.subj_code;
+            obj.pmd.lb_sessions.listbox.String=saved_struct.(varname).par.sess;
             obj.cb_session_listbox;
-            
-            
-            
-            
         end
         function cb_menu_md(obj)
             obj.info.menu.md=obj.info.menu.md+1;
