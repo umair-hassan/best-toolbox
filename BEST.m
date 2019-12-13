@@ -746,10 +746,22 @@ classdef BEST < handle
             
             % row 2
             mep_panel_row2 = uix.HBox( 'Parent', obj.pi.mep.vb, 'Spacing', 5, 'Padding', 5  );
-            uicontrol( 'Style','text','Parent', mep_panel_row2,'String','Target Muscle:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            obj.pi.mep.target_muscle=uicontrol( 'Style','edit','Parent', mep_panel_row2 ,'FontSize',11,'Callback',@(~,~)obj.cb_pi_mep_target_muscle); %,'Callback',@obj.cb_mep_target_muscle
+            uicontrol( 'Style','text','Parent', mep_panel_row2,'String','Input Device:','FontSize',140,'HorizontalAlignment','left','Units','normalized','FontUnits','normalized');
+            obj.pi.mep.input_device=uicontrol( 'Style','edit','Parent', mep_panel_row2 ,'FontSize',11,'Callback',@(~,~)obj.cb_pi_mep_target_muscle); %,'Callback',@obj.cb_mep_target_muscle
             set( mep_panel_row2, 'Widths', [150 -2]);
             
+            % row 2f
+            mep_panel_row2f = uix.HBox( 'Parent', obj.pi.mep.vb, 'Spacing', 5, 'Padding', 5  );
+            uicontrol( 'Style','text','Parent', mep_panel_row2f,'String','Output Device:','FontSize',90,'HorizontalAlignment','left','Units','normalized','FontUnits','normalized');
+            obj.pi.mep.output_device=uicontrol( 'Style','edit','Parent', mep_panel_row2f ,'FontSize',11,'Callback',@(~,~)obj.cb_pi_mep_target_muscle); %,'Callback',@obj.cb_mep_target_muscle
+            set( mep_panel_row2f, 'Widths', [150 -2]);
+            
+            % row 2g
+            mep_panel_row2g = uix.HBox( 'Parent', obj.pi.mep.vb, 'Spacing', 5, 'Padding', 5  );
+            uicontrol( 'Style','text','Parent', mep_panel_row2g,'String','Display Scopes:','FontSize',70,'HorizontalAlignment','left','Units','normalized','FontUnits','normalized');
+            obj.pi.mep.display_scopes=uicontrol( 'Style','edit','Parent', mep_panel_row2g ,'FontSize',11,'Callback',@(~,~)obj.cb_pi_mep_target_muscle); %,'Callback',@obj.cb_mep_target_muscle
+            set( mep_panel_row2g, 'Widths', [150 -2]);
+
             % row 3
             mep_panel_row3 = uix.HBox( 'Parent', obj.pi.mep.vb, 'Spacing', 5, 'Padding', 5  );
             uicontrol( 'Style','text','Parent', mep_panel_row3,'String','Stimulation Intensities:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
@@ -854,7 +866,7 @@ classdef BEST < handle
             obj.pi.stop=uicontrol( 'Parent', mep_panel_17 ,'Style','PushButton','String','Stop','FontWeight','Bold','Callback',@(~,~)obj.stop,'Enable','on');
             set( mep_panel_17, 'Widths', [-2 -4 -2 -2]);
             
-            set(obj.pi.mep.vb,'Heights',[-0.02 -0.4 -0.4 -0.4 -0.4 -0.02 -0.2 -0.4 -0.4 -0.4 -0.4 -0.4 -0.4 -0.4 -0.4 -0.4 0 -0.4])
+            set(obj.pi.mep.vb,'Heights',[-0.02 -0.4 -0.4 -0.4 -0.4 -0.4 -0.4 -0.02 -0.2 -0.4 -0.4 -0.4 -0.4 -0.4 -0.4 -0.4 -0.4 -0.4 0 -0.4])
             
             
         end
@@ -3957,6 +3969,5 @@ end
 
 
 %main panel is the panel on which measurement designer, inputs panel and results panel are placed
-%just FYI
 % all panels have p infront of their names
 % md- measurement designer
