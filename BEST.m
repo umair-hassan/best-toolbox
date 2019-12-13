@@ -747,19 +747,19 @@ classdef BEST < handle
             % row 2
             mep_panel_row2 = uix.HBox( 'Parent', obj.pi.mep.vb, 'Spacing', 5, 'Padding', 5  );
             uicontrol( 'Style','text','Parent', mep_panel_row2,'String','Input Device:','FontSize',140,'HorizontalAlignment','left','Units','normalized','FontUnits','normalized');
-            obj.pi.mep.input_device=uicontrol( 'Style','edit','Parent', mep_panel_row2 ,'FontSize',11,'Callback',@(~,~)obj.cb_pi_mep_target_muscle); %,'Callback',@obj.cb_mep_target_muscle
+            obj.pi.mep.input_device=uicontrol( 'Style','edit','Parent', mep_panel_row2 ,'FontSize',11,'Callback',@(~,~)obj.cb_pi_mep_input_device); %,'Callback',@obj.cb_mep_target_muscle
             set( mep_panel_row2, 'Widths', [150 -2]);
             
             % row 2f
             mep_panel_row2f = uix.HBox( 'Parent', obj.pi.mep.vb, 'Spacing', 5, 'Padding', 5  );
             uicontrol( 'Style','text','Parent', mep_panel_row2f,'String','Output Device:','FontSize',90,'HorizontalAlignment','left','Units','normalized','FontUnits','normalized');
-            obj.pi.mep.output_device=uicontrol( 'Style','edit','Parent', mep_panel_row2f ,'FontSize',11,'Callback',@(~,~)obj.cb_pi_mep_target_muscle); %,'Callback',@obj.cb_mep_target_muscle
+            obj.pi.mep.output_device=uicontrol( 'Style','edit','Parent', mep_panel_row2f ,'FontSize',11,'Callback',@(~,~)obj.cb_pi_mep_output_device); %,'Callback',@obj.cb_mep_target_muscle
             set( mep_panel_row2f, 'Widths', [150 -2]);
             
             % row 2g
             mep_panel_row2g = uix.HBox( 'Parent', obj.pi.mep.vb, 'Spacing', 5, 'Padding', 5  );
             uicontrol( 'Style','text','Parent', mep_panel_row2g,'String','Display Scopes:','FontSize',70,'HorizontalAlignment','left','Units','normalized','FontUnits','normalized');
-            obj.pi.mep.display_scopes=uicontrol( 'Style','edit','Parent', mep_panel_row2g ,'FontSize',11,'Callback',@(~,~)obj.cb_pi_mep_target_muscle); %,'Callback',@obj.cb_mep_target_muscle
+            obj.pi.mep.display_scopes=uicontrol( 'Style','edit','Parent', mep_panel_row2g ,'FontSize',11,'Callback',@(~,~)obj.cb_pi_mep_display_scopes); %,'Callback',@obj.cb_mep_target_muscle
             set( mep_panel_row2g, 'Widths', [150 -2]);
 
             % row 3
@@ -2836,10 +2836,17 @@ classdef BEST < handle
             
         end
         %% input callbacks
+        function cb_pi_mep_input_device(obj)
+            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).input_device=obj.pi.mep.input_device.String; 
+        end
+        function cb_pi_mep_output_device(obj)
+            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).output_device=obj.pi.mep.output_device.String; 
+        end
+        function cb_pi_mep_display_scopes(obj)
+            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).display_scopes=obj.pi.mep.display_scopes.String; 
+        end
         function cb_pi_mep_target_muscle(obj)
-            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).target_muscle=obj.pi.mep.target_muscle.String;
-            
-            
+            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).target_muscle=obj.pi.mep.target_muscle.String; 
         end
         function cb_pi_mep_stimulation_intensities(obj)
             obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).stimulation_intensities=str2num(obj.pi.mep.stimulation_intensities.String);
