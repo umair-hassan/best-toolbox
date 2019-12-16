@@ -1980,7 +1980,7 @@ classdef BEST < handle
             obj.info.defaults.mt_mvEnable='on';
             obj.info.defaults.mt_starting_stim_intenEnable='on';
             obj.par.(obj.info.event.current_session).(obj.info.event.measure_being_added)=obj.info.defaults;
-        end
+        end 
         function default_par_ioc(obj)
             obj.info.defaults.target_muscle='APBr';
             obj.info.defaults.stimulation_intensities=[30 40 50 60 70 80];
@@ -2837,13 +2837,34 @@ classdef BEST < handle
         end
         %% input callbacks
         function cb_pi_mep_input_device(obj)
-            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).input_device=obj.pi.mep.input_device.String; 
+            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).input_device=eval(obj.pi.mep.input_device.String);
         end
         function cb_pi_mep_output_device(obj)
             obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).output_device=obj.pi.mep.output_device.String; 
         end
         function cb_pi_mep_display_scopes(obj)
-            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).display_scopes=obj.pi.mep.display_scopes.String; 
+            %first evalute
+            if(ischar(obj.pi.mep.display_scopes.String) || (iscell(eval(obj.pi.mep.display_scopes.String))))
+                if(iscell(eval(obj.pi.mep.display_scopes.String)))
+                    cellarraysize=size(eval(obj.pi.mep.display_scopes.String))
+                    if(cellarraysize(1)>1)
+                        %error dialogue
+                        disp BEST Toolbox: The Display Scopes input field must be a 1 x n dimension cell array
+                    end
+                end
+                try
+                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).display_scopes=eval(obj.pi.mep.display_scopes.String); 
+                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).display_scopes
+                catch
+                    disp BEST Toolbox: The Display Scopes field input can only be a Character or Cell array OR no such variable exists with this name in the MATLAB workspace 
+                end
+%             elseif (iscell(eval(obj.pi.mep.display_scopes.String)))
+%             obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).display_scopes=eval(obj.pi.mep.display_scopes.String); 
+%             obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).display_scopes
+            else
+                % display error dialogue
+                disp BEST Toolbox: The Display Scopes field input can only be a Character or Cell array
+            end
         end
         function cb_pi_mep_target_muscle(obj)
             obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).target_muscle=obj.pi.mep.target_muscle.String; 
