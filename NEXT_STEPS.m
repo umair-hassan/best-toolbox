@@ -1,4 +1,20 @@
+Generl Plan:
+1. start making input panels for all that Til required
+2. Keep the backup of old input panels as they are important in working
+
 NEXT STEPS
+
+
+eval if the var is a char, if yes then its a constant same option for all the other instances/factors if exists more than once
+eval if the var is a cell array, then its a different instance for all of them
+
+currently the eval function is allowing to store the matlab commands generated number in the display scope par buffer, correct it by evaluting first and then store only if its a char or cell otherwise throw it away, store variable into this if its also a cell or array or throw it away too
+complete the for cell array char or a variable  later on cb_pi_mep_input_device
+
+check if the normalized font units worked or not
+document the general flow of an input panel variable in the entire gui class
+create the baseline correction
+create the scope trigger delay correction function
 
 
 
@@ -115,5 +131,17 @@ What is the units of the eye_artifact_threshold ? In some older scripts its 1e6 
 What are units of eeg_artifact_threshold? In some older scripts I found it to be around 90 or 1e6 , also they row vector have two elements, what is their signifnance that are identical, is there any signifiance or its just a buffer?
 What kind of value pair is the property calibration_markers expecting ? 
 
+
+
+
+Starts from input panels 
+Go to its callback
+
+
+
+
+
+
+pi_mep
 
 
