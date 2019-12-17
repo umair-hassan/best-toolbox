@@ -1727,7 +1727,11 @@ classdef BEST < handle
             obj.pr.mep.handle= uix.Panel( 'Parent', obj.pr.empty_panel, 'Padding', 5 ,'Units','normalized','Title', 'Results','FontWeight','bold','FontSize',14,'TitlePosition','centertop' );
             m_mep=uicontextmenu(obj.fig.handle);
             uimenu(m_mep,'label','Export as Matlab Figure','Callback',@(~,~)obj.cb_pr_mep_export);
-            obj.pr.mep.axes1=axes( 'Parent', obj.pr.mep.handle,'Units','normalized','Tag','mep','uicontextmenu',m_mep,'UserData','umikhankhan');
+%             subplot(3,1,
+            obj.pr.mep.axes1=axes( 'Parent', obj.pr.mep.handle,'Units','normalized','Tag','mep1','uicontextmenu',m_mep,'UserData','umikhankhan');
+                    obj.pr.mep.axes2=axes( 'Parent', obj.pr.mep.handle,'Units','normalized','Tag','mep2','uicontextmenu',m_mep,'UserData','umikhankhan');
+            obj.pr.mep.axes3=axes( 'Parent', obj.pr.mep.handle,'Units','normalized','Tag','mep3','uicontextmenu',m_mep,'UserData','umikhankhan');
+
         end
         function pr_hotspot(obj)
             obj.pr.hotspot.handle= uix.Panel( 'Parent', obj.pr.empty_panel, 'Padding', 5 ,'Units','normalized','Title', 'Results','FontWeight','bold','FontSize',14,'TitlePosition','centertop' );
@@ -2444,6 +2448,10 @@ classdef BEST < handle
             
             obj.bst.inputs.current_session=obj.info.event.current_session;
             obj.bst.inputs.current_measurement=obj.info.event.current_measure_fullstr;
+            obj.bst.inputs.input_device=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).input_device
+            obj.bst.inputs.output_device=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).output_device
+            obj.bst.inputs.display_scopes=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).display_scopes
+
             obj.bst.inputs.stimuli=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).stimulation_intensities;
             obj.bst.inputs.iti=(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).iti);
             obj.bst.inputs.trials=(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).trials_per_condition);
