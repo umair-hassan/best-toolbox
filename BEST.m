@@ -1,13 +1,3 @@
-% This program is free software; you can redistribute it and/or modify
-% it under the terms of the GNU General Public License as published by
-% the Free Software Foundation; either version 3 of the License, or
-% (at your option) any later version.
-%
-% This program is distributed in the hope that it will be useful,
-% but WITHOUT ANY WARRANTY; without even the implied warranty of
-% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-% GNU General Public License for more details.
-
 classdef BEST < handle
     properties
         par
@@ -21,6 +11,7 @@ classdef BEST < handle
         pmd %panel_measurement_designer
         pi  %panel_inputs
         pr %panel_results
+        hw
         var
         grid % bottom most 3 panels
         panel
@@ -43,12 +34,13 @@ classdef BEST < handle
             obj.create_main_panel;
             obj.create_inputs_panel;
             obj.create_results_panel;
+            obj.create_hwcfg_panel;
             %               obj.pi_ioc
             
             
         end
         function create_best_obj(obj)
-            obj.bst= BT911sim (obj);
+            obj.bst= best_toolbox (obj);
             %              obj.bst= best_toolbox_gui_version_inprogress_testinlab_2910_sim (obj);
         end
         function create_figure(obj)
@@ -88,7 +80,7 @@ classdef BEST < handle
             obj.menu.md.btn=uicontrol( 'Parent', menu_hbox ,'Style','PushButton','String','Measurement Designer','FontWeight','Bold' ,'Callback', @(~,~)obj.cb_menu_md);
             obj.menu.ip.btn=uicontrol( 'Parent', menu_hbox ,'Style','PushButton','String','Stimulation Parameters','FontWeight','Bold','Callback', @(~,~)obj.cb_menu_ip );
             obj.menu.rp.btn=uicontrol( 'Parent', menu_hbox ,'Style','PushButton','String','Results Panel','FontWeight','Bold','Callback', @(~,~)obj.cb_menu_rp );
-            obj.menu.hardware_config.btn=uicontrol( 'Parent', menu_hbox ,'Style','PushButton','String','Hardware Configuration','FontWeight','Bold','Callback', @(~,~)obj.cb_menu_rp );
+            obj.menu.hwcfg.btn=uicontrol( 'Parent', menu_hbox ,'Style','PushButton','String','Hardware Configuration','FontWeight','Bold','Callback', @(~,~)obj.cb_menu_hwcfg );
             obj.menu.settings.btn=uicontrol( 'Parent', menu_hbox ,'Style','PushButton','String','Toolbox Settings','FontWeight','Bold','Callback', @(~,~)obj.cb_menu_rp );
 
             uiextras.HBox( 'Parent', menu_hbox,'Spacing', 5, 'Padding', 5 );
@@ -98,6 +90,7 @@ classdef BEST < handle
             obj.info.menu.md=0;
             obj.info.menu.ip=0;
             obj.info.menu.rp=0;
+            obj.info.menu.hwcfg=0;
             
             
         end
@@ -105,7 +98,7 @@ classdef BEST < handle
             obj.fig.main = uix.GridFlex( 'Parent', obj.fig.vbox, 'Spacing', 5 );
             set(obj.fig.vbox,'Heights',[-1 -25]);
             p_measurement_designer = uix.Panel( 'Parent', obj.fig.main, 'Padding', 5,  'Units','normalized','BorderType','none');
-            obj.pmd.panel = uix.Panel( 'Parent', p_measurement_designer, 'Title', 'Measurement Designer', 'Padding', 5,'FontSize',14 ,'Units','normalized','FontWeight','bold','TitlePosition','centertop');
+            obj.pmd.panel = uix.Panel( 'Parent', p_measurement_designer, 'Title', 'Experiment Designer', 'Padding', 5,'FontSize',14 ,'Units','normalized','FontWeight','bold','TitlePosition','centertop');
             pmd_vbox = uix.VBox( 'Parent', obj.pmd.panel, 'Spacing', 5, 'Padding', 5  );
             
             % experiment title: first horizontal row in measurement designer panel
@@ -132,7 +125,7 @@ classdef BEST < handle
             % drop-down select measure: fourth horizontal row on first panel
             pmd_hbox_slct_mes = uix.HBox( 'Parent', pmd_vbox, 'Spacing', 5, 'Padding', 5  );
             uicontrol( 'Style','text','Parent', pmd_hbox_slct_mes,'String','Select Measure:','FontSize',11,'HorizontalAlignment','left' ,'Units','normalized');
-            obj.pmd.select_measure.string={'MEP Measurement','MEP Hotspot Search','MEP Motor Threshold Hunting','MEP Dose Response Curve_sp','MEP Dose Response Curve_pp','EEG triggered Stimulation','TMS fMRI','TEP Measurement'};
+            obj.pmd.select_measure.string={'MEP Measurement','MEP Hotspot Search','MEP Motor Threshold Hunting','MEP Dose Response Curve_sp','EEG triggered Stimulation','TMS fMRI','TEP Measurement','ERP Measurement','rs EEG Analysis','rTMS Interventions'};
             obj.pmd.select_measure.popupmenu=uicontrol( 'Style','popupmenu','Parent', pmd_hbox_slct_mes ,'FontSize',11,'String',obj.pmd.select_measure.string);
             obj.pmd.select_measure.btn=uicontrol( 'Parent', pmd_hbox_slct_mes ,'Style','PushButton','String','+','FontWeight','Bold','Callback',@(~,~)obj.cb_measure_add);
             set( pmd_hbox_slct_mes, 'Widths', [120 -0.7 -0.09]);
@@ -736,6 +729,7 @@ classdef BEST < handle
                 end
             end
         end
+        %% input panels
         function create_inputs_panel(obj)
             obj.pi.empty_panel = uix.Panel( 'Parent', obj.fig.main, 'Padding', 5 ,'Units','normalized','BorderType','none' );
             obj.pi.no_measure_slctd_panel.handle=uix.Panel( 'Parent', obj.pi.empty_panel,'FontSize',14 ,'Units','normalized','Title','Stimulation Parameters','FontWeight','Bold','TitlePosition','centertop' );
@@ -759,21 +753,36 @@ classdef BEST < handle
             
             % row 2
             mep_panel_row2 = uix.HBox( 'Parent', obj.pi.mep.vb, 'Spacing', 5, 'Padding', 5  );
-            uicontrol( 'Style','text','Parent', mep_panel_row2,'String','Input Device:','FontSize',140,'HorizontalAlignment','left','Units','normalized','FontUnits','normalized');
-            obj.pi.mep.input_device=uicontrol( 'Style','edit','Parent', mep_panel_row2 ,'FontSize',11,'Callback',@(~,~)obj.cb_pi_mep_input_device); %,'Callback',@obj.cb_mep_target_muscle
+            uicontrol( 'Style','text','Parent', mep_panel_row2,'String','Input Device:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+            %             obj.pi.mep.input_device=uicontrol( 'Style','edit','Parent', mep_panel_row2 ,'FontSize',11,'Callback',@(~,~)obj.cb_pi_mep_input_device); %,'Callback',@obj.cb_mep_target_muscle
+            str_in_device(1)= (cellstr('Select'));
+            str_in_device(2:numel(obj.hw.device_added1_listbox.string)+1)=obj.hw.device_added1_listbox.string;
+            
+            obj.pi.mep.input_device=uicontrol( 'Style','popupmenu','Parent', mep_panel_row2 ,'FontSize',11,'String',str_in_device,'Callback',@(~,~)obj.cb_pi_mep_input_device); %,'Callback',@obj.cb_mep_target_muscle
+            
             set( mep_panel_row2, 'Widths', [150 -2]);
             
             % row 2f
             mep_panel_row2f = uix.HBox( 'Parent', obj.pi.mep.vb, 'Spacing', 5, 'Padding', 5  );
-            uicontrol( 'Style','text','Parent', mep_panel_row2f,'String','Output Device:','FontSize',90,'HorizontalAlignment','left','Units','normalized','FontUnits','normalized');
-            obj.pi.mep.output_device=uicontrol( 'Style','edit','Parent', mep_panel_row2f ,'FontSize',11,'Callback',@(~,~)obj.cb_pi_mep_output_device); %,'Callback',@obj.cb_mep_target_muscle
+            uicontrol( 'Style','text','Parent', mep_panel_row2f,'String','Output Device:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+            %             obj.pi.mep.output_device=uicontrol( 'Style','edit','Parent', mep_panel_row2f ,'FontSize',11,'Callback',@(~,~)obj.cb_pi_mep_output_device); %,'Callback',@obj.cb_mep_target_muscle
+            str_out_device(1)= (cellstr('Select'));
+            str_out_device(2:numel(obj.hw.device_added2_listbox.string)+1)=obj.hw.device_added2_listbox.string;
+            obj.pi.mep.output_device=uicontrol( 'Style','popupmenu','Parent', mep_panel_row2f ,'String',str_out_device,'FontSize',11,'Callback',@(~,~)obj.cb_pi_mep_output_device); %,'Callback',@obj.cb_mep_target_muscle
+            
             set( mep_panel_row2f, 'Widths', [150 -2]);
             
             % row 2g
             mep_panel_row2g = uix.HBox( 'Parent', obj.pi.mep.vb, 'Spacing', 5, 'Padding', 5  );
-            uicontrol( 'Style','text','Parent', mep_panel_row2g,'String','Display Scopes:','FontSize',70,'HorizontalAlignment','left','Units','normalized','FontUnits','normalized');
+            uicontrol( 'Style','text','Parent', mep_panel_row2g,'String','Display EMG Channel:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
             obj.pi.mep.display_scopes=uicontrol( 'Style','edit','Parent', mep_panel_row2g ,'FontSize',11,'Callback',@(~,~)obj.cb_pi_mep_display_scopes); %,'Callback',@obj.cb_mep_target_muscle
             set( mep_panel_row2g, 'Widths', [150 -2]);
+            
+%               % row 2
+%             mep_panel_row2 = uix.HBox( 'Parent', obj.pi.mep.vb, 'Spacing', 5, 'Padding', 5  );
+%             uicontrol( 'Style','text','Parent', mep_panel_row2,'String','Display EMG Channel:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+%             obj.pi.mep.target_muscle=uicontrol( 'Style','edit','Parent', mep_panel_row2 ,'FontSize',11,'Callback',@(~,~)obj.cb_pi_mep_target_muscle); %,'Callback',@obj.cb_mep_target_muscle
+%             set( mep_panel_row2, 'Widths', [150 -2]);
 
             % row 3
             mep_panel_row3 = uix.HBox( 'Parent', obj.pi.mep.vb, 'Spacing', 5, 'Padding', 5  );
@@ -879,7 +888,7 @@ classdef BEST < handle
             obj.pi.stop=uicontrol( 'Parent', mep_panel_17 ,'Style','PushButton','String','Stop','FontWeight','Bold','Callback',@(~,~)obj.stop,'Enable','on');
             set( mep_panel_17, 'Widths', [-2 -4 -2 -2]);
             
-            set(obj.pi.mep.vb,'Heights',[-0.02 -0.4 -0.4 -0.4 -0.4 -0.4 -0.4 -0.02 -0.2 -0.4 -0.4 -0.4 -0.4 -0.4 -0.4 -0.4 -0.4 -0.4 0 -0.4])
+            set(obj.pi.mep.vb,'Heights',[0 -0.4 -0.4 -0.4 -0.4 -0.4 -0.4 0 -0.2 -0.4 -0.4 -0.4 -0.4 -0.4 -0.4 -0.4 -0.4 -0.4 0 -0.4])
             
             
         end
@@ -902,12 +911,39 @@ classdef BEST < handle
             % row 1
             uiextras.HBox( 'Parent', obj.pi.hotspot.vb,'Spacing', 5, 'Padding', 5 )
             
-            
-            % row 2
+              % row 2
             mep_panel_row2 = uix.HBox( 'Parent', obj.pi.hotspot.vb, 'Spacing', 5, 'Padding', 5  );
-            uicontrol( 'Style','text','Parent', mep_panel_row2,'String','Target Muscle:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            obj.pi.hotspot.target_muscle=uicontrol( 'Style','edit','Parent', mep_panel_row2 ,'FontSize',11,'Callback',@(~,~)obj.cb_pi_hotspot_target_muscle); %,'Callback',@obj.cb_hotspot_target_muscle
+            uicontrol( 'Style','text','Parent', mep_panel_row2,'String','Input Device:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+            %             obj.pi.hotspot.input_device=uicontrol( 'Style','edit','Parent', mep_panel_row2 ,'FontSize',11,'Callback',@(~,~)obj.cb_pi_hotspot_input_device); %,'Callback',@obj.cb_hotspot_target_muscle
+            str_in_device(1)= (cellstr('Select'));
+            str_in_device(2:numel(obj.hw.device_added1_listbox.string)+1)=obj.hw.device_added1_listbox.string;
+            
+            obj.pi.hotspot.input_device=uicontrol( 'Style','popupmenu','Parent', mep_panel_row2 ,'FontSize',11,'String',str_in_device,'Callback',@(~,~)obj.cb_pi_hotspot_input_device); %,'Callback',@obj.cb_hotspot_target_muscle
+            
             set( mep_panel_row2, 'Widths', [150 -2]);
+            
+            % row 2f
+            mep_panel_row2f = uix.HBox( 'Parent', obj.pi.hotspot.vb, 'Spacing', 5, 'Padding', 5  );
+            uicontrol( 'Style','text','Parent', mep_panel_row2f,'String','Output Device:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+            %             obj.pi.hotspot.output_device=uicontrol( 'Style','edit','Parent', mep_panel_row2f ,'FontSize',11,'Callback',@(~,~)obj.cb_pi_hotspot_output_device); %,'Callback',@obj.cb_hotspot_target_muscle
+            str_out_device(1)= (cellstr('Select'));
+            str_out_device(2:numel(obj.hw.device_added2_listbox.string)+1)=obj.hw.device_added2_listbox.string;
+            obj.pi.hotspot.output_device=uicontrol( 'Style','popupmenu','Parent', mep_panel_row2f ,'String',str_out_device,'FontSize',11,'Callback',@(~,~)obj.cb_pi_hotspot_output_device); %,'Callback',@obj.cb_hotspot_target_muscle
+            
+            set( mep_panel_row2f, 'Widths', [150 -2]);
+            
+            % row 2g
+            mep_panel_row2g = uix.HBox( 'Parent', obj.pi.hotspot.vb, 'Spacing', 5, 'Padding', 5  );
+            uicontrol( 'Style','text','Parent', mep_panel_row2g,'String','Display EMG Channel:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+            obj.pi.hotspot.display_scopes=uicontrol( 'Style','edit','Parent', mep_panel_row2g ,'FontSize',11,'Callback',@(~,~)obj.cb_pi_hotspot_display_scopes); %,'Callback',@obj.cb_hotspot_target_muscle
+            set( mep_panel_row2g, 'Widths', [150 -2]);
+            
+            
+%             % row 2
+%             mep_panel_row2 = uix.HBox( 'Parent', obj.pi.hotspot.vb, 'Spacing', 5, 'Padding', 5  );
+%             uicontrol( 'Style','text','Parent', mep_panel_row2,'String','Target Muscle:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+%             obj.pi.hotspot.target_muscle=uicontrol( 'Style','edit','Parent', mep_panel_row2 ,'FontSize',11,'Callback',@(~,~)obj.cb_pi_hotspot_target_muscle); %,'Callback',@obj.cb_hotspot_target_muscle
+%             set( mep_panel_row2, 'Widths', [150 -2]);
             
             % %             % row 3
             % %             mep_panel_row3 = uix.HBox( 'Parent', obj.pi.hotspot.vb, 'Spacing', 5, 'Padding', 5  );
@@ -997,7 +1033,7 @@ classdef BEST < handle
             
             
             
-            set(obj.pi.hotspot.vb,'Heights',[-0.1 -0.4 -0.4 -0.4 -0.2 -0.2 -0.4 -0.5 -0.4 -0.4 -0.4 -0.4 -0.4 -1 -0.5])
+            set(obj.pi.hotspot.vb,'Heights',[-0.1 -0.4 -0.4 -0.4 -0.4 -0.4 -0.1 -0.2 -0.4 -0.5 -0.4 -0.4 -0.4 -0.4 -0.4 -0.1 -0.5])
             
             
         end
@@ -1005,20 +1041,47 @@ classdef BEST < handle
             obj.pi.mt.panel=uix.Panel( 'Parent', obj.pi.empty_panel,'FontSize',14 ,'Units','normalized','Title','Motor Threshold Hunting' ,'FontWeight','Bold','TitlePosition','centertop');
             obj.pi.mt.vb = uix.VBox( 'Parent', obj.pi.mt.panel, 'Spacing', 5, 'Padding', 5  );
             
-            % row 1
-            uiextras.HBox( 'Parent', obj.pi.mt.vb,'Spacing', 5, 'Padding', 5 )
-            mep_panel_row1 = uix.HBox( 'Parent', obj.pi.mt.vb, 'Spacing', 5, 'Padding', 5  );
-            uicontrol( 'Style','text','Parent', mep_panel_row1,'String','Thresholding Method:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            obj.pi.mt.thresholding_method=uicontrol( 'Style','popupmenu','Parent', mep_panel_row1 ,'FontSize',11,'String',{'PEST Pentland', 'PEST Taylor'},'Callback',@(~,~)obj.cb_pi_mt_thresholding_method);
-            set( mep_panel_row1, 'Widths', [150 -2]);
-            
-            
-            % row 2
+%             % row 1
+%             uiextras.HBox( 'Parent', obj.pi.mt.vb,'Spacing', 5, 'Padding', 5 )
+%             mep_panel_row1 = uix.HBox( 'Parent', obj.pi.mt.vb, 'Spacing', 5, 'Padding', 5  );
+%             uicontrol( 'Style','text','Parent', mep_panel_row1,'String','Thresholding Method:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+%             obj.pi.mt.thresholding_method=uicontrol( 'Style','popupmenu','Parent', mep_panel_row1 ,'FontSize',11,'String',{'PEST Pentland', 'PEST Taylor'},'Callback',@(~,~)obj.cb_pi_mt_thresholding_method);
+%             set( mep_panel_row1, 'Widths', [150 -2]);
+
+      % row 2
             mep_panel_row2 = uix.HBox( 'Parent', obj.pi.mt.vb, 'Spacing', 5, 'Padding', 5  );
-            uicontrol( 'Style','text','Parent', mep_panel_row2,'String','Target Muscle:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            obj.pi.mt.target_muscle=uicontrol( 'Style','edit','Parent', mep_panel_row2 ,'FontSize',11,'Callback',@(~,~)obj.cb_pi_mt_target_muscle); %,'Callback',@obj.cb_mt_target_muscle
+            uicontrol( 'Style','text','Parent', mep_panel_row2,'String','Input Device:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+            %             obj.pi.mt.input_device=uicontrol( 'Style','edit','Parent', mep_panel_row2 ,'FontSize',11,'Callback',@(~,~)obj.cb_pi_mt_input_device); %,'Callback',@obj.cb_mt_target_muscle
+            str_in_device(1)= (cellstr('Select'));
+            str_in_device(2:numel(obj.hw.device_added1_listbox.string)+1)=obj.hw.device_added1_listbox.string;
+            
+            obj.pi.mt.input_device=uicontrol( 'Style','popupmenu','Parent', mep_panel_row2 ,'FontSize',11,'String',str_in_device,'Callback',@(~,~)obj.cb_pi_mt_input_device); %,'Callback',@obj.cb_mt_target_muscle
+            
             set( mep_panel_row2, 'Widths', [150 -2]);
             
+            % row 2f
+            mep_panel_row2f = uix.HBox( 'Parent', obj.pi.mt.vb, 'Spacing', 5, 'Padding', 5  );
+            uicontrol( 'Style','text','Parent', mep_panel_row2f,'String','Output Device:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+            %             obj.pi.mt.output_device=uicontrol( 'Style','edit','Parent', mep_panel_row2f ,'FontSize',11,'Callback',@(~,~)obj.cb_pi_mt_output_device); %,'Callback',@obj.cb_mt_target_muscle
+            str_out_device(1)= (cellstr('Select'));
+            str_out_device(2:numel(obj.hw.device_added2_listbox.string)+1)=obj.hw.device_added2_listbox.string;
+            obj.pi.mt.output_device=uicontrol( 'Style','popupmenu','Parent', mep_panel_row2f ,'String',str_out_device,'FontSize',11,'Callback',@(~,~)obj.cb_pi_mt_output_device); %,'Callback',@obj.cb_mt_target_muscle
+            
+            set( mep_panel_row2f, 'Widths', [150 -2]);
+            
+            % row 2g
+            mep_panel_row2g = uix.HBox( 'Parent', obj.pi.mt.vb, 'Spacing', 5, 'Padding', 5  );
+            uicontrol( 'Style','text','Parent', mep_panel_row2g,'String','Display EMG Channel:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+            obj.pi.mt.display_scopes=uicontrol( 'Style','edit','Parent', mep_panel_row2g ,'FontSize',11,'Callback',@(~,~)obj.cb_pi_mt_display_scopes); %,'Callback',@obj.cb_mt_target_muscle
+            set( mep_panel_row2g, 'Widths', [150 -2]);
+%             
+            
+%             % row 2
+%             mep_panel_row2 = uix.HBox( 'Parent', obj.pi.mt.vb, 'Spacing', 5, 'Padding', 5  );
+%             uicontrol( 'Style','text','Parent', mep_panel_row2,'String','Target Muscle:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+%             obj.pi.mt.target_muscle=uicontrol( 'Style','edit','Parent', mep_panel_row2 ,'FontSize',11,'Callback',@(~,~)obj.cb_pi_mt_target_muscle); %,'Callback',@obj.cb_mt_target_muscle
+%             set( mep_panel_row2, 'Widths', [150 -2]);
+%             
             % row 3
             mep_panel_row3 = uix.HBox( 'Parent', obj.pi.mt.vb, 'Spacing', 5, 'Padding', 5  );
             uicontrol( 'Style','text','Parent', mep_panel_row3,'String','Motor Threshold (mV):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
@@ -1121,7 +1184,7 @@ classdef BEST < handle
             obj.pi.stop=uicontrol( 'Parent', mep_panel_17 ,'Style','PushButton','String','Stop','FontWeight','Bold','Callback',@(~,~)obj.stop,'Enable','on');
             set( mep_panel_17, 'Widths', [-2 -4 -2 -2]);
             
-            set(obj.pi.mt.vb,'Heights',[-0.01 -0.4 -0.4 -0.4 -0.4 -0.4 -0.4 -0.01 -0.2 -0.4 -0.4 -0.4 -0.4 -0.4 -0.4 -0.4 -0.4 0 -0.5])
+            set(obj.pi.mt.vb,'Heights',[-0.01 -0.4 -0.4 -0.4 -0.4 -0.4 -0.4 -0.4 -0.01 -0.2 -0.4 -0.4 -0.4 -0.4 -0.4 -0.4 -0.4 -0.4 0 -0.5])
             
             
         end
@@ -1131,13 +1194,37 @@ classdef BEST < handle
             
             % row 1
             uiextras.HBox( 'Parent', obj.pi.ioc.vb,'Spacing', 5, 'Padding', 5 )
+              mep_panel_row2 = uix.HBox( 'Parent', obj.pi.ioc.vb, 'Spacing', 5, 'Padding', 5  );
+            uicontrol( 'Style','text','Parent', mep_panel_row2,'String','Input Device:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+            %             obj.pi.ioc.input_device=uicontrol( 'Style','edit','Parent', mep_panel_row2 ,'FontSize',11,'Callback',@(~,~)obj.cb_pi_ioc_input_device); %,'Callback',@obj.cb_ioc_target_muscle
+            str_in_device(1)= (cellstr('Select'));
+            str_in_device(2:numel(obj.hw.device_added1_listbox.string)+1)=obj.hw.device_added1_listbox.string;
             
+            obj.pi.ioc.input_device=uicontrol( 'Style','popupmenu','Parent', mep_panel_row2 ,'FontSize',11,'String',str_in_device,'Callback',@(~,~)obj.cb_pi_ioc_input_device); %,'Callback',@obj.cb_ioc_target_muscle
             
-            % row 2
-            mep_panel_row2 = uix.HBox( 'Parent', obj.pi.ioc.vb, 'Spacing', 5, 'Padding', 5  );
-            uicontrol( 'Style','text','Parent', mep_panel_row2,'String','Target Muscle:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            obj.pi.ioc.target_muscle=uicontrol( 'Style','edit','Parent', mep_panel_row2 ,'FontSize',11,'Callback',@(~,~)obj.cb_pi_ioc_target_muscle); %,'Callback',@obj.cb_ioc_target_muscle
             set( mep_panel_row2, 'Widths', [150 -2]);
+            
+            % row 2f
+            mep_panel_row2f = uix.HBox( 'Parent', obj.pi.ioc.vb, 'Spacing', 5, 'Padding', 5  );
+            uicontrol( 'Style','text','Parent', mep_panel_row2f,'String','Output Device:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+            %             obj.pi.ioc.output_device=uicontrol( 'Style','edit','Parent', mep_panel_row2f ,'FontSize',11,'Callback',@(~,~)obj.cb_pi_ioc_output_device); %,'Callback',@obj.cb_ioc_target_muscle
+            str_out_device(1)= (cellstr('Select'));
+            str_out_device(2:numel(obj.hw.device_added2_listbox.string)+1)=obj.hw.device_added2_listbox.string;
+            obj.pi.ioc.output_device=uicontrol( 'Style','popupmenu','Parent', mep_panel_row2f ,'String',str_out_device,'FontSize',11,'Callback',@(~,~)obj.cb_pi_ioc_output_device); %,'Callback',@obj.cb_ioc_target_muscle
+            
+            set( mep_panel_row2f, 'Widths', [150 -2]);
+            
+            % row 2g
+            mep_panel_row2g = uix.HBox( 'Parent', obj.pi.ioc.vb, 'Spacing', 5, 'Padding', 5  );
+            uicontrol( 'Style','text','Parent', mep_panel_row2g,'String','Display EMG Channel:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+            obj.pi.ioc.display_scopes=uicontrol( 'Style','edit','Parent', mep_panel_row2g ,'FontSize',11,'Callback',@(~,~)obj.cb_pi_ioc_display_scopes); %,'Callback',@obj.cb_ioc_target_muscle
+            set( mep_panel_row2g, 'Widths', [150 -2]);
+            
+%             % row 2
+%             mep_panel_row2 = uix.HBox( 'Parent', obj.pi.ioc.vb, 'Spacing', 5, 'Padding', 5  );
+%             uicontrol( 'Style','text','Parent', mep_panel_row2,'String','Target Muscle:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+%             obj.pi.ioc.target_muscle=uicontrol( 'Style','edit','Parent', mep_panel_row2 ,'FontSize',11,'Callback',@(~,~)obj.cb_pi_ioc_target_muscle); %,'Callback',@obj.cb_ioc_target_muscle
+%             set( mep_panel_row2, 'Widths', [150 -2]);
             
             % row 3
             mep_panel_row3 = uix.HBox( 'Parent', obj.pi.ioc.vb, 'Spacing', 5, 'Padding', 5  );
@@ -1256,7 +1343,7 @@ classdef BEST < handle
             obj.pi.stop=uicontrol( 'Parent', mep_panel_17 ,'Style','PushButton','String','Stop','FontWeight','Bold','Callback',@(~,~)obj.stop,'Enable','on');
             set( mep_panel_17, 'Widths', [-2 -4 -2 -2]);
             
-            set(obj.pi.ioc.vb,'Heights',[-0.1 -0.4 -0.4 -0.4 -0.4 -0.1 -0.2 -0.4 -0.4 -0.4 -0.4 -0.4 -0.4 -0.4 -0.4 -0.4 0 -0.5])
+            set(obj.pi.ioc.vb,'Heights',[-0.1 -0.4 -0.4 -0.4 -0.4 -0.4 -0.4 -0.1 -0.2 -0.4 -0.4 -0.4 -0.4 -0.4 -0.4 -0.4 -0.4 -0.4 0 -0.5])
             
             
         end
@@ -1345,106 +1432,142 @@ classdef BEST < handle
             
         end
         function pi_eegtms(obj)
-            obj.pi.ioc.panel=uix.Panel( 'Parent', obj.pi.empty_panel,'FontSize',14 ,'Units','normalized','Title','EEG triggered Stimulation' ,'FontWeight','Bold','TitlePosition','centertop');
-            obj.pi.ioc.vb = uix.VBox( 'Parent', obj.pi.ioc.panel, 'Spacing', 5, 'Padding', 5  );
+            obj.pi.eegtms.panel=uix.Panel( 'Parent', obj.pi.empty_panel,'FontSize',14 ,'Units','normalized','Title','EEG triggered Stimulation' ,'FontWeight','Bold','TitlePosition','centertop');
+            obj.pi.eegtms.vb = uix.VBox( 'Parent', obj.pi.eegtms.panel, 'Spacing', 5, 'Padding', 5  );
             
             % row 1
-            uiextras.HBox( 'Parent', obj.pi.ioc.vb,'Spacing', 5, 'Padding', 5 )
-            
+            uiextras.HBox( 'Parent', obj.pi.eegtms.vb,'Spacing', 5, 'Padding', 5 )
             
             % row 2
-            mep_panel_row2 = uix.HBox( 'Parent', obj.pi.ioc.vb, 'Spacing', 5, 'Padding', 5  );
-            uicontrol( 'Style','text','Parent', mep_panel_row2,'String','Output Device:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            obj.pi.ioc.target_muscle=uicontrol( 'Style','edit','Parent', mep_panel_row2 ,'FontSize',11,'Callback',@(~,~)obj.cb_pi_ioc_target_muscle); %,'Callback',@obj.cb_ioc_target_muscle
-            set( mep_panel_row2, 'Widths', [150 -2]);
-            
-             % row 2
-            mep_panel_row2 = uix.HBox( 'Parent', obj.pi.ioc.vb, 'Spacing', 5, 'Padding', 5  );
+            mep_panel_row2 = uix.HBox( 'Parent', obj.pi.eegtms.vb, 'Spacing', 5, 'Padding', 5  );
             uicontrol( 'Style','text','Parent', mep_panel_row2,'String','Input Device:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            obj.pi.ioc.target_muscle=uicontrol( 'Style','edit','Parent', mep_panel_row2 ,'FontSize',11,'Callback',@(~,~)obj.cb_pi_ioc_target_muscle); %,'Callback',@obj.cb_ioc_target_muscle
+            %             obj.pi.eegtms.input_device=uicontrol( 'Style','edit','Parent', mep_panel_row2 ,'FontSize',11,'Callback',@(~,~)obj.cb_pi_eegtms_input_device); %,'Callback',@obj.cb_eegtms_target_muscle
+            str_in_device(1)= (cellstr('Select'));
+            str_in_device(2:numel(obj.hw.device_added1_listbox.string)+1)=obj.hw.device_added1_listbox.string;
+            
+            obj.pi.eegtms.input_device=uicontrol( 'Style','popupmenu','Parent', mep_panel_row2 ,'FontSize',11,'String',str_in_device,'Callback',@(~,~)obj.cb_pi_eegtms_input_device); %,'Callback',@obj.cb_eegtms_target_muscle
+            
             set( mep_panel_row2, 'Widths', [150 -2]);
+            
+            % row 2f
+            mep_panel_row2f = uix.HBox( 'Parent', obj.pi.eegtms.vb, 'Spacing', 5, 'Padding', 5  );
+            uicontrol( 'Style','text','Parent', mep_panel_row2f,'String','Output Device:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+            %             obj.pi.eegtms.output_device=uicontrol( 'Style','edit','Parent', mep_panel_row2f ,'FontSize',11,'Callback',@(~,~)obj.cb_pi_eegtms_output_device); %,'Callback',@obj.cb_eegtms_target_muscle
+            str_out_device(1)= (cellstr('Select'));
+            str_out_device(2:numel(obj.hw.device_added2_listbox.string)+1)=obj.hw.device_added2_listbox.string;
+            obj.pi.eegtms.output_device=uicontrol( 'Style','popupmenu','Parent', mep_panel_row2f ,'String',str_out_device,'FontSize',11,'Callback',@(~,~)obj.cb_pi_eegtms_output_device); %,'Callback',@obj.cb_eegtms_target_muscle
+            
+            set( mep_panel_row2f, 'Widths', [150 -2]);
+            
+            
+%             % row 2
+%             mep_panel_row2 = uix.HBox( 'Parent', obj.pi.eegtms.vb, 'Spacing', 5, 'Padding', 5  );
+%             uicontrol( 'Style','text','Parent', mep_panel_row2,'String','Output Device:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+%             obj.pi.eegtms.output_device=uicontrol( 'Style','edit','Parent', mep_panel_row2 ,'FontSize',11,'Callback',@(~,~)obj.cb_pi_eegtms_output_device); %,'Callback',@obj.cb_eegtms_target_muscle
+%             set( mep_panel_row2, 'Widths', [150 -2]);
+%             
+%              % row 2
+%             mep_panel_row2 = uix.HBox( 'Parent', obj.pi.eegtms.vb, 'Spacing', 5, 'Padding', 5  );
+%             uicontrol( 'Style','text','Parent', mep_panel_row2,'String','Input Device:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+%             obj.pi.eegtms.input_device=uicontrol( 'Style','edit','Parent', mep_panel_row2 ,'FontSize',11,'Callback',@(~,~)obj.cb_pi_eegtms_input_device); %,'Callback',@obj.cb_eegtms_target_muscle
+%             set( mep_panel_row2, 'Widths', [150 -2]);
             
             % row 2
-            mep_panel_row2 = uix.HBox( 'Parent', obj.pi.ioc.vb, 'Spacing', 5, 'Padding', 5  );
-            uicontrol( 'Style','text','Parent', mep_panel_row2,'String','Target Montage:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            obj.pi.ioc.target_muscle=uicontrol( 'Style','edit','Parent', mep_panel_row2 ,'FontSize',11,'Callback',@(~,~)obj.cb_pi_ioc_target_muscle); %,'Callback',@obj.cb_ioc_target_muscle
+            mep_panel_row2 = uix.HBox( 'Parent', obj.pi.eegtms.vb, 'Spacing', 5, 'Padding', 5  );
+            uicontrol( 'Style','text','Parent', mep_panel_row2,'String','Montage Channels:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+            obj.pi.eegtms.target_montage=uicontrol( 'Style','edit','Parent', mep_panel_row2 ,'FontSize',11,'Callback',@(~,~)obj.cb_pi_eegtms_target_montage); %,'Callback',@obj.cb_eegtms_target_muscle
             set( mep_panel_row2, 'Widths', [150 -2]);
+            
+            mep_panel_row2 = uix.HBox( 'Parent', obj.pi.eegtms.vb, 'Spacing', 5, 'Padding', 5  );
+            uicontrol( 'Style','text','Parent', mep_panel_row2,'String','Montage Weights:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+            obj.pi.eegtms.target_montage=uicontrol( 'Style','edit','Parent', mep_panel_row2 ,'FontSize',11,'Callback',@(~,~)obj.cb_pi_eegtms_target_montage); %,'Callback',@obj.cb_eegtms_target_muscle
+            set( mep_panel_row2, 'Widths', [150 -2]);
+            
+            mep_panel_row8 = uix.HBox( 'Parent', obj.pi.eegtms.vb, 'Spacing', 5, 'Padding', 5  );
+            uicontrol( 'Style','text','Parent', mep_panel_row8,'String',' Frequency Band(Hz):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+            obj.pi.eegtms.freq_ist=uicontrol( 'Style','edit','Parent', mep_panel_row8 ,'FontSize',11,'String','15','Callback',@(~,~)obj.cb_pi_eegtms_freq_ist);
+            obj.pi.eegtms.fre1_2nd=uicontrol( 'Style','edit','Parent', mep_panel_row8 ,'FontSize',11,'String','50','Callback',@(~,~)obj.cb_pi_eegtms_fre1_2nd);
+            set( mep_panel_row8, 'Widths', [150 -2 -2]);
             
              % row 2
-            mep_panel_row2 = uix.HBox( 'Parent', obj.pi.ioc.vb, 'Spacing', 5, 'Padding', 5  );
+            mep_panel_row2 = uix.HBox( 'Parent', obj.pi.eegtms.vb, 'Spacing', 5, 'Padding', 5  );
             uicontrol( 'Style','text','Parent', mep_panel_row2,'String','Target Phase:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            obj.pi.ioc.target_muscle=uicontrol( 'Style','edit','Parent', mep_panel_row2 ,'FontSize',11,'Callback',@(~,~)obj.cb_pi_ioc_target_muscle); %,'Callback',@obj.cb_ioc_target_muscle
+            obj.pi.eegtms.target_phase=uicontrol( 'Style','edit','Parent', mep_panel_row2 ,'FontSize',11,'Callback',@(~,~)obj.cb_pi_eegtms_target_phase); %,'Callback',@obj.cb_eegtms_target_muscle
             set( mep_panel_row2, 'Widths', [150 -2]);
             
+             mep_panel_13 = uix.HBox( 'Parent', obj.pi.eegtms.vb, 'Spacing', 5, 'Padding', 5  );
+            uicontrol( 'Style','text','Parent', mep_panel_13,'String','Amp Distribution:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+            obj.pi.eegtms.amp_low=uicontrol( 'Style','edit','Parent', mep_panel_13 ,'FontSize',11,'Callback',@(~,~)obj.cb_pi_eegtms_amp_low);
+                        obj.pi.eegtms.amp_hi=uicontrol( 'Style','edit','Parent', mep_panel_13 ,'FontSize',11,'Callback',@(~,~)obj.cb_pi_eegtms_amp_hi);
+
+            
+            obj.pi.eegtms.amp_units=uicontrol( 'Style','popupmenu','Parent', mep_panel_13 ,'FontSize',11,'String',{'Select','Absolute','Percentile'},'Value',2','Callback',@(~,~)obj.cb_pi_eegtms_amp_units);
+            set( mep_panel_13, 'Widths', [150 -2 -2 -2]);
+            
+              % row 2
+            mep_panel_row2 = uix.HBox( 'Parent', obj.pi.eegtms.vb, 'Spacing', 5, 'Padding', 5  );
+            uicontrol( 'Style','text','Parent', mep_panel_row2,'String','Offset Samples:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+            obj.pi.eegtms.offset_samples=uicontrol( 'Style','edit','Parent', mep_panel_row2 ,'FontSize',11,'Callback',@(~,~)obj.cb_pi_eegtms_offset_samples); %,'Callback',@obj.cb_eegtms_target_muscle
+            set( mep_panel_row2, 'Widths', [150 -2]);
             
             % row 3
-            mep_panel_row3 = uix.HBox( 'Parent', obj.pi.ioc.vb, 'Spacing', 5, 'Padding', 5  );
+            mep_panel_row3 = uix.HBox( 'Parent', obj.pi.eegtms.vb, 'Spacing', 5, 'Padding', 5  );
             uicontrol( 'Style','text','Parent', mep_panel_row3,'String','Stimulation Intensities:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            obj.pi.ioc.stimulation_intensities=uicontrol( 'Style','edit','Parent', mep_panel_row3 ,'FontSize',11,'Callback',@(~,~)obj.cb_pi_ioc_stimulation_intensities);
+            obj.pi.eegtms.stimulation_intensities=uicontrol( 'Style','edit','Parent', mep_panel_row3 ,'FontSize',11,'Callback',@(~,~)obj.cb_pi_eegtms_stimulation_intensities);
             set( mep_panel_row3, 'Widths', [150 -2]);
             
             % row 4
-            mep_panel_row4 = uix.HBox( 'Parent', obj.pi.ioc.vb, 'Spacing', 5, 'Padding', 5  );
+            mep_panel_row4 = uix.HBox( 'Parent', obj.pi.eegtms.vb, 'Spacing', 5, 'Padding', 5  );
             uicontrol( 'Style','text','Parent', mep_panel_row4,'String','No. of Trials:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            obj.pi.ioc.trials_per_condition=uicontrol( 'Style','edit','Parent', mep_panel_row4 ,'FontSize',11,'Callback',@(~,~)obj.cb_pi_ioc_trials_per_condition);
+            obj.pi.eegtms.trials_per_condition=uicontrol( 'Style','edit','Parent', mep_panel_row4 ,'FontSize',11,'Callback',@(~,~)obj.cb_pi_eegtms_trials_per_condition);
             set( mep_panel_row4, 'Widths', [150 -2]);
             
             %row 5
-            mep_panel_row5 = uix.HBox( 'Parent', obj.pi.ioc.vb, 'Spacing', 5, 'Padding', 5  );
+            mep_panel_row5 = uix.HBox( 'Parent', obj.pi.eegtms.vb, 'Spacing', 5, 'Padding', 5  );
             uicontrol( 'Style','text','Parent', mep_panel_row5,'String','Inter Trial Interval (s):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            obj.pi.ioc.iti=uicontrol( 'Style','edit','Parent', mep_panel_row5 ,'FontSize',11,'Callback',@(~,~)obj.cb_pi_ioc_iti);
+            obj.pi.eegtms.iti=uicontrol( 'Style','edit','Parent', mep_panel_row5 ,'FontSize',11,'Callback',@(~,~)obj.cb_pi_eegtms_iti);
             set( mep_panel_row5, 'Widths', [150 -2]);
             
-            % row 6
-            uiextras.HBox( 'Parent', obj.pi.ioc.vb)
+
             
-            % row 7
-            uicontrol( 'Style','text','Parent',  obj.pi.ioc.vb,'String','Advanced Settings','FontSize',10,'HorizontalAlignment','center','Units','normalized','ForegroundColor',[0.5 0.5 0.5]);
             
             %row 8
-            mep_panel_row8 = uix.HBox( 'Parent', obj.pi.ioc.vb, 'Spacing', 5, 'Padding', 5  );
-            uicontrol( 'Style','text','Parent', mep_panel_row8,'String','Phase Tolerance (%):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            obj.pi.ioc.mep_onset=uicontrol( 'Style','edit','Parent', mep_panel_row8 ,'FontSize',11,'String','15','Callback',@(~,~)obj.cb_pi_ioc_mep_onset);
-            obj.pi.ioc.mep_offset=uicontrol( 'Style','edit','Parent', mep_panel_row8 ,'FontSize',11,'String','50','Callback',@(~,~)obj.cb_pi_ioc_mep_offset);
-            set( mep_panel_row8, 'Widths', [150 -2 -2]);
-            
-            
-            %row 9
-            mep_panel_row10 = uix.HBox( 'Parent', obj.pi.ioc.vb, 'Spacing', 5, 'Padding', 5  );
-            uicontrol( 'Style','text','Parent', mep_panel_row10,'String','Pre/Poststim. Scope Extract(ms):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            obj.pi.ioc.prestim_scope_ext=uicontrol( 'Style','edit','Parent', mep_panel_row10 ,'FontSize',11,'String','50','Callback',@(~,~)obj.cb_pi_ioc_prestim_scope_ext);
-            obj.pi.ioc.poststim_scope_ext=uicontrol( 'Style','edit','Parent', mep_panel_row10 ,'FontSize',11,'String','50','Callback',@(~,~)obj.cb_pi_ioc_poststim_scope_ext);
-            set( mep_panel_row10, 'Widths', [150 -2 -2]);
+            mep_panel_row8 = uix.HBox( 'Parent', obj.pi.eegtms.vb, 'Spacing', 5, 'Padding', 5  );
+            uicontrol( 'Style','text','Parent', mep_panel_row8,'String','Phase Tolerance:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+            obj.pi.eegtms.phase_tolerance=uicontrol( 'Style','edit','Parent', mep_panel_row8 ,'FontSize',11,'String','15','Callback',@(~,~)obj.cb_pi_eegtms_phase_tolerance);
+            set( mep_panel_row8, 'Widths', [150 -2]);
             
             %row 11
-            mep_panel_row11 = uix.HBox( 'Parent', obj.pi.ioc.vb, 'Spacing', 5, 'Padding', 5  );
+            mep_panel_row11 = uix.HBox( 'Parent', obj.pi.eegtms.vb, 'Spacing', 5, 'Padding', 5  );
             uicontrol( 'Style','text','Parent', mep_panel_row11,'String','Pre/Poststim. Scope Plot(ms):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
             obj.pi.ioc.prestim_scope_plt=uicontrol( 'Style','edit','Parent', mep_panel_row11 ,'FontSize',11,'String','150','Callback',@(~,~)obj.cb_pi_ioc_prestim_scope_plt);
             obj.pi.ioc.poststim_scope_plt=uicontrol( 'Style','edit','Parent', mep_panel_row11 ,'FontSize',11,'String','150','Callback',@(~,~)obj.cb_pi_ioc_poststim_scope_plt);
             set( mep_panel_row11, 'Widths', [150 -2 -2]);
             
+            
+            
             % row 12
-            mep_panel_row12 = uix.HBox( 'Parent', obj.pi.ioc.vb, 'Spacing', 5, 'Padding', 5  );
+            mep_panel_row12 = uix.HBox( 'Parent', obj.pi.eegtms.vb, 'Spacing', 5, 'Padding', 5  );
             uicontrol( 'Style','text','Parent', mep_panel_row12,'String','Intensity Units:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            obj.pi.ioc.units_mso=uicontrol( 'Style','radiobutton','Parent', mep_panel_row12 ,'FontSize',11,'String','%MSO','Value',0,'Callback',@(~,~)obj.cb_pi_ioc_units_mso);
-            obj.pi.ioc.units_mt=uicontrol( 'Style','radiobutton','Parent', mep_panel_row12 ,'FontSize',11,'String','%MT','Callback',@(~,~)obj.cb_pi_ioc_units_mt);
+            obj.pi.eegtms.units_mso=uicontrol( 'Style','radiobutton','Parent', mep_panel_row12 ,'FontSize',11,'String','%MSO','Value',0);
+            obj.pi.eegtms.units_mt=uicontrol( 'Style','radiobutton','Parent', mep_panel_row12 ,'FontSize',11,'String','%MT');
             set( mep_panel_row12, 'Widths', [200 -2 -2]);
             
             % row 13
 %             %older row 13
-%             mep_panel_13 = uix.HBox( 'Parent', obj.pi.ioc.vb, 'Spacing', 5, 'Padding', 5  );
+%             mep_panel_13 = uix.HBox( 'Parent', obj.pi.eegtms.vb, 'Spacing', 5, 'Padding', 5  );
 %             uicontrol( 'Style','text','Parent', mep_panel_13,'String','Motor Threshold (%MSO):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-%             obj.pi.ioc.mt=uicontrol( 'Style','edit','Parent', mep_panel_13 ,'FontSize',11,'Callback',@(~,~)obj.cb_pi_ioc_mt);
-%             obj.pi.ioc.mt_btn=uicontrol( 'Style','pushbutton','Parent', mep_panel_13 ,'FontSize',11,'String','Measure','Callback',@(~,~)obj.cb_pi_ioc_mt_btn);
+%             obj.pi.eegtms.mt=uicontrol( 'Style','edit','Parent', mep_panel_13 ,'FontSize',11,'Callback',@(~,~)obj.cb_pi_eegtms_mt);
+%             obj.pi.eegtms.mt_btn=uicontrol( 'Style','pushbutton','Parent', mep_panel_13 ,'FontSize',11,'String','Measure','Callback',@(~,~)obj.cb_pi_eegtms_mt_btn);
 %             set( mep_panel_13, 'Widths', [175 -2 -2]);
             
-            mep_panel_13 = uix.HBox( 'Parent', obj.pi.ioc.vb, 'Spacing', 5, 'Padding', 5  );
+            mep_panel_13 = uix.HBox( 'Parent', obj.pi.eegtms.vb, 'Spacing', 5, 'Padding', 5  );
             uicontrol( 'Style','text','Parent', mep_panel_13,'String','Motor Threshold (%MT):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            obj.pi.ioc.mt=uicontrol( 'Style','edit','Parent', mep_panel_13 ,'FontSize',11,'Callback',@(~,~)obj.cb_pi_ioc_mt);
+            obj.pi.eegtms.mt=uicontrol( 'Style','edit','Parent', mep_panel_13 ,'FontSize',11);
             mt_btn_listbox_str_id= find(strcmp(obj.data.(obj.info.event.current_session).info.measurement_str_original,'MEP Motor Threshold Hunting'));
             mt_btn_listbox_str=obj.data.(obj.info.event.current_session).info.measurement_str_to_listbox(mt_btn_listbox_str_id);
             mt_btn_listbox_str=['Select' mt_btn_listbox_str];
-            obj.pi.ioc.mt_btn=uicontrol( 'Style','popupmenu','Parent', mep_panel_13 ,'FontSize',11,'String',mt_btn_listbox_str,'Callback',@(~,~)obj.cb_pi_ioc_mt_btn);
+            obj.pi.eegtms.mt_btn=uicontrol( 'Style','popupmenu','Parent', mep_panel_13 ,'FontSize',11,'String',mt_btn_listbox_str);
             set( mep_panel_13, 'Widths', [175 -2 -2]);
             
             
@@ -1453,45 +1576,520 @@ classdef BEST < handle
             
             
             
+            uiextras.HBox( 'Parent', obj.pi.eegtms.vb)
+            
+            mep_panel_17 = uix.HBox( 'Parent', obj.pi.eegtms.vb, 'Spacing', 5, 'Padding', 5  );
+            obj.pi.eegtms.update=uicontrol( 'Parent', mep_panel_17 ,'Style','PushButton','String','Update','FontWeight','Bold','Enable','off');
+            obj.pi.eegtms.run=uicontrol( 'Parent', mep_panel_17 ,'Style','PushButton','String','Run','FontWeight','Bold','Callback',@(~,~)obj.cb_pi_eegtms_run);
+            obj.pi.pause=uicontrol( 'Parent', mep_panel_17 ,'Style','PushButton','String','Pause','FontWeight','Bold','Callback',@(~,~)obj.pause,'Enable','off');
+            obj.pi.stop=uicontrol( 'Parent', mep_panel_17 ,'Style','PushButton','String','Stop','FontWeight','Bold','Callback',@(~,~)obj.stop,'Enable','off');
+            set( mep_panel_17, 'Widths', [-2 -4 -2 -2]);
+            
+            set(obj.pi.eegtms.vb,'Heights',[-0.01 -0.4 -0.4 -0.4 -0.4 -0.4 -0.4 -0.4 -0.4 -0.4 -0.4 -0.4 -0.4 -0.4 -0.4 -0.4 -1 -0.5])
+            
+        
+        end
+        function pi_erp(obj)
+             obj.pi.mep.panel=uix.Panel( 'Parent', obj.pi.empty_panel,'FontSize',14 ,'Units','normalized','Title','ERP Measurement' ,'FontWeight','Bold','TitlePosition','centertop');
+            %             obj.pi.mep.panel=uix.ScrollingPanel( 'Parent', obj.pi.empty_panel,'Units','normalized');
+            
+            
+            obj.pi.mep.vb = uix.VBox( 'Parent', obj.pi.mep.panel, 'Spacing', 5, 'Padding', 5  );
+            
+            % row 1
+            uiextras.HBox( 'Parent', obj.pi.mep.vb,'Spacing', 5, 'Padding', 5 );
+            
+            
+            % row 2
+            mep_panel_row2 = uix.HBox( 'Parent', obj.pi.mep.vb, 'Spacing', 5, 'Padding', 5  );
+            uicontrol( 'Style','text','Parent', mep_panel_row2,'String','Input Device:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+            %             obj.pi.mep.input_device=uicontrol( 'Style','edit','Parent', mep_panel_row2 ,'FontSize',11,'Callback',@(~,~)obj.cb_pi_mep_input_device); %,'Callback',@obj.cb_mep_target_muscle
+            str_in_device(1)= (cellstr('Select'));
+            str_in_device(2:numel(obj.hw.device_added1_listbox.string)+1)=obj.hw.device_added1_listbox.string;
+            
+            obj.pi.mep.input_device=uicontrol( 'Style','popupmenu','Parent', mep_panel_row2 ,'FontSize',11,'String',str_in_device,'Callback',@(~,~)obj.cb_pi_mep_input_device); %,'Callback',@obj.cb_mep_target_muscle
+            
+            set( mep_panel_row2, 'Widths', [150 -2]);
+            
+%             % row 2f
+%             mep_panel_row2f = uix.HBox( 'Parent', obj.pi.mep.vb, 'Spacing', 5, 'Padding', 5  );
+%             uicontrol( 'Style','text','Parent', mep_panel_row2f,'String','Output Device:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+%             %             obj.pi.mep.output_device=uicontrol( 'Style','edit','Parent', mep_panel_row2f ,'FontSize',11,'Callback',@(~,~)obj.cb_pi_mep_output_device); %,'Callback',@obj.cb_mep_target_muscle
+%             str_out_device(1)= (cellstr('Select'));
+%             str_out_device(2:numel(obj.hw.device_added2_listbox.string)+1)=obj.hw.device_added2_listbox.string;
+%             obj.pi.mep.output_device=uicontrol( 'Style','popupmenu','Parent', mep_panel_row2f ,'String',str_out_device,'FontSize',11,'Callback',@(~,~)obj.cb_pi_mep_output_device); %,'Callback',@obj.cb_mep_target_muscle
+%             
+%             set( mep_panel_row2f, 'Widths', [150 -2]);
+            
+            % row 2g
+            mep_panel_row2g = uix.HBox( 'Parent', obj.pi.mep.vb, 'Spacing', 5, 'Padding', 5  );
+            uicontrol( 'Style','text','Parent', mep_panel_row2g,'String','Display EEG Channel:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+            obj.pi.mep.display_scopes=uicontrol( 'Style','edit','Parent', mep_panel_row2g ,'FontSize',11,'Callback',@(~,~)obj.cb_pi_mep_display_scopes); %,'Callback',@obj.cb_mep_target_muscle
+            set( mep_panel_row2g, 'Widths', [150 -2]);
+            
+%               % row 2
+%             mep_panel_row2 = uix.HBox( 'Parent', obj.pi.mep.vb, 'Spacing', 5, 'Padding', 5  );
+%             uicontrol( 'Style','text','Parent', mep_panel_row2,'String','Display EMG Channel:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+%             obj.pi.mep.target_muscle=uicontrol( 'Style','edit','Parent', mep_panel_row2 ,'FontSize',11,'Callback',@(~,~)obj.cb_pi_mep_target_muscle); %,'Callback',@obj.cb_mep_target_muscle
+%             set( mep_panel_row2, 'Widths', [150 -2]);
+
+%             % row 3
+%             mep_panel_row3 = uix.HBox( 'Parent', obj.pi.mep.vb, 'Spacing', 5, 'Padding', 5  );
+%             uicontrol( 'Style','text','Parent', mep_panel_row3,'String','Stimulation Intensities:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+%             obj.pi.mep.stimulation_intensities=uicontrol( 'Style','edit','Parent', mep_panel_row3 ,'FontSize',11,'Callback',@(~,~)obj.cb_pi_mep_stimulation_intensities);
+%             set( mep_panel_row3, 'Widths', [150 -2]);
+            
+            % row 4
+            mep_panel_row4 = uix.HBox( 'Parent', obj.pi.mep.vb, 'Spacing', 5, 'Padding', 5  );
+            uicontrol( 'Style','text','Parent', mep_panel_row4,'String','Trials per Condition:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+            obj.pi.mep.trials_per_condition=uicontrol( 'Style','edit','Parent', mep_panel_row4 ,'FontSize',11,'Callback',@(~,~)obj.cb_pi_mep_trials_per_condition);
+            set( mep_panel_row4, 'Widths', [150 -2]);
+            
+            %row 5
+            mep_panel_row5 = uix.HBox( 'Parent', obj.pi.mep.vb, 'Spacing', 5, 'Padding', 5  );
+            uicontrol( 'Style','text','Parent', mep_panel_row5,'String','Inter Trial Interval (s):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+            obj.pi.mep.iti=uicontrol( 'Style','edit','Parent', mep_panel_row5 ,'FontSize',11,'Callback',@(~,~)obj.cb_pi_mep_iti);
+            set( mep_panel_row5, 'Widths', [150 -2]);
+            
+            % row 6
+            uiextras.HBox( 'Parent', obj.pi.mep.vb)
+            
+            % row 7
+            uicontrol( 'Style','text','Parent',  obj.pi.mep.vb,'String','Advanced Settings','FontSize',10,'HorizontalAlignment','center','Units','normalized','ForegroundColor',[0.5 0.5 0.5]);
+          
+            
+            %row 9
+            mep_panel_row10 = uix.HBox( 'Parent', obj.pi.mep.vb, 'Spacing', 5, 'Padding', 5  );
+            uicontrol( 'Style','text','Parent', mep_panel_row10,'String','Pre/Post Data Extract(ms):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+            obj.pi.mep.prestim_scope_ext=uicontrol( 'Style','edit','Parent', mep_panel_row10 ,'FontSize',11,'String','50','Callback',@(~,~)obj.cb_pi_mep_prestim_scope_ext);
+            obj.pi.mep.poststim_scope_ext=uicontrol( 'Style','edit','Parent', mep_panel_row10 ,'FontSize',11,'String','50','Callback',@(~,~)obj.cb_pi_mep_poststim_scope_ext);
+            set( mep_panel_row10, 'Widths', [150 -2 -2]);
+            
+            %row 11
+            mep_panel_row11 = uix.HBox( 'Parent', obj.pi.mep.vb, 'Spacing', 5, 'Padding', 5  );
+            uicontrol( 'Style','text','Parent', mep_panel_row11,'String','Pre/Post Data Plot(ms):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+            obj.pi.mep.prestim_scope_plt=uicontrol( 'Style','edit','Parent', mep_panel_row11 ,'FontSize',11,'String','150','Callback',@(~,~)obj.cb_pi_mep_prestim_scope_plt);
+            obj.pi.mep.poststim_scope_plt=uicontrol( 'Style','edit','Parent', mep_panel_row11 ,'FontSize',11,'String','150','Callback',@(~,~)obj.cb_pi_mep_poststim_scope_plt);
+            set( mep_panel_row11, 'Widths', [150 -2 -2]);
+            
+%             % row 12
+%             mep_panel_row12 = uix.HBox( 'Parent', obj.pi.mep.vb, 'Spacing', 5, 'Padding', 5  );
+%             uicontrol( 'Style','text','Parent', mep_panel_row12,'String','Intensity Units:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+%             obj.pi.mep.units_mso=uicontrol( 'Style','radiobutton','Parent', mep_panel_row12 ,'FontSize',11,'String','%MSO','Value',1,'Callback',@(~,~)obj.cb_pi_mep_units_mso);
+%             obj.pi.mep.units_mt=uicontrol( 'Style','radiobutton','Parent', mep_panel_row12 ,'FontSize',11,'String','%MT','Callback',@(~,~)obj.cb_pi_mep_units_mt);
+%             set( mep_panel_row12, 'Widths', [200 -2 -2]);
+%             
+%             % row 13
+%             mep_panel_13 = uix.HBox( 'Parent', obj.pi.mep.vb, 'Spacing', 5, 'Padding', 5  );
+%             uicontrol( 'Style','text','Parent', mep_panel_13,'String','Motor Threshold (%MSO):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+%             obj.pi.mep.mt=uicontrol( 'Style','edit','Parent', mep_panel_13 ,'FontSize',11,'Callback',@(~,~)obj.cb_pi_mep_mt);
+%             mt_btn_listbox_str_id= find(strcmp(obj.data.(obj.info.event.current_session).info.measurement_str_original,'MEP Motor Threshold Hunting'));
+%             mt_btn_listbox_str=obj.data.(obj.info.event.current_session).info.measurement_str_to_listbox(mt_btn_listbox_str_id);
+%             mt_btn_listbox_str=['Select' mt_btn_listbox_str];
+%             obj.pi.mep.mt_btn=uicontrol( 'Style','popupmenu','Parent', mep_panel_13 ,'FontSize',11,'String',mt_btn_listbox_str,'Callback',@(~,~)obj.cb_pi_mep_mt_btn);
+%             set( mep_panel_13, 'Widths', [175 -2 -2]);
+            
             
             % row 15
-            mep_panel_15 = uix.HBox( 'Parent', obj.pi.ioc.vb, 'Spacing', 5, 'Padding', 5  );
-            uicontrol( 'Style','text','Parent', mep_panel_15,'String','Y Axis Min/Max (microV):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            obj.pi.ioc.ylim_min=uicontrol( 'Style','edit','Parent', mep_panel_15 ,'FontSize',11,'String','-8000','Callback',@(~,~)obj.cb_pi_ioc_ylim_min);
-            obj.pi.ioc.ylim_max=uicontrol( 'Style','edit','Parent', mep_panel_15 ,'FontSize',11,'String','8000','Callback',@(~,~)obj.cb_pi_ioc_ylim_max);
+            mep_panel_15 = uix.HBox( 'Parent', obj.pi.mep.vb, 'Spacing', 5, 'Padding', 5  );
+            uicontrol( 'Style','text','Parent', mep_panel_15,'String','Y Axis Max/Min (microV):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+            obj.pi.mep.ylim_min=uicontrol( 'Style','edit','Parent', mep_panel_15 ,'FontSize',11,'String','-8000','Callback',@(~,~)obj.cb_pi_mep_ylim_min);
+            obj.pi.mep.ylim_max=uicontrol( 'Style','edit','Parent', mep_panel_15 ,'FontSize',11,'String','8000','Callback',@(~,~)obj.cb_pi_mep_ylim_max);
             set( mep_panel_15, 'Widths', [150 -2 -2]);
             
             
             % row 14
-            mep_panel_14 = uix.HBox( 'Parent', obj.pi.ioc.vb, 'Spacing', 5, 'Padding', 5  );
+            mep_panel_14 = uix.HBox( 'Parent', obj.pi.mep.vb, 'Spacing', 5, 'Padding', 5  );
             uicontrol( 'Style','text','Parent', mep_panel_14,'String','Font Size:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            obj.pi.ioc.FontSize=uicontrol( 'Style','edit','Parent', mep_panel_14 ,'FontSize',11,'String','12','Callback',@(~,~)obj.cb_pi_ioc_FontSize);
+            obj.pi.mep.FontSize=uicontrol( 'Style','edit','Parent', mep_panel_14 ,'FontSize',11,'String','12','Callback',@(~,~)obj.cb_pi_mep_FontSize);
             set( mep_panel_14, 'Widths', [150 -2]);
             
-           
+%             % row 15
+%             mep_panel_15 = uix.HBox( 'Parent', obj.pi.mep.vb, 'Spacing', 5, 'Padding', 5  );
+%             uicontrol( 'Style','text','Parent', mep_panel_15,'String','Trials No for Mean MEP Amp:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+%             obj.pi.mep.trials_for_mean_annotation=uicontrol( 'Style','edit','Parent', mep_panel_15 ,'FontSize',11,'String','5','Callback',@(~,~)obj.cb_pi_mep_trials_for_mean_annotation);
+%             obj.pi.mep.trials_annotated_reset=uicontrol( 'Style','PushButton','Parent', mep_panel_15 ,'FontSize',10,'String','Reset Mean','Callback',@(~,~)obj.cb_pi_mep_trials_reset);
+%             obj.pi.mep.trials_annotated_reset_plot=uicontrol( 'Style','PushButton','Parent', mep_panel_15 ,'FontSize',10,'String','Reset Mean Plot','Callback',@(~,~)obj.cb_pi_mep_plot_reset);
+%             set( mep_panel_15, 'Widths', [150 -1 -2 -2]);
             
-            % row 18a
-            mep_panel_18a = uix.HBox( 'Parent', obj.pi.ioc.vb, 'Spacing', 5, 'Padding', 5  );
-            uicontrol( 'Style','text','Parent', mep_panel_18a,'String','Save Plots:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            obj.pi.ioc.save_plt=uicontrol( 'Style','checkbox','Parent', mep_panel_18a ,'FontSize',11,'Value',1,'Callback',@(~,~)obj.cb_pi_ioc_save_plt);
-            set( mep_panel_18a, 'Widths', [-2 -2]);
+            
+            % row 16
+            mep_panel_16 = uix.HBox( 'Parent', obj.pi.mep.vb, 'Spacing', 5, 'Padding', 5  );
+            uicontrol( 'Style','text','Parent', mep_panel_16,'String','Save Plot:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+            obj.pi.mep.save_plt=uicontrol( 'Style','checkbox','Parent', mep_panel_16 ,'FontSize',11,'Value',1,'Callback',@(~,~)obj.cb_pi_mep_save_plt);
+            set( mep_panel_16, 'Widths', [-2 -2]);
             
             
             
-            uiextras.HBox( 'Parent', obj.pi.ioc.vb)
+            uiextras.HBox( 'Parent', obj.pi.mep.vb)
             
-            mep_panel_17 = uix.HBox( 'Parent', obj.pi.ioc.vb, 'Spacing', 5, 'Padding', 5  );
-            obj.pi.ioc.update=uicontrol( 'Parent', mep_panel_17 ,'Style','PushButton','String','Update','FontWeight','Bold','Callback',@(~,~)obj.cb_pi_ioc_update);
-            obj.pi.ioc.run=uicontrol( 'Parent', mep_panel_17 ,'Style','PushButton','String','Run','FontWeight','Bold','Callback',@(~,~)obj.cb_pi_ioc_run);
+            mep_panel_17 = uix.HBox( 'Parent', obj.pi.mep.vb, 'Spacing', 5, 'Padding', 5  );
+            obj.pi.mep.update=uicontrol( 'Parent', mep_panel_17 ,'Style','PushButton','String','Update','FontWeight','Bold','Callback',@(~,~)obj.cb_pi_mep_update)
+            obj.pi.mep.run=uicontrol( 'Parent', mep_panel_17 ,'Style','PushButton','String','Run','FontWeight','Bold','Callback',@(~,~)obj.cb_pi_mep_run);
             obj.pi.pause=uicontrol( 'Parent', mep_panel_17 ,'Style','PushButton','String','Pause','FontWeight','Bold','Callback',@(~,~)obj.pause,'Enable','on');
             obj.pi.stop=uicontrol( 'Parent', mep_panel_17 ,'Style','PushButton','String','Stop','FontWeight','Bold','Callback',@(~,~)obj.stop,'Enable','on');
             set( mep_panel_17, 'Widths', [-2 -4 -2 -2]);
             
-            set(obj.pi.ioc.vb,'Heights',[-0.01 -0.4 -0.4 -0.4 -0.4 -0.4 -0.4 -0.01 -0.2 -0.4 -0.4 -0.4 -0.4 -0.4 -0.4 -0.4 -0.4 -0.4 0 -0.5])
+            set(obj.pi.mep.vb,'Heights',[0 -0.4 -0.4 -0.4 -0.4 -0.2 -0.4 -0.4 -0.4 -0.4 -0.4 -0.4 0 -0.4])
             
             
-        
         end
+        function pi_tep(obj)
+             obj.pi.mep.panel=uix.Panel( 'Parent', obj.pi.empty_panel,'FontSize',14 ,'Units','normalized','Title','TEP Measurement' ,'FontWeight','Bold','TitlePosition','centertop');
+            %             obj.pi.mep.panel=uix.ScrollingPanel( 'Parent', obj.pi.empty_panel,'Units','normalized');
+            
+            
+            obj.pi.mep.vb = uix.VBox( 'Parent', obj.pi.mep.panel, 'Spacing', 5, 'Padding', 5  );
+            
+            % row 1
+            uiextras.HBox( 'Parent', obj.pi.mep.vb,'Spacing', 5, 'Padding', 5 );
+            
+            
+            % row 2
+            mep_panel_row2 = uix.HBox( 'Parent', obj.pi.mep.vb, 'Spacing', 5, 'Padding', 5  );
+            uicontrol( 'Style','text','Parent', mep_panel_row2,'String','Input Device:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+            %             obj.pi.mep.input_device=uicontrol( 'Style','edit','Parent', mep_panel_row2 ,'FontSize',11,'Callback',@(~,~)obj.cb_pi_mep_input_device); %,'Callback',@obj.cb_mep_target_muscle
+            str_in_device(1)= (cellstr('Select'));
+            str_in_device(2:numel(obj.hw.device_added1_listbox.string)+1)=obj.hw.device_added1_listbox.string;
+            
+            obj.pi.mep.input_device=uicontrol( 'Style','popupmenu','Parent', mep_panel_row2 ,'FontSize',11,'String',str_in_device,'Callback',@(~,~)obj.cb_pi_mep_input_device); %,'Callback',@obj.cb_mep_target_muscle
+            
+            set( mep_panel_row2, 'Widths', [150 -2]);
+            
+            % row 2f
+            mep_panel_row2f = uix.HBox( 'Parent', obj.pi.mep.vb, 'Spacing', 5, 'Padding', 5  );
+            uicontrol( 'Style','text','Parent', mep_panel_row2f,'String','Output Device:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+            %             obj.pi.mep.output_device=uicontrol( 'Style','edit','Parent', mep_panel_row2f ,'FontSize',11,'Callback',@(~,~)obj.cb_pi_mep_output_device); %,'Callback',@obj.cb_mep_target_muscle
+            str_out_device(1)= (cellstr('Select'));
+            str_out_device(2:numel(obj.hw.device_added2_listbox.string)+1)=obj.hw.device_added2_listbox.string;
+            obj.pi.mep.output_device=uicontrol( 'Style','popupmenu','Parent', mep_panel_row2f ,'String',str_out_device,'FontSize',11,'Callback',@(~,~)obj.cb_pi_mep_output_device); %,'Callback',@obj.cb_mep_target_muscle
+            
+            set( mep_panel_row2f, 'Widths', [150 -2]);
+            
+            % row 2g
+            mep_panel_row2g = uix.HBox( 'Parent', obj.pi.mep.vb, 'Spacing', 5, 'Padding', 5  );
+            uicontrol( 'Style','text','Parent', mep_panel_row2g,'String','Display EEG Channel:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+            obj.pi.mep.display_scopes=uicontrol( 'Style','edit','Parent', mep_panel_row2g ,'FontSize',11,'Callback',@(~,~)obj.cb_pi_mep_display_scopes); %,'Callback',@obj.cb_mep_target_muscle
+            set( mep_panel_row2g, 'Widths', [150 -2]);
+            
+%               % row 2
+%             mep_panel_row2 = uix.HBox( 'Parent', obj.pi.mep.vb, 'Spacing', 5, 'Padding', 5  );
+%             uicontrol( 'Style','text','Parent', mep_panel_row2,'String','Display EMG Channel:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+%             obj.pi.mep.target_muscle=uicontrol( 'Style','edit','Parent', mep_panel_row2 ,'FontSize',11,'Callback',@(~,~)obj.cb_pi_mep_target_muscle); %,'Callback',@obj.cb_mep_target_muscle
+%             set( mep_panel_row2, 'Widths', [150 -2]);
+
+            % row 3
+            mep_panel_row3 = uix.HBox( 'Parent', obj.pi.mep.vb, 'Spacing', 5, 'Padding', 5  );
+            uicontrol( 'Style','text','Parent', mep_panel_row3,'String','Stimulation Intensities:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+            obj.pi.mep.stimulation_intensities=uicontrol( 'Style','edit','Parent', mep_panel_row3 ,'FontSize',11,'Callback',@(~,~)obj.cb_pi_mep_stimulation_intensities);
+            set( mep_panel_row3, 'Widths', [150 -2]);
+            
+            % row 4
+            mep_panel_row4 = uix.HBox( 'Parent', obj.pi.mep.vb, 'Spacing', 5, 'Padding', 5  );
+            uicontrol( 'Style','text','Parent', mep_panel_row4,'String','Trials per Condition:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+            obj.pi.mep.trials_per_condition=uicontrol( 'Style','edit','Parent', mep_panel_row4 ,'FontSize',11,'Callback',@(~,~)obj.cb_pi_mep_trials_per_condition);
+            set( mep_panel_row4, 'Widths', [150 -2]);
+            
+            %row 5
+            mep_panel_row5 = uix.HBox( 'Parent', obj.pi.mep.vb, 'Spacing', 5, 'Padding', 5  );
+            uicontrol( 'Style','text','Parent', mep_panel_row5,'String','Inter Trial Interval (s):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+            obj.pi.mep.iti=uicontrol( 'Style','edit','Parent', mep_panel_row5 ,'FontSize',11,'Callback',@(~,~)obj.cb_pi_mep_iti);
+            set( mep_panel_row5, 'Widths', [150 -2]);
+            
+            % row 6
+            uiextras.HBox( 'Parent', obj.pi.mep.vb)
+            
+            % row 7
+            uicontrol( 'Style','text','Parent',  obj.pi.mep.vb,'String','Advanced Settings','FontSize',10,'HorizontalAlignment','center','Units','normalized','ForegroundColor',[0.5 0.5 0.5]);
+            
+%             %row 8
+%             mep_panel_row8 = uix.HBox( 'Parent', obj.pi.mep.vb, 'Spacing', 5, 'Padding', 5  );
+%             uicontrol( 'Style','text','Parent', mep_panel_row8,'String','MEP onset (ms):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+%             obj.pi.mep.mep_onset=uicontrol( 'Style','edit','Parent', mep_panel_row8 ,'FontSize',11,'String','15','Callback',@(~,~)obj.cb_pi_mep_mep_onset);
+%             obj.pi.mep.mep_offset=uicontrol( 'Style','edit','Parent', mep_panel_row8 ,'FontSize',11,'String','50','Callback',@(~,~)obj.cb_pi_mep_mep_offset);
+%             set( mep_panel_row8, 'Widths', [150 -2 -2]);
+            
+            
+            %row 9
+            mep_panel_row10 = uix.HBox( 'Parent', obj.pi.mep.vb, 'Spacing', 5, 'Padding', 5  );
+            uicontrol( 'Style','text','Parent', mep_panel_row10,'String','Pre/Poststim. Scope Extract(ms):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+            obj.pi.mep.prestim_scope_ext=uicontrol( 'Style','edit','Parent', mep_panel_row10 ,'FontSize',11,'String','50','Callback',@(~,~)obj.cb_pi_mep_prestim_scope_ext);
+            obj.pi.mep.poststim_scope_ext=uicontrol( 'Style','edit','Parent', mep_panel_row10 ,'FontSize',11,'String','50','Callback',@(~,~)obj.cb_pi_mep_poststim_scope_ext);
+            set( mep_panel_row10, 'Widths', [150 -2 -2]);
+            
+            %row 11
+            mep_panel_row11 = uix.HBox( 'Parent', obj.pi.mep.vb, 'Spacing', 5, 'Padding', 5  );
+            uicontrol( 'Style','text','Parent', mep_panel_row11,'String','Pre/Poststim. Scope Plot(ms):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+            obj.pi.mep.prestim_scope_plt=uicontrol( 'Style','edit','Parent', mep_panel_row11 ,'FontSize',11,'String','150','Callback',@(~,~)obj.cb_pi_mep_prestim_scope_plt);
+            obj.pi.mep.poststim_scope_plt=uicontrol( 'Style','edit','Parent', mep_panel_row11 ,'FontSize',11,'String','150','Callback',@(~,~)obj.cb_pi_mep_poststim_scope_plt);
+            set( mep_panel_row11, 'Widths', [150 -2 -2]);
+            
+            % row 12
+            mep_panel_row12 = uix.HBox( 'Parent', obj.pi.mep.vb, 'Spacing', 5, 'Padding', 5  );
+            uicontrol( 'Style','text','Parent', mep_panel_row12,'String','Intensity Units:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+            obj.pi.mep.units_mso=uicontrol( 'Style','radiobutton','Parent', mep_panel_row12 ,'FontSize',11,'String','%MSO','Value',1,'Callback',@(~,~)obj.cb_pi_mep_units_mso);
+            obj.pi.mep.units_mt=uicontrol( 'Style','radiobutton','Parent', mep_panel_row12 ,'FontSize',11,'String','%MT','Callback',@(~,~)obj.cb_pi_mep_units_mt);
+            set( mep_panel_row12, 'Widths', [200 -2 -2]);
+            
+            % row 13
+            mep_panel_13 = uix.HBox( 'Parent', obj.pi.mep.vb, 'Spacing', 5, 'Padding', 5  );
+            uicontrol( 'Style','text','Parent', mep_panel_13,'String','Motor Threshold (%MSO):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+            obj.pi.mep.mt=uicontrol( 'Style','edit','Parent', mep_panel_13 ,'FontSize',11,'Callback',@(~,~)obj.cb_pi_mep_mt);
+            mt_btn_listbox_str_id= find(strcmp(obj.data.(obj.info.event.current_session).info.measurement_str_original,'MEP Motor Threshold Hunting'));
+            mt_btn_listbox_str=obj.data.(obj.info.event.current_session).info.measurement_str_to_listbox(mt_btn_listbox_str_id);
+            mt_btn_listbox_str=['Select' mt_btn_listbox_str];
+            obj.pi.mep.mt_btn=uicontrol( 'Style','popupmenu','Parent', mep_panel_13 ,'FontSize',11,'String',mt_btn_listbox_str,'Callback',@(~,~)obj.cb_pi_mep_mt_btn);
+            set( mep_panel_13, 'Widths', [175 -2 -2]);
+            
+            
+            % row 15
+            mep_panel_15 = uix.HBox( 'Parent', obj.pi.mep.vb, 'Spacing', 5, 'Padding', 5  );
+            uicontrol( 'Style','text','Parent', mep_panel_15,'String','Y Axis Max/Min (microV):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+            obj.pi.mep.ylim_min=uicontrol( 'Style','edit','Parent', mep_panel_15 ,'FontSize',11,'String','-8000','Callback',@(~,~)obj.cb_pi_mep_ylim_min);
+            obj.pi.mep.ylim_max=uicontrol( 'Style','edit','Parent', mep_panel_15 ,'FontSize',11,'String','8000','Callback',@(~,~)obj.cb_pi_mep_ylim_max);
+            set( mep_panel_15, 'Widths', [150 -2 -2]);
+            
+            
+            % row 14
+            mep_panel_14 = uix.HBox( 'Parent', obj.pi.mep.vb, 'Spacing', 5, 'Padding', 5  );
+            uicontrol( 'Style','text','Parent', mep_panel_14,'String','Font Size:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+            obj.pi.mep.FontSize=uicontrol( 'Style','edit','Parent', mep_panel_14 ,'FontSize',11,'String','12','Callback',@(~,~)obj.cb_pi_mep_FontSize);
+            set( mep_panel_14, 'Widths', [150 -2]);
+            
+%             % row 15
+%             mep_panel_15 = uix.HBox( 'Parent', obj.pi.mep.vb, 'Spacing', 5, 'Padding', 5  );
+%             uicontrol( 'Style','text','Parent', mep_panel_15,'String','Trials No for Mean MEP Amp:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+%             obj.pi.mep.trials_for_mean_annotation=uicontrol( 'Style','edit','Parent', mep_panel_15 ,'FontSize',11,'String','5','Callback',@(~,~)obj.cb_pi_mep_trials_for_mean_annotation);
+%             obj.pi.mep.trials_annotated_reset=uicontrol( 'Style','PushButton','Parent', mep_panel_15 ,'FontSize',10,'String','Reset Mean','Callback',@(~,~)obj.cb_pi_mep_trials_reset);
+%             obj.pi.mep.trials_annotated_reset_plot=uicontrol( 'Style','PushButton','Parent', mep_panel_15 ,'FontSize',10,'String','Reset Mean Plot','Callback',@(~,~)obj.cb_pi_mep_plot_reset);
+%             set( mep_panel_15, 'Widths', [150 -1 -2 -2]);
+            
+            
+            % row 16
+            mep_panel_16 = uix.HBox( 'Parent', obj.pi.mep.vb, 'Spacing', 5, 'Padding', 5  );
+            uicontrol( 'Style','text','Parent', mep_panel_16,'String','Save Plot:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+            obj.pi.mep.save_plt=uicontrol( 'Style','checkbox','Parent', mep_panel_16 ,'FontSize',11,'Value',1,'Callback',@(~,~)obj.cb_pi_mep_save_plt);
+            set( mep_panel_16, 'Widths', [-2 -2]);
+            
+            
+            
+            uiextras.HBox( 'Parent', obj.pi.mep.vb)
+            
+            mep_panel_17 = uix.HBox( 'Parent', obj.pi.mep.vb, 'Spacing', 5, 'Padding', 5  );
+            obj.pi.mep.update=uicontrol( 'Parent', mep_panel_17 ,'Style','PushButton','String','Update','FontWeight','Bold','Callback',@(~,~)obj.cb_pi_mep_update)
+            obj.pi.mep.run=uicontrol( 'Parent', mep_panel_17 ,'Style','PushButton','String','Run','FontWeight','Bold','Callback',@(~,~)obj.cb_pi_mep_run);
+            obj.pi.pause=uicontrol( 'Parent', mep_panel_17 ,'Style','PushButton','String','Pause','FontWeight','Bold','Callback',@(~,~)obj.pause,'Enable','on');
+            obj.pi.stop=uicontrol( 'Parent', mep_panel_17 ,'Style','PushButton','String','Stop','FontWeight','Bold','Callback',@(~,~)obj.stop,'Enable','on');
+            set( mep_panel_17, 'Widths', [-2 -4 -2 -2]);
+            
+            set(obj.pi.mep.vb,'Heights',[0 -0.4 -0.4 -0.4 -0.4 -0.4 -0.4 0 -0.2 -0.4 -0.4 -0.4 -0.4 -0.4 -0.4 -0.4 0 -0.4])
+            
+            
+        end
+        function pi_rtms_train(obj)
+           obj.pi.mep.panel=uix.Panel( 'Parent', obj.pi.empty_panel,'FontSize',14 ,'Units','normalized','Title','rTMS Interventions' ,'FontWeight','Bold','TitlePosition','centertop');
+            
+            
+            obj.pi.mep.vb = uix.VBox( 'Parent', obj.pi.mep.panel, 'Spacing', 5, 'Padding', 5  );
+            
+            % row 1
+            uiextras.HBox( 'Parent', obj.pi.mep.vb,'Spacing', 5, 'Padding', 5 );
+            
+            % row 2f
+            mep_panel_row2f = uix.HBox( 'Parent', obj.pi.mep.vb, 'Spacing', 5, 'Padding', 5  );
+            uicontrol( 'Style','text','Parent', mep_panel_row2f,'String','Output Device:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+            %             obj.pi.mep.output_device=uicontrol( 'Style','edit','Parent', mep_panel_row2f ,'FontSize',11,'Callback',@(~,~)obj.cb_pi_mep_output_device); %,'Callback',@obj.cb_mep_target_muscle
+            str_out_device(1)= (cellstr('Select'));
+            str_out_device(2:numel(obj.hw.device_added2_listbox.string)+1)=obj.hw.device_added2_listbox.string;
+            obj.pi.mep.output_device=uicontrol( 'Style','popupmenu','Parent', mep_panel_row2f ,'String',str_out_device,'FontSize',11,'Callback',@(~,~)obj.cb_pi_mep_output_device); %,'Callback',@obj.cb_mep_target_muscle
+            
+            set( mep_panel_row2f, 'Widths', [150 -2]);
+            
+             % row 2
+            mep_panel_row2 = uix.HBox( 'Parent', obj.pi.mep.vb, 'Spacing', 5, 'Padding', 5  );
+            uicontrol( 'Style','text','Parent', mep_panel_row2,'String','Intervention Type:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+            obj.pi.mep.itrv_type_val=uicontrol( 'Style','popupmenu','Parent', mep_panel_row2 ,'FontSize',11,'String',{'Trains','Bursts'},'Value',1,'Callback',@(~,~)obj.cb_pi_mep_itrv_type); 
+            set( mep_panel_row2, 'Widths', [150 -2]);
+            
+             % row 2
+            mep_panel_row4 = uix.HBox( 'Parent', obj.pi.mep.vb, 'Spacing', 5, 'Padding', 5  );
+            uicontrol( 'Style','text','Parent', mep_panel_row4,'String','Pulse Frequency (Hz):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+            obj.pi.mep.itrv_type=uicontrol( 'Style','edit','Parent', mep_panel_row4 ,'FontSize',11); 
+            set( mep_panel_row4, 'Widths', [150 -2]);
+            
+            % row 2
+            mep_panel_row5 = uix.HBox( 'Parent', obj.pi.mep.vb, 'Spacing', 5, 'Padding', 5  );
+            uicontrol( 'Style','text','Parent', mep_panel_row5,'String','No. of Pulses per Train:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+            obj.pi.mep.itrv_type=uicontrol( 'Style','edit','Parent', mep_panel_row5 ,'FontSize',11); 
+            set( mep_panel_row5, 'Widths', [150 -2]);
+            
+            % row 2
+            mep_panel_row6 = uix.HBox( 'Parent', obj.pi.mep.vb, 'Spacing', 5, 'Padding', 5  );
+            uicontrol( 'Style','text','Parent', mep_panel_row6,'String','No. of Trains:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+            obj.pi.mep.itrv_type=uicontrol( 'Style','edit','Parent', mep_panel_row6 ,'FontSize',11); 
+            set( mep_panel_row6, 'Widths', [150 -2]);
+            
+             % row 2
+            mep_panel_row7 = uix.HBox( 'Parent', obj.pi.mep.vb, 'Spacing', 5, 'Padding', 5  );
+            uicontrol( 'Style','text','Parent', mep_panel_row7,'String','Stimulation Intensities (%MSO):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+            obj.pi.mep.itrv_type=uicontrol( 'Style','edit','Parent', mep_panel_row7 ,'FontSize',11); 
+            set( mep_panel_row7, 'Widths', [150 -2]);
+            
+            % row 2
+            mep_panel_row7 = uix.HBox( 'Parent', obj.pi.mep.vb, 'Spacing', 5, 'Padding', 5  );
+            uicontrol( 'Style','text','Parent', mep_panel_row7,'String','Inter Train Interval (s):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+            obj.pi.mep.itrv_type=uicontrol( 'Style','edit','Parent', mep_panel_row7 ,'FontSize',11); 
+            set( mep_panel_row7, 'Widths', [150 -2]);
+            
+            uiextras.HBox( 'Parent', obj.pi.mep.vb)
+            
+            mep_panel_17 = uix.HBox( 'Parent', obj.pi.mep.vb, 'Spacing', 5, 'Padding', 5  );
+            obj.pi.mep.update=uicontrol( 'Parent', mep_panel_17 ,'Style','PushButton','String','Update','FontWeight','Bold','Callback',@(~,~)obj.cb_pi_mep_update)
+            obj.pi.mep.run=uicontrol( 'Parent', mep_panel_17 ,'Style','PushButton','String','Run','FontWeight','Bold','Callback',@(~,~)obj.cb_pi_mep_run);
+            obj.pi.pause=uicontrol( 'Parent', mep_panel_17 ,'Style','PushButton','String','Pause','FontWeight','Bold','Callback',@(~,~)obj.pause,'Enable','on');
+            obj.pi.stop=uicontrol( 'Parent', mep_panel_17 ,'Style','PushButton','String','Stop','FontWeight','Bold','Callback',@(~,~)obj.stop,'Enable','on');
+            set( mep_panel_17, 'Widths', [-2 -4 -2 -2]);
+            
+            set(obj.pi.mep.vb,'Heights',[-0.1 -0.4 -0.4 -0.4 -0.4 -0.4 -0.4 -0.4 -3 -0.4 ])
+            
+            
+        end
+         function pi_rtms_brust(obj)
+           obj.pi.mep.panel=uix.Panel( 'Parent', obj.pi.empty_panel,'FontSize',14 ,'Units','normalized','Title','rTMS Interventions' ,'FontWeight','Bold','TitlePosition','centertop');
+            
+            
+            obj.pi.mep.vb = uix.VBox( 'Parent', obj.pi.mep.panel, 'Spacing', 5, 'Padding', 5  );
+            
+            % row 1
+            uiextras.HBox( 'Parent', obj.pi.mep.vb,'Spacing', 5, 'Padding', 5 );
+            
+            % row 2f
+            mep_panel_row2f = uix.HBox( 'Parent', obj.pi.mep.vb, 'Spacing', 5, 'Padding', 5  );
+            uicontrol( 'Style','text','Parent', mep_panel_row2f,'String','Output Device:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+            %             obj.pi.mep.output_device=uicontrol( 'Style','edit','Parent', mep_panel_row2f ,'FontSize',11,'Callback',@(~,~)obj.cb_pi_mep_output_device); %,'Callback',@obj.cb_mep_target_muscle
+            str_out_device(1)= (cellstr('Select'));
+            str_out_device(2:numel(obj.hw.device_added2_listbox.string)+1)=obj.hw.device_added2_listbox.string;
+            obj.pi.mep.output_device=uicontrol( 'Style','popupmenu','Parent', mep_panel_row2f ,'String',str_out_device,'FontSize',11,'Callback',@(~,~)obj.cb_pi_mep_output_device); %,'Callback',@obj.cb_mep_target_muscle
+            
+            set( mep_panel_row2f, 'Widths', [150 -2]);
+            
+             % row 2
+            mep_panel_row2 = uix.HBox( 'Parent', obj.pi.mep.vb, 'Spacing', 5, 'Padding', 5  );
+            uicontrol( 'Style','text','Parent', mep_panel_row2,'String','Intervention Type:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+            obj.pi.mep.itrv_type_val=uicontrol( 'Style','popupmenu','Parent', mep_panel_row2 ,'FontSize',11,'String',{'Trains','Bursts'},'Value',2,'Callback',@(~,~)obj.cb_pi_mep_itrv_type); 
+            set( mep_panel_row2, 'Widths', [150 -2]);
+            
+           
+            % row 2
+            mep_panel_row5 = uix.HBox( 'Parent', obj.pi.mep.vb, 'Spacing', 5, 'Padding', 5  );
+            uicontrol( 'Style','text','Parent', mep_panel_row5,'String','No. of Pulses per Brust:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+            obj.pi.mep.itrv_type=uicontrol( 'Style','edit','Parent', mep_panel_row5 ,'FontSize',11); 
+            set( mep_panel_row5, 'Widths', [150 -2]);
+            
+            % row 2
+            mep_panel_row6 = uix.HBox( 'Parent', obj.pi.mep.vb, 'Spacing', 5, 'Padding', 5  );
+            uicontrol( 'Style','text','Parent', mep_panel_row6,'String','No. of Brusts:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+            obj.pi.mep.itrv_type=uicontrol( 'Style','edit','Parent', mep_panel_row6 ,'FontSize',11); 
+            set( mep_panel_row6, 'Widths', [150 -2]);
+            
+             % row 2
+            mep_panel_row7 = uix.HBox( 'Parent', obj.pi.mep.vb, 'Spacing', 5, 'Padding', 5  );
+            uicontrol( 'Style','text','Parent', mep_panel_row7,'String','Stimulation Intensities (%MSO):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+            obj.pi.mep.itrv_type=uicontrol( 'Style','edit','Parent', mep_panel_row7 ,'FontSize',11); 
+            set( mep_panel_row7, 'Widths', [150 -2]);
+            
+            
+            % row 2
+            mep_panel_row7 = uix.HBox( 'Parent', obj.pi.mep.vb, 'Spacing', 5, 'Padding', 5  );
+            uicontrol( 'Style','text','Parent', mep_panel_row7,'String','Inter Pulse Interval (s):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+            obj.pi.mep.itrv_type=uicontrol( 'Style','edit','Parent', mep_panel_row7 ,'FontSize',11); 
+            set( mep_panel_row7, 'Widths', [150 -2]);
+            
+            uiextras.HBox( 'Parent', obj.pi.mep.vb)
+            
+            mep_panel_17 = uix.HBox( 'Parent', obj.pi.mep.vb, 'Spacing', 5, 'Padding', 5  );
+            obj.pi.mep.update=uicontrol( 'Parent', mep_panel_17 ,'Style','PushButton','String','Update','FontWeight','Bold','Callback',@(~,~)obj.cb_pi_mep_update)
+            obj.pi.mep.run=uicontrol( 'Parent', mep_panel_17 ,'Style','PushButton','String','Run','FontWeight','Bold','Callback',@(~,~)obj.cb_pi_mep_run);
+            obj.pi.pause=uicontrol( 'Parent', mep_panel_17 ,'Style','PushButton','String','Pause','FontWeight','Bold','Callback',@(~,~)obj.pause,'Enable','on');
+            obj.pi.stop=uicontrol( 'Parent', mep_panel_17 ,'Style','PushButton','String','Stop','FontWeight','Bold','Callback',@(~,~)obj.stop,'Enable','on');
+            set( mep_panel_17, 'Widths', [-2 -4 -2 -2]);
+            
+            set(obj.pi.mep.vb,'Heights',[-0.1 -0.4 -0.4 -0.4 -0.4 -0.4 -0.4 -4 -0.4 ])
+            
+            
+        end
+        
+        function cb_pi_mep_itrv_type(obj)
+            switch obj.pi.mep.itrv_type_val.Value
+                case 1
+                    obj.pi_rtms_train
+                case 2
+                    obj.pi_rtms_brust
+            end
+            
+        end
+        function cb_pi_rtms_eegdata(obj)
+            [file,path] = uigetfile;
+        end
+        
+        
+        function pi_rseeg(obj)
+           obj.pi.rtms.panel=uix.Panel( 'Parent', obj.pi.empty_panel,'FontSize',14 ,'Units','normalized','Title','resting-state EEG Analysis' ,'FontWeight','Bold','TitlePosition','centertop');
+            %             obj.pi.mep.panel=uix.ScrollingPanel( 'Parent', obj.pi.empty_panel,'Units','normalized');
+            
+            
+            obj.pi.rtms.vb = uix.VBox( 'Parent', obj.pi.rtms.panel, 'Spacing', 5, 'Padding', 5  );
+            
+            % row 1
+            uiextras.HBox( 'Parent', obj.pi.rtms.vb,'Spacing', 5, 'Padding', 5 );
+            
+            
+            % row 2
+            mep_panel_row2 = uix.HBox( 'Parent', obj.pi.rtms.vb, 'Spacing', 5, 'Padding', 5  );
+            uicontrol( 'Style','text','Parent', mep_panel_row2,'String','EEG Dataset:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+            uicontrol( 'Parent', mep_panel_row2 ,'Style','PushButton','String','Attach','FontWeight','Bold','Callback',@(~,~)obj.cb_pi_rtms_eegdata,'Enable','on');
+            set(mep_panel_row2,'Widths',[150 -2]);
+            
+             % row 3
+            mep_panel_row3 = uix.HBox( 'Parent', obj.pi.rtms.vb, 'Spacing', 5, 'Padding', 5  );
+            uicontrol( 'Style','text','Parent', mep_panel_row3,'String','Rereferncing:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+            uicontrol( 'Style','edit','Parent', mep_panel_row3 ,'FontSize',11); 
+            set(mep_panel_row3,'Widths',[150 -2]);
+             % row 4
+            mep_panel_row4 = uix.HBox( 'Parent', obj.pi.rtms.vb, 'Spacing', 5, 'Padding', 5  );
+            uicontrol( 'Style','text','Parent', mep_panel_row4,'String','Reference Channel:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+            uicontrol( 'Style','edit','Parent', mep_panel_row4 ,'FontSize',11); 
+            set(mep_panel_row4,'Widths',[150 -2]);
+             % row 5
+            mep_panel_row5 = uix.HBox( 'Parent', obj.pi.rtms.vb, 'Spacing', 5, 'Padding', 5  );
+            uicontrol( 'Style','text','Parent', mep_panel_row5,'String','Montage Channels:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+            uicontrol( 'Style','edit','Parent', mep_panel_row5 ,'FontSize',11); 
+            set(mep_panel_row5,'Widths',[150 -2]);
+            
+            % row 5
+            mep_panel_row5 = uix.HBox( 'Parent', obj.pi.rtms.vb, 'Spacing', 5, 'Padding', 5  );
+            uicontrol( 'Style','text','Parent', mep_panel_row5,'String','Target Channel:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+            uicontrol( 'Style','edit','Parent', mep_panel_row5 ,'FontSize',11); 
+            set(mep_panel_row5,'Widths',[150 -2]);
+            
+             % row 6
+            mep_panel_row6 = uix.HBox( 'Parent', obj.pi.rtms.vb, 'Spacing', 5, 'Padding', 5  );
+            uicontrol( 'Style','text','Parent', mep_panel_row6,'String','Frequency Band (Hz):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+            uicontrol( 'Style','edit','Parent', mep_panel_row6 ,'FontSize',11); 
+            uicontrol( 'Style','edit','Parent', mep_panel_row6 ,'FontSize',11); 
+            set(mep_panel_row6,'Widths',[150 -2 -2]);
+            
+            uiextras.HBox( 'Parent', obj.pi.rtms.vb)
+            
+           
+            obj.pi.mep.run=uicontrol( 'Parent', obj.pi.rtms.vb ,'Style','PushButton','String','Run','FontWeight','Bold','Callback',@(~,~)obj.cb_pi_mep_run);
+            
+            
+            set(obj.pi.rtms.vb,'Heights',[-0.1 -0.4 -0.4 -0.4 -0.4 -0.4 -0.4 -3 -0.4 ])
+            
+        end
+      
+        
         function pr_eegtms(obj)
                obj.pr.mt.handle= uix.Panel( 'Parent', obj.pr.empty_panel, 'Padding', 5 ,'Units','normalized','Title', 'Results','FontWeight','bold','FontSize',14,'TitlePosition','centertop' );
             obj.pr.mt.hbox=uix.HBoxFlex( 'Parent', obj.pr.mt.handle, 'Padding', 5 ,'Units','normalized' );
@@ -1504,8 +2102,10 @@ classdef BEST < handle
             m_mt=uicontextmenu(obj.fig.handle);
             uimenu(m_mt,'label','Export as Matlab Figure','Callback',@(~,~)obj.cb_pr_mt_export_mtplot);
             
-%             obj.pr.mt.axes_mep=axes( 'Parent',  obj.pr.mt.panel_mep,'Units','normalized','Tag','mep','uicontextmenu',m_mep);
-%             obj.pr.mt.axes_mtplot=axes( 'Parent',obj.pr.mt.panel_mtplot,'Units','normalized','Tag','rmt','uicontextmenu',m_mt);
+%             obj.pr.eegtms.axes1=axes( 'Parent',  obj.pr.mt.panel_mep,'Units','normalized','Tag','mep','uicontextmenu',m_mep);
+            obj.pr.eegtms.axes1=polaraxes( 'Parent',  obj.pr.mt.panel_mep,'Units','normalized','Tag','mep','uicontextmenu',m_mep);
+
+            obj.pr.eegtms.axes2=axes( 'Parent',obj.pr.mt.panel_mtplot,'Units','normalized','Tag','rmt','uicontextmenu',m_mt);
             set(obj.pr.mt.hbox,'Widths',[-1 -1])
         end
         function tmsfmri_stop(obj)
@@ -1731,7 +2331,7 @@ classdef BEST < handle
         function create_results_panel(obj)
             obj.pr.empty_panel= uix.Panel( 'Parent', obj.fig.main, 'Padding', 5 ,'Units','normalized','BorderType','none' );
             uix.Panel( 'Parent', obj.pr.empty_panel, 'Padding', 5 ,'Units','normalized','Title', 'Results','FontWeight','bold','FontSize',14,'TitlePosition','centertop' );
-            set( obj.fig.main, 'Widths', [-1.15 -1.35 -2] );
+%             set( obj.fig.main, 'Widths', [-1.15 -1.35 -2] );
         end
         function pr_mep(obj)
             obj.pr.mep.handle= uix.Panel( 'Parent', obj.pr.empty_panel, 'Padding', 5 ,'Units','normalized','Title', 'Results','FontWeight','bold','FontSize',14,'TitlePosition','centertop' );
@@ -1806,6 +2406,364 @@ classdef BEST < handle
             tab.FontSize=12;
             
         end
+        %%  hardware configuration panel
+        function create_hwcfg_panel(obj)
+            obj.hw.empty_panel=uix.Panel( 'Parent', obj.fig.main, 'Padding', 5 ,'Units','normalized','BorderType','none' );
+            set( obj.fig.main, 'Widths', [-1.15 -1.35 -2 0] );
+            
+            obj.hw.handle= uix.Panel( 'Parent', obj.hw.empty_panel, 'Padding', 5 ,'Units','normalized','Title', 'Hardware Configuration','FontWeight','bold','FontSize',14,'TitlePosition','centertop' );
+            obj.hw.hbox=uix.HBox( 'Parent', obj.hw.handle, 'Spacing', 5, 'Padding', 5  );
+            obj.hw.leftpanel= uix.Panel( 'Parent', obj.hw.hbox, 'Padding', 5 ,'Units','normalized','FontWeight','bold','FontSize',14 );
+            obj.hw.rightpanel= uix.Panel( 'Parent', obj.hw.hbox, 'Padding', 5 ,'Units','normalized','FontWeight','bold','FontSize',14);
+            uiextras.Panel( 'Parent', obj.hw.hbox, 'BorderType','none')
+            set(obj.hw.hbox,'Widths',[-2 -4 -2]);
+             
+            obj.hw.vbox_leftpanel=uix.VBox( 'Parent', obj.hw.leftpanel, 'Spacing', 5, 'Padding', 5  );
+% %             uicontrol( 'Style','text','Parent', obj.hw.vbox_leftpanel,'String','             Select Device Type','FontSize',12,'FontWeight','bold','HorizontalAlignment','left','Units','normalized');
+% %             obj.hw.device_type.listbox=uicontrol( 'Style','listbox','Parent', obj.hw.vbox_leftpanel ,'FontSize',11,'String',{'Input Device (Recording Device)','Output Device (Stimulating Device)'},'Callback',@(~,~)obj.cb_hw_device_type_listbox);
+            uicontrol( 'Parent', obj.hw.vbox_leftpanel ,'Style','PushButton','String','Configure New Device','FontWeight','Bold','Callback',@(~,~)obj.cb_cfg_newdevice)
+uicontrol( 'Style','text','Parent', obj.hw.vbox_leftpanel,'String','                 Input Devices Added','FontSize',12,'FontWeight','bold','HorizontalAlignment','left','Units','normalized');
+            obj.hw.device_added1_listbox.string={};
+            obj.hw.device_added1.listbox=uicontrol( 'Style','listbox','Parent', obj.hw.vbox_leftpanel ,'FontSize',11,'String',obj.hw.device_added1_listbox.string,'Callback',@(~,~)obj.cb_hw_listbox_input);
+             uicontrol( 'Style','text','Parent', obj.hw.vbox_leftpanel,'String','                Output Devices Added','FontSize',12,'FontWeight','bold','HorizontalAlignment','left','Units','normalized');
+            obj.hw.device_added2_listbox.string={};
+            obj.hw.device_added2.listbox=uicontrol( 'Style','listbox','Parent', obj.hw.vbox_leftpanel ,'FontSize',11,'String',obj.hw.device_added2_listbox.string,'Callback',@(~,~)obj.cb_hw_listbox_output);
+            
+            set(obj.hw.vbox_leftpanel,'Heights',[-0.5 -0.5 -3 -0.5 -3])
+            
+            obj.hw.vbox_rightpanel=uix.VBox( 'Parent', obj.hw.rightpanel, 'Spacing', 5, 'Padding', 5  );
+%             uiextras.HBox( 'Parent', obj.hw.vbox_rightpanel);
+%             uicontrol( 'Style','text','Parent', obj.hw.vbox_rightpanel,'String','                                                No Device Type is selected from Left Panel','FontSize',12,'HorizontalAlignment','left','Units','normalized');
+%             uiextras.HBox( 'Parent', obj.hw.vbox_rightpanel)
+%             set(obj.hw.vbox_rightpanel,'Heights',[-2 -1 -2])
+obj.hw_input_neurone
+
+
+           set( obj.fig.main, 'Widths', [-1.15 -1.35 -2 0] ); 
+        end
+        function cb_hw_device_type_listbox(obj)
+            switch obj.hw.device_type.listbox.Value
+                case 1
+                    obj.hw_input_neurone
+                case 2
+                    obj.hw_output_neurone
+            end
+            
+        end
+        function cb_hw_vbox_rp_slct_device2(obj)
+            obj.hw.vbox_rp.slct_device2.Value
+            if (obj.hw.vbox_rp.slct_device2.Value<=4)
+                obj.hw_output_pc
+            elseif(obj.hw.vbox_rp.slct_device2.Value>4)
+                obj.hw_output_neurone
+            end
+        end
+        function cb_cfg_newdevice(obj)
+           obj.hw_input_neurone
+           obj.hw.device_added1.listbox.Value=1
+           obj.hw.device_added2.listbox.Value=1
+        end
+        function hw_input_neurone(obj)
+            delete(obj.hw.vbox_rightpanel)
+            
+            obj.hw.vbox_rightpanel=uix.VBox( 'Parent', obj.hw.rightpanel, 'Spacing', 5, 'Padding', 5  );
+            
+            row0=uix.HBox( 'Parent', obj.hw.vbox_rightpanel, 'Spacing', 5, 'Padding', 5  );
+            uicontrol( 'Style','text','Parent', row0,'String','Devie Type','FontSize',12,'HorizontalAlignment','left','Units','normalized');
+            obj.hw.device_type.listbox=uicontrol( 'Style','popupmenu','Parent', row0 ,'FontSize',11,'String',{'Input Device (Recording Device)','Output Device (Stimulating Device)'},'Callback',@(~,~)obj.cb_hw_device_type_listbox,'Value',1);
+            set(row0,'Widths',[200 -2]);
+            
+            row1=uix.HBox( 'Parent', obj.hw.vbox_rightpanel, 'Spacing', 5, 'Padding', 5  );
+            uicontrol( 'Style','text','Parent', row1,'String','Select Device','FontSize',12,'HorizontalAlignment','left','Units','normalized');
+            obj.hw.vbox_rp.slct_device=uicontrol( 'Style','popupmenu','Parent', row1 ,'FontSize',11,'String',{'BOSS Box controlled NeurOne','FieldTrip Real-Time Buffer'},'Callback',@(~,~)obj.cb_hw_vbox_rp_slct_device,'Value',1);
+            set(row1,'Widths',[200 -2]);
+            
+            
+            row2=uix.HBox( 'Parent', obj.hw.vbox_rightpanel, 'Spacing', 5, 'Padding', 5  );
+            uicontrol( 'Style','text','Parent', row2,'String','Device Reference Name','FontSize',12,'HorizontalAlignment','left','Units','normalized');
+            obj.hw.vbox_rp.device_name=uicontrol( 'Style','edit','Parent', row2 ,'FontSize',11);
+                        set(row2,'Widths',[200 -2]);
+                        
+                        
+            row3=uix.HBox( 'Parent', obj.hw.vbox_rightpanel, 'Spacing', 5, 'Padding', 5  );
+            uicontrol( 'Style','text','Parent', row3,'String','Protocol File Name','FontSize',12,'HorizontalAlignment','left','Units','normalized');
+            obj.hw.vbox_rp.prtcl_name=uicontrol( 'Style','edit','Parent', row3 ,'FontSize',11,'String','neurone.xml');
+            set(row3,'Widths',[200 -2]);
+            
+             uiextras.HBox( 'Parent', obj.hw.vbox_rightpanel)
+             
+           uicontrol( 'Parent', obj.hw.vbox_rightpanel ,'Style','PushButton','String','Add Device','FontWeight','Bold','Callback',@(~,~)obj.cb_add_input)
+
+             
+             
+            
+            set(obj.hw.vbox_rightpanel,'Heights',[-1 -1 -1 -1 -9 -1])
+
+        end
+        function hw_input_ft(obj)
+            delete(obj.hw.vbox_rightpanel)
+            
+            obj.hw.vbox_rightpanel=uix.VBox( 'Parent', obj.hw.rightpanel, 'Spacing', 5, 'Padding', 5  );
+            
+             row0=uix.HBox( 'Parent', obj.hw.vbox_rightpanel, 'Spacing', 5, 'Padding', 5  );
+            uicontrol( 'Style','text','Parent', row0,'String','Devie Type','FontSize',12,'HorizontalAlignment','left','Units','normalized');
+            obj.hw.device_type.listbox=uicontrol( 'Style','popupmenu','Parent', row0 ,'FontSize',11,'String',{'Input Device (Recording Device)','Output Device (Stimulating Device)'},'Callback',@(~,~)obj.cb_hw_device_type_listbox,'Value',1);
+            set(row0,'Widths',[200 -2]);
+            
+            row1=uix.HBox( 'Parent', obj.hw.vbox_rightpanel, 'Spacing', 5, 'Padding', 5  );
+            uicontrol( 'Style','text','Parent', row1,'String','Select Device','FontSize',12,'HorizontalAlignment','left','Units','normalized');
+            obj.hw.vbox_rp.slct_device=uicontrol( 'Style','popupmenu','Parent', row1 ,'FontSize',11,'String',{'BOSS Box controlled NeurOne','FieldTrip Real-Time Buffer'},'Callback',@(~,~)obj.cb_hw_vbox_rp_slct_device,'Value',2);
+            set(row1,'Widths',[200 -2]);
+            
+            
+            row2=uix.HBox( 'Parent', obj.hw.vbox_rightpanel, 'Spacing', 5, 'Padding', 5  );
+            uicontrol( 'Style','text','Parent', row2,'String','Device Reference Name','FontSize',12,'HorizontalAlignment','left','Units','normalized');
+            obj.hw.vbox_rp.device_name=uicontrol( 'Style','edit','Parent', row2 ,'FontSize',11);
+                        set(row2,'Widths',[200 -2]);
+                        
+                        
+            row3=uix.HBox( 'Parent', obj.hw.vbox_rightpanel, 'Spacing', 5, 'Padding', 5  );
+            uicontrol( 'Style','text','Parent', row3,'String','Hostname','FontSize',12,'HorizontalAlignment','left','Units','normalized');
+            obj.hw.vbox_rp.hostname=uicontrol( 'Style','edit','Parent', row3 ,'FontSize',11,'String','localhost');
+            set(row3,'Widths',[200 -2]);
+            
+            row4=uix.HBox( 'Parent', obj.hw.vbox_rightpanel, 'Spacing', 5, 'Padding', 5  );
+            uicontrol( 'Style','text','Parent', row4,'String','Port Address','FontSize',12,'HorizontalAlignment','left','Units','normalized');
+            obj.hw.vbox_rp.portaddress=uicontrol( 'Style','edit','Parent', row4 ,'FontSize',11,'String','1972');
+            set(row4,'Widths',[200 -2]);
+            
+            row4=uix.HBox( 'Parent', obj.hw.vbox_rightpanel, 'Spacing', 5, 'Padding', 5  );
+            uicontrol( 'Style','text','Parent', row4,'String','Channel Labels','FontSize',12,'HorizontalAlignment','left','Units','normalized');
+            obj.hw.vbox_rp.channellabels=uicontrol( 'Style','edit','Parent', row4 ,'FontSize',11,'String','1:16');
+            set(row4,'Widths',[200 -2]);
+            
+            row4=uix.HBox( 'Parent', obj.hw.vbox_rightpanel, 'Spacing', 5, 'Padding', 5  );
+            uicontrol( 'Style','text','Parent', row4,'String','Block Size (No of samples)','FontSize',12,'HorizontalAlignment','left','Units','normalized');
+            obj.hw.vbox_rp.samplesno=uicontrol( 'Style','edit','Parent', row4 ,'FontSize',11,'String','500');
+            set(row4,'Widths',[200 -2]);
+            
+            row4=uix.HBox( 'Parent', obj.hw.vbox_rightpanel, 'Spacing', 5, 'Padding', 5  );
+            uicontrol( 'Style','text','Parent', row4,'String','Sampling Rate (Hz)','FontSize',12,'HorizontalAlignment','left','Units','normalized');
+            obj.hw.vbox_rp.samplingrate=uicontrol( 'Style','edit','Parent', row4 ,'FontSize',11,'String','1000');
+            set(row4,'Widths',[200 -2]);
+            
+             uiextras.HBox( 'Parent', obj.hw.vbox_rightpanel)
+             
+           uicontrol( 'Parent', obj.hw.vbox_rightpanel ,'Style','PushButton','String','Add Device','FontWeight','Bold','Callback',@(~,~)obj.cb_add_input)
+
+             
+             
+            
+            set(obj.hw.vbox_rightpanel,'Heights',[-1 -1 -1 -1 -1 -1 -1 -1 -5 -1])
+
+        end
+        function hw_output_neurone(obj)
+           delete(obj.hw.vbox_rightpanel)
+            
+            obj.hw.vbox_rightpanel=uix.VBox( 'Parent', obj.hw.rightpanel, 'Spacing', 5, 'Padding', 5  );
+            
+            row0=uix.HBox( 'Parent', obj.hw.vbox_rightpanel, 'Spacing', 5, 'Padding', 5  );
+            uicontrol( 'Style','text','Parent', row0,'String','Devie Type','FontSize',12,'HorizontalAlignment','left','Units','normalized');
+            obj.hw.device_type.listbox=uicontrol( 'Style','popupmenu','Parent', row0 ,'FontSize',11,'String',{'Input Device (Recording Device)','Output Device (Stimulating Device)'},'Callback',@(~,~)obj.cb_hw_device_type_listbox,'Value',2);
+            set(row0,'Widths',[200 -2]);
+            
+            row1=uix.HBox( 'Parent', obj.hw.vbox_rightpanel, 'Spacing', 5, 'Padding', 5  );
+            uicontrol( 'Style','text','Parent', row1,'String','Select Device','FontSize',12,'HorizontalAlignment','left','Units','normalized');
+            obj.hw.vbox_rp.slct_device2=uicontrol( 'Style','popupmenu','Parent', row1 ,'FontSize',11,'String',{'Host PC controlled MagVenture','Host PC controlled MagStim','Host PC controlled BiStim','Host PC controlled Rapid','BOSS Box controlled MagVenture','BOSS Box controlled MagStim','BOSS Box controlled BiStim','BOSS Box controlled Rapid'},'Callback',@(~,~)obj.cb_hw_vbox_rp_slct_device2,'Value',5);
+            set(row1,'Widths',[200 -2]);
+            
+            
+            row2=uix.HBox( 'Parent', obj.hw.vbox_rightpanel, 'Spacing', 5, 'Padding', 5  );
+            uicontrol( 'Style','text','Parent', row2,'String','Device Reference Name','FontSize',12,'HorizontalAlignment','left','Units','normalized');
+            obj.hw.vbox_rp.device_name=uicontrol( 'Style','edit','Parent', row2 ,'FontSize',11);
+                        set(row2,'Widths',[200 -2]);
+                        
+                        
+            row3=uix.HBox( 'Parent', obj.hw.vbox_rightpanel, 'Spacing', 5, 'Padding', 5  );
+            uicontrol( 'Style','text','Parent', row3,'String','COM Port Address','FontSize',12,'HorizontalAlignment','left','Units','normalized');
+            obj.hw.vbox_rp.comport=uicontrol( 'Style','edit','Parent', row3 ,'FontSize',11,'String','COM1');
+            set(row3,'Widths',[200 -2]);
+            
+             row4=uix.HBox( 'Parent', obj.hw.vbox_rightpanel, 'Spacing', 5, 'Padding', 5  );
+            uicontrol( 'Style','text','Parent', row4,'String','BOSS Box Output Port Address','FontSize',12,'HorizontalAlignment','left','Units','normalized');
+            obj.hw.vbox_rp.bb_outputport=uicontrol( 'Style','edit','Parent', row4 ,'FontSize',11,'String','1');
+            set(row4,'Widths',[200 -2]);
+            
+            row5=uix.HBox( 'Parent', obj.hw.vbox_rightpanel, 'Spacing', 5, 'Padding', 5  );
+            uicontrol( 'Style','text','Parent', row5,'String','BOSS Box Input Port Address','FontSize',12,'HorizontalAlignment','left','Units','normalized');
+            obj.hw.vbox_rp.bb_inputport=uicontrol( 'Style','edit','Parent', row5 ,'FontSize',11,'String','1');
+            set(row5,'Widths',[200 -2]);
+            
+             uiextras.HBox( 'Parent', obj.hw.vbox_rightpanel)
+             
+           uicontrol( 'Parent', obj.hw.vbox_rightpanel ,'Style','PushButton','String','Add Device','FontWeight','Bold','Callback',@(~,~)obj.cb_add_output)
+
+             
+             
+            
+            set(obj.hw.vbox_rightpanel,'Heights',[-1 -1 -1 -1 -1 -1 -6 -1])    
+            
+        end
+        function hw_output_pc(obj)
+           delete(obj.hw.vbox_rightpanel)
+            
+            obj.hw.vbox_rightpanel=uix.VBox( 'Parent', obj.hw.rightpanel, 'Spacing', 5, 'Padding', 5  );
+            
+            row0=uix.HBox( 'Parent', obj.hw.vbox_rightpanel, 'Spacing', 5, 'Padding', 5  );
+            uicontrol( 'Style','text','Parent', row0,'String','Devie Type','FontSize',12,'HorizontalAlignment','left','Units','normalized');
+            obj.hw.device_type.listbox=uicontrol( 'Style','popupmenu','Parent', row0 ,'FontSize',11,'String',{'Input Device (Recording Device)','Output Device (Stimulating Device)'},'Callback',@(~,~)obj.cb_hw_device_type_listbox,'Value',2);
+            set(row0,'Widths',[200 -2]);
+            
+            row1=uix.HBox( 'Parent', obj.hw.vbox_rightpanel, 'Spacing', 5, 'Padding', 5  );
+            uicontrol( 'Style','text','Parent', row1,'String','Select Device','FontSize',12,'HorizontalAlignment','left','Units','normalized');
+            obj.hw.vbox_rp.slct_device2=uicontrol( 'Style','popupmenu','Parent', row1 ,'FontSize',11,'String',{'Host PC controlled MagVenture','Host PC controlled MagStim','Host PC controlled BiStim','Host PC controlled Rapid','BOSS Box controlled MagVenture','BOSS Box controlled MagStim','BOSS Box controlled BiStim','BOSS Box controlled Rapid'},'Callback',@(~,~)obj.cb_hw_vbox_rp_slct_device2,'Value',1);
+            set(row1,'Widths',[200 -2]);
+            
+            
+            row2=uix.HBox( 'Parent', obj.hw.vbox_rightpanel, 'Spacing', 5, 'Padding', 5  );
+            uicontrol( 'Style','text','Parent', row2,'String','Device Reference Name','FontSize',12,'HorizontalAlignment','left','Units','normalized');
+            obj.hw.vbox_rp.device_name=uicontrol( 'Style','edit','Parent', row2 ,'FontSize',11);
+                        set(row2,'Widths',[200 -2]);
+                        
+                        
+            row3=uix.HBox( 'Parent', obj.hw.vbox_rightpanel, 'Spacing', 5, 'Padding', 5  );
+            uicontrol( 'Style','text','Parent', row3,'String','COM Port Address','FontSize',12,'HorizontalAlignment','left','Units','normalized');
+            obj.hw.vbox_rp.comport=uicontrol( 'Style','edit','Parent', row3 ,'FontSize',11,'String','COM1');
+            set(row3,'Widths',[200 -2]);
+            
+            
+             uiextras.HBox( 'Parent', obj.hw.vbox_rightpanel)
+             
+           uicontrol( 'Parent', obj.hw.vbox_rightpanel ,'Style','PushButton','String','Add Device','FontWeight','Bold','Callback',@(~,~)obj.cb_add_output)
+
+             
+             
+            
+            set(obj.hw.vbox_rightpanel,'Heights',[-1 -1 -1 -1 -8 -1])    
+            
+        end
+        function cb_add_output(obj)
+            
+            obj.hw.device_added2_listbox.string(numel(obj.hw.device_added2_listbox.string)+1)=cellstr(obj.hw.vbox_rp.device_name.String);
+            obj.hw.device_added2.listbox.String=obj.hw.device_added2_listbox.string;
+            if(obj.hw.device_type.listbox.Value==2)
+                switch obj.hw.vbox_rp.slct_device2.Value
+                    case {1,2,3,4}
+                        obj.cb_hw_output_pc_parsaving;
+                    case {5,6,7,8}
+                        obj.cb_hw_output_neurone_parsaving;
+                end
+            end
+        end
+        function cb_add_input(obj)
+            
+            obj.hw.device_added1_listbox.string(numel(obj.hw.device_added1_listbox.string)+1)=cellstr(obj.hw.vbox_rp.device_name.String);
+            obj.hw.device_added1.listbox.String=obj.hw.device_added1_listbox.string;
+            if(obj.hw.device_type.listbox.Value==1)
+                switch obj.hw.vbox_rp.slct_device.Value
+                    case 1
+                        obj.cb_hw_input_neurone_parsaving;
+                    case 2
+                        obj.cb_hw_input_ft_parsaving;
+                end
+            end
+            
+            
+        end
+        function cb_hw_vbox_rp_slct_device (obj)
+            switch obj.hw.vbox_rp.slct_device.Value
+                case 1
+                    obj.hw_input_neurone
+                case 2
+                    obj.hw_input_ft
+            end
+            
+        end
+        
+        function cb_hw_input_neurone_parsaving(obj)
+            obj.par.hardware_settings.(obj.hw.vbox_rp.device_name.String).device_type=obj.hw.device_type.listbox.Value;
+            obj.par.hardware_settings.(obj.hw.vbox_rp.device_name.String).slct_device=obj.hw.vbox_rp.slct_device.Value;
+            obj.par.hardware_settings.(obj.hw.vbox_rp.device_name.String).device_name=obj.hw.vbox_rp.device_name.String;
+            obj.par.hardware_settings.(obj.hw.vbox_rp.device_name.String).prtcl_name=obj.hw.vbox_rp.prtcl_name.String;
+        end
+        function cb_hw_input_ft_parsaving(obj)
+            obj.par.hardware_settings.(obj.hw.vbox_rp.device_name.String).device_type=obj.hw.device_type.listbox.Value;
+            obj.par.hardware_settings.(obj.hw.vbox_rp.device_name.String).slct_device=obj.hw.vbox_rp.slct_device.Value;
+            obj.par.hardware_settings.(obj.hw.vbox_rp.device_name.String).device_name=obj.hw.vbox_rp.device_name.String;
+            obj.par.hardware_settings.(obj.hw.vbox_rp.device_name.String).hostname=obj.hw.vbox_rp.hostname.String;
+            obj.par.hardware_settings.(obj.hw.vbox_rp.device_name.String).portaddress=obj.hw.vbox_rp.portaddress.String;
+            obj.par.hardware_settings.(obj.hw.vbox_rp.device_name.String).channellabels=obj.hw.vbox_rp.channellabels.String;
+            obj.par.hardware_settings.(obj.hw.vbox_rp.device_name.String).samplesno=obj.hw.vbox_rp.samplesno.String;
+            obj.par.hardware_settings.(obj.hw.vbox_rp.device_name.String).samplingrate=obj.hw.vbox_rp.samplingrate.String;
+        end
+        function cb_hw_output_neurone_parsaving(obj)
+            obj.par.hardware_settings.(obj.hw.vbox_rp.device_name.String).device_type=obj.hw.device_type.listbox.Value;
+            obj.par.hardware_settings.(obj.hw.vbox_rp.device_name.String).slct_device=obj.hw.vbox_rp.slct_device2.Value;
+            obj.par.hardware_settings.(obj.hw.vbox_rp.device_name.String).device_name=obj.hw.vbox_rp.device_name.String;
+            obj.par.hardware_settings.(obj.hw.vbox_rp.device_name.String).comport=obj.hw.vbox_rp.comport.String;
+            obj.par.hardware_settings.(obj.hw.vbox_rp.device_name.String).bb_outputport=obj.hw.vbox_rp.bb_outputport.String;
+            obj.par.hardware_settings.(obj.hw.vbox_rp.device_name.String).bb_inputport=obj.hw.vbox_rp.bb_inputport.String;
+        end
+        function cb_hw_output_pc_parsaving(obj)
+            obj.par.hardware_settings.(obj.hw.vbox_rp.device_name.String).device_type=obj.hw.device_type.listbox.Value;
+            obj.par.hardware_settings.(obj.hw.vbox_rp.device_name.String).slct_device=obj.hw.vbox_rp.slct_device2.Value;
+            obj.par.hardware_settings.(obj.hw.vbox_rp.device_name.String).device_name=obj.hw.vbox_rp.device_name.String;
+            obj.par.hardware_settings.(obj.hw.vbox_rp.device_name.String).comport=obj.hw.vbox_rp.comport.String;
+        end
+        
+        function cb_hw_listbox_input(obj)
+            slctd_input=char(obj.hw.device_added1.listbox.String(obj.hw.device_added1.listbox.Value));
+            
+            switch obj.par.hardware_settings.(slctd_input).slct_device
+                case 1
+%                     obj.cb_hw_input_neurone_parsaving;
+                    obj.hw_input_neurone;
+                    obj.hw.device_type.listbox.Value=obj.par.hardware_settings.(slctd_input).device_type;
+                    obj.hw.vbox_rp.slct_device.Value=obj.par.hardware_settings.(slctd_input).slct_device;
+                    
+                    obj.hw.vbox_rp.device_name.String=obj.par.hardware_settings.(slctd_input).device_name;
+                    obj.hw.vbox_rp.prtcl_name.String=obj.par.hardware_settings.(slctd_input).prtcl_name;
+                    
+                case 2
+%                     obj.cb_hw_input_ft_parsaving;
+                    obj.hw_input_ft;
+                    obj.hw.device_type.listbox.Value=obj.par.hardware_settings.(slctd_input).device_type;
+                    obj.hw.vbox_rp.slct_device.Value=obj.par.hardware_settings.(slctd_input).slct_device;
+                    
+                    obj.hw.vbox_rp.device_name.String=obj.par.hardware_settings.(slctd_input).device_name;
+                    obj.hw.vbox_rp.hostname.String=obj.par.hardware_settings.(slctd_input).hostname;
+                    obj.hw.vbox_rp.portaddress.String=obj.par.hardware_settings.(slctd_input).portaddress;
+                    obj.hw.vbox_rp.channellabels.String=obj.par.hardware_settings.(slctd_input).channellabels;
+                    obj.hw.vbox_rp.samplesno.String=obj.par.hardware_settings.(slctd_input).samplesno;
+                    obj.hw.vbox_rp.samplingrate.String=obj.par.hardware_settings.(slctd_input).samplingrate;
+            end
+        end
+        
+        function cb_hw_listbox_output(obj)
+            slctd_output=char(obj.hw.device_added2.listbox.String(obj.hw.device_added2.listbox.Value));
+            switch obj.par.hardware_settings.(slctd_output).slct_device
+                case {1,2,3,4}
+                    obj.cb_hw_output_pc_parsaving;
+                    obj.hw_output_pc;
+                    obj.hw.device_type.listbox.Value=obj.par.hardware_settings.(slctd_output).device_type;
+                    obj.hw.vbox_rp.slct_device2.Value=obj.par.hardware_settings.(slctd_output).slct_device;
+                    
+                    obj.hw.vbox_rp.device_name.String=obj.par.hardware_settings.(slctd_output).device_name;
+                    obj.hw.vbox_rp.comport.String=obj.par.hardware_settings.(slctd_output).comport;
+                case{5,6,7,8}
+                    obj.cb_hw_output_neurone_parsaving;
+                    obj.hw_output_neurone;
+                    obj.hw.device_type.listbox.Value=obj.par.hardware_settings.(slctd_output).device_type;
+                    obj.hw.vbox_rp.slct_device2.Value=obj.par.hardware_settings.(slctd_output).slct_device;
+                    
+                    obj.hw.vbox_rp.device_name.String=obj.par.hardware_settings.(slctd_output).device_name;
+                    obj.hw.vbox_rp.comport.String=obj.par.hardware_settings.(slctd_output).comport;
+                    obj.hw.vbox_rp.bb_outputport.String=obj.par.hardware_settings.(slctd_output).bb_outputport;
+                    obj.hw.vbox_rp.bb_inputport.String=obj.par.hardware_settings.(slctd_output).bb_inputport;
+            end
+        end
+        
+        
         %% sessions measures listboxes
         function cb_session_add(obj)
             obj.info.session_no
@@ -1971,6 +2929,18 @@ classdef BEST < handle
                 case 'EEG triggered Stimulation'
                     obj.pi_eegtms
                     obj.pr_eegtms
+                    obj.func_load_eegtms_par;
+                case 'TEP Measurement'
+                    obj.pi_tep
+%                     obj.func_load_mep_par;
+                case 'ERP Measurement'
+                    obj.pi_erp
+%                     obj.func_load_mep_par;
+                case 'rs EEG Analysis'
+                    obj.pi_rseeg;
+                case 'rTMS Interventions'
+                    obj.pi_rtms_train
+                    
             end
             % obj.info.event.current_measure(obj.info.event.current_measure == ' ') = '_';
             
@@ -1996,6 +2966,8 @@ classdef BEST < handle
                     obj.default_par_tmsfmri;
                 case 'MEP Dose Response Curve_sp'
                     obj.default_par_ioc;
+                case 'EEG triggered Stimulation'
+                    obj.default_par_eegtms;
             end
         end
         function default_par_mep(obj)
@@ -2278,6 +3250,27 @@ classdef BEST < handle
             obj.info.defaults.mt_starting_stim_intenEnable='on';
             obj.par.(obj.info.event.current_session).(obj.info.event.measure_being_added)=obj.info.defaults;
         end
+        function default_par_eegtms(obj)
+            obj.info.defaults.output_device='BOSSBox-MagVen'
+            obj.info.defaults.input_device='BOSSBox-NeurOne'
+            obj.info.defaults.target_montage='C3-Hjorth'
+            obj.info.defaults.freq_ist=8
+            obj.info.defaults.fre1_2nd=12
+            obj.info.defaults.target_phase=[0 pi]
+            obj.info.defaults.amp_low=0
+            obj.info.defaults.amp_hi=1e6
+            obj.info.defaults.amp_units=2
+            obj.info.defaults.offset_samples=6
+            obj.info.defaults.stimulation_intensities=75
+            obj.info.defaults.trials_per_condition=100
+            obj.info.defaults.iti=[4 6]
+            obj.info.defaults.phase_tolerance=pi/50
+            obj.info.defaults.units_mso=1
+            obj.info.defaults.units_mt=0
+            obj.info.defaults.mt=[]
+            obj.par.(obj.info.event.current_session).(obj.info.event.measure_being_added)=obj.info.defaults;
+            
+        end
         function func_load_mep_par(obj)
             obj.pi.mep.target_muscle.String=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).target_muscle);
             obj.pi.mep.stimulation_intensities.String=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).stimulation_intensities);
@@ -2416,9 +3409,26 @@ classdef BEST < handle
             obj.pi.tmsfmri.mt_btn.Enable=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).mt_btnEnable;
             obj.pi.tmsfmri.run.Enable=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).runEnable;
             
+        end
+        
+        function func_load_eegtms_par(obj)
+            obj.pi.eegtms.output_device.String	=	obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).output_device;
+            obj.pi.eegtms.input_device.String	=	obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).input_device;
+            obj.pi.eegtms.target_montage.String	=	obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).target_montage;
+            obj.pi.eegtms.freq_ist.String	=	num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).freq_ist);
+            obj.pi.eegtms.fre1_2nd.String	=	num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).fre1_2nd);
+            obj.pi.eegtms.target_phase.String	=	num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).target_phase);
+            obj.pi.eegtms.amp_low.String	=	num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).amp_low);
+            obj.pi.eegtms.amp_hi.String	=	num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).amp_hi);
             
             
-            
+            obj.pi.eegtms.amp_units.Value	=	obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).amp_units;
+            obj.pi.eegtms.offset_samples.String	=	num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).offset_samples);
+            obj.pi.eegtms.stimulation_intensities.String	=	num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).stimulation_intensities);
+            obj.pi.eegtms.trials_per_condition.String	=	num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).trials_per_condition);
+            obj.pi.eegtms.iti.String	=	num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).iti);
+            obj.pi.eegtms.phase_tolerance.String	=	num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).phase_tolerance);
+
         end
         %% run n update
         function cb_pi_mep_run(obj)
@@ -2458,9 +3468,9 @@ classdef BEST < handle
             
             obj.bst.inputs.current_session=obj.info.event.current_session;
             obj.bst.inputs.current_measurement=obj.info.event.current_measure_fullstr;
-            obj.bst.inputs.input_device=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).input_device
-            obj.bst.inputs.output_device=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).output_device
-            obj.bst.inputs.display_scopes=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).display_scopes
+%             obj.bst.inputs.input_device=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).input_device
+%             obj.bst.inputs.output_device=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).output_device
+%             obj.bst.inputs.display_scopes=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).display_scopes
 
             obj.bst.inputs.stimuli=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).stimulation_intensities;
             obj.bst.inputs.iti=(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).iti);
@@ -2519,12 +3529,12 @@ classdef BEST < handle
             
             
             obj.enable_listboxes
-            obj.pr.mep.axes1
-            obj.pr.mep.axes1.Tag
-            obj.pr.mep.axes1.UserData
-            obj.bst.info.axes.mep
-            obj.bst.info.axes.mep.Tag
-            obj.bst.info.axes.mep.UserData
+%             obj.pr.mep.axes1
+%             obj.pr.mep.axes1.Tag
+%             obj.pr.mep.axes1.UserData
+%             obj.bst.info.axes.mep
+%             obj.bst.info.axes.mep.Tag
+%             obj.bst.info.axes.mep.UserData
             
         end
         function cb_pi_mep_update(obj)
@@ -3024,9 +4034,65 @@ classdef BEST < handle
             obj.bst.sessions.(obj.bst.inputs.current_session).(obj.bst.inputs.current_measurement).info.handle_gridxy=gridxy([0 (obj.bst.inputs.mep_onset*1000):0.25:(obj.bst.inputs.mep_offset*1000)],'Color',[219/255 246/255 255/255],'linewidth',1) ;
             
         end
+        function cb_pi_eegtms_run(obj)
+            
+            target_montage_channels={'C3', 'FC1', 'FC5', 'CP1', 'CP5'};
+            target_montage_weights=[1 -0.25 -0.25 -0.25 -0.25];
+            neurone_protocol='RMT - Duplicate_NeurOneProtocol.xml';
+            
+            
+            obj.bst.inputs.current_session=obj.info.event.current_session;
+            obj.bst.inputs.current_measurement=obj.info.event.current_measure_fullstr;
+            obj.bst.inputs.phase_angle=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).target_phase;
+            obj.bst.inputs.stimuli=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).stimulation_intensities;
+            obj.bst.inputs.trials=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).trials_per_condition;
+            obj.bst.inputs.iti=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).iti;
+            obj.bst.inputs.phase_tolerance=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).phase_tolerance;
+            obj.bst.inputs.amp_low=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).amp_low;
+            obj.bst.inputs.amp_hi=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).amp_hi;
+            obj.bst.inputs.offset_samples=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).offset_samples;
+
+            
+            
+            
+            
+            obj.bst.inputs.target_montage_channels=target_montage_channels;
+            obj.bst.inputs.target_montage_weights=target_montage_weights;
+            obj.bst.inputs.neurone_protocol=neurone_protocol;
+            obj.bst.best_eegtms;
+            
+%             phase_angle=[pi 0];
+%             stim_intensity=50;
+%             trials_per_condition=200;
+%             iti=[1];
+%             phase_tolerance=pi/50;
+%             %attach neurone protocole file in the settings panel
+%             % things to be taken from the hardware configuration
+%             target_montage_channels={'C3', 'FC1', 'FC5', 'CP1', 'CP5'};
+%             target_montage_weights=[1 -0.25 -0.25 -0.25 -0.25];
+%             neurone_protocol='RMT - Duplicate_NeurOneProtocol.xml'
+%             
+%             obj.bst.inputs.current_session=obj.info.event.current_session;
+%             obj.bst.inputs.current_measurement=obj.info.event.current_measure_fullstr;
+%             obj.bst.inputs.phase_angle=phase_angle
+%             obj.bst.inputs.stimuli=stim_intensity
+%             obj.bst.inputs.trials=trials_per_condition
+%             obj.bst.inputs.iti=iti
+%             obj.bst.inputs.phase_tolerance=phase_tolerance
+%             obj.bst.inputs.target_montage_channels=target_montage_channels
+%             obj.bst.inputs.target_montage_weights=target_montage_weights
+%             obj.bst.inputs.neurone_protocol=neurone_protocol
+%             
+%             obj.bst.best_eegtms
+            
+            
+            
+            
+
+        end
         %% input callbacks
         function cb_pi_mep_input_device(obj)
-            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).input_device=eval(obj.pi.mep.input_device.String);
+            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).input_device=(obj.pi.mep.input_device.String);
         end
         function cb_pi_mep_output_device(obj)
             obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).output_device=obj.pi.mep.output_device.String; 
@@ -3514,6 +4580,22 @@ classdef BEST < handle
                 obj.fig.main.Widths(3)=-2;
             end
         end
+        
+        function cb_menu_hwcfg(obj)
+            obj.info.menu.hwcfg=obj.info.menu.hwcfg+1;
+            if bitget(obj.info.menu.hwcfg,1) %odd
+                obj.fig.main.Widths(1)=0;
+                obj.fig.main.Widths(2)=0;
+                obj.fig.main.Widths(3)=0;
+                obj.fig.main.Widths(4)=-1;
+            else %even
+                obj.fig.main.Widths(1)=-1.15;
+                obj.fig.main.Widths(2)=-1.35;
+                obj.fig.main.Widths(3)=-2;
+                obj.fig.main.Widths(4)=0;
+            end
+        end
+ 
         function stop(obj)
             uiresume
             obj.bst.inputs.stop_event=1;
@@ -3524,19 +4606,45 @@ classdef BEST < handle
             obj.pi.mt_ptc.panel=uix.Panel( 'Parent', obj.pi.empty_panel,'FontSize',14 ,'Units','normalized','Title','Motor Threshold Hunting' ,'FontWeight','Bold','TitlePosition','centertop');
             obj.pi.mt_ptc.vb = uix.VBox( 'Parent', obj.pi.mt_ptc.panel, 'Spacing', 5, 'Padding', 5  );
             
-            % row 1
-            uiextras.HBox( 'Parent', obj.pi.mt_ptc.vb,'Spacing', 5, 'Padding', 2 )
-            mep_panel_row1 = uix.HBox( 'Parent', obj.pi.mt_ptc.vb, 'Spacing', 5, 'Padding', 2  );
-            uicontrol( 'Style','text','Parent', mep_panel_row1,'String','Thresholding Method:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            obj.pi.mt_ptc.thresholding_method=uicontrol( 'Style','popupmenu','Parent', mep_panel_row1 ,'FontSize',11,'String',{'PEST Pentland', 'PEST Taylor'},'Value',2,'Callback',@(~,~)obj.cb_pi_mt_ptc_thresholding_method);
-            set( mep_panel_row1, 'Widths', [150 -2]);
+%             % row 1
+%             uiextras.HBox( 'Parent', obj.pi.mt_ptc.vb,'Spacing', 5, 'Padding', 2 )
+%             mep_panel_row1 = uix.HBox( 'Parent', obj.pi.mt_ptc.vb, 'Spacing', 5, 'Padding', 2  );
+%             uicontrol( 'Style','text','Parent', mep_panel_row1,'String','Thresholding Method:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+%             obj.pi.mt_ptc.thresholding_method=uicontrol( 'Style','popupmenu','Parent', mep_panel_row1 ,'FontSize',11,'String',{'PEST Pentland', 'PEST Taylor'},'Value',2,'Callback',@(~,~)obj.cb_pi_mt_ptc_thresholding_method);
+%             set( mep_panel_row1, 'Widths', [150 -2]);
+      % row 2
+            mep_panel_row2 = uix.HBox( 'Parent', obj.pi.mt_ptc.vb, 'Spacing', 5, 'Padding', 5  );
+            uicontrol( 'Style','text','Parent', mep_panel_row2,'String','Input Device:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+            %             obj.pi.mt_ptc.input_device=uicontrol( 'Style','edit','Parent', mep_panel_row2 ,'FontSize',11,'Callback',@(~,~)obj.cb_pi_mt_ptc_input_device); %,'Callback',@obj.cb_mt_ptc_target_muscle
+            str_in_device(1)= (cellstr('Select'));
+            str_in_device(2:numel(obj.hw.device_added1_listbox.string)+1)=obj.hw.device_added1_listbox.string;
             
+            obj.pi.mt_ptc.input_device=uicontrol( 'Style','popupmenu','Parent', mep_panel_row2 ,'FontSize',11,'String',str_in_device,'Callback',@(~,~)obj.cb_pi_mt_ptc_input_device); %,'Callback',@obj.cb_mt_ptc_target_muscle
             
-            % row 2
-            mep_panel_row2 = uix.HBox( 'Parent', obj.pi.mt_ptc.vb, 'Spacing', 5, 'Padding', 2  );
-            uicontrol( 'Style','text','Parent', mep_panel_row2,'String','Target Muscle:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            obj.pi.mt_ptc.target_muscle=uicontrol( 'Style','edit','Parent', mep_panel_row2 ,'FontSize',11,'Callback',@(~,~)obj.cb_pi_mt_ptc_target_muscle); %,'Callback',@obj.cb_mt_ptc_target_muscle
             set( mep_panel_row2, 'Widths', [150 -2]);
+            
+            % row 2f
+            mep_panel_row2f = uix.HBox( 'Parent', obj.pi.mt_ptc.vb, 'Spacing', 5, 'Padding', 5  );
+            uicontrol( 'Style','text','Parent', mep_panel_row2f,'String','Output Device:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+            %             obj.pi.mt_ptc.output_device=uicontrol( 'Style','edit','Parent', mep_panel_row2f ,'FontSize',11,'Callback',@(~,~)obj.cb_pi_mt_ptc_output_device); %,'Callback',@obj.cb_mt_ptc_target_muscle
+            str_out_device(1)= (cellstr('Select'));
+            str_out_device(2:numel(obj.hw.device_added2_listbox.string)+1)=obj.hw.device_added2_listbox.string;
+            obj.pi.mt_ptc.output_device=uicontrol( 'Style','popupmenu','Parent', mep_panel_row2f ,'String',str_out_device,'FontSize',11,'Callback',@(~,~)obj.cb_pi_mt_ptc_output_device); %,'Callback',@obj.cb_mt_ptc_target_muscle
+            
+            set( mep_panel_row2f, 'Widths', [150 -2]);
+            
+            % row 2g
+            mep_panel_row2g = uix.HBox( 'Parent', obj.pi.mt_ptc.vb, 'Spacing', 5, 'Padding', 5  );
+            uicontrol( 'Style','text','Parent', mep_panel_row2g,'String','Display EMG Channel:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+            obj.pi.mt_ptc.display_scopes=uicontrol( 'Style','edit','Parent', mep_panel_row2g ,'FontSize',11,'Callback',@(~,~)obj.cb_pi_mt_ptc_display_scopes); %,'Callback',@obj.cb_mt_ptc_target_muscle
+            set( mep_panel_row2g, 'Widths', [150 -2]);
+            
+            
+%             % row 2
+%             mep_panel_row2 = uix.HBox( 'Parent', obj.pi.mt_ptc.vb, 'Spacing', 5, 'Padding', 2  );
+%             uicontrol( 'Style','text','Parent', mep_panel_row2,'String','Target Muscle:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+%             obj.pi.mt_ptc.target_muscle=uicontrol( 'Style','edit','Parent', mep_panel_row2 ,'FontSize',11,'Callback',@(~,~)obj.cb_pi_mt_ptc_target_muscle); %,'Callback',@obj.cb_mt_ptc_target_muscle
+%             set( mep_panel_row2, 'Widths', [150 -2]);
             
             % row 3
             mep_panel_row3 = uix.HBox( 'Parent', obj.pi.mt_ptc.vb, 'Spacing', 5, 'Padding', 2  );
@@ -3568,11 +4676,11 @@ classdef BEST < handle
             obj.pi.mt_ptc.iti=uicontrol( 'Style','edit','Parent', mep_panel_row5 ,'FontSize',11,'Callback',@(~,~)obj.cb_pi_mt_ptc_iti);
             set( mep_panel_row5, 'Widths', [150 -2]);
             
-            % row 6
-            uiextras.HBox( 'Parent', obj.pi.mt_ptc.vb)
-            
+%             % row 6
+%             uiextras.HBox( 'Parent', obj.pi.mt_ptc.vb)
+%             
             % row 7
-            uicontrol( 'Style','text','Parent',  obj.pi.mt_ptc.vb,'String','Advanced Settings','FontSize',10,'HorizontalAlignment','center','Units','normalized','ForegroundColor',[0.5 0.5 0.5]);
+%             uicontrol( 'Style','text','Parent',  obj.pi.mt_ptc.vb,'String','Advanced Settings','FontSize',10,'HorizontalAlignment','center','Units','normalized','ForegroundColor',[0.5 0.5 0.5]);
             
             %row 8
             mep_panel_row8 = uix.HBox( 'Parent', obj.pi.mt_ptc.vb, 'Spacing', 5, 'Padding', 2  );
@@ -3636,7 +4744,7 @@ classdef BEST < handle
             set( mep_panel_19, 'Widths', [-2 -2]);
             
             
-            uiextras.HBox( 'Parent', obj.pi.mt_ptc.vb)
+%             uiextras.HBox( 'Parent', obj.pi.mt_ptc.vb)
             
             mep_panel_17 = uix.HBox( 'Parent', obj.pi.mt_ptc.vb, 'Spacing', 5, 'Padding', 2  );
             obj.pi.mt_ptc.update=uicontrol( 'Parent', mep_panel_17 ,'Style','PushButton','String','Update','FontWeight','Bold','Callback',@(~,~)obj.cb_pi_mt_ptc_update);
@@ -3646,9 +4754,7 @@ classdef BEST < handle
             obj.pi.stop=uicontrol( 'Parent', mep_panel_17 ,'Style','PushButton','String','Stop','FontWeight','Bold','Callback',@(~,~)obj.stop,'Enable','on');
             set( mep_panel_17, 'Widths', [-2 -4 -2 -2]);
             
-            set(obj.pi.mt_ptc.vb,'Heights',[-0.01 -0.4 -0.4 -0.4 -0.4 -0.4 -0.4 -0.4 -0.01 -0.2 -0.4 -0.4 -0.4 -0.4 -0.4 -0.4 -0.4 -0.4 0 -0.5])
-            
-            
+            set(obj.pi.mt_ptc.vb,'Heights',[-0.4 -0.4 -0.4 -0.4 -0.4 -0.4 -0.4 -0.4 -0.4 -0.4 -0.4 -0.4 -0.4 -0.4 -0.4 -0.4 -0.5])
         end
         %function pr_mt_ptc(obj) should start here but for now will employt the pr_mt here
         function func_load_mt_ptc_par(obj)
@@ -4061,6 +5167,77 @@ classdef BEST < handle
             obj.bst.best_ioc_fit;
             obj.bst.best_ioc_plot;
         end
+        
+       
+        
+        function cb_pi_eegtms_output_device	(obj)
+            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).output_device	=	obj.pi.eegtms.output_device.String;
+            
+        end
+        
+        function cb_pi_eegtms_input_device	(obj)
+            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).input_device	=	obj.pi.eegtms.input_device.String;
+            
+        end
+        
+        function cb_pi_eegtms_target_montage	(obj)
+            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).target_montage	=	obj.pi.eegtms.target_montage.String;
+            
+        end
+        
+        function cb_pi_eegtms_freq_ist	(obj)
+            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).freq_ist	=str2num(	obj.pi.eegtms.freq_ist.String);
+            
+        end
+        
+        function cb_pi_eegtms_fre1_2nd	(obj)
+            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).fre1_2nd	=str2num(	obj.pi.eegtms.fre1_2nd.String);
+            
+        end
+        
+        function cb_pi_eegtms_target_phase	(obj)
+            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).target_phase	=str2num(	obj.pi.eegtms.target_phase.String);
+            
+        end
+        
+        function cb_pi_eegtms_amp_low	(obj)
+            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).amp_low	=str2num(	obj.pi.eegtms.amp_low.String);
+            
+        end
+        
+        function cb_pi_eegtms_amp_hi	(obj)
+            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).amp_hi	=str2num(	obj.pi.eegtms.amp_hi.String);
+            
+        end
+        
+        function cb_pi_eegtms_offset_samples	(obj)
+            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).offset_samples	=str2num(	obj.pi.eegtms.offset_samples.String);
+            
+        end
+        
+        function cb_pi_eegtms_stimulation_intensities	(obj)
+            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).stimulation_intensities	=str2num(	obj.pi.eegtms.stimulation_intensities.String);
+            
+        end
+        
+        function cb_pi_eegtms_trials_per_condition	(obj)
+            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).trials_per_condition	=str2num(	obj.pi.eegtms.trials_per_condition.String);
+            
+        end
+        
+        function cb_pi_eegtms_iti	(obj)
+            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).iti	=str2num(	obj.pi.eegtms.iti.String);
+            
+        end
+        function cb_pi_eegtms_phase_tolerance	(obj)
+            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).phase_tolerance	=str2num(	obj.pi.eegtms.phase_tolerance.String);
+            
+        end
+        
+          
+        
+               
+        
         function disable_listboxes(obj)
             obj.pmd.lb_measures.listbox.Enable='off';
             obj.pmd.lb_sessions.listbox.Enable='off';
