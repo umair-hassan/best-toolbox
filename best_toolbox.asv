@@ -1818,10 +1818,7 @@ ylim auto
         function boot_bb(obj)
             obj.bossbox=dbsp2('10.10.10.1');
             
-            
         end
-        
-        
           
     end
 end
