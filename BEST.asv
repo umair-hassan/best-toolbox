@@ -1235,7 +1235,6 @@ classdef BEST < handle
             obj.pr.mep.ax1=axes( 'Parent',  mep1_r2,'Units','normalized');
             set(mep1_vb,'Heights',[30 -10])
             
-            
             set(mep6_grid,'ColumnSizes',[-1 -1 -1],'RowSizes',[-1 -1]);
         end
         

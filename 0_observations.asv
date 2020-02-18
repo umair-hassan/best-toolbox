@@ -12,11 +12,15 @@ FRI- rTMS, TEP measurement
 
 BIG MILESTONES
 - Rectifying Inputs panel
-- Designig Results panel (the analytics dashboard, taking response buttons of pause, stop, update etc there)
+- Designig Results panel (the analytics dashboard, taking response buttons of pause, stop, update etc there) - PIRNICIPLE DECISION about 6 ch in MEP, HOTSPOT, 3 ch in Threshold, IOC 
 - best_toolbox class architecture generalization
 
 
-remove update button since the update will be an autonomous one, as we click the response button it will be update that particular thing, 
+remove update button since the update will be an autonomous one, as we click the response button it will be update that particular thing,
+
+1. when the font is increased set increase the fixed pixels as per the ratio of font increase from original font .this would make it quite respnsive
+2. If the target channel list also contains the channels that are to be displayed, then they are updated only for the trials when those channels are targeted , otherwise all other channels are updated 
+3. For multi stimulator module, each condition (the tab) will have a measurement associated to it and there it can be decided what to display, measurement leads to decision of display , in other modules the measurement coloumn remains same as of the module, but in the multi, stim thing the displays will be updated as per each condtion
 
 1. group the mep all associated functions togehter since when i am working on it i will need them al togheter 
 1. input device, output device, display emg channel are not being callbacked and saved properly in the pars 
@@ -125,3 +129,4 @@ make the toolbox settings panel too that will have some common defaults settings
 cheat code
 
 convert array into string use char command
+numel(cell) e.g. numel({'APNR',1,'PN'} will give the number of elements in the cell
