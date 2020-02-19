@@ -1,5 +1,10 @@
 TODO List
 
+MAJOR AGENDA
+Make the generalized results panel
+
+
+
 TODAY MILESTONE- MEP Measurement (sp, pp, multi stim, multi channel , different stimulators, should be done)
 TOM MILESTNE- Thresholding (sp, multistim, multichannel, different stim should be done)
 TOM MILESTONE- HOT Search (sp, multo channel, multi stim etc for all chnnels for all stimulators)

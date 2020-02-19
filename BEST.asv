@@ -5,12 +5,13 @@ classdef BEST < handle
         info
         data
         save_buffer
+        pr
     end
     
     properties (Hidden)
         pmd %panel_measurement_designer
         pi  %panel_inputs
-        pr %panel_results
+%         pr %panel_results
         hw
         var
         grid % bottom most 3 panels
@@ -36,7 +37,7 @@ classdef BEST < handle
             obj.create_results_panel;
             obj.create_hwcfg_panel;
             %               obj.pi_ioc
-            obj.pr_mep;
+            obj.results_panel;
             
         end
         function create_best_obj(obj)
@@ -740,6 +741,203 @@ classdef BEST < handle
             %           obj.panel.st=set(obj.pi.no_measure_slctd_panel.vbox,'Heights',[-2 -0.5 -2])
             set(obj.pi.no_measure_slctd_panel.vbox,'Heights',[-2 -0.5 -2])
         end
+        
+        %% results panel
+        function results_panel(obj)
+            % IMP1: ye jo case 1 se le ker 6 tak jo me ne bar bar repeat ki
+            % he linen ye for loop ban sakta he aur asani se simplfy kia ja
+            % sakta he aur ye bat bhi k konsa function apply kerna matlab
+            % mep ya threshold ye waghera bhi inteliggently decide kia ja
+            % sakta he magr ye bad me kia ja sakta he filhal move on
+            obj.pr.axesno=3;
+            obj.pr_analytics;
+            switch obj.pr.axesno
+                case 1
+                                obj.pr.grid=uiextras.GridFlex('Parent',obj.pr.row4, 'Spacing', 5 );
+                                obj.pr_mep;
+                                obj.pr.grid.ColumnSizes=[-1 -1];
+
+                case 2
+                    obj.pr.grid=uiextras.GridFlex('Parent',obj.pr.row4, 'Spacing', 5 );
+                    obj.pr.axesno='one';
+                    obj.pr_mep;
+                    obj.pr.axesno='two';
+                    obj.pr_mep;
+                    obj.pr.grid.ColumnSizes=[-1 -1];
+                case 3
+                    obj.pr.grid=uiextras.GridFlex('Parent',obj.pr.row4, 'Spacing', 5 );
+                    obj.pr.axesno='one';
+                    obj.pr_mep;
+                    obj.pr.axesno='two';
+                    obj.pr_mep;
+                    obj.pr.axesno='three';
+                    obj.pr_mep;
+                    obj.pr.grid.ColumnSizes=[-1 -1 -1];
+                case 4
+                    obj.pr.grid=uiextras.GridFlex('Parent',obj.pr.row4, 'Spacing', 5 );
+                    obj.pr.axesno='one';
+                    obj.pr_mep;
+                    obj.pr.axesno='two';
+                    obj.pr_mep;
+                    obj.pr.axesno='three';
+                    obj.pr_mep;
+                    obj.pr.axesno='four';
+                    obj.pr_mep;
+                    obj.pr.grid.ColumnSizes=[-1 -1];
+                    obj.pr.grid.RowSizes=[-1 -1];
+                case 5
+                    obj.pr.grid=uiextras.GridFlex('Parent',obj.pr.row4, 'Spacing', 5 );
+                    obj.pr.axesno='one';
+                    obj.pr_mep;
+                    obj.pr.axesno='two';
+                    obj.pr_mep;
+                    obj.pr.axesno='three';
+                    obj.pr_mep;
+                    obj.pr.axesno='four';
+                    obj.pr_mep;
+                    obj.pr.axesno='five';
+                    obj.pr_mep;
+                    uiextras.HBox( 'Parent', obj.pr.grid)
+                    obj.pr.grid.ColumnSizes=[-1 -1 -1];
+                    obj.pr.grid.RowSizes=[-1 -1];
+                case 6
+                    obj.pr.grid=uiextras.GridFlex('Parent',obj.pr.row4, 'Spacing', 5 );
+                    obj.pr.axesno='one';
+                    obj.pr_mep;
+                    obj.pr.axesno='two';
+                    obj.pr_mep;
+                    obj.pr.axesno='three';
+                    obj.pr_mep;
+                    obj.pr.axesno='four';
+                    obj.pr_mep;
+                    obj.pr.axesno='five';
+                    obj.pr_mep;
+                    obj.pr.axesno='six';
+                    obj.pr_mep;
+                    obj.pr.grid.ColumnSizes=[-1 -1 -1];
+                    obj.pr.grid.RowSizes=[-1 -1];
+            end
+            
+            
+
+            
+        end
+        function pr_analytics(obj)
+            %FUTURE: each of dusplay module (MEP, Thresholding, IOC, PP
+            %IOC, etc will have their own analytics panel, for now
+            %generalized is ok
+            % this below code will be then suitable for MEP , Hotspot, IOC
+            % single pulse measurements
+            
+            
+            %iska axis no se koi tauliq nahi hoga q k ye generalized hogi
+            %har module ki, har module k lye mukthali fields hongi jo k is
+            %module k update kerny valy function ko he sirf pata hongi
+            
+            obj.pr.panel_1= uix.Panel( 'Parent', obj.pr.empty_panel, 'Padding', 5 ,'Units','normalized','Title', 'Results','FontWeight','bold','FontSize',14,'TitlePosition','centertop' );
+            obj.pr.vb=uix.VBox( 'Parent', obj.pr.panel_1, 'Spacing', 5, 'Padding', 5  );
+            
+            row1=uix.HBox( 'Parent', obj.pr.vb, 'Spacing', 5, 'Padding', 0  );
+            uiextras.HBox( 'Parent', row1)
+            uiextras.HBox( 'Parent', row1)
+            obj.pr.total_trials_label=uicontrol( 'Style','text','Parent', row1,'String','Total Trials','FontSize',11,'HorizontalAlignment','center','Units','normalized');
+            
+            obj.pr.trial_no_label=uicontrol( 'Style','text','Parent', row1,'String','Trial No.','FontSize',11,'HorizontalAlignment','center','Units','normalized');
+            if(strcmp(obj.bst.inputs.stim_mode,'MSO'))
+                obj.pr.stim_intensity_label=uicontrol( 'Style','text','Parent', row1,'String','Intensity (%MSO)','FontSize',11,'HorizontalAlignment','center','Units','normalized');
+            else
+                obj.pr.stim_intensity_label=uicontrol( 'Style','text','Parent', row1,'String','Stim Intensity (%MT)','FontSize',11,'HorizontalAlignment','center','Units','normalized');
+            end
+            obj.pr.iti_label=uicontrol( 'Style','text','Parent', row1,'String','ITI (s)','FontSize',11,'HorizontalAlignment','center','Units','normalized');
+            uiextras.HBox( 'Parent', row1)
+            set(row1,'Widths',[-0.3 100 100 100 130 100 -0.3])
+            
+            row2= uix.HBox( 'Parent', obj.pr.vb, 'Spacing', 5, 'Padding', 0  );
+            uiextras.HBox( 'Parent', row2)
+            obj.pr.current_trial_label=uicontrol( 'Style','text','Parent', row2,'String','Current Trial','FontSize',11,'HorizontalAlignment','center','Units','normalized');
+            obj.pr.current_totaltrial_no=uicontrol( 'Style','edit','Parent', row2,'FontSize',11,'HorizontalAlignment','center','Units','normalized');
+            obj.pr.current_trial=uicontrol( 'Style','edit','Parent', row2,'FontSize',11,'HorizontalAlignment','center','Units','normalized');
+            obj.pr.current_si=uicontrol( 'Style','edit','Parent', row2,'FontSize',11,'HorizontalAlignment','center','Units','normalized');
+            obj.pr.current_iti=uicontrol( 'Style','edit','Parent', row2,'FontSize',11,'HorizontalAlignment','center','Units','normalized');
+            uiextras.HBox( 'Parent', row2)
+            set(row2,'Widths',[-0.3 100 100 100 130 100 -0.3])
+            
+            row3= uix.HBox( 'Parent',obj.pr.vb, 'Spacing', 5, 'Padding', 1  );
+            uiextras.HBox( 'Parent', row3)
+            obj.pr.next_trial_label=uicontrol( 'Style','text','Parent', row3,'String','Next Trial','FontSize',11,'HorizontalAlignment','center','Units','normalized');
+            obj.pr.next_totaltrial_no=uicontrol( 'Style','edit','Parent', row3,'FontSize',11,'HorizontalAlignment','center','Units','normalized');
+            obj.pr.next_trial=uicontrol( 'Style','edit','Parent', row3,'FontSize',11,'HorizontalAlignment','center','Units','normalized');
+            obj.pr.next_si=uicontrol( 'Style','edit','Parent', row3,'FontSize',11,'HorizontalAlignment','center','Units','normalized');
+            obj.pr.next_iti=uicontrol( 'Style','edit','Parent', row3,'FontSize',11,'HorizontalAlignment','center','Units','normalized');
+            uiextras.HBox( 'Parent', row3)
+            set(row3,'Widths',[-0.3 100 100 100 130 100 -0.3])
+            
+            
+            obj.pr.row4= uix.HBox( 'Parent', obj.pr.vb, 'Spacing', 5, 'Padding', 5  );
+            
+            
+            set(obj.pr.vb,'Heights',[30 30 30 -9])
+        end
+        function pr_mep(obj)
+            
+            
+            obj.pr.clab.(obj.pr.axesno)=uix.Panel( 'Parent', obj.pr.grid, 'Padding', 5 ,'Units','normalized','Title', 'MEP Measurement','FontWeight','bold','FontSize',12,'TitlePosition','centertop' );
+                        
+            mep1_vb=uix.VBox( 'Parent',  obj.pr.clab.(obj.pr.axesno), 'Spacing', 5, 'Padding', 1  );
+            
+            mep1_r1 = uix.HBox( 'Parent', mep1_vb, 'Spacing', 5, 'Padding', 1  );
+            uiextras.HBox( 'Parent', mep1_r1)
+            obj.pr.current_mep_label.(obj.pr.axesno)=uicontrol( 'Style','text','Parent', mep1_r1,'String','Current MEP Amp','FontSize',11,'HorizontalAlignment','center','Units','normalized');
+            obj.pr.current_mep.(obj.pr.axesno)=uicontrol( 'Style','edit','Parent', mep1_r1,'FontSize',11,'HorizontalAlignment','center','Units','normalized');
+            obj.pr.mean_mep_label.(obj.pr.axesno)=uicontrol( 'Style','text','Parent', mep1_r1,'String','Mean MEP Amp','FontSize',11,'HorizontalAlignment','center','Units','normalized');
+            obj.pr.mean_mep.(obj.pr.axesno)=uicontrol( 'Style','edit','Parent', mep1_r1,'FontSize',11,'HorizontalAlignment','center','Units','normalized');
+            uiextras.HBox( 'Parent', mep1_r1)
+            set(mep1_r1,'Widths',[-0.3 130 70 130 70 -0.3])
+
+            mep1_r2 = uix.HBox( 'Parent', mep1_vb, 'Spacing', 5, 'Padding', 1  );
+            obj.pr.ax.(obj.pr.axesno)=axes( 'Parent',  mep1_r2,'Units','normalized');
+            set(mep1_vb,'Heights',[30 -10])
+        end
+        function pr_threshold(obj)
+             obj.pr.clab.(obj.pr.axesno)=uix.Panel( 'Parent', obj.pr.grid, 'Padding', 5 ,'Units','normalized','Title', 'MEP Threshold Hunting','FontWeight','bold','FontSize',12,'TitlePosition','centertop' );
+                        
+            mep1_vb=uix.VBox( 'Parent',  obj.pr.clab.(obj.pr.axesno), 'Spacing', 5, 'Padding', 1  );
+            
+            mep1_r1 = uix.HBox( 'Parent', mep1_vb, 'Spacing', 5, 'Padding', 1  );
+            uiextras.HBox( 'Parent', mep1_r1)
+            obj.pr.current_mep_label.(obj.pr.axesno)=uicontrol( 'Style','text','Parent', mep1_r1,'String','Current MEP Amp','FontSize',11,'HorizontalAlignment','center','Units','normalized');
+            obj.pr.current_mep.(obj.pr.axesno)=uicontrol( 'Style','edit','Parent', mep1_r1,'FontSize',11,'HorizontalAlignment','center','Units','normalized');
+            obj.pr.mean_mep_label.(obj.pr.axesno)=uicontrol( 'Style','text','Parent', mep1_r1,'String','Mean MEP Amp','FontSize',11,'HorizontalAlignment','center','Units','normalized');
+            obj.pr.mean_mep.(obj.pr.axesno)=uicontrol( 'Style','edit','Parent', mep1_r1,'FontSize',11,'HorizontalAlignment','center','Units','normalized');
+            uiextras.HBox( 'Parent', mep1_r1)
+            set(mep1_r1,'Widths',[-0.3 130 70 130 70 -0.3])
+
+            mep1_r2 = uix.HBox( 'Parent', mep1_vb, 'Spacing', 5, 'Padding', 1  );
+            obj.pr.ax.(obj.pr.axesno)=axes( 'Parent',  mep1_r2,'Units','normalized');
+            set(mep1_vb,'Heights',[30 -10])
+        end
+        function pr_ioc_NEW(obj)
+            obj.pr.clab.(obj.pr.axesno)=uix.Panel( 'Parent', obj.pr.grid, 'Padding', 5 ,'Units','normalized','Title', 'MEP IOC','FontWeight','bold','FontSize',12,'TitlePosition','centertop' );
+                        
+            mep1_vb=uix.VBox( 'Parent',  obj.pr.clab.(obj.pr.axesno), 'Spacing', 5, 'Padding', 1  );
+            
+            mep1_r1 = uix.HBox( 'Parent', mep1_vb, 'Spacing', 5, 'Padding', 1  );
+            uiextras.HBox( 'Parent', mep1_r1)
+            obj.pr.current_mep_label.(obj.pr.axesno)=uicontrol( 'Style','text','Parent', mep1_r1,'String','Current MEP Amp','FontSize',11,'HorizontalAlignment','center','Units','normalized');
+            obj.pr.current_mep.(obj.pr.axesno)=uicontrol( 'Style','edit','Parent', mep1_r1,'FontSize',11,'HorizontalAlignment','center','Units','normalized');
+            obj.pr.mean_mep_label.(obj.pr.axesno)=uicontrol( 'Style','text','Parent', mep1_r1,'String','Mean MEP Amp','FontSize',11,'HorizontalAlignment','center','Units','normalized');
+            obj.pr.mean_mep.(obj.pr.axesno)=uicontrol( 'Style','edit','Parent', mep1_r1,'FontSize',11,'HorizontalAlignment','center','Units','normalized');
+            uiextras.HBox( 'Parent', mep1_r1)
+            set(mep1_r1,'Widths',[-0.3 130 70 130 70 -0.3])
+
+            mep1_r2 = uix.HBox( 'Parent', mep1_vb, 'Spacing', 5, 'Padding', 1  );
+            obj.pr.ax.(obj.pr.axesno)=axes( 'Parent',  mep1_r2,'Units','normalized');
+            set(mep1_vb,'Heights',[30 -10])
+        end
+        function pr_phasehisto(obj)
+        end
+        function pr_timelockedavg(obj)
+        end
         %% MEP Section
         function pi_mep(obj)
             obj.pi.mep.panel=uix.Panel( 'Parent', obj.pi.empty_panel,'FontSize',14 ,'Units','normalized','Title','MEP Measurement' ,'FontWeight','Bold','TitlePosition','centertop');
@@ -893,7 +1091,7 @@ classdef BEST < handle
             
             
         end
-        function pr_mep(obj)
+        function pr_mepold(obj)
             obj.pr.mep.handle= uix.Panel( 'Parent', obj.pr.empty_panel, 'Padding', 5 ,'Units','normalized','Title', 'Results','FontWeight','bold','FontSize',14,'TitlePosition','centertop' );
             m_mep=uicontextmenu(obj.fig.handle);
             uimenu(m_mep,'label','Export as Matlab Figure','Callback',@(~,~)obj.cb_pr_mep_export);
@@ -1047,7 +1245,7 @@ classdef BEST < handle
             
             
         end
-      function pr_mep3(obj)
+        function pr_mep3(obj)
             mep3_grid=uiextras.GridFlex('Parent',obj.pr.mep.mep_pr4, 'Spacing', 5 );
             obj.pr.mep.clab1=uiextras.Panel( 'Parent',  mep3_grid, 'Padding', 5 ,'Units','normalized','Title', 'APBr','FontWeight','bold','FontSize',12,'TitlePosition','centertop' );
             
@@ -1234,6 +1432,7 @@ classdef BEST < handle
             mep1_r2 = uix.HBox( 'Parent', mep1_vb, 'Spacing', 5, 'Padding', 1  );
             obj.pr.mep.ax1=axes( 'Parent',  mep1_r2,'Units','normalized');
             set(mep1_vb,'Heights',[30 -10])
+            
             
             set(mep6_grid,'ColumnSizes',[-1 -1 -1],'RowSizes',[-1 -1]);
         end
