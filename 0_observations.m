@@ -1,7 +1,7 @@
 TODO List
 
 MAJOR AGENDA
-Make the generalized results panel
+1. make the Display channel as a seperate row in the MEP input panel and make factors accordingly , conditioning variables {targetchannel, si, iti}
 
 
 

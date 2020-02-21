@@ -1585,14 +1585,15 @@ classdef BEST < handle
             obj.bst.inputs.output_device=obj.pi.mep.input_device.String((obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).output_device));
             obj.bst.inputs.display_scopes=eval(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).display_scopes);
             
-            obj.bst.inputs.stimuli=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).stimulation_intensities;
-            obj.bst.inputs.iti=(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).iti);
-            obj.bst.inputs.trials=(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).trials_per_condition);
+            obj.bst.inputs.stimuli=str2double(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).stimulation_intensities);
+            obj.bst.inputs.iti=str2double(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).iti);
+            obj.bst.inputs.trials=str2double(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).trials_per_condition);
             if (obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).units_mso==1)
                 obj.bst.inputs.stim_mode='MSO';
+                obj.bst.inputs.mt_mso=NaN;
             else
                 obj.bst.inputs.stim_mode='MT';
-                obj.bst.inputs.mt_mso=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).mt;
+                obj.bst.inputs.mt_mso=str2double(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).mt);
             end
             obj.bst.inputs.mep_onset=(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).mep_onset)/1000;
             obj.bst.inputs.mep_offset=(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).mep_offset)/1000;

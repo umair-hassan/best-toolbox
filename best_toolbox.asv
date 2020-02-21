@@ -109,6 +109,8 @@ classdef best_toolbox < handle
             obj.boot_outputdevice;
             
             
+            
+            
             obj.info.event.best_mep_amp=1;
             obj.info.event.best_mep_plot=1;
             obj.info.event.best_mt_pest=NaN;
