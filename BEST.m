@@ -981,17 +981,19 @@ classdef BEST < handle
             
             set( mep_panel_row2f, 'Widths', [150 -2]);
             
+              % row 2
+            mep_panel_row2 = uix.HBox( 'Parent', obj.pi.mep.vb, 'Spacing', 5, 'Padding', 5  );
+            uicontrol( 'Style','text','Parent', mep_panel_row2,'String','Target Channels:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+            obj.pi.mep.target_muscle=uicontrol( 'Style','edit','Parent', mep_panel_row2 ,'FontSize',11,'Callback',@(~,~)obj.cb_pi_mep_target_muscle); %,'Callback',@obj.cb_mep_target_muscle
+            set( mep_panel_row2, 'Widths', [150 -2]);
+            
             % row 2g
             mep_panel_row2g = uix.HBox( 'Parent', obj.pi.mep.vb, 'Spacing', 5, 'Padding', 5  );
-            uicontrol( 'Style','text','Parent', mep_panel_row2g,'String','Target Channels:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+            uicontrol( 'Style','text','Parent', mep_panel_row2g,'String','Display Channels:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
             obj.pi.mep.display_scopes=uicontrol( 'Style','edit','Parent', mep_panel_row2g ,'FontSize',11,'Callback',@(~,~)obj.cb_pi_mep_display_scopes); %,'Callback',@obj.cb_mep_target_muscle
             set( mep_panel_row2g, 'Widths', [150 -2]);
             
-            %               % row 2
-            %             mep_panel_row2 = uix.HBox( 'Parent', obj.pi.mep.vb, 'Spacing', 5, 'Padding', 5  );
-            %             uicontrol( 'Style','text','Parent', mep_panel_row2,'String','Display EMG Channel:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            %             obj.pi.mep.target_muscle=uicontrol( 'Style','edit','Parent', mep_panel_row2 ,'FontSize',11,'Callback',@(~,~)obj.cb_pi_mep_target_muscle); %,'Callback',@obj.cb_mep_target_muscle
-            %             set( mep_panel_row2, 'Widths', [150 -2]);
+            
             
             % row 3
             mep_panel_row3 = uix.HBox( 'Parent', obj.pi.mep.vb, 'Spacing', 5, 'Padding', 5  );
@@ -1096,7 +1098,7 @@ classdef BEST < handle
             obj.pi.stop=uicontrol( 'Parent', mep_panel_17 ,'Style','PushButton','String','Stop','FontWeight','Bold','Callback',@(~,~)obj.stop,'Enable','on');
             set( mep_panel_17, 'Widths', [-2 -4 -2 -2]);
             
-            set(obj.pi.mep.vb,'Heights',[0 -0.4 -0.4 -0.4 -0.4 -0.4 -0.4 -0.4 -0.4 -0.4 -0.4 -2 -0.4])
+            set(obj.pi.mep.vb,'Heights',[0 -0.4 -0.4 -0.4 -0.4 -0.4 -0.4 -0.4 -0.4 -0.4 -0.4 -0.4 -2 -0.4])
             
             
         end
@@ -1583,11 +1585,23 @@ classdef BEST < handle
             
             obj.bst.inputs.input_device=obj.pi.mep.input_device.String((obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).input_device));
             obj.bst.inputs.output_device=obj.pi.mep.input_device.String((obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).output_device));
+            obj.bst.inputs.target_muscle=eval(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).target_muscle);
+
             obj.bst.inputs.display_scopes=eval(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).display_scopes);
             
-            obj.bst.inputs.stimuli=str2double(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).stimulation_intensities);
-            obj.bst.inputs.iti=str2double(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).iti);
-            obj.bst.inputs.trials=str2double(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).trials_per_condition);
+            obj.bst.inputs.stimuli=num2cell(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).stimulation_intensities);
+           
+            
+            if(numel(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).iti)==1 || numel(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).iti)>2)
+                obj.bst.inputs.iti=num2cell(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).iti);
+                disp 1stcommand 
+            else
+                obj.bst.inputs.iti=cellstr(num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).iti));
+                disp 2ndcommand
+            end
+            
+            
+            obj.bst.inputs.trials=num2cell(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).trials_per_condition);
             if (obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).units_mso==1)
                 obj.bst.inputs.stim_mode='MSO';
                 obj.bst.inputs.mt_mso=NaN;
@@ -1617,6 +1631,7 @@ classdef BEST < handle
 obj.bst.inputs.factors={obj.bst.inputs.output_device,obj.bst.inputs.display_scopes,obj.bst.inputs.measure};
 obj.pr.axesno=numel(obj.bst.inputs.factors{1})*numel(obj.bst.inputs.factors{2});
 obj.results_panel;
+obj.bst.factorizeConditions;
             %             try
 %             obj.cb_menu_save;
             
@@ -1755,14 +1770,16 @@ obj.results_panel;
             obj.pi.mep.stimulation_intensities.String
         end
         function cb_pi_mep_trials_per_condition(obj)
-            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).trials_per_condition=str2num(obj.pi.mep.trials_per_condition.String);
+            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).trials_per_condition=(obj.pi.mep.trials_per_condition.String);
         end
         function cb_pi_mep_iti(obj)
+obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).iti=(obj.pi.mep.iti.String);
+
             % %             global opps
             % %             opps
             % %  initiliaze the global variable and then name it as per the global name
             %             obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).iti=eval(obj.pi.mep.iti.String);
-            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).iti=str2num(obj.pi.mep.iti.String);
+           
         end
         function cb_pi_mep_mep_onset(obj)
             obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).mep_onset=str2num(obj.pi.mep.mep_onset.String);

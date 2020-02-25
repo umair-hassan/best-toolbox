@@ -88,10 +88,61 @@ classdef best_toolbox < handle
         end
         function factorizeConditions(obj)
           % factorization would be done as per each measurement (or group of measurements) since the input fields and thus the conditioning variables differ
+          char(obj.inputs.measure_str)
           switch char(obj.inputs.measure_str)
-              case {'MEP Measurement, MEP Input Output Curve_sp','Motor Threshold Hunting'}
-                  
-                  
+              case 'MEP Measurement'
+                  %just store the iti as a string e.g. '[iti1 iti2]' and
+                  %then it can be evaluated for the randomized value
+                          obj.inputs.totalConds=numel(obj.inputs.stimuli)*numel(obj.inputs.target_muscle)*numel(obj.inputs.iti);
+                     idx_inputDevices=0;
+                     idx_outputDevices=0;
+                     idx_targetChannels=0;
+                     idx_displayChannels=0;
+                     idx_si=0;
+                     idx_iti=0;    
+                     idx_trials=0;
+                     obj.inputs.condMat=cell(obj.inputs.totalConds,7);
+                  for i=1:obj.inputs.totalConds
+                     idx_inputDevices=idx_inputDevices+1;
+                     idx_outputDevices=idx_outputDevices+1;
+                     idx_si=idx_si+1;
+                     idx_iti=idx_iti+1;
+                     idx_displayChannels=idx_displayChannels+1;
+                     idx_targetChannels=idx_targetChannels+1;
+                     idx_trials=idx_trials+1; 
+                     obj.inputs.condMat(i,1)=cellstr(obj.inputs.input_device(1,idx_inputDevices));
+                     obj.inputs.condMat(i,2)=cellstr(obj.inputs.output_device(1,idx_outputDevices));
+                     obj.inputs.condMat(i,3)=(obj.inputs.trials(1,idx_trials)); % may be a problem
+                     obj.inputs.condMat(i,4)=(obj.inputs.iti(1,idx_iti));
+                     obj.inputs.condMat(i,5)=(obj.inputs.stimuli(1,idx_si));
+                     obj.inputs.condMat(i,6)={(obj.inputs.display_scopes)};
+                     obj.inputs.condMat(i,7)=cellstr(obj.inputs.target_muscle(1,idx_targetChannels));
+                     obj.inputs.condMat(i,8)={{obj.inputs.condMat{i,6}{1,:},obj.inputs.condMat{i,7}}};
+                     if(idx_inputDevices>=numel(obj.inputs.input_device))
+                         idx_inputDevices=0;
+                     end
+                     if(idx_outputDevices>=numel(obj.inputs.output_device))
+                         idx_outputDevices=0;
+                     end
+                     if(idx_targetChannels>=numel(obj.inputs.target_muscle))
+                         idx_targetChannels=0;
+                     end
+                     if(idx_displayChannels>=numel(obj.inputs.display_scopes))
+                         idx_displayChannels=0;
+                     end
+                     if(idx_si>=numel(obj.inputs.stimuli))
+                         idx_si=0;
+                     end
+                     if(idx_iti>=numel(obj.inputs.iti))
+                         idx_iti=0;
+                     end
+                     if(idx_trials>=numel(obj.inputs.trials))
+                         idx_trials=0;
+                     end
+
+                  end
+              otherwise
+                  disp othercondition
           end
           
         end
