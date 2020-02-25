@@ -140,3 +140,4 @@ cheat code
 convert array into string use char command
 numel(cell) e.g. numel({'APNR',1,'PN'} will give the number of elements in the cell
 UI control Enable inactive allows to set the integers without even conversion to string and it has the same appearance as when Enable is set to 'on' but it is not operational, really helpful
+if t is a 1x1 array containing 1xn cells then string([t{:}]) would give you a 1xn strings and char would give 1xn chars and may be useful in future

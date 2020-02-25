@@ -1545,7 +1545,7 @@ classdef BEST < handle
             
         end
         function cb_pi_mep_run(obj)
-            obj.disable_listboxes
+% % %             obj.disable_listboxes %commented on 25feb
 %             %             delete(obj.pr.mep.axes1)
 %             delete(obj.pr.hotspot.axes1)
 %             delete(obj.pr.mt.axes_mep)
