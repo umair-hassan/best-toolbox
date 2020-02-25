@@ -1,8 +1,7 @@
 TODO List
 
-MAJOR AGENDA
-1. make the Display channel as a seperate row in the MEP input panel and make factors accordingly , conditioning variables {targetchannel, si, iti}
-
+MAJOR BUGS:
+When ITI is set to be three or more different conditioning variables then the space is also considered as one of the intended ITI , solve it 
 
 
 TODAY MILESTONE- MEP Measurement (sp, pp, multi stim, multi channel , different stimulators, should be done)
@@ -141,3 +140,4 @@ convert array into string use char command
 numel(cell) e.g. numel({'APNR',1,'PN'} will give the number of elements in the cell
 UI control Enable inactive allows to set the integers without even conversion to string and it has the same appearance as when Enable is set to 'on' but it is not operational, really helpful
 if t is a 1x1 array containing 1xn cells then string([t{:}]) would give you a 1xn strings and char would give 1xn chars and may be useful in future
+display table on command line just like the way is shown by EEGLAB using this command: T=cell2table(ans.bst.inputs.condMat)

@@ -92,6 +92,8 @@ classdef best_toolbox < handle
           switch char(obj.inputs.measure_str)
               case 'MEP Measurement'
                   
+                 
+                  
                   % making axesno cell array conditions
                   targetChannels_ax=1:1:(numel(obj.inputs.target_muscle));
                   displayChannels_ax=num2cell(targetChannels_ax(end)+1:1:targetChannels_ax(end)+(numel(obj.inputs.display_scopes)));
@@ -106,6 +108,9 @@ classdef best_toolbox < handle
                   targetChannels_meas(:)=cellstr('MEP_Measurement'); % infact thsi would be a variable obj.inputs.targetMeasure 
                   displayChannels_meas=cell(1,numel(obj.inputs.display_scopes));
                   displayChannels_meas(:)=cellstr('MEP_Measurement');
+                  
+                  % making stimmode 
+                  
                   
                   % column labels
                   obj.inputs.colLabel.inputDevices=1;
@@ -141,10 +146,10 @@ classdef best_toolbox < handle
                      obj.inputs.condMat(i,obj.inputs.colLabel.outputDevices)={{cellstr(obj.inputs.output_device(1,idx_outputDevices))}};
                      obj.inputs.condMat(i,obj.inputs.colLabel.trials)=(obj.inputs.trials(1,idx_trials)); % may be a problem
                      obj.inputs.condMat(i,obj.inputs.colLabel.iti)=(obj.inputs.iti(1,idx_iti));
-                     obj.inputs.condMat(i,obj.inputs.colLabel.si)=(obj.inputs.stimuli(1,idx_si));
+                     obj.inputs.condMat(i,obj.inputs.colLabel.si)={(obj.inputs.stimuli(1,idx_si))};
                      obj.inputs.condMat(i,obj.inputs.colLabel.chLab)={{cellstr(obj.inputs.target_muscle(1,idx_targetChannels)),obj.inputs.display_scopes{1,:}}};
                      obj.inputs.condMat(i,obj.inputs.colLabel.axesno)={{targetChannels_ax(1,idx_targetChannels),displayChannels_ax{1,:}}};
-%                      obj.inputs.condMat(i,obj.inputs.colLabel.stimMode)={{targetChannels_ax{1,idx_targetChannels}{1,:},displayChannels_ax{1,:}}};
+                     obj.inputs.condMat(i,obj.inputs.colLabel.stimMode)={{'single_pulse'}};
                      obj.inputs.condMat(i,obj.inputs.colLabel.measures)={{targetChannels_meas(1,idx_targetChannels),displayChannels_meas{1,:}}};
 
 
@@ -291,25 +296,32 @@ classdef best_toolbox < handle
             
         end
         function plantrials(obj)
-            switch char(obj.inputs.measure_str)
-                case 'MEP Measurement'
-                    obj.inputs.columnLabel.si=1;
-                    obj.inputs.columnLabel.si_mt=2;
-                    obj.inputs.columnLabel.iti=3;
-                    obj.inputs.columnLabel.iti_movsum=4;
-                    obj.inputs.columnLabel.inputDevices=5;
-                    obj.inputs.columnLabel.outputDevices=6;
-                    obj.inputs.columnLabel.displayChannels=7;
-                    obj.inputs.columnLabel.measures=8;
-                    obj.planTrials_totalTrials;
-                    obj.planTrials_inputDevices;
-                    obj.planTrials_outputDevices;
-                    obj.planTrials_si;
-                    obj.planTrials_iti;
-                    obj.planTrials_measures;
-                    obj.planTrials_displayChannels;
-                    
+            
+            for i=1:obj.inputs.totalConds
+                cond_id(i,:)=ones(1,cell2mat(obj.inputs.condMat(i,obj.inputs.colLabel.trials)))*i;
             end
+            for i=1:sum(cell2mat(obj.inputs.condMat(:,obj.inputs.colLabel.trials)))
+                
+            end
+% % %             switch char(obj.inputs.measure_str)
+% % %                 case 'MEP Measurement'
+% % %                     obj.inputs.columnLabel.si=1;
+% % %                     obj.inputs.columnLabel.si_mt=2;
+% % %                     obj.inputs.columnLabel.iti=3;
+% % %                     obj.inputs.columnLabel.iti_movsum=4;
+% % %                     obj.inputs.columnLabel.inputDevices=5;
+% % %                     obj.inputs.columnLabel.outputDevices=6;
+% % %                     obj.inputs.columnLabel.displayChannels=7;
+% % %                     obj.inputs.columnLabel.measures=8;
+% % %                     obj.planTrials_totalTrials;
+% % %                     obj.planTrials_inputDevices;
+% % %                     obj.planTrials_outputDevices;
+% % %                     obj.planTrials_si;
+% % %                     obj.planTrials_iti;
+% % %                     obj.planTrials_measures;
+% % %                     obj.planTrials_displayChannels;
+% % %                     
+% % %             end
         end
         function planTrials_totalTrials(obj)
             %this has to be different for many measures therefore switch is

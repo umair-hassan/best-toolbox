@@ -1545,7 +1545,7 @@ classdef BEST < handle
             
         end
         function cb_pi_mep_run(obj)
-            obj.disable_listboxes
+% % %             obj.disable_listboxes %commented on 25feb
 %             %             delete(obj.pr.mep.axes1)
 %             delete(obj.pr.hotspot.axes1)
 %             delete(obj.pr.mt.axes_mep)
@@ -1593,10 +1593,12 @@ classdef BEST < handle
            
             
             if(numel(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).iti)==1 || numel(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).iti)>2)
-                obj.bst.iti=num2cell(obj.pi.mep.iti.String);
+                obj.bst.inputs.iti=num2cell(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).iti);
                 disp 1stcommand 
             else
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).iti=num2str(obj.pi.mep.iti.String);
+%                 obj.bst.inputs.iti=cellstr(num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).iti));
+                                obj.bst.inputs.iti={num2cell(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).iti)};
+
                 disp 2ndcommand
             end
             
@@ -1779,13 +1781,7 @@ obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr
             % %             opps
             % %  initiliaze the global variable and then name it as per the global name
             %             obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).iti=eval(obj.pi.mep.iti.String);
-            if(numel(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).iti)==1 || numel(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).iti)>2)
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).iti=num2cell(obj.pi.mep.iti.String);
-                disp 1stcommand 
-            else
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).iti=num2str(obj.pi.mep.iti.String);
-                disp 2ndcommand
-            end
+           
         end
         function cb_pi_mep_mep_onset(obj)
             obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).mep_onset=str2num(obj.pi.mep.mep_onset.String);

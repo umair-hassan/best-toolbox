@@ -1596,7 +1596,9 @@ classdef BEST < handle
                 obj.bst.inputs.iti=num2cell(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).iti);
                 disp 1stcommand 
             else
-                obj.bst.inputs.iti=cellstr(num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).iti));
+%                 obj.bst.inputs.iti=cellstr(num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).iti));
+                                obj.bst.inputs.iti={num2cell(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).iti)};
+
                 disp 2ndcommand
             end
             
@@ -1632,6 +1634,7 @@ obj.bst.inputs.factors={obj.bst.inputs.output_device,obj.bst.inputs.display_scop
 obj.pr.axesno=numel(obj.bst.inputs.factors{1})*numel(obj.bst.inputs.factors{2});
 obj.results_panel;
 obj.bst.factorizeConditions;
+obj.bst.plantrials;
             %             try
 %             obj.cb_menu_save;
             
@@ -1773,7 +1776,7 @@ obj.bst.factorizeConditions;
             obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).trials_per_condition=(obj.pi.mep.trials_per_condition.String);
         end
         function cb_pi_mep_iti(obj)
-obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).iti=(obj.pi.mep.iti.String);
+obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).iti=str2num(obj.pi.mep.iti.String);
 
             % %             global opps
             % %             opps
