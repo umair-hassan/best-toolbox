@@ -296,10 +296,25 @@ classdef best_toolbox < handle
             
         end
         function plantrials(obj)
-            
+            obj.inputs.totalConds
             for i=1:obj.inputs.totalConds
                 cond_id(i,:)=ones(1,cell2mat(obj.inputs.condMat(i,obj.inputs.colLabel.trials)))*i;
             end
+                [~,id]=sort(sum(cond_id,2),'descend');
+                cond_id=cond_id(id,:);
+                [~,n]=size(cond_id);
+                randomVect_numel=0;
+            for i=1:n
+                randVect=cond_id(:,i);
+                randVect=randVect(randperm(numel(randVect)))
+                randomVect(randomVect_numel+1:randomVect_numel+numel(randVect),1)=randVect
+                randomVect_numel=numel(randomVect);
+                figure; plot(randomVect)
+            end
+            for i=1:numel(randomVect)
+                obj.inputs.trialMat(i,:)=obj.inputs.condMat(randomVect(i,1),:);
+            end
+                
             for i=1:sum(cell2mat(obj.inputs.condMat(:,obj.inputs.colLabel.trials)))
                 
             end
