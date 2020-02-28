@@ -23,7 +23,7 @@ classdef BEST < handle
     end
     
     methods
-        %% BEST
+        %% BESTq-  
         function obj=BEST()
             
             obj.create_gui;
@@ -743,7 +743,7 @@ classdef BEST < handle
         end
         
         %% results panel
-        function results_panel(obj)
+        function resultsPanel(obj)
             % IMP1: ye jo case 1 se le ker 6 tak jo me ne bar bar repeat ki
             % he linen ye for loop ban sakta he aur asani se simplfy kia ja
             % sakta he aur ye bat bhi k konsa function apply kerna matlab
@@ -1559,7 +1559,7 @@ classdef BEST < handle
             
             obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).info.update_idx=0;
             
-            obj.pi.mep.run.Enable='off';
+            obj.pi.mep.run.Enable='on';
 %             obj.pi.mep.target_muscle.Enable='off';
             obj.pi.mep.units_mso.Enable='off';
             obj.pi.mep.units_mt.Enable='off';
@@ -1585,7 +1585,7 @@ classdef BEST < handle
             obj.bst.inputs.measure_str=cellstr('MEP Measurement');
             
             obj.bst.inputs.input_device=obj.pi.mep.input_device.String((obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).input_device));
-            obj.bst.inputs.output_device=obj.pi.mep.input_device.String((obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).output_device));
+            obj.bst.inputs.output_device=obj.pi.mep.output_device.String((obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).output_device));
             obj.bst.inputs.target_muscle=eval(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).target_muscle);
 
             obj.bst.inputs.display_scopes=eval(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).display_scopes);
@@ -1633,10 +1633,13 @@ classdef BEST < handle
             
 obj.bst.inputs.factors={obj.bst.inputs.output_device,obj.bst.inputs.display_scopes,obj.bst.inputs.measure};
 obj.pr.axesno=numel(obj.bst.inputs.factors{1})*numel(obj.bst.inputs.factors{2});
+
+obj.bst.best_mep;
+
 % obj.results_panel;
-obj.bst.factorizeConditions;
-obj.bst.planTrials;
-obj.results_panel;
+% obj.bst.factorizeConditions;
+% obj.bst.planTrials;
+% obj.results_panel;
             %             try
 %             obj.cb_menu_save;
             
