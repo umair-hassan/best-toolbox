@@ -97,7 +97,7 @@ classdef best_toolbox < handle
                   % making axesno cell array conditions
                   targetChannels_ax=1:1:(numel(obj.inputs.target_muscle));
                   displayChannels_ax=num2cell(targetChannels_ax(end)+1:1:targetChannels_ax(end)+(numel(obj.inputs.display_scopes)));
-                  obj.app.pr.axesno=numel(targetChannels_ax)+numel(displayChannels_ax);
+                  obj.app.pr.axesno=numel(targetChannels_ax)+numel(cell2mat(displayChannels_ax));
                   obj.app.pr.axesno
                   
                   % making measures cell array conditions
@@ -149,8 +149,8 @@ classdef best_toolbox < handle
                      obj.inputs.condMat(i,obj.inputs.colLabel.si)={(obj.inputs.stimuli(1,idx_si))};
                      obj.inputs.condMat(i,obj.inputs.colLabel.chLab)={{cellstr(obj.inputs.target_muscle(1,idx_targetChannels)),obj.inputs.display_scopes{1,:}}};
                      obj.inputs.condMat(i,obj.inputs.colLabel.axesno)={{targetChannels_ax(1,idx_targetChannels),displayChannels_ax{1,:}}};
-                     obj.inputs.condMat(i,obj.inputs.colLabel.stimMode)={{'single_pulse'}};
-                     obj.inputs.condMat(i,obj.inputs.colLabel.measures)={{targetChannels_meas(1,idx_targetChannels),displayChannels_meas{1,:}}};
+                     obj.inputs.condMat(i,obj.inputs.colLabel.stimMode)={{{'single_pulse'}}};
+                     obj.inputs.condMat(i,obj.inputs.colLabel.measures)={{char(targetChannels_meas(1,idx_targetChannels)),displayChannels_meas{1,:}}};
 
 
                      if(idx_inputDevices>=numel(obj.inputs.input_device))
@@ -261,41 +261,137 @@ classdef best_toolbox < handle
         end
         function best_mep(obj)
             obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs=obj.inputs;
-%             planTrials
-%             bootin
-%             bootout
-%             setIntensity
-%             stimLoop
-            
-            
-            
+            obj.factorizeConditions
+            obj.planTrials
+            obj.app.resultsPanel; %to be developed
             obj.boot_inputdevice;
             obj.boot_outputdevice;
-            
-            
-            
-            
-            obj.info.event.best_mep_amp=1;
-            obj.info.event.best_mep_plot=1;
-            obj.info.event.best_mt_pest=NaN;
-            obj.info.event.best_mt_plot=NaN;
-            obj.info.event.best_ioc_plot=NaN;
-            obj.info.event.hotspot=0;
-            obj.info.event.best_mt_pest_tc=0;
-            obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.update_event=0;
-            obj.info.event.pest_tc=0;
-            
-            
-            figHandle = findobj('Tag','umi1')
-            panelhandle=findobj(figHandle,'Type','axes')
-            obj.info.axes.mep=findobj( panelhandle,'Type','axes','Tag','mep')
-            obj.best_trialprep;
-            obj.best_stimloop;
-            
-            
-            
+            obj.bootTrial;
+            for tt=1:obj.inputs.totalTrials
+            obj.trigTrial;
+            obj.readTrial;
+            obj.plotTrial;
+            obj.prepTrial;
+            pause(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.iti}-toc)
+            end
         end
-        function plantrials(obj)
+        function bootTrial(obj)
+           obj.inputs.trial=0;
+           obj.prepTrial;
+        end
+        
+        function prepTrial(obj)
+            
+            obj.inputs.trial=obj.inputs.trial+1;
+            
+%             
+            
+            for i=1:numel(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.outputDevices})
+                switch obj.app.par.hardware_settings.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.outputDevices}{1,i}).slct_device
+                case 1 % pc controlled magven
+                    % --------------------------------------------------------ANOTHER
+                    % switch case for the stim mode will be implanted here
+                    % later on
+                    obj.magven.setAmplitude(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{obj.inputs.trial,i});
+                case 2 % pc controlled magstim
+                    obj.boot_magstim;
+                case 3 % pc controlled bistim
+                    obj.boot_bistim;
+                case 4 % pc controlled rapid
+                    obj.boot_rapid;
+                case 5 % boss box controlled magven
+                    obj.magven.setAmplitude(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{obj.inputs.trial,i});
+
+                case 6% boss box controlled magstim
+                    obj.boot_magstim;
+                    obj.boot_bossbox;
+                case 7% boss box controlled bistim
+                    obj.boot_bistim;
+                    obj.boot_bossbox;
+                case 8% boss box controlled rapid
+                    obj.boot_rapid;
+                    obj.boot_bossbox;
+                end
+            end
+        end
+
+        function trigTrial(obj)
+            for i=1:numel(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.outputDevices})
+                switch obj.app.par.hardware_settings.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.outputDevices}{1,i}).slct_device
+                    case 1 % pc controlled magven
+                        switch obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.stimMode}{obj.inputs.trial,i}
+                            case 'single_pulse'
+                            case 'paired_pulse'
+                            case 'burst'
+                            case 'train'
+                        end
+                    case 2 % pc controlled magstim
+                        obj.boot_magstim;
+                    case 3 % pc controlled bistim
+                        obj.boot_bistim;
+                    case 4 % pc controlled rapid
+                        obj.boot_rapid;
+                    case 5 % boss box controlled magven
+                        switch obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.stimMode}{obj.inputs.trial,i}
+                            case 'single_pulse'
+                                obj.bossbox.sendPulse(obj.app.par.hardware_settings.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.outputDevices}{1,i}).bb_outputport);
+                                tic;
+                            case 'paired_pulse'
+                            case 'burst'
+                            case 'train'
+                        end
+                    case 6% boss box controlled magstim
+                        obj.boot_magstim;
+                        obj.boot_bossbox;
+                    case 7% boss box controlled bistim
+                        obj.boot_bistim;
+                        obj.boot_bossbox;
+                    case 8% boss box controlled rapid
+                        obj.boot_rapid;
+                        obj.boot_bossbox;
+                end
+            end
+        end
+        
+        function readTrial(obj)
+            %device type
+            %            then read all channels through it, basically a for loop
+            
+            switch obj.app.par.hardware_settings.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.inputDevices}).slct_device
+
+                case 1 % boss box
+                    for i=1:numel(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab})
+                        obj.inputs.rawData.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}).data(obj.inputs.trial,:)=obj.bossbox.exg_scope;
+                    end
+                case 2 % fieldtrip
+                    % http://www.fieldtriptoolbox.org/faq/how_should_i_get_started_with_the_fieldtrip_realtime_buffer/
+                case 3 %Future: input box
+                case 4  % simulated data
+                    for i=1:numel(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab})
+                        obj.inputs.rawData.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,i}).data(obj.inputs.trial,:)=rand (1,obj.inputs.trials.sc_samples);
+                    end
+                case 5 %Future: no input box is selected
+            end
+        end
+        
+        function plotTrial(obj)
+            for i=1:numel(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab})
+                ax=['ax' num2str(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.axesno}{1,i})];
+                switch (obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.measures}{1,i})
+                    case 'MEP_Measurement'
+                        axes(ax), hold on,
+                        plot(obj.inputs.rawData.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,i}).data(obj.inputs.trial,:));
+                        
+                    case 'Motor Threshold Hunting'
+                    case 'IOC'
+                    case 'Motor Hotspot Search'
+                end
+            end
+        end
+        
+        function planTrials(obj)
+            %% preparing trialMat
+
             obj.inputs.totalConds
             for i=1:obj.inputs.totalConds
                 cond_id(i,:)=ones(1,cell2mat(obj.inputs.condMat(i,obj.inputs.colLabel.trials)))*i;
@@ -314,8 +410,7 @@ classdef best_toolbox < handle
             for i=1:numel(randomVect)
                 obj.inputs.trialMat(i,:)=obj.inputs.condMat(randomVect(i,1),:);
             end
-            
-            % ITI 
+            %% preparing ITI 
             if(iscell(obj.inputs.iti{1,1}))
                 [m,~]=size(obj.inputs.trialMat);
                 for i=1:m
@@ -323,25 +418,31 @@ classdef best_toolbox < handle
                     obj.inputs.trialMat(i,obj.inputs.colLabel.iti)=num2cell(round((iti{1,1}{1,1}+(iti{1,1}{1,2}-iti{1,1}{1,1} ).* rand(1,1)),3));
                 end
             end
-% % %             switch char(obj.inputs.measure_str)
-% % %                 case 'MEP Measurement'
-% % %                     obj.inputs.columnLabel.si=1;
-% % %                     obj.inputs.columnLabel.si_mt=2;
-% % %                     obj.inputs.columnLabel.iti=3;
-% % %                     obj.inputs.columnLabel.iti_movsum=4;
-% % %                     obj.inputs.columnLabel.inputDevices=5;
-% % %                     obj.inputs.columnLabel.outputDevices=6;
-% % %                     obj.inputs.columnLabel.displayChannels=7;
-% % %                     obj.inputs.columnLabel.measures=8;
-% % %                     obj.planTrials_totalTrials;
-% % %                     obj.planTrials_inputDevices;
-% % %                     obj.planTrials_outputDevices;
-% % %                     obj.planTrials_si;
-% % %                     obj.planTrials_iti;
-% % %                     obj.planTrials_measures;
-% % %                     obj.planTrials_displayChannels;
-% % %                     
-% % %             end
+            
+            obj.inputs.totalTrials=m;
+
+            %% preparing prepost stim time var
+%             obj.planTrials_scopePeriods;
+%% preparing the axes development at start
+% obj.pr.axesno=
+        end
+        function planTrials_scopePeriods(obj)
+            switch obj.app.par.hardware_settings.(obj.inputs.input_device).slct_device
+
+                case 1 % boss box
+                    % multiplying by 5 because the sampling rate is 5khz
+                    % and the time is in milieseconds
+                    obj.inputs.trials.sc_samples=((obj.inputs.prestim_scope_ext)+(obj.inputs.poststim_scope_ext))*5;
+                    obj.inputs.trials.sc_prepostsamples=(obj.inputs.prestim_scope_ext)*(-5);
+
+                case 2 % fieldtrip
+                    % http://www.fieldtriptoolbox.org/faq/how_should_i_get_started_with_the_fieldtrip_realtime_buffer/
+                case 3 %Future: input box
+                case 4  % simulated data
+                    obj.inputs.trials.sc_samples=((obj.inputs.prestim_scope_ext)+(obj.inputs.poststim_scope_ext))*5;
+                case 5 %Future: no input box is selected
+            end
+            
         end
         function planTrials_totalTrials(obj)
             %this has to be different for many measures therefore switch is
@@ -413,7 +514,7 @@ classdef best_toolbox < handle
             delete(instrfindall);
             switch obj.app.par.hardware_settings.(obj.inputs.output_device).slct_device
                 case 1 % pc controlled magven
-                    obj.boot_magven;
+                    obj.boot_magven.setAmplitude
                 case 2 % pc controlled magstim
                     obj.boot_magstim;
                 case 3 % pc controlled bistim
@@ -421,7 +522,7 @@ classdef best_toolbox < handle
                 case 4 % pc controlled rapid
                     obj.boot_rapid;
                 case 5 % boss box controlled magven
-                    obj.boot_magven;
+                    obj.boot_magven.setAmplitude
                     obj.boot_bossbox;
                 case 6% boss box controlled magstim
                     obj.boot_magstim;

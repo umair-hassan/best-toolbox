@@ -888,23 +888,23 @@ classdef BEST < handle
         end
         function pr_mep(obj)
             
-            ax_no=['ax' num2str(obj.pr.axesno)];
-
-            obj.pr.clab.(ax_no)=uix.Panel( 'Parent', obj.pr.grid, 'Padding', 5 ,'Units','normalized','Title', 'MEP Measurement','FontWeight','bold','FontSize',12,'TitlePosition','centertop' );
+            
+            obj.pr.clab.(obj.pr.axesno)=uix.Panel( 'Parent', obj.pr.grid, 'Padding', 5 ,'Units','normalized','Title', 'MEP Measurement','FontWeight','bold','FontSize',12,'TitlePosition','centertop' );
                         
-            mep1_vb=uix.VBox( 'Parent',  obj.pr.clab.(ax_no), 'Spacing', 5, 'Padding', 1  );
+            mep1_vb=uix.VBox( 'Parent',  obj.pr.clab.(obj.pr.axesno), 'Spacing', 5, 'Padding', 1  );
             
             mep1_r1 = uix.HBox( 'Parent', mep1_vb, 'Spacing', 5, 'Padding', 1  );
             uiextras.HBox( 'Parent', mep1_r1)
-            obj.pr.current_mep_label.(ax_no)=uicontrol( 'Style','text','Parent', mep1_r1,'String','Current MEP Amp','FontSize',11,'HorizontalAlignment','center','Units','normalized');
-            obj.pr.current_mep.(ax_no)=uicontrol( 'Style','edit','Parent', mep1_r1,'FontSize',11,'HorizontalAlignment','center','Units','normalized');
-            obj.pr.mean_mep_label.(ax_no)=uicontrol( 'Style','text','Parent', mep1_r1,'String','Mean MEP Amp','FontSize',11,'HorizontalAlignment','center','Units','normalized');
-            obj.pr.mean_mep.(ax_no)=uicontrol( 'Style','edit','Parent', mep1_r1,'FontSize',11,'HorizontalAlignment','center','Units','normalized');
+            obj.pr.current_mep_label.(obj.pr.axesno)=uicontrol( 'Style','text','Parent', mep1_r1,'String','Current MEP Amp','FontSize',11,'HorizontalAlignment','center','Units','normalized');
+            obj.pr.current_mep.(obj.pr.axesno)=uicontrol( 'Style','edit','Parent', mep1_r1,'FontSize',11,'HorizontalAlignment','center','Units','normalized');
+            obj.pr.mean_mep_label.(obj.pr.axesno)=uicontrol( 'Style','text','Parent', mep1_r1,'String','Mean MEP Amp','FontSize',11,'HorizontalAlignment','center','Units','normalized');
+            obj.pr.mean_mep.(obj.pr.axesno)=uicontrol( 'Style','edit','Parent', mep1_r1,'FontSize',11,'HorizontalAlignment','center','Units','normalized');
             uiextras.HBox( 'Parent', mep1_r1)
             set(mep1_r1,'Widths',[-0.3 130 70 130 70 -0.3])
 
             mep1_r2 = uix.HBox( 'Parent', mep1_vb, 'Spacing', 5, 'Padding', 1  );
-            obj.pr.ax.(ax_no)=axes( 'Parent',  mep1_r2,'Units','normalized');
+            axs=['ax' num2str(obj.pr.axesno)];
+            obj.pr.ax.(axs)=axes( 'Parent',  mep1_r2,'Units','normalized');
             set(mep1_vb,'Heights',[30 -10])
         end
         function pr_threshold(obj)
@@ -1633,10 +1633,9 @@ classdef BEST < handle
             
 obj.bst.inputs.factors={obj.bst.inputs.output_device,obj.bst.inputs.display_scopes,obj.bst.inputs.measure};
 obj.pr.axesno=numel(obj.bst.inputs.factors{1})*numel(obj.bst.inputs.factors{2});
-% obj.results_panel;
+obj.results_panel;
 obj.bst.factorizeConditions;
 obj.bst.planTrials;
-obj.results_panel;
             %             try
 %             obj.cb_menu_save;
             
