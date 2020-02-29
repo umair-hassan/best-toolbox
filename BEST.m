@@ -3733,7 +3733,7 @@ uicontrol( 'Style','text','Parent', obj.hw.vbox_leftpanel,'String','            
 %             uiextras.HBox( 'Parent', obj.hw.vbox_rightpanel)
 %             set(obj.hw.vbox_rightpanel,'Heights',[-2 -1 -2])
 obj.hw_input_neurone
-
+obj.hw.output.slct_device2=1; %interim setup
 
            set( obj.fig.main, 'Widths', [-1.15 -1.35 -2 0] ); 
         end
@@ -3747,7 +3747,7 @@ obj.hw_input_neurone
             
         end
         function cb_hw_vbox_rp_slct_device2(obj)
-            obj.hw.vbox_rp.slct_device2.Value
+            obj.hw.output.slct_device2=obj.hw.vbox_rp.slct_device2.Value;
             if (obj.hw.vbox_rp.slct_device2.Value<=4)
                 obj.hw_output_pc
             elseif(obj.hw.vbox_rp.slct_device2.Value>4)
@@ -3865,7 +3865,7 @@ obj.hw_input_neurone
             
             row1=uix.HBox( 'Parent', obj.hw.vbox_rightpanel, 'Spacing', 5, 'Padding', 5  );
             uicontrol( 'Style','text','Parent', row1,'String','Select Device','FontSize',12,'HorizontalAlignment','left','Units','normalized');
-            obj.hw.vbox_rp.slct_device2=uicontrol( 'Style','popupmenu','Parent', row1 ,'FontSize',11,'String',{'Host PC controlled MagVenture','Host PC controlled MagStim','Host PC controlled BiStim','Host PC controlled Rapid','BOSS Box controlled MagVenture','BOSS Box controlled MagStim','BOSS Box controlled BiStim','BOSS Box controlled Rapid'},'Callback',@(~,~)obj.cb_hw_vbox_rp_slct_device2,'Value',5);
+            obj.hw.vbox_rp.slct_device2=uicontrol( 'Style','popupmenu','Parent', row1 ,'FontSize',11,'String',{'Host PC controlled MagVenture','Host PC controlled MagStim','Host PC controlled BiStim','Host PC controlled Rapid','BOSS Box controlled MagVenture','BOSS Box controlled MagStim','BOSS Box controlled BiStim','BOSS Box controlled Rapid','Simulation'},'Callback',@(~,~)obj.cb_hw_vbox_rp_slct_device2,'Value',obj.hw.output.slct_device2);
             set(row1,'Widths',[200 -2]);
             
             
@@ -3912,7 +3912,7 @@ obj.hw_input_neurone
             
             row1=uix.HBox( 'Parent', obj.hw.vbox_rightpanel, 'Spacing', 5, 'Padding', 5  );
             uicontrol( 'Style','text','Parent', row1,'String','Select Device','FontSize',12,'HorizontalAlignment','left','Units','normalized');
-            obj.hw.vbox_rp.slct_device2=uicontrol( 'Style','popupmenu','Parent', row1 ,'FontSize',11,'String',{'Host PC controlled MagVenture','Host PC controlled MagStim','Host PC controlled BiStim','Host PC controlled Rapid','BOSS Box controlled MagVenture','BOSS Box controlled MagStim','BOSS Box controlled BiStim','BOSS Box controlled Rapid'},'Callback',@(~,~)obj.cb_hw_vbox_rp_slct_device2,'Value',1);
+            obj.hw.vbox_rp.slct_device2=uicontrol( 'Style','popupmenu','Parent', row1 ,'FontSize',11,'String',{'Host PC controlled MagVenture','Host PC controlled MagStim','Host PC controlled BiStim','Host PC controlled Rapid','BOSS Box controlled MagVenture','BOSS Box controlled MagStim','BOSS Box controlled BiStim','BOSS Box controlled Rapid','Simulation'},'Callback',@(~,~)obj.cb_hw_vbox_rp_slct_device2,'Value',obj.hw.output.slct_device2);
             set(row1,'Widths',[200 -2]);
             
             
@@ -3946,7 +3946,7 @@ obj.hw_input_neurone
                 switch obj.hw.vbox_rp.slct_device2.Value
                     case {1,2,3,4}
                         obj.cb_hw_output_pc_parsaving;
-                    case {5,6,7,8}
+                    case {5,6,7,8,9}
                         obj.cb_hw_output_neurone_parsaving;
                 end
             end
@@ -4046,7 +4046,7 @@ obj.hw_input_neurone
                     
                     obj.hw.vbox_rp.device_name.String=obj.par.hardware_settings.(slctd_output).device_name;
                     obj.hw.vbox_rp.comport.String=obj.par.hardware_settings.(slctd_output).comport;
-                case{5,6,7,8}
+                case{5,6,7,8,9}
                     obj.cb_hw_output_neurone_parsaving;
                     obj.hw_output_neurone;
                     obj.hw.device_type.listbox.Value=obj.par.hardware_settings.(slctd_output).device_type;

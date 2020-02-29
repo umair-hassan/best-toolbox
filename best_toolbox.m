@@ -334,6 +334,9 @@ obj.stimLoop
                             case 8% boss box controlled rapid
                                 obj.boot_rapid;
                                 obj.boot_bossbox;
+                            case 9 %simulation
+                                disp triggered
+                                
                         end
                     end
             end
@@ -374,6 +377,9 @@ obj.stimLoop
                     case 8% boss box controlled rapid
                         obj.boot_rapid;
                         obj.boot_bossbox;
+                    case 9 %simulation
+                        disp triggeredTHISONE
+                        tic;
                 end
             end
         end
@@ -636,6 +642,7 @@ ax
                 case 8% boss box controlled rapid
                     obj.boot_rapid;
                     obj.boot_bossbox;
+                case 9 %simulation
             end
         end
         function boot_magven(obj)
@@ -2370,7 +2377,7 @@ ylim auto
         end
         function boot_bb(obj)
             obj.bossbox=dbsp2('10.10.10.1');
-            
+
             
         end
         

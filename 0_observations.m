@@ -1,3 +1,6 @@
+make the limits up and down buttons in axes
+
+
 Improve the hardware configuration function and save its defaults so that entereis dont have to be uploaded regularly 
 
 
