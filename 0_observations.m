@@ -1,3 +1,31 @@
+Improve the hardware configuration function and save its defaults so that entereis dont have to be uploaded regularly 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 TODO List
 
 MAJOR BUGS:
