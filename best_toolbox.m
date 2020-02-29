@@ -403,11 +403,28 @@ obj.stimLoop
         
         function plotTrial(obj)
             for i=1:numel(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab})
-                ax=['ax' num2str(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.axesno}{1,i})];
+                obj.inputs.chLab_idx=i;
                 switch (obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.measures}{1,i})
                     case 'MEP_Measurement'
-                        axes(obj.app.pr.ax.(ax)), hold on,
-                        plot(obj.inputs.rawData.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,i}).data(obj.inputs.trial,:));
+                        % updating analytics panel
+                        obj.app.pr.current_totaltrial_no.String=(obj.inputs.totalTrials);
+                        obj.app.pr.current_trial.String=obj.inputs.trial;
+                        obj.app.pr.current_si.String=obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,1};
+                        obj.app.pr.current_iti.String=obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.iti};
+                        
+                        if(obj.inputs.trial==obj.inputs.totalTrials)
+                            obj.app.pr.next_totaltrial_no.String=obj.inputs.totalTrials;
+                            obj.app.pr.next_trial.String='Completed';
+                            obj.app.pr.next_si.String='Completed';
+                            obj.app.pr.next_iti.String='Completed';
+                        else
+                            obj.app.pr.next_totaltrial_no.String=obj.inputs.totalTrials;
+                            obj.app.pr.next_trial.String=obj.inputs.trial+1;
+                            obj.app.pr.next_si.String=obj.inputs.trialMat{obj.inputs.trial+1,obj.inputs.colLabel.si}{1,1};
+                            obj.app.pr.next_iti.String=obj.inputs.trialMat{obj.inputs.trial+1,obj.inputs.colLabel.iti};
+                        end
+                        
+                        obj.mep_plot
                         
                     case 'Motor Threshold Hunting'
                     case 'IOC'
@@ -416,6 +433,38 @@ obj.stimLoop
             end
         end
         
+        function mep_plot(obj)
+            %                         1. update analytics panel
+            %                         2. update graph
+            % 3. update local analytics
+            
+            ax=['ax' num2str(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.axesno}{1,obj.inputs.chLab_idx})];
+            axes(obj.app.pr.ax.(ax)), hold on,
+            switch obj.inputs.trial
+                case 1
+%                     xlims
+%                     xticks
+%                     ylim
+%                     yticks
+%                     xlabel
+%                     ylabel
+%                     grid
+ax
+                    obj.info.plt.(ax).current=plot(obj.inputs.rawData.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).data(obj.inputs.trial,:),'Color',[1 0 0],'LineWidth',2);
+                case 2
+                    delete(obj.info.plt.(ax).current)
+                    obj.info.plt.(ax).past=plot(obj.inputs.rawData.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).data(obj.inputs.trial-1,:),'Color',[0.75 0.75 0.75]);
+                    obj.info.plt.(ax).mean=plot(mean(obj.inputs.rawData.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).data(:,:)),'color',[0,0,0],'LineWidth',1.5);
+                    obj.info.plt.(ax).current=plot(obj.inputs.rawData.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).data(obj.inputs.trial,:),'Color',[1 0 0],'LineWidth',2);
+                otherwise
+                    delete(obj.info.plt.(ax).current)
+                    delete(obj.info.plt.(ax).mean)
+                    obj.info.plt.(ax).past=plot(obj.inputs.rawData.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).data(obj.inputs.trial-1,:),'Color',[0.75 0.75 0.75]);
+                    obj.info.plt.(ax).mean=plot(mean(obj.inputs.rawData.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).data(:,:)),'color',[0,0,0],'LineWidth',1.5);
+                    obj.info.plt.(ax).current=plot(obj.inputs.rawData.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).data(obj.inputs.trial,:),'Color',[1 0 0],'LineWidth',2);
+            end
+            
+        end
         function planTrials(obj)
             %% preparing trialMat
 
