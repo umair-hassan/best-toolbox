@@ -1,3 +1,39 @@
+make factorized conditions
+make the trial vector
+make the axes appearing as they should be
+make the scat plot and ioc fit functions
+make the mep stats function
+run it altogether
+
+
+proceed towards thresholding function
+
+
+
+display mean of last N and connect with the uimenu for last K mean
+move pause and stop over to the general analytics panel
+check the problem with first axes
+
+
+update the yaxis ticks when the lims are changed manualy
+
+Dayend: write pesudo code complete untill now
+
+uistack grid lines of motor threshold level to be top but lets see with real , baseline corrected data
+
+
+
+DONT STOP UNTILL ITS DONE AT THE LEVEL OF WHERE YOU LEFT IT (MEP, HOTSPOT, THRESHOLDING, IOC)
+
+
+
+
+
+
+
+
+
+
 Today: let there be a warning that there shouldnt be any 0 elements in this because, if any of ylim elements is zero then it would be problem in normalizing that, later on mouse gestures can be imlemented
 Today: the manual limits inputs dialogue box is stopping the background loop, make a func to create a figure and then put its button press callback to be executing the limits 
     
