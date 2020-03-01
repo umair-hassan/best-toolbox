@@ -917,6 +917,10 @@ obj.resultsPanel
 
             mep1_r2 = uix.HBox( 'Parent', mep1_vb, 'Spacing', 5, 'Padding', 1  );
             obj.pr.ax.(obj.pr.ax_no)=axes( 'Parent',  mep1_r2,'Units','normalized','uicontextmenu',ui_menu);
+            obj.pr.ax.(obj.pr.ax_no).YLim=[obj.bst.inputs.ylimMin obj.bst.inputs.ylimMax];
+
+
+
             set(mep1_vb,'Heights',[30 -10])
             
             
@@ -925,32 +929,31 @@ obj.resultsPanel
         function ymaxInc(obj,source,~)
             selectedAxes=source.Tag;
             current_ylim=obj.pr.ax.(selectedAxes).YLim(2);
-            obj.pr.ax.(selectedAxes).YLim(2)=current_ylim+250;
+            obj.pr.ax.(selectedAxes).YLim(2)=current_ylim*1.1; %10% normalized measure
         end
         function ymaxDec(obj,source,~)
             selectedAxes=source.Tag;
             current_ylim=obj.pr.ax.(selectedAxes).YLim(2);
-            obj.pr.ax.(selectedAxes).YLim(2)=current_ylim-250;
+            obj.pr.ax.(selectedAxes).YLim(2)=current_ylim*0.9;
         end
         function yminInc(obj,source,~)
             selectedAxes=source.Tag;
-            current_ylim=obj.pr.ax.(selectedAxes).YLim(1);
-            obj.pr.ax.(selectedAxes).YLim(2)=current_ylim+250;
+            current_ylim=obj.pr.ax.(selectedAxes).YLim(1)
+            obj.pr.ax.(selectedAxes).YLim(1)=current_ylim*1.1;
         end
         function yminDec(obj,source,~)
             selectedAxes=source.Tag;
             current_ylim=obj.pr.ax.(selectedAxes).YLim(1);
-            obj.pr.ax.(selectedAxes).YLim(2)=current_ylim-250;
+            obj.pr.ax.(selectedAxes).YLim(1)=current_ylim*0.9;
         end
         function ylims(obj,source,~)
             selectedAxes=source.Tag;
-            prompt = {'Y-axis mininium limit(\micro V):','Y-axis maximum limit (\micro V):'};
+            prompt = {'Y-axis mininium limit(micro Volts):','Y-axis maximum limit (micro Volts):'};
             dlgtitle = 'Insert Y-axis limits Manualy';
             dims = [1 40];
             definput = {num2str(obj.pr.ax.(selectedAxes).YLim(1)),num2str(obj.pr.ax.(selectedAxes).YLim(2))};
             answer = inputdlg(prompt,dlgtitle,dims,definput);
-            answer{1,1}
-            obj.pr.ax.(selectedAxes).YLim=[str2answer{1,1},answer{2,1}]
+            obj.pr.ax.(selectedAxes).YLim=[str2double(answer{1,1}),str2double(answer{2,1})];
         end
         function fontSize(obj,source,~)
         end

@@ -1,5 +1,8 @@
-if any of ylim elements is zero then it would be problem in normalizing that, later on mouse gestures can be imlemented
-
+Today: let there be a warning that there shouldnt be any 0 elements in this because, if any of ylim elements is zero then it would be problem in normalizing that, later on mouse gestures can be imlemented
+Today: the manual limits inputs dialogue box is stopping the background loop, make a func to create a figure and then put its button press callback to be executing the limits 
+    
+    
+    
 then make the timevector and then integerate it inside plot and then mark the xlim xticks ylim yticks etc 
 
 Improve the hardware configuration function and save its defaults so that entereis dont have to be uploaded regularly 

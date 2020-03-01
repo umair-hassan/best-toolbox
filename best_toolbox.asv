@@ -433,7 +433,8 @@ obj.stimLoop
                         end
                         
                         obj.mep_plot
-                        
+                        obj.mep_amp;
+                        obj.
                         
                     case 'Motor Threshold Hunting'
                     case 'IOC'
@@ -475,6 +476,7 @@ obj.stimLoop
                     obj.info.handle_gridxy_mt_lines=gridxy([],[-0.05*1000 0.05*1000],'Color',[0.45 0.45 0.45],'linewidth',1,'LineStyle','--') ;
                     uistack(obj.info.handle_gridxy_mt_lines,'top');
                     
+                    obj.mep_amp;
                     
 
 
@@ -491,9 +493,7 @@ obj.stimLoop
                     obj.info.plt.(ax).mean=plot(obj.inputs.timeVect,mean(obj.inputs.rawData.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).data(:,:)),'color',[0,0,0],'LineWidth',1.5);
                     obj.info.plt.(ax).current=plot(obj.inputs.timeVect,obj.inputs.rawData.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).data(obj.inputs.trial,:),'Color',[1 0 0],'LineWidth',2);
             end
-            obj.mep_amp;
-            obj.app.pr.current_mep.(ax).String=obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.mepamp};
-            obj.app.pr.mean_mep.(ax).String=obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.mepamp};
+            
         end
         function mep_amp(obj)
             maxx=max(obj.inputs.rawData.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).data(obj.inputs.trial,obj.inputs.mep_onset_samples:obj.inputs.mep_offset_samples));

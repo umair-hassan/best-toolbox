@@ -42,8 +42,8 @@ classdef BEST < handle
             obj.create_hwcfg_panel;
             %               obj.pi_ioc
 %             obj.results_panel;
-obj.pr.axesno=6;
-obj.resultsPanel
+% obj.pr.axesno=6;
+% obj.resultsPanel
             
         end
         function create_best_obj(obj)
@@ -917,6 +917,9 @@ obj.resultsPanel
 
             mep1_r2 = uix.HBox( 'Parent', mep1_vb, 'Spacing', 5, 'Padding', 1  );
             obj.pr.ax.(obj.pr.ax_no)=axes( 'Parent',  mep1_r2,'Units','normalized','uicontextmenu',ui_menu);
+
+
+
             set(mep1_vb,'Heights',[30 -10])
             
             
@@ -926,21 +929,33 @@ obj.resultsPanel
             selectedAxes=source.Tag;
             current_ylim=obj.pr.ax.(selectedAxes).YLim(2);
             obj.pr.ax.(selectedAxes).YLim(2)=current_ylim*1.1; %10% normalized measure
+            mat3=linspace(obj.pr.ax.(selectedAxes).YLim(1),obj.pr.ax.(selectedAxes).YLim(2),5);
+            mat4=unique(sort([0 mat3]));
+            yticks(obj.pr.ax.(selectedAxes),mat4);
         end
         function ymaxDec(obj,source,~)
             selectedAxes=source.Tag;
             current_ylim=obj.pr.ax.(selectedAxes).YLim(2);
             obj.pr.ax.(selectedAxes).YLim(2)=current_ylim*0.9;
+            mat3=linspace(obj.pr.ax.(selectedAxes).YLim(1),obj.pr.ax.(selectedAxes).YLim(2),5);
+            mat4=unique(sort([0 mat3]));
+            yticks(obj.pr.ax.(selectedAxes),mat4);
         end
         function yminInc(obj,source,~)
             selectedAxes=source.Tag;
             current_ylim=obj.pr.ax.(selectedAxes).YLim(1)
             obj.pr.ax.(selectedAxes).YLim(1)=current_ylim*1.1;
+            mat3=linspace(obj.pr.ax.(selectedAxes).YLim(1),obj.pr.ax.(selectedAxes).YLim(2),5);
+            mat4=unique(sort([0 mat3]));
+            yticks(obj.pr.ax.(selectedAxes),mat4);
         end
         function yminDec(obj,source,~)
             selectedAxes=source.Tag;
             current_ylim=obj.pr.ax.(selectedAxes).YLim(1);
             obj.pr.ax.(selectedAxes).YLim(1)=current_ylim*0.9;
+            mat3=linspace(obj.pr.ax.(selectedAxes).YLim(1),obj.pr.ax.(selectedAxes).YLim(2),5);
+            mat4=unique(sort([0 mat3]));
+            yticks(obj.pr.ax.(selectedAxes),mat4);
         end
         function ylims(obj,source,~)
             selectedAxes=source.Tag;
@@ -2166,7 +2181,8 @@ obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr
             obj.bst.inputs.prestim_scope_plt=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).prestim_scope_plt;
             obj.bst.inputs.poststim_scope_plt=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).poststim_scope_plt;
             obj.bst.inputs.trials=num2cell(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).trials_per_condition);
-            
+            obj.bst.inputs.ylimMax=500;
+            obj.bst.inputs.ylimMin=-500;
             obj.bst.best_hotspot;
             
             
