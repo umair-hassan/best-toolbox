@@ -230,9 +230,88 @@ classdef best_toolbox < handle
                      obj.inputs.condMat(i,obj.inputs.colLabel.iti)=(obj.inputs.iti(1,idx_iti));
                      obj.inputs.condMat(i,obj.inputs.colLabel.si)=(obj.inputs.stimuli(1,idx_si));
                      obj.inputs.condMat(i,obj.inputs.colLabel.chLab)={{targetChannels{1,idx_targetChannels}{1,:},obj.inputs.display_scopes{1,:}}};
-                     obj.inputs.condMat(i,obj.inputs.colLabel.axesno)={{targetChannels_ax{1,idx_targetChannels},displayChannels_ax{1,:}}};
+                     obj.inputs.condMat(i,obj.inputs.colLabel.axesno)={{targetChannels_ax{1,idx_targetChannels}{1,:},displayChannels_ax{1,:}}};
                      obj.inputs.condMat(i,obj.inputs.colLabel.measures)={{targetChannels_ax{1,idx_targetChannels}{1,:},displayChannels_ax{1,:}}};
-                     obj.inputs.condMat(i,obj.inputs.colLabel.stimMode)={{targetChannels_meas{1,idx_targetChannels}{1,:},displayChannels_meas{1,:}}};
+                     obj.inputs.condMat(i,obj.inputs.colLabel.stimMode)={{{'single_pulse'}}};
+
+
+                     if(idx_inputDevices>=numel(obj.inputs.input_device))
+                         idx_inputDevices=0;
+                     end
+                     if(idx_outputDevices>=numel(obj.inputs.output_device))
+                         idx_outputDevices=0;
+                     end
+                     if(idx_targetChannels>=numel(obj.inputs.target_muscle))
+                         idx_targetChannels=0;
+                     end
+                     if(idx_displayChannels>=numel(obj.inputs.display_scopes))
+                         idx_displayChannels=0;
+                     end
+                     if(idx_si>=numel(obj.inputs.stimuli))
+                         idx_si=0;
+                     end
+                     if(idx_iti>=numel(obj.inputs.iti))
+                         idx_iti=0;
+                     end
+                     if(idx_trials>=numel(obj.inputs.trials))
+                         idx_trials=0;
+                     end
+
+                  end
+              case 'IOC'
+                  obj.inputs.colLabel.inputDevices=1;
+                  obj.inputs.colLabel.outputDevices=2;
+                  obj.inputs.colLabel.si=3;
+                  obj.inputs.colLabel.iti=4;
+                  obj.inputs.colLabel.chLab=5;
+                  obj.inputs.colLabel.trials=9;
+                  obj.inputs.colLabel.axesno=6;
+                  obj.inputs.colLabel.measures=7;
+                  obj.inputs.colLabel.stimMode=8;
+                  
+                  targetChannels_meas=cell(1,numel(obj.inputs.target_muscle));
+                  targetChannels_meas(:)={{'MEP_Measurement','MEP Scatter Plot','IOC Fit'}}; % infact thsi would be a variable obj.inputs.targetMeasure 
+                  displayChannels_meas=cell(1,numel(obj.inputs.display_scopes));
+                  displayChannels_meas(:)=cellstr('MEP_Measurement');
+                  
+                  ax_id=0;
+                  for i=1:numel(obj.inputs.target_muscle)
+                  targetChannels_ax{1,i}=num2cell(ax_id+1:1:ax_id+3); % infact thsi would be a variable obj.inputs.targetMeasure
+%                   targetChannels{1,i}=num2cell(ax_id+1:1:ax_id+2);
+                  targetChannels{1,i}={obj.inputs.target_muscle{1,i},obj.inputs.target_muscle{1,i},obj.inputs.target_muscle{1,i}}
+                                        ax_id=ax_id+3;
+                                        
+                  end
+                  displayChannels_ax=num2cell(ax_id+1:1:ax_id+(numel(obj.inputs.display_scopes)));
+                  obj.app.pr.axesno=numel(targetChannels_ax)+numel(displayChannels_ax);
+                   %just store the iti as a string e.g. '[iti1 iti2]' and
+                  %then it can be evaluated for the randomized value
+                  obj.inputs.totalConds=numel(obj.inputs.stimuli)*numel(obj.inputs.target_muscle)*numel(obj.inputs.iti);
+                     idx_inputDevices=0;
+                     idx_outputDevices=0;
+                     idx_targetChannels=0;
+                     idx_displayChannels=0;
+                     idx_si=0;
+                     idx_iti=0;    
+                     idx_trials=0;
+                     obj.inputs.condMat=cell(obj.inputs.totalConds,9);
+                  for i=1:obj.inputs.totalConds
+                     idx_inputDevices=idx_inputDevices+1;
+                     idx_outputDevices=idx_outputDevices+1;
+                     idx_si=idx_si+1;
+                     idx_iti=idx_iti+1;
+                     idx_displayChannels=idx_displayChannels+1;
+                     idx_targetChannels=idx_targetChannels+1;
+                     idx_trials=idx_trials+1; 
+                     obj.inputs.condMat(i,obj.inputs.colLabel.inputDevices)=cellstr(obj.inputs.input_device(1,idx_inputDevices));
+                     obj.inputs.condMat(i,obj.inputs.colLabel.outputDevices)={{cellstr(obj.inputs.output_device(1,idx_outputDevices))}};
+                     obj.inputs.condMat(i,obj.inputs.colLabel.trials)=(obj.inputs.trials(1,idx_trials)); % may be a problem
+                     obj.inputs.condMat(i,obj.inputs.colLabel.iti)=(obj.inputs.iti(1,idx_iti));
+                     obj.inputs.condMat(i,obj.inputs.colLabel.si)={(obj.inputs.stimuli(1,idx_si))};
+                     obj.inputs.condMat(i,obj.inputs.colLabel.chLab)={{targetChannels{1,idx_targetChannels}{1,:},obj.inputs.display_scopes{1,:}}};
+                     obj.inputs.condMat(i,obj.inputs.colLabel.axesno)={{targetChannels_ax{1,idx_targetChannels}{1,:},displayChannels_ax{1,:}}};
+                     obj.inputs.condMat(i,obj.inputs.colLabel.measures)={{targetChannels_ax{1,idx_targetChannels}{1,:},displayChannels_ax{1,:}}};
+                     obj.inputs.condMat(i,obj.inputs.colLabel.stimMode)={{{'single_pulse'}}};
 
 
                      if(idx_inputDevices>=numel(obj.inputs.input_device))

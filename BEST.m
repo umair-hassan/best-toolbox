@@ -2635,7 +2635,8 @@ classdef BEST < handle
             obj.bst.inputs.trials=num2cell(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).trials_per_condition);
             obj.bst.inputs.ylimMax=5000;
             obj.bst.inputs.ylimMin=-5000;
-            obj.bst.best_ioc;
+%             obj.bst.best_ioc;
+obj.bst.factorizeConditions;
             
             
             %             OLD SCRIPT
