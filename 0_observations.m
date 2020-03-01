@@ -1,15 +1,15 @@
-make the limits up and down buttons in axes
+if any of ylim elements is zero then it would be problem in normalizing that, later on mouse gestures can be imlemented
 
+then make the timevector and then integerate it inside plot and then mark the xlim xticks ylim yticks etc 
 
 Improve the hardware configuration function and save its defaults so that entereis dont have to be uploaded regularly 
 
 
 
+Error handling of axes up down (if the max-min=25 microvolts then stop decreasing it further and show warning)
 
 
-
-
-
+use this link for DBSP https://www.mathworks.com/help/matlab/matlab_oop/example-using-events-to-update-graphs.html
 
 
 
@@ -182,7 +182,7 @@ numel(cell) e.g. numel({'APNR',1,'PN'} will give the number of elements in the c
 UI control Enable inactive allows to set the integers without even conversion to string and it has the same appearance as when Enable is set to 'on' but it is not operational, really helpful
 if t is a 1x1 array containing 1xn cells then string([t{:}]) would give you a 1xn strings and char would give 1xn chars and may be useful in future
 display table on command line just like the way is shown by EEGLAB using this command: T=cell2table(ans.bst.inputs.condMat)
-
+https://www.mathworks.com/help/matlab/ref/inputdlg.html
 
 
 -------------------old mep 
