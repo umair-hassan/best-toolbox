@@ -643,7 +643,7 @@ obj.stimLoop
                     obj.inputs.mep_offset_samples=obj.inputs.mep_offset*5000;
                     
                     switch char(obj.inputs.measure_str)%because not all will require MEPs to plot such as the intervention functions or multi stimulator paradigm so this is nec
-                        case {'MEP Measurement','Motor Hotspot Search','Motor Threshold Hunting','MEP IOC'}
+                        case {'MEP Measurement','Motor Hotspot Search','Motor Threshold Hunting','IOC'}
                             obj.inputs.timeVect=linspace(-1*(obj.inputs.prestim_scope_plt),obj.inputs.poststim_scope_plt,obj.inputs.sc_samples);
                         otherwise
                     end
