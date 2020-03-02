@@ -603,6 +603,31 @@ obj.stimLoop
             minn=min(obj.inputs.rawData.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).data(obj.inputs.trial,obj.inputs.mep_onset_samples:obj.inputs.mep_offset_samples));
             obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.mepamp}=(maxx-minn);
         end
+        function mep_scat_plot(obj)
+            ax=['ax' num2str(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.axesno}{1,obj.inputs.chLab_idx})];
+            axes(obj.app.pr.ax.(ax)), hold on,
+            ylim auto
+            switch obj.inputs.trial
+                case 1
+                    obj.info.plt.(ax).ioc_scatplot=plot(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,1},obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.mepamp},'o','Color','r','MarkerSize',8,'MarkerFaceColor','r');
+                    hold on;
+                    xlabel('Stimulation Intensities');   %TODO: Put if loop of RMT or MSO
+                    ylabel('MEP P2P Amplitude (\muV)');
+                    low=max(cell2mat(obj.inputs.stimuli))-10;
+                    up=min(cell2mat(obj.inputs.stimuli))+10;
+                    temp_str=unique(sort([obj.inputs.stimuli low up]));
+                    xlim([low up]);
+                    xticks(temp_str);
+                otherwise
+                    set(obj.info.plt.(ax).ioc_scatplot,'Color',[0.45 0.45 0.45],'MarkerSize',8,'MarkerFaceColor',[0.45 0.45 0.45])
+            end
+            
+            obj.info.plt.(ax).ioc_scatplot=plot(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,1},obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.mepamp},'o','MarkerSize',8,'Color','r','MarkerFaceColor','r');
+            hold on;
+            uistack(obj.info.plt.(ax).ioc_scatplot,'top')
+        end
+        function ioc_fit(obj)
+        end
         function planTrials(obj)
             %% preparing trialMat
 

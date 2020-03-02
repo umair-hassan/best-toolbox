@@ -116,7 +116,7 @@ classdef best_toolbox < handle
                   targetChannels_ax_meas(:)={{'MEP_Measurement'}}; % infact thsi would be a variable obj.inputs.targetMeasure 
                   displayChannels_ax_meas=cell(1,numel(obj.inputs.display_scopes));
                   displayChannels_ax_meas(:)=cellstr('MEP_Measurement');
-                  obj.app.pr.ax_measures={targetChannels_ax_meas{1,1}{1,:},displayChannels_ax_meas};
+                  obj.app.pr.ax_measures={targetChannels_ax_meas{1,:},displayChannels_ax_meas{1,:}};
                   
                   % making stimmode 
                   
@@ -280,31 +280,29 @@ classdef best_toolbox < handle
                   
                   % maing unique measurement flags for each of the axes 1xn
                   % cellstr stating the measuring indexed against axes no
-%                   targetChannels_ax_meas{1,1}{1,:}=cell(1,numel(obj.inputs.target_muscle));
-%                   targetChannels_ax_meas(:)={{{'MEP_Measurement','MEP Scatter Plot','IOC Fit'}}}; % infact thsi would be a variable obj.inputs.targetMeasure 
-targetChannels_ax_meas{1,:}=cell(1,numel(obj.inputs.target_muscle));                  
-for i=1:numel(obj.inputs.target_muscle)
-                  targetChannels_ax_meas{1,i}={'MEP_Measurement','MEP Scatter Plot','IOC Fit'};
+                  %                   targetChannels_ax_meas{1,1}{1,:}=cell(1,numel(obj.inputs.target_muscle));
+                  %                   targetChannels_ax_meas(:)={{{'MEP_Measurement','MEP Scatter Plot','IOC Fit'}}}; % infact thsi would be a variable obj.inputs.targetMeasure
+                  targetChannels_ax_meas{1,:}=cell(1,numel(obj.inputs.target_muscle));
+                  for i=1:numel(obj.inputs.target_muscle)
+                      targetChannels_ax_meas{1,i}={'MEP_Measurement','MEP Scatter Plot',' MEP IOC Fit'};
                   end
+                  targetChannels_ax_meas=horzcat(targetChannels_ax_meas{:});
                   displayChannels_ax_meas=cell(1,numel(obj.inputs.display_scopes));
                   displayChannels_ax_meas(:)=cellstr('MEP_Measurement');
-                  obj.app.pr.ax_measures={targetChannels_ax_meas{1,1}{1,:},displayChannels_ax_meas{1,:}};
-                  ax_measures={horzcat(targetChannels_ax_meas{1,:}),displayChannels_ax_meas{1,:}};
-                  ax_measures={ax_measures{1,1}{1,:},displayChannels_ax_meas{1,:}};
+                  obj.app.pr.ax_measures={targetChannels_ax_meas{1,:},displayChannels_ax_meas{1,:}};
                   
-                  ax_m1={cell2mat(horzcat(targetChannels_ax_meas{:})),displayChannels_ax_meas{1,:}}
                   
                   
                   targetChannels_meas=cell(1,numel(obj.inputs.target_muscle));
-                  targetChannels_meas(:)={{'MEP_Measurement','MEP Scatter Plot','IOC Fit'}}; % infact thsi would be a variable obj.inputs.targetMeasure 
+                  targetChannels_meas(:)={{'MEP_Measurement','MEP Scatter Plot','MEP IOC Fit'}}; % infact thsi would be a variable obj.inputs.targetMeasure
                   displayChannels_meas=cell(1,numel(obj.inputs.display_scopes));
                   displayChannels_meas(:)=cellstr('MEP_Measurement');
-                   
+                  
                   ax_id=0;
                   for i=1:numel(obj.inputs.target_muscle)
-                  targetChannels_ax{1,i}=num2cell(ax_id+1:1:ax_id+3); % infact thsi would be a variable obj.inputs.targetMeasure
-%                   targetChannels{1,i}=num2cell(ax_id+1:1:ax_id+2);
-                  targetChannels{1,i}={obj.inputs.target_muscle{1,i},obj.inputs.target_muscle{1,i},obj.inputs.target_muscle{1,i}}
+                      targetChannels_ax{1,i}=num2cell(ax_id+1:1:ax_id+3); % infact thsi would be a variable obj.inputs.targetMeasure
+                      %                   targetChannels{1,i}=num2cell(ax_id+1:1:ax_id+2);
+                      targetChannels{1,i}={obj.inputs.target_muscle{1,i},obj.inputs.target_muscle{1,i},obj.inputs.target_muscle{1,i}};
                                         ax_id=ax_id+3;
                                         
                   end
@@ -604,6 +602,62 @@ obj.stimLoop
             maxx=max(obj.inputs.rawData.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).data(obj.inputs.trial,obj.inputs.mep_onset_samples:obj.inputs.mep_offset_samples));
             minn=min(obj.inputs.rawData.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).data(obj.inputs.trial,obj.inputs.mep_onset_samples:obj.inputs.mep_offset_samples));
             obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.mepamp}=(maxx-minn);
+        end
+        function mep_scat_plot(obj)
+            ax=['ax' num2str(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.axesno}{1,obj.inputs.chLab_idx})];
+            axes(obj.app.pr.ax.(ax)), hold on,
+            ylim auto
+            switch obj.inputs.trial
+                case 1
+                    obj.info.plt.(ax).ioc_scatplot=plot(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,1},obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.mepamp},'o','Color','r','MarkerSize',8,'MarkerFaceColor','r');
+                    hold on;
+                    xlabel('Stimulation Intensities');   %TODO: Put if loop of RMT or MSO
+                    ylabel('MEP P2P Amplitude (\muV)');
+                    low=max(cell2mat(obj.inputs.stimuli))-10;
+                    up=min(cell2mat(obj.inputs.stimuli))+10;
+                    temp_str=unique(sort([obj.inputs.stimuli low up]));
+                    xlim([low up]);
+                    xticks(temp_str);
+                otherwise
+                    set(obj.info.plt.(ax).ioc_scatplot,'Color',[0.45 0.45 0.45],'MarkerSize',8,'MarkerFaceColor',[0.45 0.45 0.45])
+            end
+            
+            obj.info.plt.(ax).ioc_scatplot=plot(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).trials(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.trial_plotted,1),obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).trials(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.trial_plotted,4),'o','MarkerSize',8,'Color','r','MarkerFaceColor','r');
+            hold on;
+            uistack(obj.info.handles.ioc_scatplot,'top')
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            if(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.trial==1)
+                %   obj.info.handles.ioc_scatplot_fig=figure('name','IOC - MEP Amp Scatter Plot');
+                
+% % % % % % % % % % % % % % % %                 
+                
+                
+                %                 xticks(temp_str);
+                % Create title
+                % title({'IOC - MEP Amp Scatter Plot'},'FontWeight','bold','FontSize',14,'FontName','Calibri');
+                set(gcf, 'color', 'w')
+            end
+            % figure(obj.info.handles.ioc_scatplot_fig);
+            if (obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.trial>1)
+                set(obj.info.handles.ioc_scatplot,'Color',[0.45 0.45 0.45],'MarkerSize',8,'MarkerFaceColor',[0.45 0.45 0.45])
+            end
+            obj.info.handles.ioc_scatplot=plot(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).trials(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.trial_plotted,1),obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).trials(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.trial_plotted,4),'o','MarkerSize',8,'Color','r','MarkerFaceColor','r');
+            
+            hold on;
+            %             set(obj.info.handles.ioc_scatplot,'XData',obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).trials(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.trial_plotted,1),'YData',obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).trials(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.trial_plotted,4));
+            %             hold on;
+            uistack(obj.info.handles.ioc_scatplot,'top')
+        end
+        function ioc_fit(obj)
         end
         function planTrials(obj)
             %% preparing trialMat
