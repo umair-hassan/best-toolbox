@@ -756,81 +756,120 @@ classdef BEST < handle
             % mep ya threshold ye waghera bhi inteliggently decide kia ja
             % sakta he magr ye bad me kia ja sakta he filhal move on
             %             obj.pr.axesno=3;
-            
-            
-            
-            
-            
-            
-            
+            total_axesno=obj.pr.axesno;
             obj.pr_analytics;
+            obj.pr.grid=uiextras.GridFlex('Parent',obj.pr.row4, 'Spacing', 5 );
+
+            for i=1:total_axesno
+                obj.pr.axesno=i;
+                obj.pr.ax_measures{1,i}
+                switch char(obj.pr.ax_measures{1,i})
+                    case 'MEP_Measurement'
+                        obj.pr_mep;
+                    case 'MEP Scatter Plot'
+                    case 'MEP IOC FIT'
+                    case 'Threshold Trace'
+                    case 'Phase Histogram'
+                end
+                        
+            end
             switch obj.pr.axesno
                 case 1
-                    obj.pr.grid=uiextras.GridFlex('Parent',obj.pr.row4, 'Spacing', 5 );
-                    obj.pr.axesno='one';
-                    obj.pr_mep;
+                    
+                    obj.pr.grid.ColumnSizes=[-1];
                     
                     
                 case 2
-                    obj.pr.grid=uiextras.GridFlex('Parent',obj.pr.row4, 'Spacing', 5 );
-                    obj.pr.axesno=1;
-                    obj.pr_mep;
-                    obj.pr.axesno=2;
-                    obj.pr_mep;
+                    
                     obj.pr.grid.ColumnSizes=[-1 -1];
                 case 3
-                    obj.pr.grid=uiextras.GridFlex('Parent',obj.pr.row4, 'Spacing', 5 );
-                    obj.pr.axesno=1;
-                    obj.pr_mep;
-                    obj.pr.axesno=2;
-                    obj.pr_mep;
-                    obj.pr.axesno=3;
-                    obj.pr_mep;
+                    
                     obj.pr.grid.ColumnSizes=[-1 -1 -1];
                 case 4
-                    obj.pr.grid=uiextras.GridFlex('Parent',obj.pr.row4, 'Spacing', 5 );
-                    obj.pr.axesno=1;
-                    obj.pr_mep;
-                    obj.pr.axesno=2;
-                    obj.pr_mep;
-                    obj.pr.axesno=3;
-                    obj.pr_mep;
-                    obj.pr.axesno=4;
-                    obj.pr_mep;
+                    
                     obj.pr.grid.ColumnSizes=[-1 -1];
                     obj.pr.grid.RowSizes=[-1 -1];
                 case 5
-                    obj.pr.grid=uiextras.GridFlex('Parent',obj.pr.row4, 'Spacing', 5 );
-                    obj.pr.axesno=1;
-                    obj.pr_mep;
-                    obj.pr.axesno=2;
-                    obj.pr_mep;
-                    obj.pr.axesno=3;
-                    obj.pr_mep;
-                    obj.pr.axesno=4;
-                    obj.pr_mep;
-                    obj.pr.axesno=5;
-                    obj.pr_mep;
+                    
                     uiextras.HBox( 'Parent', obj.pr.grid)
                     obj.pr.grid.ColumnSizes=[-1 -1 -1];
                     obj.pr.grid.RowSizes=[-1 -1];
                 case 6
-                    obj.pr.grid=uiextras.GridFlex('Parent',obj.pr.row4, 'Spacing', 5 );
-                    obj.pr.axesno=1;
-                    obj.pr_mep;
-                    obj.pr.axesno=2;
-                    obj.pr_mep;
-                    obj.pr.axesno=3;
-                    obj.pr_mep;
-                    obj.pr.axesno=4;
-                    obj.pr_mep;
-                    obj.pr.axesno=5;
-                    obj.pr_mep;
-                    obj.pr.axesno=6;
-                    obj.pr_mep;
+                    
                     obj.pr.grid.ColumnSizes=[-1 -1 -1];
                     obj.pr.grid.RowSizes=[-1 -1];
             end
+            obj.pr.grid.ColumnSizes=-1*ones(1,obj.pr.axesno);
+%             OLD SCRIPT
+%             obj.pr_analytics;
+%             switch obj.pr.axesno
+%                 case 1
+%                     obj.pr.grid=uiextras.GridFlex('Parent',obj.pr.row4, 'Spacing', 5 );
+%                     obj.pr.axesno='one';
+%                     obj.pr_mep;
+%                     obj.pr.grid.ColumnSizes=[-1];
+%                     
+%                     
+%                 case 2
+%                     obj.pr.grid=uiextras.GridFlex('Parent',obj.pr.row4, 'Spacing', 5 );
+%                     obj.pr.axesno=1;
+%                     obj.pr_mep;
+%                     obj.pr.axesno=2;
+%                     obj.pr_mep;
+%                     obj.pr.grid.ColumnSizes=[-1 -1];
+%                 case 3
+%                     obj.pr.grid=uiextras.GridFlex('Parent',obj.pr.row4, 'Spacing', 5 );
+%                     obj.pr.axesno=1;
+%                     obj.pr_mep;
+%                     obj.pr.axesno=2;
+%                     obj.pr_mep;
+%                     obj.pr.axesno=3;
+%                     obj.pr_mep;
+%                     obj.pr.grid.ColumnSizes=[-1 -1 -1];
+%                 case 4
+%                     obj.pr.grid=uiextras.GridFlex('Parent',obj.pr.row4, 'Spacing', 5 );
+%                     obj.pr.axesno=1;
+%                     obj.pr_mep;
+%                     obj.pr.axesno=2;
+%                     obj.pr_mep;
+%                     obj.pr.axesno=3;
+%                     obj.pr_mep;
+%                     obj.pr.axesno=4;
+%                     obj.pr_mep;
+%                     obj.pr.grid.ColumnSizes=[-1 -1];
+%                     obj.pr.grid.RowSizes=[-1 -1];
+%                 case 5
+%                     obj.pr.grid=uiextras.GridFlex('Parent',obj.pr.row4, 'Spacing', 5 );
+%                     obj.pr.axesno=1;
+%                     obj.pr_mep;
+%                     obj.pr.axesno=2;
+%                     obj.pr_mep;
+%                     obj.pr.axesno=3;
+%                     obj.pr_mep;
+%                     obj.pr.axesno=4;
+%                     obj.pr_mep;
+%                     obj.pr.axesno=5;
+%                     obj.pr_mep;
+%                     uiextras.HBox( 'Parent', obj.pr.grid)
+%                     obj.pr.grid.ColumnSizes=[-1 -1 -1];
+%                     obj.pr.grid.RowSizes=[-1 -1];
+%                 case 6
+%                     obj.pr.grid=uiextras.GridFlex('Parent',obj.pr.row4, 'Spacing', 5 );
+%                     obj.pr.axesno=1;
+%                     obj.pr_mep;
+%                     obj.pr.axesno=2;
+%                     obj.pr_mep;
+%                     obj.pr.axesno=3;
+%                     obj.pr_mep;
+%                     obj.pr.axesno=4;
+%                     obj.pr_mep;
+%                     obj.pr.axesno=5;
+%                     obj.pr_mep;
+%                     obj.pr.axesno=6;
+%                     obj.pr_mep;
+%                     obj.pr.grid.ColumnSizes=[-1 -1 -1];
+%                     obj.pr.grid.RowSizes=[-1 -1];
+%             end
             
             
             
@@ -2635,7 +2674,8 @@ classdef BEST < handle
             obj.bst.inputs.trials=num2cell(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).trials_per_condition);
             obj.bst.inputs.ylimMax=5000;
             obj.bst.inputs.ylimMin=-5000;
-            obj.bst.best_ioc;
+%             obj.bst.best_ioc;
+obj.bst.factorizeConditions;
             
             
             %             OLD SCRIPT
@@ -5533,8 +5573,8 @@ function cb_pi_mt_run(obj)
             obj.info.defaults.units_mt=0;
             obj.info.defaults.mt=[];
             %             obj.info.defaults.mt_btn
-            obj.info.defaults.ylim_max=+5;
-            obj.info.defaults.ylim_min=-5000;
+            obj.info.defaults.ylim_max=+200;
+            obj.info.defaults.ylim_min=-200;
             obj.info.defaults.FontSize=14;
             obj.info.defaults.mt_mv=0.05;
             obj.info.defaults.thresholding_method=2;
@@ -5575,6 +5615,9 @@ function cb_pi_mt_run(obj)
             obj.par.(obj.info.event.current_session).(obj.info.event.measure_being_added)=obj.info.defaults;
 end
         function func_load_mt_ptc_par(obj)
+            obj.pi.mt_ptc.input_device.Value=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).input_device;
+            obj.pi.mt_ptc.output_device.Value= obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).output_device;
+            obj.pi.mt_ptc.display_scopes.String=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).display_scopes;
             obj.pi.mt_ptc.target_muscle.String=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).target_muscle;
             obj.pi.mt_ptc.mt_mv.String=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).mt_mv);
             obj.pi.mt_ptc.trials_per_condition.String=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).trials_per_condition;
@@ -5583,114 +5626,143 @@ end
             obj.pi.mt_ptc.iti.String=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).iti);
             obj.pi.mt_ptc.mep_onset.String=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).mep_onset;
             obj.pi.mt_ptc.mep_offset.String=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).mep_offset;
-            obj.pi.mt_ptc.prestim_scope_ext.String=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).prestim_scope_ext);
-            obj.pi.mt_ptc.poststim_scope_ext.String=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).poststim_scope_ext);
+%             obj.pi.mt_ptc.prestim_scope_ext.String=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).prestim_scope_ext);
+%             obj.pi.mt_ptc.poststim_scope_ext.String=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).poststim_scope_ext);
             obj.pi.mt_ptc.prestim_scope_plt.String=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).prestim_scope_plt);
             obj.pi.mt_ptc.poststim_scope_plt.String=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).poststim_scope_plt);
-            obj.pi.mt_ptc.ylim_max.String=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).ylim_max);
-            obj.pi.mt_ptc.ylim_min.String=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).ylim_min);
-            obj.pi.mt_ptc.FontSize.String=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).FontSize);
-            obj.pi.mt_ptc.trials_for_mean_annotation.String=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).trials_for_mean_annotation);
+%             obj.pi.mt_ptc.ylim_max.String=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).ylim_max);
+%             obj.pi.mt_ptc.ylim_min.String=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).ylim_min);
+%             obj.pi.mt_ptc.FontSize.String=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).FontSize);
+%             obj.pi.mt_ptc.trials_for_mean_annotation.String=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).trials_for_mean_annotation);
             obj.pi.mt_ptc.result_mt.String=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).result_mt);
             
             
             obj.pi.mt_ptc.run.Enable=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).runEnable;
             obj.pi.mt_ptc.target_muscle.Enable=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).target_muscleEnable;
             obj.pi.mt_ptc.mt_mv.Enable=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).mt_mvEnable;
-            obj.pi.mt_ptc.prestim_scope_ext.Enable=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).prestim_scope_extEnable;
-            obj.pi.mt_ptc.poststim_scope_ext.Enable=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).poststim_scope_extEnable;
-            obj.pi.mt_ptc.thresholding_method.Enable=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).thresholding_methodEnable;
+%             obj.pi.mt_ptc.prestim_scope_ext.Enable=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).prestim_scope_extEnable;
+%             obj.pi.mt_ptc.poststim_scope_ext.Enable=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).poststim_scope_extEnable;
+%             obj.pi.mt_ptc.thresholding_method.Enable=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).thresholding_methodEnable;
             obj.pi.mt_ptc.trials_per_condition.Enable=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).trials_per_conditionEnable;
             obj.pi.mt_ptc.mt_starting_stim_inten.Enable=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).mt_starting_stim_intenEnable;
-            
+             
         end
         function cb_pi_mt_ptc_run(obj)
-            obj.disable_listboxes
-            delete(obj.pr.mep.axes1)
-            delete(obj.pr.hotspot.axes1)
-            delete(obj.pr.mt.axes_mep)
-            delete(obj.pr.mt.axes_mtplot)
-            delete(obj.pr.ioc.axes_mep)
-            delete(obj.pr.ioc.axes_scatplot)
-            delete(obj.pr.ioc.axes_fitplot)
+            obj.bst.inputs.measure_str=cellstr('Motor Threshold Hunting');
+            obj.bst.inputs.input_device=obj.pi.ioc.input_device.String((obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).input_device));
+            obj.bst.inputs.output_device=obj.pi.ioc.output_device.String((obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).output_device));
+            obj.bst.inputs.target_muscle=eval(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).target_muscle);
+            obj.bst.inputs.display_scopes=eval(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).display_scopes);
+            obj.bst.inputs.stimuli=num2cell(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).stimulation_intensities);
+            if(numel(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).iti)==1 || numel(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).iti)>2)
+                obj.bst.inputs.iti=num2cell(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).iti);
+            else
+                obj.bst.inputs.iti={num2cell(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).iti)};
+            end
             
-            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).info.update_idx=0;
-            obj.pi.mt_ptc.thresholding_method.Enable='off';
-            obj.pi.mt_ptc.mt_mv.Enable='off';
-            obj.pi.mt_ptc.run.Enable='off';
-            obj.pi.mt_ptc.target_muscle.Enable='off';
-            obj.pi.mt_ptc.trials_per_condition.Enable='off';
-            obj.pi.mt_ptc.mt_starting_stim_inten.Enable='off';
-            obj.pi.mt_ptc.prestim_scope_ext.Enable='off';
-            obj.pi.mt_ptc.poststim_scope_ext.Enable='off';
+            obj.bst.inputs.trials=num2cell(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).trials_per_condition);
+            obj.bst.inputs.ylimMax=200;
+            obj.bst.inputs.ylimMin=-200;
             
-            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).runEnable=obj.pi.mt_ptc.run.Enable;
-            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).target_muscleEnable=obj.pi.mt_ptc.target_muscle.Enable;
-            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).mt_mvEnable=obj.pi.mt_ptc.mt_mv.Enable;
-            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).prestim_scope_extEnable=obj.pi.mt_ptc.prestim_scope_ext.Enable;
-            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).poststim_scope_extEnable=obj.pi.mt_ptc.poststim_scope_ext.Enable;
-            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).thresholding_methodEnable=obj.pi.mt_ptc.thresholding_method.Enable;
-            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).trials_per_conditionEnable=obj.pi.mt_ptc.trials_per_condition.Enable;
-            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).mt_starting_stim_intenEnable=obj.pi.mt_ptc.mt_starting_stim_inten.Enable;
             
-            obj.bst.inputs.current_session=obj.info.event.current_session;
-            obj.bst.inputs.current_measurement=obj.info.event.current_measure_fullstr;
             obj.bst.inputs.motor_threshold=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).mt_mv;
             obj.bst.inputs.mt_trialstoavg=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).trials_to_avg;
-            obj.bst.inputs.iti=(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).iti);
-            obj.bst.inputs.trials=(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).trials_per_condition);
+            
             obj.bst.inputs.mt_starting_stim_inten=(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).mt_starting_stim_inten);
             
             obj.bst.inputs.stim_mode='MSO';
             obj.bst.inputs.mep_onset=(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).mep_onset)/1000;
             obj.bst.inputs.mep_offset=(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).mep_offset)/1000;
-            obj.bst.inputs.prestim_scope_ext=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).prestim_scope_ext;
-            obj.bst.inputs.poststim_scope_ext=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).poststim_scope_ext;
+            
             obj.bst.inputs.prestim_scope_plt=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).prestim_scope_plt;
             obj.bst.inputs.poststim_scope_plt=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).poststim_scope_plt;
-            obj.bst.inputs.FontSize=(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).FontSize);
-            obj.bst.inputs.ylim_min=(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).ylim_min);
-            obj.bst.inputs.ylim_max=(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).ylim_max);
-            obj.bst.inputs.trials_for_mean_annotation=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).trials_for_mean_annotation;
-            obj.bst.inputs.reset_pressed=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).reset_pressed;
-            obj.bst.inputs.plot_reset_pressed=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).plot_reset_pressed;
-            obj.pr_mt;
-            obj.cb_menu_save;
-            
-            
-            obj.bst.best_motorthreshold_pest_tc;
-            obj.bst.sessions.(obj.bst.inputs.current_session).(obj.bst.inputs.current_measurement).results.mt
-            
-            obj.pi.mt_ptc.result_mt.String=num2str(obj.bst.sessions.(obj.bst.inputs.current_session).(obj.bst.inputs.current_measurement).results.mt);
-            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).stop_event=1;
-            obj.cb_pi_mt_ptc_result_mt
-            
-            if (obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).save_plt==1)
-                exp=obj.pmd.exp_title.editfield.String; exp(exp == ' ') = '_';
-                sub=obj.pmd.sub_code.editfield.String; sub(sub == ' ') = '_';
-                sess=obj.info.event.current_session;
-                meas=obj.info.event.current_measure_fullstr;
-                plt='MEP_Plot';
-                timestr=clock; times1=timestr(4);times2=timestr(5); time=[times1 times2]; time=num2str(time); time(time == ' ') = '_';
-                file_name=[exp '_' sub '_' sess '_' meas '_' plt '_' time];
-                figg=figure('Visible','off','CreateFcn','set(gcf,''Visible'',''on'')','Name',file_name,'NumberTitle','off');
-                copyobj(obj.pr.mt.axes_mep,figg)
-                set( gca, 'Units', 'normalized', 'Position', [0.2 0.2 0.7 0.7] );
-                saveas(figg,file_name,'fig');
-                close(figg)
-                
-                plt='MotorThreshold_Plot';
-                file_name=[exp '_' sub '_' sess '_' meas '_' plt '_' time];
-                figg=figure('Visible','off','CreateFcn','set(gcf,''Visible'',''on'')','Name',file_name,'NumberTitle','off');
-                copyobj(obj.pr.mt.axes_mtplot,figg)
-                set( gca, 'Units', 'normalized', 'Position', [0.2 0.2 0.7 0.7] );
-                saveas(figg,file_name,'fig');
-                close(figg)
-            end
-            obj.enable_listboxes
-            obj.cb_menu_save;
-            delete(sprintf('%s.mat',obj.bst.info.save_str_runtime));
-            
+            %             OLD SCRIPT
+            %             obj.disable_listboxes
+            %             delete(obj.pr.mep.axes1)
+            %             delete(obj.pr.hotspot.axes1)
+            %             delete(obj.pr.mt.axes_mep)
+            %             delete(obj.pr.mt.axes_mtplot)
+%             delete(obj.pr.ioc.axes_mep)
+%             delete(obj.pr.ioc.axes_scatplot)
+%             delete(obj.pr.ioc.axes_fitplot)
+%             
+%             obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).info.update_idx=0;
+%             obj.pi.mt_ptc.thresholding_method.Enable='off';
+%             obj.pi.mt_ptc.mt_mv.Enable='off';
+%             obj.pi.mt_ptc.run.Enable='off';
+%             obj.pi.mt_ptc.target_muscle.Enable='off';
+%             obj.pi.mt_ptc.trials_per_condition.Enable='off';
+%             obj.pi.mt_ptc.mt_starting_stim_inten.Enable='off';
+%             obj.pi.mt_ptc.prestim_scope_ext.Enable='off';
+%             obj.pi.mt_ptc.poststim_scope_ext.Enable='off';
+%             
+%             obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).runEnable=obj.pi.mt_ptc.run.Enable;
+%             obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).target_muscleEnable=obj.pi.mt_ptc.target_muscle.Enable;
+%             obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).mt_mvEnable=obj.pi.mt_ptc.mt_mv.Enable;
+%             obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).prestim_scope_extEnable=obj.pi.mt_ptc.prestim_scope_ext.Enable;
+%             obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).poststim_scope_extEnable=obj.pi.mt_ptc.poststim_scope_ext.Enable;
+%             obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).thresholding_methodEnable=obj.pi.mt_ptc.thresholding_method.Enable;
+%             obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).trials_per_conditionEnable=obj.pi.mt_ptc.trials_per_condition.Enable;
+%             obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).mt_starting_stim_intenEnable=obj.pi.mt_ptc.mt_starting_stim_inten.Enable;
+%             
+%             obj.bst.inputs.current_session=obj.info.event.current_session;
+%             obj.bst.inputs.current_measurement=obj.info.event.current_measure_fullstr;
+%             obj.bst.inputs.motor_threshold=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).mt_mv;
+%             obj.bst.inputs.mt_trialstoavg=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).trials_to_avg;
+%             obj.bst.inputs.iti=(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).iti);
+%             obj.bst.inputs.trials=(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).trials_per_condition);
+%             obj.bst.inputs.mt_starting_stim_inten=(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).mt_starting_stim_inten);
+%             
+%             obj.bst.inputs.stim_mode='MSO';
+%             obj.bst.inputs.mep_onset=(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).mep_onset)/1000;
+%             obj.bst.inputs.mep_offset=(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).mep_offset)/1000;
+%             obj.bst.inputs.prestim_scope_ext=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).prestim_scope_ext;
+%             obj.bst.inputs.poststim_scope_ext=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).poststim_scope_ext;
+%             obj.bst.inputs.prestim_scope_plt=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).prestim_scope_plt;
+%             obj.bst.inputs.poststim_scope_plt=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).poststim_scope_plt;
+%             obj.bst.inputs.FontSize=(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).FontSize);
+%             obj.bst.inputs.ylim_min=(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).ylim_min);
+%             obj.bst.inputs.ylim_max=(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).ylim_max);
+%             obj.bst.inputs.trials_for_mean_annotation=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).trials_for_mean_annotation;
+%             obj.bst.inputs.reset_pressed=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).reset_pressed;
+%             obj.bst.inputs.plot_reset_pressed=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).plot_reset_pressed;
+%             obj.pr_mt;
+%             obj.cb_menu_save;
+%             
+%             
+%             obj.bst.best_motorthreshold_pest_tc;
+%             obj.bst.sessions.(obj.bst.inputs.current_session).(obj.bst.inputs.current_measurement).results.mt
+%             
+%             obj.pi.mt_ptc.result_mt.String=num2str(obj.bst.sessions.(obj.bst.inputs.current_session).(obj.bst.inputs.current_measurement).results.mt);
+%             obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).stop_event=1;
+%             obj.cb_pi_mt_ptc_result_mt
+%             
+%             if (obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).save_plt==1)
+%                 exp=obj.pmd.exp_title.editfield.String; exp(exp == ' ') = '_';
+%                 sub=obj.pmd.sub_code.editfield.String; sub(sub == ' ') = '_';
+%                 sess=obj.info.event.current_session;
+%                 meas=obj.info.event.current_measure_fullstr;
+%                 plt='MEP_Plot';
+%                 timestr=clock; times1=timestr(4);times2=timestr(5); time=[times1 times2]; time=num2str(time); time(time == ' ') = '_';
+%                 file_name=[exp '_' sub '_' sess '_' meas '_' plt '_' time];
+%                 figg=figure('Visible','off','CreateFcn','set(gcf,''Visible'',''on'')','Name',file_name,'NumberTitle','off');
+%                 copyobj(obj.pr.mt.axes_mep,figg)
+%                 set( gca, 'Units', 'normalized', 'Position', [0.2 0.2 0.7 0.7] );
+%                 saveas(figg,file_name,'fig');
+%                 close(figg)
+%                 
+%                 plt='MotorThreshold_Plot';
+%                 file_name=[exp '_' sub '_' sess '_' meas '_' plt '_' time];
+%                 figg=figure('Visible','off','CreateFcn','set(gcf,''Visible'',''on'')','Name',file_name,'NumberTitle','off');
+%                 copyobj(obj.pr.mt.axes_mtplot,figg)
+%                 set( gca, 'Units', 'normalized', 'Position', [0.2 0.2 0.7 0.7] );
+%                 saveas(figg,file_name,'fig');
+%                 close(figg)
+%             end
+%             obj.enable_listboxes
+%             obj.cb_menu_save;
+%             delete(sprintf('%s.mat',obj.bst.info.save_str_runtime));
+%             
         end
         function cb_pi_mt_ptc_update(obj)
             session=obj.info.event.current_session
@@ -5787,6 +5859,19 @@ end
             obj.bst.sessions.(obj.bst.inputs.current_session).(obj.bst.inputs.current_measurement).info.handle_gridxy=gridxy([0 (obj.bst.inputs.mep_onset*1000):0.25:(obj.bst.inputs.mep_offset*1000)],'Color',[219/255 246/255 255/255],'linewidth',1) ;
             
             
+        end
+        function cb_pi_mt_ptc_input_device(obj)
+            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).input_device=obj.pi.mt_ptc.input_device.Value;
+            obj.pi.mt_ptc.input_device.Value
+            obj.pi.mt_ptc.input_device.String
+            obj.pi.mt_ptc.input_device.Value
+        end
+        function cb_pi_mt_ptc_output_device(obj)
+            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).output_device=obj.pi.mt_ptc.output_device.Value;
+            obj.pi.mt_ptc.output_device.Value
+        end
+        function cb_pi_mt_ptc_display_scopes(obj)
+            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).display_scopes=obj.pi.mt_ptc.display_scopes.String;
         end
         function cb_pi_mt_ptc_target_muscle(obj)
             obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).target_muscle=obj.pi.mt_ptc.target_muscle.String;
@@ -6172,8 +6257,12 @@ end
             end
         end
         
-        
-        
+%         function best_num2word(obj)
+%             switch obj.par.axesno
+%                 case 1
+%                     obj.par.axesno_word=
+%         end
+%         
     end
     
     %method end

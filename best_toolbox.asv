@@ -110,6 +110,14 @@ classdef best_toolbox < handle
                   displayChannels_meas=cell(1,numel(obj.inputs.display_scopes));
                   displayChannels_meas(:)=cellstr('MEP_Measurement');
                   
+                  % maing unique measurement flags for each of the axes 1xn
+                  % cellstr stating the measuring indexed against axes no
+                  targetChannels_ax_meas=cell(1,numel(obj.inputs.target_muscle));
+                  targetChannels_ax_meas(:)={{'MEP_Measurement'}}; % infact thsi would be a variable obj.inputs.targetMeasure 
+                  displayChannels_ax_meas=cell(1,numel(obj.inputs.display_scopes));
+                  displayChannels_ax_meas(:)=cellstr('MEP_Measurement');
+                  obj.app.pr.ax_measures={targetChannels_ax_meas{1,1}{1,:},displayChannels_ax_meas};
+                  
                   % making stimmode 
                   
                   
@@ -230,9 +238,9 @@ classdef best_toolbox < handle
                      obj.inputs.condMat(i,obj.inputs.colLabel.iti)=(obj.inputs.iti(1,idx_iti));
                      obj.inputs.condMat(i,obj.inputs.colLabel.si)=(obj.inputs.stimuli(1,idx_si));
                      obj.inputs.condMat(i,obj.inputs.colLabel.chLab)={{targetChannels{1,idx_targetChannels}{1,:},obj.inputs.display_scopes{1,:}}};
-                     obj.inputs.condMat(i,obj.inputs.colLabel.axesno)={{targetChannels_ax{1,idx_targetChannels},displayChannels_ax{1,:}}};
+                     obj.inputs.condMat(i,obj.inputs.colLabel.axesno)={{targetChannels_ax{1,idx_targetChannels}{1,:},displayChannels_ax{1,:}}};
                      obj.inputs.condMat(i,obj.inputs.colLabel.measures)={{targetChannels_ax{1,idx_targetChannels}{1,:},displayChannels_ax{1,:}}};
-                     obj.inputs.condMat(i,obj.inputs.colLabel.stimMode)={{targetChannels_meas{1,idx_targetChannels}{1,:},displayChannels_meas{1,:}}};
+                     obj.inputs.condMat(i,obj.inputs.colLabel.stimMode)={{{'single_pulse'}}};
 
 
                      if(idx_inputDevices>=numel(obj.inputs.input_device))
@@ -269,17 +277,35 @@ classdef best_toolbox < handle
                   obj.inputs.colLabel.measures=7;
                   obj.inputs.colLabel.stimMode=8;
                   
+                  
+                  % maing unique measurement flags for each of the axes 1xn
+                  % cellstr stating the measuring indexed against axes no
+%                   targetChannels_ax_meas{1,1}{1,:}=cell(1,numel(obj.inputs.target_muscle));
+%                   targetChannels_ax_meas(:)={{{'MEP_Measurement','MEP Scatter Plot','IOC Fit'}}}; % infact thsi would be a variable obj.inputs.targetMeasure 
+targetChannels_ax_meas{1,:}=cell(1,numel(obj.inputs.target_muscle));                  
+for i=1:numel(obj.inputs.target_muscle)
+                  targetChannels_ax_meas{1,i}={'MEP_Measurement','MEP Scatter Plot','IOC Fit'};
+                  end
+                  displayChannels_ax_meas=cell(1,numel(obj.inputs.display_scopes));
+                  displayChannels_ax_meas(:)=cellstr('MEP_Measurement');
+                  obj.app.pr.ax_measures={targetChannels_ax_meas{1,1}{1,:},displayChannels_ax_meas{1,:}};
+                  ax_measures={horzcat(targetChannels_ax_meas{1,:}),displayChannels_ax_meas{1,:}};
+                  ax_measures={ax_measures{1,1}{1,:},displayChannels_ax_meas{1,:}};
+                  
+                  ax_m1={cell2mat(horzcat(targetChannels_ax_meas{:})),displayChannels_ax_meas{1,:}}
+                  
+                  
                   targetChannels_meas=cell(1,numel(obj.inputs.target_muscle));
                   targetChannels_meas(:)={{'MEP_Measurement','MEP Scatter Plot','IOC Fit'}}; % infact thsi would be a variable obj.inputs.targetMeasure 
                   displayChannels_meas=cell(1,numel(obj.inputs.display_scopes));
                   displayChannels_meas(:)=cellstr('MEP_Measurement');
-                  
+                   
                   ax_id=0;
                   for i=1:numel(obj.inputs.target_muscle)
                   targetChannels_ax{1,i}=num2cell(ax_id+1:1:ax_id+3); % infact thsi would be a variable obj.inputs.targetMeasure
 %                   targetChannels{1,i}=num2cell(ax_id+1:1:ax_id+2);
-                  targetChannels{1,i}={obj.inputs.target_muscle{1,i},obj.inputs.target_muscle{1,i}}
-                                        ax_id=ax_id+2;
+                  targetChannels{1,i}={obj.inputs.target_muscle{1,i},obj.inputs.target_muscle{1,i},obj.inputs.target_muscle{1,i}}
+                                        ax_id=ax_id+3;
                                         
                   end
                   displayChannels_ax=num2cell(ax_id+1:1:ax_id+(numel(obj.inputs.display_scopes)));
@@ -304,14 +330,14 @@ classdef best_toolbox < handle
                      idx_targetChannels=idx_targetChannels+1;
                      idx_trials=idx_trials+1; 
                      obj.inputs.condMat(i,obj.inputs.colLabel.inputDevices)=cellstr(obj.inputs.input_device(1,idx_inputDevices));
-                     obj.inputs.condMat(i,obj.inputs.colLabel.outputDevices)={cellstr(obj.inputs.output_device(1,idx_outputDevices))};
+                     obj.inputs.condMat(i,obj.inputs.colLabel.outputDevices)={{cellstr(obj.inputs.output_device(1,idx_outputDevices))}};
                      obj.inputs.condMat(i,obj.inputs.colLabel.trials)=(obj.inputs.trials(1,idx_trials)); % may be a problem
                      obj.inputs.condMat(i,obj.inputs.colLabel.iti)=(obj.inputs.iti(1,idx_iti));
-                     obj.inputs.condMat(i,obj.inputs.colLabel.si)=(obj.inputs.stimuli(1,idx_si));
+                     obj.inputs.condMat(i,obj.inputs.colLabel.si)={(obj.inputs.stimuli(1,idx_si))};
                      obj.inputs.condMat(i,obj.inputs.colLabel.chLab)={{targetChannels{1,idx_targetChannels}{1,:},obj.inputs.display_scopes{1,:}}};
-                     obj.inputs.condMat(i,obj.inputs.colLabel.axesno)={{targetChannels_ax{1,idx_targetChannels},displayChannels_ax{1,:}}};
+                     obj.inputs.condMat(i,obj.inputs.colLabel.axesno)={{targetChannels_ax{1,idx_targetChannels}{1,:},displayChannels_ax{1,:}}};
                      obj.inputs.condMat(i,obj.inputs.colLabel.measures)={{targetChannels_ax{1,idx_targetChannels}{1,:},displayChannels_ax{1,:}}};
-                     obj.inputs.condMat(i,obj.inputs.colLabel.stimMode)={{targetChannels_meas{1,idx_targetChannels}{1,:},displayChannels_meas{1,:}}};
+                     obj.inputs.condMat(i,obj.inputs.colLabel.stimMode)={{{'single_pulse'}}};
 
 
                      if(idx_inputDevices>=numel(obj.inputs.input_device))
@@ -643,7 +669,7 @@ obj.stimLoop
                     obj.inputs.mep_offset_samples=obj.inputs.mep_offset*5000;
                     
                     switch char(obj.inputs.measure_str)%because not all will require MEPs to plot such as the intervention functions or multi stimulator paradigm so this is nec
-                        case {'MEP Measurement','Motor Hotspot Search','Motor Threshold Hunting','MEP IOC'}
+                        case {'MEP Measurement','Motor Hotspot Search','Motor Threshold Hunting','IOC'}
                             obj.inputs.timeVect=linspace(-1*(obj.inputs.prestim_scope_plt),obj.inputs.poststim_scope_plt,obj.inputs.sc_samples);
                         otherwise
                     end

@@ -110,6 +110,14 @@ classdef best_toolbox < handle
                   displayChannels_meas=cell(1,numel(obj.inputs.display_scopes));
                   displayChannels_meas(:)=cellstr('MEP_Measurement');
                   
+                  % maing unique measurement flags for each of the axes 1xn
+                  % cellstr stating the measuring indexed against axes no
+                  targetChannels_ax_meas=cell(1,numel(obj.inputs.target_muscle));
+                  targetChannels_ax_meas(:)={{'MEP_Measurement'}}; % infact thsi would be a variable obj.inputs.targetMeasure 
+                  displayChannels_ax_meas=cell(1,numel(obj.inputs.display_scopes));
+                  displayChannels_ax_meas(:)=cellstr('MEP_Measurement');
+                  obj.app.pr.ax_measures={targetChannels_ax_meas{1,:},displayChannels_ax_meas{1,:}};
+                  
                   % making stimmode 
                   
                   
@@ -269,16 +277,32 @@ classdef best_toolbox < handle
                   obj.inputs.colLabel.measures=7;
                   obj.inputs.colLabel.stimMode=8;
                   
+                  
+                  % maing unique measurement flags for each of the axes 1xn
+                  % cellstr stating the measuring indexed against axes no
+                  %                   targetChannels_ax_meas{1,1}{1,:}=cell(1,numel(obj.inputs.target_muscle));
+                  %                   targetChannels_ax_meas(:)={{{'MEP_Measurement','MEP Scatter Plot','IOC Fit'}}}; % infact thsi would be a variable obj.inputs.targetMeasure
+                  targetChannels_ax_meas{1,:}=cell(1,numel(obj.inputs.target_muscle));
+                  for i=1:numel(obj.inputs.target_muscle)
+                      targetChannels_ax_meas{1,i}={'MEP_Measurement','MEP Scatter Plot',' MEP IOC Fit'};
+                  end
+                  targetChannels_ax_meas=horzcat(targetChannels_ax_meas{:});
+                  displayChannels_ax_meas=cell(1,numel(obj.inputs.display_scopes));
+                  displayChannels_ax_meas(:)=cellstr('MEP_Measurement');
+                  obj.app.pr.ax_measures={targetChannels_ax_meas{1,:},displayChannels_ax_meas{1,:}};
+                  
+                  
+                  
                   targetChannels_meas=cell(1,numel(obj.inputs.target_muscle));
-                  targetChannels_meas(:)={{'MEP_Measurement','MEP Scatter Plot','IOC Fit'}}; % infact thsi would be a variable obj.inputs.targetMeasure 
+                  targetChannels_meas(:)={{'MEP_Measurement','MEP Scatter Plot','MEP IOC Fit'}}; % infact thsi would be a variable obj.inputs.targetMeasure
                   displayChannels_meas=cell(1,numel(obj.inputs.display_scopes));
                   displayChannels_meas(:)=cellstr('MEP_Measurement');
                   
                   ax_id=0;
                   for i=1:numel(obj.inputs.target_muscle)
-                  targetChannels_ax{1,i}=num2cell(ax_id+1:1:ax_id+3); % infact thsi would be a variable obj.inputs.targetMeasure
-%                   targetChannels{1,i}=num2cell(ax_id+1:1:ax_id+2);
-                  targetChannels{1,i}={obj.inputs.target_muscle{1,i},obj.inputs.target_muscle{1,i},obj.inputs.target_muscle{1,i}}
+                      targetChannels_ax{1,i}=num2cell(ax_id+1:1:ax_id+3); % infact thsi would be a variable obj.inputs.targetMeasure
+                      %                   targetChannels{1,i}=num2cell(ax_id+1:1:ax_id+2);
+                      targetChannels{1,i}={obj.inputs.target_muscle{1,i},obj.inputs.target_muscle{1,i},obj.inputs.target_muscle{1,i}};
                                         ax_id=ax_id+3;
                                         
                   end

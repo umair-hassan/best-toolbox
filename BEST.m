@@ -756,81 +756,113 @@ classdef BEST < handle
             % mep ya threshold ye waghera bhi inteliggently decide kia ja
             % sakta he magr ye bad me kia ja sakta he filhal move on
             %             obj.pr.axesno=3;
-            
-            
-            
-            
-            
-            
-            
+            total_axesno=obj.pr.axesno;
             obj.pr_analytics;
+            if(obj.pr.axesno>1)
+            obj.pr.grid=uiextras.GridFlex('Parent',obj.pr.row4, 'Spacing', 5 );
+            end
+
+            for i=1:total_axesno
+                obj.pr.axesno=i;
+                obj.pr.ax_measures{1,i}
+                switch char(obj.pr.ax_measures{1,i})
+                    case 'MEP_Measurement'
+                        obj.pr_mep;
+                    case 'MEP Scatter Plot'
+                    case 'MEP IOC FIT'
+                    case 'Threshold Trace'
+                    case 'Phase Histogram'
+                end
+                        
+            end
             switch obj.pr.axesno
                 case 1
-                    obj.pr.grid=uiextras.GridFlex('Parent',obj.pr.row4, 'Spacing', 5 );
-                    obj.pr.axesno='one';
-                    obj.pr_mep;
-                    
-                    
+%                     obj.pr.grid.ColumnSizes=[-1];
                 case 2
-                    obj.pr.grid=uiextras.GridFlex('Parent',obj.pr.row4, 'Spacing', 5 );
-                    obj.pr.axesno=1;
-                    obj.pr_mep;
-                    obj.pr.axesno=2;
-                    obj.pr_mep;
                     obj.pr.grid.ColumnSizes=[-1 -1];
                 case 3
-                    obj.pr.grid=uiextras.GridFlex('Parent',obj.pr.row4, 'Spacing', 5 );
-                    obj.pr.axesno=1;
-                    obj.pr_mep;
-                    obj.pr.axesno=2;
-                    obj.pr_mep;
-                    obj.pr.axesno=3;
-                    obj.pr_mep;
                     obj.pr.grid.ColumnSizes=[-1 -1 -1];
                 case 4
-                    obj.pr.grid=uiextras.GridFlex('Parent',obj.pr.row4, 'Spacing', 5 );
-                    obj.pr.axesno=1;
-                    obj.pr_mep;
-                    obj.pr.axesno=2;
-                    obj.pr_mep;
-                    obj.pr.axesno=3;
-                    obj.pr_mep;
-                    obj.pr.axesno=4;
-                    obj.pr_mep;
                     obj.pr.grid.ColumnSizes=[-1 -1];
                     obj.pr.grid.RowSizes=[-1 -1];
                 case 5
-                    obj.pr.grid=uiextras.GridFlex('Parent',obj.pr.row4, 'Spacing', 5 );
-                    obj.pr.axesno=1;
-                    obj.pr_mep;
-                    obj.pr.axesno=2;
-                    obj.pr_mep;
-                    obj.pr.axesno=3;
-                    obj.pr_mep;
-                    obj.pr.axesno=4;
-                    obj.pr_mep;
-                    obj.pr.axesno=5;
-                    obj.pr_mep;
                     uiextras.HBox( 'Parent', obj.pr.grid)
                     obj.pr.grid.ColumnSizes=[-1 -1 -1];
                     obj.pr.grid.RowSizes=[-1 -1];
                 case 6
-                    obj.pr.grid=uiextras.GridFlex('Parent',obj.pr.row4, 'Spacing', 5 );
-                    obj.pr.axesno=1;
-                    obj.pr_mep;
-                    obj.pr.axesno=2;
-                    obj.pr_mep;
-                    obj.pr.axesno=3;
-                    obj.pr_mep;
-                    obj.pr.axesno=4;
-                    obj.pr_mep;
-                    obj.pr.axesno=5;
-                    obj.pr_mep;
-                    obj.pr.axesno=6;
-                    obj.pr_mep;
                     obj.pr.grid.ColumnSizes=[-1 -1 -1];
                     obj.pr.grid.RowSizes=[-1 -1];
             end
+%             OLD SCRIPT
+%             obj.pr_analytics;
+%             switch obj.pr.axesno
+%                 case 1
+%                     obj.pr.grid=uiextras.GridFlex('Parent',obj.pr.row4, 'Spacing', 5 );
+%                     obj.pr.axesno='one';
+%                     obj.pr_mep;
+%                     obj.pr.grid.ColumnSizes=[-1];
+%                     
+%                     
+%                 case 2
+%                     obj.pr.grid=uiextras.GridFlex('Parent',obj.pr.row4, 'Spacing', 5 );
+%                     obj.pr.axesno=1;
+%                     obj.pr_mep;
+%                     obj.pr.axesno=2;
+%                     obj.pr_mep;
+%                     obj.pr.grid.ColumnSizes=[-1 -1];
+%                 case 3
+%                     obj.pr.grid=uiextras.GridFlex('Parent',obj.pr.row4, 'Spacing', 5 );
+%                     obj.pr.axesno=1;
+%                     obj.pr_mep;
+%                     obj.pr.axesno=2;
+%                     obj.pr_mep;
+%                     obj.pr.axesno=3;
+%                     obj.pr_mep;
+%                     obj.pr.grid.ColumnSizes=[-1 -1 -1];
+%                 case 4
+%                     obj.pr.grid=uiextras.GridFlex('Parent',obj.pr.row4, 'Spacing', 5 );
+%                     obj.pr.axesno=1;
+%                     obj.pr_mep;
+%                     obj.pr.axesno=2;
+%                     obj.pr_mep;
+%                     obj.pr.axesno=3;
+%                     obj.pr_mep;
+%                     obj.pr.axesno=4;
+%                     obj.pr_mep;
+%                     obj.pr.grid.ColumnSizes=[-1 -1];
+%                     obj.pr.grid.RowSizes=[-1 -1];
+%                 case 5
+%                     obj.pr.grid=uiextras.GridFlex('Parent',obj.pr.row4, 'Spacing', 5 );
+%                     obj.pr.axesno=1;
+%                     obj.pr_mep;
+%                     obj.pr.axesno=2;
+%                     obj.pr_mep;
+%                     obj.pr.axesno=3;
+%                     obj.pr_mep;
+%                     obj.pr.axesno=4;
+%                     obj.pr_mep;
+%                     obj.pr.axesno=5;
+%                     obj.pr_mep;
+%                     uiextras.HBox( 'Parent', obj.pr.grid)
+%                     obj.pr.grid.ColumnSizes=[-1 -1 -1];
+%                     obj.pr.grid.RowSizes=[-1 -1];
+%                 case 6
+%                     obj.pr.grid=uiextras.GridFlex('Parent',obj.pr.row4, 'Spacing', 5 );
+%                     obj.pr.axesno=1;
+%                     obj.pr_mep;
+%                     obj.pr.axesno=2;
+%                     obj.pr_mep;
+%                     obj.pr.axesno=3;
+%                     obj.pr_mep;
+%                     obj.pr.axesno=4;
+%                     obj.pr_mep;
+%                     obj.pr.axesno=5;
+%                     obj.pr_mep;
+%                     obj.pr.axesno=6;
+%                     obj.pr_mep;
+%                     obj.pr.grid.ColumnSizes=[-1 -1 -1];
+%                     obj.pr.grid.RowSizes=[-1 -1];
+%             end
             
             
             
@@ -894,7 +926,7 @@ classdef BEST < handle
         end
         function pr_mep(obj)
             obj.pr.ax_no=['ax' num2str(obj.pr.axesno)];
-            
+            obj.pr.ax_no
             ui_menu=uicontextmenu(obj.fig.handle);
             uimenu(ui_menu,'label','Y-axis Max limit Increase','Callback',@obj.ymaxInc,'Tag',obj.pr.ax_no);
             uimenu(ui_menu,'label','Y-axis Max limit Decrease','Callback',@obj.ymaxDec,'Tag',obj.pr.ax_no);
@@ -6218,8 +6250,12 @@ end
             end
         end
         
-        
-        
+%         function best_num2word(obj)
+%             switch obj.par.axesno
+%                 case 1
+%                     obj.par.axesno_word=
+%         end
+%         
     end
     
     %method end
