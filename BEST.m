@@ -956,7 +956,48 @@ classdef BEST < handle
             
             
         end
-        
+        function pr_scat_plot(obj)
+            obj.pr.ax_no=['ax' num2str(obj.pr.axesno)];
+            obj.pr.clab.(obj.pr.ax_no)=uix.Panel( 'Parent', obj.pr.grid, 'Padding', 5 ,'Units','normalized','Title', 'MEP Scatter Plot','FontWeight','bold','FontSize',12,'TitlePosition','centertop' );
+            mep1_vb=uix.VBox( 'Parent',  obj.pr.clab.(obj.pr.ax_no), 'Spacing', 5, 'Padding', 1  );
+            
+            mep1_r1 = uix.HBox( 'Parent', mep1_vb, 'Spacing', 5, 'Padding', 1  );
+            uiextras.HBox( 'Parent', mep1_r1)
+
+            mep1_r2 = uix.HBox( 'Parent', mep1_vb, 'Spacing', 5, 'Padding', 1  );
+            obj.pr.ax.(obj.pr.ax_no)=axes( 'Parent',  mep1_r2,'Units','normalized');
+            set(mep1_vb,'Heights',[30 -10])
+        end
+        function pr_fit_plot(obj)
+            obj.pr.ax_no=['ax' num2str(obj.pr.axesno)];
+            obj.pr.ax_no
+            ui_menu=uicontextmenu(obj.fig.handle);
+            uimenu(ui_menu,'label','Y-axis Max limit Increase','Callback',@obj.ymaxInc,'Tag',obj.pr.ax_no);
+            uimenu(ui_menu,'label','Y-axis Max limit Decrease','Callback',@obj.ymaxDec,'Tag',obj.pr.ax_no);
+            uimenu(ui_menu,'label','Y-axis Min limit Increase','Callback',@obj.yminInc,'Tag',obj.pr.ax_no);
+            uimenu(ui_menu,'label','Y-axis Min limit Decrease','Callback',@obj.yminDec,'Tag',obj.pr.ax_no);
+            uimenu(ui_menu,'label','Insert Y-axis limits mannualy','Callback',@obj.ylims,'Tag',obj.pr.ax_no);
+            uimenu(ui_menu,'label','Change Font Size','Callback',@(~,~)obj.fontSize,'Tag',obj.pr.ax_no);
+            
+            obj.pr.clab.(obj.pr.ax_no)=uix.Panel( 'Parent', obj.pr.grid, 'Padding', 5 ,'Units','normalized','Title', 'Input Output Curve','FontWeight','bold','FontSize',12,'TitlePosition','centertop' );
+            mep1_vb=uix.VBox( 'Parent',  obj.pr.clab.(obj.pr.ax_no), 'Spacing', 5, 'Padding', 1  );
+            
+            mep1_r1 = uix.HBox( 'Parent', mep1_vb, 'Spacing', 5, 'Padding', 1  );
+            uiextras.HBox( 'Parent', mep1_r1)
+            obj.pr.current_mep_label.(obj.pr.ax_no)=uicontrol( 'Style','text','Parent', mep1_r1,'String','Current MEP Amp','FontSize',11,'HorizontalAlignment','center','Units','normalized');
+            obj.pr.current_mep.(obj.pr.ax_no)=uicontrol( 'Style','edit','Parent', mep1_r1,'FontSize',11,'HorizontalAlignment','center','Units','normalized');
+            obj.pr.mean_mep_label.(obj.pr.ax_no)=uicontrol( 'Style','text','Parent', mep1_r1,'String','Mean MEP Amp','FontSize',11,'HorizontalAlignment','center','Units','normalized');
+            obj.pr.mean_mep.(obj.pr.ax_no)=uicontrol( 'Style','edit','Parent', mep1_r1,'FontSize',11,'HorizontalAlignment','center','Units','normalized');
+            uiextras.HBox( 'Parent', mep1_r1)
+            set(mep1_r1,'Widths',[-0.3 130 70 130 70 -0.3])
+            
+            mep1_r2 = uix.HBox( 'Parent', mep1_vb, 'Spacing', 5, 'Padding', 1  );
+            obj.pr.ax.(obj.pr.ax_no)=axes( 'Parent',  mep1_r2,'Units','normalized','uicontextmenu',ui_menu);
+            
+            
+            
+            set(mep1_vb,'Heights',[30 -10])
+        end
         function ymaxInc(obj,source,~)
             selectedAxes=source.Tag;
             current_ylim=obj.pr.ax.(selectedAxes).YLim(2);
