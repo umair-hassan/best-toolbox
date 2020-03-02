@@ -197,6 +197,7 @@ classdef best_toolbox < handle
                   obj.inputs.colLabel.axesno=6;
                   obj.inputs.colLabel.measures=7;
                   obj.inputs.colLabel.stimMode=8;
+                  obj.inputs.colLabel.mepamp=9;
                   
                   targetChannels_meas=cell(1,numel(obj.inputs.target_muscle));
                   targetChannels_meas(:)={{'MEP_Measurement','Threshold Trace'}}; % infact thsi would be a variable obj.inputs.targetMeasure 
@@ -276,6 +277,7 @@ classdef best_toolbox < handle
                   obj.inputs.colLabel.axesno=6;
                   obj.inputs.colLabel.measures=7;
                   obj.inputs.colLabel.stimMode=8;
+                  obj.inputs.colLabel.mepamp=9;
                   
                   
                   % maing unique measurement flags for each of the axes 1xn
@@ -552,12 +554,9 @@ classdef best_toolbox < handle
                     case 'IOC'
                     case 'Motor Hotspot Search'
                     case 'MEP Scatter Plot'
-                        disp MEPscat
                         obj.mep_scat_plot;
                     case 'MEP IOC Fit'
-                        disp MEPioc
                         obj.ioc_fit_plot;
-                        
                 end
             end
         end
@@ -741,9 +740,9 @@ obj.stimLoop
                     hold on;
                     xlabel('Stimulation Intensities');   %TODO: Put if loop of RMT or MSO
                     ylabel('MEP P2P Amplitude (\muV)');
-                    low=max(cell2mat(obj.inputs.stimuli))-10;
-                    up=min(cell2mat(obj.inputs.stimuli))+10;
-                    temp_str=unique(sort([obj.inputs.stimuli low up]));
+                    low=min(cell2mat(obj.inputs.stimuli))-10;
+                    up=max(cell2mat(obj.inputs.stimuli))+10;
+                    temp_str=unique(sort([cell2mat(obj.inputs.stimuli) low up]));
                     xlim([low up]);
                     xticks(temp_str);
                 otherwise
@@ -754,15 +753,232 @@ obj.stimLoop
             hold on;
             uistack(obj.info.plt.(ax).ioc_scatplot,'top')
         end
+        function mep_stats(obj)
+            ax=['ax' num2str(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.axesno}{1,obj.inputs.chLab_idx})];
+            si=0;
+            si=cell2mat(vertcat(obj.inputs.trialMat{:,obj.inputs.colLabel.si}));
+            mepamp=(vertcat(obj.inputs.trialMat{:,obj.inputs.colLabel.mepamp}));
+            
+            [si,ia,idx] = unique(si,'stable');
+            mep_median = accumarray(idx,mepamp,[],@median);
+            mep_mean = accumarray(idx,mepamp,[],@mean);
+            mep_std = accumarray(idx,mepamp,[],@std);
+            mep_min = accumarray(idx,mepamp,[],@min);
+            mep_max = accumarray(idx,mepamp,[],@max);
+            mep_var = accumarray(idx,mepamp,[],@var);
+            M=[si,mep_median,mep_mean,mep_std, mep_min, mep_max, mep_var];
+            M1 = M(randperm(size(M,1)),:,:,:,:,:,:);
+            
+            
+            obj.inputs.rawData.(ax).mep_stats(:,1)=M1(:,1); %Sampled SIs
+            obj.inputs.rawData.(ax).mep_stats(:,2)=M1(:,2); %Sampled Medians MEPs
+            obj.inputs.rawData.(ax).mep_stats(:,3)=M1(:,3); %Mean MEPs over trial
+            obj.inputs.rawData.(ax).mep_stats(:,4)=M1(:,4); %Std MEPs
+            obj.inputs.rawData.(ax).mep_stats(:,5)=M1(:,5); %Min of MEPs
+            obj.inputs.rawData.(ax).mep_stats(:,6)=M1(:,6); %Max of MEPs
+            obj.inputs.rawData.(ax).mep_stats(:,7)=M1(:,7); %Var of MEPs
+            obj.inputs.SI=obj.inputs.rawData.(ax).mep_stats(:,1);
+            obj.inputs.MEP=obj.inputs.rawData.(ax).mep_stats(:,2);
+            
+            obj.inputs.rawData.(ax).mep_stats(:,8)=(obj.inputs.rawData.(ax).mep_stats(:,4))/sqrt(numel(obj.inputs.rawData.(ax).mep_stats(:,4)));    %TODO: Make it modular by replacing 15 to # trials per intensity object value
+            obj.inputs.SEM=obj.inputs.rawData.(ax).mep_stats(:,8);
+            
+            
+        end
         function ioc_fit_plot(obj)
+            
+            if(obj.inputs.trial==obj.inputs.totalTrials)
+                obj.mep_stats;
             ax=['ax' num2str(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.axesno}{1,obj.inputs.chLab_idx})];
             axes(obj.app.pr.ax.(ax)), hold on,
-            plot(rand(1,500));
+%             plot(rand(1,500));
+obj.inputs.rawData.(ax)=0;
+            [SIData, MEPData] = prepareCurveData(obj.inputs.rawData.(ax).mep_stats(:,1) ,obj.inputs.rawData.(ax).mep_stats(:,2));
+            ft = fittype( 'MEPmax*SI^n/(SI^n+SI50^n)', 'independent', 'SI', 'dependent', 'MEP' );
+            %             ft = best_fittype( 'MEPmax*SI^n/(SI^n+SI50^n)', 'independent', 'SI', 'dependent', 'MEP' );
+            
+            %% Optimization of fit paramters;
+            
+            opts = fitoptions( ft );
+            opts.Display = 'Off';
+            opts.Lower = [0 0 0 ];
+            opts.StartPoint = [10 10 10];
+            opts.Upper = [Inf Inf Inf];
+            
+            %% Fit sigmoid model to data
+            
+            [obj.info.ioc.fitresult,obj.info.ioc.gof] = fit( SIData, MEPData, ft, opts);
+            %% Extract fitted curve points
+            
+            plot( obj.info.ioc.fitresult, SIData, MEPData);
+            
+            obj.info.handle.ioc_curve= get(gca,'Children');
+            x1lim=xlim
+            y1lim=ylim
+            
+            
+            
+            bg = gca; legend(bg,'off');
+            
+            
+            format short g
+            %% Inflection point (ip) detection on fitted curve
+            %             index_ip=find(abs(obj.curve(1).XData-obj.fitresult.SI50)<10^-1, 1, 'first');
+            %              obj.ip_x=obj.curve(1).XData(index_ip);
+            %             ip_y = obj.curve(1).YData(index_ip)
+            
+            [value_ip , index_ip] = min(abs(obj.info.handle.ioc_curve(1).XData-obj.info.ioc.fitresult.SI50));
+            obj.info.ip_x = obj.info.handle.ioc_curve(1).XData(index_ip);
+            ip_y = obj.info.handle.ioc_curve(1).YData(index_ip);
+            
+            %% Plateau (pt) detection on fitted curve
+            %             index_pt=find(abs(obj.curve(1).YData-obj.fitresult.MEPmax)<10^1, 1, 'first');
+            %             obj.pt_x=obj.curve(1).XData(index_pt);
+            %             pt_y=obj.curve(1).YData(index_pt);
+            %
+            [value_pt , index_pt] = min(abs(obj.info.handle.ioc_curve(1).YData-(0.993*(obj.info.ioc.fitresult.MEPmax) ) ) );   %99.3 % of MEP max %TODO: Test it with longer plateu
+            obj.info.pt_x=obj.info.handle.ioc_curve(1).XData(index_pt);
+            pt_y=obj.info.handle.ioc_curve(1).YData(index_pt);
+            
+            %% Threshold (th) detection on fitted curve
+            %             if(strcmp(obj.inputs.stim_mode,'MSO'))
+            %
+            %                     index_ip1=index_ip+2;
+            %                 ip1_x=obj.info.handle.ioc_curve(1).XData(index_ip1);
+            %                 ip1_y=obj.info.handle.ioc_curve(1).YData(index_ip1);
+            %                 % Calculating slope (m) using two-points equation
+            %                 m1=(ip1_y-ip_y)/(ip1_x-obj.info.ip_x)
+            %                 m=m1
+            %                 % Calculating threshold (th) using point-slope equation
+            %                 obj.info.th=obj.info.ip_x-(ip_y/m);
+            %             end
+            
+            [value_th , index_th] = min(abs(obj.info.handle.ioc_curve(1).YData-50 ) );   % change the 50 to be adaptive to what threshold in mV or microV is given
+            obj.info.th=obj.info.handle.ioc_curve(1).XData(index_th);
+            
+            
+            
+            
+            %% Creating plot
+            %         figure(4)
+            hold on;
+            h = plot( obj.info.ioc.fitresult, obj.inputs.SI, obj.inputs.MEP);
+            set(h(1), 'MarkerFaceColor',[0 0 0],'MarkerEdgeColor',[0 0 0],'Marker','square','LineStyle','none');
+            
+            % Plotting SEM on Curve points
+            errorbar(obj.inputs.SI, obj.inputs.MEP ,obj.inputs.SEM, 'o');
+            set(h(2),'LineWidth',2);
+            
+            % Create xlabel
+            xlabel(' Stimulation Intensity','FontSize',14,'FontName','Calibri');   %TODO: Put if loop of RMT or MSO
+            
+            % Create ylabel
+            ylabel('MEP Amplitude ( \mu V)','FontSize',14,'FontName','Calibri');
+            
+            
+            
+            % x & y ticks and labels
+            %             yticks(-1:0.5:10000);  % will have to be referneced with GUI
+            %             xticks(0:5:1000);    % will have to be referneced with GUI
+            
+            % Create title
+            title({'Input Output Curve'},'FontWeight','bold','FontSize',14,'FontName','Calibri');
+            set(gcf, 'color', 'w')
+            
+            
+            SI_min_point = (round(min(obj.inputs.SI)/5)*5)-5; % Referncing the dotted lines wrt to lowest 5ths of SI_min
+            % SI_min_point = 0;
+            seet=-0.5;
+            ylim_ioc=-500;
+            
+            
+            % Plotting Inflection point's horizontal & vertical dotted lines
+            % %             plot([obj.info.ip_x,SI_min_point],[ip_y,ip_y],'--','Color' , [0.75 0.75 0.75]);
+            % %             plot([obj.info.ip_x,obj.info.ip_x],[ip_y,seet],'--','Color' , [0.75 0.75 0.75]);
+            % %             legend_ip=plot(obj.info.ip_x,ip_y,'rs','MarkerSize',15);
+            
+            plot([obj.info.ip_x,min(xlim)],[ip_y,ip_y],'--','Color' , [0.75 0.75 0.75]);
+            plot([obj.info.ip_x,obj.info.ip_x],[ip_y,ylim_ioc],'--','Color' , [0.75 0.75 0.75]);
+            legend_ip=plot(obj.info.ip_x,ip_y,'rs','MarkerSize',15);
+            
+            
+            % Plotting Plateau's horizontal & vertical dotted lines
+            plot([obj.info.pt_x,min(xlim)],[pt_y,pt_y],'--','Color' , [0.75 0.75 0.75]); %xline
+            plot([obj.info.pt_x,obj.info.pt_x],[pt_y,ylim_ioc],'--','Color' , [0.75 0.75 0.75]);
+            legend_pt=plot(obj.info.pt_x,pt_y,'rd','MarkerSize',15);
+            
+            % Plotting Threshold's horizontal & vertical dotted lines
+            if(strcmp(obj.inputs.stim_mode,'MT'))
+                %% Creating legends
+                h_legend=[h(1); h(2); legend_ip;legend_pt];
+                %l=legend(h_legend, 'Amp(MEP) vs Stim. Inten', 'Sigmoid Fit', 'Inflection Point','Plateau');
+                %set(l,'Orientation','horizontal','Location', 'southoutside','FontSize',12);
+                
+                %% Creating Properties annotation box
+                
+                str_ip=['Inflection Point: ',num2str(obj.info.ip_x),' (%MT)',' , ',num2str(ip_y),' (\muV)'];
+                str_pt=['Plateau: ',num2str(obj.info.pt_x),' (%MT)',' , ',num2str(pt_y),' (\muV)'];
+                
+                
+                dim = [0.69 0.35 0 0];
+                str = {str_ip,[],str_pt};
+                annotation('textbox',dim,'String',str,'FitBoxToText','on','FontSize',12);
+            else
+                disp('error is here');
+                plot([obj.info.th,min(xlim)],[0.05,0.05],'--','Color' , [0.75 0.75 0.75]);
+                plot([obj.info.th,obj.info.th],[0.05,ylim_ioc],'--','Color' , [0.75 0.75 0.75]);
+                legend_th=plot(obj.info.th, 0.05,'r*','MarkerSize',15);
+                
+                
+                
+                %% Creating legends
+                h_legend=[h(1); h(2); legend_ip;legend_pt;legend_th];
+                %l=legend(h_legend, 'Amp(MEP) vs Stim. Inten', 'Sigmoid Fit', 'Inflection Point','Plateau','Threshold');
+                %set(l,'Orientation','horizontal','Location', 'southoutside','FontSize',12);
+                
+                %% Creating Properties annotation box
+                
+                str_ip=['Inflection Point: ',num2str(obj.info.ip_x),' (%MSO)',' , ',num2str(ip_y),' (\muV)'];
+                str_pt=['Plateau: ',num2str(obj.info.pt_x),' (%MSO)',' , ',num2str(pt_y),' (\muV)'];
+                str_th=['Thershold: ',num2str(obj.info.th),' (%MSO)',' , ', '0.05',' (\muV)'];
+                
+                dim = [0 0 0.5 0.5];
+                str = {str_ip,[],str_th,[],str_pt};
+                %                 annotation('textbox',dim,'String',str,'FitBoxToText','on','FontSize',12,'units','normalized');
+                
+            end
+            xlim
+            ylim([-500 Inf])
+            xticks
+            yticks
+            store2=get(gca,'YTick')
+            xticklabels
+            yticklabels
+            xlim([min(obj.inputs.SI)-5 max(obj.inputs.SI)+5]);
+            % %             store2=get(gca,'YTick')
+            %             xlim([min(xlim) (max(xlim)+5)])
+            %             y_limm=ylim
+            %             yt=yticks
+            %             xt=xticks
+            %             xl=xlim
+            text((max(xlim)-30), -200,str,'FontSize',12);
+            
+            bt = gca; legend(bt,'off');
+            box on; drawnow;
+            
+            % %             code for copying the axes from one fig to another fig
+            
+            % % % % % % %              f1 = figure('Units','normalized', 'Position', [0 0 0.8 0.8]); % Open a new figure with handle f1
+            % % % % % % % s = copyobj(obj.info.axes.ioc_second,f1)
+            
+            % set(gcf,'Visible', 'on');
+            end
         end
        
         function planTrials_scopePeriods(obj)
+                            disp enteredtimevect-------------
+
             switch obj.app.par.hardware_settings.(char(obj.inputs.input_device)).slct_device
-                
                 case 1 % boss box
                     % multiplying by 5 because the sampling rate is 5khz
                     % and the time is in milieseconds
@@ -772,9 +988,10 @@ obj.stimLoop
                     %onset, offset samples conversion to sampling rate
                     obj.inputs.mep_onset_samples=obj.inputs.mep_onset*5000;
                     obj.inputs.mep_offset_samples=obj.inputs.mep_offset*5000;
-                    
+                    disp enteredtimevect-------------
                     switch char(obj.inputs.measure_str)%because not all will require MEPs to plot such as the intervention functions or multi stimulator paradigm so this is nec
                         case {'MEP Measurement','Motor Hotspot Search','Motor Threshold Hunting','IOC'}
+                            disp enteredtimevect-------------
                             obj.inputs.timeVect=linspace(-1*(obj.inputs.prestim_scope_plt),obj.inputs.poststim_scope_plt,obj.inputs.sc_samples);
                         otherwise
                     end
