@@ -759,7 +759,7 @@ classdef BEST < handle
             total_axesno=obj.pr.axesno;
             obj.pr_analytics;
             if(obj.pr.axesno>1)
-            obj.pr.grid=uiextras.GridFlex('Parent',obj.pr.row4, 'Spacing', 5 );
+            obj.pr.grid=uiextras.GridFlex('Parent',obj.pr.row4, 'Spacing', 1 );
             end
 
             for i=1:total_axesno
@@ -769,7 +769,10 @@ classdef BEST < handle
                     case 'MEP_Measurement'
                         obj.pr_mep;
                     case 'MEP Scatter Plot'
-                    case 'MEP IOC FIT'
+                        disp enteredSCATTTTTTTTPLOT
+                        obj.pr_scat_plot;
+                    case 'MEP IOC Fit'
+                        obj.pr_fit_plot;
                     case 'Threshold Trace'
                     case 'Phase Histogram'
                 end
@@ -793,80 +796,6 @@ classdef BEST < handle
                     obj.pr.grid.ColumnSizes=[-1 -1 -1];
                     obj.pr.grid.RowSizes=[-1 -1];
             end
-%             OLD SCRIPT
-%             obj.pr_analytics;
-%             switch obj.pr.axesno
-%                 case 1
-%                     obj.pr.grid=uiextras.GridFlex('Parent',obj.pr.row4, 'Spacing', 5 );
-%                     obj.pr.axesno='one';
-%                     obj.pr_mep;
-%                     obj.pr.grid.ColumnSizes=[-1];
-%                     
-%                     
-%                 case 2
-%                     obj.pr.grid=uiextras.GridFlex('Parent',obj.pr.row4, 'Spacing', 5 );
-%                     obj.pr.axesno=1;
-%                     obj.pr_mep;
-%                     obj.pr.axesno=2;
-%                     obj.pr_mep;
-%                     obj.pr.grid.ColumnSizes=[-1 -1];
-%                 case 3
-%                     obj.pr.grid=uiextras.GridFlex('Parent',obj.pr.row4, 'Spacing', 5 );
-%                     obj.pr.axesno=1;
-%                     obj.pr_mep;
-%                     obj.pr.axesno=2;
-%                     obj.pr_mep;
-%                     obj.pr.axesno=3;
-%                     obj.pr_mep;
-%                     obj.pr.grid.ColumnSizes=[-1 -1 -1];
-%                 case 4
-%                     obj.pr.grid=uiextras.GridFlex('Parent',obj.pr.row4, 'Spacing', 5 );
-%                     obj.pr.axesno=1;
-%                     obj.pr_mep;
-%                     obj.pr.axesno=2;
-%                     obj.pr_mep;
-%                     obj.pr.axesno=3;
-%                     obj.pr_mep;
-%                     obj.pr.axesno=4;
-%                     obj.pr_mep;
-%                     obj.pr.grid.ColumnSizes=[-1 -1];
-%                     obj.pr.grid.RowSizes=[-1 -1];
-%                 case 5
-%                     obj.pr.grid=uiextras.GridFlex('Parent',obj.pr.row4, 'Spacing', 5 );
-%                     obj.pr.axesno=1;
-%                     obj.pr_mep;
-%                     obj.pr.axesno=2;
-%                     obj.pr_mep;
-%                     obj.pr.axesno=3;
-%                     obj.pr_mep;
-%                     obj.pr.axesno=4;
-%                     obj.pr_mep;
-%                     obj.pr.axesno=5;
-%                     obj.pr_mep;
-%                     uiextras.HBox( 'Parent', obj.pr.grid)
-%                     obj.pr.grid.ColumnSizes=[-1 -1 -1];
-%                     obj.pr.grid.RowSizes=[-1 -1];
-%                 case 6
-%                     obj.pr.grid=uiextras.GridFlex('Parent',obj.pr.row4, 'Spacing', 5 );
-%                     obj.pr.axesno=1;
-%                     obj.pr_mep;
-%                     obj.pr.axesno=2;
-%                     obj.pr_mep;
-%                     obj.pr.axesno=3;
-%                     obj.pr_mep;
-%                     obj.pr.axesno=4;
-%                     obj.pr_mep;
-%                     obj.pr.axesno=5;
-%                     obj.pr_mep;
-%                     obj.pr.axesno=6;
-%                     obj.pr_mep;
-%                     obj.pr.grid.ColumnSizes=[-1 -1 -1];
-%                     obj.pr.grid.RowSizes=[-1 -1];
-%             end
-            
-            
-            
-            
         end
         function pr_analytics(obj)
             %FUTURE: each of dusplay module (MEP, Thresholding, IOC, PP
@@ -2708,8 +2637,8 @@ classdef BEST < handle
             obj.bst.inputs.trials=num2cell(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).trials_per_condition);
             obj.bst.inputs.ylimMax=5000;
             obj.bst.inputs.ylimMin=-5000;
-%             obj.bst.best_ioc;
-obj.bst.factorizeConditions;
+            obj.bst.best_ioc;
+% best_ioc
             
             
             %             OLD SCRIPT

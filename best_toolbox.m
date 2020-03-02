@@ -197,6 +197,7 @@ classdef best_toolbox < handle
                   obj.inputs.colLabel.axesno=6;
                   obj.inputs.colLabel.measures=7;
                   obj.inputs.colLabel.stimMode=8;
+                  obj.inputs.colLabel.mepamp=9;
                   
                   targetChannels_meas=cell(1,numel(obj.inputs.target_muscle));
                   targetChannels_meas(:)={{'MEP_Measurement','Threshold Trace'}}; % infact thsi would be a variable obj.inputs.targetMeasure 
@@ -276,6 +277,7 @@ classdef best_toolbox < handle
                   obj.inputs.colLabel.axesno=6;
                   obj.inputs.colLabel.measures=7;
                   obj.inputs.colLabel.stimMode=8;
+                  obj.inputs.colLabel.mepamp=9;
                   
                   
                   % maing unique measurement flags for each of the axes 1xn
@@ -284,7 +286,7 @@ classdef best_toolbox < handle
                   %                   targetChannels_ax_meas(:)={{{'MEP_Measurement','MEP Scatter Plot','IOC Fit'}}}; % infact thsi would be a variable obj.inputs.targetMeasure
                   targetChannels_ax_meas{1,:}=cell(1,numel(obj.inputs.target_muscle));
                   for i=1:numel(obj.inputs.target_muscle)
-                      targetChannels_ax_meas{1,i}={'MEP_Measurement','MEP Scatter Plot',' MEP IOC Fit'};
+                      targetChannels_ax_meas{1,i}={'MEP_Measurement','MEP Scatter Plot','MEP IOC Fit'};
                   end
                   targetChannels_ax_meas=horzcat(targetChannels_ax_meas{:});
                   displayChannels_ax_meas=cell(1,numel(obj.inputs.display_scopes));
@@ -307,7 +309,8 @@ classdef best_toolbox < handle
                                         
                   end
                   displayChannels_ax=num2cell(ax_id+1:1:ax_id+(numel(obj.inputs.display_scopes)));
-                  obj.app.pr.axesno=numel(targetChannels_ax)+numel(displayChannels_ax);
+                  obj.app.pr.axesno=ax_id+numel(displayChannels_ax);
+                  aa=ax_id+numel(displayChannels_ax{1,:})
                    %just store the iti as a string e.g. '[iti1 iti2]' and
                   %then it can be evaluated for the randomized value
                   obj.inputs.totalConds=numel(obj.inputs.stimuli)*numel(obj.inputs.target_muscle)*numel(obj.inputs.iti);
@@ -334,7 +337,7 @@ classdef best_toolbox < handle
                      obj.inputs.condMat(i,obj.inputs.colLabel.si)={(obj.inputs.stimuli(1,idx_si))};
                      obj.inputs.condMat(i,obj.inputs.colLabel.chLab)={{targetChannels{1,idx_targetChannels}{1,:},obj.inputs.display_scopes{1,:}}};
                      obj.inputs.condMat(i,obj.inputs.colLabel.axesno)={{targetChannels_ax{1,idx_targetChannels}{1,:},displayChannels_ax{1,:}}};
-                     obj.inputs.condMat(i,obj.inputs.colLabel.measures)={{targetChannels_ax{1,idx_targetChannels}{1,:},displayChannels_ax{1,:}}};
+                     obj.inputs.condMat(i,obj.inputs.colLabel.measures)={{targetChannels_meas{1,idx_targetChannels}{1,:},displayChannels_meas{1,:}}};
                      obj.inputs.condMat(i,obj.inputs.colLabel.stimMode)={{{'single_pulse'}}};
 
 
@@ -364,43 +367,199 @@ classdef best_toolbox < handle
           end
           
         end
-        function best_mep(obj)
-            obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs=obj.inputs;
-            obj.factorizeConditions
-            obj.planTrials
-            obj.app.resultsPanel; 
-            obj.boot_inputdevice;
-            obj.boot_outputdevice;
-            obj.bootTrial;
-            for tt=1:obj.inputs.totalTrials
-            obj.trigTrial;
-            obj.readTrial;
-            obj.plotTrial;
-            obj.prepTrial;
-            pause(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.iti}-toc)
+        
+        
+        function planTrials(obj)
+            %% preparing trialMat
+            
+            obj.inputs.totalConds
+            for i=1:obj.inputs.totalConds
+                cond_id(i,:)=ones(1,cell2mat(obj.inputs.condMat(i,obj.inputs.colLabel.trials)))*i;
+            end
+            [~,id]=sort(sum(cond_id,2),'descend');
+            cond_id=cond_id(id,:);
+            [~,n]=size(cond_id);
+            randomVect_numel=0;
+            for i=1:n
+                randVect=cond_id(:,i);
+                randVect=randVect(randperm(numel(randVect)));
+                randomVect(randomVect_numel+1:randomVect_numel+numel(randVect),1)=randVect;
+                randomVect_numel=numel(randomVect);
+                
+            end
+            for i=1:numel(randomVect)
+                obj.inputs.trialMat(i,:)=obj.inputs.condMat(randomVect(i,1),:);
+            end
+            %% preparing ITI
+            if(iscell(obj.inputs.iti{1,1}))
+                [m,~]=size(obj.inputs.trialMat);
+                for i=1:m
+                    iti=obj.inputs.trialMat(i,obj.inputs.colLabel.iti);
+                    obj.inputs.trialMat(i,obj.inputs.colLabel.iti)=num2cell(round((iti{1,1}{1,1}+(iti{1,1}{1,2}-iti{1,1}{1,1} ).* rand(1,1)),3));
+                end
+            end
+            
+            obj.inputs.totalTrials=m;
+            
+            %% preparing prepost stim time var and timeVector
+            obj.planTrials_scopePeriods;
+            %% preparing the timevector for meps
+            %                 case {'MEP_Measurement','Motor Hotspot Search','Motor Threshold Hunting','MEP IOC'}
+            %                     switch obj.app.par.hardware_settings.(char(obj.inputs.input_device)).slct_device
+            %                         case 1 % boss box
+            %                             mep_plot_time_vector=1:obj.inputs.sc_plot_total
+            %                             mep_plot_time_vector=mep_plot_time_vector*5 %because sampling rate is 5khz and time to be in ms
+            %                             obj.inputs.timeVect=mep_plot_time_vector+(((-1)*obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.sc_plot_first)/(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.sc_samplingrate)*1000)
+            %                         case 2 % fieldtrip
+            %                             % http://www.fieldtriptoolbox.org/faq/how_should_i_get_started_with_the_fieldtrip_realtime_buffer/
+            %                         case 3 %Future: input box
+            %                         case 4  %s
+            %                     end
+            %
+            %                 otherwise
+            %             end
+        end
+        function boot_inputdevice(obj)
+            switch obj.app.par.hardware_settings.(char(obj.inputs.input_device)).slct_device
+                case 1 % boss box
+                    % do nothing as mainly the output will automatically
+                    % bot it
+                case 2 % fieldtrip
+                    % http://www.fieldtriptoolbox.org/faq/how_should_i_get_started_with_the_fieldtrip_realtime_buffer/
+                case 3 %Future: input box
+                case 4  %Future: no input box is selected
             end
         end
-        function best_hotspot(obj)
-            obj.factorizeConditions
-            obj.planTrials
-            obj.app.resultsPanel; 
-            obj.boot_inputdevice;
-            obj.boot_outputdevice;
-            obj.bootTrial;
-%             for tt=1:obj.inputs.totalTrials
-%             obj.trigTrial;
-%             obj.readTrial;
-%             obj.plotTrial;
-%             obj.prepTrial;
-%             pause(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.iti}-toc)
-%             end
-obj.stimLoop
+        function boot_outputdevice(obj)
+            delete(instrfindall);
+            switch obj.app.par.hardware_settings.(char(obj.inputs.output_device)).slct_device
+                case 1 % pc controlled magven
+                    obj.boot_magven
+                case 2 % pc controlled magstim
+                    obj.boot_magstim;
+                case 3 % pc controlled bistim
+                    obj.boot_bistim;
+                case 4 % pc controlled rapid
+                    obj.boot_rapid;
+                case 5 % boss box controlled magven
+                    obj.boot_magven;
+                    obj.boot_bossbox;
+                case 6% boss box controlled magstim
+                    obj.boot_magstim;
+                    obj.boot_bossbox;
+                case 7% boss box controlled bistim
+                    obj.boot_bistim;
+                    obj.boot_bossbox;
+                case 8% boss box controlled rapid
+                    obj.boot_rapid;
+                    obj.boot_bossbox;
+                case 9 %simulation
+            end
         end
         function bootTrial(obj)
-           obj.inputs.trial=0;
-           obj.prepTrial;
+            obj.inputs.trial=0;
+            obj.prepTrial;
         end
-        
+        function trigTrial(obj)
+            for i=1:numel(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.outputDevices})
+                switch obj.app.par.hardware_settings.(char(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.outputDevices}{1,i})).slct_device
+                    case 1 % pc controlled magven
+                        switch char(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.stimMode}{1,i})
+                            case 'single_pulse'
+                            case 'paired_pulse'
+                            case 'burst'
+                            case 'train'
+                        end
+                    case 2 % pc controlled magstim
+                        obj.boot_magstim;
+                    case 3 % pc controlled bistim
+                        obj.boot_bistim;
+                    case 4 % pc controlled rapid
+                        obj.boot_rapid;
+                    case 5 % boss box controlled magven
+                        switch char(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.stimMode}{1,i})
+                            
+                            case 'single_pulse'
+                                obj.bossbox.sendPulse(str2double(obj.app.par.hardware_settings.(char(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.outputDevices}{1,i})).bb_outputport));
+                                tic;
+                            case 'paired_pulse'
+                            case 'burst'
+                            case 'train'
+                        end
+                    case 6% boss box controlled magstim
+                        obj.boot_magstim;
+                        obj.boot_bossbox;
+                    case 7% boss box controlled bistim
+                        obj.boot_bistim;
+                        obj.boot_bossbox;
+                    case 8% boss box controlled rapid
+                        obj.boot_rapid;
+                        obj.boot_bossbox;
+                    case 9 %simulation
+                        disp triggeredTHISONE
+                        tic;
+                end
+            end
+        end
+        function readTrial(obj)
+            %device type
+            %            then read all channels through it, basically a for loop
+            disp enteredREAD
+            switch obj.app.par.hardware_settings.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.inputDevices}).slct_device
+                
+                case 1 % boss box
+                    unique_chLab=unique(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab});
+                    for i=1:numel(unique_chLab)
+                        %                         obj.inputs.rawData.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}).data(obj.inputs.trial,:)=obj.bossbox.exg_scope;
+                        obj.inputs.rawData.(unique_chLab{1,i}).data(obj.inputs.trial,:)=obj.sim_mep*rand;
+                        
+                    end
+                case 2 % fieldtrip
+                    % http://www.fieldtriptoolbox.org/faq/how_should_i_get_started_with_the_fieldtrip_realtime_buffer/
+                case 3 %Future: input box
+                case 4  % simulated data
+                    for i=1:numel(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab})
+                        obj.inputs.rawData.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,i}).data(obj.inputs.trial,:)=rand (1,obj.inputs.sc_samples);
+                    end
+                case 5 %Future: no input box is selected
+            end
+        end
+        function plotTrial(obj)
+            for i=1:numel(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab})
+                obj.inputs.chLab_idx=i;
+                switch (obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.measures}{1,i})
+                    case 'MEP_Measurement'
+                        % updating analytics panel
+                        obj.app.pr.current_totaltrial_no.String=(obj.inputs.totalTrials);
+                        obj.app.pr.current_trial.String=obj.inputs.trial;
+                        obj.app.pr.current_si.String=obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,1};
+                        obj.app.pr.current_iti.String=obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.iti};
+                        
+                        if(obj.inputs.trial==obj.inputs.totalTrials)
+                            obj.app.pr.next_totaltrial_no.String=obj.inputs.totalTrials;
+                            obj.app.pr.next_trial.String='Completed';
+                            obj.app.pr.next_si.String='Completed';
+                            obj.app.pr.next_iti.String='Completed';
+                        else
+                            obj.app.pr.next_totaltrial_no.String=obj.inputs.totalTrials;
+                            obj.app.pr.next_trial.String=obj.inputs.trial+1;
+                            obj.app.pr.next_si.String=obj.inputs.trialMat{obj.inputs.trial+1,obj.inputs.colLabel.si}{1,1};
+                            obj.app.pr.next_iti.String=obj.inputs.trialMat{obj.inputs.trial+1,obj.inputs.colLabel.iti};
+                        end
+                        
+                        obj.mep_plot
+                        
+                        
+                    case 'Motor Threshold Hunting'
+                    case 'IOC'
+                    case 'Motor Hotspot Search'
+                    case 'MEP Scatter Plot'
+                        obj.mep_scat_plot;
+                    case 'MEP IOC Fit'
+                        obj.ioc_fit_plot;
+                end
+            end
+        end
         function prepTrial(obj)
             if(obj.inputs.trial<obj.inputs.totalTrials)
                 obj.inputs.trial=obj.inputs.trial+1;
@@ -446,103 +605,71 @@ obj.stimLoop
                 end
             end
         end
-
-        function trigTrial(obj)
-            for i=1:numel(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.outputDevices})
-                switch obj.app.par.hardware_settings.(char(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.outputDevices}{1,i})).slct_device
-                    case 1 % pc controlled magven
-                        switch char(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.stimMode}{1,i})
-                            case 'single_pulse'
-                            case 'paired_pulse'
-                            case 'burst'
-                            case 'train'
-                        end
-                    case 2 % pc controlled magstim
-                        obj.boot_magstim;
-                    case 3 % pc controlled bistim
-                        obj.boot_bistim;
-                    case 4 % pc controlled rapid
-                        obj.boot_rapid;
-                    case 5 % boss box controlled magven
-                        switch char(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.stimMode}{1,i})
-                            
-                            case 'single_pulse'
-                                obj.bossbox.sendPulse(str2double(obj.app.par.hardware_settings.(char(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.outputDevices}{1,i})).bb_outputport));
-                                tic;
-                            case 'paired_pulse'
-                            case 'burst'
-                            case 'train'
-                        end
-                    case 6% boss box controlled magstim
-                        obj.boot_magstim;
-                        obj.boot_bossbox;
-                    case 7% boss box controlled bistim
-                        obj.boot_bistim;
-                        obj.boot_bossbox;
-                    case 8% boss box controlled rapid
-                        obj.boot_rapid;
-                        obj.boot_bossbox;
-                    case 9 %simulation
-                        disp triggeredTHISONE
-                        tic;
+        function stimLoop(obj)
+            
+            for tt=1:obj.inputs.totalTrials
+                obj.trigTrial;
+                obj.readTrial;
+                obj.plotTrial;
+                obj.prepTrial;
+                %             pause(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.iti}-toc)
+                wait_period=obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.iti}-toc;
+                wait_idx=3*floor(wait_period);
+                for wait_id=1:wait_idx
+                    pause(wait_period/wait_idx)
+                    if(obj.inputs.stop_event==1)
+                        break;
+                    end
+                end
+                if(obj.inputs.stop_event==1)
+                    disp('returned after the execution')
+                    obj.inputs.stop_event=0;
+                    break;
                 end
             end
         end
+
         
-        function readTrial(obj)
-            %device type
-            %            then read all channels through it, basically a for loop
-            disp enteredREAD
-            switch obj.app.par.hardware_settings.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.inputDevices}).slct_device
-
-                case 1 % boss box
-                    for i=1:numel(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab})
-%                         obj.inputs.rawData.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}).data(obj.inputs.trial,:)=obj.bossbox.exg_scope;
-                        obj.inputs.rawData.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,i}).data(obj.inputs.trial,:)=obj.sim_mep*rand;
-
-                    end
-                case 2 % fieldtrip
-                    % http://www.fieldtriptoolbox.org/faq/how_should_i_get_started_with_the_fieldtrip_realtime_buffer/
-                case 3 %Future: input box
-                case 4  % simulated data
-                    for i=1:numel(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab})
-                        obj.inputs.rawData.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,i}).data(obj.inputs.trial,:)=rand (1,obj.inputs.sc_samples);
-                    end
-                case 5 %Future: no input box is selected
+        function best_mep(obj)
+            obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs=obj.inputs;
+            obj.factorizeConditions
+            obj.planTrials
+            obj.app.resultsPanel; 
+            obj.boot_inputdevice;
+            obj.boot_outputdevice;
+            obj.bootTrial;
+            for tt=1:obj.inputs.totalTrials
+            obj.trigTrial;
+            obj.readTrial;
+            obj.plotTrial;
+            obj.prepTrial;
+            pause(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.iti}-toc)
             end
         end
-        
-        function plotTrial(obj)
-            for i=1:numel(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab})
-                obj.inputs.chLab_idx=i;
-                switch (obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.measures}{1,i})
-                    case 'MEP_Measurement'
-                        % updating analytics panel
-                        obj.app.pr.current_totaltrial_no.String=(obj.inputs.totalTrials);
-                        obj.app.pr.current_trial.String=obj.inputs.trial;
-                        obj.app.pr.current_si.String=obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,1};
-                        obj.app.pr.current_iti.String=obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.iti};
-                        
-                        if(obj.inputs.trial==obj.inputs.totalTrials)
-                            obj.app.pr.next_totaltrial_no.String=obj.inputs.totalTrials;
-                            obj.app.pr.next_trial.String='Completed';
-                            obj.app.pr.next_si.String='Completed';
-                            obj.app.pr.next_iti.String='Completed';
-                        else
-                            obj.app.pr.next_totaltrial_no.String=obj.inputs.totalTrials;
-                            obj.app.pr.next_trial.String=obj.inputs.trial+1;
-                            obj.app.pr.next_si.String=obj.inputs.trialMat{obj.inputs.trial+1,obj.inputs.colLabel.si}{1,1};
-                            obj.app.pr.next_iti.String=obj.inputs.trialMat{obj.inputs.trial+1,obj.inputs.colLabel.iti};
-                        end
-                        
-                        obj.mep_plot
-                        
-                        
-                    case 'Motor Threshold Hunting'
-                    case 'IOC'
-                    case 'Motor Hotspot Search'
-                end
-            end
+        function best_hotspot(obj)
+            obj.factorizeConditions
+            obj.planTrials
+            obj.app.resultsPanel; 
+            obj.boot_inputdevice;
+            obj.boot_outputdevice;
+            obj.bootTrial;
+%             for tt=1:obj.inputs.totalTrials
+%             obj.trigTrial;
+%             obj.readTrial;
+%             obj.plotTrial;
+%             obj.prepTrial;
+%             pause(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.iti}-toc)
+%             end
+obj.stimLoop
+        end
+        function best_ioc(obj)
+            obj.factorizeConditions
+            obj.planTrials
+            obj.app.resultsPanel; 
+            obj.boot_inputdevice;
+            obj.boot_outputdevice;
+            obj.bootTrial;
+            obj.stimLoop
         end
         
         function mep_plot(obj)
@@ -613,9 +740,9 @@ obj.stimLoop
                     hold on;
                     xlabel('Stimulation Intensities');   %TODO: Put if loop of RMT or MSO
                     ylabel('MEP P2P Amplitude (\muV)');
-                    low=max(cell2mat(obj.inputs.stimuli))-10;
-                    up=min(cell2mat(obj.inputs.stimuli))+10;
-                    temp_str=unique(sort([obj.inputs.stimuli low up]));
+                    low=min(cell2mat(obj.inputs.stimuli))-10;
+                    up=max(cell2mat(obj.inputs.stimuli))+10;
+                    temp_str=unique(sort([cell2mat(obj.inputs.stimuli) low up]));
                     xlim([low up]);
                     xticks(temp_str);
                 otherwise
@@ -626,61 +753,41 @@ obj.stimLoop
             hold on;
             uistack(obj.info.plt.(ax).ioc_scatplot,'top')
         end
-        function ioc_fit(obj)
+        function mep_stats(obj)
+            ax=['ax' num2str(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.axesno}{1,obj.inputs.chLab_idx})];
+            [si,ia,idx] = unique(obj.inputs.trialMat{:,obj.inputs.colLabel.si}{1,1},'stable');
+            mep_median = accumarray(idx,obj.inputs.trialMat{:,obj.inputs.colLabel.mepamp},[],@median);
+            mep_mean = accumarray(idx,obj.inputs.trialMat{:,obj.inputs.colLabel.mepamp},[],@mean);
+            mep_std = accumarray(idx,obj.inputs.trialMat{:,obj.inputs.colLabel.mepamp},[],@std);
+            mep_min = accumarray(idx,obj.inputs.trialMat{:,obj.inputs.colLabel.mepamp},[],@min);
+            mep_max = accumarray(idx,obj.inputs.trialMat{:,obj.inputs.colLabel.mepamp},[],@max);
+            mep_var = accumarray(idx,obj.inputs.trialMat{:,obj.inputs.colLabel.mepamp},[],@var);
+            M=[si,mep_median,mep_mean,mep_std, mep_min, mep_max, mep_var];
+            M1 = M(randperm(size(M,1)),:,:,:,:,:,:);
+            
+            
+            obj.inputs.rawData.(ax).mep_stats(:,1)=M1(:,1); %Sampled SIs
+            obj.inputs.rawData.(ax).mep_stats(:,2)=M1(:,2); %Sampled Medians MEPs
+            obj.inputs.rawData.(ax).mep_stats(:,3)=M1(:,3); %Mean MEPs over trial
+            obj.inputs.rawData.(ax).mep_stats(:,4)=M1(:,4); %Std MEPs
+            obj.inputs.rawData.(ax).mep_stats(:,5)=M1(:,5); %Min of MEPs
+            obj.inputs.rawData.(ax).mep_stats(:,6)=M1(:,6); %Max of MEPs
+            obj.inputs.rawData.(ax).mep_stats(:,7)=M1(:,7); %Var of MEPs
+            obj.inputs.SI=obj.inputs.rawData.(ax).mep_stats(:,1);
+            obj.inputs.MEP=obj.inputs.rawData.(ax).mep_stats(:,2);
+            
+            obj.inputs.rawData.(ax).mep_stats(:,8)=(obj.inputs.rawData.(ax).mep_stats(:,4))/sqrt(numel(obj.inputs.rawData.(ax).mep_stats(:,4)));    %TODO: Make it modular by replacing 15 to # trials per intensity object value
+            obj.inputs.SEM=obj.inputs.rawData.(ax).mep_stats(:,8);
+            
+            
+        end
+        function ioc_fit_plot(obj)
             ax=['ax' num2str(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.axesno}{1,obj.inputs.chLab_idx})];
             axes(obj.app.pr.ax.(ax)), hold on,
-            plot(rand(1,500));
-        end
-        function planTrials(obj)
-            %% preparing trialMat
+%             plot(rand(1,500));
 
-            obj.inputs.totalConds
-            for i=1:obj.inputs.totalConds
-                cond_id(i,:)=ones(1,cell2mat(obj.inputs.condMat(i,obj.inputs.colLabel.trials)))*i;
-            end
-                [~,id]=sort(sum(cond_id,2),'descend');
-                cond_id=cond_id(id,:);
-                [~,n]=size(cond_id);
-                randomVect_numel=0;
-            for i=1:n
-                randVect=cond_id(:,i);
-                randVect=randVect(randperm(numel(randVect)));
-                randomVect(randomVect_numel+1:randomVect_numel+numel(randVect),1)=randVect;
-                randomVect_numel=numel(randomVect);
-                
-            end
-            for i=1:numel(randomVect)
-                obj.inputs.trialMat(i,:)=obj.inputs.condMat(randomVect(i,1),:);
-            end
-            %% preparing ITI 
-            if(iscell(obj.inputs.iti{1,1}))
-                [m,~]=size(obj.inputs.trialMat);
-                for i=1:m
-                    iti=obj.inputs.trialMat(i,obj.inputs.colLabel.iti);
-                    obj.inputs.trialMat(i,obj.inputs.colLabel.iti)=num2cell(round((iti{1,1}{1,1}+(iti{1,1}{1,2}-iti{1,1}{1,1} ).* rand(1,1)),3));
-                end
-            end
-            
-            obj.inputs.totalTrials=m;
-
-            %% preparing prepost stim time var and timeVector
-            obj.planTrials_scopePeriods;
-            %% preparing the timevector for meps
-%                 case {'MEP_Measurement','Motor Hotspot Search','Motor Threshold Hunting','MEP IOC'}
-%                     switch obj.app.par.hardware_settings.(char(obj.inputs.input_device)).slct_device
-%                         case 1 % boss box
-%                             mep_plot_time_vector=1:obj.inputs.sc_plot_total
-%                             mep_plot_time_vector=mep_plot_time_vector*5 %because sampling rate is 5khz and time to be in ms
-%                             obj.inputs.timeVect=mep_plot_time_vector+(((-1)*obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.sc_plot_first)/(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.sc_samplingrate)*1000)
-%                         case 2 % fieldtrip
-%                             % http://www.fieldtriptoolbox.org/faq/how_should_i_get_started_with_the_fieldtrip_realtime_buffer/
-%                         case 3 %Future: input box
-%                         case 4  %s
-%                     end
-%                    
-%                 otherwise
-%             end
         end
+       
         function planTrials_scopePeriods(obj)
             switch obj.app.par.hardware_settings.(char(obj.inputs.input_device)).slct_device
                 
@@ -706,32 +813,6 @@ obj.stimLoop
                 case 4  % simulated data
                     obj.inputs.sc_samples=((obj.inputs.prestim_scope_plt)+(obj.inputs.poststim_scope_plt))*5;
                 case 5 %Future: no input box is selected
-            end
-        end
-        
-        
-        
-        function stimLoop(obj)
-            
-            for tt=1:obj.inputs.totalTrials
-                obj.trigTrial;
-                obj.readTrial;
-                obj.plotTrial;
-                obj.prepTrial;
-                %             pause(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.iti}-toc)
-                wait_period=obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.iti}-toc;
-                wait_idx=3*floor(wait_period);
-                for wait_id=1:wait_idx
-                    pause(wait_period/wait_idx)
-                    if(obj.inputs.stop_event==1)
-                        break;
-                    end
-                end
-                if(obj.inputs.stop_event==1)
-                    disp('returned after the execution')
-                    obj.inputs.stop_event=0;
-                    break;
-                end
             end
         end
         function timer_fcn(obj)
@@ -792,43 +873,7 @@ obj.stimLoop
             obj.inputs.trialMat(:,obj.inputs.columnLabel.iti_movsum)=(movsum(iti,[length(iti) 0]))';
             
         end
-        function boot_inputdevice(obj)
-            switch obj.app.par.hardware_settings.(char(obj.inputs.input_device)).slct_device
-                case 1 % boss box
-                    % do nothing as mainly the output will automatically
-                    % bot it
-                case 2 % fieldtrip
-                    % http://www.fieldtriptoolbox.org/faq/how_should_i_get_started_with_the_fieldtrip_realtime_buffer/
-                case 3 %Future: input box
-                case 4  %Future: no input box is selected 
-            end
-        end
-        function boot_outputdevice(obj)
-            delete(instrfindall);
-            switch obj.app.par.hardware_settings.(char(obj.inputs.output_device)).slct_device
-                case 1 % pc controlled magven
-                    obj.boot_magven
-                case 2 % pc controlled magstim
-                    obj.boot_magstim;
-                case 3 % pc controlled bistim
-                    obj.boot_bistim;
-                case 4 % pc controlled rapid
-                    obj.boot_rapid;
-                case 5 % boss box controlled magven
-                    obj.boot_magven;
-                    obj.boot_bossbox;
-                case 6% boss box controlled magstim
-                    obj.boot_magstim;
-                    obj.boot_bossbox;
-                case 7% boss box controlled bistim
-                    obj.boot_bistim;
-                    obj.boot_bossbox;
-                case 8% boss box controlled rapid
-                    obj.boot_rapid;
-                    obj.boot_bossbox;
-                case 9 %simulation
-            end
-        end
+       
         function boot_magven(obj)
             obj.magven=magventure(obj.app.par.hardware_settings.(char(obj.inputs.output_device)).comport);
             obj.magven.connect;
@@ -903,7 +948,7 @@ obj.stimLoop
             
             
         end
-        function best_ioc(obj)
+        function best_ioc_OLD(obj)
             obj.info.method=obj.info.method+1;
             obj.info.str=strcat('ioc_',num2str(obj.info.method));
             obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs=obj.inputs;
