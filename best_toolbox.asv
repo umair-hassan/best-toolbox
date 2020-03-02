@@ -199,6 +199,15 @@ classdef best_toolbox < handle
                   obj.inputs.colLabel.stimMode=8;
                   obj.inputs.colLabel.mepamp=9;
                   
+                  targetChannels_ax_meas{1,:}=cell(1,numel(obj.inputs.target_muscle));
+                  for i=1:numel(obj.inputs.target_muscle)
+                      targetChannels_ax_meas{1,i}={'MEP_Measurement','Motor Threshold Hunting'};
+                  end
+                  targetChannels_ax_meas=horzcat(targetChannels_ax_meas{:});
+                  displayChannels_ax_meas=cell(1,numel(obj.inputs.display_scopes));
+                  displayChannels_ax_meas(:)=cellstr('MEP_Measurement');
+                  obj.app.pr.ax_measures={targetChannels_ax_meas{1,:},displayChannels_ax_meas{1,:}};
+                  
                   targetChannels_meas=cell(1,numel(obj.inputs.target_muscle));
                   targetChannels_meas(:)={{'MEP_Measurement','Threshold Trace'}}; % infact thsi would be a variable obj.inputs.targetMeasure 
                   displayChannels_meas=cell(1,numel(obj.inputs.display_scopes));
@@ -213,7 +222,7 @@ classdef best_toolbox < handle
                                         
                   end
                   displayChannels_ax=num2cell(ax_id+1:1:ax_id+(numel(obj.inputs.display_scopes)));
-                  obj.app.pr.axesno=numel(targetChannels_ax)+numel(displayChannels_ax);
+                  obj.app.pr.axesno=ax_id+numel(displayChannels_ax);
                    %just store the iti as a string e.g. '[iti1 iti2]' and
                   %then it can be evaluated for the randomized value
                   obj.inputs.totalConds=numel(obj.inputs.stimuli)*numel(obj.inputs.target_muscle)*numel(obj.inputs.iti);
@@ -237,10 +246,10 @@ classdef best_toolbox < handle
                      obj.inputs.condMat(i,obj.inputs.colLabel.outputDevices)={cellstr(obj.inputs.output_device(1,idx_outputDevices))};
                      obj.inputs.condMat(i,obj.inputs.colLabel.trials)=(obj.inputs.trials(1,idx_trials)); % may be a problem
                      obj.inputs.condMat(i,obj.inputs.colLabel.iti)=(obj.inputs.iti(1,idx_iti));
-                     obj.inputs.condMat(i,obj.inputs.colLabel.si)=(obj.inputs.stimuli(1,idx_si));
+                     obj.inputs.condMat(i,obj.inputs.colLabel.si)={(obj.inputs.stimuli(1,idx_si))};
                      obj.inputs.condMat(i,obj.inputs.colLabel.chLab)={{targetChannels{1,idx_targetChannels}{1,:},obj.inputs.display_scopes{1,:}}};
                      obj.inputs.condMat(i,obj.inputs.colLabel.axesno)={{targetChannels_ax{1,idx_targetChannels}{1,:},displayChannels_ax{1,:}}};
-                     obj.inputs.condMat(i,obj.inputs.colLabel.measures)={{targetChannels_ax{1,idx_targetChannels}{1,:},displayChannels_ax{1,:}}};
+                     obj.inputs.condMat(i,obj.inputs.colLabel.measures)={{targetChannels_meas{1,idx_targetChannels}{1,:},displayChannels_meas{1,:}}};
                      obj.inputs.condMat(i,obj.inputs.colLabel.stimMode)={{{'single_pulse'}}};
 
 
@@ -310,7 +319,7 @@ classdef best_toolbox < handle
                   end
                   displayChannels_ax=num2cell(ax_id+1:1:ax_id+(numel(obj.inputs.display_scopes)));
                   obj.app.pr.axesno=ax_id+numel(displayChannels_ax);
-                  aa=ax_id+numel(displayChannels_ax{1,:})
+%                   aa=ax_id+numel(displayChannels_ax{1,:})
                    %just store the iti as a string e.g. '[iti1 iti2]' and
                   %then it can be evaluated for the randomized value
                   obj.inputs.totalConds=numel(obj.inputs.stimuli)*numel(obj.inputs.target_muscle)*numel(obj.inputs.iti);
@@ -511,7 +520,7 @@ classdef best_toolbox < handle
                     unique_chLab=unique(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab});
                     for i=1:numel(unique_chLab)
                         %                         obj.inputs.rawData.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}).data(obj.inputs.trial,:)=obj.bossbox.exg_scope;
-                        obj.inputs.rawData.(unique_chLab{1,i}).data(obj.inputs.trial,:)=obj.sim_mep*rand;
+                        obj.inputs.rawData.(unique_chLab{1,i}).data(obj.inputs.trial,:)=obj.sim_mep*rand*1000;
                         
                     end
                 case 2 % fieldtrip
@@ -519,7 +528,7 @@ classdef best_toolbox < handle
                 case 3 %Future: input box
                 case 4  % simulated data
                     for i=1:numel(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab})
-                        obj.inputs.rawData.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,i}).data(obj.inputs.trial,:)=rand (1,obj.inputs.sc_samples);
+                        obj.inputs.rawData.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,i}).data(obj.inputs.trial,:)=(rand (1,obj.inputs.sc_samples))+5000000;
                     end
                 case 5 %Future: no input box is selected
             end
@@ -754,7 +763,8 @@ obj.stimLoop
             uistack(obj.info.plt.(ax).ioc_scatplot,'top')
         end
         function mep_stats(obj)
-            ax=['ax' num2str(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.axesno}{1,obj.inputs.chLab_idx})];
+%             ax=['ax' num2str(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.axesno}{1,obj.inputs.chLab_idx})];
+%             obj.inputs.rawData.(ax).mep_stats=0;
             si=0;
             si=cell2mat(vertcat(obj.inputs.trialMat{:,obj.inputs.colLabel.si}));
             mepamp=(vertcat(obj.inputs.trialMat{:,obj.inputs.colLabel.mepamp}));
@@ -770,19 +780,18 @@ obj.stimLoop
             M1 = M(randperm(size(M,1)),:,:,:,:,:,:);
             
             
-            obj.inputs.rawData.(ax).mep_stats(:,1)=M1(:,1); %Sampled SIs
-            obj.inputs.rawData.(ax).mep_stats(:,2)=M1(:,2); %Sampled Medians MEPs
-            obj.inputs.rawData.(ax).mep_stats(:,3)=M1(:,3); %Mean MEPs over trial
-            obj.inputs.rawData.(ax).mep_stats(:,4)=M1(:,4); %Std MEPs
-            obj.inputs.rawData.(ax).mep_stats(:,5)=M1(:,5); %Min of MEPs
-            obj.inputs.rawData.(ax).mep_stats(:,6)=M1(:,6); %Max of MEPs
-            obj.inputs.rawData.(ax).mep_stats(:,7)=M1(:,7); %Var of MEPs
-            obj.inputs.SI=obj.inputs.rawData.(ax).mep_stats(:,1);
-            obj.inputs.MEP=obj.inputs.rawData.(ax).mep_stats(:,2);
+            obj.inputs.rawData.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).mep_stats(:,1)=M1(:,1); %Sampled SIs
+            obj.inputs.rawData.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).mep_stats(:,2)=M1(:,2); %Sampled Medians MEPs
+            obj.inputs.rawData.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).mep_stats(:,3)=M1(:,3); %Mean MEPs over trial
+            obj.inputs.rawData.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).mep_stats(:,4)=M1(:,4); %Std MEPs
+            obj.inputs.rawData.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).mep_stats(:,5)=M1(:,5); %Min of MEPs
+            obj.inputs.rawData.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).mep_stats(:,6)=M1(:,6); %Max of MEPs
+            obj.inputs.rawData.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).mep_stats(:,7)=M1(:,7); %Var of MEPs
+            obj.inputs.SI=obj.inputs.rawData.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).mep_stats(:,1);
+            obj.inputs.MEP=obj.inputs.rawData.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).mep_stats(:,2);
             
-            obj.inputs.rawData.(ax).mep_stats(:,8)=(obj.inputs.rawData.(ax).mep_stats(:,4))/sqrt(numel(obj.inputs.rawData.(ax).mep_stats(:,4)));    %TODO: Make it modular by replacing 15 to # trials per intensity object value
-            obj.inputs.SEM=obj.inputs.rawData.(ax).mep_stats(:,8);
-            
+            obj.inputs.rawData.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).mep_stats(:,8)=(obj.inputs.rawData.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).mep_stats(:,4))/sqrt(numel(obj.inputs.rawData.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).mep_stats(:,4)));    %TODO: Make it modular by replacing 15 to # trials per intensity object value
+            obj.inputs.SEM=obj.inputs.rawData.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).mep_stats(:,8);
             
         end
         function ioc_fit_plot(obj)
@@ -792,8 +801,7 @@ obj.stimLoop
             ax=['ax' num2str(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.axesno}{1,obj.inputs.chLab_idx})];
             axes(obj.app.pr.ax.(ax)), hold on,
 %             plot(rand(1,500));
-obj.inputs.rawData.(ax)=0;
-            [SIData, MEPData] = prepareCurveData(obj.inputs.rawData.(ax).mep_stats(:,1) ,obj.inputs.rawData.(ax).mep_stats(:,2));
+            [SIData, MEPData] = prepareCurveData(obj.inputs.rawData.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).mep_stats(:,1) ,obj.inputs.rawData.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).mep_stats(:,2));
             ft = fittype( 'MEPmax*SI^n/(SI^n+SI50^n)', 'independent', 'SI', 'dependent', 'MEP' );
             %             ft = best_fittype( 'MEPmax*SI^n/(SI^n+SI50^n)', 'independent', 'SI', 'dependent', 'MEP' );
             
@@ -870,10 +878,10 @@ obj.inputs.rawData.(ax)=0;
             set(h(2),'LineWidth',2);
             
             % Create xlabel
-            xlabel(' Stimulation Intensity','FontSize',14,'FontName','Calibri');   %TODO: Put if loop of RMT or MSO
+            xlabel(' Stimulation Intensity');   %TODO: Put if loop of RMT or MSO
             
             % Create ylabel
-            ylabel('MEP Amplitude ( \mu V)','FontSize',14,'FontName','Calibri');
+            ylabel('MEP Amplitude ( \mu V)');
             
             
             
@@ -882,7 +890,7 @@ obj.inputs.rawData.(ax)=0;
             %             xticks(0:5:1000);    % will have to be referneced with GUI
             
             % Create title
-            title({'Input Output Curve'},'FontWeight','bold','FontSize',14,'FontName','Calibri');
+%             title({'Input Output Curve'},'FontWeight','bold','FontSize',14,'FontName','Calibri');
             set(gcf, 'color', 'w')
             
             
@@ -961,8 +969,14 @@ obj.inputs.rawData.(ax)=0;
             %             yt=yticks
             %             xt=xticks
             %             xl=xlim
-            text((max(xlim)-30), -200,str,'FontSize',12);
-            
+            %             text((max(xlim)-30), -200,str,'FontSize',12);
+            obj.app.pr.ip_mso.(ax).String=obj.info.ip_x;
+            obj.app.pr.ip_muv.(ax).String=ip_y;
+            obj.app.pr.pt_mso.(ax).String=obj.info.pt_x;
+            obj.app.pr.pt_muv.(ax).String=pt_y;
+            obj.app.pr.th_mso.(ax).String=obj.info.th;
+            obj.app.pr.th_muv.(ax).String=0.05;
+
             bt = gca; legend(bt,'off');
             box on; drawnow;
             
@@ -1003,9 +1017,6 @@ obj.inputs.rawData.(ax)=0;
                     obj.inputs.sc_samples=((obj.inputs.prestim_scope_plt)+(obj.inputs.poststim_scope_plt))*5;
                 case 5 %Future: no input box is selected
             end
-        end
-        function timer_fcn(obj)
-            disp enteredtimer
         end
         function planTrials_totalTrials(obj)
             %this has to be different for many measures therefore switch is

@@ -199,6 +199,15 @@ classdef best_toolbox < handle
                   obj.inputs.colLabel.stimMode=8;
                   obj.inputs.colLabel.mepamp=9;
                   
+                  targetChannels_ax_meas{1,:}=cell(1,numel(obj.inputs.target_muscle));
+                  for i=1:numel(obj.inputs.target_muscle)
+                      targetChannels_ax_meas{1,i}={'MEP_Measurement','Motor Threshold Hunting'};
+                  end
+                  targetChannels_ax_meas=horzcat(targetChannels_ax_meas{:});
+                  displayChannels_ax_meas=cell(1,numel(obj.inputs.display_scopes));
+                  displayChannels_ax_meas(:)=cellstr('MEP_Measurement');
+                  obj.app.pr.ax_measures={targetChannels_ax_meas{1,:},displayChannels_ax_meas{1,:}};
+                  
                   targetChannels_meas=cell(1,numel(obj.inputs.target_muscle));
                   targetChannels_meas(:)={{'MEP_Measurement','Threshold Trace'}}; % infact thsi would be a variable obj.inputs.targetMeasure 
                   displayChannels_meas=cell(1,numel(obj.inputs.display_scopes));
@@ -213,7 +222,7 @@ classdef best_toolbox < handle
                                         
                   end
                   displayChannels_ax=num2cell(ax_id+1:1:ax_id+(numel(obj.inputs.display_scopes)));
-                  obj.app.pr.axesno=numel(targetChannels_ax)+numel(displayChannels_ax);
+                  obj.app.pr.axesno=ax_id+numel(displayChannels_ax);
                    %just store the iti as a string e.g. '[iti1 iti2]' and
                   %then it can be evaluated for the randomized value
                   obj.inputs.totalConds=numel(obj.inputs.stimuli)*numel(obj.inputs.target_muscle)*numel(obj.inputs.iti);
@@ -237,10 +246,10 @@ classdef best_toolbox < handle
                      obj.inputs.condMat(i,obj.inputs.colLabel.outputDevices)={cellstr(obj.inputs.output_device(1,idx_outputDevices))};
                      obj.inputs.condMat(i,obj.inputs.colLabel.trials)=(obj.inputs.trials(1,idx_trials)); % may be a problem
                      obj.inputs.condMat(i,obj.inputs.colLabel.iti)=(obj.inputs.iti(1,idx_iti));
-                     obj.inputs.condMat(i,obj.inputs.colLabel.si)=(obj.inputs.stimuli(1,idx_si));
+                     obj.inputs.condMat(i,obj.inputs.colLabel.si)={(obj.inputs.stimuli(1,idx_si))};
                      obj.inputs.condMat(i,obj.inputs.colLabel.chLab)={{targetChannels{1,idx_targetChannels}{1,:},obj.inputs.display_scopes{1,:}}};
                      obj.inputs.condMat(i,obj.inputs.colLabel.axesno)={{targetChannels_ax{1,idx_targetChannels}{1,:},displayChannels_ax{1,:}}};
-                     obj.inputs.condMat(i,obj.inputs.colLabel.measures)={{targetChannels_ax{1,idx_targetChannels}{1,:},displayChannels_ax{1,:}}};
+                     obj.inputs.condMat(i,obj.inputs.colLabel.measures)={{targetChannels_meas{1,idx_targetChannels}{1,:},displayChannels_meas{1,:}}};
                      obj.inputs.condMat(i,obj.inputs.colLabel.stimMode)={{{'single_pulse'}}};
 
 
@@ -310,7 +319,7 @@ classdef best_toolbox < handle
                   end
                   displayChannels_ax=num2cell(ax_id+1:1:ax_id+(numel(obj.inputs.display_scopes)));
                   obj.app.pr.axesno=ax_id+numel(displayChannels_ax);
-                  aa=ax_id+numel(displayChannels_ax{1,:})
+%                   aa=ax_id+numel(displayChannels_ax{1,:})
                    %just store the iti as a string e.g. '[iti1 iti2]' and
                   %then it can be evaluated for the randomized value
                   obj.inputs.totalConds=numel(obj.inputs.stimuli)*numel(obj.inputs.target_muscle)*numel(obj.inputs.iti);
@@ -960,8 +969,14 @@ obj.stimLoop
             %             yt=yticks
             %             xt=xticks
             %             xl=xlim
-            text((max(xlim)-30), -200,str,'FontSize',12);
-            
+            %             text((max(xlim)-30), -200,str,'FontSize',12);
+            obj.app.pr.ip_mso.(ax).String=obj.info.ip_x;
+            obj.app.pr.ip_muv.(ax).String=ip_y;
+            obj.app.pr.pt_mso.(ax).String=obj.info.pt_x;
+            obj.app.pr.pt_muv.(ax).String=pt_y;
+            obj.app.pr.th_mso.(ax).String=obj.info.th;
+            obj.app.pr.th_muv.(ax).String=0.05;
+
             bt = gca; legend(bt,'off');
             box on; drawnow;
             
@@ -1002,9 +1017,6 @@ obj.stimLoop
                     obj.inputs.sc_samples=((obj.inputs.prestim_scope_plt)+(obj.inputs.poststim_scope_plt))*5;
                 case 5 %Future: no input box is selected
             end
-        end
-        function timer_fcn(obj)
-            disp enteredtimer
         end
         function planTrials_totalTrials(obj)
             %this has to be different for many measures therefore switch is
