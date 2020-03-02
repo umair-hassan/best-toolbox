@@ -559,7 +559,8 @@ classdef best_toolbox < handle
                         obj.mep_plot
                         
                         
-                    case 'Motor Threshold Hunting'
+                    case 'Threshold Trace'
+                        obj.mep_threshold_trace_plot;
                     case 'IOC'
                     case 'Motor Hotspot Search'
                     case 'MEP Scatter Plot'
@@ -1138,6 +1139,12 @@ obj.stimLoop
             
             
             end
+        end
+        function mep_threshold_trace_plot(obj)
+            ax=['ax' num2str(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.axesno}{1,obj.inputs.chLab_idx})];
+            axes(obj.app.pr.ax.(ax)), hold on,
+                        plot(rand(1,500));
+
         end
        
         function planTrials_scopePeriods(obj)

@@ -5707,7 +5707,7 @@ end
             obj.bst.boot_inputdevice;
             obj.bst.boot_outputdevice;
             obj.bst.bootTrial;
-%             obj.bst.stimLoop
+            obj.bst.stimLoop
             
             %             OLD SCRIPT
             %             obj.disable_listboxes
