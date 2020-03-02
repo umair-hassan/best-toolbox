@@ -579,6 +579,37 @@ classdef best_toolbox < handle
                     case 'Motor Threshold Hunting'
                         % if trialno 1 , read from the trial mat, otherwise ,
                         % go to the thresholding function and read from there
+                        obj.mep_threshold;
+                        for i=1:numel(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.outputDevices})
+                            switch obj.app.par.hardware_settings.(char(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.outputDevices}{1,i})).slct_device
+                                case 1 % pc controlled magven
+                                    % --------------------------------------------------------ANOTHER
+                                    % switch case for the stim mode will be implanted here
+                                    % later on
+                                    obj.magven.setAmplitude(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,i});
+                                case 2 % pc controlled magstim
+                                    obj.boot_magstim;
+                                case 3 % pc controlled bistim
+                                    obj.boot_bistim;
+                                case 4 % pc controlled rapid
+                                    obj.boot_rapid;
+                                case 5 % boss box controlled magven
+                                    obj.magven.setAmplitude(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,i});
+                                    
+                                case 6% boss box controlled magstim
+                                    obj.boot_magstim;
+                                    obj.boot_bossbox;
+                                case 7% boss box controlled bistim
+                                    obj.boot_bistim;
+                                    obj.boot_bossbox;
+                                case 8% boss box controlled rapid
+                                    obj.boot_rapid;
+                                    obj.boot_bossbox;
+                                case 9 %simulation
+                                    disp triggered
+                                    
+                            end
+                        end
                     otherwise
                         
                         for i=1:numel(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.outputDevices})
@@ -986,6 +1017,126 @@ obj.stimLoop
             % % % % % % % s = copyobj(obj.info.axes.ioc_second,f1)
             
             % set(gcf,'Visible', 'on');
+            end
+        end
+        function mep_threshold(obj)
+            %             if first trial, read from starting intensity
+            %                 otherwise read from the evokness and write to the
+            %                 intensity function
+            if((obj.inputs.trial==1))
+                experimental_condition = [];
+                experimental_condition{1}.name = 'random';
+                experimental_condition{1}.phase_target = 0;
+                experimental_condition{1}.phase_plusminus = pi;
+                experimental_condition{1}.marker = 3;
+                experimental_condition{1}.random_delay_range = 0.1;
+                experimental_condition{1}.port = 1;
+                obj.tc.stimvalue = [obj.inputs.mt_starting_stim_inten 1.0 1.00];
+                obj.tc.stepsize = [1 1 1];
+                obj.tc.minstep =  1;
+                obj.tc.maxstep =  8;
+                obj.tc.minvalue = 10;
+                obj.tc.maxvalue = 90;
+                obj.tc.responses = {[] [] []};
+                obj.tc.stimvalues = {[] [] []};  %storage for post-hoc review
+                obj.tc.stepsizes = {[] [] []};   %storage for post-hoc review
+                
+                obj.tc.lastdouble = [0,0,0];
+                obj.tc.lastreverse = [0,0,0];
+                obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,1}=obj.tc.stimvalue(1);
+                
+                
+                
+            else
+            StimDevice=1;
+            stimtype = 1;
+            experimental_condition{1}.port = 1;
+            
+            condition = experimental_condition{1};
+            
+            
+            obj.tc.stimvalues{StimDevice} = [obj.tc.stimvalues{StimDevice}, round(obj.tc.stimvalue(StimDevice),2)];
+            obj.tc.stepsizes{StimDevice} = [obj.tc.stepsizes{StimDevice}, round(obj.tc.stepsize(StimDevice),2)];
+            
+                        obj.inputs.trialMat{obj.inputs.trial-1,obj.inputs.colLabel.mepamp}=input('enter mep amp  ');
+            
+            
+            if obj.inputs.trialMat{obj.inputs.trial-1,obj.inputs.colLabel.mepamp} > (obj.inputs.motor_threshold*(1000))
+                %disp('Hit')
+                answer = 1;
+            else
+                %disp('Miss')
+                answer = 0;
+            end
+            
+            obj.tc.responses{StimDevice} = [obj.tc.responses{StimDevice}, answer];
+            
+            
+            if length(obj.tc.responses{StimDevice}) == 1
+                if answer == 1
+                    obj.tc.stepsize(StimDevice) =  -obj.tc.stepsize(StimDevice);
+                end
+            elseif length(obj.tc.responses{StimDevice}) == 2
+                if obj.tc.responses{StimDevice}(end) ~= obj.tc.responses{StimDevice}(end-1)
+                    obj.tc.stepsize(StimDevice) = -obj.tc.stepsize(StimDevice)/2;
+                    fprintf(' Step Reversed and Halved\n')
+                    obj.tc.lastreverse(StimDevice) = length(obj.tc.responses{StimDevice});
+                end
+                
+            elseif length(obj.tc.responses{StimDevice})  == 3
+                if obj.tc.responses{StimDevice}(end) ~= obj.tc.responses{StimDevice}(end-1)
+                    obj.tc.stepsize(StimDevice) = -obj.tc.stepsize(StimDevice)/2;
+                    fprintf(' Step Reversed and Halved\n')
+                    obj.tc.lastreverse(StimDevice) = length(obj.tc.responses{StimDevice});
+                elseif obj.tc.responses{StimDevice}(end) == obj.tc.responses{StimDevice}(end-1) && obj.tc.responses{StimDevice}(end) == obj.tc.responses{StimDevice}(end-2)
+                    obj.tc.stepsize(StimDevice) = obj.tc.stepsize(StimDevice)*2;
+                    fprintf(' Step Size Doubled\n')
+                    obj.tc.lastdouble(StimDevice) = length(obj.tc.responses{StimDevice});
+                end
+                
+            elseif length(obj.tc.responses{StimDevice}) > 3
+                if obj.tc.responses{StimDevice}(end) ~= obj.tc.responses{StimDevice}(end-1)
+                    %             rule 1
+                    obj.tc.stepsize(StimDevice) = -obj.tc.stepsize(StimDevice)/2;
+                    fprintf(' Step Reversed and Halved\n')
+                    obj.tc.lastreverse(StimDevice) = length(obj.tc.responses{StimDevice});
+                    %             rule 2 doesnt  need any specific dealing
+                    %             rule 4
+                elseif obj.tc.responses{StimDevice}(end) == obj.tc.responses{StimDevice}(end-2) && obj.tc.responses{StimDevice}(end) == obj.tc.responses{StimDevice}(end-3)
+                    obj.tc.stepsize(StimDevice) = obj.tc.stepsize(StimDevice)*2;
+                    fprintf(' Step Size Doubled\n')
+                    obj.tc.lastdouble(StimDevice) = length(obj.tc.responses{StimDevice});
+                    %             rule 3
+                elseif obj.tc.responses{StimDevice}(end) == obj.tc.responses{StimDevice}(end-1) && obj.tc.responses{StimDevice}(end) == obj.tc.responses{StimDevice}(end-2) && obj.tc.lastdouble(StimDevice) ~= obj.tc.lastreverse(StimDevice)-1
+                    obj.tc.stepsize(StimDevice) = obj.tc.stepsize(StimDevice)*2;
+                    fprintf(' Step Size Doubled\n')
+                    obj.tc.lastdouble(StimDevice) = length(obj.tc.responses{StimDevice});
+                end
+                
+            end
+            
+            if abs(obj.tc.stepsize(StimDevice)) < obj.tc.minstep
+                if obj.tc.stepsize(StimDevice) < 0
+                    obj.tc.stepsize(StimDevice) = -obj.tc.minstep;
+                else
+                    obj.tc.stepsize(StimDevice) = obj.tc.minstep;
+                end
+            end
+            
+            obj.tc.stimvalue(StimDevice) = obj.tc.stimvalue(StimDevice) + obj.tc.stepsize(StimDevice);
+            
+            if obj.tc.stimvalue(StimDevice) < obj.tc.minvalue
+                obj.tc.stimvalue(StimDevice) = obj.tc.minvalue;
+                disp('Minimum value reached.')
+            end
+            
+            if obj.tc.stimvalue(StimDevice) > obj.tc.maxvalue
+                obj.tc.stimvalue(StimDevice) = obj.tc.maxvalue;
+                disp('Max value reached.')
+            end
+            obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,1}=obj.tc.stimvalue(StimDevice);
+            
+            
             end
         end
        

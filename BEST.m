@@ -5704,9 +5704,9 @@ end
             obj.bst.factorizeConditions;
             obj.bst.planTrials
             obj.resultsPanel; 
-%             obj.bst.boot_inputdevice;
-%             obj.bst.boot_outputdevice;
-%             obj.bst.bootTrial;
+            obj.bst.boot_inputdevice;
+            obj.bst.boot_outputdevice;
+            obj.bst.bootTrial;
 %             obj.bst.stimLoop
             
             %             OLD SCRIPT
