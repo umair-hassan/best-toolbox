@@ -511,7 +511,7 @@ classdef best_toolbox < handle
                     unique_chLab=unique(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab});
                     for i=1:numel(unique_chLab)
                         %                         obj.inputs.rawData.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}).data(obj.inputs.trial,:)=obj.bossbox.exg_scope;
-                        obj.inputs.rawData.(unique_chLab{1,i}).data(obj.inputs.trial,:)=obj.sim_mep*rand;
+                        obj.inputs.rawData.(unique_chLab{1,i}).data(obj.inputs.trial,:)=obj.sim_mep*rand*1000;
                         
                     end
                 case 2 % fieldtrip
@@ -519,7 +519,7 @@ classdef best_toolbox < handle
                 case 3 %Future: input box
                 case 4  % simulated data
                     for i=1:numel(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab})
-                        obj.inputs.rawData.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,i}).data(obj.inputs.trial,:)=rand (1,obj.inputs.sc_samples);
+                        obj.inputs.rawData.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,i}).data(obj.inputs.trial,:)=(rand (1,obj.inputs.sc_samples))+5000000;
                     end
                 case 5 %Future: no input box is selected
             end
@@ -869,10 +869,10 @@ obj.stimLoop
             set(h(2),'LineWidth',2);
             
             % Create xlabel
-            xlabel(' Stimulation Intensity','FontSize',14,'FontName','Calibri');   %TODO: Put if loop of RMT or MSO
+            xlabel(' Stimulation Intensity');   %TODO: Put if loop of RMT or MSO
             
             % Create ylabel
-            ylabel('MEP Amplitude ( \mu V)','FontSize',14,'FontName','Calibri');
+            ylabel('MEP Amplitude ( \mu V)');
             
             
             
@@ -881,7 +881,7 @@ obj.stimLoop
             %             xticks(0:5:1000);    % will have to be referneced with GUI
             
             % Create title
-            title({'Input Output Curve'},'FontWeight','bold','FontSize',14,'FontName','Calibri');
+%             title({'Input Output Curve'},'FontWeight','bold','FontSize',14,'FontName','Calibri');
             set(gcf, 'color', 'w')
             
             
