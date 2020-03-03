@@ -1161,8 +1161,6 @@ obj.stimLoop
                     set(obj.info.plt.(ax).mt_nextIntensityDot,'XData',obj.inputs.trial+1,'YData',obj.inputs.trialMat{obj.inputs.trial+1,obj.inputs.colLabel.si}{1,1})
             end
         end
-        function mep_threshold_update_plot(obj)
-        end
        
         function planTrials_scopePeriods(obj)
                             disp enteredtimevect-------------
