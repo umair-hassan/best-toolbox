@@ -408,7 +408,7 @@ classdef best_toolbox < handle
                 end
             end
             
-            obj.inputs.totalTrials=m;
+            obj.inputs.totalTrials=numel(obj.inputs.trialMat(:,1));
             
             %% preparing prepost stim time var and timeVector
             obj.planTrials_scopePeriods;
@@ -533,33 +533,16 @@ classdef best_toolbox < handle
                 case 5 %Future: no input box is selected
             end
         end
+        function processTrial(obj)
+        end
         function plotTrial(obj)
             for i=1:numel(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab})
                 obj.inputs.chLab_idx=i;
                 switch (obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.measures}{1,i})
                     case 'MEP_Measurement'
-                        % updating analytics panel
-                        obj.app.pr.current_totaltrial_no.String=(obj.inputs.totalTrials);
-                        obj.app.pr.current_trial.String=obj.inputs.trial;
-                        obj.app.pr.current_si.String=obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,1};
-                        obj.app.pr.current_iti.String=obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.iti};
-                        
-                        if(obj.inputs.trial==obj.inputs.totalTrials)
-                            obj.app.pr.next_totaltrial_no.String=obj.inputs.totalTrials;
-                            obj.app.pr.next_trial.String='Completed';
-                            obj.app.pr.next_si.String='Completed';
-                            obj.app.pr.next_iti.String='Completed';
-                        else
-                            obj.app.pr.next_totaltrial_no.String=obj.inputs.totalTrials;
-                            obj.app.pr.next_trial.String=obj.inputs.trial+1;
-                            obj.app.pr.next_si.String=obj.inputs.trialMat{obj.inputs.trial+1,obj.inputs.colLabel.si}{1,1};
-                            obj.app.pr.next_iti.String=obj.inputs.trialMat{obj.inputs.trial+1,obj.inputs.colLabel.iti};
-                        end
-                        
                         obj.mep_plot
-                        
-                        
                     case 'Threshold Trace'
+                        obj.mep_threshold;
                         obj.mep_threshold_trace_plot;
                     case 'IOC'
                     case 'Motor Hotspot Search'
@@ -568,6 +551,23 @@ classdef best_toolbox < handle
                     case 'MEP IOC Fit'
                         obj.ioc_fit_plot;
                 end
+            end
+            % updating analytics paneljust once in 1 trial
+            obj.app.pr.current_totaltrial_no.String=(obj.inputs.totalTrials);
+            obj.app.pr.current_trial.String=obj.inputs.trial;
+            obj.app.pr.current_si.String=obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,1};
+            obj.app.pr.current_iti.String=obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.iti};
+            
+            if(obj.inputs.trial==obj.inputs.totalTrials)
+                obj.app.pr.next_totaltrial_no.String=obj.inputs.totalTrials;
+                obj.app.pr.next_trial.String='Completed';
+                obj.app.pr.next_si.String='Completed';
+                obj.app.pr.next_iti.String='Completed';
+            else
+                obj.app.pr.next_totaltrial_no.String=obj.inputs.totalTrials;
+                obj.app.pr.next_trial.String=obj.inputs.trial+1;
+                obj.app.pr.next_si.String=obj.inputs.trialMat{obj.inputs.trial+1,obj.inputs.colLabel.si}{1,1};
+                obj.app.pr.next_iti.String=obj.inputs.trialMat{obj.inputs.trial+1,obj.inputs.colLabel.iti};
             end
         end
         function prepTrial(obj)
@@ -580,13 +580,16 @@ classdef best_toolbox < handle
                     case 'Motor Threshold Hunting'
                         % if trialno 1 , read from the trial mat, otherwise ,
                         % go to the thresholding function and read from there
-                        obj.mep_threshold;
+%                         obj.mep_threshold; 
+                        % since the plotting is before the preparing, the
+                        % trials are handled
                         for i=1:numel(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.outputDevices})
                             switch obj.app.par.hardware_settings.(char(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.outputDevices}{1,i})).slct_device
                                 case 1 % pc controlled magven
                                     % --------------------------------------------------------ANOTHER
                                     % switch case for the stim mode will be implanted here
                                     % later on
+                                    obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,i}
                                     obj.magven.setAmplitude(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,i});
                                 case 2 % pc controlled magstim
                                     obj.boot_magstim;
@@ -608,7 +611,7 @@ classdef best_toolbox < handle
                                     obj.boot_bossbox;
                                 case 9 %simulation
                                     disp triggered
-                                    
+                                    obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,i}
                             end
                         end
                     otherwise
@@ -654,7 +657,7 @@ classdef best_toolbox < handle
                 obj.plotTrial;
                 obj.prepTrial;
                 %             pause(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.iti}-toc)
-                wait_period=obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.iti}-toc;
+                wait_period=obj.inputs.trialMat{obj.inputs.trial-1,obj.inputs.colLabel.iti}-toc;
                 wait_idx=3*floor(wait_period);
                 for wait_id=1:wait_idx
                     pause(wait_period/wait_idx)
@@ -679,13 +682,7 @@ classdef best_toolbox < handle
             obj.boot_inputdevice;
             obj.boot_outputdevice;
             obj.bootTrial;
-            for tt=1:obj.inputs.totalTrials
-            obj.trigTrial;
-            obj.readTrial;
-            obj.plotTrial;
-            obj.prepTrial;
-            pause(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.iti}-toc)
-            end
+            obj.stimLoop;
         end
         function best_hotspot(obj)
             obj.factorizeConditions
@@ -1020,6 +1017,9 @@ obj.stimLoop
             % set(gcf,'Visible', 'on');
             end
         end
+        function boot_threshold(obj)
+            obj.inputs.trialMat{1,obj.inputs.colLabel.si}{1,1}=obj.inputs.mt_starting_stim_inten;
+        end
         function mep_threshold(obj)
             %             if first trial, read from starting intensity
             %                 otherwise read from the evokness and write to the
@@ -1044,11 +1044,10 @@ obj.stimLoop
                 
                 obj.tc.lastdouble = [0,0,0];
                 obj.tc.lastreverse = [0,0,0];
-                obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,1}=obj.tc.stimvalue(1);
                 
                 
                 
-            else
+            end
             StimDevice=1;
             stimtype = 1;
             experimental_condition{1}.port = 1;
@@ -1059,14 +1058,15 @@ obj.stimLoop
             obj.tc.stimvalues{StimDevice} = [obj.tc.stimvalues{StimDevice}, round(obj.tc.stimvalue(StimDevice),2)];
             obj.tc.stepsizes{StimDevice} = [obj.tc.stepsizes{StimDevice}, round(obj.tc.stepsize(StimDevice),2)];
             
-                        obj.inputs.trialMat{obj.inputs.trial-1,obj.inputs.colLabel.mepamp}=input('enter mep amp  ');
+                        obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.mepamp}=input('enter mep amp  ');
+                        obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.mepamp}
             
             
-            if obj.inputs.trialMat{obj.inputs.trial-1,obj.inputs.colLabel.mepamp} > (obj.inputs.motor_threshold*(1000))
-                %disp('Hit')
+            if obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.mepamp} > (obj.inputs.motor_threshold*(1000))
+                disp('Hit')
                 answer = 1;
             else
-                %disp('Miss')
+                disp('Miss')
                 answer = 0;
             end
             
@@ -1135,16 +1135,33 @@ obj.stimLoop
                 obj.tc.stimvalue(StimDevice) = obj.tc.maxvalue;
                 disp('Max value reached.')
             end
-            obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,1}=obj.tc.stimvalue(StimDevice);
+            obj.inputs.trialMat{obj.inputs.trial+1,obj.inputs.colLabel.si}{1,1}=obj.tc.stimvalue(StimDevice);
             
             
-            end
+            
         end
         function mep_threshold_trace_plot(obj)
             ax=['ax' num2str(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.axesno}{1,obj.inputs.chLab_idx})];
             axes(obj.app.pr.ax.(ax)), hold on,
-                        plot(rand(1,500));
-
+            %                         plot(rand(1,500));
+            switch obj.inputs.trial
+                case 1
+                    aa=cell2mat(vertcat(obj.inputs.trialMat{1:2,obj.inputs.colLabel.si}))
+                    obj.info.plt.(ax).mtplot=plot(cell2mat(vertcat(obj.inputs.trialMat{1,obj.inputs.colLabel.si})),'LineWidth',2);
+                    %obj.info.handles.mt_plot=plot(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).trials(1,1));
+                    xlabel('Trial Number');   %TODO: Put if loop of RMT or MSO
+                    ylabel('Stimulation Intensities (%MSO)');
+                    yticks(0:5:400);
+                    xticks(1:2:100);    % will have to be referneced with GUI
+                    set(gcf, 'color', 'w')
+                    %     case obj.info.totalTrials
+                    obj.info.plt.(ax).mt_nextIntensityDot=plot(obj.inputs.trial+1,obj.inputs.trialMat{obj.inputs.trial+1,obj.inputs.colLabel.si}{1,1},'o','Color','r','MarkerSize',4,'MarkerFaceColor','r');
+                otherwise
+                    set(obj.info.plt.(ax).mtplot,'YData',cell2mat(vertcat(obj.inputs.trialMat{1:obj.inputs.trial,obj.inputs.colLabel.si})))
+                    set(obj.info.plt.(ax).mt_nextIntensityDot,'XData',obj.inputs.trial+1,'YData',obj.inputs.trialMat{obj.inputs.trial+1,obj.inputs.colLabel.si}{1,1})
+            end
+        end
+        function mep_threshold_update_plot(obj)
         end
        
         function planTrials_scopePeriods(obj)

@@ -22,9 +22,6 @@ classdef BEST < handle
         %         save_buffer
     end
     
-    events
-        slctedAx
-    end
     
     methods
         %% BESTq-
@@ -5706,8 +5703,31 @@ end
             obj.resultsPanel; 
             obj.bst.boot_inputdevice;
             obj.bst.boot_outputdevice;
+            obj.bst.boot_threshold;
             obj.bst.bootTrial;
             obj.bst.stimLoop
+% % % % for tt=1:obj.bst.inputs.totalTrials
+% % % %     obj.bst.trigTrial;
+% % % %     obj.bst.readTrial;
+% % % %     obj.bst.prepTrial;
+% % % %     obj.bst.plotTrial;
+% % % %     
+% % % %     %             pause(obj.bst.inputs.trialMat{obj.bst.inputs.trial,obj.bst.inputs.colLabel.iti}-toc)
+% % % %     wait_period=obj.bst.inputs.trialMat{obj.bst.inputs.trial,obj.bst.inputs.colLabel.iti}-toc;
+% % % %     wait_idx=3*floor(wait_period);
+% % % %     for wait_id=1:wait_idx
+% % % %         pause(wait_period/wait_idx)
+% % % %         if(obj.bst.inputs.stop_event==1)
+% % % %             break;
+% % % %         end
+% % % %     end
+% % % %     if(obj.bst.inputs.stop_event==1)
+% % % %         disp('returned after the execution')
+% % % %         obj.bst.inputs.stop_event=0;
+% % % %         break;
+% % % %     end
+% % % % end
+
             
             %             OLD SCRIPT
             %             obj.disable_listboxes

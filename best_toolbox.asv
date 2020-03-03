@@ -533,6 +533,8 @@ classdef best_toolbox < handle
                 case 5 %Future: no input box is selected
             end
         end
+        function processTrial(obj)
+        end
         function plotTrial(obj)
             for i=1:numel(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab})
                 obj.inputs.chLab_idx=i;
@@ -559,7 +561,8 @@ classdef best_toolbox < handle
                         obj.mep_plot
                         
                         
-                    case 'Motor Threshold Hunting'
+                    case 'Threshold Trace'
+                        obj.mep_threshold_trace_plot;
                     case 'IOC'
                     case 'Motor Hotspot Search'
                     case 'MEP Scatter Plot'
@@ -579,7 +582,40 @@ classdef best_toolbox < handle
                     case 'Motor Threshold Hunting'
                         % if trialno 1 , read from the trial mat, otherwise ,
                         % go to the thresholding function and read from there
-                        obj.mep_threshold;
+                        obj.mep_threshold; 
+                        obj.mep_threshold_update_plot;
+                        % since the plotting is before the preparing, the
+                        % trials are handled
+                        for i=1:numel(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.outputDevices})
+                            switch obj.app.par.hardware_settings.(char(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.outputDevices}{1,i})).slct_device
+                                case 1 % pc controlled magven
+                                    % --------------------------------------------------------ANOTHER
+                                    % switch case for the stim mode will be implanted here
+                                    % later on
+                                    obj.magven.setAmplitude(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,i});
+                                case 2 % pc controlled magstim
+                                    obj.boot_magstim;
+                                case 3 % pc controlled bistim
+                                    obj.boot_bistim;
+                                case 4 % pc controlled rapid
+                                    obj.boot_rapid;
+                                case 5 % boss box controlled magven
+                                    obj.magven.setAmplitude(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,i});
+                                    
+                                case 6% boss box controlled magstim
+                                    obj.boot_magstim;
+                                    obj.boot_bossbox;
+                                case 7% boss box controlled bistim
+                                    obj.boot_bistim;
+                                    obj.boot_bossbox;
+                                case 8% boss box controlled rapid
+                                    obj.boot_rapid;
+                                    obj.boot_bossbox;
+                                case 9 %simulation
+                                    disp triggered
+                                    
+                            end
+                        end
                     otherwise
                         
                         for i=1:numel(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.outputDevices})
@@ -1013,10 +1049,11 @@ obj.stimLoop
                 
                 obj.tc.lastdouble = [0,0,0];
                 obj.tc.lastreverse = [0,0,0];
+                obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,1}=obj.tc.stimvalue(1);
                 
                 
                 
-            end
+            else
             StimDevice=1;
             stimtype = 1;
             experimental_condition{1}.port = 1;
@@ -1106,6 +1143,28 @@ obj.stimLoop
             obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,1}=obj.tc.stimvalue(StimDevice);
             
             
+            end
+        end
+        function mep_threshold_trace_plot(obj)
+            ax=['ax' num2str(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.axesno}{1,obj.inputs.chLab_idx})];
+            axes(obj.app.pr.ax.(ax)), hold on,
+            %                         plot(rand(1,500));
+            switch obj.inputs.trial
+                case 1
+                    aa=cell2mat(vertcat(obj.inputs.trialMat{1:2,obj.inputs.colLabel.si}))
+                    obj.info.plt.(ax).mtplot=plot(cell2mat(vertcat(obj.inputs.trialMat{1,obj.inputs.colLabel.si})),'LineWidth',2);
+                    %obj.info.handles.mt_plot=plot(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).trials(1,1));
+                    xlabel('Trial Number');   %TODO: Put if loop of RMT or MSO
+                    ylabel('Stimulation Intensities (%MSO)');
+                    yticks(0:5:400);
+                    xticks(1:2:100);    % will have to be referneced with GUI
+                    set(gcf, 'color', 'w')
+                    %     case obj.info.totalTrials
+                otherwise
+                    set(obj.info.plt.(ax).mtplot,'YData',cell2mat(vertcat(obj.inputs.trialMat{1:obj.inputs.trial,obj.inputs.colLabel.si})))
+            end
+        end
+        function mep_threshold_update_plot(obj)
         end
        
         function planTrials_scopePeriods(obj)
