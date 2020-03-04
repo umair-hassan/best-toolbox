@@ -1075,8 +1075,8 @@ classdef BEST < handle
             obj.fig.main.Widths(3)=-0;
             obj.pi.mm.panel=uix.Panel( 'Parent', obj.pi.empty_panel,'FontSize',14 ,'Units','normalized','Title','Multimodal Neuromodulation Designer' ,'FontWeight','Bold','TitlePosition','centertop');
             obj.pi.mm.r0=uix.HBox( 'Parent', obj.pi.mm.panel,'Spacing', 5, 'Padding', 5 );
-            obj.pi.mm.pa=uix.Panel( 'Parent', obj.pi.empty_panel,'FontSize',14 ,'Units','normalized','Title','Multimodal Neuromodulation Designer' ,'FontWeight','Bold','TitlePosition','centertop');
-            obj.pi.mm.r0v1 = uix.VBox( 'Parent', obj.pi.mm.r0, 'Spacing', 5, 'Padding', 5  );
+            obj.pi.mm.r0p1=uix.Panel( 'Parent', obj.pi.mm.r0 ,'Units','normalized');
+            obj.pi.mm.r0v1 = uix.VBox( 'Parent', obj.pi.mm.r0p1, 'Spacing', 5, 'Padding', 5  );
             
             %row1
             r1=uiextras.HBox( 'Parent', obj.pi.mm.r0v1,'Spacing', 5, 'Padding', 5 );
@@ -1137,8 +1137,15 @@ classdef BEST < handle
             obj.pi.mm.r0v2 = uix.VBox( 'Parent', obj.pi.mm.r0, 'Spacing', 5, 'Padding', 5  );
             obj.pi.mm.ax=axes('parent',obj.pi.mm.r0v2 );
             box on
+            obj.pi.mm.ax.YLim=[-3 0];
+            obj.pi.mm.ax.XLim=[-2 4];
+            xticks(obj.pi.mm.ax,[100 101]);
+            yticks(obj.pi.mm.ax,[-3:1:0])
+%             yticks(obj.pi.mm.ax,[100 101]);
+% ax.XAxis.Categories
+obj.pi.mm.ax.YTickLabel={'','Stimulator 1','Input Device',''}
+yline(0,'Linewidth',2);
 
-            
             set(obj.pi.mm.r0,'Widths',[-1 -3]);
 
         end

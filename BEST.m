@@ -1144,6 +1144,8 @@ classdef BEST < handle
 %             yticks(obj.pi.mm.ax,[100 101]);
 % ax.XAxis.Categories
 obj.pi.mm.ax.YTickLabel={'','Stimulator 1','Input Device',''}
+% hline(obj.pi.mm.ax,-1,'Linewidth',2);
+% yline(obj.pi.mm.ax,-2,'Linewidth',2);
 
             set(obj.pi.mm.r0,'Widths',[-1 -3]);
 
