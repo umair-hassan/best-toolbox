@@ -6,11 +6,12 @@ classdef BEST < handle
         data
         save_buffer
         pr
+        pi
     end
     
     properties (Hidden)
         pmd %panel_measurement_designer
-        pi  %panel_inputs
+%         pi  %panel_inputs
         %         pr %panel_results
         hw
         var
@@ -71,6 +72,9 @@ classdef BEST < handle
             obj.info.session_copy_id=0;
             obj.info.measurement_paste_marker=0;
             obj.info.copy_index=0;
+            
+            obj.pi.mm.stim.no=1;
+            
             
         end
         function create_menu(obj)
@@ -1095,9 +1099,9 @@ classdef BEST < handle
             
             %row4
             r4=uiextras.HBox( 'Parent', obj.pi.mm.r0v1,'Spacing', 5, 'Padding', 5 );
-            obj.pi.mm.update=uicontrol( 'Parent', r4 ,'Style','PushButton','String','Update','FontWeight','Bold','HorizontalAlignment','center','Position',[0 0 1 1],'units','normalized') %add stimulator
-            obj.pi.mm.update=uicontrol( 'Parent', r4 ,'Style','PushButton','String','Update','FontWeight','Bold','HorizontalAlignment','center')%add condition
-            obj.pi.mm.update=uicontrol( 'Parent', r4 ,'Style','PushButton','String','Update','FontWeight','Bold','HorizontalAlignment','center')%Noise masking
+            obj.pi.mm.stim.btn=uicontrol( 'Parent', r4 ,'Style','PushButton','String','Stim','FontWeight','Bold','HorizontalAlignment','center','Position',[0 0 1 1],'units','normalized','Callback',@(~,~)obj.cb_pi_mm_stim) %add stimulator
+            obj.pi.mm.cond=uicontrol( 'Parent', r4 ,'Style','PushButton','String','Cond','FontWeight','Bold','HorizontalAlignment','center')%add condition
+            obj.pi.mm.mask=uicontrol( 'Parent', r4 ,'Style','PushButton','String','Masking','FontWeight','Bold','HorizontalAlignment','center')%Noise masking
             set( r4, 'Widths', [-1 -1 -1]);
             
             %row5
@@ -1109,9 +1113,9 @@ classdef BEST < handle
             
             %row 6
             r6=uiextras.HBox( 'Parent', obj.pi.mm.r0v1,'Spacing', 5, 'Padding', 5 );
-            obj.pi.mm.update=uicontrol( 'Parent', r6 ,'Style','PushButton','String','Update','FontWeight','Bold','HorizontalAlignment','center') %add single pulse
-            obj.pi.mm.update=uicontrol( 'Parent', r6 ,'Style','PushButton','String','Update','FontWeight','Bold','HorizontalAlignment','center')%add burst or train
-            obj.pi.mm.update=uicontrol( 'Parent', r6 ,'Style','PushButton','String','Update','FontWeight','Bold','HorizontalAlignment','center','Tooltip','Click to add MEP Measurement module')%add paired pulse
+            obj.pi.mm.sp=uicontrol( 'Parent', r6 ,'Style','PushButton','String','SP','FontWeight','Bold','HorizontalAlignment','center') %add single pulse
+            obj.pi.mm.pp=uicontrol( 'Parent', r6 ,'Style','PushButton','String','PP','FontWeight','Bold','HorizontalAlignment','center')%add burst or train
+            obj.pi.mm.train=uicontrol( 'Parent', r6 ,'Style','PushButton','String','Train','FontWeight','Bold','HorizontalAlignment','center','Tooltip','Click to add MEP Measurement module')%add paired pulse
             set( r6, 'Widths', [-1 -1 -1]);
             
 %             %row 6
@@ -1144,14 +1148,36 @@ classdef BEST < handle
 %             yticks(obj.pi.mm.ax,[100 101]);
 % ax.XAxis.Categories
 obj.pi.mm.ax.YTickLabel={'','Stimulator 1','Input Device',''}
-yline(0,'Linewidth',2);
+% hline(obj.pi.mm.ax,-1,'Linewidth',2);
+% yline(obj.pi.mm.ax,-2,'Linewidth',2);
 
             set(obj.pi.mm.r0,'Widths',[-1 -3]);
-
         end
-    
+        function cb_pi_mm_stim(obj)
+            obj.pi.mm.stim.no=obj.pi.mm.stim.no+1;
+            st=['st' num2str(obj.pi.mm.stim.no)]
+            axes(obj.pi.mm.ax)
+            obj.pi.mm.stim.((st)).plt=plot([-45 45],[-2 -2],'Color','k','parent',obj.pi.mm.ax,'LineWidth',3);
+            xticks(obj.pi.mm.ax,[100 101]);
+            xlim([
+            yticks(obj.pi.mm.ax,[-3:1:0])
+%             yticks(obj.pi.mm.ax,[100 101]);
+% ax.XAxis.Categories
+obj.pi.mm.ax.YTickLabel={'','Stimulator 1','Input Device',''}
+            % find how many stims are already there then add 1 into it to
+            %update stim category y ticks
+            % make the blank line
+            
+            
+%             obj.mm_add_stim;
+        end
         
-        
+        function mm_add_stim(obj)
+            % find how many stims are already there
+            %update stim category y ticks
+            % make the blank line
+            
+        end
         
         
         
