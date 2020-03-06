@@ -58,7 +58,7 @@ classdef BEST < handle
             obj.info.session_matrix={};
             
             % set(fig, 'Position', get(0, 'Screensize'));
-            set(obj.fig.handle,'Units','normalized', 'Position', [0.2 0.2 0.8 0.8]);
+            set(obj.fig.handle,'Units','normalized', 'Position', [0 0 0.8 0.8]);
             
             
             obj.pr.mep.axes1=axes;
@@ -1150,9 +1150,9 @@ classdef BEST < handle
             obj.pi.mm.ax.YTickLabel={'','Input Device',''};
 
             hold on
-            plot([-45 45],[1 1],'Color','k','parent',obj.pi.mm.ax);
+%             plot([-45 45],[1 1],'Color','k','parent',obj.pi.mm.ax);
             plot([-45 45],[0 0],'Color','k','parent',obj.pi.mm.ax,'Color','k','parent',obj.pi.mm.ax,'LineWidth',2);
-            plot([-45 45],[-2 -2],'Color','k','parent',obj.pi.mm.ax);
+%             plot([-45 45],[-2 -2],'Color','k','parent',obj.pi.mm.ax);
 
             set(obj.pi.mm.r0,'Widths',[-1 -3]);
         end
@@ -1167,7 +1167,7 @@ classdef BEST < handle
             
             obj.pi.mm.stim.((st)).plt=plot([-45 45],[-1*obj.pi.mm.stim.no -1*obj.pi.mm.stim.no],'Color','k','parent',obj.pi.mm.ax,'LineWidth',2); %line
             obj.pi.mm.stim.((st)).pulse_count=0;
-            plot([-45 45],[-2-obj.pi.mm.stim.no -2-obj.pi.mm.stim.no],'Color','k','parent',obj.pi.mm.ax);
+%             plot([-45 45],[-2-obj.pi.mm.stim.no -2-obj.pi.mm.stim.no],'Color','k','parent',obj.pi.mm.ax);
             obj.pi.mm.ax.YLim=[(-1-obj.pi.mm.stim.no) 1];
             yticks(obj.pi.mm.ax,[-1-obj.pi.mm.stim.no:1:1])
             for i=1:obj.pi.mm.stim.no
@@ -1175,12 +1175,12 @@ classdef BEST < handle
             end
             yticklab=flip(horzcat(yticklab{1,:}));
             obj.pi.mm.ax.YTickLabel={'',char(yticklab),'Input Device',''};
-            text(-2,-1*obj.pi.mm.stim.no,'click to add device','VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',9,'FontAngle','italic','ButtonDownFcn',@(~,~)obj.mm_add_stim)
+            text(-2,-1*obj.pi.mm.stim.no,'click to add device','VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',9,'FontAngle','italic','Tag',num2str(obj.pi.mm.stim.no),'ButtonDownFcn',@obj.mm_add_stim)
             obj.pi.mm.ax.YTickLabel
 
         end
         function cb_pi_mm_pulse(obj,source,event)
-            obj.pi.mm.stim.slctd=1;
+            obj.pi.mm.stim.slctd=2;
             
            
             st=['st' num2str(obj.pi.mm.stim.slctd)];
@@ -1189,8 +1189,17 @@ classdef BEST < handle
              switch source.Tag
                 case 'single_pulse'
                     obj.pi.mm.stim.(st).pulse_types{1,obj.pi.mm.stim.(st).pulse_count}=cellstr('single_pulse');
+                    text(obj.pi.mm.stim.(st).pulse_count-0.25,-obj.pi.mm.stim.slctd+0.51,'TS:[80 90] %MSO','VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',9,'FontAngle','italic','UserData',[obj.pi.mm.stim.(st).pulse_count,obj.pi.mm.stim.slctd])
+%                     p1 = [1.15 -1.1];                         % First Point
+%                     p2 = [2 -1.1];                         % Second Point
+%                     dp = p2-p1;
+%                     quiver(p1(1),p1(2),dp(1),dp(2),0)
+% annotation('textarrow',[1 2],[-1.1 -1.1],'String','t:?','Units','points');
+
                 case 'paired_pulse'
                     obj.pi.mm.stim.(st).pulse_types{1,obj.pi.mm.stim.(st).pulse_count}=cellstr('paired_pulse');
+                    text(obj.pi.mm.stim.(st).pulse_count-0.25,-obj.pi.mm.stim.slctd+0.5,{'TS:[?], CS:[?] %MSO', 'ISI:[?] ms'},'VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',9,'FontAngle','italic','UserData',[obj.pi.mm.stim.(st).pulse_count,obj.pi.mm.stim.slctd])
+
                 case 'train'
                    obj.pi.mm.stim.(st).pulse_types{1,obj.pi.mm.stim.(st).pulse_count}=cellstr('train');
             end
@@ -1202,33 +1211,48 @@ classdef BEST < handle
             x=[];
             y=[];
             for i=1:obj.pi.mm.stim.(st).pulse_count
-                switch obj.pi.mm.stim.(st).pulse_types{1,i}
+                switch char(obj.pi.mm.stim.(st).pulse_types{1,i})
                     case 'single_pulse'
                         disp sp
-                        x(i)=[obj.pi.mm.stim.(st).pulse_count obj.pi.mm.stim.(st).pulse_count obj.pi.mm.stim.(st).pulse_count+0.20 obj.pi.mm.stim.(st).pulse_count+0.20];
-                        y(i)=[obj.pi.mm.stim.slctd obj.pi.mm.stim.slctd+0.5 obj.pi.mm.stim.slctd+0.5 obj.pi.mm.stim.slctd];
+                        i
+                        x{i}=([i i i+0.15 i+0.15]);
+                        y{i}=[-obj.pi.mm.stim.slctd -obj.pi.mm.stim.slctd+0.5 -obj.pi.mm.stim.slctd+0.5 -obj.pi.mm.stim.slctd];
                     case 'paired_pulse'
                         disp pp
-                        x(i)=[obj.pi.mm.stim.(st).pulse_count obj.pi.mm.stim.(st).pulse_count obj.pi.mm.stim.(st).pulse_count+0.20 obj.pi.mm.stim.(st).pulse_count+0.20 obj.pi.mm.stim.(st).pulse_count+0.30 obj.pi.mm.stim.(st).pulse_count+0.30 obj.pi.mm.stim.(st).pulse_count+0.50 obj.pi.mm.stim.(st).pulse_count+0.50];
-                        y(i)=[obj.pi.mm.stim.slctd obj.pi.mm.stim.slctd+0.25 obj.pi.mm.stim.slctd+0.25 obj.pi.mm.stim.slctd obj.pi.mm.stim.slctd obj.pi.mm.stim.slctd+0.5 obj.pi.mm.stim.slctd+0.5 obj.pi.mm.stim.slctd];
+                        x{i}=[i i i+0.15 i+0.15 i+0.25 i+0.25 i+0.40 i+0.40];
+                        y{i}=[-obj.pi.mm.stim.slctd -obj.pi.mm.stim.slctd+0.25 -obj.pi.mm.stim.slctd+0.25 -obj.pi.mm.stim.slctd -obj.pi.mm.stim.slctd -obj.pi.mm.stim.slctd+0.5 -obj.pi.mm.stim.slctd+0.5 -obj.pi.mm.stim.slctd];
                     case 'train'
                         disp train
-                        x(i)=[obj.pi.mm.stim.(st).pulse_count obj.pi.mm.stim.(st).pulse_count obj.pi.mm.stim.(st).pulse_count+0.20 obj.pi.mm.stim.(st).pulse_count+0.20 obj.pi.mm.stim.(st).pulse_count+0.30 obj.pi.mm.stim.(st).pulse_count+0.30 obj.pi.mm.stim.(st).pulse_count+0.50 obj.pi.mm.stim.(st).pulse_count+0.50 obj.pi.mm.stim.(st).pulse_count+0.60 obj.pi.mm.stim.(st).pulse_count+0.60 obj.pi.mm.stim.(st).pulse_count+0.50 obj.pi.mm.stim.(st).pulse_count+0.50];
-                        y(i)=[obj.pi.mm.stim.slctd obj.pi.mm.stim.slctd+0.5 obj.pi.mm.stim.slctd+0.5 obj.pi.mm.stim.slctd];
+                        %                         x(i)=[i i i+0.20 i+0.20 i+0.30 i+0.30 i+0.50 i+0.50 i+0.60 i+0.60 i+0.80 i+0.80];
+                        x{i}=[i i i+0.15 i+0.15 i+0.25 i+0.25 i+0.40 i+0.40 i+0.50 i+0.50 i+0.65 i+0.65];
+%                         y{i}={[-obj.pi.mm.stim.slctd -obj.pi.mm.stim.slctd+0.5 -obj.pi.mm.stim.slctd+0.5 -obj.pi.mm.stim.slctd -obj.pi.mm.stim.slctd -obj.pi.mm.stim.slctd+0.5 -obj.pi.mm.stim.slctd+0.5 -obj.pi.mm.stim.slctd]};
+
+                        y{i}=-obj.pi.mm.stim.slctd+[0 0.5 0.5 0 0 0.5 0.5 0 0 0.5 0.5 0];
                 end
             end
             
-            x=[-45 x 45];
-            y=[-1*obj.pi.mm.stim.no y 1*obj.pi.mm.stim.no];
+            x=[-45 cell2mat(x) 45];
+            y=[-obj.pi.mm.stim.slctd cell2mat(y) -obj.pi.mm.stim.slctd];
             
             obj.pi.mm.stim.((st)).plt=plot(x,y,'Color','k','parent',obj.pi.mm.ax,'LineWidth',2); %line
-
+            
+            obj.cb_pi_mm_pulseboxes;
+            drawArrow = @(x,y) quiver( x(1),y(1),x(2)-x(1),y(2)-y(1),0,'color','k' )
+            text(obj.pi.mm.stim.(st).pulse_count+0.5,-obj.pi.mm.stim.slctd-0.05,'t:? ms','VerticalAlignment','botto','Color',[0.50 0.50 0.50],'FontSize',9,'FontAngle','italic','UserData',[obj.pi.mm.stim.(st).pulse_count,obj.pi.mm.stim.slctd])
+            
+            drawArrow([obj.pi.mm.stim.(st).pulse_count obj.pi.mm.stim.(st).pulse_count+1],[-obj.pi.mm.stim.slctd-0.05 -obj.pi.mm.stim.slctd-0.05])
+            drawArrow([obj.pi.mm.stim.(st).pulse_count+1 obj.pi.mm.stim.(st).pulse_count],[-obj.pi.mm.stim.slctd-0.05 -obj.pi.mm.stim.slctd-0.05])
             
         end
         
-        function mm_add_stim(obj)
-          disp openining
+        
+        function cb_pi_mm_pulseboxes(obj)
             
+        end
+        
+        function mm_add_stim(obj,source,event)
+          disp openining
+            source.Tag
         end
         
         
