@@ -1113,9 +1113,9 @@ classdef BEST < handle
             
             %row 6
             r6=uiextras.HBox( 'Parent', obj.pi.mm.r0v1,'Spacing', 5, 'Padding', 5 );
-            obj.pi.mm.sp=uicontrol( 'Parent', r6 ,'Style','PushButton','String','SP','FontWeight','Bold','HorizontalAlignment','center') %add single pulse
-            obj.pi.mm.pp=uicontrol( 'Parent', r6 ,'Style','PushButton','String','PP','FontWeight','Bold','HorizontalAlignment','center')%add burst or train
-            obj.pi.mm.train=uicontrol( 'Parent', r6 ,'Style','PushButton','String','Train','FontWeight','Bold','HorizontalAlignment','center','Tooltip','Click to add MEP Measurement module')%add paired pulse
+            obj.pi.mm.sp=uicontrol( 'Parent', r6 ,'Style','PushButton','String','SP','FontWeight','Bold','HorizontalAlignment','center','Tag','single_pulse','Callback',@obj.cb_pi_mm_pulse) %add single pulse
+            obj.pi.mm.pp=uicontrol( 'Parent', r6 ,'Style','PushButton','String','PP','FontWeight','Bold','HorizontalAlignment','center','Tag','paired_pulse','Callback',@obj.cb_pi_mm_pulse)%add burst or train
+            obj.pi.mm.train=uicontrol( 'Parent', r6 ,'Style','PushButton','String','Train','FontWeight','Bold','HorizontalAlignment','center','Tooltip','Click to add MEP Measurement module','Tag','train','Callback',@obj.cb_pi_mm_pulse)%add paired pulse
             set( r6, 'Widths', [-1 -1 -1]);
             
 %             %row 6
@@ -1151,6 +1151,7 @@ classdef BEST < handle
 
             hold on
             plot([-45 45],[1 1],'Color','k','parent',obj.pi.mm.ax);
+            plot([-45 45],[0 0],'Color','k','parent',obj.pi.mm.ax,'Color','k','parent',obj.pi.mm.ax,'LineWidth',2);
             plot([-45 45],[-2 -2],'Color','k','parent',obj.pi.mm.ax);
 
             set(obj.pi.mm.r0,'Widths',[-1 -3]);
@@ -1164,35 +1165,67 @@ classdef BEST < handle
             %             plot([-45 45],[0 0],'Color','k','parent',obj.pi.mm.ax);
             
             
-            obj.pi.mm.stim.((st)).plt=plot([-45 45],[-1*obj.pi.mm.stim.no -1*obj.pi.mm.stim.no],'Color','k','parent',obj.pi.mm.ax,'LineWidth',3); %line
+            obj.pi.mm.stim.((st)).plt=plot([-45 45],[-1*obj.pi.mm.stim.no -1*obj.pi.mm.stim.no],'Color','k','parent',obj.pi.mm.ax,'LineWidth',2); %line
+            obj.pi.mm.stim.((st)).pulse_count=0;
             plot([-45 45],[-2-obj.pi.mm.stim.no -2-obj.pi.mm.stim.no],'Color','k','parent',obj.pi.mm.ax);
             obj.pi.mm.ax.YLim=[(-1-obj.pi.mm.stim.no) 1];
             yticks(obj.pi.mm.ax,[-1-obj.pi.mm.stim.no:1:1])
             for i=1:obj.pi.mm.stim.no
-                
-                yticklab{1,i}=cellstr(['Stimulator ' num2str(i)])
+                yticklab{1,i}=cellstr(['Stimulator ' num2str(i)]);
             end
-            yticklab=flip(horzcat(yticklab{1,:}))
+            yticklab=flip(horzcat(yticklab{1,:}));
             obj.pi.mm.ax.YTickLabel={'',char(yticklab),'Input Device',''};
-            
+            text(-2,-1*obj.pi.mm.stim.no,'click to add device','VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',9,'FontAngle','italic','ButtonDownFcn',@(~,~)obj.mm_add_stim)
             obj.pi.mm.ax.YTickLabel
+
+        end
+        function cb_pi_mm_pulse(obj,source,event)
+            obj.pi.mm.stim.slctd=1;
             
-%             obj.pi.mm.stim.((st)).plt=plot([-45 45],[-2 -2],'Color','k','parent',obj.pi.mm.ax,'LineWidth',3);
-%             obj.pi.mm.stim.((st)).plt=plot([-45 45],[-3 -3],'Color','k','parent',obj.pi.mm.ax);
-%             
-%             xticks(obj.pi.mm.ax,[100 101]);
-%             xlim([-2 6])
-%             yticks(obj.pi.mm.ax,[-3:1:0])
-            %             yticks(obj.pi.mm.ax,[100 101]);
-            % ax.XAxis.Categories
-%             obj.pi.mm.ax.YTickLabel={'','Stimulator 1','Input Device',''}
-            % find how many stims are already there then add 1 into it to
-            %update stim category y ticks
-            % make the blank line
+           
+            st=['st' num2str(obj.pi.mm.stim.slctd)];
+            obj.pi.mm.stim.(st).pulse_count=obj.pi.mm.stim.(st).pulse_count+1;
             
-%             txt = '\leftarrow sin(\pi) = 0';
-%             text(-1,-2,txt,'VerticalAlignment','bottom','ButtonDownFcn',@(~,~)obj.mm_add_stim)
-%             %             obj.mm_add_stim;
+             switch source.Tag
+                case 'single_pulse'
+                    obj.pi.mm.stim.(st).pulse_types{1,obj.pi.mm.stim.(st).pulse_count}=cellstr('single_pulse');
+                case 'paired_pulse'
+                    obj.pi.mm.stim.(st).pulse_types{1,obj.pi.mm.stim.(st).pulse_count}=cellstr('paired_pulse');
+                case 'train'
+                   obj.pi.mm.stim.(st).pulse_types{1,obj.pi.mm.stim.(st).pulse_count}=cellstr('train');
+            end
+            
+            
+            % delete the previous plot
+            delete(obj.pi.mm.stim.(st).plt)
+            % make the x and y vector for new one
+            x=[];
+            y=[];
+            for i=1:obj.pi.mm.stim.(st).pulse_count
+                switch char(obj.pi.mm.stim.(st).pulse_types{1,i})
+                    case 'single_pulse'
+                        disp sp
+                        x{i}=([obj.pi.mm.stim.(st).pulse_count obj.pi.mm.stim.(st).pulse_count obj.pi.mm.stim.(st).pulse_count+0.20 obj.pi.mm.stim.(st).pulse_count+0.20]);
+                        y{i}=[obj.pi.mm.stim.slctd obj.pi.mm.stim.slctd+0.5 obj.pi.mm.stim.slctd+0.5 obj.pi.mm.stim.slctd];
+                    case 'paired_pulse'
+                        disp pp
+                        x{1,i}={[obj.pi.mm.stim.(st).pulse_count obj.pi.mm.stim.(st).pulse_count obj.pi.mm.stim.(st).pulse_count+0.20 obj.pi.mm.stim.(st).pulse_count+0.20 obj.pi.mm.stim.(st).pulse_count+0.30 obj.pi.mm.stim.(st).pulse_count+0.30 obj.pi.mm.stim.(st).pulse_count+0.50 obj.pi.mm.stim.(st).pulse_count+0.50]};
+                        y{1,i}={[obj.pi.mm.stim.slctd obj.pi.mm.stim.slctd+0.25 obj.pi.mm.stim.slctd+0.25 obj.pi.mm.stim.slctd obj.pi.mm.stim.slctd obj.pi.mm.stim.slctd+0.5 obj.pi.mm.stim.slctd+0.5 obj.pi.mm.stim.slctd]};
+                    case 'train'
+                        disp train
+                        %                         x(i)=[obj.pi.mm.stim.(st).pulse_count obj.pi.mm.stim.(st).pulse_count obj.pi.mm.stim.(st).pulse_count+0.20 obj.pi.mm.stim.(st).pulse_count+0.20 obj.pi.mm.stim.(st).pulse_count+0.30 obj.pi.mm.stim.(st).pulse_count+0.30 obj.pi.mm.stim.(st).pulse_count+0.50 obj.pi.mm.stim.(st).pulse_count+0.50 obj.pi.mm.stim.(st).pulse_count+0.60 obj.pi.mm.stim.(st).pulse_count+0.60 obj.pi.mm.stim.(st).pulse_count+0.80 obj.pi.mm.stim.(st).pulse_count+0.80];
+                        x{1,i}={obj.pi.mm.stim.(st).pulse_count*[1 1 1.20 1.20 1.30 1.30 1.50 1.50 1.60 1.60 1.80 1.80]};
+                        
+                        y{1,i}={obj.pi.mm.stim.slctd*[1 1.5 1.5 1 1 1.5 1.5 1 1 1.5 1.5 1]};
+                end
+            end
+            
+            x=[-45 cell2mat(x) 45]
+            y=[-1*obj.pi.mm.stim.slctd cell2mat(y) 1*obj.pi.mm.stim.slctd]
+            
+            obj.pi.mm.stim.((st)).plt=plot(x,y,'Color','k','parent',obj.pi.mm.ax,'LineWidth',2); %line
+
+            
         end
         
         function mm_add_stim(obj)
