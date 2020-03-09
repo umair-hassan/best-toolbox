@@ -1100,7 +1100,7 @@ classdef BEST < handle
             %row4
             r4=uiextras.HBox( 'Parent', obj.pi.mm.r0v1,'Spacing', 5, 'Padding', 5 );
             obj.pi.mm.stim.btn=uicontrol( 'Parent', r4 ,'Style','PushButton','String','Stim','FontWeight','Bold','HorizontalAlignment','center','Position',[0 0 1 1],'units','normalized','Callback',@(~,~)obj.cb_pi_mm_stim) %add stimulator
-            obj.pi.mm.cond=uicontrol( 'Parent', r4 ,'Style','PushButton','String','Cond','FontWeight','Bold','HorizontalAlignment','center')%add condition
+            obj.pi.mm.cond.btn=uicontrol( 'Parent', r4 ,'Style','PushButton','String','Cond','FontWeight','Bold','HorizontalAlignment','center','Callback',@(~,~)obj.cb_pi_mm_conditions)%add condition
             obj.pi.mm.mask=uicontrol( 'Parent', r4 ,'Style','PushButton','String','Masking','FontWeight','Bold','HorizontalAlignment','center')%Noise masking
             set( r4, 'Widths', [-1 -1 -1]);
             
@@ -1139,111 +1139,212 @@ classdef BEST < handle
             
             
             obj.pi.mm.r0v2 = uix.VBox( 'Parent', obj.pi.mm.r0, 'Spacing', 5, 'Padding', 5  );
-            obj.pi.mm.ax=axes('parent',obj.pi.mm.r0v2 );
-            box on
-            obj.pi.mm.ax.YLim=[-1 1];
-            obj.pi.mm.ax.XLim=[-2 4];
-            xticks(obj.pi.mm.ax,[100 101]);
-            yticks(obj.pi.mm.ax,[-1:1:1])
-
-%             obj.pi.mm.ax.YTickLabel={'','Stimulator 1','Input Device',''};
-            obj.pi.mm.ax.YTickLabel={'','Input Device',''};
-
-            hold on
-%             plot([-45 45],[1 1],'Color','k','parent',obj.pi.mm.ax);
-            plot([-45 45],[0 0],'Color','k','parent',obj.pi.mm.ax,'Color','k','parent',obj.pi.mm.ax,'LineWidth',2);
-%             plot([-45 45],[-2 -2],'Color','k','parent',obj.pi.mm.ax);
-
+            obj.pi.mm.tab = uiextras.TabPanel( 'Parent', obj.pi.mm.r0v2, 'Padding', 5 );
             set(obj.pi.mm.r0,'Widths',[-1 -3]);
+            obj.pi.mm.cond.no=0;
+            obj.cb_pi_mm_conditions;
+            
         end
+        
+        function cb_pi_mm_conditions(obj)
+            obj.pi.mm.cond.no=obj.pi.mm.cond.no+1;
+            cd=['cd' num2str(obj.pi.mm.cond.no)];
+            ax_panel= uix.Panel( 'Parent',obj.pi.mm.tab  )
+            obj.pi.mm.cond.(cd).ax=axes('parent',ax_panel );
+            box on; hold on;
+            obj.pi.mm.cond.TabNames{1,obj.pi.mm.cond.no}=['Condition' num2str(obj.pi.mm.cond.no)];
+            obj.pi.mm.tab.TabNames=obj.pi.mm.cond.TabNames;
+%             obj.pi.mm.tab.TabTitles=obj.pi.mm.cond.TabNames;
+            obj.pi.mm.tab.SelectedChild=obj.pi.mm.cond.no;
+            obj.pi.mm.tab.TabSize=90;
+            obj.pi.mm.tab.FontSize=12;
+            obj.pi.mm.cond.(cd).ax.YLim=[-1 1];
+            obj.pi.mm.cond.(cd).ax.XLim=[0 5];
+            xticks(obj.pi.mm.cond.(cd).ax,[100 101]);
+            yticks(obj.pi.mm.cond.(cd).ax,[-1:1:1])
+            obj.pi.mm.cond.(cd).ax.YTickLabel={'','Input Device',''};
+            plot([-45 45],[0 0],'Color','k','parent',obj.pi.mm.cond.(cd).ax,'Color','k','LineWidth',2);
+            obj.pi.mm.stim.(cd).no=0;
+        end
+        
         function cb_pi_mm_stim(obj)
-            obj.pi.mm.stim.no=obj.pi.mm.stim.no+1;
-            st=['st' num2str(obj.pi.mm.stim.no)];
-            axes(obj.pi.mm.ax)
+            
+            obj.pi.mm.tab.TabNames=obj.pi.mm.cond.TabNames;
+            cd=['cd' num2str(obj.pi.mm.tab.SelectedChild)]
+            obj.pi.mm.stim.(cd).no=obj.pi.mm.stim.(cd).no+1;
+            st=['st' num2str(obj.pi.mm.stim.(cd).no)];
+            axes(obj.pi.mm.cond.(cd).ax)
             hold on;
             %             plot([-45 45],[1 1],'Color','k','parent',obj.pi.mm.ax);
             %             plot([-45 45],[0 0],'Color','k','parent',obj.pi.mm.ax);
             
             
-            obj.pi.mm.stim.((st)).plt=plot([-45 45],[-1*obj.pi.mm.stim.no -1*obj.pi.mm.stim.no],'Color','k','parent',obj.pi.mm.ax,'LineWidth',2); %line
-            obj.pi.mm.stim.((st)).pulse_count=0;
+            obj.pi.mm.stim.(cd).(st).plt=plot([-45 45],[-1*obj.pi.mm.stim.(cd).no -1*obj.pi.mm.stim.(cd).no],'Color','k','parent',obj.pi.mm.cond.(cd).ax,'LineWidth',2); %line
+            obj.pi.mm.stim.(cd).(st).pulse_count=0;
 %             plot([-45 45],[-2-obj.pi.mm.stim.no -2-obj.pi.mm.stim.no],'Color','k','parent',obj.pi.mm.ax);
-            obj.pi.mm.ax.YLim=[(-1-obj.pi.mm.stim.no) 1];
-            yticks(obj.pi.mm.ax,[-1-obj.pi.mm.stim.no:1:1])
-            for i=1:obj.pi.mm.stim.no
+            obj.pi.mm.cond.(cd).ax.YLim=[(-1-obj.pi.mm.stim.(cd).no) 1];
+            yticks(obj.pi.mm.cond.(cd).ax,[-1-obj.pi.mm.stim.(cd).no:1:1])
+            for i=1:obj.pi.mm.stim.(cd).no
                 yticklab{1,i}=cellstr(['Stimulator ' num2str(i)]);
             end
             yticklab=flip(horzcat(yticklab{1,:}));
-            obj.pi.mm.ax.YTickLabel={'',char(yticklab),'Input Device',''};
-            text(-2,-1*obj.pi.mm.stim.no,'click to add device','VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',9,'FontAngle','italic','Tag',num2str(obj.pi.mm.stim.no),'ButtonDownFcn',@obj.mm_add_stim)
-            obj.pi.mm.ax.YTickLabel
+            obj.pi.mm.cond.(cd).ax.YTickLabel={'',char(yticklab),'Input Device',''};
+            text(0,-1*obj.pi.mm.stim.(cd).no,'click to add device','VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',9,'FontAngle','italic','Tag',num2str(obj.pi.mm.stim.(cd).no),'ButtonDownFcn',@obj.mm_add_stim)
 
         end
         function cb_pi_mm_pulse(obj,source,event)
-            obj.pi.mm.stim.slctd=2;
+            cd=['cd' num2str(obj.pi.mm.tab.SelectedChild)]
             
-           
-            st=['st' num2str(obj.pi.mm.stim.slctd)];
-            obj.pi.mm.stim.(st).pulse_count=obj.pi.mm.stim.(st).pulse_count+1;
+            obj.pi.mm.stim.(cd).slctd=1;
             
-             switch source.Tag
+            
+            st=['st' num2str(obj.pi.mm.stim.(cd).slctd)];
+            obj.pi.mm.stim.(cd).(st).pulse_count=obj.pi.mm.stim.(cd).(st).pulse_count+1;
+            
+            switch source.Tag
                 case 'single_pulse'
-                    obj.pi.mm.stim.(st).pulse_types{1,obj.pi.mm.stim.(st).pulse_count}=cellstr('single_pulse');
-                    text(obj.pi.mm.stim.(st).pulse_count-0.25,-obj.pi.mm.stim.slctd+0.51,'TS:[80 90] %MSO','VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',9,'FontAngle','italic','UserData',[obj.pi.mm.stim.(st).pulse_count,obj.pi.mm.stim.slctd])
-%                     p1 = [1.15 -1.1];                         % First Point
-%                     p2 = [2 -1.1];                         % Second Point
-%                     dp = p2-p1;
-%                     quiver(p1(1),p1(2),dp(1),dp(2),0)
-% annotation('textarrow',[1 2],[-1.1 -1.1],'String','t:?','Units','points');
-
+                    obj.pi.mm.stim.(cd).(st).pulse_types{1,obj.pi.mm.stim.(cd).(st).pulse_count}=cellstr('single_pulse');
+                    obj.pi.mm.stim.(st).pulse_specs=text(obj.pi.mm.stim.(cd).(st).pulse_count-0.25,-obj.pi.mm.stim.(cd).slctd+0.41,'TS:[80 90] %MSO','VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',7,'FontAngle','italic','UserData',[obj.pi.mm.stim.(cd).(st).pulse_count,obj.pi.mm.stim.(cd).slctd])
+                    %                     p1 = [1.15 -1.1];                         % First Point
+                    %                     p2 = [2 -1.1];                         % Second Point
+                    %                     dp = p2-p1;
+                    %                     quiver(p1(1),p1(2),dp(1),dp(2),0)
+                    % annotation('textarrow',[1 2],[-1.1 -1.1],'String','t:?','Units','points');
+                    
                 case 'paired_pulse'
-                    obj.pi.mm.stim.(st).pulse_types{1,obj.pi.mm.stim.(st).pulse_count}=cellstr('paired_pulse');
-                    text(obj.pi.mm.stim.(st).pulse_count-0.25,-obj.pi.mm.stim.slctd+0.5,{'TS:[?], CS:[?] %MSO', 'ISI:[?] ms'},'VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',9,'FontAngle','italic','UserData',[obj.pi.mm.stim.(st).pulse_count,obj.pi.mm.stim.slctd])
-
+                    obj.pi.mm.stim.(cd).(st).pulse_types{1,obj.pi.mm.stim.(cd).(st).pulse_count}=cellstr('paired_pulse');
+                    obj.pi.mm.stim.(st).pulse_specs=text(obj.pi.mm.stim.(cd).(st).pulse_count-0.25,-obj.pi.mm.stim.(cd).slctd+0.4,{'TS:[?], CS:[?] %MSO', 'ISI:[?] ms'},'VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',7,'FontAngle','italic','UserData',[obj.pi.mm.stim.(cd).(st).pulse_count,obj.pi.mm.stim.(cd).slctd])
+                    
                 case 'train'
-                   obj.pi.mm.stim.(st).pulse_types{1,obj.pi.mm.stim.(st).pulse_count}=cellstr('train');
+                    obj.pi.mm.stim.(cd).(st).pulse_types{1,obj.pi.mm.stim.(cd).(st).pulse_count}=cellstr('train');
+                    obj.pi.mm.stim.(st).pulse_specs=text(obj.pi.mm.stim.(cd).(st).pulse_count,-obj.pi.mm.stim.(cd).slctd+0.4,{'Pulses:[?], f:[?] Hz', 'TS:[?] %MSO'},'VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',7,'FontAngle','italic','UserData',[obj.pi.mm.stim.(cd).(st).pulse_count,obj.pi.mm.stim.(cd).slctd])
+                    
             end
             
             
             % delete the previous plot
-            delete(obj.pi.mm.stim.(st).plt)
+            delete(obj.pi.mm.stim.(cd).(st).plt)
             % make the x and y vector for new one
             x=[];
             y=[];
-            for i=1:obj.pi.mm.stim.(st).pulse_count
-                switch char(obj.pi.mm.stim.(st).pulse_types{1,i})
+            for i=1:obj.pi.mm.stim.(cd).(st).pulse_count
+                switch char(obj.pi.mm.stim.(cd).(st).pulse_types{1,i})
                     case 'single_pulse'
                         disp sp
-                        i
                         x{i}=([i i i+0.15 i+0.15]);
-                        y{i}=[-obj.pi.mm.stim.slctd -obj.pi.mm.stim.slctd+0.5 -obj.pi.mm.stim.slctd+0.5 -obj.pi.mm.stim.slctd];
+                        y{i}=[-obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd+0.4 -obj.pi.mm.stim.(cd).slctd+0.4 -obj.pi.mm.stim.(cd).slctd];
                     case 'paired_pulse'
                         disp pp
                         x{i}=[i i i+0.15 i+0.15 i+0.25 i+0.25 i+0.40 i+0.40];
-                        y{i}=[-obj.pi.mm.stim.slctd -obj.pi.mm.stim.slctd+0.25 -obj.pi.mm.stim.slctd+0.25 -obj.pi.mm.stim.slctd -obj.pi.mm.stim.slctd -obj.pi.mm.stim.slctd+0.5 -obj.pi.mm.stim.slctd+0.5 -obj.pi.mm.stim.slctd];
+                        y{i}=[-obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd+0.20 -obj.pi.mm.stim.(cd).slctd+0.20 -obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd+0.4 -obj.pi.mm.stim.(cd).slctd+0.4 -obj.pi.mm.stim.(cd).slctd];
                     case 'train'
                         disp train
                         %                         x(i)=[i i i+0.20 i+0.20 i+0.30 i+0.30 i+0.50 i+0.50 i+0.60 i+0.60 i+0.80 i+0.80];
                         x{i}=[i i i+0.15 i+0.15 i+0.25 i+0.25 i+0.40 i+0.40 i+0.50 i+0.50 i+0.65 i+0.65];
-%                         y{i}={[-obj.pi.mm.stim.slctd -obj.pi.mm.stim.slctd+0.5 -obj.pi.mm.stim.slctd+0.5 -obj.pi.mm.stim.slctd -obj.pi.mm.stim.slctd -obj.pi.mm.stim.slctd+0.5 -obj.pi.mm.stim.slctd+0.5 -obj.pi.mm.stim.slctd]};
-
-                        y{i}=-obj.pi.mm.stim.slctd+[0 0.5 0.5 0 0 0.5 0.5 0 0 0.5 0.5 0];
+                        %                         y{i}={[-obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd+0.5 -obj.pi.mm.stim.(cd).slctd+0.5 -obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd+0.5 -obj.pi.mm.stim.(cd).slctd+0.5 -obj.pi.mm.stim.(cd).slctd]};
+                        
+                        y{i}=-obj.pi.mm.stim.(cd).slctd+[0 0.4 0.4 0 0 0.4 0.4 0 0 0.4 0.4 0];
                 end
             end
             
             x=[-45 cell2mat(x) 45];
-            y=[-obj.pi.mm.stim.slctd cell2mat(y) -obj.pi.mm.stim.slctd];
+            y=[-obj.pi.mm.stim.(cd).slctd cell2mat(y) -obj.pi.mm.stim.(cd).slctd];
             
-            obj.pi.mm.stim.((st)).plt=plot(x,y,'Color','k','parent',obj.pi.mm.ax,'LineWidth',2); %line
+            obj.pi.mm.stim.(cd).(st).plt=plot(x,y,'Color','k','parent',obj.pi.mm.cond.(cd).ax,'LineWidth',2); %line
             
             obj.cb_pi_mm_pulseboxes;
             drawArrow = @(x,y) quiver( x(1),y(1),x(2)-x(1),y(2)-y(1),0,'color','k' )
-            text(obj.pi.mm.stim.(st).pulse_count+0.5,-obj.pi.mm.stim.slctd-0.05,'t:? ms','VerticalAlignment','botto','Color',[0.50 0.50 0.50],'FontSize',9,'FontAngle','italic','UserData',[obj.pi.mm.stim.(st).pulse_count,obj.pi.mm.stim.slctd])
+            obj.pi.mm.stim.(st).pulse_time=text(obj.pi.mm.stim.(cd).(st).pulse_count-1+0.5,-obj.pi.mm.stim.(cd).slctd-0.05,'t:? ms','VerticalAlignment','top','Color',[0.50 0.50 0.50],'FontSize',9,'FontAngle','italic','UserData',[obj.pi.mm.stim.(cd).(st).pulse_count,obj.pi.mm.stim.(cd).slctd],'ButtonDownFcn',@obj.cb_pi_mm_timing)
             
-            drawArrow([obj.pi.mm.stim.(st).pulse_count obj.pi.mm.stim.(st).pulse_count+1],[-obj.pi.mm.stim.slctd-0.05 -obj.pi.mm.stim.slctd-0.05])
-            drawArrow([obj.pi.mm.stim.(st).pulse_count+1 obj.pi.mm.stim.(st).pulse_count],[-obj.pi.mm.stim.slctd-0.05 -obj.pi.mm.stim.slctd-0.05])
+            obj.pi.mm.stim.(st).pulse_arrow1=drawArrow([obj.pi.mm.stim.(cd).(st).pulse_count-1 obj.pi.mm.stim.(cd).(st).pulse_count-1+1],[-obj.pi.mm.stim.(cd).slctd-0.05 -obj.pi.mm.stim.(cd).slctd-0.05])
+            obj.pi.mm.stim.(st).pulse_arrow2=drawArrow([obj.pi.mm.stim.(cd).(st).pulse_count-1+1 obj.pi.mm.stim.(cd).(st).pulse_count-1],[-obj.pi.mm.stim.(cd).slctd-0.05 -obj.pi.mm.stim.(cd).slctd-0.05])
+            
+            
+            if(obj.pi.mm.cond.(cd).ax.XLim(2)<obj.pi.mm.stim.(cd).(st).pulse_count+1)
+                obj.pi.mm.cond.(cd).ax.XLim(2)=obj.pi.mm.stim.(cd).(st).pulse_count+1;
+            end
+        end
+         
+        function cb_pi_mm_timing(obj,source,event)
+            prompt = {'time (mili-seconds):'};
+            dlgtitle = 'Insert Time | BEST Toolbox';
+            dims = [1 40];
+%             definput = {num2str(obj.pr.ax.(selectedAxes).YLim(1)),num2str(obj.pr.ax.(selectedAxes).YLim(2))};
+            answer = inputdlg(prompt,dlgtitle,dims);
             
         end
+%            ------------------------->>>> uncomment the function and paste from some of the tab the correctly written function and test
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %         function cb_pi_mm_pulse(obj,source,event)
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %             obj.pi.mm.stim.slctd=2;
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %             
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %            
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %             st=['st' num2str(obj.pi.mm.stim.slctd)];
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %             obj.pi.mm.stim.(st).pulse_count=obj.pi.mm.stim.(st).pulse_count+1;
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %             
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %              switch source.Tag
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                 case 'single_pulse'
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                     obj.pi.mm.stim.(st).pulse_types{1,obj.pi.mm.stim.(st).pulse_count}=cellstr('single_pulse');
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                     obj.pi.mm.stim.(st).pulse_specs=text(obj.pi.mm.stim.(st).pulse_count-0.25,-obj.pi.mm.stim.slctd+0.41,'TS:[80 90] %MSO','VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',7,'FontAngle','italic','UserData',[obj.pi.mm.stim.(st).pulse_count,obj.pi.mm.stim.slctd])
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                     p1 = [1.15 -1.1];                         % First Point
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                     p2 = [2 -1.1];                         % Second Point
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                     dp = p2-p1;
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                     quiver(p1(1),p1(2),dp(1),dp(2),0)
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % annotation('textarrow',[1 2],[-1.1 -1.1],'String','t:?','Units','points');
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % 
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                 case 'paired_pulse'
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                     obj.pi.mm.stim.(st).pulse_types{1,obj.pi.mm.stim.(st).pulse_count}=cellstr('paired_pulse');
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                     obj.pi.mm.stim.(st).pulse_specs=text(obj.pi.mm.stim.(st).pulse_count-0.25,-obj.pi.mm.stim.slctd+0.4,{'TS:[?], CS:[?] %MSO', 'ISI:[?] ms'},'VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',7,'FontAngle','italic','UserData',[obj.pi.mm.stim.(st).pulse_count,obj.pi.mm.stim.slctd])
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % 
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                 case 'train'
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                    obj.pi.mm.stim.(st).pulse_types{1,obj.pi.mm.stim.(st).pulse_count}=cellstr('train');
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                    obj.pi.mm.stim.(st).pulse_specs=text(obj.pi.mm.stim.(st).pulse_count,-obj.pi.mm.stim.slctd+0.4,{'Pulses:[?], f:[?] Hz', 'TS:[?] %MSO'},'VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',7,'FontAngle','italic','UserData',[obj.pi.mm.stim.(st).pulse_count,obj.pi.mm.stim.slctd])
+
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %             end
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %             
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %             
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %             % delete the previous plot
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %             delete(obj.pi.mm.stim.(st).plt)
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %             % make the x and y vector for new one
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %             x=[];
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %             y=[];
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %             for i=1:obj.pi.mm.stim.(st).pulse_count
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                 switch char(obj.pi.mm.stim.(st).pulse_types{1,i})
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                     case 'single_pulse'
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                         disp sp
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                         x{i}=([i i i+0.15 i+0.15]);
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                         y{i}=[-obj.pi.mm.stim.slctd -obj.pi.mm.stim.slctd+0.4 -obj.pi.mm.stim.slctd+0.4 -obj.pi.mm.stim.slctd];
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                     case 'paired_pulse'
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                         disp pp
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                         x{i}=[i i i+0.15 i+0.15 i+0.25 i+0.25 i+0.40 i+0.40];
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                         y{i}=[-obj.pi.mm.stim.slctd -obj.pi.mm.stim.slctd+0.20 -obj.pi.mm.stim.slctd+0.20 -obj.pi.mm.stim.slctd -obj.pi.mm.stim.slctd -obj.pi.mm.stim.slctd+0.4 -obj.pi.mm.stim.slctd+0.4 -obj.pi.mm.stim.slctd];
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                     case 'train'
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                         disp train
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                         %                         x(i)=[i i i+0.20 i+0.20 i+0.30 i+0.30 i+0.50 i+0.50 i+0.60 i+0.60 i+0.80 i+0.80];
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                         x{i}=[i i i+0.15 i+0.15 i+0.25 i+0.25 i+0.40 i+0.40 i+0.50 i+0.50 i+0.65 i+0.65];
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                         y{i}={[-obj.pi.mm.stim.slctd -obj.pi.mm.stim.slctd+0.5 -obj.pi.mm.stim.slctd+0.5 -obj.pi.mm.stim.slctd -obj.pi.mm.stim.slctd -obj.pi.mm.stim.slctd+0.5 -obj.pi.mm.stim.slctd+0.5 -obj.pi.mm.stim.slctd]};
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % 
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                         y{i}=-obj.pi.mm.stim.slctd+[0 0.4 0.4 0 0 0.4 0.4 0 0 0.4 0.4 0];
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                 end
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %             end
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %             
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %             x=[-45 cell2mat(x) 45];
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %             y=[-obj.pi.mm.stim.slctd cell2mat(y) -obj.pi.mm.stim.slctd];
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %             
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %             obj.pi.mm.stim.((st)).plt=plot(x,y,'Color','k','parent',obj.pi.mm.ax,'LineWidth',2); %line
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %             
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %             obj.cb_pi_mm_pulseboxes;
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %             drawArrow = @(x,y) quiver( x(1),y(1),x(2)-x(1),y(2)-y(1),0,'color','k' )
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %             obj.pi.mm.stim.(st).pulse_time=text(obj.pi.mm.stim.(st).pulse_count-1+0.5,-obj.pi.mm.stim.slctd-0.05,'t:? ms','VerticalAlignment','top','Color',[0.50 0.50 0.50],'FontSize',9,'FontAngle','italic','UserData',[obj.pi.mm.stim.(st).pulse_count,obj.pi.mm.stim.slctd])
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %             
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %             obj.pi.mm.stim.(st).pulse_arrow1=drawArrow([obj.pi.mm.stim.(st).pulse_count-1 obj.pi.mm.stim.(st).pulse_count-1+1],[-obj.pi.mm.stim.slctd-0.05 -obj.pi.mm.stim.slctd-0.05])
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %             obj.pi.mm.stim.(st).pulse_arrow2=drawArrow([obj.pi.mm.stim.(st).pulse_count-1+1 obj.pi.mm.stim.(st).pulse_count-1],[-obj.pi.mm.stim.slctd-0.05 -obj.pi.mm.stim.slctd-0.05])
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %             
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %             
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %             if(obj.pi.mm.ax.XLim(2)<obj.pi.mm.stim.(st).pulse_count+1)
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                 obj.pi.mm.ax.XLim(2)=obj.pi.mm.stim.(st).pulse_count+1;
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %             end
+            
+% % % % %         end
         
         
         function cb_pi_mm_pulseboxes(obj)
