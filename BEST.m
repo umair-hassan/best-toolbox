@@ -1266,9 +1266,9 @@ classdef BEST < handle
         end
          
         function cb_pi_mm_timing(obj,source,event)
-            prompt = {'time (mili-seconds):'};
+            prompt = {'Time (mili-seconds):'};
             dlgtitle = 'Insert Time | BEST Toolbox';
-            dims = [1 40];
+            dims = [1 60];
             answer = inputdlg(prompt,dlgtitle,dims);
             source.String=['t: ', char(answer), ' ms'];
             
