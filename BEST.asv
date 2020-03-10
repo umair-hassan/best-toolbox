@@ -1189,7 +1189,7 @@ classdef BEST < handle
             end
             yticklab=flip(horzcat(yticklab{1,:}));
             obj.pi.mm.cond.(cd).ax.YTickLabel={'',char(yticklab),'Input Device',''};
-            text(0,-1*obj.pi.mm.stim.(cd).no,'click to add device','VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',9,'FontAngle','italic','Tag',num2str(obj.pi.mm.stim.(cd).no),'ButtonDownFcn',@obj.mm_add_stim)
+            text(0,-1*obj.pi.mm.stim.(cd).no,'click to add device','VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',9,'FontAngle','italic','Tag',num2str(obj.pi.mm.stim.(cd).no),'ButtonDownFcn',@obj.cb_pi_mm_output_device)
 
         end
         function cb_pi_mm_pulse(obj,source,event)
@@ -1269,10 +1269,19 @@ classdef BEST < handle
             prompt = {'time (mili-seconds):'};
             dlgtitle = 'Insert Time | BEST Toolbox';
             dims = [1 40];
-%             definput = {num2str(obj.pr.ax.(selectedAxes).YLim(1)),num2str(obj.pr.ax.(selectedAxes).YLim(2))};
             answer = inputdlg(prompt,dlgtitle,dims);
+            source.String=['t: ', char(answer), ' ms'];
             
         end
+        
+        function cb_pi_mm_output_device(obj,source,event)
+            [indx,tf] = listdlg('PromptString',{'Select an Output Device'},'SelectionMode','single','ListString',obj.hw.device_added1_listbox.string);
+        end
+        
+        
+        
+        
+        
 %            ------------------------->>>> uncomment the function and paste from some of the tab the correctly written function and test
 % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %         function cb_pi_mm_pulse(obj,source,event)
 % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %             obj.pi.mm.stim.slctd=2;

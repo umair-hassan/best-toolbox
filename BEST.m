@@ -1189,7 +1189,7 @@ classdef BEST < handle
             end
             yticklab=flip(horzcat(yticklab{1,:}));
             obj.pi.mm.cond.(cd).ax.YTickLabel={'',char(yticklab),'Input Device',''};
-            text(0,-1*obj.pi.mm.stim.(cd).no,'click to add device','VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',9,'FontAngle','italic','Tag',num2str(obj.pi.mm.stim.(cd).no),'ButtonDownFcn',@obj.mm_add_stim)
+            text(0,-1*obj.pi.mm.stim.(cd).no,'click to add device','VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',9,'FontAngle','italic','Tag',num2str(obj.pi.mm.stim.(cd).no),'ButtonDownFcn',@obj.cb_pi_mm_output_device)
 
         end
         function cb_pi_mm_pulse(obj,source,event)
@@ -1272,6 +1272,12 @@ classdef BEST < handle
             answer = inputdlg(prompt,dlgtitle,dims);
             source.String=['t: ', char(answer), ' ms'];
             
+        end
+        
+        function cb_pi_mm_output_device(obj,source,event)
+            obj.hw.device_added1_listbox.string
+            [indx,tf] = listdlg('PromptString',{'Select an Output Device'},'SelectionMode','single','ListString',obj.hw.device_added1_listbox.string);
+
         end
         
         
