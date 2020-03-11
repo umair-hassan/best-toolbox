@@ -1169,7 +1169,7 @@ classdef BEST < handle
         function cb_pi_mm_stim(obj)
             
             obj.pi.mm.tab.TabNames=obj.pi.mm.cond.TabNames;
-            cd=['cd' num2str(obj.pi.mm.tab.SelectedChild)]
+            cd=['cd' num2str(obj.pi.mm.tab.SelectedChild)];
             obj.pi.mm.stim.(cd).no=obj.pi.mm.stim.(cd).no+1;
             st=['st' num2str(obj.pi.mm.stim.(cd).no)];
             axes(obj.pi.mm.cond.(cd).ax)
@@ -1191,7 +1191,8 @@ classdef BEST < handle
             text(0,-1*obj.pi.mm.stim.(cd).no,'click to add device','VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',9,'FontAngle','italic','Tag',num2str(obj.pi.mm.stim.(cd).no),'ButtonDownFcn',@obj.cb_pi_mm_output_device)
 
         end
-        function cb_pi_mm_pulse(obj,source,event)
+        function cb_pi_mm_pulse(obj,source,~)
+            % 11-Mar-2020 18:13:21
             cd=['cd' num2str(obj.pi.mm.tab.SelectedChild)]
             
             obj.pi.mm.stim.(cd).slctd=1;
@@ -1265,13 +1266,31 @@ classdef BEST < handle
                 obj.pi.mm.cond.(cd).ax.XLim(2)=obj.pi.mm.stim.(cd).(st).pulse_count+1;
             end
         end
-        function cb_pi_mm_timing(obj,source,event)
+        
+        function cb_pi_mm_output_device(obj,source,~)
+            obj.hw.device_added1_listbox.string
+            if(isempty(obj.hw.device_added2_listbox.string))
+                errordlg('No Output Device (Stimulator) is configured before, visit Hardware Configuration section and configure a Hardware device before selecting one!', 'BEST Toolbox')
+            else
+                [indx,tf] = listdlg('PromptString',{'Select an Output Device'},'SelectionMode','single','ListString',obj.hw.device_added2_listbox.string);
+                if(tf==1)
+                    cd=['cond' num2str(obj.pi.mm.tab.SelectedChild)];
+                    st=['st' num2str(source.Tag)];
+                    obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(cd).(st).stim_device=obj.hw.device_added2_listbox.string(indx);
+                    source.String=obj.hw.device_added2_listbox.string(indx);
+                end
+                
+            end
+        end
+        function cb_pi_mm_timing(obj,source,~)
             prompt = {'Time (mili-seconds):'};
             dlgtitle = 'Insert Time | BEST Toolbox';
             dims = [1 60];
             answer = inputdlg(prompt,dlgtitle,dims);
             source.String=['t: ', char(answer), ' ms'];
-            
+            cd=['cond' num2str(obj.pi.mm.tab.SelectedChild)];
+            st=['st' num2str(source.UserData(2))];
+            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(cd).(st).stim_timing(source.UserData(1))=answer;            
         end        
         function cb_pi_mm_sp_inputfig(obj,source,~)
             f=figure('ToolBar','none','MenuBar','none','Name','Insert Parameters | BEST Toolbox','NumberTitle','off');
@@ -1304,7 +1323,7 @@ classdef BEST < handle
             f.Position(3)=430;
             f.Position(4)=150;
             function cb_ok
-                source.String=['TS:[' si.String '] %MSO']; % 11-Mar-2020 14:48:28
+                source.String=['TS:' si.String ' %MSO']; % 11-Mar-2020 14:48:28
                 cd=['cond' num2str(obj.pi.mm.tab.SelectedChild)];
                 st=['st' num2str(source.UserData(2))];
                 obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(cd).(st).si=si.String;
@@ -1366,10 +1385,10 @@ classdef BEST < handle
             f.Position(4)=220;
             function cb_ok
                 
-%                 source.String=["TS:[" char(si.String) "], CS:[" char(cs.String) "] %MSO", "ISI:[" char(isi.String) "] ms"] % 11-Mar-2020 14:48:28
-a=['TS:[' char(si.String) '], CS:[' char(cs.String) '] %MSO']
-b= ['ISI:[' char(isi.String) '] ms']
-source.String={a;b}
+% source.String={['TS:' char(si.String) ']'];['CS:[' char(cs.String) '] %MSO'];['ISI:[' char(isi.String) '] ms']} % 11-Mar-2020 14:48:28
+
+
+source.String={['TS:' char(si.String)];['CS:' char(cs.String) ' %MSO'];['ISI:' char(isi.String) ' ms']} % 11-Mar-2020 14:48:28
 
 %                 source.String=['TS:[' si.String '] %MSO']; % 11-Mar-2020 14:48:28
                 cd=['cond' num2str(obj.pi.mm.tab.SelectedChild)];
@@ -1393,30 +1412,74 @@ source.String={a;b}
                 end
             end
         end
-        
-        function cb_pi_mm_train_inputfig(obj)
+        function cb_pi_mm_train_inputfig(obj,source,~)
+            f=figure('ToolBar','none','MenuBar','none','Name','Insert Parameters | BEST Toolbox','NumberTitle','off');
+            c1=uix.VBox('parent',f,'Padding',10,'Spacing',10);
+            r1=uix.HBox('parent',c1);
+            uicontrol( 'Style','text','Parent', r1,'String','Stimulation Intensities (TS):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+            si=uicontrol( 'Style','edit','Parent', r1 ,'FontSize',11);
+            set( r1, 'Widths', [250 200]);
             
-        end
-        
-        
-        
-        function cb_pi_mm_output_device(obj,source,event)
-            obj.hw.device_added1_listbox.string
-            [indx,tf] = listdlg('PromptString',{'Select an Output Device'},'SelectionMode','single','ListString',obj.hw.device_added1_listbox.string);
-
-        end
-
-        function cb_pi_mm_pulseboxes(obj)
+            r2a=uix.HBox('parent',c1);
+            uicontrol( 'Style','text','Parent', r2a,'String','Pulse Frequency (Hz):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+            freq=uicontrol( 'Style','edit','Parent', r2a ,'FontSize',11);
+            set( r2a, 'Widths', [250 200]);
             
+            r2b=uix.HBox('parent',c1);
+            uicontrol( 'Style','text','Parent', r2b,'String','No of Pulses:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+            pulsesNo=uicontrol( 'Style','edit','Parent', r2b ,'FontSize',11);
+            set( r2b, 'Widths', [250 200]);
+
+            r2=uix.HBox('parent',c1);
+            uicontrol( 'Style','text','Parent', r2,'String','Intensity Units:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+            units_mso=uicontrol( 'Style','radiobutton','Parent', r2 ,'FontSize',11,'String','%MSO','Value',1,'Callback',@(~,~)cb_units_mso);
+            units_mt=uicontrol( 'Style','radiobutton','Parent', r2 ,'FontSize',11,'String','%MT','Callback',@(~,~)cb_units_mt);
+            set( r2, 'Widths', [250 100 100]);
+                   
+            r3=uix.HBox('parent',c1);
+            uicontrol( 'Style','text','Parent', r3,'String','Motor Threshold (%MSO):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+            threshold=uicontrol( 'Style','edit','Parent', r3 ,'FontSize',11);
+            mt_btn_listbox_str_id= find(strcmp(obj.data.(obj.info.event.current_session).info.measurement_str_original,'MEP Motor Threshold Hunting'));
+            mt_btn_listbox_str=obj.data.(obj.info.event.current_session).info.measurement_str_to_listbox(mt_btn_listbox_str_id);
+            mt_btn_listbox_str=['Select' mt_btn_listbox_str];
+            uiextras.HBox('Parent',r3)
+            th_dropdown=uicontrol( 'Style','popupmenu','Parent', r3 ,'FontSize',11,'String',mt_btn_listbox_str);     % 11-Mar-2020 14:48:46                                                                  % 1297
+            set( r3, 'Widths', [250 80 20 100]);
+            
+
+            uicontrol( 'Parent', c1 ,'Style','PushButton','String','OK','FontWeight','Bold','Callback',@(~,~)cb_ok);
+            
+            set(c1, 'Heights', [25 25 25 25 25 25])
+            f.Position(3)=480;
+            f.Position(4)=220;
+            function cb_ok
+                
+
+
+                source.String={['Pulses:' char(pulses.String) ', f:' char(freq.String) ' Hz'];['TS:' char(si.String) ' %MSO']}; % 11-Mar-2020 14:48:28
+
+                cd=['cond' num2str(obj.pi.mm.tab.SelectedChild)];
+                st=['st' num2str(source.UserData(2))];
+                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(cd).(st).si=si.String;
+                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(cd).(st).freq=freq.String;
+                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(cd).(st).pulsesNo=pulsesNo.String;
+                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(cd).(st).si_units=units_mso.Value; %if 1 then its mso if 0 then its threshold
+                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(cd).(st).threshold=threshold.String;
+                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(cd).(st).stim_mode='train';
+                close(f)
+            end
+            function cb_units_mso
+                if(units_mso.Value==1)
+                    units_mt.Value=0;
+                end
+            end
+            function cb_units_mt
+                if(units_mt.Value==1)
+                    units_mso.Value=0;
+                end
+            end
         end
-        
-        function mm_add_stim(obj,source,event)
-          disp openining
-            source.Tag
-        end
-        
-        
-        
+
         %% MEP Section
         function pi_mep(obj)
             %obs1: stim intenisty ka default unit mso hona chahye aur motor
