@@ -478,6 +478,7 @@ classdef best_toolbox < handle
                             case 'paired_pulse'
                             case 'burst'
                             case 'train'
+                            case 'multimodal' %but then sp pp burst and train will just have to triggere only 1 pulse so they can be combined really
                         end
                     case 2 % pc controlled magstim
                         obj.boot_magstim;

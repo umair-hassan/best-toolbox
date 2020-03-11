@@ -1366,10 +1366,7 @@ classdef BEST < handle
             f.Position(4)=220;
             function cb_ok
                 
-%                 source.String=["TS:[" char(si.String) "], CS:[" char(cs.String) "] %MSO", "ISI:[" char(isi.String) "] ms"] % 11-Mar-2020 14:48:28
-a=['TS:[' char(si.String) '], CS:[' char(cs.String) '] %MSO']
-b= ['ISI:[' char(isi.String) '] ms']
-source.String={a;b}
+                source.String={['TS:[' si.String '], CS:[' cs.String '] %MSO'; 'ISI:[' isi.String '] ms']} % 11-Mar-2020 14:48:28
 
 %                 source.String=['TS:[' si.String '] %MSO']; % 11-Mar-2020 14:48:28
                 cd=['cond' num2str(obj.pi.mm.tab.SelectedChild)];

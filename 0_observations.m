@@ -58,12 +58,31 @@ start the multimodal development and go untill 3:30 agenda is to make the condma
 
 make the handle if the input and output device device list is empty then it should be basically empty but not give an error
 
-inputdlg box for sp, pp, train, all kind of measurements etc
+inputdlg box for sp, pp, train, all kind of measurements etc 
 
 
 show warning that the stimulation intensity changing on the same stimulator with a very short time interval is difficult
 
 will have to make a figure basically for the sp pp train and input boxes where i need any kind of fancy selection
+
+
+
+TODAY
+MAKE THE INPUT PANELS for sp pp train and measures and then store them systematicaly 
+
+prepare the % 11-Mar-2020 14:44:11
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
