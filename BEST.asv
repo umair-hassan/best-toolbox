@@ -1106,9 +1106,9 @@ classdef BEST < handle
             
             %row5
             r5=uiextras.HBox( 'Parent', obj.pi.mm.r0v1,'Spacing', 5, 'Padding', 5 );
-            obj.pi.mm.update=uicontrol( 'Parent', r5 ,'Style','PushButton','String','Update','FontWeight','Bold','HorizontalAlignment','center') %add stimulator
-            obj.pi.mm.update=uicontrol( 'Parent', r5 ,'Style','PushButton','String','Update','FontWeight','Bold','HorizontalAlignment','center')%add condition
-            obj.pi.mm.update=uicontrol( 'Parent', r5 ,'Style','PushButton','String','Update','FontWeight','Bold','HorizontalAlignment','center')%Noise masking
+            obj.pi.mm.update=uicontrol( 'Parent', r5 ,'Style','PushButton','String','MEP','FontWeight','Bold','HorizontalAlignment','center','Tag','MEP Measurement', 'Callback',@obj.cb_pi_mm_add_measures) %add stimulator
+            obj.pi.mm.update=uicontrol( 'Parent', r5 ,'Style','PushButton','String','Threshold','FontWeight','Bold','HorizontalAlignment','center')%add condition
+            obj.pi.mm.update=uicontrol( 'Parent', r5 ,'Style','PushButton','String','IOC','FontWeight','Bold','HorizontalAlignment','center')%Noise masking
             set( r5, 'Widths', [-1 -1 -1]);
             
             %row 6
@@ -1145,7 +1145,6 @@ classdef BEST < handle
             obj.cb_pi_mm_conditions;
             
         end
-        
         function cb_pi_mm_conditions(obj)
             obj.pi.mm.cond.no=obj.pi.mm.cond.no+1;
             cd=['cd' num2str(obj.pi.mm.cond.no)];
@@ -1166,10 +1165,22 @@ classdef BEST < handle
             plot([-45 45],[0 0],'Color','k','parent',obj.pi.mm.cond.(cd).ax,'Color','k','LineWidth',2);
             obj.pi.mm.stim.(cd).no=0;
         end
+        function cb_pi_mm_add_measures(obj,source,~)
+                        cd=['cd' num2str(obj.pi.mm.tab.SelectedChild)];
+                                    axes(obj.pi.mm.cond.(cd).ax)
+                                    hold on;
+                                    switch source.Tag
+                                        case 'MEP Measurement'
+                                            plot(-50:0.01:50,rand(1,1001)-0.5,'Color','k','parent',obj.pi.mm.cond.(cd).ax,'LineWidth',2,'Tag','empty');
+                                            text(1,0+0.40,'Channels:[?], Pre/Post Display Period:[?] ms','VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',7,'FontAngle','italic','ButtonDownFcn',@obj.cb_pi_mm_mep_inputfig) % 11-Mar-2020 14:49:00
+                                    end
+    
+
+        end
         function cb_pi_mm_stim(obj)
             
             obj.pi.mm.tab.TabNames=obj.pi.mm.cond.TabNames;
-            cd=['cd' num2str(obj.pi.mm.tab.SelectedChild)]
+            cd=['cd' num2str(obj.pi.mm.tab.SelectedChild)];
             obj.pi.mm.stim.(cd).no=obj.pi.mm.stim.(cd).no+1;
             st=['st' num2str(obj.pi.mm.stim.(cd).no)];
             axes(obj.pi.mm.cond.(cd).ax)
@@ -1191,7 +1202,8 @@ classdef BEST < handle
             text(0,-1*obj.pi.mm.stim.(cd).no,'click to add device','VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',9,'FontAngle','italic','Tag',num2str(obj.pi.mm.stim.(cd).no),'ButtonDownFcn',@obj.cb_pi_mm_output_device)
 
         end
-        function cb_pi_mm_pulse(obj,source,event)
+        function cb_pi_mm_pulse(obj,source,~)
+            % 11-Mar-2020 18:13:21
             cd=['cd' num2str(obj.pi.mm.tab.SelectedChild)]
             
             obj.pi.mm.stim.(cd).slctd=1;
@@ -1265,17 +1277,17 @@ classdef BEST < handle
                 obj.pi.mm.cond.(cd).ax.XLim(2)=obj.pi.mm.stim.(cd).(st).pulse_count+1;
             end
         end
-        
         function cb_pi_mm_output_device(obj,source,~)
             obj.hw.device_added1_listbox.string
-            if(isempty(obj.hw.device_added1_listbox.string))
+            if(isempty(obj.hw.device_added2_listbox.string))
                 errordlg('No Output Device (Stimulator) is configured before, visit Hardware Configuration section and configure a Hardware device before selecting one!', 'BEST Toolbox')
             else
-                [indx,tf] = listdlg('PromptString',{'Select an Output Device'},'SelectionMode','single','ListString',obj.hw.device_added1_listbox.string);
+                [indx,tf] = listdlg('PromptString',{'Select an Output Device'},'SelectionMode','single','ListString',obj.hw.device_added2_listbox.string);
                 if(tf==1)
                     cd=['cond' num2str(obj.pi.mm.tab.SelectedChild)];
                     st=['st' num2str(source.Tag)];
-                    obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(cd).(st).stim_device
+                    obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(cd).(st).stim_device=obj.hw.device_added2_listbox.string(indx);
+                    source.String=obj.hw.device_added2_listbox.string(indx);
                 end
                 
             end
@@ -1477,22 +1489,57 @@ source.String={['TS:' char(si.String)];['CS:' char(cs.String) ' %MSO'];['ISI:' c
                 end
             end
         end
-        
-        
-        
-        
+        function cb_pi_mm_mep_inputfig(obj,source,~)
+            f=figure('ToolBar','none','MenuBar','none','Name','Insert Parameters | BEST Toolbox','NumberTitle','off');
+            c1=uix.VBox('parent',f,'Padding',10,'Spacing',10);
+            r1=uix.HBox('parent',c1);
+            uicontrol( 'Style','text','Parent', r1,'String','Target Channels:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+            targetChannels=uicontrol( 'Style','edit','Parent', r1 ,'FontSize',11);
+            set( r1, 'Widths', [250 100 100]);
+            
+            r2a=uix.HBox('parent',c1);
+            uicontrol( 'Style','text','Parent', r2a,'String','Display Channels:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+            displayChannels=uicontrol( 'Style','edit','Parent', r2a ,'FontSize',11);
+            set( r2a, 'Widths', [250 100 100]);
+            
+            r2b=uix.HBox('parent',c1);
+            uicontrol( 'Style','text','Parent', r2b,'String','MEP onset/offset (ms):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+            mepOnset=uicontrol( 'Style','edit','Parent', r2b ,'FontSize',11);
+            mepOffset=uicontrol( 'Style','edit','Parent', r2b ,'FontSize',11);
+            set( r2b, 'Widths', [250 100 100]);
+            
+            r2=uix.HBox('parent',c1);
+            uicontrol( 'Style','text','Parent', r2,'String','MEP Pre/Post Stim. Display Period (ms)','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+            prestim_scope_plt=uicontrol( 'Style','edit','Parent', r2 ,'FontSize',11);
+            poststim_scope_plt=uicontrol( 'Style','edit','Parent', r2 ,'FontSize',11);
+            set( r2, 'Widths', [250 100 100]);
 
-        function cb_pi_mm_pulseboxes(obj)
+            uicontrol( 'Parent', c1 ,'Style','PushButton','String','OK','FontWeight','Bold','Callback',@(~,~)cb_ok);
+            
+            set(c1, 'Heights', [25 25 25 25 25])
+            f.Position(3)=480;
+            f.Position(4)=190;
+            function cb_ok
+                
+                % source.String={['TS:' char(si.String) ']'];['CS:[' char(cs.String) '] %MSO'];['ISI:[' char(isi.String) '] ms']} % 11-Mar-2020 14:48:28
+                
+                
+                source.String={['TS:' char(si.String)];['CS:' char(cs.String) ' %MSO'];['ISI:' char(isi.String) ' ms']} % 11-Mar-2020 14:48:28
+                
+                %                 source.String=['TS:[' si.String '] %MSO']; % 11-Mar-2020 14:48:28
+                cd=['cond' num2str(obj.pi.mm.tab.SelectedChild)];
+                st=['st' num2str(source.UserData(2))];
+                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(cd).(st).si=si.String;
+                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(cd).(st).cs=cs.String;
+                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(cd).(st).isi=isi.String;
+                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(cd).(st).si_units=units_mso.Value; %if 1 then its mso if 0 then its threshold
+                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(cd).(st).threshold=threshold.String;
+                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(cd).(st).stim_mode='paired_pulse';
+                close(f)
+            end
             
         end
-        
-        function mm_add_stim(obj,source,event)
-          disp openining
-            source.Tag
-        end
-        
-        
-        
+
         %% MEP Section
         function pi_mep(obj)
             %obs1: stim intenisty ka default unit mso hona chahye aur motor
