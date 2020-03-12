@@ -1085,13 +1085,13 @@ classdef BEST < handle
             %row1
             r1=uiextras.HBox( 'Parent', obj.pi.mm.r0v1,'Spacing', 5, 'Padding', 5 );
             uicontrol( 'Style','text','Parent', r1,'String','Inter Trial Interval (s):','FontSize',11,'HorizontalAlignment','left','Units','normalized'); % Inter Trial Inteval (s) 
-            obj.pi.mm.display_scopes=uicontrol( 'Style','edit','Parent', r1 ,'FontSize',11); % Inter Trial Inteval (s) edit field
+            obj.pi.mm.iti=uicontrol( 'Style','edit','Parent', r1 ,'FontSize',11); % Inter Trial Inteval (s) edit field
             set( r1, 'Widths', [150 -2]);
             
             %row2
             r2=uiextras.HBox( 'Parent', obj.pi.mm.r0v1,'Spacing', 5, 'Padding', 5 );
             uicontrol( 'Style','text','Parent', r2,'String','Tirlas per Condition:','FontSize',11,'HorizontalAlignment','left','Units','normalized'); % Trials per Condition
-            obj.pi.mm.display_scopes=uicontrol( 'Style','edit','Parent', r2 ,'FontSize',11); % Trials per Condition edit field
+            obj.pi.mm.trials=uicontrol( 'Style','edit','Parent', r2 ,'FontSize',11); % Trials per Condition edit field
             set( r2, 'Widths', [150 -2]);
             
             %row3
@@ -1133,7 +1133,7 @@ classdef BEST < handle
             
             uiextras.HBox( 'Parent', obj.pi.mm.r0v1,'Spacing', 5, 'Padding', 5 ); %covering up space dynamically
             
-            obj.pi.mm.update=uicontrol( 'Parent', obj.pi.mm.r0v1 ,'Style','PushButton','String','Update','FontWeight','Bold','HorizontalAlignment','center') %Run
+            obj.pi.mm.update=uicontrol( 'Parent', obj.pi.mm.r0v1 ,'Style','PushButton','String','Run','FontWeight','Bold','HorizontalAlignment','center','Callback',@cb_run) %Run
             
             set(obj.pi.mm.r0v1,'Heights',[-0.4 -0.4 -0.4 -1.4 -1.4 -1.4 -4 -0.4])
             
@@ -1143,6 +1143,15 @@ classdef BEST < handle
             set(obj.pi.mm.r0,'Widths',[-1 -3]);
             obj.pi.mm.cond.no=0;
             obj.cb_pi_mm_conditions;
+            
+            function cb_run
+                obj.bst.inputs.measure_str='Multimodal Experiment';
+                obj.bst.inputs.trials=str2double(obj.pi.mm.trials.String); % 12-Mar-2020 18:00:20
+                obj.bst.inputs.iti=str2double(obj.pi.mm.iti.String); % 12-Mar-2020 18:00:20
+                obj.bst.inputs.condsAll=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr);
+                obj.bst.factorizeConditions;
+                
+            end
             
         end
         function cb_pi_mm_conditions(obj)
