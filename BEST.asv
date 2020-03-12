@@ -1144,12 +1144,17 @@ classdef BEST < handle
             obj.pi.mm.cond.no=0;
             obj.cb_pi_mm_conditions;
             
-            function cb_run(obj,~,~)
+            function cb_run
                 obj.bst.inputs.measure_str='Multimodal Experiment';
-                obj.bst.inputs.trials=str2double(obj.pi.mm.trials.String)
-                obj.bst.inputs.iti=str2double(obj.pi.mm.iti.String)
-                obj.bst.inputs=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr);
-                display
+                obj.bst.inputs.trials={(str2double(obj.pi.mm.trials.String)); % 12-Mar-2020 18:00:20
+                obj.bst.inputs.iti=mat2cell(str2double(obj.pi.mm.iti.String)); % 12-Mar-2020 18:00:20
+                obj.bst.inputs.condsAll=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr);
+                obj.pi.mm.trials.String
+                obj.bst.inputs.trials
+%                 obj.bst.inputs.iti
+                
+%                 obj.bst.factorizeConditions;
+                
             end
             
         end

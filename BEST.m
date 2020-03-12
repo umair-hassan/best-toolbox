@@ -1133,7 +1133,7 @@ classdef BEST < handle
             
             uiextras.HBox( 'Parent', obj.pi.mm.r0v1,'Spacing', 5, 'Padding', 5 ); %covering up space dynamically
             
-            obj.pi.mm.update=uicontrol( 'Parent', obj.pi.mm.r0v1 ,'Style','PushButton','String','Run','FontWeight','Bold','HorizontalAlignment','center','Callback',@cb_run) %Run
+            obj.pi.mm.update=uicontrol( 'Parent', obj.pi.mm.r0v1 ,'Style','PushButton','String','Run','FontWeight','Bold','HorizontalAlignment','center','Callback',@(~,~)cb_run) %Run
             
             set(obj.pi.mm.r0v1,'Heights',[-0.4 -0.4 -0.4 -1.4 -1.4 -1.4 -4 -0.4])
             
@@ -1144,11 +1144,14 @@ classdef BEST < handle
             obj.pi.mm.cond.no=0;
             obj.cb_pi_mm_conditions;
             
-            function cb_run
+            function cb_run()
                 obj.bst.inputs.measure_str='Multimodal Experiment';
-                obj.bst.inputs.trials=str2double(obj.pi.mm.trials.String); % 12-Mar-2020 18:00:20
-                obj.bst.inputs.iti=str2double(obj.pi.mm.iti.String); % 12-Mar-2020 18:00:20
+                obj.bst.inputs.trials=num2cell(str2num(obj.pi.mm.trials.String)); % 12-Mar-2020 18:00:20
+                obj.bst.inputs.iti=num2cell(str2num(obj.pi.mm.iti.String)); % 12-Mar-2020 18:00:20
                 obj.bst.inputs.condsAll=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr);
+                obj.pi.mm.trials.String
+                obj.bst.inputs.trials
+                obj.bst.inputs.iti
                 obj.bst.factorizeConditions;
                 
             end

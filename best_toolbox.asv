@@ -390,9 +390,11 @@ classdef best_toolbox < handle
                   % variables would be given colLabels here
                   
                   for c=1:numel(fieldnames(obj.inputs.condsAll))
-                      fieldnames(obj.inputs.condsAll{c,1)
-%                       obj.inputs.condsAll{c}.inputDevice.input_device
-%                       obj.inputs.condMat(i,obj.inputs.colLabel.inputDevices)=obj.inputs.condsAll{i}.inputDevice.input_device
+                      conds=fieldnames(obj.inputs.condsAll);
+                      obj.inputs.condMat(c,obj.inputs.colLabel.inputDevices)=obj.inputs.condsAll.(conds{c,1}).inputDevice.input_device;
+                      
+                      obj.inputs.condMat(c,obj.inputs.colLabel.trials)=(obj.inputs.trials(1,idx_trials)); 
+
                   end
                   
           end

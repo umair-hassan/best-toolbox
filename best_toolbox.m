@@ -388,12 +388,26 @@ classdef best_toolbox < handle
                   obj.inputs.colLabel.mepamp=11;
                   % since this is a generic function very long list of
                   % variables would be given colLabels here
-                  
+
+                  idx_iti=0;
+                  idx_trials=0;
                   for c=1:numel(fieldnames(obj.inputs.condsAll))
+                      idx_iti=idx_iti+1;
+                      
+                      idx_trials=idx_trials+1;
                       conds=fieldnames(obj.inputs.condsAll);
-%                       obj.inputs.condsAll.(conds{c,1}).inputDevice.input_device
-                      obj.inputs.condMat(c,obj.inputs.colLabel.inputDevices)=obj.inputs.condsAll.(conds{c,1}).inputDevice.input_device
+                      obj.inputs.condMat(c,obj.inputs.colLabel.inputDevices)=obj.inputs.condsAll.(conds{c,1}).inputDevice.input_device;
+                      obj.inputs.condMat(c,obj.inputs.colLabel.trials)=(obj.inputs.trials(1,idx_trials));
+                      obj.inputs.condMat(c,obj.inputs.colLabel.iti)=(obj.inputs.iti(1,idx_iti));
+                      if(idx_iti>=numel(obj.inputs.iti))
+                          idx_iti=0;
+                      end
+                      if(idx_trials>=numel(obj.inputs.trials))
+                          idx_trials=0;
+                      end
+                      
                   end
+                  
                   
           end
           
