@@ -1090,12 +1090,48 @@ classdef BEST < handle
             experimentModule=uix.Panel( 'Parent', obj.pi.mm.r0v1,'Padding',0,'Units','normalized','BorderType','none');
 
             cb_experimentModule
+            
+             %row3
+            uicontrol( 'Style','text','Parent', obj.pi.mm.r0v1,'String','Modules Library','FontSize',11,'HorizontalAlignment','center','Units','normalized'); % Trials per Condition
+            
+            %row4
+            r4=uiextras.HBox( 'Parent', obj.pi.mm.r0v1,'Spacing', 5, 'Padding', 5 );
+            obj.pi.mm.stim.btn=uicontrol( 'Parent', r4 ,'Style','PushButton','String','Stim','FontWeight','Bold','HorizontalAlignment','center','Position',[0 0 1 1],'units','normalized','Callback',@(~,~)obj.cb_pi_mm_stim) %add stimulator
+            obj.pi.mm.cond.btn=uicontrol( 'Parent', r4 ,'Style','PushButton','String','Cond','FontWeight','Bold','HorizontalAlignment','center','Callback',@(~,~)obj.cb_pi_mm_conditions)%add condition
+            obj.pi.mm.mask=uicontrol( 'Parent', r4 ,'Style','PushButton','String','Masking','FontWeight','Bold','HorizontalAlignment','center')%Noise masking
+            set( r4, 'Widths', [-1 -1 -1]);
+            
+            %row5
+            r5=uiextras.HBox( 'Parent', obj.pi.mm.r0v1,'Spacing', 5, 'Padding', 5 );
+            obj.pi.mm.update=uicontrol( 'Parent', r5 ,'Style','PushButton','String','MEP','FontWeight','Bold','HorizontalAlignment','center','Tag','MEP Measurement', 'Callback',@obj.cb_pi_mm_add_measures) %add stimulator
+            obj.pi.mm.update=uicontrol( 'Parent', r5 ,'Style','PushButton','String','Threshold','FontWeight','Bold','HorizontalAlignment','center')%add condition
+            obj.pi.mm.update=uicontrol( 'Parent', r5 ,'Style','PushButton','String','IOC','FontWeight','Bold','HorizontalAlignment','center')%Noise masking
+            set( r5, 'Widths', [-1 -1 -1]);
+            
+            %row 6
+            r6=uiextras.HBox( 'Parent', obj.pi.mm.r0v1,'Spacing', 5, 'Padding', 5 );
+            obj.pi.mm.sp=uicontrol( 'Parent', r6 ,'Style','PushButton','String','SP','FontWeight','Bold','HorizontalAlignment','center','Tag','single_pulse','Callback',@obj.cb_pi_mm_pulse) %add single pulse
+            obj.pi.mm.pp=uicontrol( 'Parent', r6 ,'Style','PushButton','String','PP','FontWeight','Bold','HorizontalAlignment','center','Tag','paired_pulse','Callback',@obj.cb_pi_mm_pulse)%add burst or train
+            obj.pi.mm.train=uicontrol( 'Parent', r6 ,'Style','PushButton','String','Train','FontWeight','Bold','HorizontalAlignment','center','Tooltip','Click to add MEP Measurement module','Tag','train','Callback',@obj.cb_pi_mm_pulse)%add paired pulse
+            set( r6, 'Widths', [-1 -1 -1]);
+            
+%             %row 6
+%             uiextras.HBox( 'Parent', obj.pi.mm.r0v1,'Spacing', 5, 'Padding', 5 );
+%             obj.pi.mm.update=uicontrol( 'Parent', mep_panel_17 ,'Style','PushButton','String','Update','FontWeight','Bold','HorizontalAlignment','center') %Measure IOC
+%             obj.pi.mm.update=uicontrol( 'Parent', mep_panel_17 ,'Style','PushButton','String','Update','FontWeight','Bold','HorizontalAlignment','center')%Measure Threshold
+%             obj.pi.mm.update=uicontrol( 'Parent', mep_panel_17 ,'Style','PushButton','String','Update','FontWeight','Bold','HorizontalAlignment','center')%Measure MEP
+%             
+%              %row 7
+%             uiextras.HBox( 'Parent', obj.pi.mm.r0v1,'Spacing', 5, 'Padding', 5 );
+%             obj.pi.mm.update=uicontrol( 'Parent', mep_panel_17 ,'Style','PushButton','String','Update','FontWeight','Bold','HorizontalAlignment','center') %EEG triggered Stimulation
+%             obj.pi.mm.update=uicontrol( 'Parent', mep_panel_17 ,'Style','PushButton','String','Update','FontWeight','Bold','HorizontalAlignment','center')%rTMS Intervention
+%             obj.pi.mm.update=uicontrol( 'Parent', mep_panel_17 ,'Style','PushButton','String','Update','FontWeight','Bold','HorizontalAlignment','center')%Measure TEP
+            
 
-            uiextras.HBox( 'Parent', obj.pi.mm.r0v1,'Spacing', 5, 'Padding', 5 ); %covering up space dynamically
             
             obj.pi.mm.update=uicontrol( 'Parent', obj.pi.mm.r0v1 ,'Style','PushButton','String','Run','FontWeight','Bold','HorizontalAlignment','center','Callback',@(~,~)cb_run) %Run
             
-            set(obj.pi.mm.r0v1,'Heights',[-0.4 -4 -4 -0.4])
+            set(obj.pi.mm.r0v1,'Heights',[-0.4 -3 -0.4 -0.4 -0.4 -0.4 -0.4])
             
             
             obj.pi.mm.r0v2 = uix.VBox( 'Parent', obj.pi.mm.r0, 'Spacing', 5, 'Padding', 5  );
@@ -1107,12 +1143,14 @@ classdef BEST < handle
             function cb_run()
                 obj.bst.inputs.measure_str='Multimodal Experiment';
                 obj.bst.inputs.sub_measure_str='MEP Measurement';
-                obj.bst.inputs.trials=num2cell(str2num(obj.pi.mm.trials.String)); % 12-Mar-2020 18:00:20
-                obj.bst.inputs.iti=num2cell(str2num(obj.pi.mm.iti.String)); % 12-Mar-2020 18:00:20
+                obj.bst.inputs.displayChannels=eval(obj.pi.mm.displayChannels.String);
+                obj.bst.inputs.inputDevice=obj.pi.mm.inputDevice.String(obj.pi.mm.inputDevice.Value);
+% % % % % %                 obj.bst.inputs.trials=num2cell(str2num(obj.pi.mm.trials.String)); % 12-Mar-2020 18:00:20
+% % % % % %                 obj.bst.inputs.iti=num2cell(str2num(obj.pi.mm.iti.String)); % 12-Mar-2020 18:00:20
                 obj.bst.inputs.condsAll=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr);
-                obj.pi.mm.trials.String
-                obj.bst.inputs.trials
-                obj.bst.inputs.iti
+%                 obj.pi.mm.trials.String
+%                 obj.bst.inputs.trials
+%                 obj.bst.inputs.iti
                 obj.bst.factorizeConditions;
                 
             end
@@ -1652,7 +1690,7 @@ source.String={['TS:' char(si.String)];['CS:' char(cs.String) ' %MSO'];['ISI:' c
                 cd=['cond' num2str(obj.pi.mm.tab.SelectedChild)];
                 % 12-Mar-2020 08:53:28
                 obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(cd).inputDevice.input_device=inputDevice.String(inputDevice.Value);
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(cd).inputDevice.targetChannels=eval(targetChannels.String);
+                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(cd).targetChannel=eval(targetChannels.String);
                 obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(cd).inputDevice.displayChannels=eval(displayChannels.String);
                 obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(cd).inputDevice.mepOnset=mepOnset.String;
                 obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(cd).inputDevice.mepOffset=mepOffset.Value; %if 1 then its mso if 0 then its threshold

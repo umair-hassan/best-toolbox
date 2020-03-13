@@ -393,9 +393,30 @@ classdef best_toolbox < handle
                   switch obj.inputs.sub_measure_str
                           case 'MEP Measurement'
                              for c=1:numel(fieldnames(obj.inputs.condsAll))
-                                 obj.inputs.condMat(c,obj.inputs.colLabel.inputDevices)='inputDevice';
+                                 obj.inputs.inputDevice
+                                 obj.inputs.condMat(c,obj.inputs.colLabel.inputDevices)=cellstr(obj.inputs.inputDevice);
                                  conds=fieldnames(obj.inputs.condsAll);
                                  obj.inputs.condMat(c,obj.inputs.colLabel.chLab)=horzcat({({obj.inputs.condsAll.(conds{c,1}).targetChannel,obj.inputs.displayChannels{1,:}})});
+
+                                 displayChannels_meas=cell(1,1:numel(obj.inputs.displayChannels{1,:}));
+                                 displayChannels_meas(:)=cellstr('MEP Measurement');
+                                 obj.inputs.condMat(c,obj.inputs.colLabel.measures)={{cellstr('MEP Measurement'),cellstr('MEP Measurement'),displayChannels_meas{1,:}}};
+
+                             end
+                             
+                             case 'Motor Threshold Hunting'
+                             for c=1:numel(fieldnames(obj.inputs.condsAll))
+                                 obj.inputs.condMat(c,obj.inputs.colLabel.inputDevices)='inputDevice';
+                                 conds=fieldnames(obj.inputs.condsAll);
+                                 obj.inputs.condMat(c,obj.inputs.colLabel.chLab)=horzcat({({obj.inputs.condsAll.(conds{c,1}).targetChannel,obj.inputs.condsAll.(conds{c,1}).targetChannel,obj.inputs.displayChannels{1,:}})});
+
+                             end
+                             
+                             case 'IOC'
+                             for c=1:numel(fieldnames(obj.inputs.condsAll))
+                                 obj.inputs.condMat(c,obj.inputs.colLabel.inputDevices)='inputDevice';
+                                 conds=fieldnames(obj.inputs.condsAll);
+                                 obj.inputs.condMat(c,obj.inputs.colLabel.chLab)=horzcat({({obj.inputs.condsAll.(conds{c,1}).targetChannel,obj.inputs.condsAll.(conds{c,1}).targetChannel,obj.inputs.condsAll.(conds{c,1}).targetChannel,obj.inputs.displayChannels{1,:}})});
 
                              end
                   end
