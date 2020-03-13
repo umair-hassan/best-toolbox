@@ -389,13 +389,62 @@ classdef best_toolbox < handle
                   % since this is a generic function very long list of
                   % variables would be given colLabels here
                   
-                  for c=1:numel(fieldnames(obj.inputs.condsAll))
-                      conds=fieldnames(obj.inputs.condsAll);
-                      obj.inputs.condMat(c,obj.inputs.colLabel.inputDevices)=obj.inputs.condsAll.(conds{c,1}).inputDevice.input_device;
-                      
-                      obj.inputs.condMat(c,obj.inputs.colLabel.trials)=(obj.inputs.trials(1,idx_trials)); 
+                  
+                  switch obj.inputs.sub_measure_str
+                          case 'MEP Measurement'
+                             for c=1:numel(fieldnames(obj.inputs.condsAll))
+                                 obj.inputs.condMat(c,obj.inputs.colLabel.inputDevices)='inputDevice';
+                                 
+                                 obj.inputs.condMat(c,obj.inputs.colLabel.chLab)=horzcat({({obj.inputs.condsAll.(conds{c,1}).inputDevice.targetChannels{1,:},obj.inputs.condsAll.(conds{c,1}).inputDevice.displayChannels{1,:}})});
 
+                             end
                   end
+                  
+                  
+%                   for allconds=1:numel(fieldnames(obj.inputs.condsAll))
+%                       
+%                       
+%                       
+%                       
+%                       
+%                       switch obj.inputs.condsAll.(subsref(fieldnames(obj.inputs.condsAll),substruct('{}',{1}))).inputDevice.measure_str
+%                           case 'MEP Measurement'
+%                               
+%                           case 'IOC'
+%                           case 'Motor Threshold Hunting'
+%                           case 'EEGTMS'
+%                       end
+%                   end
+%                   
+% 
+%                   idx_iti=0;
+%                   idx_trials=0;
+%                   for c=1:numel(fieldnames(obj.inputs.condsAll))
+%                       idx_iti=idx_iti+1;
+%                       
+%                       idx_trials=idx_trials+1;
+%                       conds=fieldnames(obj.inputs.condsAll);
+%                       obj.inputs.condMat(c,obj.inputs.colLabel.inputDevices)=obj.inputs.condsAll.(conds{c,1}).inputDevice.input_device;
+% %                       obj.inputs.condMat(c,obj.inputs.colLabel.outputDevices)=0
+% %                       
+% %                       obj.inputs.condMat(c,obj.inputs.colLabel.si)=0
+%                       
+%                       obj.inputs.condMat(c,obj.inputs.colLabel.chLab)=horzcat({({obj.inputs.condsAll.(conds{c,1}).inputDevice.targetChannels{1,:},obj.inputs.condsAll.(conds{c,1}).inputDevice.displayChannels{1,:}})});
+% %                       obj.inputs.condMat(i,obj.inputs.colLabel.axesno)={{targetChannels_ax(1,idx_targetChannels),displayChannels_ax{1,:}}};
+% %                       obj.inputs.condMat(i,obj.inputs.colLabel.stimMode)={{{'single_pulse'}}};
+% %                       obj.inputs.condMat(i,obj.inputs.colLabel.measures)={{char(targetChannels_meas(1,idx_targetChannels)),displayChannels_meas{1,:}}};
+%                       
+%                       obj.inputs.condMat(c,obj.inputs.colLabel.trials)=(obj.inputs.trials(1,idx_trials));
+%                       obj.inputs.condMat(c,obj.inputs.colLabel.iti)=(obj.inputs.iti(1,idx_iti));
+%                       if(idx_iti>=numel(obj.inputs.iti))
+%                           idx_iti=0;
+%                       end
+%                       if(idx_trials>=numel(obj.inputs.trials))
+%                           idx_trials=0;
+%                       end
+%                       
+%                   end
+                  
                   
           end
           
