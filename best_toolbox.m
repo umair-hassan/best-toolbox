@@ -392,6 +392,20 @@ classdef best_toolbox < handle
                   
                   switch obj.inputs.sub_measure_str
                           case 'MEP Measurement'
+                              
+                              
+                              %%
+                              % 
+                              % * make a cell array jo sary conditions kay
+                              % targetChannels pakry aur end pe display
+                              % channels hon aur phir udhor se axes no ki
+                              % targetCh_ax alag se tag bnao aur
+                              % displayCh_ax alag se bnao aur phir isko
+                              % condition wise use kero loop k andar
+                              % 
+                              
+                              
+                              
                              for c=1:numel(fieldnames(obj.inputs.condsAll))
                                  obj.inputs.inputDevice
                                  obj.inputs.condMat(c,obj.inputs.colLabel.inputDevices)=cellstr(obj.inputs.inputDevice);
