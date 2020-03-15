@@ -404,17 +404,36 @@ classdef best_toolbox < handle
                               % condition wise use kero loop k andar
                               % 
                               
+                              for axesno_cond=1:numel(fieldnames(obj.inputs.condsAll))
+                                  conds=fieldnames(obj.inputs.condsAll);
+                                  targetCh{1,axesno_cond}=char(obj.inputs.condsAll.(conds{axesno_cond,1}).targetChannel);
+                              end
+%                               char(targetCh)
+                              targetCh_axNo_unique=unique(targetCh,'stable');
                               
+                              for i=1:numel(targetCh)
+                                  for j=1:numel(targetCh_axNo_unique)
+                                      if( strcmp(targetCh_axNo_unique{1,j},targetCh{1,i}))
+                                          targetCh_axNo{1,i}=j;
+                                      end
+                                  end
+                                  
+                                  
+                              end
+                              displayCh_axNo=num2cell(size(obj.inputs.displayChannels)+max(cell2mat(targetCh_axNo))); %just a matrix
+
                               
                              for c=1:numel(fieldnames(obj.inputs.condsAll))
                                  obj.inputs.inputDevice
                                  obj.inputs.condMat(c,obj.inputs.colLabel.inputDevices)=cellstr(obj.inputs.inputDevice);
                                  conds=fieldnames(obj.inputs.condsAll);
                                  obj.inputs.condMat(c,obj.inputs.colLabel.chLab)=horzcat({({obj.inputs.condsAll.(conds{c,1}).targetChannel,obj.inputs.displayChannels{1,:}})});
-
+                                 obj.inputs.condMat(c,obj.inputs.colLabel.axesno)=horzcat({({targetCh_axNo{1,c},displayCh_axNo{1,:}})});
                                  displayChannels_meas=cell(1,1:numel(obj.inputs.displayChannels{1,:}));
                                  displayChannels_meas(:)=cellstr('MEP Measurement');
                                  obj.inputs.condMat(c,obj.inputs.colLabel.measures)={{cellstr('MEP Measurement'),cellstr('MEP Measurement'),displayChannels_meas{1,:}}};
+                                 
+                                 obj.inputs.condMat(c,obj.inputs.colLabel.stimMode)={{}};
 
                              end
                              
@@ -482,6 +501,7 @@ classdef best_toolbox < handle
                   
                   
           end
+          
           
         end
         
