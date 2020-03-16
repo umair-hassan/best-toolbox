@@ -434,7 +434,29 @@ classdef best_toolbox < handle
                                  obj.inputs.condMat(c,obj.inputs.colLabel.measures)={{cellstr('MEP Measurement'),cellstr('MEP Measurement'),displayChannels_meas{1,:}}};
                                  
                                  obj.inputs.condMat(c,obj.inputs.colLabel.stimMode)={{}};
-
+                                 obj.inputs.condsAll.(conds{c,1})
+                                 % %                                  sttt=max(size(fieldnames(obj.inputs.condsAll.(conds{c,1}))))-2
+                                 % %                                  stno=(max(size(obj.inputs.condsAll.(conds{c,1})))-2)
+                                 % %                                  conds=size(fieldnames(obj.inputs.condsAll.(conds{c,1})))
+                                 
+                                 
+                                 % si cond
+                                 for stno=1:(max(size(fieldnames(obj.inputs.condsAll.(conds{c,1}))))-2)
+                                     disp ENTEREDDDDD
+                                     st=['st' num2str(stno)];
+                                     condSi{1,stno}=obj.inputs.condsAll.(conds{c,1}).(st).si;
+                                     condstimMode{1,stno}= obj.inputs.condsAll.(conds{c,1}).(st).stim_mode;
+                                     condoutputDevice{1,stno}=obj.inputs.condsAll.(conds{c,1}).(st).stim_device;
+                                     condstimTiming{1,stno}=obj.inputs.condsAll.(conds{c,1}).(st).stim_timing
+                                 end
+                                 obj.inputs.condMat(c,obj.inputs.colLabel.si)={condSi};
+                                 obj.inputs.condMat(c,obj.inputs.colLabel.outputDevices)={condoutputDevice};
+                                 obj.inputs.condMat(c,obj.inputs.colLabel.stimMode)={condstimMode};
+                                 obj.inputs.condMat(c,obj.inputs.colLabel.tpm)={condstimTiming};
+                                 condSi=[];
+                                 condoutputDevice=[];
+                                 condstimMode=[];
+                                 condstimTiming=[];
                              end
                              
                              case 'Motor Threshold Hunting'

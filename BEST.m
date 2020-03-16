@@ -1363,7 +1363,7 @@ classdef BEST < handle
             end
             yticklab=flip(horzcat(yticklab{1,:}));
             obj.pi.mm.cond.(cd).ax.YTickLabel={'',char(yticklab),'Input Device',''};
-            text(0,-1*obj.pi.mm.stim.(cd).no,'click to add device','VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',9,'FontAngle','italic','Tag',num2str(obj.pi.mm.stim.(cd).no),'ButtonDownFcn',@obj.cb_pi_mm_output_device)
+            text(0,-1*obj.pi.mm.stim.(cd).no,'click to tag device','VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',9,'FontAngle','italic','Tag',num2str(obj.pi.mm.stim.(cd).no),'ButtonDownFcn',@obj.cb_pi_mm_output_device)
 
         end
         function cb_pi_mm_pulse(obj,source,~)
@@ -1499,10 +1499,10 @@ classdef BEST < handle
                 source.String=['TS:' si.String ' %MSO']; % 11-Mar-2020 14:48:28
                 cd=['cond' num2str(obj.pi.mm.tab.SelectedChild)];
                 st=['st' num2str(source.UserData(2))];
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(cd).(st).si=si.String;
+                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(cd).(st).si=cellstr(si.String);
                 obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(cd).(st).si_units=units_mso.Value; %if 1 then its mso if 0 then its threshold
                 obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(cd).(st).threshold=threshold.String;
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(cd).(st).stim_mode='single_pulse';
+                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(cd).(st).stim_mode=cellstr('single_pulse');
                 close(f)
             end
             function cb_units_mso

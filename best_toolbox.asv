@@ -420,22 +420,41 @@ classdef best_toolbox < handle
                                   
                                   
                               end
-                              obj.inputs.displayChannels
-                              displayCh_axNo=(1:1:numel(obj.inputs.displayChannels))+max(targetCh_axNo)
-                              targetCh_axNo
+                              displayCh_axNo=num2cell(size(obj.inputs.displayChannels)+max(cell2mat(targetCh_axNo))); %just a matrix
+
                               
                              for c=1:numel(fieldnames(obj.inputs.condsAll))
                                  obj.inputs.inputDevice
                                  obj.inputs.condMat(c,obj.inputs.colLabel.inputDevices)=cellstr(obj.inputs.inputDevice);
                                  conds=fieldnames(obj.inputs.condsAll);
                                  obj.inputs.condMat(c,obj.inputs.colLabel.chLab)=horzcat({({obj.inputs.condsAll.(conds{c,1}).targetChannel,obj.inputs.displayChannels{1,:}})});
-                                 obj.inputs.condMat(c,obj.inputs.colLabel.axesno)=horzcat({({targetCh_axNo{1,c},obj.inputs.displayChannels{1,:}})});
+                                 obj.inputs.condMat(c,obj.inputs.colLabel.axesno)=horzcat({({targetCh_axNo{1,c},displayCh_axNo{1,:}})});
                                  displayChannels_meas=cell(1,1:numel(obj.inputs.displayChannels{1,:}));
                                  displayChannels_meas(:)=cellstr('MEP Measurement');
                                  obj.inputs.condMat(c,obj.inputs.colLabel.measures)={{cellstr('MEP Measurement'),cellstr('MEP Measurement'),displayChannels_meas{1,:}}};
                                  
                                  obj.inputs.condMat(c,obj.inputs.colLabel.stimMode)={{}};
-
+                                 obj.inputs.condsAll.(conds{c,1})
+                                 % %                                  sttt=max(size(fieldnames(obj.inputs.condsAll.(conds{c,1}))))-2
+                                 % %                                  stno=(max(size(obj.inputs.condsAll.(conds{c,1})))-2)
+                                 % %                                  conds=size(fieldnames(obj.inputs.condsAll.(conds{c,1})))
+                                 
+                                 
+                                 % si cond
+                                 for stno=1:(max(size(fieldnames(obj.inputs.condsAll.(conds{c,1}))))-2)
+                                     disp ENTEREDDDDD
+                                     st=['st' num2str(stno)];
+                                     condSi{1,stno}=obj.inputs.condsAll.(conds{c,1}).(st).si;
+                                     condstimMode{1,stno}= obj.inputs.condsAll.(conds{c,1}).(st).stim_mode;
+                                     condoutputDevice{1,stno}=obj.inputs.condsAll.(conds{c,1}).(st).stim_device;
+                                     
+                                 end
+                                 obj.inputs.condMat(c,obj.inputs.colLabel.si)={condSi};
+                                 obj.inputs.condMat(c,obj.inputs.colLabel.outputDevices)={condoutputDevice};
+                                 obj.inputs.condMat(c,obj.inputs.colLabel.stimMode)={condstimMode};
+                                 condSi=[];
+                                 condoutputDevice=[];
+                                 condstimMode=[];
                              end
                              
                              case 'Motor Threshold Hunting'

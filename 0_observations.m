@@ -1,3 +1,34 @@
+Restrictions
+% stimmde on one stimulators should remains same
+% stim_devic for all stimulators on one conditions should be different, no
+% same stimulators should be allowed to add
+
+the MT capability for Multimodal will be dealt later on, the si coloumn can be updated in case if there is a MT available
+or if MT is specified then multiply it by that factor, otherwise its just 100%
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 the last timing arrows and t is not needed
 the first t on the on stim axes is not needed
 the first t on all the other axes are needed from a reference line drawn in between [bottom of first stim axes till start of all the stim axes]
