@@ -392,17 +392,7 @@ classdef best_toolbox < handle
                   
                   switch obj.inputs.sub_measure_str
                           case 'MEP Measurement'
-                              
-                              
-                              %%
-                              % 
-                              % * make a cell array jo sary conditions kay
-                              % targetChannels pakry aur end pe display
-                              % channels hon aur phir udhor se axes no ki
-                              % targetCh_ax alag se tag bnao aur
-                              % displayCh_ax alag se bnao aur phir isko
-                              % condition wise use kero loop k andar
-                              % 
+
                               
                               for axesno_cond=1:numel(fieldnames(obj.inputs.condsAll))
                                   conds=fieldnames(obj.inputs.condsAll);
@@ -420,30 +410,21 @@ classdef best_toolbox < handle
                                   
                                   
                               end
-                              displayCh_axNo=num2cell(size(obj.inputs.displayChannels)+max(cell2mat(targetCh_axNo))); %just a matrix
+                              displayCh_axNo=num2cell(numel(obj.inputs.displayChannels)+max(cell2mat(targetCh_axNo))); %just a matrix
 
                               
                              for c=1:numel(fieldnames(obj.inputs.condsAll))
-                                 obj.inputs.inputDevice
                                  obj.inputs.condMat(c,obj.inputs.colLabel.inputDevices)=cellstr(obj.inputs.inputDevice);
                                  conds=fieldnames(obj.inputs.condsAll);
                                  obj.inputs.condMat(c,obj.inputs.colLabel.chLab)=horzcat({({obj.inputs.condsAll.(conds{c,1}).targetChannel,obj.inputs.displayChannels{1,:}})});
                                  obj.inputs.condMat(c,obj.inputs.colLabel.axesno)=horzcat({({targetCh_axNo{1,c},displayCh_axNo{1,:}})});
                                  displayChannels_meas=cell(1,1:numel(obj.inputs.displayChannels{1,:}));
                                  displayChannels_meas(:)=cellstr('MEP Measurement');
-                                 obj.inputs.condMat(c,obj.inputs.colLabel.measures)={{cellstr('MEP Measurement'),cellstr('MEP Measurement'),displayChannels_meas{1,:}}};
-                                 
-                                 obj.inputs.condMat(c,obj.inputs.colLabel.stimMode)={{}};
-                                 obj.inputs.condsAll.(conds{c,1})
-                                 % %                                  sttt=max(size(fieldnames(obj.inputs.condsAll.(conds{c,1}))))-2
-                                 % %                                  stno=(max(size(obj.inputs.condsAll.(conds{c,1})))-2)
-                                 % %                                  conds=size(fieldnames(obj.inputs.condsAll.(conds{c,1})))
-                                 
-                                 
+                                 obj.inputs.condMat(c,obj.inputs.colLabel.measures)={{cellstr('MEP Measurement'),displayChannels_meas{1,:}}};
+
                                  % si cond, outputDevice, stimMode and
                                  % [time port marker]
                                  for stno=1:(max(size(fieldnames(obj.inputs.condsAll.(conds{c,1}))))-2)
-                                     disp ENTEREDDDDD
                                      st=['st' num2str(stno)];
                                      condSi{1,stno}=obj.inputs.condsAll.(conds{c,1}).(st).si;
                                      condstimMode{1,stno}= obj.inputs.condsAll.(conds{c,1}).(st).stim_mode;
@@ -453,8 +434,6 @@ classdef best_toolbox < handle
                                  obj.inputs.condMat(c,obj.inputs.colLabel.si)={condSi};
                                  obj.inputs.condMat(c,obj.inputs.colLabel.outputDevices)={condoutputDevice};
                                  obj.inputs.condMat(c,obj.inputs.colLabel.stimMode)={condstimMode};
-%                                  condstimTiming=horzcat(condstimTiming{1,:})
-                                 a=numel(horzcat(condstimTiming{1,:}))
                                  for timing=1:numel(condstimTiming)
                                    for jj=1:numel(condstimTiming{1,timing})
                                        condstimTiming{2,timing}{1,jj}=condoutputDevice{1,timing};
@@ -470,40 +449,65 @@ classdef best_toolbox < handle
                                  port_vector{stimno_tpm}=obj.app.par.hardware_settings.(char(condstimTiming_new_sorted{2}{1,stimno_tpm})).bb_outputport;
                                  end
                                  condstimTiming_new_sorted{2}=port_vector;
-                                 tpmVect=[condstimTiming_new_sorted{1};condstimTiming_new_sorted{2}]
-                                 [tpmVect_unique,ia,ic]=unique(tpmVect(1,:))
-                                 a_counts = accumarray(ic,1)
+                                 tpmVect=[condstimTiming_new_sorted{1};condstimTiming_new_sorted{2}];
+                                 [tpmVect_unique,ia,ic]=unique(tpmVect(1,:));
+                                 a_counts = accumarray(ic,1);
                                  for binportloop=1:numel(tpmVect_unique)
-                                     buffer(1,binportloop)={(cell2mat(tpmVect(2,ia(binportloop):ia(binportloop)-1+a_counts(binportloop))))}
-                                     switch char(buffer(1,binportloop))
+                                     buffer{1,binportloop}={(cell2mat(tpmVect(2,ia(binportloop):ia(binportloop)-1+a_counts(binportloop))))};
+                                     switch str2num(char(buffer{1,binportloop}))
                                          case 0
+                                             buffer(1,binportloop)={0};
                                          case 1
+                                             buffer(1,binportloop)={1};
                                          case 2
+                                             buffer(1,binportloop)={2};
                                          case 12
+                                             buffer(1,binportloop)={3};
                                          case 3
+                                             buffer(1,binportloop)={4};
                                          case 13
+                                             buffer(1,binportloop)={5};
                                          case 23
+                                             buffer(1,binportloop)={6};
                                          case 123
+                                             buffer(1,binportloop)={7};
                                          case 4
+                                             buffer(1,binportloop)={8};
                                          case 14
+                                             buffer(1,binportloop)={9};
                                          case 24
-                                         case 12
-                                         case 12
-                                         case 13
-                                         case 14
+                                             buffer(1,binportloop)={10};
+                                         case 124   
+                                             buffer(1,binportloop)={11};
+                                         case 34
+                                             buffer(1,binportloop)={12};
+                                         case 134
+                                             buffer(1,binportloop)={13};
+                                         case 234
+                                             buffer(1,binportloop)={14};
+                                         case 1234
+                                             buffer(1,binportloop)={15};
+
                                      end
+                                     
+                                     binaryZ=['0000'];
+                                     for binaryID=1:numel(num)
+                                         binaryZ(num(binaryID))='1';
+                                     end
+                                     buffer(1,binportloop)=
                                  end
-                                 
-                                 %binary truth table
-                                 
-% tpmVect(2,binportloop)
+                                 obj.inputs.condMat(c,obj.inputs.colLabel.tpm)={[tpmVect_unique;buffer]};
 
-
-                                 obj.inputs.condMat(c,obj.inputs.colLabel.tpm)={[condstimTiming_new_sorted{1};condstimTiming_new_sorted{2}]};
                                  condSi=[];
                                  condoutputDevice=[];
                                  condstimMode=[];
                                  condstimTiming=[];
+                                 buffer=[];
+                                 tpmVect_unique=[];
+                                 a_counts =[];
+                                 ia=[];
+                                 ic=[];
+                                 port_vector=[];
                              end
                              
                              case 'Motor Threshold Hunting'
@@ -522,52 +526,7 @@ classdef best_toolbox < handle
 
                              end
                   end
-                  
-                  
-%                   for allconds=1:numel(fieldnames(obj.inputs.condsAll))
-%                       
-%                       
-%                       
-%                       
-%                       
-%                       switch obj.inputs.condsAll.(subsref(fieldnames(obj.inputs.condsAll),substruct('{}',{1}))).inputDevice.measure_str
-%                           case 'MEP Measurement'
-%                               
-%                           case 'IOC'
-%                           case 'Motor Threshold Hunting'
-%                           case 'EEGTMS'
-%                       end
-%                   end
-%                   
-% 
-%                   idx_iti=0;
-%                   idx_trials=0;
-%                   for c=1:numel(fieldnames(obj.inputs.condsAll))
-%                       idx_iti=idx_iti+1;
-%                       
-%                       idx_trials=idx_trials+1;
-%                       conds=fieldnames(obj.inputs.condsAll);
-%                       obj.inputs.condMat(c,obj.inputs.colLabel.inputDevices)=obj.inputs.condsAll.(conds{c,1}).inputDevice.input_device;
-% %                       obj.inputs.condMat(c,obj.inputs.colLabel.outputDevices)=0
-% %                       
-% %                       obj.inputs.condMat(c,obj.inputs.colLabel.si)=0
-%                       
-%                       obj.inputs.condMat(c,obj.inputs.colLabel.chLab)=horzcat({({obj.inputs.condsAll.(conds{c,1}).inputDevice.targetChannels{1,:},obj.inputs.condsAll.(conds{c,1}).inputDevice.displayChannels{1,:}})});
-% %                       obj.inputs.condMat(i,obj.inputs.colLabel.axesno)={{targetChannels_ax(1,idx_targetChannels),displayChannels_ax{1,:}}};
-% %                       obj.inputs.condMat(i,obj.inputs.colLabel.stimMode)={{{'single_pulse'}}};
-% %                       obj.inputs.condMat(i,obj.inputs.colLabel.measures)={{char(targetChannels_meas(1,idx_targetChannels)),displayChannels_meas{1,:}}};
-%                       
-%                       obj.inputs.condMat(c,obj.inputs.colLabel.trials)=(obj.inputs.trials(1,idx_trials));
-%                       obj.inputs.condMat(c,obj.inputs.colLabel.iti)=(obj.inputs.iti(1,idx_iti));
-%                       if(idx_iti>=numel(obj.inputs.iti))
-%                           idx_iti=0;
-%                       end
-%                       if(idx_trials>=numel(obj.inputs.trials))
-%                           idx_trials=0;
-%                       end
-%                       
-%                   end
-                  
+
                   
           end
           

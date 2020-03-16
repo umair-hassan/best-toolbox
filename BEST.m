@@ -1370,7 +1370,7 @@ classdef BEST < handle
             % 11-Mar-2020 18:13:21
             cd=['cd' num2str(obj.pi.mm.tab.SelectedChild)]
             
-            obj.pi.mm.stim.(cd).slctd=3;
+            obj.pi.mm.stim.(cd).slctd=2;
             
             
             st=['st' num2str(obj.pi.mm.stim.(cd).slctd)];
