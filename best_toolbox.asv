@@ -440,21 +440,70 @@ classdef best_toolbox < handle
                                  % %                                  conds=size(fieldnames(obj.inputs.condsAll.(conds{c,1})))
                                  
                                  
-                                 % si cond
+                                 % si cond, outputDevice, stimMode and
+                                 % [time port marker]
                                  for stno=1:(max(size(fieldnames(obj.inputs.condsAll.(conds{c,1}))))-2)
                                      disp ENTEREDDDDD
                                      st=['st' num2str(stno)];
                                      condSi{1,stno}=obj.inputs.condsAll.(conds{c,1}).(st).si;
                                      condstimMode{1,stno}= obj.inputs.condsAll.(conds{c,1}).(st).stim_mode;
                                      condoutputDevice{1,stno}=obj.inputs.condsAll.(conds{c,1}).(st).stim_device;
-                                     
+                                     condstimTiming{1,stno}=obj.inputs.condsAll.(conds{c,1}).(st).stim_timing
                                  end
                                  obj.inputs.condMat(c,obj.inputs.colLabel.si)={condSi};
                                  obj.inputs.condMat(c,obj.inputs.colLabel.outputDevices)={condoutputDevice};
                                  obj.inputs.condMat(c,obj.inputs.colLabel.stimMode)={condstimMode};
+%                                  condstimTiming=horzcat(condstimTiming{1,:})
+                                 a=numel(horzcat(condstimTiming{1,:}))
+                                 for timing=1:numel(condstimTiming)
+                                   for jj=1:numel(condstimTiming{1,timing})
+                                       condstimTiming{2,timing}{1,jj}=condoutputDevice{1,timing};
+                                   end
+                                 end
+                                 condstimTiming_new{1}=horzcat(condstimTiming{1,:});
+                                 condstimTiming_new{2}=horzcat(condstimTiming{2,:});
+
+                                 [condstimTiming_new_sorted{1},sorted_idx]=sort(condstimTiming_new{1});
+                                 condstimTiming_new_sorted{2}=condstimTiming_new{2}(sorted_idx);
+                                 
+                                 for stimno_tpm=1:numel(condstimTiming_new_sorted{2})
+                                 port_vector{stimno_tpm}=obj.app.par.hardware_settings.(char(condstimTiming_new_sorted{2}{1,stimno_tpm})).bb_outputport;
+                                 end
+                                 condstimTiming_new_sorted{2}=port_vector;
+                                 tpmVect=[condstimTiming_new_sorted{1};condstimTiming_new_sorted{2}]
+                                 [tpmVect_unique,ia,ic]=unique(tpmVect(1,:))
+                                 a_counts = accumarray(ic,1)
+                                 for binportloop=1:numel(tpmVect_unique)
+                                     buffer(1,binportloop)={(cell2mat(tpmVect(2,ia(binportloop):ia(binportloop)-1+a_counts(binportloop))))}
+                                     switch char(buffer(1,binportloop))
+                                         case 0
+                                         case 1
+                                         case 2
+                                         case 12
+                                         case 3
+                                         case 13
+                                         case 23
+                                         case 123
+                                         case 4
+                                         case 14
+                                         case 24
+                                         case 12
+                                         case 12
+                                         case 13
+                                         case 14
+                                     end
+                                 end
+                                 
+                                 %binary truth table
+                                 
+% tpmVect(2,binportloop)
+
+
+                                 obj.inputs.condMat(c,obj.inputs.colLabel.tpm)={[condstimTiming_new_sorted{1};condstimTiming_new_sorted{2}]};
                                  condSi=[];
                                  condoutputDevice=[];
                                  condstimMode=[];
+                                 condstimTiming=[];
                              end
                              
                              case 'Motor Threshold Hunting'
