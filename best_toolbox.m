@@ -872,6 +872,15 @@ obj.stimLoop
             obj.bootTrial;
             obj.stimLoop
         end
+        function best_multimodal(obj)
+            obj.factorizeConditions
+            obj.planTrials
+            obj.app.resultsPanel; 
+            obj.boot_inputdevice;
+            obj.boot_outputdevice;
+            obj.bootTrial;
+            obj.stimLoop
+        end
         
         function mep_plot(obj)
 
