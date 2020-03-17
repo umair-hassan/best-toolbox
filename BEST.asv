@@ -1157,9 +1157,6 @@ obj.bst.inputs.poststim_scope_plt=str2double(obj.pi.mm.postScope.String);
                 obj.bst.inputs.iti
                 obj.bst.factorizeConditions;
                 obj.bst.planTrials;
-                obj.resultsPanel; 
-%             obj.bst.boot_inputdevice;
-%             obj.bst.boot_outputdevice;
                 
                 
             end

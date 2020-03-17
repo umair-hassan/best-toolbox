@@ -396,6 +396,7 @@ classdef best_toolbox < handle
                               for axesno_cond=1:numel(fieldnames(obj.inputs.condsAll))
                                   conds=fieldnames(obj.inputs.condsAll);
                                   targetCh{1,axesno_cond}=char(obj.inputs.condsAll.(conds{axesno_cond,1}).targetChannel);
+                                  targetChannels_ax_meas{1,axesno_cond}=cellstr('MEP_Measurement');
                               end
                               targetCh_axNo_unique=unique(targetCh,'stable');
                               
@@ -409,6 +410,16 @@ classdef best_toolbox < handle
                               end
                               displayCh_axNo=num2cell(numel(obj.inputs.displayChannels)+max(cell2mat(targetCh_axNo))); %just a matrix
 
+%                               targetChannels_ax_meas=cell(1,numel(obj.inputs.targetChanel));
+%                               targetChannels_ax_meas(:)={{'MEP_Measurement'}}; % infact thsi would be a variable obj.inputs.targetMeasure
+                              displayChannels_ax_meas=cell(1,numel(obj.inputs.displayChannels));
+                              displayChannels_ax_meas(:)=cellstr('MEP_Measurement');
+                              obj.app.pr.ax_measures={targetChannels_ax_meas{1,:},displayChannels_ax_meas{1,:}};
+                              
+                              displayChannels_meas=cell(1,1:numel(obj.inputs.displayChannels{1,:}));
+                              displayChannels_meas(:)=cellstr('MEP Measurement');
+                              
+                              obj.app.pr.axesno=numel(targetCh_axNo)+numel(cell2mat(displayCh_axNo));
                               
                              for c=1:numel(fieldnames(obj.inputs.condsAll))
                                  obj.inputs.condMat(c,obj.inputs.colLabel.trials)=(obj.inputs.trials);
@@ -418,8 +429,7 @@ classdef best_toolbox < handle
                                  conds=fieldnames(obj.inputs.condsAll);
                                  obj.inputs.condMat(c,obj.inputs.colLabel.chLab)=horzcat({({obj.inputs.condsAll.(conds{c,1}).targetChannel,obj.inputs.displayChannels{1,:}})});
                                  obj.inputs.condMat(c,obj.inputs.colLabel.axesno)=horzcat({({targetCh_axNo{1,c},displayCh_axNo{1,:}})});
-                                 displayChannels_meas=cell(1,1:numel(obj.inputs.displayChannels{1,:}));
-                                 displayChannels_meas(:)=cellstr('MEP Measurement');
+                                 
                                  obj.inputs.condMat(c,obj.inputs.colLabel.measures)={{cellstr('MEP Measurement'),displayChannels_meas{1,:}}};
 
                                  % si cond, outputDevice, stimMode and
@@ -492,7 +502,7 @@ classdef best_toolbox < handle
 
                              end
                   end
-                  inputmatrix=obj.inputs.condMat(:,1)
+%                   inputmatrix=obj.inputs.condMat(:,1)
                   obj.inputs.totalConds=numel(obj.inputs.condMat(:,1));
                   
           end
