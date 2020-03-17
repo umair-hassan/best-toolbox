@@ -392,13 +392,11 @@ classdef best_toolbox < handle
                   
                   switch obj.inputs.sub_measure_str
                           case 'MEP Measurement'
-
                               
                               for axesno_cond=1:numel(fieldnames(obj.inputs.condsAll))
                                   conds=fieldnames(obj.inputs.condsAll);
                                   targetCh{1,axesno_cond}=char(obj.inputs.condsAll.(conds{axesno_cond,1}).targetChannel);
                               end
-%                               char(targetCh)
                               targetCh_axNo_unique=unique(targetCh,'stable');
                               
                               for i=1:numel(targetCh)
@@ -408,13 +406,15 @@ classdef best_toolbox < handle
                                       end
                                   end
                                   
-                                  
                               end
                               displayCh_axNo=num2cell(numel(obj.inputs.displayChannels)+max(cell2mat(targetCh_axNo))); %just a matrix
 
                               
                              for c=1:numel(fieldnames(obj.inputs.condsAll))
-                                 obj.inputs.condMat(c,obj.inputs.colLabel.inputDevices)=cellstr(obj.inputs.inputDevice);
+                                 obj.inputs.condMat(c,obj.inputs.colLabel.trials)=(obj.inputs.trials);
+                                 obj.inputs.condMat{c,obj.inputs.colLabel.iti}=(obj.inputs.iti);
+%                                  (obj.inputs.input_device)
+                                 obj.inputs.condMat(c,obj.inputs.colLabel.inputDevices)=cellstr(obj.inputs.input_device);
                                  conds=fieldnames(obj.inputs.condsAll);
                                  obj.inputs.condMat(c,obj.inputs.colLabel.chLab)=horzcat({({obj.inputs.condsAll.(conds{c,1}).targetChannel,obj.inputs.displayChannels{1,:}})});
                                  obj.inputs.condMat(c,obj.inputs.colLabel.axesno)=horzcat({({targetCh_axNo{1,c},displayCh_axNo{1,:}})});
@@ -454,51 +454,11 @@ classdef best_toolbox < handle
                                  a_counts = accumarray(ic,1);
                                  for binportloop=1:numel(tpmVect_unique)
                                      buffer{1,binportloop}={(cell2mat(tpmVect(2,ia(binportloop):ia(binportloop)-1+a_counts(binportloop))))};
-%                                      switch str2num(char(buffer{1,binportloop}))
-%                                          case 0
-%                                              buffer(1,binportloop)={0};
-%                                          case 1
-%                                              buffer(1,binportloop)={1};
-%                                          case 2
-%                                              buffer(1,binportloop)={2};
-%                                          case 12
-%                                              buffer(1,binportloop)={3};
-%                                          case 3
-%                                              buffer(1,binportloop)={4};
-%                                          case 13
-%                                              buffer(1,binportloop)={5};
-%                                          case 23
-%                                              buffer(1,binportloop)={6};
-%                                          case 123
-%                                              buffer(1,binportloop)={7};
-%                                          case 4
-%                                              buffer(1,binportloop)={8};
-%                                          case 14
-%                                              buffer(1,binportloop)={9};
-%                                          case 24
-%                                              buffer(1,binportloop)={10};
-%                                          case 124   
-%                                              buffer(1,binportloop)={11};
-%                                          case 34
-%                                              buffer(1,binportloop)={12};
-%                                          case 134
-%                                              buffer(1,binportloop)={13};
-%                                          case 234
-%                                              buffer(1,binportloop)={14};
-%                                          case 1234
-%                                              buffer(1,binportloop)={15};
-% 
-%                                      end
-%                                      num=(char(buffer{1,binportloop}))
-%                                      whos num
-%                                      numel(num)
-%                                      binaryID=1:numel(num)
-                                     binaryZ=['0000'];
+                                     binaryZ='0000';
+                                     num=cell2mat(buffer{1,binportloop})
                                      for binaryID=1:numel(num)
                                          binaryZ(str2num(num(binaryID)))='1';
                                      end
-%                                      disp -----------------------------------------------------------------------
-%                                      bin2dec(flip(binaryZ))
                                      buffer{1,binportloop}=bin2dec(flip(binaryZ));
                                  end
                                  obj.inputs.condMat(c,obj.inputs.colLabel.tpm)={[tpmVect_unique;buffer]};
@@ -532,7 +492,8 @@ classdef best_toolbox < handle
 
                              end
                   end
-
+                  inputmatrix=obj.inputs.condMat(:,1)
+                  obj.inputs.totalConds=numel(obj.inputs.condMat(:,1));
                   
           end
           
