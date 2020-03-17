@@ -1145,21 +1145,21 @@ classdef BEST < handle
                 obj.bst.inputs.sub_measure_str='MEP Measurement';
                 obj.bst.inputs.displayChannels=eval(obj.pi.mm.displayChannels.String);
                 obj.bst.inputs.input_device=obj.pi.mm.inputDevice.String(obj.pi.mm.inputDevice.Value);
-% % %                 obj.bst.inputs.trials=num2cell(str2num(obj.pi.mm.trials.String)); % 12-Mar-2020 18:00:20
-% % %                 obj.bst.inputs.iti=num2cell(str2num(obj.pi.mm.iti.String)); % 12-Mar-2020 18:00:20
+                % % %                 obj.bst.inputs.trials=num2cell(str2num(obj.pi.mm.trials.String)); % 12-Mar-2020 18:00:20
+                % % %                 obj.bst.inputs.iti=num2cell(str2num(obj.pi.mm.iti.String)); % 12-Mar-2020 18:00:20
                 obj.bst.inputs.trials=num2cell(str2num('11')); % 12-Mar-2020 18:00:20
                 obj.bst.inputs.iti=num2cell(str2num('4')); % 12-Mar-2020 18:00:20
-obj.bst.inputs.prestim_scope_plt=str2double(obj.pi.mm.preScope.String);
-obj.bst.inputs.poststim_scope_plt=str2double(obj.pi.mm.postScope.String);
+                obj.bst.inputs.prestim_scope_plt=str2double(obj.pi.mm.preScope.String);
+                obj.bst.inputs.poststim_scope_plt=str2double(obj.pi.mm.postScope.String);
                 obj.bst.inputs.condsAll=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr);
-%                 obj.pi.mm.trials.String
+                %                 obj.pi.mm.trials.String
                 obj.bst.inputs.trials
                 obj.bst.inputs.iti
                 obj.bst.factorizeConditions;
                 obj.bst.planTrials;
-                obj.resultsPanel; 
-%             obj.bst.boot_inputdevice;
-%             obj.bst.boot_outputdevice;
+                obj.resultsPanel;
+                obj.bst.boot_inputdevice;
+                %             obj.bst.boot_outputdevice;
                 
                 
             end
