@@ -1148,7 +1148,7 @@ classdef BEST < handle
                 % % %                 obj.bst.inputs.trials=num2cell(str2num(obj.pi.mm.trials.String)); % 12-Mar-2020 18:00:20
                 % % %                 obj.bst.inputs.iti=num2cell(str2num(obj.pi.mm.iti.String)); % 12-Mar-2020 18:00:20
                 obj.bst.inputs.trials=num2cell(str2num('11')); % 12-Mar-2020 18:00:20
-                obj.bst.inputs.iti=num2cell(str2num('10')); % 12-Mar-2020 18:00:20
+                obj.bst.inputs.iti=num2cell(str2num('4')); % 12-Mar-2020 18:00:20
                 obj.bst.inputs.prestim_scope_plt=str2double(obj.pi.mm.preScope.String);
                 obj.bst.inputs.poststim_scope_plt=str2double(obj.pi.mm.postScope.String);
                 obj.bst.inputs.condsAll=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr);
@@ -1160,8 +1160,8 @@ classdef BEST < handle
                 obj.resultsPanel;
                 obj.bst.boot_inputdevice;
                 obj.bst.boot_outputdevice;
-                obj.bst.bootTrial;
-                obj.bst.stimLoop;
+                obj.bsbootTrial;
+            obj.stimLoop;
                 
             end
             function cb_experimentModule(~,~)
@@ -1380,7 +1380,7 @@ classdef BEST < handle
             % 11-Mar-2020 18:13:21
             cd=['cd' num2str(obj.pi.mm.tab.SelectedChild)]
             
-            obj.pi.mm.stim.(cd).slctd=3;
+            obj.pi.mm.stim.(cd).slctd=2;
             
             
             st=['st' num2str(obj.pi.mm.stim.(cd).slctd)];
@@ -1473,7 +1473,7 @@ classdef BEST < handle
             source.String=['t: ', char(answer), ' ms'];
             cd=['cond' num2str(obj.pi.mm.tab.SelectedChild)];
             st=['st' num2str(source.UserData(2))];
-            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(cd).(st).stim_timing(source.UserData(1))=answer;            
+            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(cd).(st).stim_timing(source.UserData(1))=answer/1000;            
         end        
         function cb_pi_mm_sp_inputfig(obj,source,~)
             f=figure('ToolBar','none','MenuBar','none','Name','Insert Parameters | BEST Toolbox','NumberTitle','off');

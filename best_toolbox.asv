@@ -483,10 +483,9 @@ classdef best_toolbox < handle
                                  condstimTiming_new_sorted=[num2cell((cellfun(@str2num, tpmVect_unique(1,1:end))));buffer;markers];
                                  condstimTiming_new_sorted=cell2mat(condstimTiming_new_sorted)
                                  [condstimTiming_new_sorted(1,:),sorted_idx]=sort(condstimTiming_new_sorted(1,:))
-                                 condstimTiming_new_sorted(1,:)=condstimTiming_new_sorted(1,:)/1000;
-                                 condstimTiming_new_sorted(2,:)=condstimTiming_new_sorted(2,sorted_idx)
+                                 condstimTiming_new_sorted(2,:)=condstimTiming_new_sorted(2,:)
                                  
-                                 obj.inputs.condMat(c,obj.inputs.colLabel.tpm)={num2cell(condstimTiming_new_sorted)};
+                                 obj.inputs.condMat(c,obj.inputs.colLabel.tpm)
 
                                  condSi=[];
                                  condoutputDevice=[];

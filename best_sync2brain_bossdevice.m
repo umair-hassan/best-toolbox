@@ -11,12 +11,12 @@ classdef best_sync2brain_bossdevice
         end
         
         function singlePulse(obj,portNo)
-            portNo
                 obj.bb.sendPulse(portNo)
         end
         
-        function multiPulse(obj)
-            disp not_programmed_yet
+        function multiPulse(obj,time_port_marker_vector)
+            obj.bb.configure_time_port_marker(cell2mat(time_port_marker_vector'));
+            obj.bb.manualTrigger;
         end
     end
 end
