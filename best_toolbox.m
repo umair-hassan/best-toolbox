@@ -417,7 +417,7 @@ classdef best_toolbox < handle
                               obj.app.pr.ax_measures={targetChannels_ax_meas{1,:},displayChannels_ax_meas{1,:}};
                               
                               displayChannels_meas=cell(1,1:numel(obj.inputs.displayChannels{1,:}));
-                              displayChannels_meas(:)=cellstr('MEP Measurement');
+                              displayChannels_meas(:)=cellstr('MEP_Measurement');
                               
                               obj.app.pr.axesno=numel(targetCh_axNo)+numel(cell2mat(displayCh_axNo));
                               
@@ -431,7 +431,7 @@ classdef best_toolbox < handle
                                  obj.inputs.condMat(c,obj.inputs.colLabel.chLab)={{char(obj.inputs.condsAll.(conds{c,1}).targetChannel),obj.inputs.displayChannels{1,:}}};
                                  obj.inputs.condMat(c,obj.inputs.colLabel.axesno)=horzcat({({targetCh_axNo{1,c},displayCh_axNo{1,:}})});
                                  
-                                 obj.inputs.condMat(c,obj.inputs.colLabel.measures)={{char(cellstr('MEP Measurement')),displayChannels_meas{1,:}}};
+                                 obj.inputs.condMat(c,obj.inputs.colLabel.measures)={{char(cellstr('MEP_Measurement')),displayChannels_meas{1,:}}};
 
                                  % si cond, outputDevice, stimMode and
                                  % [time port marker]
@@ -716,7 +716,10 @@ classdef best_toolbox < handle
         end
         function plotTrial(obj)
             for i=1:numel(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab})
+                                        disp entered--------------------------------------------------------====================
+
                 obj.inputs.chLab_idx=i;
+                (obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.measures}{1,i})
                 switch (obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.measures}{1,i})
                     case 'MEP_Measurement'
                         obj.mep_plot
@@ -1382,12 +1385,13 @@ obj.stimLoop
                     obj.inputs.mep_onset_samples=obj.inputs.mep_onset*5000;
                     obj.inputs.mep_offset_samples=obj.inputs.mep_offset*5000;
                     disp enteredtimevect-------------
-                    switch char(obj.inputs.measure_str)%because not all will require MEPs to plot such as the intervention functions or multi stimulator paradigm so this is nec
-                        case {'MEP Measurement','Motor Hotspot Search','Motor Threshold Hunting','IOC'}
-                            disp enteredtimevect-------------
+                    % 18-Mar-2020 18:11:00
+%                     switch char(obj.inputs.measure_str) || char(obj.inputs.sub_measure_str)%because not all will require MEPs to plot such as the intervention functions or multi stimulator paradigm so this is nec
+%                         case {'MEP Measurement','Motor Hotspot Search','Motor Threshold Hunting','IOC'}
+%                             disp enteredtimevect-------------
                             obj.inputs.timeVect=linspace(-1*(obj.inputs.prestim_scope_plt),obj.inputs.poststim_scope_plt,obj.inputs.sc_samples);
-                        otherwise
-                    end
+%                         otherwise
+%                     end
                     
                 case 2 % fieldtrip
                     % http://www.fieldtriptoolbox.org/faq/how_should_i_get_started_with_the_fieldtrip_realtime_buffer/
