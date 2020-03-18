@@ -623,7 +623,7 @@ classdef best_toolbox < handle
                         switch char(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.stimMode}{1,i})
                             
                             case 'single_pulse'
-                                obj.bossbox.sendPulse(str2double(obj.app.par.hardware_settings.(char(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.outputDevices}{1,i})).bb_outputport));
+                                obj.bossbox.singlePulse(str2double(obj.app.par.hardware_settings.(char(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.outputDevices}{1,i})).bb_outputport));
                                 tic;
                             case 'paired_pulse'
                             case 'burst'
@@ -1411,7 +1411,7 @@ obj.stimLoop
             obj.rapid.arm;
         end
         function boot_bossbox(obj)
-            obj.bossbox=dbsp2('10.10.10.1');
+              obj.bossbox=best_sync2brain_bossdevice;
         end
         function best_motorhotspot(obj)
             obj.info.method=obj.info.method+1;
