@@ -1140,6 +1140,7 @@ classdef BEST < handle
             obj.pi.mm.cond.no=0;
             obj.cb_pi_mm_conditions;
             
+            
             function cb_run()
                 obj.bst.inputs.measure_str='Multimodal Experiment';
                 obj.bst.inputs.sub_measure_str='MEP Measurement';
@@ -1171,7 +1172,7 @@ classdef BEST < handle
 %                 end
                 
                 switch obj.pi.mm.expMode.Value
-                    case {1,2} %MEP Measurement
+                    case {1,3} %MEP Measurement or Input Output Curve
                 expModvBox=uix.VBox( 'Parent', experimentModule, 'Spacing', 0, 'Padding', 0  );
 
                         %row1
@@ -1186,6 +1187,16 @@ classdef BEST < handle
                         uicontrol( 'Style','text','Parent', expModr2,'String','Display Channels:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
                         obj.pi.mm.displayChannels=uicontrol( 'Style','edit','Parent', expModr2 ,'FontSize',11);
                         expModr2.Widths=[150 -2];
+                        
+                        expModr2b=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
+                        uicontrol( 'Style','text','Parent', expModr2b,'String','Trials per Condition:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                        obj.pi.mm.trials=uicontrol( 'Style','edit','Parent', expModr2b ,'FontSize',11);
+                        expModr2b.Widths=[150 -2];
+                        
+                        expModr2c=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
+                        uicontrol( 'Style','text','Parent', expModr2c,'String','Inter Trial Interval (s):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                        obj.pi.mm.iti=uicontrol( 'Style','edit','Parent', expModr2c ,'FontSize',11);
+                        expModr2c.Widths=[150 -2];
 
                         expModr3=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
                         uicontrol( 'Style','text','Parent', expModr3,'String','MEP Onset (ms):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
@@ -1201,11 +1212,16 @@ classdef BEST < handle
 
                         uiextras.HBox( 'Parent', expModvBox)
                         
-                        expModvBox.Heights=[-1 -1 -1 -1 -4];
+                        expModvBox.Heights=[-1 -1 -1 -1 -1 -1 -4];
                         
-
+                        switch obj.pi.mm.expMode.Value
+                            case 1
+                                obj.pi.mm.sub_measure_str='MEP Measurement';
+                            case 3
+                                obj.pi.mm.sub_measure_str='IOC';
+                        end
                         
-                    case 3
+                    case 2
                         expModvBox=uix.VBox( 'Parent', experimentModule, 'Spacing', 0, 'Padding', 0  );
 
                         expModr1=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
