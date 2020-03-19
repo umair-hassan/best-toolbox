@@ -156,7 +156,7 @@ classdef best_toolbox < handle
                         obj.inputs.condMat(i,obj.inputs.colLabel.outputDevices)={{cellstr(obj.inputs.output_device(1,idx_outputDevices))}};
                         obj.inputs.condMat(i,obj.inputs.colLabel.trials)=(obj.inputs.trials(1,idx_trials)); % may be a problem
                         obj.inputs.condMat(i,obj.inputs.colLabel.iti)=(obj.inputs.iti(1,idx_iti));
-                        obj.inputs.condMat(i,obj.inputs.colLabel.si)={(obj.inputs.stimuli(1,idx_si))};
+                        obj.inputs.condMat(i,obj.inputs.colLabel.si)={{(obj.inputs.stimuli(1,idx_si))}};
                         obj.inputs.condMat(i,obj.inputs.colLabel.chLab)={{char(cellstr(obj.inputs.target_muscle(1,idx_targetChannels))),obj.inputs.display_scopes{1,:}}};
                         obj.inputs.condMat(i,obj.inputs.colLabel.axesno)={{targetChannels_ax(1,idx_targetChannels),displayChannels_ax{1,:}}};
                         obj.inputs.condMat(i,obj.inputs.colLabel.stimMode)={{{'single_pulse'}}};
@@ -437,8 +437,9 @@ classdef best_toolbox < handle
                                 % [time port marker]
                                 for stno=1:(max(size(fieldnames(obj.inputs.condsAll.(conds{c,1}))))-2)
                                     st=['st' num2str(stno)];
-                                    condSi{1,stno}=str2num(obj.inputs.condsAll.(conds{c,1}).(st).si);
+                                    condSi{1,stno}=obj.inputs.condsAll.(conds{c,1}).(st).si_pckt;                                    
                                     condstimMode{1,stno}= obj.inputs.condsAll.(conds{c,1}).(st).stim_mode;
+                                    obj.inputs.condsAll.(conds{c,1}).(st).stim_device
                                     condoutputDevice{1,stno}=obj.inputs.condsAll.(conds{c,1}).(st).stim_device;
                                     condstimTiming{1,stno}=obj.inputs.condsAll.(conds{c,1}).(st).stim_timing
                                 end
@@ -555,7 +556,7 @@ classdef best_toolbox < handle
                                 % [time port marker]
                                 for stno=1:(max(size(fieldnames(obj.inputs.condsAll.(conds{c,1}))))-2)
                                     st=['st' num2str(stno)];
-                                    condSi{1,stno}=str2num(obj.inputs.condsAll.(conds{c,1}).(st).si);
+%                                     condSi{1,stno}=str2num(obj.inputs.condsAll.(conds{c,1}).(st).si);
                                     condstimMode{1,stno}= obj.inputs.condsAll.(conds{c,1}).(st).stim_mode;
                                     condoutputDevice{1,stno}=obj.inputs.condsAll.(conds{c,1}).(st).stim_device;
                                     condstimTiming{1,stno}=obj.inputs.condsAll.(conds{c,1}).(st).stim_timing
@@ -673,7 +674,7 @@ classdef best_toolbox < handle
                                 % [time port marker]
                                 for stno=1:(max(size(fieldnames(obj.inputs.condsAll.(conds{c,1}))))-2)
                                     st=['st' num2str(stno)];
-                                    condSi{1,stno}=str2num(obj.inputs.condsAll.(conds{c,1}).(st).si);
+                                    condSi{1,stno}=obj.inputs.condsAll.(conds{c,1}).(st).si_pckt;
                                     condstimMode{1,stno}= obj.inputs.condsAll.(conds{c,1}).(st).stim_mode;
                                     condoutputDevice{1,stno}=obj.inputs.condsAll.(conds{c,1}).(st).stim_device;
                                     condstimTiming{1,stno}=obj.inputs.condsAll.(conds{c,1}).(st).stim_timing
@@ -845,12 +846,14 @@ classdef best_toolbox < handle
             obj.prepTrial;
         end
         function trigTrial(obj)
-            switch obj.inputs.measure_str
+            obj.inputs.measure_str
+            switch char(obj.inputs.measure_str)
                 case 'Multimodal Experiment'
                     % ajj idher aur neche otherwise valui condition me yahan
                     % per eik switch case lagyga EEGTMS lye, us EEGTMS valy
                     % case me enter ho ker phase conditions and amps limits
                     % waghera sab diya jayega
+                    obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.tpm}
                     obj.bossbox.multiPulse(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.tpm});
                     tic;
                     
@@ -1029,12 +1032,14 @@ classdef best_toolbox < handle
                                     switch char(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.stimMode}{1,i})
                                         case 'single_pulse'
                                             obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,i}
-                                            obj.magven.setAmplitude(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,i});
+                                            obj.magven.setAmplitude(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,i}{1,1});
                                             % aaj ye remove ker do neche
                                             % vali 1 line
                                             pause(0.2)
                                         case 'paired_pulse'
+                                            disp PAIREDpulseENTERED
                                         case 'train'
+                                            disp trainENTERED
                                     end
                                 case {2,6} % pc or bb controlled magstim
                                     switch char(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.stimMode})
@@ -1058,7 +1063,7 @@ classdef best_toolbox < handle
                                         case 'train'
                                     end
                                 case 9 %simulation
-                                    switch char(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.stimMode})
+                                    switch char(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.stimMode}{1,i})
                                         case 'single_pulse'
                                             disp single_pulse_prepared
                                         case 'paired_pulse'
