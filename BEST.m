@@ -1165,11 +1165,11 @@ classdef BEST < handle
                         obj.bst.inputs.iti
                         obj.bst.factorizeConditions;
                         obj.bst.planTrials;
-                        obj.resultsPanel;
-                        obj.bst.boot_inputdevice;
-                        obj.bst.boot_outputdevice;
-                        obj.bst.bootTrial;
-                        obj.bst.stimLoop;
+%                         obj.resultsPanel;
+%                         obj.bst.boot_inputdevice;
+%                         obj.bst.boot_outputdevice;
+%                         obj.bst.bootTrial;
+%                         obj.bst.stimLoop;
                     case 2
                         obj.bst.inputs.sub_measure_str=obj.pi.mm.sub_measure_str;
                         obj.bst.inputs.displayChannels=eval(obj.pi.mm.displayChannels.String);
@@ -1198,12 +1198,12 @@ classdef BEST < handle
                         obj.bst.inputs.trials
                         obj.bst.inputs.iti
                         obj.bst.factorizeConditions;
-                        obj.bst.planTrials;
-                        obj.resultsPanel;
-                        obj.bst.boot_inputdevice;
-                        obj.bst.boot_outputdevice;
-                        obj.bst.bootTrial;
-                        obj.bst.stimLoop;
+%                         obj.bst.planTrials;
+%                         obj.resultsPanel;
+%                         obj.bst.boot_inputdevice;
+%                         obj.bst.boot_outputdevice;
+%                         obj.bst.bootTrial;
+%                         obj.bst.stimLoop;
                     case 4
                     case 5
                 end
@@ -1461,9 +1461,9 @@ classdef BEST < handle
         end
         function cb_pi_mm_pulse(obj,source,~)
             % 11-Mar-2020 18:13:21
-            cd=['cd' num2str(obj.pi.mm.tab.SelectedChild)]
+            cd=['cd' num2str(obj.pi.mm.tab.SelectedChild)];
             
-            obj.pi.mm.stim.(cd).slctd=3;
+            obj.pi.mm.stim.(cd).slctd=1;
             
             
             st=['st' num2str(obj.pi.mm.stim.(cd).slctd)];
