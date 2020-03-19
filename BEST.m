@@ -1143,26 +1143,71 @@ classdef BEST < handle
             
             function cb_run()
                 obj.bst.inputs.measure_str='Multimodal Experiment';
-                obj.bst.inputs.sub_measure_str='MEP Measurement';
-                obj.bst.inputs.displayChannels=eval(obj.pi.mm.displayChannels.String);
-                obj.bst.inputs.input_device=obj.pi.mm.inputDevice.String(obj.pi.mm.inputDevice.Value);
-                % % %                 obj.bst.inputs.trials=num2cell(str2num(obj.pi.mm.trials.String)); % 12-Mar-2020 18:00:20
-                % % %                 obj.bst.inputs.iti=num2cell(str2num(obj.pi.mm.iti.String)); % 12-Mar-2020 18:00:20
-                obj.bst.inputs.trials=num2cell(str2num('11')); % 12-Mar-2020 18:00:20
-                obj.bst.inputs.iti=num2cell(str2num('10')); % 12-Mar-2020 18:00:20
-                obj.bst.inputs.prestim_scope_plt=str2double(obj.pi.mm.preScope.String);
-                obj.bst.inputs.poststim_scope_plt=str2double(obj.pi.mm.postScope.String);
-                obj.bst.inputs.condsAll=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr);
-                obj.bst.inputs.output_device=obj.bst.inputs.condsAll.cond1.st1.stim_device
-                obj.bst.inputs.trials
-                obj.bst.inputs.iti
-                obj.bst.factorizeConditions;
-                obj.bst.planTrials;
-                obj.resultsPanel;
-                obj.bst.boot_inputdevice;
-                obj.bst.boot_outputdevice;
-                obj.bst.bootTrial;
-                obj.bst.stimLoop;
+                switch obj.pi.mm.expMode.Value
+                    case {1,3}
+                        obj.bst.inputs.sub_measure_str=obj.pi.mm.sub_measure_str;
+                        obj.bst.inputs.displayChannels=eval(obj.pi.mm.displayChannels.String);
+                        obj.bst.inputs.input_device=obj.pi.mm.inputDevice.String(obj.pi.mm.inputDevice.Value);
+                        obj.bst.inputs.trials=num2cell(str2num(obj.pi.mm.trials.String)); % 12-Mar-2020 18:00:20
+                        obj.bst.inputs.iti=num2cell(str2num(obj.pi.mm.iti.String)); % 12-Mar-2020 18:00:20
+                        %                 obj.bst.inputs.trials=num2cell(str2num('11')); % 12-Mar-2020 18:00:20
+                        %                 obj.bst.inputs.iti=num2cell(str2num('10')); % 12-Mar-2020 18:00:20
+                        obj.bst.inputs.prestim_scope_plt=str2double(obj.pi.mm.preScope.String);
+                        obj.bst.inputs.poststim_scope_plt=str2double(obj.pi.mm.postScope.String);
+                        obj.bst.inputs.condsAll=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr);
+                        obj.bst.inputs.output_device=obj.bst.inputs.condsAll.cond1.st1.stim_device;
+                        
+                        obj.bst.inputs.ylimMax=2000;
+                        obj.bst.inputs.ylimMin=-2000;
+                        
+                        
+                        obj.bst.inputs.trials
+                        obj.bst.inputs.iti
+                        obj.bst.factorizeConditions;
+                        obj.bst.planTrials;
+                        obj.resultsPanel;
+                        obj.bst.boot_inputdevice;
+                        obj.bst.boot_outputdevice;
+                        obj.bst.bootTrial;
+                        obj.bst.stimLoop;
+                    case 2
+                        obj.bst.inputs.sub_measure_str=obj.pi.mm.sub_measure_str;
+                        obj.bst.inputs.displayChannels=eval(obj.pi.mm.displayChannels.String);
+                        obj.bst.inputs.input_device=obj.pi.mm.inputDevice.String(obj.pi.mm.inputDevice.Value);
+                        obj.bst.inputs.trials=num2cell(str2num(obj.pi.mm.trials.String)); % 12-Mar-2020 18:00:20
+                        obj.bst.inputs.iti=num2cell(str2num(obj.pi.mm.iti.String)); % 12-Mar-2020 18:00:20
+                        %                 obj.bst.inputs.trials=num2cell(str2num('11')); % 12-Mar-2020 18:00:20
+                        %                 obj.bst.inputs.iti=num2cell(str2num('10')); % 12-Mar-2020 18:00:20
+                        obj.bst.inputs.prestim_scope_plt=str2double(obj.pi.mm.preScope.String);
+                        obj.bst.inputs.poststim_scope_plt=str2double(obj.pi.mm.postScope.String);
+                        
+                        
+                        obj.bst.inputs.stimuli=num2cell(NaN);
+                        obj.bst.inputs.motor_threshold=obj.pi.mm.motorThreshold.String;
+                        obj.bst.inputs.mt_starting_stim_inten=obj.pi.mm.startingStimIntensity.String;
+                        obj.bst.inputs.mt_trialstoavg=obj.pi.mm.trialsToAvg.String;
+                        obj.bst.inputs.ylimMax=200;
+                        obj.bst.inputs.ylimMin=-200;
+                        
+                        % % %             obj.bst.inputs.stim_mode='MSO';
+                        % % %             obj.bst.inputs.mep_onset=(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).mep_onset)/1000;
+                        % % %             obj.bst.inputs.mep_offset=(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).mep_offset)/1000;
+                        
+                        obj.bst.inputs.condsAll=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr);
+                        obj.bst.inputs.output_device=obj.bst.inputs.condsAll.cond1.st1.stim_device;
+                        obj.bst.inputs.trials
+                        obj.bst.inputs.iti
+                        obj.bst.factorizeConditions;
+                        obj.bst.planTrials;
+                        obj.resultsPanel;
+                        obj.bst.boot_inputdevice;
+                        obj.bst.boot_outputdevice;
+                        obj.bst.bootTrial;
+                        obj.bst.stimLoop;
+                    case 4
+                    case 5
+                end
+
                 
             end
             function cb_experimentModule(~,~)
@@ -1225,38 +1270,60 @@ classdef BEST < handle
                         expModvBox=uix.VBox( 'Parent', experimentModule, 'Spacing', 0, 'Padding', 0  );
 
                         expModr1=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
-                        uicontrol( 'Style','text','Parent', expModr1,'String','IOC:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                        uicontrol( 'Style','text','Parent', expModr1,'String','Input Device:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
                         str_in_device(1)= (cellstr('Select'));
                         str_in_device(2:numel(obj.hw.device_added1_listbox.string)+1)=obj.hw.device_added1_listbox.string;
                         obj.pi.mm.inputDevice=uicontrol( 'Style','popupmenu','Parent', expModr1 ,'FontSize',11,'String',str_in_device);
                         expModr1.Widths=[150 -2];
 
                         expModr2=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
-                        uicontrol( 'Style','text','Parent', expModr2,'String','IOC:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                        uicontrol( 'Style','text','Parent', expModr2,'String','Display Channels:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
                         obj.pi.mm.displayChannels=uicontrol( 'Style','edit','Parent', expModr2 ,'FontSize',11);
                         expModr2.Widths=[150 -2];
-
+                        
                         expModr3=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
-                        uicontrol( 'Style','text','Parent', expModr3,'String','IOC (ms):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-                        obj.pi.mm.mepOnset=uicontrol( 'Style','edit','Parent', expModr3 ,'FontSize',11);
-                        obj.pi.mm.mepOffset=uicontrol( 'Style','edit','Parent', expModr3 ,'FontSize',11);
-                        expModr3.Widths=[150 -2 -2];
-
+                        uicontrol( 'Style','text','Parent', expModr3,'String','Motor Threshold (mV):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                        obj.pi.mm.motorThreshold=uicontrol( 'Style','edit','Parent', expModr3 ,'FontSize',11);
+                        expModr3.Widths=[150 -2];
+                        
                         expModr4=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
-                        uicontrol( 'Style','text','Parent', expModr4,'String','IOC(ms):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-                        obj.pi.mm.preScope=uicontrol( 'Style','edit','Parent', expModr4 ,'FontSize',11);
-                        obj.pi.mm.postScope=uicontrol( 'Style','edit','Parent', expModr4 ,'FontSize',11);
-                        expModr4.Widths=[150 -2 -2];
+                        uicontrol( 'Style','text','Parent', expModr4,'String','Starting Stim. Intensity (%MSO):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                        obj.pi.mm.startingStimIntensity=uicontrol( 'Style','edit','Parent', expModr4 ,'FontSize',11);
+                        expModr4.Widths=[150 -2];
+                        
+                        expModr5=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
+                        uicontrol( 'Style','text','Parent', expModr5,'String','No. of Trials:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                        obj.pi.mm.trials=uicontrol( 'Style','edit','Parent', expModr5 ,'FontSize',11);
+                        expModr5.Widths=[150 -2];
+                        
+                        expModr6=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
+                        uicontrol( 'Style','text','Parent', expModr6,'String','No. of Trials to Avg:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                        obj.pi.mm.trialsToAvg=uicontrol( 'Style','edit','Parent', expModr6 ,'FontSize',11);
+                        expModr6.Widths=[150 -2];
+                        
+                        expModr7=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
+                        uicontrol( 'Style','text','Parent', expModr7,'String','Inter Trial Interval (s):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                        obj.pi.mm.iti=uicontrol( 'Style','edit','Parent', expModr7 ,'FontSize',11);
+                        expModr7.Widths=[150 -2];
 
-                        expModr4=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
-                        uicontrol( 'Style','text','Parent', expModr4,'String','IOC(ms):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-                        obj.pi.mm.preScope=uicontrol( 'Style','edit','Parent', expModr4 ,'FontSize',11);
-                        obj.pi.mm.postScope=uicontrol( 'Style','edit','Parent', expModr4 ,'FontSize',11);
-                        expModr4.Widths=[150 -2 -2];
+                        expModr8=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
+                        uicontrol( 'Style','text','Parent', expModr8,'String','MEP Onset (ms):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                        obj.pi.mm.mepOnset=uicontrol( 'Style','edit','Parent', expModr8 ,'FontSize',11);
+                        obj.pi.mm.mepOffset=uicontrol( 'Style','edit','Parent', expModr8 ,'FontSize',11);
+                        expModr8.Widths=[150 -2 -2];
+
+                        expModr9=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
+                        uicontrol( 'Style','text','Parent', expModr9,'String','Display Period (ms):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                        obj.pi.mm.preScope=uicontrol( 'Style','edit','Parent', expModr9 ,'FontSize',11);
+                        obj.pi.mm.postScope=uicontrol( 'Style','edit','Parent', expModr9 ,'FontSize',11);
+                        expModr9.Widths=[150 -2 -2];
+
                         
                         uiextras.HBox( 'Parent', expModvBox)
                         
-                        expModvBox.Heights=[-1 -1 -1 -1 -1 -3];
+                        expModvBox.Heights=[-1 -1 -1 -1 -1 -1 -1 -1 -1 -1];
+                        
+                        obj.pi.mm.sub_measure_str='Motor Threshold Hunting';
                     case 4
                         expModvBox=uix.VBox( 'Parent', experimentModule, 'Spacing', 0, 'Padding', 0  );
 
