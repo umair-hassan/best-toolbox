@@ -1445,12 +1445,8 @@ classdef BEST < handle
             text(0,-1*obj.pi.mm.stim.(cd).no,'click to tag device','VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',9,'FontAngle','italic','Tag',num2str(obj.pi.mm.stim.(cd).no),'ButtonDownFcn',@obj.cb_pi_mm_output_device)
             
             function cb_stimulatorSelector(source,~)
-                if(isvalid(obj.pi.mm.stimulatorSelector))
-                    obj.pi.mm.stimulatorSelector.Color='k';
-                end
                 obj.pi.mm.stim.(cd).slctd=str2double(source.Tag);
                 source.Color='b';
-                obj.pi.mm.stimulatorSelector=source;
             end
         end
         function cb_pi_mm_pulse(obj,source,~)
@@ -1528,17 +1524,14 @@ classdef BEST < handle
             end
             
             
-            function cb_stimulatorSelector(source,~)
-                if(isvalid(obj.pi.mm.stimulatorSelector))
-                    
-                    obj.pi.mm.stimulatorSelector.Color='k';
-                end
+             function cb_stimulatorSelector(source,~)
+                 if(exist
                 obj.pi.mm.stim.(cd).slctd=str2double(source.Tag);
                 source.Color='b';
                 obj.pi.mm.stimulatorSelector=source;
             end
         end
-        
+       
         function cb_pi_mm_output_device(obj,source,~)
             obj.hw.device_added1_listbox.string
             if(isempty(obj.hw.device_added2_listbox.string))
