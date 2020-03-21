@@ -1407,18 +1407,6 @@ classdef BEST < handle
 %             plot([-45 45],[0 0],'Color','k','parent',obj.pi.mm.cond.(cd).ax,'Color','k','LineWidth',2);
             obj.pi.mm.stim.(cd).no=0;
         end
-%         function cb_pi_mm_add_measures(obj,source,~)
-%                         cd=['cd' num2str(obj.pi.mm.tab.SelectedChild)];
-%                                     axes(obj.pi.mm.cond.(cd).ax)
-%                                     hold on;
-%                                     switch source.Tag
-%                                         case 'MEP Measurement'
-%                                             plot(0:0.01:10,rand(1,1001)*0.30-0.15,'Color','k','parent',obj.pi.mm.cond.(cd).ax,'LineWidth',2,'Tag','empty'); % 12-Mar-2020 07:37:17
-%                                             text(1,0+0.20,'Channels:[?], Pre/Post Display Period:[?] ms','VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',9,'FontAngle','italic','ButtonDownFcn',@obj.cb_pi_mm_mep_inputfig) % 11-Mar-2020 14:49:00
-%                                     end
-%     
-% 
-%         end
         function cb_pi_mm_stim(obj)
             
             obj.pi.mm.tab.TabNames=obj.pi.mm.cond.TabNames;
