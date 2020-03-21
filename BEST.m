@@ -1114,19 +1114,6 @@ classdef BEST < handle
             obj.pi.mm.pp=uicontrol( 'Parent', r6 ,'Style','PushButton','String','PP','FontWeight','Bold','HorizontalAlignment','center','Tag','paired_pulse','Callback',@obj.cb_pi_mm_pulse)%add burst or train
             obj.pi.mm.train=uicontrol( 'Parent', r6 ,'Style','PushButton','String','Train','FontWeight','Bold','HorizontalAlignment','center','Tooltip','Click to add MEP Measurement module','Tag','train','Callback',@obj.cb_pi_mm_pulse)%add paired pulse
             set( r6, 'Widths', [-1 -1 -1]);
-            
-%             %row 6
-%             uiextras.HBox( 'Parent', obj.pi.mm.r0v1,'Spacing', 5, 'Padding', 5 );
-%             obj.pi.mm.update=uicontrol( 'Parent', mep_panel_17 ,'Style','PushButton','String','Update','FontWeight','Bold','HorizontalAlignment','center') %Measure IOC
-%             obj.pi.mm.update=uicontrol( 'Parent', mep_panel_17 ,'Style','PushButton','String','Update','FontWeight','Bold','HorizontalAlignment','center')%Measure Threshold
-%             obj.pi.mm.update=uicontrol( 'Parent', mep_panel_17 ,'Style','PushButton','String','Update','FontWeight','Bold','HorizontalAlignment','center')%Measure MEP
-%             
-%              %row 7
-%             uiextras.HBox( 'Parent', obj.pi.mm.r0v1,'Spacing', 5, 'Padding', 5 );
-%             obj.pi.mm.update=uicontrol( 'Parent', mep_panel_17 ,'Style','PushButton','String','Update','FontWeight','Bold','HorizontalAlignment','center') %EEG triggered Stimulation
-%             obj.pi.mm.update=uicontrol( 'Parent', mep_panel_17 ,'Style','PushButton','String','Update','FontWeight','Bold','HorizontalAlignment','center')%rTMS Intervention
-%             obj.pi.mm.update=uicontrol( 'Parent', mep_panel_17 ,'Style','PushButton','String','Update','FontWeight','Bold','HorizontalAlignment','center')%Measure TEP
-            
 
             
             obj.pi.mm.update=uicontrol( 'Parent', obj.pi.mm.r0v1 ,'Style','PushButton','String','Run','FontWeight','Bold','HorizontalAlignment','center','Callback',@(~,~)cb_run) %Run
@@ -1422,8 +1409,10 @@ classdef BEST < handle
             obj.pi.mm.cond.(cd).ax.XLim=[0 5];
             xticks(obj.pi.mm.cond.(cd).ax,[100 101]);
             yticks(obj.pi.mm.cond.(cd).ax,[-1:1:1])
-            obj.pi.mm.cond.(cd).ax.YTickLabel={'','Input Device',''};
-            plot([-45 45],[0 0],'Color','k','parent',obj.pi.mm.cond.(cd).ax,'Color','k','LineWidth',2);
+            obj.pi.mm.cond.(cd).ax.YTickLabel={'','Target Channel',''};
+            plot(0:0.01:10,rand(1,1001)*0.30-0.15,'Color','k','parent',obj.pi.mm.cond.(cd).ax,'LineWidth',2,'Tag','empty'); % 12-Mar-2020 07:37:17
+            text(2.5,0+0.20,'Channel Name:[?]','VerticalAlignment','bottom','HorizontalAlignment','center','Color',[0.50 0.50 0.50],'FontSize',9,'FontAngle','italic','ButtonDownFcn',@obj.cb_pi_mm_mep_inputfig) % 11-Mar-2020 14:49:00
+%             plot([-45 45],[0 0],'Color','k','parent',obj.pi.mm.cond.(cd).ax,'Color','k','LineWidth',2);
             obj.pi.mm.stim.(cd).no=0;
         end
         function cb_pi_mm_add_measures(obj,source,~)
@@ -1748,56 +1737,56 @@ source.String={['TS:' char(si.String)];['CS:' char(cs.String) ' %MSO'];['ISI:' c
             f=figure('ToolBar','none','MenuBar','none','Name','Insert Parameters | BEST Toolbox','NumberTitle','off');
             c1=uix.VBox('parent',f,'Padding',10,'Spacing',10);
             
-            r0=uix.HBox('parent',c1);
-            uicontrol( 'Style','text','Parent', r0,'String','Input Device:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            str_in_device(1)= (cellstr('Select'));
-            str_in_device(2:numel(obj.hw.device_added1_listbox.string)+1)=obj.hw.device_added1_listbox.string;
-            inputDevice=uicontrol( 'Style','popupmenu','Parent', r0 ,'FontSize',11,'String',str_in_device);
-            set( r0, 'Widths', [250 200]);
+%             r0=uix.HBox('parent',c1);
+%             uicontrol( 'Style','text','Parent', r0,'String','Input Device:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+%             str_in_device(1)= (cellstr('Select'));
+%             str_in_device(2:numel(obj.hw.device_added1_listbox.string)+1)=obj.hw.device_added1_listbox.string;
+%             inputDevice=uicontrol( 'Style','popupmenu','Parent', r0 ,'FontSize',11,'String',str_in_device);
+%             set( r0, 'Widths', [250 200]);
             
             r1=uix.HBox('parent',c1);
             uicontrol( 'Style','text','Parent', r1,'String','Target Channels:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
             targetChannels=uicontrol( 'Style','edit','Parent', r1 ,'FontSize',11);
             set( r1, 'Widths', [250 200]);
             
-            r2a=uix.HBox('parent',c1);
-            uicontrol( 'Style','text','Parent', r2a,'String','Display Channels:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            displayChannels=uicontrol( 'Style','edit','Parent', r2a ,'FontSize',11);
-            set( r2a, 'Widths', [250 200]);
-            
-            r2b=uix.HBox('parent',c1);
-            uicontrol( 'Style','text','Parent', r2b,'String','MEP onset/offset (ms):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            mepOnset=uicontrol( 'Style','edit','Parent', r2b ,'FontSize',11);
-            uiextras.HBox('Parent',r2b)
-            mepOffset=uicontrol( 'Style','edit','Parent', r2b ,'FontSize',11);
-            set( r2b, 'Widths', [250 90 20 90]);
-            
-            r2=uix.HBox('parent',c1);
-            uicontrol( 'Style','text','Parent', r2,'String','MEP Pre/Post Display Period (ms)','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            prestim_scope_plt=uicontrol( 'Style','edit','Parent', r2 ,'FontSize',11);
-            uiextras.HBox('Parent',r2)
-            poststim_scope_plt=uicontrol( 'Style','edit','Parent', r2 ,'FontSize',11);
-            set( r2, 'Widths', [250 90 20 90]); 
+%             r2a=uix.HBox('parent',c1);
+%             uicontrol( 'Style','text','Parent', r2a,'String','Display Channels:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+%             displayChannels=uicontrol( 'Style','edit','Parent', r2a ,'FontSize',11);
+%             set( r2a, 'Widths', [250 200]);
+%             
+%             r2b=uix.HBox('parent',c1);
+%             uicontrol( 'Style','text','Parent', r2b,'String','MEP onset/offset (ms):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+%             mepOnset=uicontrol( 'Style','edit','Parent', r2b ,'FontSize',11);
+%             uiextras.HBox('Parent',r2b)
+%             mepOffset=uicontrol( 'Style','edit','Parent', r2b ,'FontSize',11);
+%             set( r2b, 'Widths', [250 90 20 90]);
+%             
+%             r2=uix.HBox('parent',c1);
+%             uicontrol( 'Style','text','Parent', r2,'String','MEP Pre/Post Display Period (ms)','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+%             prestim_scope_plt=uicontrol( 'Style','edit','Parent', r2 ,'FontSize',11);
+%             uiextras.HBox('Parent',r2)
+%             poststim_scope_plt=uicontrol( 'Style','edit','Parent', r2 ,'FontSize',11);
+%             set( r2, 'Widths', [250 90 20 90]); 
 
             uicontrol( 'Parent', c1 ,'Style','PushButton','String','OK','FontWeight','Bold','Callback',@(~,~)cb_ok);
             
-            set(c1, 'Heights', [25 25 25 25 25 25])
+            set(c1, 'Heights', [25 25])
             f.Position(3)=480;
-            f.Position(4)=240;
+            f.Position(4)=90;
             function cb_ok
-                source.String=['Input Device:' char(inputDevice.String(inputDevice.Value)) ' | Channels:' targetChannels.String ' ' displayChannels.String ' | Pre/Post Display Period:' prestim_scope_plt.String '-' poststim_scope_plt.String 'ms']; % 11-Mar-2020 14:48:28
+                source.String=['Channel Name:' targetChannels.String]; % 11-Mar-2020 14:48:28
 
 %                 source.String=['Channels:' targetChannels.String ' ' displayChannels.String , 'Pre/Post Display Period:' prestim_scope_plt.String '-' poststim_scope_plt.String 'ms']; % 11-Mar-2020 14:48:28
                 cd=['cond' num2str(obj.pi.mm.tab.SelectedChild)];
                 % 12-Mar-2020 08:53:28
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(cd).inputDevice.input_device=inputDevice.String(inputDevice.Value);
+%                 obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(cd).inputDevice.input_device=inputDevice.String(inputDevice.Value);
                 obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(cd).targetChannel=eval(targetChannels.String);
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(cd).inputDevice.displayChannels=eval(displayChannels.String);
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(cd).inputDevice.mepOnset=mepOnset.String;
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(cd).inputDevice.mepOffset=mepOffset.Value; %if 1 then its mso if 0 then its threshold
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(cd).inputDevice.prestim_scope_plt=prestim_scope_plt.String;
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(cd).inputDevice.poststim_scope_plt=poststim_scope_plt.String;
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(cd).inputDevice.measure_str='MEP Measurement';
+%                 obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(cd).inputDevice.displayChannels=eval(displayChannels.String);
+%                 obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(cd).inputDevice.mepOnset=mepOnset.String;
+%                 obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(cd).inputDevice.mepOffset=mepOffset.Value; %if 1 then its mso if 0 then its threshold
+%                 obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(cd).inputDevice.prestim_scope_plt=prestim_scope_plt.String;
+%                 obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(cd).inputDevice.poststim_scope_plt=poststim_scope_plt.String;
+%                 obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(cd).inputDevice.measure_str='MEP Measurement';
                 close(f)
             end
             
