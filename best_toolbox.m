@@ -415,7 +415,7 @@ classdef best_toolbox < handle
                             displayChannels_ax_meas=cell(1,numel(obj.inputs.displayChannels));
                             displayChannels_ax_meas(:)=cellstr('MEP_Measurement');
                             obj.app.pr.ax_measures={targetChannels_ax_meas{1,:},displayChannels_ax_meas{1,:}};
-                            
+                            obj.inputs.displayChannels
                             displayChannels_meas=cell(1,1:numel(obj.inputs.displayChannels{1,:}));
                             displayChannels_meas(:)=cellstr('MEP_Measurement');
                             
@@ -435,7 +435,7 @@ classdef best_toolbox < handle
                                 
                                 % si cond, outputDevice, stimMode and
                                 % [time port marker]
-                                for stno=1:(max(size(fieldnames(obj.inputs.condsAll.(conds{c,1}))))-2)
+                                for stno=1:(max(size(fieldnames(obj.inputs.condsAll.(conds{c,1}))))-1)
                                     st=['st' num2str(stno)];
                                     condSi{1,stno}=obj.inputs.condsAll.(conds{c,1}).(st).si_pckt;                                    
                                     condstimMode{1,stno}= obj.inputs.condsAll.(conds{c,1}).(st).stim_mode;
@@ -756,7 +756,10 @@ classdef best_toolbox < handle
             %% preparing trialMat
             
             obj.inputs.totalConds
+            obj.inputs.colLabel.trials
+            cell2mat(obj.inputs.condMat(1,obj.inputs.colLabel.trials))
             for i=1:obj.inputs.totalConds
+                cell2mat(obj.inputs.condMat(i,obj.inputs.colLabel.trials))
                 cond_id(i,:)=ones(1,cell2mat(obj.inputs.condMat(i,obj.inputs.colLabel.trials)))*i;
             end
             [~,id]=sort(sum(cond_id,2),'descend');
