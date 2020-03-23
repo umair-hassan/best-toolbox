@@ -20,6 +20,7 @@ classdef BEST < handle
         pulse
         fig
         menu
+        icons
         %         save_buffer
     end
     
@@ -42,6 +43,8 @@ classdef BEST < handle
             %             obj.results_panel;
             % obj.pr.axesno=6;
             % obj.resultsPanel
+            
+            
             
         end
         function create_best_obj(obj)
@@ -75,6 +78,8 @@ classdef BEST < handle
             
             obj.pi.mm.stim.no=0;
             
+            % save icons graphical data into dedicated object here
+            obj.icons.bes
             
         end
         function create_menu(obj)
@@ -1095,22 +1100,33 @@ classdef BEST < handle
             
             %row4
             r4=uiextras.HBox( 'Parent', obj.pi.mm.r0v1,'Spacing', 5, 'Padding', 5 );
-            obj.pi.mm.stim.btn=uicontrol( 'Parent', r4 ,'Style','PushButton','String','Stim','FontWeight','Bold','HorizontalAlignment','center','Position',[0 0 1 1],'units','normalized','Callback',@(~,~)obj.cb_pi_mm_stim) %add stimulator
-            obj.pi.mm.cond.btn=uicontrol( 'Parent', r4 ,'Style','PushButton','String','Cond','FontWeight','Bold','HorizontalAlignment','center','Callback',@(~,~)obj.cb_pi_mm_conditions)%add condition
-            set( r4, 'Widths', [-1 -1]);
+            obj.pi.mm.cond.btn=uicontrol( 'Parent', r4 ,'Style','PushButton','String','+','FontSize',16,'FontWeight','Bold','HorizontalAlignment','center','Callback',@(~,~)obj.cb_pi_mm_conditions)%add condition
+            obj.pi.mm.stim.btn=uicontrol( 'Parent', r4 ,'Style','PushButton','String','','FontWeight','Bold','HorizontalAlignment','center','Position',[0 0 1 1],'units','normalized','Callback',@(~,~)obj.cb_pi_mm_stim) %add stimulator
+            obj.pi.mm.sp.btn=uicontrol( 'Parent', r4 ,'Style','PushButton','String','','FontWeight','Bold','HorizontalAlignment','center','Tag','single_pulse','Callback',@obj.cb_pi_mm_pulse) %add single pulse
+            obj.pi.mm.pp.btn=uicontrol( 'Parent', r4 ,'Style','PushButton','String','','FontWeight','Bold','HorizontalAlignment','center','Tag','paired_pulse','Callback',@obj.cb_pi_mm_pulse)%add burst or train
+            obj.pi.mm.train.btn=uicontrol( 'Parent', r4 ,'Style','PushButton','String','','FontWeight','Bold','HorizontalAlignment','center','Tag','train','Callback',@obj.cb_pi_mm_pulse)%add paired pulse
+            
+%             obj.pi.mm.cond.btn=uicontrol( 'Parent', r4 ,'Style','PushButton','String','+','FontSize',16,'FontWeight','Bold','HorizontalAlignment','center','Position',[0 0 1 1],'units','normalized','Callback',@(~,~)obj.cb_pi_mm_conditions)%add condition
+%             obj.pi.mm.stim.btn=uicontrol( 'Parent', r4 ,'Style','PushButton','String','','FontWeight','Bold','HorizontalAlignment','center','Position',[0 0 1 1],'units','normalized','Callback',@(~,~)obj.cb_pi_mm_stim) %add stimulator
+%             obj.pi.mm.sp.btn=uicontrol( 'Parent', r4 ,'Style','PushButton','String','','FontWeight','Bold','HorizontalAlignment','center','Position',[0 0 1 1],'units','normalized','Callback',@(~,~)obj.cb_pi_mm_pulse)%add single pulse
+%             obj.pi.mm.pp.btn=uicontrol( 'Parent', r4 ,'Style','PushButton','String','','FontWeight','Bold','HorizontalAlignment','center','Position',[0 0 1 1],'units','normalized','Callback',@(~,~)obj.cb_pi_mm_pulse)%add paired pulse 
+%             obj.pi.mm.train.btn=uicontrol( 'Parent', r4 ,'Style','PushButton','String','','FontWeight','Bold','HorizontalAlignment','center','Position',[0 0 1 1],'units','normalized','Callback',@(~,~)obj.cb_pi_mm_pulse)%add burst or train
+
+%             obj.pi.mm.cond.btn=uicontrol( 'Parent', r4 ,'Style','PushButton','String','Cond','FontWeight','Bold','HorizontalAlignment','center','Callback',@(~,~)obj.cb_pi_mm_conditions)%add condition
+            set( r4, 'Widths', [55 55 55 55 55]);
             
             
-            %row 6
-            r6=uiextras.HBox( 'Parent', obj.pi.mm.r0v1,'Spacing', 5, 'Padding', 5 );
-            obj.pi.mm.sp.btn=uicontrol( 'Parent', r6 ,'Style','PushButton','String','SP','FontWeight','Bold','HorizontalAlignment','center','Tag','single_pulse','Callback',@obj.cb_pi_mm_pulse) %add single pulse
-            obj.pi.mm.pp.btn=uicontrol( 'Parent', r6 ,'Style','PushButton','String','PP','FontWeight','Bold','HorizontalAlignment','center','Tag','paired_pulse','Callback',@obj.cb_pi_mm_pulse)%add burst or train
-            obj.pi.mm.train.btn=uicontrol( 'Parent', r6 ,'Style','PushButton','String','Train','FontWeight','Bold','HorizontalAlignment','center','Tag','train','Callback',@obj.cb_pi_mm_pulse)%add paired pulse
-            set( r6, 'Widths', [-1 -1 -1]);
+%             %row 6
+%             r6=uiextras.HBox( 'Parent', obj.pi.mm.r0v1,'Spacing', 5, 'Padding', 5 );
+%             obj.pi.mm.sp.btn=uicontrol( 'Parent', r6 ,'Style','PushButton','String','SP','FontWeight','Bold','HorizontalAlignment','center','Tag','single_pulse','Callback',@obj.cb_pi_mm_pulse) %add single pulse
+%             obj.pi.mm.pp.btn=uicontrol( 'Parent', r6 ,'Style','PushButton','String','PP','FontWeight','Bold','HorizontalAlignment','center','Tag','paired_pulse','Callback',@obj.cb_pi_mm_pulse)%add burst or train
+%             obj.pi.mm.train.btn=uicontrol( 'Parent', r6 ,'Style','PushButton','String','Train','FontWeight','Bold','HorizontalAlignment','center','Tag','train','Callback',@obj.cb_pi_mm_pulse)%add paired pulse
+%             set( r6, 'Widths', [-1 -1 -1]);
             
             
             obj.pi.mm.update=uicontrol( 'Parent', obj.pi.mm.r0v1 ,'Style','PushButton','String','Run','FontWeight','Bold','HorizontalAlignment','center','Callback',@(~,~)cb_run) %Run
             
-            set(obj.pi.mm.r0v1,'Heights',[-0.4 -3 -0.4 -0.4 -0.4 -0.4])
+            set(obj.pi.mm.r0v1,'Heights',[-0.4 -3 -0.4 55 55])
             
             %uicontext menu to delete or duplicate the condition 
             
@@ -1555,41 +1571,23 @@ classdef BEST < handle
             end
             function cb_pr_mm_duplicateCondition(~,~)
                 conditionIndex=length(fieldnames(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll));
-                obj.pi.mm.tab.SelectedChild
                 cond_duplicated_from=['cond' num2str(obj.pi.mm.tab.SelectedChild)];
                 cond_duplicated_to=['cond' num2str(conditionIndex+1)];
                 obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cond_duplicated_to)=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cond_duplicated_from);
-%                 obj.cb_pi_mm_Nconditions
                 obj.pi_multimodal;
+                obj.func_load_multimodal_par;
             end
             function cb_pr_mm_deleteCondition(~,~)
-                conditionIndex=length(fieldnames(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll));
-                condsAll_fieldnames=fieldnames(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll);
-                
-                length(fieldnames(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll))-1
-                char(condsAll_fieldnames(obj.pi.mm.tab.SelectedChild))
-%                 condition_struct_to_delete=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(char(condsAll_fieldnames(obj.pi.mm.tab.SelectedChild)));
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll=rmfield(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll,char(condsAll_fieldnames(obj.pi.mm.tab.SelectedChild)))
+                condsAll_fieldnames=fieldnames(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll);                
+                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll=rmfield(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll,char(condsAll_fieldnames(obj.pi.mm.tab.SelectedChild)));
                 condsAll_fieldnames(obj.pi.mm.tab.SelectedChild)=[];
                 for deleteIndex_condition=1:(length(fieldnames(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll)))
                     cond_resorted_afterdelete=['cond' num2str(deleteIndex_condition)];
-                    condsAll_fieldnames(deleteIndex_condition)
-                    obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cond_resorted_afterdelete)=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(char(condsAll_fieldnames(deleteIndex_condition)));
-                    cond_resorted_afterdelete
-                    obj.pi_multimodal;
+                    condsAll_new.(cond_resorted_afterdelete)=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(char(condsAll_fieldnames(deleteIndex_condition)));
                 end
-                
-%                 conditionIndex=length(fieldnames(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll));
-%                 condsAll_fieldnames=fieldnames(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll);
-%                 condsAll_fieldnames(obj.pi.mm.tab.SelectedChild)=[];
-%                 length(fieldnames(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll))-1
-%                 delete(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(char(condsAll_fieldnames(obj.pi.mm.tab.SelectedChild))))
-%                 for deleteIndex_condition=1:(length(fieldnames(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll))-1)
-%                     cond_resorted_afterdelete=['cond' num2str(deleteIndex_condition)];
-%                     condsAll_fieldnames(deleteIndex_condition)
-%                     obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cond_resorted_afterdelete)=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(char(condsAll_fieldnames(deleteIndex_condition)));
-%                     obj.pi_multimodal;
-%                 end
+                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll=condsAll_new;
+                obj.pi_multimodal;
+                obj.func_load_multimodal_par;
             end
         end
         function cb_pi_mm_conditions(obj)
@@ -1618,28 +1616,23 @@ classdef BEST < handle
             obj.pi.mm.stim.(cd).no=0;
             function cb_pr_mm_duplicateCondition(~,~)
                 conditionIndex=length(fieldnames(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll));
-                obj.pi.mm.tab.SelectedChild
                 cond_duplicated_from=['cond' num2str(obj.pi.mm.tab.SelectedChild)];
                 cond_duplicated_to=['cond' num2str(conditionIndex+1)];
                 obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cond_duplicated_to)=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cond_duplicated_from);
-%                 obj.cb_pi_mm_Nconditions
                 obj.pi_multimodal;
+                obj.func_load_multimodal_par;
             end
             function cb_pr_mm_deleteCondition(~,~)
-                
-                conditionIndex=length(fieldnames(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll));
-                condsAll_fieldnames=fieldnames(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll);
-                
-                char(condsAll_fieldnames(obj.pi.mm.tab.SelectedChild))
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll=rmfield(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll,char(condsAll_fieldnames(obj.pi.mm.tab.SelectedChild)))
+                condsAll_fieldnames=fieldnames(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll);                
+                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll=rmfield(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll,char(condsAll_fieldnames(obj.pi.mm.tab.SelectedChild)));
                 condsAll_fieldnames(obj.pi.mm.tab.SelectedChild)=[];
                 for deleteIndex_condition=1:(length(fieldnames(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll)))
                     cond_resorted_afterdelete=['cond' num2str(deleteIndex_condition)];
-                    condsAll_fieldnames(deleteIndex_condition)
-                    obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cond_resorted_afterdelete)=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(char(condsAll_fieldnames(deleteIndex_condition)));
-                    cond_resorted_afterdelete
-                    obj.pi_multimodal;
+                    condsAll_new.(cond_resorted_afterdelete)=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(char(condsAll_fieldnames(deleteIndex_condition)));
                 end
+                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll=condsAll_new;
+                obj.pi_multimodal;
+                obj.func_load_multimodal_par;
             end
         end
         function cb_pi_mm_stim(obj)
