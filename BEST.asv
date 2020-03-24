@@ -28,7 +28,7 @@ classdef BEST < handle
     methods
         %% BESTq-
         function obj=BEST()
-            close all
+            
             obj.create_gui;
         end
         function create_gui(obj)
@@ -3425,11 +3425,6 @@ classdef BEST < handle
                 uicontrol( 'Style','text','Parent', mep_panel_row1a,'String','Stimulation Mode:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
                 obj.pi.ioc.stim_mode=uicontrol( 'Style','popupmenu','Parent', mep_panel_row1a ,'FontSize',11,'String',{'Single Pulse','Paired Pulse'},'Tag','stim_mode','Callback',@cb_stim_mode); %,'Callback',@obj.cb_ioc_target_muscle
                 set( mep_panel_row1a, 'Widths', [150 -2]);
-                
-                mep_panel_row1b = uix.HBox( 'Parent', obj.pi.ioc.vb, 'Spacing', 5, 'Padding', 5  );
-                uicontrol( 'Style','text','Parent', mep_panel_row1b,'String','Brain State:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-                obj.pi.ioc.brain_state=uicontrol( 'Style','popupmenu','Parent', mep_panel_row1b ,'FontSize',11,'String',{'Independent','Dependent'},'Tag','stim_mode','Callback',@cb_stim_mode); %,'Callback',@obj.cb_ioc_target_muscle
-                set( mep_panel_row1b, 'Widths', [150 -2]);
                 
                 
                 mep_panel_row2 = uix.HBox( 'Parent', obj.pi.ioc.vb, 'Spacing', 5, 'Padding', 5  );
