@@ -28,7 +28,7 @@ classdef BEST < handle
     methods
         %% BESTq-
         function obj=BEST()
-            close all
+%             close all
             obj.create_gui;
         end
         function create_gui(obj)
@@ -2297,15 +2297,20 @@ classdef BEST < handle
             end
             function cb_StimulationParametersTable
                 table=uitable( 'Parent', obj.pi.mm.r0v2r1);
-                table.Data=cell(10,10);
+                table.Data=cell(6,10);
                 table.FontSize=10;
-                table.ColumnName = {'TS Intensity','Stimulator','Intensity Units','Motor Threshold','Timing Onset','Pulse Mode','CS Intensity','ISI'};
-                table.ColumnFormat={[],[],{'%MSO','%MT'},[],[],{'Single Pulse','Paired Pulse', 'Train'},[],[]}
-                table.ColumnWidth = {100,100,100,100,100,100,120,100};
+                table.ColumnName = {'Condition #','TS Intensity','Train Freq','# of Pulses','Intensity Units','Stimulator','Pulse Mode','# of Trains','Timing Onset','Target EMG Ch'};
+                table.ColumnFormat={[],[],[],[],{'%MSO','%MT'},{'magven1','digitmerA'},{'Single Pulse','Paired Pulse', 'Train'},[],[],{'APBr','FDIr','ADMr'}};
+                table.ColumnWidth = {100,100,100,100,100,100,100,100,100,100};
+% table.Data=cell(6,8);
+%                 table.FontSize=10;
+%                 table.ColumnName = {'Condition #','TS Intensity','Intensity Units','Stimulator','Pulse Mode','# of Pulses','Timing Onset','Target EMG Ch'};
+%                 table.ColumnFormat={[],[],{'%MSO','%MT'},{'magven1','digitmerA'},{'Single Pulse','Paired Pulse', 'Train'},[],[],{'APBr','FDIr','ADMr'}};
+%                 table.ColumnWidth = {100,100,100,100,100,100,100,100};
                 table.ForegroundColor=	[0 0 0];
 
-                table.RowName ={1,2,3,4,5,6,7,8,9,10};
-                table.ColumnEditable =[true true true true true true true true];
+                table.RowName ={1,2,3,4,5,6};
+                table.ColumnEditable =[true true true true true true true true true true];
                 table.RowStriping='off';
 %                 s = uistyle('HorizontalAlignment','center');
 %                 addStyle(table,s,'table','');
