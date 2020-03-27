@@ -2926,7 +2926,7 @@ classdef BEST < handle
             
         end
         
-        %% MEP Section Revamping started
+        %% MEP Section Revamp
         function pi_mep(obj)
             %obs1: stim intenisty ka default unit mso hona chahye aur motor
             %threshold vala section usi hisab se phir enable off hona
