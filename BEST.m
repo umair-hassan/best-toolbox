@@ -2346,35 +2346,57 @@ classdef BEST < handle
                 table.ColumnName = {'Condition #','TS Intensity','Intensity Units','Stimulator','Pulse Mode','# of Pulses','Timing Onset (ms)','Target EMG Ch','CS Intensity','ISI (ms)','Train Freq','# of Trains'};
                 table.ColumnFormat={[],[],{'%MSO','%MT'},obj.hw.device_added2_listbox.string,{'Single Pulse','Paired Pulse', 'Train'},[],[],{'APBr','FDIr','ADMr'},[],[],[],[]};
                 table.ColumnWidth = {100,100,100,100,100,100,100,100,90,90,90,90};
-% table.Data=cell(6,8);
-%                 table.FontSize=10;
-%                 table.ColumnName = {'Condition #','TS Intensity','Intensity Units','Stimulator','Pulse Mode','# of Pulses','Timing Onset','Target EMG Ch'};
-%                 table.ColumnFormat={[],[],{'%MSO','%MT'},{'magven1','digitmerA'},{'Single Pulse','Paired Pulse', 'Train'},[],[],{'APBr','FDIr','ADMr'}};
-%                 table.ColumnWidth = {100,100,100,100,100,100,100,100};
-%                 table.ForegroundColor=	[0 0 0];
-
-%                 table.RowName ={1,2,3,4,5,6};
                 table.ColumnEditable =true(1,numel(table.ColumnName));
                 table.RowStriping='off';
                 table.RearrangeableColumns='on';
                 table.CellEditCallback =@CellEditCallback ;
 
                 function CellEditCallback (~,CellEditData)
+                    AdditionInCondition=['cond' num2str(table.Data{CellEditData.Indices(1),1})];
+%                     table.Data{:,1}
+% num2str(table.Data{CellEditData.Indices(1),1})
+% gp=cellfun(@str2double ,table.Data(:,1))
+% str2double(table.Data{CellEditData.Indices(1),1})
+%                     ggg=find(gp==str2double(table.Data{CellEditData.Indices(1),1}))
+% %                     find(table.Data{:,1}==table.Data{CellEditData.Indices(1),1})
+                    AdditionInStimulator=find(find(cellfun(@str2double ,table.Data(:,1))==str2double(table.Data{CellEditData.Indices(1),1}))==CellEditData.Indices(1));
                     opts               =    [];
                     opts.WindowStyle   =    'modal';
                     opts.Interpreter   =    'none';
                     switch CellEditData.Indices(2)
-                        case {11,12}
+                        case 2 %TS Intensity
+                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).si_pckt{1,1}=CellEditData.NewData;
+                        case 3 %Intensity Units
+
+                        case 4 %Stimulator
+
+                        case 5 %Pulse Mode
+
+                        case 6 %# of Pulses
+
+                        case 7 %Timing Onset (ms)
+
+                        case 8 %Target EMG Ch
+
+                        case {11,12} %Train Freq, # of Trians
                             if ~(strcmp(table.Data{CellEditData.Indices(1),5},'Train'))
                                 table.Data(CellEditData.Indices(1),CellEditData.Indices(2))=cellstr('          -');
                                 errordlg('Train Frequency and # of Trians are only Editable for the "Train" Pulse Mode, change Pulse Mode respectively if you desire to set this parameter','Warning | BEST Toolbox',opts);
                             end
-                        case {9,10}
+                        case {9,10} % CS Intensity, ISI (ms)
                             if ~(strcmp(table.Data{CellEditData.Indices(1),5},'Paired Pulse'))
                                 table.Data(CellEditData.Indices(1),CellEditData.Indices(2))=cellstr('          -');
                                 errordlg('CS Intensity and ISI are only Editable for the "Paired Pulse" Pulse Mode, change Pulse Mode respectively if you desire to set this parameter','Warning | BEST Toolbox',opts);
-                            end
+                            end  
                     end
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
 %                      function CellSelectionCallback(~,CellSelectionData)
 %                     opts=[];
 %                     opts.WindowStyle='modal';
