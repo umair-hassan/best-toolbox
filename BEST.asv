@@ -2296,24 +2296,112 @@ classdef BEST < handle
                  end
             end
             function cb_StimulationParametersTable
+                % create the Data from pars
+                iData=0;
+                for iTableCondition=1:numel(fieldnames(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll))
+                    TableCond=['cond' num2str(iTableCondition)];
+                    for iTableStimulator=1:numel(fieldnames(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond)))-1 %numel(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond))-1
+                        iData=iData+1;
+                        TableStim=['st' num2str(iTableStimulator)];
+                        TableData{iData,1}=num2str(iTableCondition);
+                        TableData{iData,9}='          -';
+                        TableData{iData,10}='          -';
+                        TableData{iData,11}='          -';
+                        TableData{iData,12}='          -';
+                        TableData{iData,2}=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).si_pckt{1,1});
+                        %check here what has been saved and use that
+                        if(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).si_units==1)
+                            TableData{iData,3}='%MSO';
+                        else
+                            TableData{iData,3}='%MT';
+                        end
+                        TableData{iData,4}=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).stim_device{1,1};
+                        %                         TableData{iData,5}=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).stim_mode{1,1};
+                        TableData{iData,6}=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).pulse_count);
+obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).stim_mode
+                        switch obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).stim_mode
+                            case 'single_pulse'
+                                TableData{iData,5}='Single Pulse';
+                            case 'paired_pulse'
+                                TableData{iData,5}='Paired Pulse';
+                                TableData{iData,9}=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).si_pckt{1,2});
+                                TableData{iData,10}=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).si_pckt{1,3});
+                            case 'train'
+                                TableData{iData,5}='Train';
+                                TableData{iData,11}=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).si_pckt{1,2});
+                                TableData{iData,12}=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).pulse_count);
+                                TableData{iData,6}=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).si_pckt{1,3});
+                        end
+                        
+                        TableData{iData,6}=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).pulse_count);
+                        tttt=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).stim_timing(1,:)
+                        t=cell2mat(horzcat((obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).stim_timing(1,:))))
+                        TableData{iData,7}=mat2str(cell2mat(horzcat((obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).stim_timing(1,:)))));
+                        TableData{iData,8}='?';
+                        %check here if they exist then use those otherwise
+                        %in case of non existant use the dash
+                        
+
+                        disp resukltshreer
+                        eval(TableData{iData,7})
+                        
+                    end
+                end
+                
+                % create the table and load the data
                 table=uitable( 'Parent', obj.pi.mm.r0v2r1);
-                table.Data=cell(6,10);
+                table.Data=TableData;%cell(6,12); % the row number comes from above
                 table.FontSize=10;
-                table.ColumnName = {'Condition #','TS Intensity','Train Freq','# of Pulses','Intensity Units','Stimulator','Pulse Mode','# of Trains','Timing Onset','Target EMG Ch'};
-                table.ColumnFormat={[],[],[],[],{'%MSO','%MT'},{'magven1','digitmerA'},{'Single Pulse','Paired Pulse', 'Train'},[],[],{'APBr','FDIr','ADMr'}};
-                table.ColumnWidth = {100,100,100,100,100,100,100,100,100,100};
+                table.ColumnName = {'Condition #','TS Intensity','Intensity Units','Stimulator','Pulse Mode','# of Pulses','Timing Onset (ms)','Target EMG Ch','CS Intensity','ISI (ms)','Train Freq','# of Trains'};
+                table.ColumnFormat={[],[],{'%MSO','%MT'},{'magven1','digitmerA'},{'Single Pulse','Paired Pulse', 'Train'},[],[],{'APBr','FDIr','ADMr'},[],[],[],[]};
+                table.ColumnWidth = {100,100,100,100,100,100,100,100,90,90,90,90};
 % table.Data=cell(6,8);
 %                 table.FontSize=10;
 %                 table.ColumnName = {'Condition #','TS Intensity','Intensity Units','Stimulator','Pulse Mode','# of Pulses','Timing Onset','Target EMG Ch'};
 %                 table.ColumnFormat={[],[],{'%MSO','%MT'},{'magven1','digitmerA'},{'Single Pulse','Paired Pulse', 'Train'},[],[],{'APBr','FDIr','ADMr'}};
 %                 table.ColumnWidth = {100,100,100,100,100,100,100,100};
-                table.ForegroundColor=	[0 0 0];
+%                 table.ForegroundColor=	[0 0 0];
 
-                table.RowName ={1,2,3,4,5,6};
-                table.ColumnEditable =[true true true true true true true true true true];
+%                 table.RowName ={1,2,3,4,5,6};
+                table.ColumnEditable =true(1,numel(table.ColumnName));
                 table.RowStriping='off';
+                table.RearrangeableColumns='on';
+                table.CellEditCallback =@CellEditCallback 
+                table.CellSelectionCallback =@CellSelectionCallback 
 %                 s = uistyle('HorizontalAlignment','center');
 %                 addStyle(table,s,'table','');
+
+                function CellEditCallback (~,CellEditData)
+                    switch CellEditData.Indices(2)
+                        case {11,12}
+                            if ~(strcmp(table.Data{CellEditData.Indices(1),5},'Train'))
+                                table.Data(CellEditData.Indices(1),CellEditData.Indices(2))=cellstr('          -');
+                                errordlg('Train Frequency and # of Trians are only Editable for the "Train" Pulse Mode, change Pulse Mode respectively if you desire to set this parameter','Warning | BEST Toolbox');
+                            end
+                        case {9,10}
+                            if ~(strcmp(table.Data{CellEditData.Indices(1),5},'Paired Pulse'))
+                                table.Data(CellEditData.Indices(1),CellEditData.Indices(2))=cellstr('          -');
+                                errordlg('CS Intensity and ISI are only Editable for the "Paired Pulse" Pulse Mode, change Pulse Mode respectively if you desire to set this parameter','Warning | BEST Toolbox');
+                            end
+                    end
+                end
+                
+                
+                function CellSelectionCallback(~,CellSelectionData)
+                    opts=[];
+                    
+                    switch CellSelectionData.Indices(2)
+                        case {11,12}
+                            if ~(strcmp(table.Data{CellSelectionData.Indices(1),5},'Train'))
+                                
+                            errordlg('Train Frequency and # of Trians are only Editable for the "Train" Pulse Mode, change Pulse Mode respectively if you desire to set this parameter','Warning | BEST Toolbox',opts);
+                            end
+                        case {9,10}
+                            if ~(strcmp(table.Data{CellSelectionData.Indices(1),5},'Paired Pulse'))
+                            errordlg('CS Intensity and ISI are only Editable for the "Paired Pulse" Pulse Mode, change Pulse Mode respectively if you desire to set this parameter','Warning | BEST Toolbox',opts);
+                            end
+                    end
+                end
 
             end
  
@@ -2340,7 +2428,21 @@ classdef BEST < handle
             obj.info.defaults.poststim_scope_plt	=	150	;
             obj.info.defaults.sub_measure_str	=	'MEP Measurement'	;
             obj.info.defaults.measure_str   =	'Multimodal Experiment'	;
-            obj.info.defaults.condsAll.cond1.targetChannel=cellstr('?');
+            si=[30 40 50 60 70 80]; 
+            for idefaults=1:6
+                cond=['cond' num2str(idefaults)];
+                obj.info.defaults.condsAll.(cond).targetChannel=cellstr('?');
+                obj.info.defaults.condsAll.(cond).st1.pulse_count=1;
+                obj.info.defaults.condsAll.(cond).st1.stim_device={'Select'};
+                obj.info.defaults.condsAll.(cond).st1.stim_mode='single_pulse';
+                obj.info.defaults.condsAll.(cond).st1.stim_timing=num2cell(0);
+                obj.info.defaults.condsAll.(cond).st1.si=si(idefaults);
+                obj.info.defaults.condsAll.(cond).st1.si_units=1;
+                obj.info.defaults.condsAll.(cond).st1.threshold='';
+                obj.info.defaults.condsAll.(cond).st1.si_pckt={si(idefaults)};
+            end
+%             obj.info.defaults.condsAll.cond1.targetChannel=cellstr('?');
+%             obj.info.defaults.condsAll.cond1.st1.pulse_count=1;
             obj.par.(obj.info.event.current_session).(obj.info.event.measure_being_added)=obj.info.defaults;
         end
         function func_load_multimodal_par(obj)
@@ -2683,7 +2785,7 @@ classdef BEST < handle
             source.String=['t: ', char(answer), ' ms'];
             cd=['cond' num2str(obj.pi.mm.tab.SelectedChild)];
             st=['st' num2str(source.UserData(2))];
-            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).stim_timing(source.UserData(1))=answer;
+            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).stim_timing(source.UserData(1))=num2cell(str2double(answer));
         end
         function cb_pi_mm_sp_inputfig(obj,source,~)
             f=figure('ToolBar','none','MenuBar','none','Name','Insert Parameters | BEST Toolbox','NumberTitle','off');
@@ -2722,7 +2824,7 @@ classdef BEST < handle
                 obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).si=si.String; %only 1 SI is allowed as a standard model of generalization
                 obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).si_units=units_mso.Value; %if 1 then its mso if 0 then its threshold
                 obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).threshold=threshold.String;
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).stim_mode=cellstr('single_pulse');
+                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).stim_mode='single_pulse';
                 obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).si_pckt={str2double(si.String)};
                 
                 close(f)
@@ -2926,160 +3028,307 @@ classdef BEST < handle
             
         end
         
-        %% MEP Section Revamp
+        %% MEP Section
         function pi_mep(obj)
-            %obs1: stim intenisty ka default unit mso hona chahye aur motor
-            %threshold vala section usi hisab se phir enable off hona
-            %chahye, jese he mt pe click ho to ye on ho jaye otherwise off
-            %rahy
+            obj.fig.main.Widths(1)=-1.15;
+            obj.fig.main.Widths(2)=-3.35;
+            obj.fig.main.Widths(3)=-0;
+            obj.pi.mm.panel=uix.Panel( 'Parent', obj.pi.empty_panel,'FontSize',14 ,'Units','normalized','Title','Motor Evoked Potentials (MEPs) Measurement' ,'FontWeight','Bold','TitlePosition','centertop');
+            obj.pi.mm.r0=uix.HBox( 'Parent', obj.pi.mm.panel,'Spacing', 5, 'Padding', 5 );
+            obj.pi.mm.r0p1=uix.Panel( 'Parent', obj.pi.mm.r0 ,'Units','normalized');
+            obj.pi.mm.r0v1 = uix.VBox( 'Parent', obj.pi.mm.r0p1, 'Spacing', 5, 'Padding', 5  );
             
-            obj.pi.mep.panel=uix.Panel( 'Parent', obj.pi.empty_panel,'FontSize',14 ,'Units','normalized','Title','MEP Measurement' ,'FontWeight','Bold','TitlePosition','centertop');
+            r0=uiextras.HBox( 'Parent', obj.pi.mm.r0v1,'Spacing', 5, 'Padding', 5 );
+            uicontrol( 'Style','text','Parent', r0,'String','Brain State:','FontSize',11,'HorizontalAlignment','left','Units','normalized'); % Inter Trial Inteval (s)
+            obj.pi.mm.brain_state=uicontrol( 'Style','popupmenu','Parent', r0 ,'FontSize',11,'String',{'Independent','Dependent'},'Callback',@cb_UniversalPanelAdaptation);
+            set( r0, 'Widths', [150 -2]);
+            BrainStateParametersPanel=uix.Panel( 'Parent', obj.pi.mm.r0v1,'Padding',5,'Units','normalized','FontSize',8 ,'Units','normalized','Title','Brain State Parameters' ,'FontWeight','normal','TitlePosition','centertop');
+            cb_BrainStateParametersPanel
+            DisplayParametersPanel=uix.Panel( 'Parent', obj.pi.mm.r0v1,'Padding',5,'Units','normalized','FontSize',8 ,'Units','normalized','Title','Display Parameters' ,'FontWeight','normal','TitlePosition','centertop');
+            cb_DisplayParametersPanel
+            expModr2=uiextras.HBox( 'Parent', obj.pi.mm.r0v1,'Spacing', 5, 'Padding', 5 );
+            uicontrol( 'Style','text','Parent', expModr2,'String','Trials Per Condition:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+            obj.pi.mm.displayChannels=uicontrol( 'Style','edit','Parent', expModr2 ,'FontSize',11,'Tag','displayChannels','callback',@cb_par_saving);
+            expModr2.Widths=[150 -2];
             
+            %row3
+            uicontrol( 'Style','text','Parent', obj.pi.mm.r0v1,'String','','FontSize',11,'HorizontalAlignment','center','Units','normalized'); % Trials per Condition
             
-            obj.pi.mep.vb = uix.VBox( 'Parent', obj.pi.mep.panel, 'Spacing', 5, 'Padding', 5  );
+            %row4
+            r4=uiextras.HBox( 'Parent', obj.pi.mm.r0v1,'Spacing', 5, 'Padding', 5 );
+            obj.pi.mm.cond.btn=uicontrol( 'Parent', r4 ,'Style','PushButton','String','+','FontSize',16,'FontWeight','Bold','HorizontalAlignment','center','Tooltip','Click to Add a new Condition','Callback',@(~,~)obj.cb_pi_mm_conditions)%add condition
+            obj.pi.mm.stim.btn=uicontrol( 'Parent', r4 ,'Style','PushButton','String','','FontWeight','Bold','HorizontalAlignment','center','Position',[0 0 1 1],'units','normalized','CData',obj.icons.stimulator,'Tooltip','Click to Add a new Stimulator on this Condition','Callback',@(~,~)obj.cb_pi_mm_stim); %add stimulator
+            obj.pi.mm.sp.btn=uicontrol( 'Parent', r4 ,'Style','PushButton','String','','FontWeight','Bold','HorizontalAlignment','center','CData',obj.icons.single_pulse,'Tooltip','Click to Add a Single-Pulse on selected stimulator (selected stimulator is highlighted in blue colour)','Tag','single_pulse','Callback',@obj.cb_pi_mm_pulse); %add single pulse
+            obj.pi.mm.pp.btn=uicontrol( 'Parent', r4 ,'Style','PushButton','String','','FontWeight','Bold','HorizontalAlignment','center','CData',obj.icons.paired_pulse,'Tooltip','Click to Add a Paired-Pulse on selected stimulator (selected stimulator is highlighted in blue colour)','Tag','paired_pulse','Callback',@obj.cb_pi_mm_pulse);%add burst or train
+            obj.pi.mm.train.btn=uicontrol( 'Parent', r4 ,'Style','PushButton','String','','FontWeight','Bold','HorizontalAlignment','center','CData',obj.icons.train,'Tooltip','Click to Add a Train or Burst on selected stimulator (selected stimulator is highlighted in blue colour)','Tag','train','Callback',@obj.cb_pi_mm_pulse);%add paired pulse
+            set( r4, 'Widths', [55 55 55 55 55]);
+
             
-            % row 1
-            uiextras.HBox( 'Parent', obj.pi.mep.vb,'Spacing', 5, 'Padding', 5 );
+            obj.pi.mm.update=uicontrol( 'Parent', obj.pi.mm.r0v1 ,'Style','PushButton','String','Run','FontWeight','Bold','HorizontalAlignment','center','Callback',@(~,~)cb_run); %Run
             
-            
-            % row 2
-            mep_panel_row2 = uix.HBox( 'Parent', obj.pi.mep.vb, 'Spacing', 5, 'Padding', 5  );
-            uicontrol( 'Style','text','Parent', mep_panel_row2,'String','Input Device:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            str_in_device(1)= (cellstr('Select'));
-            str_in_device(2:numel(obj.hw.device_added1_listbox.string)+1)=obj.hw.device_added1_listbox.string;
-            
-            obj.pi.mep.input_device=uicontrol( 'Style','popupmenu','Parent', mep_panel_row2 ,'FontSize',11,'String',str_in_device,'Callback',@(~,~)obj.cb_pi_mep_input_device); %,'Callback',@obj.cb_mep_target_muscle
-            
-            set( mep_panel_row2, 'Widths', [150 -2]);
-            
-            % row 2f
-            mep_panel_row2f = uix.HBox( 'Parent', obj.pi.mep.vb, 'Spacing', 5, 'Padding', 5  );
-            uicontrol( 'Style','text','Parent', mep_panel_row2f,'String','Output Device:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            str_out_device(1)= (cellstr('Select'));
-            str_out_device(2:numel(obj.hw.device_added2_listbox.string)+1)=obj.hw.device_added2_listbox.string;
-            obj.pi.mep.output_device=uicontrol( 'Style','popupmenu','Parent', mep_panel_row2f ,'String',str_out_device,'FontSize',11,'Callback',@(~,~)obj.cb_pi_mep_output_device); %,'Callback',@obj.cb_mep_target_muscle
-            
-            set( mep_panel_row2f, 'Widths', [150 -2]);
-            
-            % row 2
-            mep_panel_row2 = uix.HBox( 'Parent', obj.pi.mep.vb, 'Spacing', 5, 'Padding', 5  );
-            uicontrol( 'Style','text','Parent', mep_panel_row2,'String','Target Channels:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            obj.pi.mep.target_muscle=uicontrol( 'Style','edit','Parent', mep_panel_row2 ,'FontSize',11,'Callback',@(~,~)obj.cb_pi_mep_target_muscle); %,'Callback',@obj.cb_mep_target_muscle
-            set( mep_panel_row2, 'Widths', [150 -2]);
-            
-            % row 2g
-            mep_panel_row2g = uix.HBox( 'Parent', obj.pi.mep.vb, 'Spacing', 5, 'Padding', 5  );
-            uicontrol( 'Style','text','Parent', mep_panel_row2g,'String','Display Channels:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            obj.pi.mep.display_scopes=uicontrol( 'Style','edit','Parent', mep_panel_row2g ,'FontSize',11,'Callback',@(~,~)obj.cb_pi_mep_display_scopes); %,'Callback',@obj.cb_mep_target_muscle
-            set( mep_panel_row2g, 'Widths', [150 -2]);
+            cb_SetHeights;
             
             
+            obj.pi.mm.r0v2 = uix.VBox( 'Parent', obj.pi.mm.r0, 'Spacing', 5, 'Padding', 0); %uicontext menu to duplicate or delete a condition goes here
+            obj.pi.mm.r0v2r1=uix.Panel( 'Parent', obj.pi.mm.r0v2,'Padding',0,'Units','normalized','FontSize',8 ,'Units','normalized','Title','Stimulation Parameters' ,'FontWeight','normal','TitlePosition','centertop');
+            cb_StimulationParametersTable;
+            obj.pi.mm.tab = uiextras.TabPanel( 'Parent', obj.pi.mm.r0v2, 'Padding', 5 );
+            obj.pi.mm.r0v2.Heights=[200 -1];
+            set(obj.pi.mm.r0,'Widths',[-1.45 -3]);  
+            obj.pi.mm.cond.no=0;
+            obj.cb_pi_mm_Nconditions;
             
-            % row 3
-            mep_panel_row3 = uix.HBox( 'Parent', obj.pi.mep.vb, 'Spacing', 5, 'Padding', 5  );
-            uicontrol( 'Style','text','Parent', mep_panel_row3,'String','Stimulation Intensities:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            obj.pi.mep.stimulation_intensities=uicontrol( 'Style','edit','Parent', mep_panel_row3 ,'FontSize',11,'Callback',@(~,~)obj.cb_pi_mep_stimulation_intensities);
-            set( mep_panel_row3, 'Widths', [150 -2]);
-            
-            
-            % row 12
-            mep_panel_row12 = uix.HBox( 'Parent', obj.pi.mep.vb, 'Spacing', 5, 'Padding', 5  );
-            uicontrol( 'Style','text','Parent', mep_panel_row12,'String','Intensity Units:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            obj.pi.mep.units_mso=uicontrol( 'Style','radiobutton','Parent', mep_panel_row12 ,'FontSize',11,'String','%MSO','Value',1,'Callback',@(~,~)obj.cb_pi_mep_units_mso);
-            obj.pi.mep.units_mt=uicontrol( 'Style','radiobutton','Parent', mep_panel_row12 ,'FontSize',11,'String','%MT','Callback',@(~,~)obj.cb_pi_mep_units_mt);
-            set( mep_panel_row12, 'Widths', [200 -2 -2]);
-            
-            % row 13
-            mep_panel_13 = uix.HBox( 'Parent', obj.pi.mep.vb, 'Spacing', 5, 'Padding', 5  );
-            uicontrol( 'Style','text','Parent', mep_panel_13,'String','Motor Threshold (%MSO):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            obj.pi.mep.mt=uicontrol( 'Style','edit','Parent', mep_panel_13 ,'FontSize',11,'Callback',@(~,~)obj.cb_pi_mep_mt);
-            mt_btn_listbox_str_id= find(strcmp(obj.data.(obj.info.event.current_session).info.measurement_str_original,'MEP Motor Threshold Hunting'));
-            mt_btn_listbox_str=obj.data.(obj.info.event.current_session).info.measurement_str_to_listbox(mt_btn_listbox_str_id);
-            mt_btn_listbox_str=['Select' mt_btn_listbox_str];
-            obj.pi.mep.mt_btn=uicontrol( 'Style','popupmenu','Parent', mep_panel_13 ,'FontSize',11,'String',mt_btn_listbox_str,'Callback',@(~,~)obj.cb_pi_mep_mt_btn);
-            set( mep_panel_13, 'Widths', [175 -2 -2]);
-            
-            
-            % row 4
-            mep_panel_row4 = uix.HBox( 'Parent', obj.pi.mep.vb, 'Spacing', 5, 'Padding', 5  );
-            uicontrol( 'Style','text','Parent', mep_panel_row4,'String','Trials per Condition:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            obj.pi.mep.trials_per_condition=uicontrol( 'Style','edit','Parent', mep_panel_row4 ,'FontSize',11,'Callback',@(~,~)obj.cb_pi_mep_trials_per_condition);
-            set( mep_panel_row4, 'Widths', [150 -2]);
-            
-            %row 5
-            mep_panel_row5 = uix.HBox( 'Parent', obj.pi.mep.vb, 'Spacing', 5, 'Padding', 5  );
-            uicontrol( 'Style','text','Parent', mep_panel_row5,'String','Inter Trial Interval (s):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            obj.pi.mep.iti=uicontrol( 'Style','edit','Parent', mep_panel_row5 ,'FontSize',11,'Callback',@(~,~)obj.cb_pi_mep_iti);
-            set( mep_panel_row5, 'Widths', [150 -2]);
-            
-            
-            %row 8
-            mep_panel_row8 = uix.HBox( 'Parent', obj.pi.mep.vb, 'Spacing', 5, 'Padding', 5  );
-            uicontrol( 'Style','text','Parent', mep_panel_row8,'String','MEP onset (ms):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            obj.pi.mep.mep_onset=uicontrol( 'Style','edit','Parent', mep_panel_row8 ,'FontSize',11,'String','15','Callback',@(~,~)obj.cb_pi_mep_mep_onset);
-            obj.pi.mep.mep_offset=uicontrol( 'Style','edit','Parent', mep_panel_row8 ,'FontSize',11,'String','50','Callback',@(~,~)obj.cb_pi_mep_mep_offset);
-            set( mep_panel_row8, 'Widths', [150 -2 -2]);
-            
-            
-            %             %row 9
-            %             mep_panel_row10 = uix.HBox( 'Parent', obj.pi.mep.vb, 'Spacing', 5, 'Padding', 5  );
-            %             uicontrol( 'Style','text','Parent', mep_panel_row10,'String','Pre/Poststim. Scope Extract(ms):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            %             obj.pi.mep.prestim_scope_ext=uicontrol( 'Style','edit','Parent', mep_panel_row10 ,'FontSize',11,'String','50','Callback',@(~,~)obj.cb_pi_mep_prestim_scope_ext);
-            %             obj.pi.mep.poststim_scope_ext=uicontrol( 'Style','edit','Parent', mep_panel_row10 ,'FontSize',11,'String','50','Callback',@(~,~)obj.cb_pi_mep_poststim_scope_ext);
-            %             set( mep_panel_row10, 'Widths', [150 -2 -2]);
-            
-            %row 11
-            mep_panel_row11 = uix.HBox( 'Parent', obj.pi.mep.vb, 'Spacing', 5, 'Padding', 5  );
-            uicontrol( 'Style','text','Parent', mep_panel_row11,'String','Pre/Poststim. Scope Plot(ms):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            obj.pi.mep.prestim_scope_plt=uicontrol( 'Style','edit','Parent', mep_panel_row11 ,'FontSize',11,'String','150','Callback',@(~,~)obj.cb_pi_mep_prestim_scope_plt);
-            obj.pi.mep.poststim_scope_plt=uicontrol( 'Style','edit','Parent', mep_panel_row11 ,'FontSize',11,'String','150','Callback',@(~,~)obj.cb_pi_mep_poststim_scope_plt);
-            set( mep_panel_row11, 'Widths', [150 -2 -2]);
-            
-            
-            
-            
-            %             % row 15
-            %             mep_panel_15 = uix.HBox( 'Parent', obj.pi.mep.vb, 'Spacing', 5, 'Padding', 5  );
-            %             uicontrol( 'Style','text','Parent', mep_panel_15,'String','Y Axis Max/Min (microV):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            %             obj.pi.mep.ylim_min=uicontrol( 'Style','edit','Parent', mep_panel_15 ,'FontSize',11,'String','-8000','Callback',@(~,~)obj.cb_pi_mep_ylim_min);
-            %             obj.pi.mep.ylim_max=uicontrol( 'Style','edit','Parent', mep_panel_15 ,'FontSize',11,'String','8000','Callback',@(~,~)obj.cb_pi_mep_ylim_max);
-            %             set( mep_panel_15, 'Widths', [150 -2 -2]);
-            %
-            %
-            %             % row 14
-            %             mep_panel_14 = uix.HBox( 'Parent', obj.pi.mep.vb, 'Spacing', 5, 'Padding', 5  );
-            %             uicontrol( 'Style','text','Parent', mep_panel_14,'String','Font Size:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            %             obj.pi.mep.FontSize=uicontrol( 'Style','edit','Parent', mep_panel_14 ,'FontSize',11,'String','12','Callback',@(~,~)obj.cb_pi_mep_FontSize);
-            %             set( mep_panel_14, 'Widths', [150 -2]);
-            %
-            %             % row 15
-            %             mep_panel_15 = uix.HBox( 'Parent', obj.pi.mep.vb, 'Spacing', 5, 'Padding', 5  );
-            %             uicontrol( 'Style','text','Parent', mep_panel_15,'String','Trials No for Mean MEP Amp:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            %             obj.pi.mep.trials_for_mean_annotation=uicontrol( 'Style','edit','Parent', mep_panel_15 ,'FontSize',11,'String','5','Callback',@(~,~)obj.cb_pi_mep_trials_for_mean_annotation);
-            %             obj.pi.mep.trials_annotated_reset=uicontrol( 'Style','PushButton','Parent', mep_panel_15 ,'FontSize',10,'String','Reset Mean','Callback',@(~,~)obj.cb_pi_mep_trials_reset);
-            %             obj.pi.mep.trials_annotated_reset_plot=uicontrol( 'Style','PushButton','Parent', mep_panel_15 ,'FontSize',10,'String','Reset Mean Plot','Callback',@(~,~)obj.cb_pi_mep_plot_reset);
-            %             set( mep_panel_15, 'Widths', [150 -1 -2 -2]);
-            %
-            %
-            %             % row 16
-            %             mep_panel_16 = uix.HBox( 'Parent', obj.pi.mep.vb, 'Spacing', 5, 'Padding', 5  );
-            %             uicontrol( 'Style','text','Parent', mep_panel_16,'String','Save Plot:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            %             obj.pi.mep.save_plt=uicontrol( 'Style','checkbox','Parent', mep_panel_16 ,'FontSize',11,'Value',obj.info.defaults.save_plt,'Callback',@(~,~)obj.cb_pi_mep_save_plt);
-            %             set( mep_panel_16, 'Widths', [-2 -2]);
-            %
-            
-            
-            uiextras.HBox( 'Parent', obj.pi.mep.vb)
-            
-            mep_panel_17 = uix.HBox( 'Parent', obj.pi.mep.vb, 'Spacing', 5, 'Padding', 5  );
-            obj.pi.mep.update=uicontrol( 'Parent', mep_panel_17 ,'Style','PushButton','String','Update','FontWeight','Bold','Callback',@(~,~)obj.cb_pi_mep_update)
-            obj.pi.mep.run=uicontrol( 'Parent', mep_panel_17 ,'Style','PushButton','String','Run','FontWeight','Bold','Callback',@(~,~)obj.cb_pi_mep_run);
-            obj.pi.pause=uicontrol( 'Parent', mep_panel_17 ,'Style','PushButton','String','Pause','FontWeight','Bold','Callback',@(~,~)obj.pause,'Enable','on');
-            obj.pi.stop=uicontrol( 'Parent', mep_panel_17 ,'Style','PushButton','String','Stop','FontWeight','Bold','Callback',@(~,~)obj.stop,'Enable','on');
-            set( mep_panel_17, 'Widths', [-2 -4 -2 -2]);
-            
-            set(obj.pi.mep.vb,'Heights',[0 -0.4 -0.4 -0.4 -0.4 -0.4 -0.4 -0.4 -0.4 -0.4 -0.4 -0.4 -2 -0.4])
-            
+            function cb_run()
+                obj.bst.inputs=[];
+                obj.bst.inputs.measure_str='Multimodal Experiment';
+                switch obj.pi.mm.expMode.Value
+                    case {1,3}
+                        % %                         obj.bst.inputs.sub_measure_str=obj.pi.mm.sub_measure_str;
+                        % %                         obj.pi.mm.displayChannels.String
+                        % %                         obj.bst.inputs.displayChannels=eval(obj.pi.mm.displayChannels.String);
+                        % obj.pi.mm.inputDevice.String(obj.pi.mm.inputDevice.Value)
+                        %                         obj.bst.inputs.input_device=obj.pi.mm.inputDevice.String(obj.pi.mm.inputDevice.Value);
+                        % %                         obj.bst.inputs.trials=num2cell(str2num(obj.pi.mm.trials.String)); % 12-Mar-2020 18:00:20
+                        % %                         obj.bst.inputs.iti=num2cell(str2num(obj.pi.mm.iti.String)); % 12-Mar-2020 18:00:20
+                        % %                         %                 obj.bst.inputs.trials=num2cell(str2num('11')); % 12-Mar-2020 18:00:20
+                        % %                         %                 obj.bst.inputs.iti=num2cell(str2num('10')); % 12-Mar-2020 18:00:20
+                        % %                         obj.bst.inputs.prestim_scope_plt=str2double(obj.pi.mm.preScope.String);
+                        % %                         obj.bst.inputs.poststim_scope_plt=str2double(obj.pi.mm.postScope.String);
+                        % %                         obj.bst.inputs.condsAll=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll;
+                        
+                        obj.bst.inputs=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr);
+                        obj.bst.inputs.input_device=char(obj.pi.mm.inputDevice.String(obj.pi.mm.inputDevice.Value));
+                        obj.bst.inputs.trials=num2cell(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).trials); % 12-Mar-2020 18:00:20
+                        obj.bst.inputs.iti=num2cell(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).iti); % 12-Mar-2020 18:00:20
+                        
+                        obj.bst.inputs.displayChannels=eval(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).displayChannels);
+                        obj.bst.inputs.output_device=obj.bst.inputs.condsAll.cond1.st1.stim_device;
+                        
+                        obj.bst.inputs.ylimMax=2000;
+                        obj.bst.inputs.ylimMin=-2000;
+                        obj.bst.inputs.mep_onset=(obj.pi.mm.mepOnset.String)/1000;
+                        obj.bst.inputs.mep_offset=(obj.pi.mm.mepOffset.String)/1000;
+                        obj.bst.inputs.stim_mode='MSO';
+                        obj.bst.inputs.stop_event=0;
+                        
+                        obj.bst.inputs.trials
+                        obj.bst.inputs.iti
+                        obj.bst.factorizeConditions;
+                        obj.bst.planTrials;
+                        obj.resultsPanel;
+                        obj.bst.boot_inputdevice;
+                        obj.bst.boot_outputdevice;
+                        obj.bst.bootTrial;
+                        obj.bst.stimLoop;
+                    case 2
+                        obj.bst.inputs.sub_measure_str=obj.pi.mm.sub_measure_str;
+                        obj.bst.inputs.displayChannels=eval(obj.pi.mm.displayChannels.String);
+                        obj.bst.inputs.input_device=obj.pi.mm.inputDevice.String(obj.pi.mm.inputDevice.Value);
+                        obj.bst.inputs.trials=num2cell(str2num(obj.pi.mm.trials.String)); % 12-Mar-2020 18:00:20
+                        obj.bst.inputs.iti=num2cell(str2num(obj.pi.mm.iti.String)); % 12-Mar-2020 18:00:20
+                        %                 obj.bst.inputs.trials=num2cell(str2num('11')); % 12-Mar-2020 18:00:20
+                        %                 obj.bst.inputs.iti=num2cell(str2num('10')); % 12-Mar-2020 18:00:20
+                        obj.bst.inputs.prestim_scope_plt=str2double(obj.pi.mm.preScope.String);
+                        obj.bst.inputs.poststim_scope_plt=str2double(obj.pi.mm.postScope.String);
+                        
+                        
+                        obj.bst.inputs.stimuli=num2cell(NaN);
+                        obj.bst.inputs.motor_threshold=obj.pi.mm.motorThreshold.String;
+                        obj.bst.inputs.mt_starting_stim_inten=obj.pi.mm.startingStimIntensity.String;
+                        obj.bst.inputs.mt_trialstoavg=obj.pi.mm.trialsToAvg.String;
+                        obj.bst.inputs.ylimMax=200;
+                        obj.bst.inputs.ylimMin=-200;
+                        
+                        % % %             obj.bst.inputs.stim_mode='MSO';
+                        % % %             obj.bst.inputs.mep_onset=(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).mep_onset)/1000;
+                        % % %             obj.bst.inputs.mep_offset=(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).mep_offset)/1000;
+                        
+                        obj.bst.inputs.condsAll=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll;
+                        obj.bst.inputs.output_device=obj.bst.inputs.condsAll.cond1.st1.stim_device;
+                        obj.bst.inputs.trials
+                        obj.bst.inputs.iti
+                        obj.bst.factorizeConditions;
+                        %                         obj.bst.planTrials;
+                        %                         obj.resultsPanel;
+                        %                         obj.bst.boot_inputdevice;
+                        %                         obj.bst.boot_outputdevice;
+                        %                         obj.bst.bootTrial;
+                        %                         obj.bst.stimLoop;
+                    case 4
+                    case 5
+                end
+                
+                
+            end
+            function cb_UniversalPanelAdaptation(~,~)
+                cb_BrainStateParametersPanel
+                cb_DisplayParametersPanel
+                cb_SetHeights
+            end
+            function cb_BrainStateParametersPanel(~,~)
+                switch obj.pi.mm.brain_state.Value
+                    case 1
+                         expModvBox=uix.VBox( 'Parent', BrainStateParametersPanel, 'Spacing', 0, 'Padding', 0  );
+                        
+                        %row1
+                        expModr1=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
+                        uicontrol( 'Style','text','Parent', expModr1,'String','Input Device:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                        str_in_device(1)= (cellstr('Select'));
+                        str_in_device(2:numel(obj.hw.device_added1_listbox.string)+1)=obj.hw.device_added1_listbox.string;
+                        obj.pi.mm.inputDevice=uicontrol( 'Style','popupmenu','Parent', expModr1 ,'FontSize',11,'String',str_in_device,'Tag','inputDevice','callback',@cb_par_saving);
+                        expModr1.Widths=[150 -2];
+                        
+                        expModr2c=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
+                        uicontrol( 'Style','text','Parent', expModr2c,'String','Inter Trial Interval (s):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                        obj.pi.mm.iti=uicontrol( 'Style','edit','Parent', expModr2c ,'FontSize',11,'Tag','iti','callback',@cb_par_saving);
+                        expModr2c.Widths=[150 -2];
+                        
+                        expModvBox.Heights=[30 35];
+%                         DisplayParametersPanel=uix.Panel( 'Parent', obj.pi.mm.r0v1,'Padding',5,'Units','normalized','FontSize',8 ,'Units','normalized','Title','Display Parameters' ,'FontWeight','normal','TitlePosition','centertop');
+%                         cb_DisplayParametersPanel(DisplayParametersPanel)
+                    case 2
+                        expModvBox=uix.VBox( 'Parent', BrainStateParametersPanel, 'Spacing', 0, 'Padding', 0  );
+                        %row1
+                        expModr1=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
+                        uicontrol( 'Style','text','Parent', expModr1,'String','Input Device:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                        str_in_device(1)= (cellstr('Select'));
+                        str_in_device(2:numel(obj.hw.device_added1_listbox.string)+1)=obj.hw.device_added1_listbox.string;
+                        obj.pi.mm.inputDevice=uicontrol( 'Style','popupmenu','Parent', expModr1 ,'FontSize',11,'String',str_in_device,'Tag','inputDevice','callback',@cb_par_saving);
+                        expModr1.Widths=[150 -2];
+                        
+                        % row 2
+                        mep_panel_row2 = uix.HBox( 'Parent', expModvBox, 'Spacing', 5, 'Padding', 5  );
+                        uicontrol( 'Style','text','Parent', mep_panel_row2,'String','Montage Channels:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                        obj.pi.eegtms.target_montage=uicontrol( 'Style','edit','Parent', mep_panel_row2 ,'FontSize',11,'Callback',@(~,~)obj.cb_pi_eegtms_target_montage); %,'Callback',@obj.cb_eegtms_target_muscle
+                        set( mep_panel_row2, 'Widths', [150 -2]);
+                        
+                        mep_panel_row2 = uix.HBox( 'Parent', expModvBox, 'Spacing', 5, 'Padding', 5  );
+                        uicontrol( 'Style','text','Parent', mep_panel_row2,'String','Montage Weights:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                        obj.pi.eegtms.target_montage=uicontrol( 'Style','edit','Parent', mep_panel_row2 ,'FontSize',11,'Callback',@(~,~)obj.cb_pi_eegtms_target_montage); %,'Callback',@obj.cb_eegtms_target_muscle
+                        set( mep_panel_row2, 'Widths', [150 -2]);
+                        
+                        mep_panel_row8 = uix.HBox( 'Parent', expModvBox, 'Spacing', 5, 'Padding', 5  );
+                        uicontrol( 'Style','text','Parent', mep_panel_row8,'String','Frequency Band(Hz):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                        obj.pi.eegtms.freq_ist=uicontrol( 'Style','edit','Parent', mep_panel_row8 ,'FontSize',11,'String','15','Callback',@(~,~)obj.cb_pi_eegtms_freq_ist);
+                        obj.pi.eegtms.fre1_2nd=uicontrol( 'Style','edit','Parent', mep_panel_row8 ,'FontSize',11,'String','50','Callback',@(~,~)obj.cb_pi_eegtms_fre1_2nd);
+                        set( mep_panel_row8, 'Widths', [150 -2 -2]);
+                        
+                        % row 2
+                        mep_panel_row2 = uix.HBox( 'Parent', expModvBox, 'Spacing', 5, 'Padding', 5  );
+                        uicontrol( 'Style','text','Parent', mep_panel_row2,'String','Target Phase:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                        obj.pi.eegtms.target_phase=uicontrol( 'Style','edit','Parent', mep_panel_row2 ,'FontSize',11,'Callback',@(~,~)obj.cb_pi_eegtms_target_phase); %,'Callback',@obj.cb_eegtms_target_muscle
+                        set( mep_panel_row2, 'Widths', [150 -2]);
+                        
+                        mep_panel_13 = uix.HBox( 'Parent', expModvBox, 'Spacing', 5, 'Padding', 5  );
+                        uicontrol( 'Style','text','Parent', mep_panel_13,'String','Amp Distribution:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                        obj.pi.eegtms.amp_low=uicontrol( 'Style','edit','Parent', mep_panel_13 ,'FontSize',11,'Callback',@(~,~)obj.cb_pi_eegtms_amp_low);
+                        obj.pi.eegtms.amp_hi=uicontrol( 'Style','edit','Parent', mep_panel_13 ,'FontSize',11,'Callback',@(~,~)obj.cb_pi_eegtms_amp_hi);
+                        
+                        
+                        obj.pi.eegtms.amp_units=uicontrol( 'Style','popupmenu','Parent', mep_panel_13 ,'FontSize',11,'String',{'Select','Absolute','Percentile'},'Value',2','Callback',@(~,~)obj.cb_pi_eegtms_amp_units);
+                        set( mep_panel_13, 'Widths', [150 -2 -2 -2]);
+                        
+                        expModr2c=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
+                        uicontrol( 'Style','text','Parent', expModr2c,'String','Inter Trial Interval (s):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                        obj.pi.mm.iti=uicontrol( 'Style','edit','Parent', expModr2c ,'FontSize',11,'Tag','iti','callback',@cb_par_saving);
+                        expModr2c.Widths=[150 -2];
+                        
+                        expModvBox.Heights=[30 35 35 35 35 35 35];
+%                         DisplayParametersPanel=uix.Panel( 'Parent', obj.pi.mm.r0v1,'Padding',5,'Units','normalized','FontSize',8 ,'Units','normalized','Title','Display Parameters' ,'FontWeight','normal','TitlePosition','centertop');
+%                         cb_DisplayParametersPanel(DisplayParametersPanel)
+                end
+                
+            end
+            function cb_DisplayParametersPanel
+                switch obj.pi.mm.brain_state.Value
+                    case 1
+                        expModvBox=uix.VBox( 'Parent', DisplayParametersPanel, 'Spacing', 0, 'Padding', 0  );
+                        expModr2=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
+                        uicontrol( 'Style','text','Parent', expModr2,'String','EMG Display Channels:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                        obj.pi.mm.displayChannels=uicontrol( 'Style','edit','Parent', expModr2 ,'FontSize',11,'Tag','displayChannels','callback',@cb_par_saving);
+                        expModr2.Widths=[150 -2];
+                        
+                        expModr3=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
+                        uicontrol( 'Style','text','Parent', expModr3,'String','MEP Onset (ms):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                        obj.pi.mm.mepOnset=uicontrol( 'Style','edit','Parent', expModr3 ,'FontSize',11,'Tag','mepOnset','callback',@cb_par_saving);
+                        obj.pi.mm.mepOffset=uicontrol( 'Style','edit','Parent', expModr3 ,'FontSize',11,'Tag','mepOffset','callback',@cb_par_saving);
+                        expModr3.Widths=[150 -2 -2];
+                        
+                        expModr4=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
+                        uicontrol( 'Style','text','Parent', expModr4,'String','EMG Display Period (ms):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                        obj.pi.mm.preScope=uicontrol( 'Style','edit','Parent', expModr4 ,'FontSize',11,'Tag','preScope','callback',@cb_par_saving);
+                        obj.pi.mm.postScope=uicontrol( 'Style','edit','Parent', expModr4 ,'FontSize',11,'Tag','postScope','callback',@cb_par_saving);
+                        expModr4.Widths=[150 -2 -2];
+                        
+                        expModvBox.Heights=[45 45 45];
+%                         cb_SetHeights
+                    case 2
+                         expModvBox=uix.VBox( 'Parent', DisplayParametersPanel, 'Spacing', 0, 'Padding', 0  );
+                        expModr2=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
+                        uicontrol( 'Style','text','Parent', expModr2,'String','EMG Display Channels:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                        obj.pi.mm.displayChannels=uicontrol( 'Style','edit','Parent', expModr2 ,'FontSize',11,'Tag','displayChannels','callback',@cb_par_saving);
+                        expModr2.Widths=[150 -2];
+                        
+                        expModr3=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
+                        uicontrol( 'Style','text','Parent', expModr3,'String','MEP Onset (ms):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                        obj.pi.mm.mepOnset=uicontrol( 'Style','edit','Parent', expModr3 ,'FontSize',11,'Tag','mepOnset','callback',@cb_par_saving);
+                        obj.pi.mm.mepOffset=uicontrol( 'Style','edit','Parent', expModr3 ,'FontSize',11,'Tag','mepOffset','callback',@cb_par_saving);
+                        expModr3.Widths=[150 -2 -2];
+                        
+                        expModr4=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
+                        uicontrol( 'Style','text','Parent', expModr4,'String','EMG Display Period (ms):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                        obj.pi.mm.preScope=uicontrol( 'Style','edit','Parent', expModr4 ,'FontSize',11,'Tag','preScope','callback',@cb_par_saving);
+                        obj.pi.mm.postScope=uicontrol( 'Style','edit','Parent', expModr4 ,'FontSize',11,'Tag','postScope','callback',@cb_par_saving);
+                        expModr4.Widths=[150 -2 -2];
+                        
+                        expModr4=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
+                        uicontrol( 'Style','text','Parent', expModr4,'String','EEG Display Period (ms):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                        obj.pi.mm.preScope=uicontrol( 'Style','edit','Parent', expModr4 ,'FontSize',11,'Tag','preScope','callback',@cb_par_saving);
+                        obj.pi.mm.postScope=uicontrol( 'Style','edit','Parent', expModr4 ,'FontSize',11,'Tag','postScope','callback',@cb_par_saving);
+                        expModr4.Widths=[150 -2 -2];
+                        
+                        expModvBox.Heights=[45 45 45 45];
+%                         cb_SetHeights
+                end
+            end       
+            function cb_SetHeights
+                disp entered
+                 switch obj.pi.mm.brain_state.Value
+                    case 1
+                        set(obj.pi.mm.r0v1,'Heights',[40 90 170 40 -3 55 55])
+                    case 2
+                        set(obj.pi.mm.r0v1,'Heights',[40 270 220 40 -3 55 55])
+                 end
+            end
+            function cb_StimulationParametersTable
+                table=uitable( 'Parent', obj.pi.mm.r0v2r1);
+                table.Data=cell(6,10);
+                table.FontSize=10;
+                table.ColumnName = {'Condition #','TS Intensity','Train Freq','# of Pulses','Intensity Units','Stimulator','Pulse Mode','# of Trains','Timing Onset','Target EMG Ch'};
+                table.ColumnFormat={[],[],[],[],{'%MSO','%MT'},{'magven1','digitmerA'},{'Single Pulse','Paired Pulse', 'Train'},[],[],{'APBr','FDIr','ADMr'}};
+                table.ColumnWidth = {100,100,100,100,100,100,100,100,100,100};
+% table.Data=cell(6,8);
+%                 table.FontSize=10;
+%                 table.ColumnName = {'Condition #','TS Intensity','Intensity Units','Stimulator','Pulse Mode','# of Pulses','Timing Onset','Target EMG Ch'};
+%                 table.ColumnFormat={[],[],{'%MSO','%MT'},{'magven1','digitmerA'},{'Single Pulse','Paired Pulse', 'Train'},[],[],{'APBr','FDIr','ADMr'}};
+%                 table.ColumnWidth = {100,100,100,100,100,100,100,100};
+                table.ForegroundColor=	[0 0 0];
+
+                table.RowName ={1,2,3,4,5,6};
+                table.ColumnEditable =[true true true true true true true true true true];
+                table.RowStriping='off';
+%                 s = uistyle('HorizontalAlignment','center');
+%                 addStyle(table,s,'table','');
+
+            end
+ 
+            function cb_par_saving(source,~)
+                if strcmp(source.Tag,'inputDevice')
+                    obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).inputDevice=source.Value;
+                else
+                    obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(source.Tag)=source.String;
+                end
+            end
             
         end
         function pr_mepold(obj)
