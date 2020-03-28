@@ -2312,12 +2312,13 @@ classdef BEST < handle
                         %check here what has been saved and use that
                         if(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).si_units==1)
                             TableData{iData,3}='%MSO';
+                            TableData{iData,13}='          -';
                         else
                             TableData{iData,3}='%MT';
+                            TableData{iData,13}=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).threshold;
                         end
                         TableData{iData,4}=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).stim_device{1,1};
                         %                         TableData{iData,5}=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).stim_mode{1,1};
-                        TableData{iData,6}=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).pulse_count);
                         TableData{iData,6}=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).pulse_count);
                         switch obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).stim_mode
                             case 'single_pulse'
@@ -2343,11 +2344,11 @@ classdef BEST < handle
                 table=uitable( 'Parent', obj.pi.mm.r0v2r1);
                 table.Data=TableData;%cell(6,12); % the row number comes from above
                 table.FontSize=10;
-                table.ColumnName = {'Condition #','TS Intensity','Intensity Units','Stimulator','Pulse Mode','# of Pulses','Timing Onset (ms)','Target EMG Ch','CS Intensity','ISI (ms)','Train Freq','# of Trains'};
-                table.ColumnFormat={[],[],{'%MSO','%MT'},obj.hw.device_added2_listbox.string,{'Single Pulse','Paired Pulse', 'Train'},[],[],{'APBr','FDIr','ADMr'},[],[],[],[]};
-                table.ColumnWidth = {100,100,100,100,100,100,100,100,90,90,90,90};
+                table.ColumnName = {'Condition #','TS Intensity','Intensity Units','Stimulator','Pulse Mode','# of Pulses','Timing Onset (ms)','Target EMG Ch','CS Intensity','ISI (ms)','Train Freq','# of Trains','Motor Threshold (%MSO)'};
+                table.ColumnFormat={[],[],{'%MSO','%MT'},obj.hw.device_added2_listbox.string,{'Single Pulse','Paired Pulse', 'Train'},[],[],{'APBr','FDIr','ADMr'},[],[],[],[],[]};
+                table.ColumnWidth = {100,100,100,100,100,100,100,100,90,90,90,90,120};
                 table.ColumnEditable =true(1,numel(table.ColumnName));
-                table.RowStriping='off';
+                table.RowStriping='on';
                 table.RearrangeableColumns='on';
                 table.CellEditCallback =@CellEditCallback ;
 
@@ -2359,35 +2360,68 @@ classdef BEST < handle
 % str2double(table.Data{CellEditData.Indices(1),1})
 %                     ggg=find(gp==str2double(table.Data{CellEditData.Indices(1),1}))
 % %                     find(table.Data{:,1}==table.Data{CellEditData.Indices(1),1})
-                    AdditionInStimulator=find(find(cellfun(@str2double ,table.Data(:,1))==str2double(table.Data{CellEditData.Indices(1),1}))==CellEditData.Indices(1));
+                    AdditionInStimulator=['st' num2str(find(find(cellfun(@str2double ,table.Data(:,1))==str2double(table.Data{CellEditData.Indices(1),1}))==CellEditData.Indices(1)))];
                     opts               =    [];
                     opts.WindowStyle   =    'modal';
                     opts.Interpreter   =    'none';
                     switch CellEditData.Indices(2)
                         case 2 %TS Intensity
-                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).si_pckt{1,1}=CellEditData.NewData;
+                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).si_pckt{1,1}=str2double(CellEditData.NewData);
+                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).si=CellEditData.NewData;
                         case 3 %Intensity Units
-
+                            switch CellEditData.NewData
+                                case '%MSO'
+                                    obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).si_units=1;
+                                case '%MT'
+                                    obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).si_units=0;
+                            end
                         case 4 %Stimulator
-
+                                    obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).stim_device=CellEditData.NewData;
                         case 5 %Pulse Mode
-
+                                    obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).stim_mode=CellEditData.NewData;
                         case 6 %# of Pulses
-
+                                    obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).pulse_count=str2double(CellEditData.NewData);
                         case 7 %Timing Onset (ms)
-
+                            CellEditDataTimingOnset=[];
+                            CellEditDataTimingOnset=num2cell(eval(CellEditData.NewData));
+                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).stim_timing=CellEditDataTimingOnset;
                         case 8 %Target EMG Ch
-
+                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).targetChannel=cellstr(CellEditData.NewData);
                         case {11,12} %Train Freq, # of Trians
                             if ~(strcmp(table.Data{CellEditData.Indices(1),5},'Train'))
                                 table.Data(CellEditData.Indices(1),CellEditData.Indices(2))=cellstr('          -');
                                 errordlg('Train Frequency and # of Trians are only Editable for the "Train" Pulse Mode, change Pulse Mode respectively if you desire to set this parameter','Warning | BEST Toolbox',opts);
+                            else
+                                switch CellEditData.Indices(2)
+                                    case 11
+                                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).si_pckt{1,2}=str2double(CellEditData.NewData);
+                                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).freq=CellEditData.NewData;
+                                    case 12
+                                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).si_pckt{1,3}=str2double(CellEditData.NewData);
+                                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).pulsesNo=CellEditData.NewData;
+                                end
                             end
                         case {9,10} % CS Intensity, ISI (ms)
                             if ~(strcmp(table.Data{CellEditData.Indices(1),5},'Paired Pulse'))
                                 table.Data(CellEditData.Indices(1),CellEditData.Indices(2))=cellstr('          -');
                                 errordlg('CS Intensity and ISI are only Editable for the "Paired Pulse" Pulse Mode, change Pulse Mode respectively if you desire to set this parameter','Warning | BEST Toolbox',opts);
-                            end  
+                            else
+                                switch CellEditData.Indices(2)
+                                    case 9
+                                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).si_pckt{1,2}=str2double(CellEditData.NewData);
+                                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).cs=CellEditData.NewData;
+                                    case 10
+                                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).si_pckt{1,3}=str2double(CellEditData.NewData);
+                                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).isi=CellEditData.NewData;
+                                end
+                            end
+                        case 13
+                            if ~(strcmp(table.Data{CellEditData.Indices(1),3},'%MT'))
+                                table.Data(CellEditData.Indices(1),CellEditData.Indices(2))=cellstr('          -');
+                                errordlg('The selected Stimulation Intensity Units are %MSO, change it to %MT from its dropdown menu if you desire to update this value to a specific threshold','Warning | BEST Toolbox',opts);
+                            else
+                                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).threshold=CellEditData.NewData;
+                            end
                     end
                     
                     
