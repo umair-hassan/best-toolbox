@@ -2395,6 +2395,7 @@ classdef BEST < handle
                         case 2 %TS Intensity
                             obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).si_pckt{1,1}=str2double(CellEditData.NewData);
                             obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).si=CellEditData.NewData;
+                            obj.pi_multimodal_ioc;
                         case 3 %Intensity Units
                             switch CellEditData.NewData
                                 case '%MSO'
@@ -2402,9 +2403,14 @@ classdef BEST < handle
                                 case '%MT'
                                     obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).si_units=0;
                                     obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).threshold='NaN';
+
                             end
+                                                                                                    obj.pi_multimodal_ioc;
+
                         case 4 %Stimulator
                             obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).stim_device=cellstr(CellEditData.NewData);
+                                                                obj.pi_multimodal_ioc;
+
                         case 5 %Pulse Mode
                             switch CellEditData.NewData
                                 case 'Single Pulse'
@@ -2420,16 +2426,30 @@ classdef BEST < handle
                                     obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).si_pckt{1,2}=NaN;
                                     obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).si_pckt{1,3}=NaN;
                             end
+                                                                obj.pi_multimodal_ioc;
+
                         case 6 %# of Pulses
                             obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).pulse_count=str2double(CellEditData.NewData);
-                            CellEditData.NewData
+%AAJ: idher add kero k Stimulation Mode bhi nill ho jaye units bhi Nill ho
+%jaye intensity bhi khtam ho jaye matlab jese he pulse 0 zero ho to sirf vo
+%reh jaye to jab only stimulator add kerty hein to ata he
+                            if(str2double(CellEditData.NewData)==0)
+                                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).stim_timing{1,1}=[];
+                            else
                             obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).stim_timing{1,str2double(CellEditData.NewData)}=NaN;
+                            end
+                                                                                            obj.pi_multimodal_ioc;
+
                         case 7 %Timing Onset (ms)
                             CellEditDataTimingOnset=[];
                             CellEditDataTimingOnset=num2cell(eval(CellEditData.NewData));
                             obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).stim_timing=CellEditDataTimingOnset;
+                                                                                            obj.pi_multimodal_ioc;
+
                         case 8 %Target EMG Ch
                             obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).targetChannel=cellstr(CellEditData.NewData);
+                                                                                            obj.pi_multimodal_ioc;
+
                         case {11,12} %Train Freq, # of Trians
                             if ~(strcmp(table.Data{CellEditData.Indices(1),5},'Train'))
                                 table.Data(CellEditData.Indices(1),CellEditData.Indices(2))=cellstr('          -');
@@ -2443,6 +2463,8 @@ classdef BEST < handle
                                         obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).si_pckt{1,3}=str2double(CellEditData.NewData);
                                         obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).pulsesNo=CellEditData.NewData;
                                 end
+                                                                                                obj.pi_multimodal_ioc;
+
                             end
                         case {9,10} % CS Intensity, ISI (ms)
                             if ~(strcmp(table.Data{CellEditData.Indices(1),5},'Paired Pulse'))
@@ -2457,6 +2479,8 @@ classdef BEST < handle
                                         obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).si_pckt{1,3}=str2double(CellEditData.NewData);
                                         obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).isi=CellEditData.NewData;
                                 end
+                                                                                                obj.pi_multimodal_ioc;
+
                             end
                         case 13
                             if ~(strcmp(table.Data{CellEditData.Indices(1),3},'%MT'))
@@ -2464,15 +2488,18 @@ classdef BEST < handle
                                 errordlg('The selected Stimulation Intensity Units are %MSO, change it to %MT from its dropdown menu if you desire to update this value to a specific threshold','Warning | BEST Toolbox',opts);
                             else
                                 obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).threshold=CellEditData.NewData;
+                                                                                                obj.pi_multimodal_ioc;
+
                             end
                     end
-                                        obj.pi_multimodal_ioc;
 %                     obj.cb_pi_mm_Nconditions
                     
                     
                     
                     
-                    
+                    %AAJ: add a new uimenu in table for add a condition,
+                    %add a stimulator to this condition, delete a
+                    %condition, delete a stimulator
                     
                     
 %                      function CellSelectionCallback(~,CellSelectionData)
@@ -2742,6 +2769,8 @@ classdef BEST < handle
                 obj.pi_multimodal_ioc;
                 obj.func_load_multimodal_par;
             end
+                        obj.cb_StimulationParametersTable;
+
             
         end
         function cb_pi_mm_stim(obj)
