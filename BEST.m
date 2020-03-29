@@ -141,7 +141,7 @@ classdef BEST < handle
             % drop-down select measure: fourth horizontal row on first panel
             pmd_hbox_slct_mes = uix.HBox( 'Parent', pmd_vbox, 'Spacing', 5, 'Padding', 5  );
             uicontrol( 'Style','text','Parent', pmd_hbox_slct_mes,'String','Select Measure:','FontSize',11,'HorizontalAlignment','left' ,'Units','normalized');
-            obj.pmd.select_measure.string={'MEP IOC_new','Multimodal Experiment','MEP Measurement','MEP Hotspot Search','MEP Motor Threshold Hunting','MEP Dose Response Curve_sp','EEG triggered Stimulation','TMS fMRI','TEP Measurement','ERP Measurement','rs EEG Analysis','rTMS Interventions'};
+            obj.pmd.select_measure.string={'MEP Measurement','MEP IOC_new','Multimodal Experiment','MEP Hotspot Search','MEP Motor Threshold Hunting','MEP Dose Response Curve_sp','EEG triggered Stimulation','TMS fMRI','TEP Measurement','ERP Measurement','rs EEG Analysis','rTMS Interventions'};
             obj.pmd.select_measure.popupmenu=uicontrol( 'Style','popupmenu','Parent', pmd_hbox_slct_mes ,'FontSize',11,'String',obj.pmd.select_measure.string);
             obj.pmd.select_measure.btn=uicontrol( 'Parent', pmd_hbox_slct_mes ,'Style','PushButton','String','+','FontWeight','Bold','Callback',@(~,~)obj.cb_measure_add);
             set( pmd_hbox_slct_mes, 'Widths', [120 -0.7 -0.09]);
@@ -3250,71 +3250,11 @@ classdef BEST < handle
             obj.cb_pi_mm_Nconditions;
             
             function cb_run()
-                obj.bst.inputs=[];
-                obj.bst.inputs.measure_str='Multimodal Experiment';
-                switch obj.pi.mep.expMode.Value
-                    case {1,3}
-                        obj.bst.inputs=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr);
-                        obj.bst.inputs.input_device=char(obj.pi.mep.inputDevice.String(obj.pi.mep.inputDevice.Value));
-                        obj.bst.inputs.trials=num2cell(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).trials); % 12-Mar-2020 18:00:20
-                        obj.bst.inputs.iti=num2cell(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).iti); % 12-Mar-2020 18:00:20
-                        
-                        obj.bst.inputs.displayChannels=eval(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).displayChannels);
-                        obj.bst.inputs.output_device=obj.bst.inputs.condsAll.cond1.st1.stim_device;
-                        
-                        obj.bst.inputs.ylimMax=2000;
-                        obj.bst.inputs.ylimMin=-2000;
-                        obj.bst.inputs.mep_onset=(obj.pi.mep.mepOnset.String)/1000;
-                        obj.bst.inputs.mep_offset=(obj.pi.mep.mepOffset.String)/1000;
-                        obj.bst.inputs.stim_mode='MSO';
-                        obj.bst.inputs.stop_event=0;
-                        
-                        obj.bst.inputs.trials
-                        obj.bst.inputs.iti
-                        obj.bst.factorizeConditions;
-                        obj.bst.planTrials;
-                        obj.resultsPanel;
-                        obj.bst.boot_inputdevice;
-                        obj.bst.boot_outputdevice;
-                        obj.bst.bootTrial;
-                        obj.bst.stimLoop;
-                    case 2
-                        obj.bst.inputs.sub_measure_str=obj.pi.mep.sub_measure_str;
-                        obj.bst.inputs.displayChannels=eval(obj.pi.mep.displayChannels.String);
-                        obj.bst.inputs.input_device=obj.pi.mep.inputDevice.String(obj.pi.mep.inputDevice.Value);
-                        obj.bst.inputs.trials=num2cell(str2num(obj.pi.mep.trials.String)); % 12-Mar-2020 18:00:20
-                        obj.bst.inputs.iti=num2cell(str2num(obj.pi.mep.iti.String)); % 12-Mar-2020 18:00:20
-                        obj.bst.inputs.prestim_scope_plt=str2double(obj.pi.mep.preScope.String);
-                        obj.bst.inputs.poststim_scope_plt=str2double(obj.pi.mep.postScope.String);
-                        
-                        
-                        obj.bst.inputs.stimuli=num2cell(NaN);
-                        obj.bst.inputs.motor_threshold=obj.pi.mep.motorThreshold.String;
-                        obj.bst.inputs.mt_starting_stim_inten=obj.pi.mep.startingStimIntensity.String;
-                        obj.bst.inputs.mt_trialstoavg=obj.pi.mep.trialsToAvg.String;
-                        obj.bst.inputs.ylimMax=200;
-                        obj.bst.inputs.ylimMin=-200;
-                        
-                        % % %             obj.bst.inputs.stim_mode='MSO';
-                        % % %             obj.bst.inputs.mep_onset=(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).mep_onset)/1000;
-                        % % %             obj.bst.inputs.mep_offset=(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).mep_offset)/1000;
-                        
-                        obj.bst.inputs.condsAll=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll;
-                        obj.bst.inputs.output_device=obj.bst.inputs.condsAll.cond1.st1.stim_device;
-                        obj.bst.inputs.trials
-                        obj.bst.inputs.iti
-                        obj.bst.factorizeConditions;
-                        %                         obj.bst.planTrials;
-                        %                         obj.resultsPanel;
-                        %                         obj.bst.boot_inputdevice;
-                        %                         obj.bst.boot_outputdevice;
-                        %                         obj.bst.bootTrial;
-                        %                         obj.bst.stimLoop;
-                    case 4
-                    case 5
-                end
-                
-                
+
+%                 obj.bst.inputs=[];
+%                 obj.bst.inputs=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr);
+
+                obj.bst.factorizeConditions;
             end
             function cb_UniversalPanelAdaptation(~,~)
                 obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).BrainState=obj.pi.mep.BrainState.Value;
@@ -3352,7 +3292,7 @@ classdef BEST < handle
                         obj.pi.mep.InputDevice=uicontrol( 'Style','popupmenu','Parent', expModr1 ,'FontSize',11,'String',str_in_device,'Tag','InputDevice','callback',@cb_par_saving);
                         expModr1.Widths=[150 -2];
                         
-                        % row 2
+                                                % row 2
                         mep_panel_row2 = uix.HBox( 'Parent', expModvBox, 'Spacing', 5, 'Padding', 5  );
                         uicontrol( 'Style','text','Parent', mep_panel_row2,'String','Montage Channels:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
                         obj.pi.mep.MontageChannels=uicontrol( 'Style','edit','Parent', mep_panel_row2 ,'FontSize',11,'Tag','MontageChannels','Callback',@cb_par_saving); %,'Callback',@obj.cb_eegtms_target_muscle
@@ -3364,32 +3304,38 @@ classdef BEST < handle
                         set( mep_panel_row2, 'Widths', [150 -2]);
                         
                         mep_panel_row8 = uix.HBox( 'Parent', expModvBox, 'Spacing', 5, 'Padding', 5  );
-                        uicontrol( 'Style','text','Parent', mep_panel_row8,'String','Frequency Band(Hz):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-                        obj.pi.mep.FrequencyLowBound=uicontrol( 'Style','edit','Parent', mep_panel_row8 ,'FontSize',11,'String','15','Tag','FrequencyLowBound','Callback',@cb_par_saving);
-                        obj.pi.mep.FrequencyHighBound=uicontrol( 'Style','edit','Parent', mep_panel_row8 ,'FontSize',11,'String','50','Tag','FrequencyHighBound','Callback',@cb_par_saving);
-                        set( mep_panel_row8, 'Widths', [150 -2 -2]);
+                        uicontrol( 'Style','text','Parent', mep_panel_row8,'String','Frequency Band:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                        obj.pi.mep.FrequencyBand=uicontrol( 'Style','popupmenu','Parent', mep_panel_row8 ,'FontSize',11,'String',{'Alpha (8-14 Hz)','Theta (4-7 Hz)','Beta  (15-30 Hz)'},'Tag','FrequencyBand','callback',@cb_par_saving);
+                        set( mep_panel_row8, 'Widths', [150 -2]);
+                        
+                        mep_panel_row8z = uix.HBox( 'Parent', expModvBox, 'Spacing', 5, 'Padding', 5  );
+                        uicontrol( 'Style','text','Parent', mep_panel_row8z,'String','Peak Frequency (Hz):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                        obj.pi.mep.PeakFrequency=uicontrol( 'Style','edit','Parent', mep_panel_row8z ,'FontSize',11,'Tag','PeakFrequency','Callback',@cb_par_saving); 
+                        set( mep_panel_row8z, 'Widths', [150 -2]);
                         
                         % row 2
                         mep_panel_row2 = uix.HBox( 'Parent', expModvBox, 'Spacing', 5, 'Padding', 5  );
                         uicontrol( 'Style','text','Parent', mep_panel_row2,'String','Target Phase:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-                        obj.pi.eegtms.Phase=uicontrol( 'Style','edit','Parent', mep_panel_row2 ,'FontSize',11,'Tag','Phase','Callback',@cb_par_saving); %,'Callback',@obj.cb_eegtms_target_muscle
+                        obj.pi.mep.Phase=uicontrol( 'Style','edit','Parent', mep_panel_row2 ,'FontSize',11,'Tag','Phase','Callback',@cb_par_saving); %,'Callback',@obj.cb_eegtms_target_muscle
                         set( mep_panel_row2, 'Widths', [150 -2]);
                         
                         mep_panel_13 = uix.HBox( 'Parent', expModvBox, 'Spacing', 5, 'Padding', 5  );
                         uicontrol( 'Style','text','Parent', mep_panel_13,'String','Amp Distribution:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
                         obj.pi.mep.AmplitudeLowBound=uicontrol( 'Style','edit','Parent', mep_panel_13 ,'FontSize',11,'Tag','AmplitudeLowBound','Callback',@cb_par_saving);
                         obj.pi.mep.AmplitudeHighBound=uicontrol( 'Style','edit','Parent', mep_panel_13 ,'FontSize',11,'Tag','AmplitudeHighBound','Callback',@cb_par_saving);
-                        
-                        
-                        obj.pi.eegtms.AmplitudeUnits=uicontrol( 'Style','popupmenu','Parent', mep_panel_13 ,'FontSize',11,'String',{'Percentile','Absolute'},'Tag','AmplitudeUnits','Callback',@cb_par_saving);
+                        obj.pi.mep.AmplitudeUnits=uicontrol( 'Style','popupmenu','Parent', mep_panel_13 ,'FontSize',11,'String',{'Percentile','Absolute (micro Volts)'},'Tag','AmplitudeUnits','Callback',@cb_par_saving);
                         set( mep_panel_13, 'Widths', [150 -2 -2 -2]);
+                        
+                        mep_panel_row2z = uix.HBox( 'Parent', expModvBox, 'Spacing', 5, 'Padding', 5  );
+                        uicontrol( 'Style','text','Parent', mep_panel_row2z,'String','Amp Assignment Period(s):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                        uicontrol( 'Style','edit','Parent', mep_panel_row2z ,'FontSize',11,'Tag','AmplitudeAssignmentPeriod','Callback',@cb_par_saving); %,'Callback',@obj.cb_eegtms_target_muscle
+                        set( mep_panel_row2z, 'Widths', [150 -2]);
                         
                         expModr2c=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
                         uicontrol( 'Style','text','Parent', expModr2c,'String','Inter Trial Interval (s):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
                         obj.pi.mep.ITI=uicontrol( 'Style','edit','Parent', expModr2c ,'FontSize',11,'Tag','ITI','callback',@cb_par_saving);
                         expModr2c.Widths=[150 -2];
-                        
-                        expModvBox.Heights=[30 35 35 35 35 35 35];
+                        expModvBox.Heights=[30 35 35 35 35 35 35 42 35];
                 end
                 
             end
@@ -3450,13 +3396,13 @@ classdef BEST < handle
                     case 1
                         set(obj.pi.mep.r0v1,'Heights',[40 90 170 40 -3 55 55])
                     case 2
-                        set(obj.pi.mep.r0v1,'Heights',[40 270 220 40 -3 55 55])
+                        set(obj.pi.mep.r0v1,'Heights',[40 350 220 40 -3 55 55])
                  end
             end
            
  
             function cb_par_saving(source,~)
-                if strcmp(source.Tag,'InputDevice') || strcmp(source.Tag,'AmplitudeUnits')
+                if strcmp(source.Tag,'InputDevice') || strcmp(source.Tag,'AmplitudeUnits') || strcmp(source.Tag,'FrequencyBand')
                     obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(source.Tag)=source.Value;
                 else
                     obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(source.Tag)=source.String;
@@ -3814,11 +3760,12 @@ classdef BEST < handle
         
         function default_par_mep(obj)
             % Editing Rule: Values should be Integers, Strings should
-            % Strings
+            % Strings , cells are the defaults values that do not have any
+            % uicontroller
             obj.info.defaults.BrainState=1;
             obj.info.defaults.TrialsPerCondition='10';
             obj.info.defaults.InputDevice=1;
-            obj.info.defaults.ITI='4 6';
+            obj.info.defaults.ITI='4';
             obj.info.defaults.MontageChannels='';
             obj.info.defaults.MontageWeights='';
             obj.info.defaults.FrequencyLowBound='';
@@ -3834,6 +3781,10 @@ classdef BEST < handle
             obj.info.defaults.EMGDisplayPeriodPost='150';
             obj.info.defaults.EEGDisplayPeriodPre='100';
             obj.info.defaults.EEGDisplayPeriodPost='100';
+            obj.info.defaults.EMGDisplayYLimMax={3000};
+            obj.info.defaults.EMGDisplayYLimMin={-3000};
+            obj.info.defaults.Protocol={'MEP Measurement Protocol'};
+
 %             obj.info.defaults.expMode	=	1	;
 %             obj.info.defaults.inputDevice	=	1	;
 %             %             obj.info.defaults.displayChannels	=	eval('{''APBr''}')	;
@@ -3871,72 +3822,20 @@ classdef BEST < handle
             ParametersFieldNames=fieldnames(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr));
             for iLoadingParameters=1:numel(ParametersFieldNames)
                 if (isa(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(ParametersFieldNames{iLoadingParameters}),'char')) 
+%                     str=['------------------ STR ' ParametersFieldNames{iLoadingParameters}]
                     obj.pi.mep.(ParametersFieldNames{iLoadingParameters}).String=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(ParametersFieldNames{iLoadingParameters});
                 elseif(isa(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(ParametersFieldNames{iLoadingParameters}),'double')) 
+%                                         str=['------------------ VAL ' ParametersFieldNames{iLoadingParameters}]
+
                     obj.pi.mep.(ParametersFieldNames{iLoadingParameters}).Value=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(ParametersFieldNames{iLoadingParameters});
+                    if(strcmp(ParametersFieldNames{iLoadingParameters},'BrainState'))
+                        %Requirment 93
+                    end
                 elseif(isa(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(ParametersFieldNames{iLoadingParameters}),'struct')) 
                     %Do Nothing and Just Avoid
                 end
             end
-% %             obj.pi.mep.BrainState .Value = obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr). BrainState ;
-% %             obj.pi.mep.TrialsPerCondition .String = obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr). TrialsPerCondition ;
-% %             obj.pi.mep.InputDevice .Value = obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr). InputDevice ;
-% %             obj.pi.mep.ITI .String = obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr). ITI ;
-% %             obj.pi.mep.MontageChannels .String = obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr). MontageChannels ;
-% %             obj.pi.mep.MontageWeights .String = obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr). MontageWeights ;
-% %             obj.pi.mep.FrequencyLowBound .String = obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr). FrequencyLowBound ;
-% %             obj.pi.mep.FrequencyHighBound .String = obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr). FrequencyHighBound ;
-% %             obj.pi.mep.Phase .String = obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr). Phase ;
-% %             obj.pi.mep.AmplitudeLowBound .String = obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr). AmplitudeLowBound ;
-% %             obj.pi.mep.AmplitudeHighBound .String = obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr). AmplitudeHighBound ;
-% %             obj.pi.mep.AmplitudeUnits .String = obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr). AmplitudeUnits ;
-% %             obj.pi.mep.EMGDisplayChannels .String = obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr). EMGDisplayChannels ;
-% %             obj.pi.mep.MEPOnset .String = obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr). MEPOnset ;
-% %             obj.pi.mep.MEPOffset .String = obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr). MEPOffset ;
-% %             obj.pi.mep.EMGDisplayPeriodPre .String = obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr). EMGDisplayPeriodPre ;
-% %             obj.pi.mep.EMGDisplayPeriodPost .String = obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr). EMGDisplayPeriodPost ;
-% %             obj.pi.mep.EEGDisplayPeriodPre .String = obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr). EEGDisplayPeriodPre ;
-% %             obj.pi.mep.EEGDisplayPeriodPost .String = obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr). EEGDisplayPeriodPost ;
-
-%             
-%             
-%             
-%             
-%             
-%             obj.pi.mep.input_device.Value=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).input_device;
-%             obj.pi.mep.output_device.Value= obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).output_device;
-%             obj.pi.mep.display_scopes.String=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).display_scopes;
-%             
-%             obj.pi.mep.target_muscle.String=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).target_muscle);
-%             obj.pi.mep.stimulation_intensities.String=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).stimulation_intensities);
-%             obj.pi.mep.trials_per_condition.String=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).trials_per_condition;
-%             obj.pi.mep.iti.String=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).iti);
-%             obj.pi.mep.mep_onset.String=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).mep_onset;
-%             obj.pi.mep.mep_offset.String=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).mep_offset;
-%             obj.pi.mep.prestim_scope_ext.String=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).prestim_scope_ext);
-%             obj.pi.mep.poststim_scope_ext.String=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).poststim_scope_ext);
-%             obj.pi.mep.prestim_scope_plt.String=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).prestim_scope_plt);
-%             obj.pi.mep.poststim_scope_plt.String=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).poststim_scope_plt);
-%             obj.pi.mep.units_mso.Value=(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).units_mso);
-%             obj.pi.mep.units_mt.Value=(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).units_mt);
-%             obj.pi.mep.mt.String=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).mt);
-%             %             obj.pi.mep.mt_btn.String=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).mt_btn);
-%             obj.pi.mep.ylim_max.String=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).ylim_max);
-%             obj.pi.mep.ylim_min.String=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).ylim_min);
-%             obj.pi.mep.FontSize.String=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).FontSize);
-%             obj.pi.mep.trials_for_mean_annotation.String=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).trials_for_mean_annotation);
-%             
-%             %             Enable status loading
-%             
-%             obj.pi.mep.run.Enable=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).runEnable;
-%             obj.pi.mep.target_muscle.Enable=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).target_muscleEnable;
-%             obj.pi.mep.units_mso.Enable= obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).units_msoEnable;
-%             obj.pi.mep.units_mt.Enable=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).units_mtEnable;
-%             obj.pi.mep.mt.Enable=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).mtEnable;
-%             obj.pi.mep.mt_btn.Enable= obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).mt_btnEnable;
-%             obj.pi.mep.prestim_scope_ext.Enable=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).prestim_scope_extEnable;
-%             obj.pi.mep.poststim_scope_ext.Enable=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).poststim_scope_extEnable;
-%             
+   
             
         end
         function cb_pi_mep_run(obj)

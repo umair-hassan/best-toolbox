@@ -91,93 +91,22 @@ classdef best_toolbox < handle
             % factorization would be done as per each measurement/protocol (or group of measurements) since the input fields and thus the conditioning variables differ
             cb_Pars2Inputs
             cb_CreateColumnLabels
-            
+
             switch obj.inputs.Protocol
                 case 'MEP Measurement Protocol'
-                    DisplayChannelsMeasures=cell(1,numel(obj.inputs.EMGDisplayChannels));
-                    DisplayChannelsMeasures(:)=cellstr('MEP_Measurement');
-                    DisplayChannelsAxesNo=num2cell(1:numel(obj.inputs.EMGDisplayChannels));
+
+%                     cb_CreateCondMat
+%                     cb_RationalizeCondMat
                     
-                    %                             obj.app.pr.axesno=numel(targetCh_axNo)+numel(cell2mat(displayCh_axNo));
                     for c=1:numel(fieldnames(obj.inputs.condsAll))
                         obj.inputs.condMat{c,obj.inputs.colLabel.trials}=obj.inputs.TrialsPerCondition;
                         obj.inputs.condMat{c,obj.inputs.colLabel.iti}=obj.inputs.ITI;
                         obj.inputs.condMat{c,obj.inputs.colLabel.inputDevices}=obj.app.pi.mep.InputDevice.String(obj.inputs.InputDevice);
                         obj.inputs.condMat{c,obj.inputs.colLabel.chLab}=obj.inputs.EMGDisplayChannels;
-                        obj.inputs.condMat{c,obj.inputs.colLabel.measures}=DisplayChannelsMeasures;
-                        obj.inputs.condMat{c,obj.inputs.colLabel.axesno}=DisplayChannelsAxesNo;
-                        conds=fieldnames(obj.inputs.condsAll);
-                        for stno=1:(max(size(fieldnames(obj.inputs.condsAll.(conds{c,1}))))-1)
-                            st=['st' num2str(stno)];
-                            condSi{1,stno}=obj.inputs.condsAll.(conds{c,1}).(st).si_pckt;
-                            condstimMode{1,stno}= obj.inputs.condsAll.(conds{c,1}).(st).stim_mode;
-                            obj.inputs.condsAll.(conds{c,1}).(st).stim_device
-                            condoutputDevice{1,stno}=obj.inputs.condsAll.(conds{c,1}).(st).stim_device;
-                            condstimTiming{1,stno}=obj.inputs.condsAll.(conds{c,1}).(st).stim_timing
-                        end
-                        obj.inputs.condMat(c,obj.inputs.colLabel.si)={condSi};
-                        obj.inputs.condMat(c,obj.inputs.colLabel.outputDevices)={condoutputDevice};
-                        obj.inputs.condMat(c,obj.inputs.colLabel.stimMode)={condstimMode};
-%                         condstimTiming=condstimTiming{1,1};
-                        condstimTiming={cellfun(@num2str, condstimTiming{1,1:end})};
-%                         condstimTiming=cellstr(condstimTiming);
-                        for timing=1:numel(condstimTiming)
-                                    for jj=1:numel(condstimTiming{1,timing})
-                                        condstimTiming{2,timing}{1,jj}=condoutputDevice{1,timing};
-                                    end
-                        end
-                                condstimTiming_new{1}=horzcat(condstimTiming{1,:});
-                                condstimTiming_new{2}=horzcat(condstimTiming{2,:});
-                                [condstimTiming_new_sorted{1},sorted_idx]=sort(condstimTiming_new{1});
+                        obj.inputs.condMat{c,obj.inputs.colLabel.measures}={'M
+                        obj.inputs.condMat(c,obj.inputs.colLabel.axesno)=horzcat({({targetCh_axNo{1,c},displayCh_axNo{1,:}})});
                                 
-                                %                                  [condstimTiming_new_sorted{1},sorted_idx]=sort(cellfun(@str2num, condstimTiming_new{1}));
-                                %                                  condstimTiming_new_sorted{1}=cellfun(@num2str, num2cell(condstimTiming_new_sorted{1}));
-                                
-                                
-                                
-                                condstimTiming_new_sorted{2}=condstimTiming_new{1,2}(sorted_idx);
-                                %                                  condstimTiming_new_sorted{1}=cellfun(@num2str, num2cell(condstimTiming_new_sorted{1}));
-                                
-                                for stimno_tpm=1:numel(condstimTiming_new_sorted{2})
-                                    port_vector{stimno_tpm}=obj.app.par.hardware_settings.(char(condstimTiming_new_sorted{2}{1,stimno_tpm})).bb_outputport;
-                                end
-                                condstimTiming_new_sorted{2}=port_vector;
-                                tpmVect=[condstimTiming_new_sorted{1};condstimTiming_new_sorted{2}];
-                                [tpmVect_unique,ia,ic]=unique(tpmVect(1,:));
-                                a_counts = accumarray(ic,1);
-                                for binportloop=1:numel(tpmVect_unique)
-                                    buffer{1,binportloop}={(cell2mat(tpmVect(2,ia(binportloop):ia(binportloop)-1+a_counts(binportloop))))};
-                                    binaryZ='0000';
-                                    num=cell2mat(buffer{1,binportloop});
-                                    for binaryID=1:numel(num)
-                                        binaryZ(str2num(num(binaryID)))='1';
-                                    end
-                                    buffer{1,binportloop}=bin2dec(flip(binaryZ));
-                                    markers{1,binportloop}=0;
-                                end
-                                markers{1,1}=c;
-                                condstimTiming_new_sorted=[num2cell((cellfun(@str2num, tpmVect_unique(1,1:end))));buffer;markers];
-                                condstimTiming_new_sorted=cell2mat(condstimTiming_new_sorted)
-                                [condstimTiming_new_sorted(1,:),sorted_idx]=sort(condstimTiming_new_sorted(1,:))
-                                condstimTiming_new_sorted(1,:)=condstimTiming_new_sorted(1,:)/1000;
-                                condstimTiming_new_sorted(2,:)=condstimTiming_new_sorted(2,sorted_idx)
-                                
-                                obj.inputs.condMat(c,obj.inputs.colLabel.tpm)={num2cell(condstimTiming_new_sorted)};
-                                condSi=[];
-                                condoutputDevice=[];
-                                condstimMode=[];
-                                condstimTiming=[];
-                                buffer=[];
-                                tpmVect_unique=[];
-                                a_counts =[];
-                                ia=[];
-                                ic=[];
-                                port_vector=[];
-                                num=[];
-                                condstimTiming_new=[];
-                                condstimTiming_new_sorted=[];
-                                sorted_idx=[];
-                                markers=[];
+                                obj.inputs.condMat(c,obj.inputs.colLabel.measures)={{char(cellstr('MEP_Measurement')),displayChannels_meas{1,:}}};
                     end
                     
                     
