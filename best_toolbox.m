@@ -94,18 +94,44 @@ classdef best_toolbox < handle
             
             switch obj.inputs.Protocol
                 case 'MEP Measurement Protocol'
+                    
+                    switch obj.app.par.hardware_settings.(char(obj.inputs.input_device)).slct_device
+                        case 1 %boss box
+                            switch obj.inputs.BrainState
+                                case 1 %Independent 
+                                    DisplayChannelType=cell(1,numel(obj.inputs.EMGDisplayChannels));
+                                    DisplayChannelType(:)=cellstr('EMG');
+                                    DisplayChannelID=num2cell(1:numel(obj.inputs.EMGDisplayChannels));
+                                    obj.inputs.ChannelsTypeUnique=DisplayChannelType;
+                                case 2 %Dependent
+                                    EMGDisplayChannelType=cell(1,numel(obj.inputs.EMGDisplayChannels));
+                                    EMGDisplayChannelType(:)=cellstr('EMG');
+                                    EEGDisplayChannelType(:)={'IP','IEEG','IA'};
+                                    EEGDisplayChannelID=num2cell(1:3);
+                                    EMGDisplayChannelID=num2cell(4:4+numel(obj.inputs.EMGDisplayChannels));
+                                    DisplayChannelType={EEGDisplayChannelType,EMGDisplayChannelType};
+                                    DisplayChannelID={EEGDisplayChannelID,EMGDisplayChannelID};
+                                    obj.inputs.ChannelsTypeUnique=DisplayChannelType;
+                            end
+                        case 2 % fieldtrip real time buffer
+                    end
+                    
                     DisplayChannelsMeasures=cell(1,numel(obj.inputs.EMGDisplayChannels));
                     DisplayChannelsMeasures(:)=cellstr('MEP_Measurement');
                     DisplayChannelsAxesNo=num2cell(1:numel(obj.inputs.EMGDisplayChannels));
-                    
-                    %                             obj.app.pr.axesno=numel(targetCh_axNo)+numel(cell2mat(displayCh_axNo));
+                    obj.app.pr.ax_measures=DisplayChannelsMeasures;
+                    obj.app.pr.axesno=numel(obj.inputs.EMGDisplayChannels);
                     for c=1:numel(fieldnames(obj.inputs.condsAll))
                         obj.inputs.condMat{c,obj.inputs.colLabel.trials}=obj.inputs.TrialsPerCondition;
                         obj.inputs.condMat{c,obj.inputs.colLabel.iti}=obj.inputs.ITI;
-                        obj.inputs.condMat{c,obj.inputs.colLabel.inputDevices}=obj.app.pi.mep.InputDevice.String(obj.inputs.InputDevice);
+                        obj.inputs.condMat{c,obj.inputs.colLabel.inputDevices}=char(obj.app.pi.mep.InputDevice.String(obj.inputs.InputDevice));
                         obj.inputs.condMat{c,obj.inputs.colLabel.chLab}=obj.inputs.EMGDisplayChannels;
                         obj.inputs.condMat{c,obj.inputs.colLabel.measures}=DisplayChannelsMeasures;
                         obj.inputs.condMat{c,obj.inputs.colLabel.axesno}=DisplayChannelsAxesNo;
+                        obj.inputs.condMat{c,obj.inputs.colLabel.chType}=DisplayChannelType;
+                        obj.inputs.condMat{c,obj.inputs.colLabel.chId}=DisplayChannelID;
+
+                        
                         conds=fieldnames(obj.inputs.condsAll);
                         for stno=1:(max(size(fieldnames(obj.inputs.condsAll.(conds{c,1}))))-1)
                             st=['st' num2str(stno)];
@@ -113,13 +139,18 @@ classdef best_toolbox < handle
                             condstimMode{1,stno}= obj.inputs.condsAll.(conds{c,1}).(st).stim_mode;
                             obj.inputs.condsAll.(conds{c,1}).(st).stim_device
                             condoutputDevice{1,stno}=obj.inputs.condsAll.(conds{c,1}).(st).stim_device;
-                            condstimTiming{1,stno}=obj.inputs.condsAll.(conds{c,1}).(st).stim_timing
+                            for i=1:numel(obj.inputs.condsAll.(conds{c,1}).(st).stim_timing)
+                                condstimTimingStrings{1,i}=num2str(obj.inputs.condsAll.(conds{c,1}).(st).stim_timing{1,i});
+                            end
+                            condstimTiming{1,stno}=condstimTimingStrings;
                         end
                         obj.inputs.condMat(c,obj.inputs.colLabel.si)={condSi};
                         obj.inputs.condMat(c,obj.inputs.colLabel.outputDevices)={condoutputDevice};
                         obj.inputs.condMat(c,obj.inputs.colLabel.stimMode)={condstimMode};
 %                         condstimTiming=condstimTiming{1,1};
-                        condstimTiming={cellfun(@num2str, condstimTiming{1,1:end})};
+%                         condstimTiming={{cellfun(@num2str, condstimTiming{1,1}(1,1:end))}};
+%                                                 condstimTiming={{arrayfun(@num2str, condstimTiming{1,1}(1,1:end))}};
+
 %                         condstimTiming=cellstr(condstimTiming);
                         for timing=1:numel(condstimTiming)
                                     for jj=1:numel(condstimTiming{1,timing})
@@ -178,6 +209,7 @@ classdef best_toolbox < handle
                                 condstimTiming_new_sorted=[];
                                 sorted_idx=[];
                                 markers=[];
+                                condstimTimingStrings=[];
                     end
                     
                     
@@ -854,7 +886,9 @@ classdef best_toolbox < handle
                 obj.inputs.colLabel.measures=7;
                 obj.inputs.colLabel.stimMode=8;
                 obj.inputs.colLabel.tpm=10;
-                obj.inputs.colLabel.mepamp=11;
+                obj.inputs.colLabel.chType=11;
+                obj.inputs.colLabel.chId=12;
+                obj.inputs.colLabel.mepamp=13;
             end
             function cb_Pars2Inputs
                 obj.inputs=[];
@@ -871,8 +905,23 @@ classdef best_toolbox < handle
                         obj.inputs.(InputsFieldNames{iInputs})=obj.inputs.(InputsFieldNames{iInputs}){1,1};
                     end
                 end
+                obj.inputs.prestim_scope_plt=obj.inputs.EMGDisplayPeriodPre;
+                obj.inputs.poststim_scope_plt=obj.inputs.EMGDisplayPeriodPost;
+                obj.inputs.mep_onset=obj.inputs.MEPOnset;
+                obj.inputs.mep_offset=obj.inputs.MEPOffset;
+                obj.inputs.input_device=obj.app.pi.mep.InputDevice.String(obj.inputs.InputDevice);
+                obj.inputs.output_device=obj.inputs.condsAll.cond1.st1.stim_device;
+                obj.inputs.stim_mode='MSO';
+                obj.inputs.measure_str='MEP Measurement';
+                obj.inputs.ylimMin=obj.inputs.EMGDisplayYLimMin;
+                obj.inputs.ylimMax=obj.inputs.EMGDisplayYLimMax;
+                obj.inputs.stop_event=0;
+                obj.inputs.ylimMin=-50;
+                obj.inputs.ylimMax=+50;
+
+
             end
-            
+            obj.inputs.totalConds=numel(obj.inputs.condMat(:,1));
         end
         
         
@@ -901,13 +950,13 @@ classdef best_toolbox < handle
                 obj.inputs.trialMat(i,:)=obj.inputs.condMat(randomVect(i,1),:);
             end
             %% preparing ITI
-            if(iscell(obj.inputs.iti{1,1}))
-                [m,~]=size(obj.inputs.trialMat);
-                for i=1:m
-                    iti=obj.inputs.trialMat(i,obj.inputs.colLabel.iti);
-                    obj.inputs.trialMat(i,obj.inputs.colLabel.iti)=num2cell(round((iti{1,1}{1,1}+(iti{1,1}{1,2}-iti{1,1}{1,1} ).* rand(1,1)),3));
-                end
-            end
+%             if(iscell(obj.inputs.ITI{1,1}))
+%                 [m,~]=size(obj.inputs.trialMat);
+%                 for i=1:m
+%                     iti=obj.inputs.trialMat(i,obj.inputs.colLabel.iti);
+%                     obj.inputs.trialMat(i,obj.inputs.colLabel.iti)=num2cell(round((iti{1,1}{1,1}+(iti{1,1}{1,2}-iti{1,1}{1,1} ).* rand(1,1)),3));
+%                 end
+%             end
             
             obj.inputs.totalTrials=numel(obj.inputs.trialMat(:,1));
             
@@ -935,6 +984,19 @@ classdef best_toolbox < handle
                 case 1 % boss box
                     % do nothing as mainly the output will automatically
                     % bot it
+                    %find unique values of the chType
+                    %these unique values are also identifiers of the scope
+                    %initialize all those scopes
+                    UniqueChannelType=unique(obj.inputs.ChannelsTypeUnique);
+                    for i=1:numel(UniqueChannelType)
+                        switch UniqueChannelType{1,i}
+                            case 'EMG'
+                                obj.bossbox.EMGScopeBoot(obj.inputs.EMGDisplayPeriodPre,obj.inputs.EMGDisplayPeriodPost)
+                            case 'IEEG'
+                            case 'IP'
+                            case 'IA'
+                        end
+                    end
                 case 2 % fieldtrip
                     % http://www.fieldtriptoolbox.org/faq/how_should_i_get_started_with_the_fieldtrip_realtime_buffer/
                 case 3 %Future: input box
@@ -980,6 +1042,7 @@ classdef best_toolbox < handle
                     % per eik switch case lagyga EEGTMS lye, us EEGTMS valy
                     % case me enter ho ker phase conditions and amps limits
                     % waghera sab diya jayega
+                    obj.bossbox.EMGScopeStart;
                     obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.tpm}
                     obj.bossbox.multiPulse(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.tpm});
                     tic;
@@ -991,6 +1054,8 @@ classdef best_toolbox < handle
                         case 3 % pc controlled bistim
                         case 4 % pc controlled rapid
                         case {5,6,7,8} %bossbox controlled stimulator
+                            obj.bossbox.EMGScope
+                            obj.bossbox.EMGScopeStart;
                             obj.bossbox.singlePulse(str2double(obj.app.par.hardware_settings.(char(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.outputDevices}{1,1})).bb_outputport));
                             tic;
                         case 9 %simulation
@@ -1050,8 +1115,10 @@ classdef best_toolbox < handle
                     % uski as per jonsa channel he us se
                     unique_chLab=unique(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab});
                     for i=1:numel(unique_chLab)
-                        %                         obj.inputs.rawData.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}).data(obj.inputs.trial,:)=obj.bossbox.exg_scope;
-                        obj.inputs.rawData.(unique_chLab{1,i}).data(obj.inputs.trial,:)=obj.sim_mep*rand*1000;
+                        %obj.inputs.rawData.(unique_chLab{1,i}).data(obj.inputs.trial,:)=obj.sim_mep*rand*1000;
+                        obj.bossbox.EMGScope
+                        check=obj.bossbox.EMGScope.Data(:,1)'
+                        obj.inputs.rawData.(unique_chLab{1,i}).data(obj.inputs.trial,:)=[obj.bossbox.EMGScope.Data(:,1)]';
                         
                     end
                 case 2 % fieldtrip
@@ -1229,12 +1296,13 @@ classdef best_toolbox < handle
         
         
         function best_mep(obj)
-            obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs=obj.inputs;
+%             obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs=obj.inputs;
             obj.factorizeConditions
+            
             obj.planTrials
             obj.app.resultsPanel;
-            obj.boot_inputdevice;
             obj.boot_outputdevice;
+            obj.boot_inputdevice;
             obj.bootTrial;
             obj.stimLoop;
         end
@@ -1307,7 +1375,7 @@ classdef best_toolbox < handle
                     uistack(obj.info.handle_gridxy_mt_lines,'top');
                     
                     
-                    
+                   
                     
                     
                 case 2
@@ -1325,6 +1393,7 @@ classdef best_toolbox < handle
             obj.mep_amp;
             obj.app.pr.current_mep.(ax).String=obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.mepamp};
             obj.app.pr.mean_mep.(ax).String=obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.mepamp};
+             ylim auto
         end
         function mep_amp(obj)
             maxx=max(obj.inputs.rawData.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).data(obj.inputs.trial,obj.inputs.mep_onset_samples:obj.inputs.mep_offset_samples));
@@ -1736,8 +1805,8 @@ classdef best_toolbox < handle
                     obj.inputs.sc_prepostsamples=(obj.inputs.prestim_scope_plt)*(-5);
                     
                     %onset, offset samples conversion to sampling rate
-                    obj.inputs.mep_onset_samples=obj.inputs.mep_onset*5000;
-                    obj.inputs.mep_offset_samples=obj.inputs.mep_offset*5000;
+                    obj.inputs.mep_onset_samples=obj.inputs.mep_onset*5;
+                    obj.inputs.mep_offset_samples=obj.inputs.mep_offset*5;
                     disp enteredtimevect-------------
                     % 18-Mar-2020 18:11:00
                     %                     switch char(obj.inputs.measure_str) || char(obj.inputs.sub_measure_str)%because not all will require MEPs to plot such as the intervention functions or multi stimulator paradigm so this is nec
@@ -1832,7 +1901,7 @@ classdef best_toolbox < handle
             obj.rapid.arm;
         end
         function boot_bossbox(obj)
-            obj.bossbox=best_sync2brain_bossdevice;
+            obj.bossbox=best_sync2brain_bossdevice(obj);
         end
         function best_motorhotspot(obj)
             obj.info.method=obj.info.method+1;

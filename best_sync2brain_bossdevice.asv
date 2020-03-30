@@ -1,9 +1,9 @@
-classdef best_sync2brain_bossdevice <handle
+classdef best_sync2brain_bossdevice
 
     
     properties
         bb %bossbox API object
-        best_toolbox
+        best_toolb
         EMGScope
         IEEGScope
         IAScope
@@ -13,18 +13,12 @@ classdef best_sync2brain_bossdevice <handle
     methods
         function obj = best_sync2brain_bossdevice(best_toolbox)
             obj.best_toolbox=best_toolbox;
-            obj.bb=dbsp('10.10.10.1');
-            obj.bb.sample_and_hold_period=0;
+                obj.bb=dbsp('10.10.10.1');
 
         end
         
         function singlePulse(obj,portNo)
                 obj.bb.sendPulse(portNo)
-                pause(0.1)
-% while ~strcmpi(sc.Status,'finished'), end;
-assert(strcmp(obj.EMGScope.Status, 'Finished'))
-%             obj.bb.configure_time_port_marker([0 1 1]);
-%             obj.bb.manualTrigger;
         end
         
         function multiPulse(obj,time_port_marker_vector)
@@ -47,6 +41,7 @@ assert(strcmp(obj.EMGScope.Status, 'Finished'))
             obj.EMGScope.TriggerSignal = MrkSignalID(3); %in Tuebingen setup the 2nd coloumn of signal was giving the return values, however in Mainz setup it was the third coloumn
             obj.EMGScope.TriggerLevel = 0.5;
             obj.EMGScope.TriggerSlope = 'Rising';
+            obj.EMGScope
         end
         
         function IEEGScopeBoot(obj,EEGDisplayPeriodPre,EEGDisplayPeriodPost)
@@ -60,8 +55,8 @@ assert(strcmp(obj.EMGScope.Status, 'Finished'))
         
         function EMGScopeStart(obj)
             start(obj.EMGScope);
-            pause(0.1); % give the scope time to pre-aquire
-            assert(strcmp(obj.EMGScope.Status, 'Ready for being Triggered'));
+%             pause(0.1); % give the scope time to pre-aquire
+%             assert(strcmp(obj.EMGScope.Status, 'Ready for being Triggered'));
         end
         
         function IEEGScopeStart(obj)
