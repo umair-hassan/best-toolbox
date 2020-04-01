@@ -16,24 +16,33 @@ classdef best_sync2brain_bossdevice <handle
             obj.bb=dbsp('10.10.10.1');
             obj.bb.sample_and_hold_period=0;
             
+            %% Set Number of EEG and AUX Channels Property 
+            % to be done later
+            
             if(obj.best_toolbox.inputs.BrainState==2)
-                clab = neurone_digitalout_clab_from_xml(xmlread('RMT - Duplicate_NeurOneProtocol.xml')); % change the protocol here
-                clab = clab(1:64); % remove EMG channels
-                clab{65} = 'FCz';
-                obj.bb.spatial_filter_clab = clab;
+                %% Loading defaults
                 obj.bb.calibration_mode = 'no';
                 obj.bb.armed = 'no';
                 obj.bb.sample_and_hold_period=0;
+                obj.bb.theta.ignore; pause(0.1)
+                obj.bb.beta.ignore; pause(0.1)
+                obj.bb.alpha.ignore; pause(0.1)
                 
+                %% Providing Channel Labels to Spatial Filter
+                outputdevice=obj.best_toolbox.inputs.condMat{1,1};
+                clab=obj.best_toolbox.app.par.hardware_settings.(outputdevice).NeurOneProtocolChannelLabels;
+                clab = clab(1:64); % remove AUX Channels 
+                clab{65} = 'FCz';
+                obj.bb.spatial_filter_clab = clab;
+
                 
+                %% Setting Spatial Filter
                 % set a spatial filter to C3 hjorth
-                set_spatial_filter(obj.bb, {'C3', 'FC1', 'FC5', 'CP1', 'CP5'}, [1 -0.25 -0.25 -0.25 -0.25], 1)
+                set_spatial_filter(obj.bb, obj.best_toolbox.inputs.MontageChannels, obj.best_toolbox.inputs.MontageWeights, 1)
+%                 set_spatial_filter(obj.bb, {'C3', 'FC1', 'FC5', 'CP1', 'CP5'}, [1 -0.25 -0.25 -0.25 -0.25], 1)
                 set_spatial_filter(obj.bb, {}, [], 2)
                 
-                
-                obj.bb.theta.ignore, pause(0.1)
-                obj.bb.beta.ignore, pause(0.1)
-                obj.bb.alpha.ignore, pause(0.1)
+
             end
             
         end
@@ -42,7 +51,8 @@ classdef best_sync2brain_bossdevice <handle
                 obj.bb.sendPulse(portNo)
                 pause(0.1)
 % while ~strcmpi(sc.Status,'finished'), end;
-assert(strcmp(obj.EMGScope.Status, 'Finished'))
+% assert(strcmp(obj.EMGScope.Status, 'Finished'))
+while ~strcmpi(obj.EMGScope.Status,'finished'), end
 %             obj.bb.configure_time_port_marker([0 1 1]);
 %             obj.bb.manualTrigger;
         end
@@ -51,21 +61,40 @@ assert(strcmp(obj.EMGScope.Status, 'Finished'))
             obj.EMGScopeStart;
             obj.bb.configure_time_port_marker(cell2mat(time_port_marker_vector'));
             obj.bb.manualTrigger;
+            while ~strcmpi(obj.EMGScope.Status,'finished'), end
         end
         
         function armPulse(obj)
-            obj.bb.triggers_remaining = 1;
-            obj.bb.alpha.phase_target(1) = 0;
-            obj.bb.alpha.phase_plusminus(1) = pi/20;
-            obj.bb.configure_time_port_marker([0, 1, 0])
-            % calculation of IA and setting of those parameters would also be done here
-            % 
-            pause(0.1)
+            %% Findling IA Low and High Cutoff Values
+            %% Choosing 1 from 3x Oscillitory Models
+            switch obj.best_toolbox.inputs.FrequencyBand
+                case 1 % Alpha
+%                     obj.best_toolbox.inputs.trialMat{obj.best_toolbox.inputs.trial,obj.best_toolbox.inputs.colLabel.tpm}
+                    obj.bb.alpha.phase_target(1) =  obj.best_toolbox.inputs.trialMat{obj.best_toolbox.inputs.trial,obj.best_toolbox.inputs.colLabel.phase}{1,1};
+                    obj.bb.alpha.phase_plusminus(1) =obj.best_toolbox.inputs.trialMat{obj.best_toolbox.inputs.trial,obj.best_toolbox.inputs.colLabel.phase}{1,2};
+                case 2 % Theta
+                    obj.bb.theta.phase_target(1) = obj.best_toolbox.inputs.trialMat{obj.best_toolbox.inputs.trial,obj.best_toolbox.inputs.colLabel.phase}{1,1};
+                    obj.bb.theta.phase_plusminus(1) = obj.best_toolbox.inputs.trialMat{obj.best_toolbox.inputs.trial,obj.best_toolbox.inputs.colLabel.phase}{1,2};
+                case 3 % Beta
+                    obj.bb.beta.phase_target(1) = obj.best_toolbox.inputs.trialMat{obj.best_toolbox.inputs.trial,obj.best_toolbox.inputs.colLabel.phase}{1,1};
+                    obj.bb.beta.phase_plusminus(1) = obj.best_toolbox.inputs.trialMat{obj.best_toolbox.inputs.trial,obj.best_toolbox.inputs.colLabel.phase}{1,2};
+            end
             
+            
+            obj.bb.triggers_remaining = 1;
+            %% Configuring Trial's respective Trigger Pattern
+            time_port_marker_vector=obj.best_toolbox.inputs.trialMat{obj.best_toolbox.inputs.trial,obj.best_toolbox.inputs.colLabel.tpm};
+            obj.bb.configure_time_port_marker(cell2mat(time_port_marker_vector'))
+            % calculation of IA and setting of those parameters would also be done here
+            %
+            pause(0.1)
+            %% Starting respective Scopes
             obj.EMGScopeStart;
             obj.IEEGScopeStart;
             obj.IPScopeStart;
-            obj.IAScopeStart;
+            obj.IAScopeStart; % not sure if this would be necessary
+            
+            %% Starting 
             obj.bb.armed 
             obj.bb.triggers_remaining;
             obj.bb.min_inter_trig_interval = 2+rand(1);
@@ -114,12 +143,14 @@ assert(strcmp(obj.EMGScope.Status, 'Finished'))
         end
         
         function IAScopeBoot(obj)
+            % could be a free running scope
         end
         
         function EMGScopeStart(obj)
             start(obj.EMGScope);
-            pause(0.1); % give the scope time to pre-aquire
-            assert(strcmp(obj.EMGScope.Status, 'Ready for being Triggered'));
+%             pause(0.1); % give the scope time to pre-aquire
+            while ~strcmpi(obj.EMGScope.Status,'Ready for being Triggered'), end
+%             assert(strcmp(obj.EMGScope.Status, 'Ready for being Triggered'));
         end
         
         function IEEGScopeStart(obj)

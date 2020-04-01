@@ -255,7 +255,7 @@ classdef best_toolbox < handle
                                     case '-pi' %-Ve Trough
                                         PhaseConditionVector{2}={pi,obj.inputs.PhaseTolerance};
                                     case 'rand' %Random Phase
-                                        PhaseConditionVector{3}={pi,0};
+                                        PhaseConditionVector{3}={0,pi};
                                 end
                             end
                             
@@ -1050,7 +1050,7 @@ classdef best_toolbox < handle
                 InputsFieldNames=fieldnames(obj.inputs);
                 for iInputs=1:numel(InputsFieldNames)
                     if (isa(obj.inputs.(InputsFieldNames{iInputs}),'char'))
-                        if(strcmp(InputsFieldNames{iInputs},'EMGDisplayChannels')) || (strcmp(InputsFieldNames{iInputs},'Phase')) || (strcmp(InputsFieldNames{iInputs},'PhaseTolerance')) % ITI condition can also fall here
+                        if(strcmp(InputsFieldNames{iInputs},'EMGDisplayChannels')) || (strcmp(InputsFieldNames{iInputs},'Phase')) || (strcmp(InputsFieldNames{iInputs},'PhaseTolerance')) || (strcmp(InputsFieldNames{iInputs},'MontageChannels')) || (strcmp(InputsFieldNames{iInputs},'MontageWeights'))% ITI condition can also fall here
                             if (isempty(obj.inputs.(InputsFieldNames{iInputs})))
                                 disp donothing
                             else
@@ -1492,14 +1492,14 @@ classdef best_toolbox < handle
                     ylim([obj.inputs.ylimMin obj.inputs.ylimMax]);
                     mat3=linspace(obj.inputs.ylimMin,obj.inputs.ylimMax,5);
                     mat4=unique(sort([0 mat3]));
-                    yticks(mat4);
+%                     yticks(mat4);
                     ylabel('EMG Potential (\mu V)');
                     
                     
-                    obj.info.handle_gridxy=gridxy([0 (obj.inputs.mep_onset*1000):0.25:(obj.inputs.mep_offset*1000)],'Color',[219/255 246/255 255/255],'linewidth',1) ;
-                    obj.info.handle_gridxy_mt_lines=gridxy([],[-0.05*1000 0.05*1000],'Color',[0.45 0.45 0.45],'linewidth',1,'LineStyle','--') ;
-                    uistack(obj.info.handle_gridxy_mt_lines,'top');
-                    
+%                     obj.info.handle_gridxy=gridxy([0 (obj.inputs.mep_onset*1000):0.25:(obj.inputs.mep_offset*1000)],'Color',[219/255 246/255 255/255],'linewidth',1) ;
+%                     obj.info.handle_gridxy_mt_lines=gridxy([],[-0.05*1000 0.05*1000],'Color',[0.45 0.45 0.45],'linewidth',1,'LineStyle','--') ;
+%                     uistack(obj.info.handle_gridxy_mt_lines,'top');
+%                     
                     
                     
                     
@@ -1520,6 +1520,7 @@ classdef best_toolbox < handle
             obj.app.pr.current_mep.(ax).String=obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.mepamp};
             obj.app.pr.mean_mep.(ax).String=obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.mepamp};
             ylim auto
+            
         end
         function mep_amp(obj)
             maxx=max(obj.inputs.rawData.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).data(obj.inputs.trial,obj.inputs.mep_onset_samples:obj.inputs.mep_offset_samples));
