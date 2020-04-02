@@ -784,7 +784,8 @@ classdef BEST < handle
                         obj.pr_fit_plot;
                     case 'Motor Threshold Hunting'
                         obj.pr_threshold_trace_plot;
-                    case 'Phase Histogram'
+                    case 'PhaseHistogram'
+                        obj.pr_PhaseHistogram;
                 end
                 
             end
@@ -1076,7 +1077,9 @@ classdef BEST < handle
             obj.pr.ax.(obj.pr.axesno)=axes( 'Parent',  mep1_r2,'Units','normalized');
             set(mep1_vb,'Heights',[30 -10])
         end
-        function pr_phasehisto(obj)
+        function pr_PhaseHistogram(obj)
+             obj.pr.ax_no=['ax' num2str(obj.pr.axesno)];
+              obj.pr.ax.(obj.pr.ax_no)=axes( 'Parent',  mep1_r2,'Units','normalized','uicontextmenu',ui_menu);
         end
         function pr_timelockedavg(obj)
         end
@@ -3766,10 +3769,11 @@ obj.bst.best_mep;
             obj.info.defaults.TrialsPerCondition='10';
             obj.info.defaults.InputDevice=1;
             obj.info.defaults.ITI='4';
-            obj.info.defaults.MontageChannels=['{' 'C3,' 'FC1,' 'FC5,', 'CP1', 'CP5'}'];
+            obj.info.defaults.MontageChannels='';
             obj.info.defaults.MontageWeights='';
-            obj.info.defaults.FrequencyLowBound='';
-            obj.info.defaults.FrequencyHighBound='';
+            %             obj.info.defaults.FrequencyLowBound='';
+            %             obj.info.defaults.FrequencyHighBound='';
+            obj.info.defaults.FrequencyBand=1;
             obj.info.defaults.Phase='';
             obj.info.defaults.PhaseTolerance='';
             obj.info.defaults.AmplitudeLowBound='';

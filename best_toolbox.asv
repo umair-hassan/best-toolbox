@@ -2096,7 +2096,7 @@ classdef best_toolbox < handle
                        obj.handles.PhaseHistogramPeak=polarhistogram([deg2rad(ThisPhase)],20,'FaceColor','green','BinEdges',deg2rad(5:10:355));
                     otherwise
                         obj.handles.PhaseHistogramPeak
-                        obj.handles.PhaseHistogramPeak=polarhistogram([obj.handles.PhaseHistogramPeak.Data deg2rad(ThisPhase)],20,'FaceColor','green','BinEdges',deg2rad(5:10:355));
+                        PhaseHistogramPeak=polarhistogram([obj.handles.PhaseHistogramPeak.Data deg2rad(ThisPhase)],20,'FaceColor','green','BinEdges',deg2rad(5:10:355));
                 end
             elseif obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.phase}{1,1}==pi && obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.phase}{1,2}~=pi %Trough
                 switch obj.inputs.trial

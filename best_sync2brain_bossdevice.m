@@ -38,9 +38,9 @@ classdef best_sync2brain_bossdevice <handle
                 
                 %% Setting Spatial Filter
                 % set a spatial filter to C3 hjorth
-                set_spatial_filter(obj.bb, obj.best_toolbox.inputs.MontageChannels, obj.best_toolbox.inputs.MontageWeights, 1)
-%                 set_spatial_filter(obj.bb, {'C3', 'FC1', 'FC5', 'CP1', 'CP5'}, [1 -0.25 -0.25 -0.25 -0.25], 1)
-                set_spatial_filter(obj.bb, {}, [], 2)
+%                 set_spatial_filter(obj.bb, obj.best_toolbox.inputs.MontageChannels, obj.best_toolbox.inputs.MontageWeights, 1)
+% % %                 set_spatial_filter(obj.bb, {'C3', 'FC1', 'FC5', 'CP1', 'CP5'}, [1 -0.25 -0.25 -0.25 -0.25], 1)
+%                 set_spatial_filter(obj.bb, {}, [], 2)
                 
 
             end
@@ -66,7 +66,7 @@ while ~strcmpi(obj.EMGScope.Status,'finished'), end
         
         function armPulse(obj)
             %% Findling IA Low and High Cutoff Values
-            %% Choosing 1 from 3x Oscillitory Models
+            %% Choosing 1 from 3x Oscillitory Models, Load Phase, PhasePlusMinus, Amplitude Low and Amplitude High
             switch obj.best_toolbox.inputs.FrequencyBand
                 case 1 % Alpha
 %                     obj.best_toolbox.inputs.trialMat{obj.best_toolbox.inputs.trial,obj.best_toolbox.inputs.colLabel.tpm}
@@ -111,6 +111,7 @@ while ~strcmpi(obj.EMGScope.Status,'finished'), end
                      toc
                      obj.bb.disarm;
                      while ~strcmpi(obj.EMGScope.Status,'finished'), end
+                     while ~strcmpi(obj.IPScope.Status,'finished'), end
                      exit_flag=2;
                  end
             end
@@ -123,8 +124,8 @@ while ~strcmpi(obj.EMGScope.Status,'finished'), end
             NumSamples=(EMGDisplayPeriodPost+EMGDisplayPeriodPre)*5;
             NumPrePostSamples=EMGDisplayPeriodPre*5;
             obj.EMGScope = addscope(obj.bb.tg, 'host', 90);
-            AuxSignalID = getsignalid(obj.bb.tg, 'aux_raw') + int32(0:8);
-            MrkSignalID = getsignalid(obj.bb.tg, 'mrk_raw') + int32([0 1 2]);
+            AuxSignalID = getsignalid(obj.bb.tg, 'UDP/raw_aux') + int32(0:8);
+            MrkSignalID = getsignalid(obj.bb.tg, 'UDP/raw_mrk') + int32([0 1 2]);
             addsignal(obj.EMGScope, AuxSignalID);
             obj.EMGScope.NumSamples = NumSamples;
             obj.EMGScope.NumPrePostSamples = -NumPrePostSamples;
@@ -134,12 +135,34 @@ while ~strcmpi(obj.EMGScope.Status,'finished'), end
 %             obj.EMGScope.TriggerSignal = MrkSignalID(3); %in Tuebingen setup the 2nd coloumn of signal was giving the return values, however in Mainz setup it was the third coloumn
             obj.EMGScope.TriggerLevel = 0.5;
             obj.EMGScope.TriggerSlope = 'Rising';
+            obj.best_toolbox.FilterCoefficients.HumNoiseNotchFilter=designfilt('bandstopiir','FilterOrder',2,'HalfPowerFrequency1',39,'HalfPowerFrequency2',61,'DesignMethod','butter','SampleRate',NumSamples);
         end
         
         function IEEGScopeBoot(obj,EEGDisplayPeriodPre,EEGDisplayPeriodPost)
         end
         
         function IPScopeBoot(obj)
+            %% Choosing 1 from 3x Oscillitory Models, Load Phase, PhasePlusMinus, Amplitude Low and Amplitude High
+            switch obj.best_toolbox.inputs.FrequencyBand
+                case 1 % Alpha
+                    IPSignalID = getsignalid(obj.bb.tg, 'OSC/alpha/IP') + int32(0);
+                case 2 % Theta
+                    IPSignalID = getsignalid(obj.bb.tg, 'OSC/theta/IP') + int32(0);
+                case 3 % Beta
+                    IPSignalID = getsignalid(obj.bb.tg, 'OSC/beta/IP') + int32(0);
+            end
+%             MrkSignalID = getsignalid(obj.bb.tg, 'MRK/raw_mrk') + int32([0 1 2]);
+            obj.IPScope = addscope(obj.bb.tg, 'host', 91);
+            addsignal(obj.IPScope, IPSignalID);
+            % If 100 samples are extracted there will be a data of 400ms for Theta, 200ms for Alpha and 100ms for Beta
+            obj.IPScope.NumSamples = 100;
+            obj.IPScope.NumPrePostSamples = -99;
+            obj.IPScope.Decimation = 1;
+            obj.IPScope.TriggerMode = 'Signal';
+            obj.IPScope.TriggerSignal = getsignalid(obj.bb.tg, 'gen_running'); %Remove it in Official Usee
+%             obj.IPScope.TriggerSignal = MrkSignalID(3); %in Tuebingen setup the 2nd coloumn of signal was giving the return values, however in Mainz setup it was the third coloumn
+            obj.IPScope.TriggerLevel = 0.5;
+            obj.IPScope.TriggerSlope = 'Rising';
         end
         
         function IAScopeBoot(obj)
@@ -157,6 +180,8 @@ while ~strcmpi(obj.EMGScope.Status,'finished'), end
         end
         
         function IPScopeStart(obj)
+             start(obj.IPScope);
+             while ~strcmpi(obj.IPScope.Status,'Ready for being Triggered'), end
         end
         
         function IAScopeStart(obj)
