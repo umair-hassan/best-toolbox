@@ -150,12 +150,12 @@ while ~strcmpi(obj.EMGScope.Status,'finished'), end
                 case 2 % Theta
                     IPSignalID = getsignalid(obj.bb.tg, 'OSC/theta/IEEG') + int32(0);
                     NumSamples=(obj.best_toolbox.inputs.EEGDisplayPeriodPost+obj.best_toolbox.inputs.EEGDisplayPeriodPre)*0.25;
-                    NumPrePostSamples=obj.best_toolbox.inputs.EEGDisplayPeriodPre*0.25;
+                    NumPrePostSamples=obj.best_toolbox.inputs.EEGDisplayPeriodPre*5;
                     Decimation=20;
                 case 3 % Beta
                     IPSignalID = getsignalid(obj.bb.tg, 'OSC/beta/IEEG') + int32(0);
                     NumSamples=(obj.best_toolbox.inputs.EEGDisplayPeriodPost+obj.best_toolbox.inputs.EEGDisplayPeriodPre)*1;
-                    NumPrePostSamples=obj.best_toolbox.inputs.EEGDisplayPeriodPre*1;
+                    NumPrePostSamples=obj.best_toolbox.inputs.EEGDisplayPeriodPre*5;
                     Decimation=1;
             end
                         MrkSignalID = getsignalid(obj.bb.tg, 'MRK/mrk_masked') + int32([0]);
