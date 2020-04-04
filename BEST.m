@@ -3686,7 +3686,7 @@ classdef BEST < handle
                     obj.pi.mm.cond.(cd).ax.XLim=[0 5];
                     xticks(obj.pi.mm.cond.(cd).ax,[100 101]);
                     yticks(obj.pi.mm.cond.(cd).ax,-1:1:1)
-                    obj.pi.mm.cond.(cd).ax.YTickLabel={'','Target Channel',''};
+                    obj.pi.mm.cond.(cd).ax.YTickLabel={'','MEP Search Window',''};
                     plot(0:0.01:10,rand(1,1001)*0.30-0.15,'Color','k','parent',obj.pi.mm.cond.(cd).ax,'LineWidth',2,'Tag','empty'); % 12-Mar-2020 07:37:17
                     %%                 text(2.5,0+0.20,['Channel Name:[' char(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).targetChannel) ']'],'VerticalAlignment','bottom','HorizontalAlignment','center','Color',[0.50 0.50 0.50],'FontSize',9,'FontAngle','italic','ButtonDownFcn',@obj.cb_pi_mep_targetChannel) % 11-Mar-2020 14:49:00
                     obj.pi.mm.stim.(cd).no=0;
@@ -3706,7 +3706,7 @@ classdef BEST < handle
                             yticklab{1,i}=cellstr(['Stimulator ' num2str(i)]);
                         end
                         yticklab=flip(horzcat(yticklab{1,:}));
-                        obj.pi.mm.cond.(cd).ax.YTickLabel={'',char(yticklab),'Target Channel',''};
+                        obj.pi.mm.cond.(cd).ax.YTickLabel={'',char(yticklab),'MEP Search Channel',''};
                         text(0,-1*obj.pi.mm.stim.(cd).no,char(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).stim_device),'VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',9,'FontAngle','italic','Tag',num2str(obj.pi.mm.stim.(cd).no),'ButtonDownFcn',@obj.cb_pi_mep_output_device)
                         sprintf('here it is %d ----------------------------------------------------',obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).pulse_count)
                         for ipulses=1:obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).pulse_count
@@ -3873,7 +3873,7 @@ classdef BEST < handle
                 obj.pi.mm.cond.(cd).ax.XLim=[0 5];
                 xticks(obj.pi.mm.cond.(cd).ax,[100 101]);
                 yticks(obj.pi.mm.cond.(cd).ax,-1:1:1)
-                obj.pi.mm.cond.(cd).ax.YTickLabel={'','Target Channel',''};
+                obj.pi.mm.cond.(cd).ax.YTickLabel={'','MEP Search Window',''};
                 plot(0:0.01:10,rand(1,1001)*0.30-0.15,'Color','k','parent',obj.pi.mm.cond.(cd).ax,'LineWidth',2,'Tag','empty'); % 12-Mar-2020 07:37:17
                 %%                 text(2.5,0+0.20,['Channel Name:[' char(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).targetChannel) ']'],'VerticalAlignment','bottom','HorizontalAlignment','center','Color',[0.50 0.50 0.50],'FontSize',9,'FontAngle','italic','ButtonDownFcn',@obj.cb_pi_mep_targetChannel) % 11-Mar-2020 14:49:00
                 obj.pi.mm.stim.(cd).no=0;
@@ -3893,7 +3893,7 @@ classdef BEST < handle
                         yticklab{1,i}=cellstr(['Stimulator ' num2str(i)]);
                     end
                     yticklab=flip(horzcat(yticklab{1,:}));
-                    obj.pi.mm.cond.(cd).ax.YTickLabel={'',char(yticklab),'Target Channel',''};
+                    obj.pi.mm.cond.(cd).ax.YTickLabel={'',char(yticklab),'MEP Search Window',''};
                     text(0,-1*obj.pi.mm.stim.(cd).no,char(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).stim_device),'VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',9,'FontAngle','italic','Tag',num2str(obj.pi.mm.stim.(cd).no),'ButtonDownFcn',@obj.cb_pi_mep_output_device)
                     sprintf('here it is %d ----------------------------------------------------',obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).pulse_count)
                     for ipulses=1:obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).pulse_count
@@ -4050,7 +4050,7 @@ classdef BEST < handle
             obj.pi.mm.cond.(cd).ax.XLim=[0 5];
             xticks(obj.pi.mm.cond.(cd).ax,[100 101]);
             yticks(obj.pi.mm.cond.(cd).ax,[-1:1:1])
-            obj.pi.mm.cond.(cd).ax.YTickLabel={'','Target Channel',''};
+            obj.pi.mm.cond.(cd).ax.YTickLabel={'','MEP Search Window',''};
             plot(0:0.01:10,rand(1,1001)*0.30-0.15,'Color','k','parent',obj.pi.mm.cond.(cd).ax,'LineWidth',2,'Tag','empty'); % 12-Mar-2020 07:37:17
             %%             text(2.5,0+0.20,'Channel Name:[?]','VerticalAlignment','bottom','HorizontalAlignment','center','Color',[0.50 0.50 0.50],'FontSize',9,'FontAngle','italic','ButtonDownFcn',@obj.cb_pi_mep_targetChannel) % 11-Mar-2020 14:49:00
             obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).targetChannel=cellstr('NaN');
@@ -4103,7 +4103,7 @@ classdef BEST < handle
                 yticklab{1,i}=cellstr(['Stimulator ' num2str(i)]);
             end
             yticklab=flip(horzcat(yticklab{1,:}));
-            obj.pi.mm.cond.(cd).ax.YTickLabel={'',char(yticklab),'Target Channel',''};
+            obj.pi.mm.cond.(cd).ax.YTickLabel={'',char(yticklab),'MEP Search Window',''};
             text(0,-1*obj.pi.mm.stim.(cd).no,'click to tag device','VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',9,'FontAngle','italic','Tag',num2str(obj.pi.mm.stim.(cd).no),'ButtonDownFcn',@obj.cb_pi_mep_output_device)
             obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).stim_device=cellstr('Select');
             function cb_stimulatorSelector(source,~)
