@@ -126,7 +126,7 @@ classdef best_toolbox < handle
                             DisplayChannelsAxesNo=num2cell(1:numel(obj.inputs.EMGDisplayChannels));
                             obj.app.pr.ax_measures=DisplayChannelsMeasures;
                             obj.app.pr.axesno=numel(obj.inputs.EMGDisplayChannels);
-                            %% Creating Stimulation Conditons
+                            %% Creating Stimulation Conditions
                             for c=1:numel(fieldnames(obj.inputs.condsAll))
                                 obj.inputs.condMat{c,obj.inputs.colLabel.trials}=obj.inputs.TrialsPerCondition;
                                 obj.inputs.condMat{c,obj.inputs.colLabel.iti}=obj.inputs.ITI;
@@ -384,10 +384,59 @@ classdef best_toolbox < handle
                                 
                             end 
                     end
-                    
-                    
-                    
-                    
+                case 'MEP Dose Response Curve Protocol'
+                    switch obj.inputs.BrainState
+                        case 1 %Independent
+                            %% Creating Column Labels
+                            obj.inputs.colLabel.inputDevices=1;
+                            obj.inputs.colLabel.outputDevices=2;
+                            obj.inputs.colLabel.si=3;
+                            obj.inputs.colLabel.iti=4;
+                            obj.inputs.colLabel.chLab=5;
+                            obj.inputs.colLabel.trials=9;
+                            obj.inputs.colLabel.axesno=6;
+                            obj.inputs.colLabel.measures=7;
+                            obj.inputs.colLabel.stimMode=8;
+                            obj.inputs.colLabel.tpm=10;
+                            obj.inputs.colLabel.chType=11;
+                            obj.inputs.colLabel.chId=12;
+                            obj.inputs.colLabel.mepamp=13;
+                            %% Creating Channel Measures, AxesNo, Labels
+                            TargetChannelLabels=repelem(obj.inputs.EMGTargetChannels,3);
+                            DisplayChannelLabels=obj.inputs.EMGDisplayChannels
+                            ChannelLabels=[repelem(obj.inputs.EMGTargetChannels,3),obj.inputs.EMGDisplayChannels]; %this can go directly inside the cond object in the loop
+                            ChannelMeasures=repmat({'MEP_Measurement','MEP Scatter Plot','MEP IOC Fit'},1,numel(obj.inputs.EMGTargetChannels)) %dirctly inside the loop
+                            ChannelAxesNo=num2cell(1:numel(ChannelLabels))
+                            obj.app.pr.ax_measures=ChannelsMeasures;
+                            obj.app.pr.axesno=numel(ChannelAxesNo);
+                            %% Creating Channel Type, Channel Index
+                            switch obj.app.par.hardware_settings.(char(obj.inputs.input_device)).slct_device
+                                case 1 %boss box
+                                    ChannelType=repmat({EMG},numel(ChannelLabels))
+                                    ChannelID=num2cell(1:numel(ChannelLabels))
+                                    obj.inputs.ChannelsTypeUnique=DisplayChannelType;
+                                    
+                                    
+                                case 2 % fieldtrip real time buffer
+                            end
+                            ChannelType=repmat({EMG},numel(ChannelLabels))
+                            ChannelID=num2cell(1:numel(ChannelLabels))
+                            %% Creating Stimulation Conditions
+                            for c=1:numel(fieldnames(obj.inputs.condsAll))
+                                obj.inputs.condMat{c,obj.inputs.colLabel.trials}=obj.inputs.TrialsPerCondition;
+                                obj.inputs.condMat{c,obj.inputs.colLabel.iti}=obj.inputs.ITI;
+                                obj.inputs.condMat{c,obj.inputs.colLabel.inputDevices}=char(obj.app.pi.mep.InputDevice.String(obj.inputs.InputDevice));
+                                obj.inputs.condMat{c,obj.inputs.colLabel.chLab}=ChannelLabels;
+                                obj.inputs.condMat{c,obj.inputs.colLabel.measures}=ChannelMeasures;
+                                obj.inputs.condMat{c,obj.inputs.colLabel.axesno}=ChannelAxesNo;
+                                obj.inputs.condMat{c,obj.inputs.colLabel.chType}=ChannelType;
+                                obj.inputs.condMat{c,obj.inputs.colLabel.chId}=ChannelID;
+                            end
+                            
+                            
+                        case 2
+                    end
+                    dbstop
             end
             
             
@@ -2098,22 +2147,22 @@ classdef best_toolbox < handle
             ThisPhase=obj.inputs.rawData.(ThisChannelName).data(obj.inputs.trial,1);
             if obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.phase}{1,1}==0 && obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.phase}{1,2}~=pi %Peak
                 if(isfield(obj.inputs.Handles,'PhaseHistogramPeak')==0)
-                       obj.inputs.Handles.PhaseHistogramPeak=polarhistogram(ThisPhase,20,'FaceColor','green','BinEdges',deg2rad(5:10:355));
+                    obj.inputs.Handles.PhaseHistogramPeak=polarhistogram(ThisPhase,20,'FaceColor','green','BinEdges',deg2rad(5:10:355));
                 else
-                        obj.inputs.Handles.PhaseHistogramPeak
-                        obj.inputs.Handles.PhaseHistogramPeak=polarhistogram([obj.inputs.Handles.PhaseHistogramPeak.Data ThisPhase],20,'FaceColor','green','BinEdges',deg2rad(5:10:355));
+                    obj.inputs.Handles.PhaseHistogramPeak
+                    obj.inputs.Handles.PhaseHistogramPeak=polarhistogram([obj.inputs.Handles.PhaseHistogramPeak.Data ThisPhase],20,'FaceColor','green','BinEdges',deg2rad(5:10:355));
                 end
             elseif obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.phase}{1,1}==pi && obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.phase}{1,2}~=pi %Trough
                 if(isfield(obj.inputs.Handles,'PhaseHistogramTrough')==0)
-                        obj.inputs.Handles.PhaseHistogramTrough=polarhistogram(ThisPhase,20,'FaceColor','red','BinEdges',deg2rad(5:10:355));
+                    obj.inputs.Handles.PhaseHistogramTrough=polarhistogram(ThisPhase,20,'FaceColor','red','BinEdges',deg2rad(5:10:355));
                 else
-                        obj.inputs.Handles.PhaseHistogramTrough=polarhistogram([obj.inputs.Handles.PhaseHistogramTrough.Data ThisPhase],20,'FaceColor','red','BinEdges',deg2rad(5:10:355));
+                    obj.inputs.Handles.PhaseHistogramTrough=polarhistogram([obj.inputs.Handles.PhaseHistogramTrough.Data ThisPhase],20,'FaceColor','red','BinEdges',deg2rad(5:10:355));
                 end
             elseif obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.phase}{1,1}==0 && obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.phase}{1,2}==pi %Random
                 if(isfield(obj.inputs.Handles,'PhaseHistogramRandom')==0)
-                        obj.inputs.Handles.PhaseHistogramRandom=polarhistogram(ThisPhase,20,'FaceColor','blue','BinEdges',deg2rad(5:10:355));
+                    obj.inputs.Handles.PhaseHistogramRandom=polarhistogram(ThisPhase,20,'FaceColor','blue','BinEdges',deg2rad(5:10:355));
                 else
-                        obj.inputs.Handles.PhaseHistogramRandom=polarhistogram([obj.inputs.Handles.PhaseHistogramRandom.Data ThisPhase],20,'FaceColor','blue','BinEdges',deg2rad(5:10:355));
+                    obj.inputs.Handles.PhaseHistogramRandom=polarhistogram([obj.inputs.Handles.PhaseHistogramRandom.Data ThisPhase],20,'FaceColor','blue','BinEdges',deg2rad(5:10:355));
                 end
             end
         end % End obj.PlotPhaseHistogram
@@ -2121,46 +2170,35 @@ classdef best_toolbox < handle
             ax=['ax' num2str(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.axesno}{1,obj.inputs.chLab_idx})];
             axes(obj.app.pr.ax.(ax)), hold on,
             ThisChannelName=obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx};
-            
-            %             ThisPhase=obj.inputs.rawData.(ThisChannelName).data(obj.inputs.trial,1);
-            ThisEEG=obj.inputs.rawData.(ThisChannelName).data(obj.inputs.trial,:);
             ThisEEGTime=obj.inputs.rawdata.IEEG.time;
             if obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.phase}{1,1}==0 && obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.phase}{1,2}~=pi %Peak
                 if(isfield(obj.inputs.Handles,'TriggerLockedEEGPeak')==0)
+                    ThisEEG=obj.inputs.rawData.(ThisChannelName).data(obj.inputs.trial,:);
                     obj.inputs.Handles.TriggerLockedEEGPeak=plot(ThisEEGTime,ThisEEG,'color','green','LineWidth',2);
-%                     obj.inputs.Handles.deleteme=plot(ThisEEGTime,ThisEEG,'color','k','LineWidth',2);
                     obj.inputs.Handles.TriggerLockedEEGPeak.UserData(1,1)=obj.inputs.trial;
                 else
                     obj.inputs.Handles.TriggerLockedEEGPeak.UserData(1,1+numel(obj.inputs.Handles.TriggerLockedEEGPeak.UserData))=obj.inputs.trial;
-                    
-                    %                         obj.inputs.Handles.TriggerLockedEEGPeak
-                    %                         obj.inputs.Handles.TriggerLockedEEGPeak=plot(ThisEEGTime, mean([obj.inputs.Handles.TriggerLockedEEGPeak.YData; ThisEEG]),'color','green');
                     obj.inputs.Handles.TriggerLockedEEGPeak.YData=mean(obj.inputs.rawData.(ThisChannelName).data(obj.inputs.Handles.TriggerLockedEEGPeak.UserData,:));
-                    %                     obj.inputs.Handles.TriggerLockedEEGPeak.YData=(sum([obj.inputs.Handles.TriggerLockedEEGPeak.YData; ThisEEG]))/2;
-                    
                     drawnow;
-%                     hold on;
-%                     delete(obj.inputs.Handles.deleteme)
-%                     drawnow;
-%                     pause(5)
-%                     obj.inputs.Handles.deleteme=plot(ThisEEGTime,mean(obj.inputs.rawData.(ThisChannelName).data),'color','k','LineWidth',2);
                 end
             elseif obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.phase}{1,1}==pi && obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.phase}{1,2}~=pi %Trough
                 if(isfield(obj.inputs.Handles,'TriggerLockedEEGTrough')==0)
+                    ThisEEG=obj.inputs.rawData.(ThisChannelName).data(obj.inputs.trial,:);
                     obj.inputs.Handles.TriggerLockedEEGTrough=plot(ThisEEGTime, ThisEEG,'color','red','LineWidth',2);
                     obj.inputs.Handles.TriggerLockedEEGTrough.UserData(1,1)=obj.inputs.trial;
                 else
                     obj.inputs.Handles.TriggerLockedEEGTrough.UserData(1,1+numel(obj.inputs.Handles.TriggerLockedEEGTrough.UserData))=obj.inputs.trial;
-                    obj.inputs.Handles.TriggerLockedEEGTrough.YData=mean(obj.inputs.rawData.(ThisChannelName).data(obj.inputs.Handles.TriggerLockedEEGPeak.UserData,:));
+                    obj.inputs.Handles.TriggerLockedEEGTrough.YData=mean(obj.inputs.rawData.(ThisChannelName).data(obj.inputs.Handles.TriggerLockedEEGTrough.UserData,:));
                     drawnow;
                 end
             elseif obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.phase}{1,1}==0 && obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.phase}{1,2}==pi %Random
                 if(isfield(obj.inputs.Handles,'TriggerLockedEEGRandom')==0)
+                    ThisEEG=obj.inputs.rawData.(ThisChannelName).data(obj.inputs.trial,:);
                     obj.inputs.Handles.TriggerLockedEEGRandom=plot(ThisEEGTime, ThisEEG,'color','blue','LineWidth',2);
                     obj.inputs.Handles.TriggerLockedEEGRandom.UserData(1,1)=obj.inputs.trial;
                 else
-                    obj.inputs.Handles.TriggerLockedEEGR.UserData(1,1+numel(obj.inputs.Handles.TriggerLockedEEGTrough.UserData))=obj.inputs.trial;
-                    obj.inputs.Handles.TriggerLockedEEGRandom.YData=mean(obj.inputs.rawData.(ThisChannelName).data(obj.inputs.Handles.TriggerLockedEEGPeak.UserData,:));
+                    obj.inputs.Handles.TriggerLockedEEGRandom.UserData(1,1+numel(obj.inputs.Handles.TriggerLockedEEGRandom.UserData))=obj.inputs.trial;
+                    obj.inputs.Handles.TriggerLockedEEGRandom.YData=mean(obj.inputs.rawData.(ThisChannelName).data(obj.inputs.Handles.TriggerLockedEEGRandom.UserData,:));
                     drawnow;
                 end
             end
