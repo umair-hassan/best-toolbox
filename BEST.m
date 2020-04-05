@@ -5502,9 +5502,9 @@ classdef BEST < handle
                         
                         expModr4=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
                         uicontrol( 'Style','text','Parent', expModr4,'String','Response Function:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-                        obj.pi.drc.ResponseFunctionDenominator=uicontrol( 'Style','edit','Parent', expModr4 ,'FontSize',11,'Tag','ResponseFunctionDenominator','callback',@cb_par_saving);
-                        uicontrol( 'Style','text','Parent', expModr4,'String','÷','FontSize',13,'HorizontalAlignment','center','Units','normalized');
                         obj.pi.drc.ResponseFunctionNumerator=uicontrol( 'Style','edit','Parent', expModr4 ,'FontSize',11,'Tag','ResponseFunctionNumerator','callback',@cb_par_saving);
+                        uicontrol( 'Style','text','Parent', expModr4,'String','÷','FontSize',13,'HorizontalAlignment','center','Units','normalized');
+                        obj.pi.drc.ResponseFunctionDenominator=uicontrol( 'Style','edit','Parent', expModr4 ,'FontSize',11,'Tag','ResponseFunctionDenominator','callback',@cb_par_saving);
                         expModr4.Widths=[150 -2 30 -2];
                         
                         expModvBox.Heights=[35 45 45 35 45 30 35];
@@ -5555,7 +5555,6 @@ classdef BEST < handle
                         obj.pi.drc.ResponseFunctionNumerator=uicontrol( 'Style','edit','Parent', expModr4 ,'FontSize',11,'Tag','ResponseFunctionNumerator','callback',@cb_par_saving);
                         uicontrol( 'Style','text','Parent', expModr4,'String','÷','FontSize',13,'HorizontalAlignment','center','Units','normalized');
                         obj.pi.drc.ResponseFunctionDenominator=uicontrol( 'Style','edit','Parent', expModr4 ,'FontSize',11,'Tag','ResponseFunctionDenominator','callback',@cb_par_saving);
-
                         expModr4.Widths=[150 -2 30 -2];
                         
                         expModvBox.Heights=[35 45 45 35 45 45 30 35];
