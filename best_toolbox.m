@@ -90,8 +90,9 @@ classdef best_toolbox < handle
         end
         function factorizeConditions(obj)
             % factorization would be done as per each measurement/protocol (or group of measurements) since the input fields and thus the conditioning variables differ
+            %% Preparing Parameters to Inputs
             cb_Pars2Inputs
-            
+            %% Evaluating Selected Protocol
             switch obj.inputs.Protocol
                 case 'MEP Measurement Protocol'
                     switch obj.inputs.BrainState
@@ -265,7 +266,7 @@ classdef best_toolbox < handle
                             DisplayChannelsMeasures(:)=cellstr('MEP_Measurement');
                             
                             
-                            ChannelLabels={'OsscillationPhase','OsscillationEEG',obj.inputs.EMGDisplayChannels{1,:},'OsscillationAmplitude'}
+                            ChannelLabels={'OsscillationPhase','OsscillationEEG',obj.inputs.EMGDisplayChannels{1,:},'OsscillationAmplitude'};
                             ChannelMeasures={'PhaseHistogram','TriggerLockedEEG',DisplayChannelsMeasures{1,:},'RunningAmplitude'};
                             
                             DisplayChannelsAxesNo=num2cell(1:numel(ChannelMeasures));
@@ -368,7 +369,6 @@ classdef best_toolbox < handle
                             idx_stimulationconditions=0;
                             idx_totalstimulationconditions=numel(obj.inputs.condMat(:,1));
                             idx_phaseconditions=1;
-                            condMat={};
                             TotalCrossedOverConditions=(numel(PhaseConditionVector))*(numel(obj.inputs.condMat(:,1)));
                             for iTotalCrossedOverConditions=1:TotalCrossedOverConditions
                                 idx_stimulationconditions=idx_stimulationconditions+1;
@@ -381,7 +381,6 @@ classdef best_toolbox < handle
                                     if(idx_phaseconditions>numel(PhaseConditionVector))
                                         idx_phaseconditions=1; end
                                 end
-                                
                             end 
                     end
                 case 'MEP Dose Response Curve Protocol'
@@ -402,8 +401,6 @@ classdef best_toolbox < handle
                             obj.inputs.colLabel.chId=12;
                             obj.inputs.colLabel.mepamp=13;
                             %% Creating Channel Measures, AxesNo, Labels
-% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                             TargetChannelLabels=repelem(obj.inputs.EMGTargetChannels,3);
-% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                             DisplayChannelLabels=obj.inputs.EMGDisplayChannels;
                             ChannelLabels=[repelem(obj.inputs.EMGTargetChannels,3),obj.inputs.EMGDisplayChannels]; %this can go directly inside the cond object in the loop
                             ChannelMeasures=[repmat({'MEP_Measurement','MEP Scatter Plot','MEP IOC Fit'},1,numel(obj.inputs.EMGTargetChannels)),repmat({'MEP_Measurement'},1,numel(obj.inputs.EMGDisplayChannels))]; %dirctly inside the loop
                             ChannelAxesNo=num2cell(1:numel(ChannelLabels));
@@ -506,671 +503,816 @@ classdef best_toolbox < handle
                                 markers=[];
                                 condstimTimingStrings=[];
                             end
-                            
-                            
-                        case 2
+                        case 2 %Dependent
+                            %% Creating Column Labels
+                            obj.inputs.colLabel.inputDevices=1;
+                            obj.inputs.colLabel.outputDevices=2;
+                            obj.inputs.colLabel.si=3;
+                            obj.inputs.colLabel.iti=4;
+                            obj.inputs.colLabel.chLab=5;
+                            obj.inputs.colLabel.trials=9;
+                            obj.inputs.colLabel.axesno=6;
+                            obj.inputs.colLabel.measures=7;
+                            obj.inputs.colLabel.stimMode=8;
+                            obj.inputs.colLabel.tpm=10;
+                            obj.inputs.colLabel.chType=11;
+                            obj.inputs.colLabel.chId=12;
+                            obj.inputs.colLabel.phase=13;
+                            obj.inputs.colLabel.IA=14;
+                            obj.inputs.colLabel.mepamp=15;
+                            %% Creating Channel Measures, AxesNo, Labels
+                            ChannelLabels=[{'OsscillationPhase'},{'OsscillationEEG'},repelem(obj.inputs.EMGTargetChannels,3),obj.inputs.EMGDisplayChannels,{'OsscillationAmplitude'}]; %[repelem(obj.inputs.EMGTargetChannels,3),obj.inputs.EMGDisplayChannels]; %this can go directly inside the cond object in the loop
+                            ChannelMeasures=[{'PhaseHistogram'},{'TriggerLockedEEG'},repmat({'MEP_Measurement','MEP Scatter Plot','MEP IOC Fit'},1,numel(obj.inputs.EMGTargetChannels)),repmat({'MEP_Measurement'},1,numel(obj.inputs.EMGDisplayChannels)),{'RunningAmplitude'}]; %dirctly inside the loop
+                            ChannelAxesNo=num2cell(1:numel(ChannelLabels));
+                            obj.app.pr.ax_measures=ChannelMeasures;
+                            obj.app.pr.axesno=numel(ChannelAxesNo);
+                            %% Creating Channel Type, Channel Index
+                            switch obj.app.par.hardware_settings.(char(obj.inputs.input_device)).slct_device
+                                case 1 %boss box
+                                    ChannelType=[{'IP'},{'IEEG'},repmat({'EMG'},1,3*numel(obj.inputs.EMGTargetChannels)),repmat({'EMG'},1,numel(obj.inputs.EMGDisplayChannels)),{'IA'}];
+                                    ChannelID=[{1},{1},num2cell(1:numel(ChannelLabels)-3),{1}]; %TODO: make this more systematic and extract from channel labels of neurone or acs protocol
+                                    obj.inputs.ChannelsTypeUnique=ChannelType;
+                                case 2 % fieldtrip real time buffer
+                            end
+                            %% Creating Phase Conditions
+                            for iPhases=1:numel(obj.inputs.Phase)
+                                switch obj.inputs.Phase{iPhases}
+                                    case 'pi' %+Ve Peak
+                                        PhaseConditionVector{1}={0,obj.inputs.PhaseTolerance};
+                                    case '-pi' %-Ve Trough
+                                        PhaseConditionVector{2}={pi,obj.inputs.PhaseTolerance};
+                                    case 'rand' %Random Phase
+                                        PhaseConditionVector{3}={0,pi};
+                                end
+                            end
+                            %% Creating Stimulation Conditions
+                            for c=1:numel(fieldnames(obj.inputs.condsAll))
+                                obj.inputs.condMat{c,obj.inputs.colLabel.trials}=obj.inputs.TrialsPerCondition;
+                                obj.inputs.condMat{c,obj.inputs.colLabel.iti}=obj.inputs.ITI;
+                                obj.inputs.condMat{c,obj.inputs.colLabel.inputDevices}=char(obj.app.pi.drc.InputDevice.String(obj.inputs.InputDevice));
+                                obj.inputs.condMat{c,obj.inputs.colLabel.chLab}=ChannelLabels;
+                                obj.inputs.condMat{c,obj.inputs.colLabel.measures}=ChannelMeasures;
+                                obj.inputs.condMat{c,obj.inputs.colLabel.axesno}=ChannelAxesNo;
+                                obj.inputs.condMat{c,obj.inputs.colLabel.chType}=ChannelType;
+                                obj.inputs.condMat{c,obj.inputs.colLabel.chId}=ChannelID;
+                                conds=fieldnames(obj.inputs.condsAll);
+                                for stno=1:(max(size(fieldnames(obj.inputs.condsAll.(conds{c,1}))))-1)
+                                    st=['st' num2str(stno)];
+                                    condSi{1,stno}=obj.inputs.condsAll.(conds{c,1}).(st).si_pckt;
+                                    condstimMode{1,stno}= obj.inputs.condsAll.(conds{c,1}).(st).stim_mode;
+                                    obj.inputs.condsAll.(conds{c,1}).(st).stim_device
+                                    condoutputDevice{1,stno}=obj.inputs.condsAll.(conds{c,1}).(st).stim_device;
+                                    for i=1:numel(obj.inputs.condsAll.(conds{c,1}).(st).stim_timing)
+                                        condstimTimingStrings{1,i}=num2str(obj.inputs.condsAll.(conds{c,1}).(st).stim_timing{1,i});
+                                    end
+                                    condstimTiming{1,stno}=condstimTimingStrings;
+                                end
+                                obj.inputs.condMat(c,obj.inputs.colLabel.si)={condSi};
+                                obj.inputs.condMat(c,obj.inputs.colLabel.outputDevices)={condoutputDevice};
+                                obj.inputs.condMat(c,obj.inputs.colLabel.stimMode)={condstimMode};
+                                %                         condstimTiming=condstimTiming{1,1};
+                                %                         condstimTiming={{cellfun(@num2str, condstimTiming{1,1}(1,1:end))}};
+                                %                                                 condstimTiming={{arrayfun(@num2str, condstimTiming{1,1}(1,1:end))}};
+                                
+                                %                         condstimTiming=cellstr(condstimTiming);
+                                for timing=1:numel(condstimTiming)
+                                    for jj=1:numel(condstimTiming{1,timing})
+                                        condstimTiming{2,timing}{1,jj}=condoutputDevice{1,timing};
+                                    end
+                                end
+                                condstimTiming_new{1}=horzcat(condstimTiming{1,:});
+                                condstimTiming_new{2}=horzcat(condstimTiming{2,:});
+                                [condstimTiming_new_sorted{1},sorted_idx]=sort(condstimTiming_new{1});
+                                
+                                %                                  [condstimTiming_new_sorted{1},sorted_idx]=sort(cellfun(@str2num, condstimTiming_new{1}));
+                                %                                  condstimTiming_new_sorted{1}=cellfun(@num2str, num2cell(condstimTiming_new_sorted{1}));
+                                
+                                
+                                
+                                condstimTiming_new_sorted{2}=condstimTiming_new{1,2}(sorted_idx);
+                                %                                  condstimTiming_new_sorted{1}=cellfun(@num2str, num2cell(condstimTiming_new_sorted{1}));
+                                
+                                for stimno_tpm=1:numel(condstimTiming_new_sorted{2})
+                                    port_vector{stimno_tpm}=obj.app.par.hardware_settings.(char(condstimTiming_new_sorted{2}{1,stimno_tpm})).bb_outputport;
+                                end
+                                condstimTiming_new_sorted{2}=port_vector;
+                                tpmVect=[condstimTiming_new_sorted{1};condstimTiming_new_sorted{2}];
+                                [tpmVect_unique,ia,ic]=unique(tpmVect(1,:));
+                                a_counts = accumarray(ic,1);
+                                for binportloop=1:numel(tpmVect_unique)
+                                    buffer{1,binportloop}={(cell2mat(tpmVect(2,ia(binportloop):ia(binportloop)-1+a_counts(binportloop))))};
+                                    binaryZ='0000';
+                                    num=cell2mat(buffer{1,binportloop});
+                                    for binaryID=1:numel(num)
+                                        binaryZ(str2num(num(binaryID)))='1';
+                                    end
+                                    buffer{1,binportloop}=bin2dec(flip(binaryZ));
+                                    markers{1,binportloop}=0;
+                                end
+                                markers{1,1}=c;
+                                condstimTiming_new_sorted=[num2cell((cellfun(@str2num, tpmVect_unique(1,1:end))));buffer;markers];
+                                condstimTiming_new_sorted=cell2mat(condstimTiming_new_sorted)
+                                [condstimTiming_new_sorted(1,:),sorted_idx]=sort(condstimTiming_new_sorted(1,:))
+                                condstimTiming_new_sorted(1,:)=condstimTiming_new_sorted(1,:)/1000;
+                                condstimTiming_new_sorted(2,:)=condstimTiming_new_sorted(2,sorted_idx)
+                                
+                                obj.inputs.condMat(c,obj.inputs.colLabel.tpm)={num2cell(condstimTiming_new_sorted)};
+                                condSi=[];
+                                condoutputDevice=[];
+                                condstimMode=[];
+                                condstimTiming=[];
+                                buffer=[];
+                                tpmVect_unique=[];
+                                a_counts =[];
+                                ia=[];
+                                ic=[];
+                                port_vector=[];
+                                num=[];
+                                condstimTiming_new=[];
+                                condstimTiming_new_sorted=[];
+                                sorted_idx=[];
+                                markers=[];
+                                condstimTimingStrings=[];
+                            end
+                            %% Crossing Phase Conditions with Stimulation Conditions
+                            idx_stimulationconditions=0;
+                            idx_totalstimulationconditions=numel(obj.inputs.condMat(:,1));
+                            idx_phaseconditions=1;
+                            TotalCrossedOverConditions=(numel(PhaseConditionVector))*(numel(obj.inputs.condMat(:,1)));
+                            for iTotalCrossedOverConditions=1:TotalCrossedOverConditions
+                                idx_stimulationconditions=idx_stimulationconditions+1;
+                                obj.inputs.condMat(iTotalCrossedOverConditions,1:12)=obj.inputs.condMat(idx_stimulationconditions,1:12);
+                                obj.inputs.condMat(iTotalCrossedOverConditions,obj.inputs.colLabel.phase)=PhaseConditionVector(idx_phaseconditions);
+                                obj.inputs.condMat(iTotalCrossedOverConditions,obj.inputs.colLabel.IA)={{0,1e6}};
+                                if(idx_stimulationconditions>=idx_totalstimulationconditions)
+                                    idx_stimulationconditions=0;
+                                    idx_phaseconditions=idx_phaseconditions+1;
+                                    if(idx_phaseconditions>numel(PhaseConditionVector))
+                                        idx_phaseconditions=1; end
+                                end
+                            end 
+                            %% Case end
                     end
-                    dbstop in file
             end
             
-            
-            if~strcmp(obj.inputs.Protocol,'MEP Measurement Protocol')
-                switch char(obj.inputs.measure_str)
-                    case {'MEP Measurement','Motor Hotspot Search'}
-
-                        % making axesno cell array conditions
-                        targetChannels_ax=1:1:(numel(obj.inputs.target_muscle));
-                        displayChannels_ax=num2cell(targetChannels_ax(end)+1:1:targetChannels_ax(end)+(numel(obj.inputs.display_scopes)));
-                        obj.app.pr.axesno=numel(targetChannels_ax)+numel(cell2mat(displayChannels_ax));
-                        obj.app.pr.axesno
-                        
-                        % making measures cell array conditions
-                        % in case of MEP this will work as the condition will be
-                        % cellstr('MEP_Measurement') in the other case the
-                        % condition will be a 1x2 cell array;
-                        targetChannels_meas=cell(1,numel(obj.inputs.target_muscle));
-                        targetChannels_meas(:)=cellstr('MEP_Measurement'); % infact thsi would be a variable obj.inputs.targetMeasure
-                        displayChannels_meas=cell(1,numel(obj.inputs.display_scopes));
-                        displayChannels_meas(:)=cellstr('MEP_Measurement');
-                        
-                        % maing unique measurement flags for each of the axes 1xn
-                        % cellstr stating the measuring indexed against axes no
-                        targetChannels_ax_meas=cell(1,numel(obj.inputs.target_muscle));
-                        targetChannels_ax_meas(:)={{'MEP_Measurement'}}; % infact thsi would be a variable obj.inputs.targetMeasure
-                        displayChannels_ax_meas=cell(1,numel(obj.inputs.display_scopes));
-                        displayChannels_ax_meas(:)=cellstr('MEP_Measurement');
-                        obj.app.pr.ax_measures={targetChannels_ax_meas{1,:},displayChannels_ax_meas{1,:}};
-                        
-                        % making stimmode
-                        
-                        
-                        % column labels
-                        obj.inputs.colLabel.inputDevices=1;
-                        obj.inputs.colLabel.outputDevices=2;
-                        obj.inputs.colLabel.si=3;
-                        obj.inputs.colLabel.iti=4;
-                        obj.inputs.colLabel.chLab=5;
-                        obj.inputs.colLabel.trials=9;
-                        obj.inputs.colLabel.axesno=6;
-                        obj.inputs.colLabel.measures=7;
-                        obj.inputs.colLabel.stimMode=8;
-                        obj.inputs.colLabel.mepamp=9;
-                        
-                        %just store the iti as a string e.g. '[iti1 iti2]' and
-                        %then it can be evaluated for the randomized value
-                        obj.inputs.totalConds=numel(obj.inputs.stimuli)*numel(obj.inputs.target_muscle)*numel(obj.inputs.iti);
-                        idx_inputDevices=0;
-                        idx_outputDevices=0;
-                        idx_targetChannels=0;
-                        idx_displayChannels=0;
-                        idx_si=0;
-                        idx_iti=0;
-                        idx_trials=0;
-                        obj.inputs.condMat=cell(obj.inputs.totalConds,9);
-                        for i=1:obj.inputs.totalConds
-                            idx_inputDevices=idx_inputDevices+1;
-                            idx_outputDevices=idx_outputDevices+1;
-                            idx_si=idx_si+1;
-                            idx_iti=idx_iti+1;
-                            idx_displayChannels=idx_displayChannels+1;
-                            idx_targetChannels=idx_targetChannels+1;
-                            idx_trials=idx_trials+1;
-                            obj.inputs.condMat(i,obj.inputs.colLabel.inputDevices)=cellstr(obj.inputs.input_device(1,idx_inputDevices));
-                            obj.inputs.condMat(i,obj.inputs.colLabel.outputDevices)={{cellstr(obj.inputs.output_device(1,idx_outputDevices))}};
-                            obj.inputs.condMat(i,obj.inputs.colLabel.trials)=(obj.inputs.trials(1,idx_trials)); % may be a problem
-                            obj.inputs.condMat(i,obj.inputs.colLabel.iti)=(obj.inputs.iti(1,idx_iti));
-                            obj.inputs.condMat(i,obj.inputs.colLabel.si)={{(obj.inputs.stimuli(1,idx_si))}};
-                            obj.inputs.condMat(i,obj.inputs.colLabel.chLab)={{char(cellstr(obj.inputs.target_muscle(1,idx_targetChannels))),obj.inputs.display_scopes{1,:}}};
-                            obj.inputs.condMat(i,obj.inputs.colLabel.axesno)={{targetChannels_ax(1,idx_targetChannels),displayChannels_ax{1,:}}};
-                            obj.inputs.condMat(i,obj.inputs.colLabel.stimMode)={{{'single_pulse'}}};
-                            obj.inputs.condMat(i,obj.inputs.colLabel.measures)={{char(targetChannels_meas(1,idx_targetChannels)),displayChannels_meas{1,:}}};
-                            
-                            
-                            if(idx_inputDevices>=numel(obj.inputs.input_device))
-                                idx_inputDevices=0;
-                            end
-                            if(idx_outputDevices>=numel(obj.inputs.output_device))
-                                idx_outputDevices=0;
-                            end
-                            if(idx_targetChannels>=numel(obj.inputs.target_muscle))
-                                idx_targetChannels=0;
-                            end
-                            if(idx_displayChannels>=numel(obj.inputs.display_scopes))
-                                idx_displayChannels=0;
-                            end
-                            if(idx_si>=numel(obj.inputs.stimuli))
-                                idx_si=0;
-                            end
-                            if(idx_iti>=numel(obj.inputs.iti))
-                                idx_iti=0;
-                            end
-                            if(idx_trials>=numel(obj.inputs.trials))
-                                idx_trials=0;
-                            end
-                            
-                        end
-                    case 'Motor Threshold Hunting'
-                        
-                        obj.inputs.colLabel.inputDevices=1;
-                        obj.inputs.colLabel.outputDevices=2;
-                        obj.inputs.colLabel.si=3;
-                        obj.inputs.colLabel.iti=4;
-                        obj.inputs.colLabel.chLab=5;
-                        obj.inputs.colLabel.trials=9;
-                        obj.inputs.colLabel.axesno=6;
-                        obj.inputs.colLabel.measures=7;
-                        obj.inputs.colLabel.stimMode=8;
-                        obj.inputs.colLabel.mepamp=9;
-                        
-                        targetChannels_ax_meas{1,:}=cell(1,numel(obj.inputs.target_muscle));
-                        for i=1:numel(obj.inputs.target_muscle)
-                            targetChannels_ax_meas{1,i}={'MEP_Measurement','Motor Threshold Hunting'};
-                        end
-                        targetChannels_ax_meas=horzcat(targetChannels_ax_meas{:});
-                        displayChannels_ax_meas=cell(1,numel(obj.inputs.display_scopes));
-                        displayChannels_ax_meas(:)=cellstr('MEP_Measurement');
-                        obj.app.pr.ax_measures={targetChannels_ax_meas{1,:},displayChannels_ax_meas{1,:}};
-                        
-                        targetChannels_meas=cell(1,numel(obj.inputs.target_muscle));
-                        targetChannels_meas(:)={{'MEP_Measurement','Threshold Trace'}}; % infact thsi would be a variable obj.inputs.targetMeasure
-                        displayChannels_meas=cell(1,numel(obj.inputs.display_scopes));
-                        displayChannels_meas(:)=cellstr('MEP_Measurement');
-                        
-                        ax_id=0;
-                        for i=1:numel(obj.inputs.target_muscle)
-                            targetChannels_ax{1,i}=num2cell(ax_id+1:1:ax_id+2); % infact thsi would be a variable obj.inputs.targetMeasure
-                            %                   targetChannels{1,i}=num2cell(ax_id+1:1:ax_id+2);
-                            targetChannels{1,i}={obj.inputs.target_muscle{1,i},obj.inputs.target_muscle{1,i}}
-                            ax_id=ax_id+2;
-                            
-                        end
-                        displayChannels_ax=num2cell(ax_id+1:1:ax_id+(numel(obj.inputs.display_scopes)));
-                        obj.app.pr.axesno=ax_id+numel(displayChannels_ax);
-                        %just store the iti as a string e.g. '[iti1 iti2]' and
-                        %then it can be evaluated for the randomized value
-                        obj.inputs.totalConds=numel(obj.inputs.stimuli)*numel(obj.inputs.target_muscle)*numel(obj.inputs.iti);
-                        idx_inputDevices=0;
-                        idx_outputDevices=0;
-                        idx_targetChannels=0;
-                        idx_displayChannels=0;
-                        idx_si=0;
-                        idx_iti=0;
-                        idx_trials=0;
-                        obj.inputs.condMat=cell(obj.inputs.totalConds,9);
-                        for i=1:obj.inputs.totalConds
-                            idx_inputDevices=idx_inputDevices+1;
-                            idx_outputDevices=idx_outputDevices+1;
-                            idx_si=idx_si+1;
-                            idx_iti=idx_iti+1;
-                            idx_displayChannels=idx_displayChannels+1;
-                            idx_targetChannels=idx_targetChannels+1;
-                            idx_trials=idx_trials+1;
-                            obj.inputs.condMat(i,obj.inputs.colLabel.inputDevices)=cellstr(obj.inputs.input_device(1,idx_inputDevices));
-                            obj.inputs.condMat(i,obj.inputs.colLabel.outputDevices)={cellstr(obj.inputs.output_device(1,idx_outputDevices))};
-                            obj.inputs.condMat(i,obj.inputs.colLabel.trials)=(obj.inputs.trials(1,idx_trials)); % may be a problem
-                            obj.inputs.condMat(i,obj.inputs.colLabel.iti)=(obj.inputs.iti(1,idx_iti));
-                            obj.inputs.condMat(i,obj.inputs.colLabel.si)={(obj.inputs.stimuli(1,idx_si))};
-                            obj.inputs.condMat(i,obj.inputs.colLabel.chLab)={{targetChannels{1,idx_targetChannels}{1,:},obj.inputs.display_scopes{1,:}}};
-                            obj.inputs.condMat(i,obj.inputs.colLabel.axesno)={{targetChannels_ax{1,idx_targetChannels}{1,:},displayChannels_ax{1,:}}};
-                            obj.inputs.condMat(i,obj.inputs.colLabel.measures)={{targetChannels_meas{1,idx_targetChannels}{1,:},displayChannels_meas{1,:}}};
-                            obj.inputs.condMat(i,obj.inputs.colLabel.stimMode)={{{'single_pulse'}}};
-                            
-                            
-                            if(idx_inputDevices>=numel(obj.inputs.input_device))
-                                idx_inputDevices=0;
-                            end
-                            if(idx_outputDevices>=numel(obj.inputs.output_device))
-                                idx_outputDevices=0;
-                            end
-                            if(idx_targetChannels>=numel(obj.inputs.target_muscle))
-                                idx_targetChannels=0;
-                            end
-                            if(idx_displayChannels>=numel(obj.inputs.display_scopes))
-                                idx_displayChannels=0;
-                            end
-                            if(idx_si>=numel(obj.inputs.stimuli))
-                                idx_si=0;
-                            end
-                            if(idx_iti>=numel(obj.inputs.iti))
-                                idx_iti=0;
-                            end
-                            if(idx_trials>=numel(obj.inputs.trials))
-                                idx_trials=0;
-                            end
-                            
-                        end
-                    case 'IOC'
-                        obj.inputs.colLabel.inputDevices=1;
-                        obj.inputs.colLabel.outputDevices=2;
-                        obj.inputs.colLabel.si=3;
-                        obj.inputs.colLabel.iti=4;
-                        obj.inputs.colLabel.chLab=5;
-                        obj.inputs.colLabel.trials=9;
-                        obj.inputs.colLabel.axesno=6;
-                        obj.inputs.colLabel.measures=7;
-                        obj.inputs.colLabel.stimMode=8;
-                        obj.inputs.colLabel.mepamp=9;
-                        
-                        
-                        % maing unique measurement flags for each of the axes 1xn
-                        % cellstr stating the measuring indexed against axes no
-                        %                   targetChannels_ax_meas{1,1}{1,:}=cell(1,numel(obj.inputs.target_muscle));
-                        %                   targetChannels_ax_meas(:)={{{'MEP_Measurement','MEP Scatter Plot','IOC Fit'}}}; % infact thsi would be a variable obj.inputs.targetMeasure
-                        targetChannels_ax_meas{1,:}=cell(1,numel(obj.inputs.target_muscle));
-                        for i=1:numel(obj.inputs.target_muscle)
-                            targetChannels_ax_meas{1,i}={'MEP_Measurement','MEP Scatter Plot','MEP IOC Fit'};
-                        end
-                        targetChannels_ax_meas=horzcat(targetChannels_ax_meas{:});
-                        displayChannels_ax_meas=cell(1,numel(obj.inputs.display_scopes));
-                        displayChannels_ax_meas(:)=cellstr('MEP_Measurement');
-                        obj.app.pr.ax_measures={targetChannels_ax_meas{1,:},displayChannels_ax_meas{1,:}};
-                        
-                        
-                        
-                        targetChannels_meas=cell(1,numel(obj.inputs.target_muscle));
-                        targetChannels_meas(:)={{'MEP_Measurement','MEP Scatter Plot','MEP IOC Fit'}}; % infact thsi would be a variable obj.inputs.targetMeasure
-                        displayChannels_meas=cell(1,numel(obj.inputs.display_scopes));
-                        displayChannels_meas(:)=cellstr('MEP_Measurement');
-                        
-                        ax_id=0;
-                        for i=1:numel(obj.inputs.target_muscle)
-                            targetChannels_ax{1,i}=num2cell(ax_id+1:1:ax_id+3); % infact thsi would be a variable obj.inputs.targetMeasure
-                            %                   targetChannels{1,i}=num2cell(ax_id+1:1:ax_id+2);
-                            targetChannels{1,i}={obj.inputs.target_muscle{1,i},obj.inputs.target_muscle{1,i},obj.inputs.target_muscle{1,i}};
-                            ax_id=ax_id+3;
-                            
-                        end
-                        displayChannels_ax=num2cell(ax_id+1:1:ax_id+(numel(obj.inputs.display_scopes)));
-                        obj.app.pr.axesno=ax_id+numel(displayChannels_ax);
-                        %                   aa=ax_id+numel(displayChannels_ax{1,:})
-                        %just store the iti as a string e.g. '[iti1 iti2]' and
-                        %then it can be evaluated for the randomized value
-                        obj.inputs.totalConds=numel(obj.inputs.stimuli)*numel(obj.inputs.target_muscle)*numel(obj.inputs.iti);
-                        idx_inputDevices=0;
-                        idx_outputDevices=0;
-                        idx_targetChannels=0;
-                        idx_displayChannels=0;
-                        idx_si=0;
-                        idx_iti=0;
-                        idx_trials=0;
-                        obj.inputs.condMat=cell(obj.inputs.totalConds,9);
-                        for i=1:obj.inputs.totalConds
-                            idx_inputDevices=idx_inputDevices+1;
-                            idx_outputDevices=idx_outputDevices+1;
-                            idx_si=idx_si+1;
-                            idx_iti=idx_iti+1;
-                            idx_displayChannels=idx_displayChannels+1;
-                            idx_targetChannels=idx_targetChannels+1;
-                            idx_trials=idx_trials+1;
-                            obj.inputs.condMat(i,obj.inputs.colLabel.inputDevices)=cellstr(obj.inputs.input_device(1,idx_inputDevices));
-                            obj.inputs.condMat(i,obj.inputs.colLabel.outputDevices)={{cellstr(obj.inputs.output_device(1,idx_outputDevices))}};
-                            obj.inputs.condMat(i,obj.inputs.colLabel.trials)=(obj.inputs.trials(1,idx_trials)); % may be a problem
-                            obj.inputs.condMat(i,obj.inputs.colLabel.iti)=(obj.inputs.iti(1,idx_iti));
-                            obj.inputs.condMat(i,obj.inputs.colLabel.si)={(obj.inputs.stimuli(1,idx_si))};
-                            obj.inputs.condMat(i,obj.inputs.colLabel.chLab)={{targetChannels{1,idx_targetChannels}{1,:},obj.inputs.display_scopes{1,:}}};
-                            obj.inputs.condMat(i,obj.inputs.colLabel.axesno)={{targetChannels_ax{1,idx_targetChannels}{1,:},displayChannels_ax{1,:}}};
-                            obj.inputs.condMat(i,obj.inputs.colLabel.measures)={{targetChannels_meas{1,idx_targetChannels}{1,:},displayChannels_meas{1,:}}};
-                            obj.inputs.condMat(i,obj.inputs.colLabel.stimMode)={{{'single_pulse'}}};
-                            
-                            
-                            if(idx_inputDevices>=numel(obj.inputs.input_device))
-                                idx_inputDevices=0;
-                            end
-                            if(idx_outputDevices>=numel(obj.inputs.output_device))
-                                idx_outputDevices=0;
-                            end
-                            if(idx_targetChannels>=numel(obj.inputs.target_muscle))
-                                idx_targetChannels=0;
-                            end
-                            if(idx_displayChannels>=numel(obj.inputs.display_scopes))
-                                idx_displayChannels=0;
-                            end
-                            if(idx_si>=numel(obj.inputs.stimuli))
-                                idx_si=0;
-                            end
-                            if(idx_iti>=numel(obj.inputs.iti))
-                                idx_iti=0;
-                            end
-                            if(idx_trials>=numel(obj.inputs.trials))
-                                idx_trials=0;
-                            end
-                            
-                        end
-                    case 'Multimodal Experiment'
-                        % assign the colLabels first
-                        obj.inputs.colLabel.inputDevices=1;
-                        obj.inputs.colLabel.outputDevices=2;
-                        obj.inputs.colLabel.si=3;
-                        obj.inputs.colLabel.iti=4;
-                        obj.inputs.colLabel.chLab=5;
-                        obj.inputs.colLabel.trials=9;
-                        obj.inputs.colLabel.axesno=6;
-                        obj.inputs.colLabel.measures=7;
-                        obj.inputs.colLabel.stimMode=8;
-                        obj.inputs.colLabel.tpm=10;
-                        obj.inputs.colLabel.mepamp=11;
-                        % since this is a generic function very long list of
-                        % variables would be given colLabels here
-                        
-                        
-                        switch obj.inputs.sub_measure_str
-                            case 'MEP Measurement'
-                                
-                                for axesno_cond=1:numel(fieldnames(obj.inputs.condsAll))
-                                    conds=fieldnames(obj.inputs.condsAll);
-                                    targetCh{1,axesno_cond}=char(obj.inputs.condsAll.(conds{axesno_cond,1}).targetChannel);
-                                    targetChannels_ax_meas{1,axesno_cond}=cellstr('MEP_Measurement');
-                                end
-                                targetCh_axNo_unique=unique(targetCh,'stable');
-                                
-                                for i=1:numel(targetCh)
-                                    for j=1:numel(targetCh_axNo_unique)
-                                        if( strcmp(targetCh_axNo_unique{1,j},targetCh{1,i}))
-                                            targetCh_axNo{1,j}=j;
-                                        end
-                                    end
-                                    
-                                end
-                                displayCh_axNo=num2cell(numel(obj.inputs.displayChannels)+max(cell2mat(targetCh_axNo))); %just a matrix
-                                
-                                %                               targetChannels_ax_meas=cell(1,numel(obj.inputs.targetChanel));
-                                %                               targetChannels_ax_meas(:)={{'MEP_Measurement'}}; % infact thsi would be a variable obj.inputs.targetMeasure
-                                displayChannels_ax_meas=cell(1,numel(obj.inputs.displayChannels));
-                                displayChannels_ax_meas(:)=cellstr('MEP_Measurement');
-                                obj.app.pr.ax_measures={targetChannels_ax_meas{1,:},displayChannels_ax_meas{1,:}};
-                                obj.inputs.displayChannels
-                                displayChannels_meas=cell(1,1:numel(obj.inputs.displayChannels{1,:}));
-                                displayChannels_meas(:)=cellstr('MEP_Measurement');
-                                
-                                obj.app.pr.axesno=numel(targetCh_axNo)+numel(cell2mat(displayCh_axNo));
-                                
-                                for c=1:numel(fieldnames(obj.inputs.condsAll))
-                                    obj.inputs.condMat(c,obj.inputs.colLabel.trials)=(obj.inputs.trials);
-                                    obj.inputs.condMat(c,obj.inputs.colLabel.iti)=(obj.inputs.iti);
-                                    %                                  (obj.inputs.input_device)
-                                    obj.inputs.condMat(c,obj.inputs.colLabel.inputDevices)=cellstr(obj.inputs.input_device);
-                                    conds=fieldnames(obj.inputs.condsAll);
-                                    obj.inputs.condMat(c,obj.inputs.colLabel.chLab)=horzcat({({obj.inputs.condsAll.(conds{c,1}).targetChannel,obj.inputs.displayChannels{1,:}})});
-                                    obj.inputs.condMat(c,obj.inputs.colLabel.chLab)={{char(obj.inputs.condsAll.(conds{c,1}).targetChannel),obj.inputs.displayChannels{1,:}}};
-                                    obj.inputs.condMat(c,obj.inputs.colLabel.axesno)=horzcat({({targetCh_axNo{1,c},displayCh_axNo{1,:}})});
-                                    
-                                    obj.inputs.condMat(c,obj.inputs.colLabel.measures)={{char(cellstr('MEP_Measurement')),displayChannels_meas{1,:}}};
-                                    
-                                    % si cond, outputDevice, stimMode and
-                                    % [time port marker]
-                                    for stno=1:(max(size(fieldnames(obj.inputs.condsAll.(conds{c,1}))))-1)
-                                        st=['st' num2str(stno)];
-                                        condSi{1,stno}=obj.inputs.condsAll.(conds{c,1}).(st).si_pckt;
-                                        condstimMode{1,stno}= obj.inputs.condsAll.(conds{c,1}).(st).stim_mode;
-                                        obj.inputs.condsAll.(conds{c,1}).(st).stim_device
-                                        condoutputDevice{1,stno}=obj.inputs.condsAll.(conds{c,1}).(st).stim_device;
-                                        condstimTiming{1,stno}=obj.inputs.condsAll.(conds{c,1}).(st).stim_timing
-                                    end
-                                    obj.inputs.condMat(c,obj.inputs.colLabel.si)={condSi};
-                                    obj.inputs.condMat(c,obj.inputs.colLabel.outputDevices)={condoutputDevice};
-                                    obj.inputs.condMat(c,obj.inputs.colLabel.stimMode)={condstimMode};
-                                    for timing=1:numel(condstimTiming)
-                                        for jj=1:numel(condstimTiming{1,timing})
-                                            condstimTiming{2,timing}{1,jj}=condoutputDevice{1,timing};
-                                        end
-                                    end
-                                    condstimTiming_new{1}=horzcat(condstimTiming{1,:});
-                                    condstimTiming_new{2}=horzcat(condstimTiming{2,:});
-                                    [condstimTiming_new_sorted{1},sorted_idx]=sort(condstimTiming_new{1});
-                                    
-                                    %                                  [condstimTiming_new_sorted{1},sorted_idx]=sort(cellfun(@str2num, condstimTiming_new{1}));
-                                    %                                  condstimTiming_new_sorted{1}=cellfun(@num2str, num2cell(condstimTiming_new_sorted{1}));
-                                    
-                                    
-                                    
-                                    condstimTiming_new_sorted{2}=condstimTiming_new{2}(sorted_idx);
-                                    %                                  condstimTiming_new_sorted{1}=cellfun(@num2str, num2cell(condstimTiming_new_sorted{1}));
-                                    
-                                    for stimno_tpm=1:numel(condstimTiming_new_sorted{2})
-                                        port_vector{stimno_tpm}=obj.app.par.hardware_settings.(char(condstimTiming_new_sorted{2}{1,stimno_tpm})).bb_outputport;
-                                    end
-                                    condstimTiming_new_sorted{2}=port_vector;
-                                    tpmVect=[condstimTiming_new_sorted{1};condstimTiming_new_sorted{2}];
-                                    [tpmVect_unique,ia,ic]=unique(tpmVect(1,:));
-                                    a_counts = accumarray(ic,1);
-                                    for binportloop=1:numel(tpmVect_unique)
-                                        buffer{1,binportloop}={(cell2mat(tpmVect(2,ia(binportloop):ia(binportloop)-1+a_counts(binportloop))))};
-                                        binaryZ='0000';
-                                        num=cell2mat(buffer{1,binportloop});
-                                        for binaryID=1:numel(num)
-                                            binaryZ(str2num(num(binaryID)))='1';
-                                        end
-                                        buffer{1,binportloop}=bin2dec(flip(binaryZ));
-                                        markers{1,binportloop}=0;
-                                    end
-                                    markers{1,1}=c;
-                                    condstimTiming_new_sorted=[num2cell((cellfun(@str2num, tpmVect_unique(1,1:end))));buffer;markers];
-                                    condstimTiming_new_sorted=cell2mat(condstimTiming_new_sorted)
-                                    [condstimTiming_new_sorted(1,:),sorted_idx]=sort(condstimTiming_new_sorted(1,:))
-                                    condstimTiming_new_sorted(1,:)=condstimTiming_new_sorted(1,:)/1000;
-                                    condstimTiming_new_sorted(2,:)=condstimTiming_new_sorted(2,sorted_idx)
-                                    
-                                    obj.inputs.condMat(c,obj.inputs.colLabel.tpm)={num2cell(condstimTiming_new_sorted)};
-                                    
-                                    condSi=[];
-                                    condoutputDevice=[];
-                                    condstimMode=[];
-                                    condstimTiming=[];
-                                    buffer=[];
-                                    tpmVect_unique=[];
-                                    a_counts =[];
-                                    ia=[];
-                                    ic=[];
-                                    port_vector=[];
-                                    num=[];
-                                    condstimTiming_new=[];
-                                    condstimTiming_new_sorted=[];
-                                    sorted_idx=[];
-                                    markers=[];
-                                end
-                                
-                            case 'Motor Threshold Hunting'
-                                for axesno_cond=1:numel(fieldnames(obj.inputs.condsAll))
-                                    conds=fieldnames(obj.inputs.condsAll);
-                                    targetCh{1,axesno_cond}=char(obj.inputs.condsAll.(conds{axesno_cond,1}).targetChannel);
-                                    targetChannels_ax_meas{1,axesno_cond}={'MEP_Measurement','Motor Threshold Hunting'};
-                                end
-                                
-                                targetChannels_ax_meas=horzcat(targetChannels_ax_meas{:})
-                                targetCh_axNo_unique=unique(targetCh,'stable');
-                                jj=0;
-                                for i=1:numel(targetCh)
-                                    for j=1:numel(targetCh_axNo_unique)
-                                        if( strcmp(targetCh_axNo_unique{1,j},targetCh{1,i}))
-                                            jj=jj+1;
-                                            targetCh_axNo{1,jj}=jj;
-                                            jj=jj+1;
-                                            targetCh_axNo{1,jj}=jj;
-                                        end
-                                    end
-                                    
-                                end
-                                displayCh_axNo=num2cell(numel(obj.inputs.displayChannels)+max(cell2mat(targetCh_axNo))); %just a matrix
-                                
-                                %                               targetChannels_ax_meas=cell(1,numel(obj.inputs.targetChanel));
-                                %                               targetChannels_ax_meas(:)={{'MEP_Measurement'}}; % infact thsi would be a variable obj.inputs.targetMeasure
-                                displayChannels_ax_meas=cell(1,numel(obj.inputs.displayChannels));
-                                displayChannels_ax_meas(:)=cellstr('MEP_Measurement');
-                                obj.app.pr.ax_measures=horzcat({targetChannels_ax_meas{1,:},displayChannels_ax_meas{1,:}});
-                                
-                                displayChannels_meas=cell(1,1:numel(obj.inputs.displayChannels{1,:}));
-                                displayChannels_meas(:)=cellstr('MEP_Measurement');
-                                
-                                obj.app.pr.axesno=numel(targetCh_axNo)+numel(cell2mat(displayCh_axNo));
-                                
-                                for c=1:numel(fieldnames(obj.inputs.condsAll))
-                                    obj.inputs.condMat(c,obj.inputs.colLabel.trials)=(obj.inputs.trials);
-                                    obj.inputs.condMat(c,obj.inputs.colLabel.iti)=(obj.inputs.iti);
-                                    %                                  (obj.inputs.input_device)
-                                    obj.inputs.condMat(c,obj.inputs.colLabel.si)={obj.inputs.stimuli(1,1)};
-                                    obj.inputs.condMat(c,obj.inputs.colLabel.inputDevices)=cellstr(obj.inputs.input_device);
-                                    conds=fieldnames(obj.inputs.condsAll);
-                                    obj.inputs.condMat(c,obj.inputs.colLabel.chLab)=horzcat({({obj.inputs.condsAll.(conds{c,1}).targetChannel,obj.inputs.displayChannels{1,:}})});
-                                    obj.inputs.condMat(c,obj.inputs.colLabel.chLab)={{char(obj.inputs.condsAll.(conds{c,1}).targetChannel),char(obj.inputs.condsAll.(conds{c,1}).targetChannel),obj.inputs.displayChannels{1,:}}};
-                                    obj.inputs.condMat(c,obj.inputs.colLabel.axesno)=horzcat({({targetCh_axNo{1,c*2-1},targetCh_axNo{1,c*2},displayCh_axNo{1,:}})});
-                                    obj.inputs.condMat(c,obj.inputs.colLabel.measures)={{'MEP_Measurement','Threshold Trace',displayChannels_meas{1,:}}};
-                                    
-                                    % si cond, outputDevice, stimMode and
-                                    % [time port marker]
-                                    for stno=1:(max(size(fieldnames(obj.inputs.condsAll.(conds{c,1}))))-2)
-                                        st=['st' num2str(stno)];
-                                        %                                     condSi{1,stno}=str2num(obj.inputs.condsAll.(conds{c,1}).(st).si);
-                                        condstimMode{1,stno}= obj.inputs.condsAll.(conds{c,1}).(st).stim_mode;
-                                        condoutputDevice{1,stno}=obj.inputs.condsAll.(conds{c,1}).(st).stim_device;
-                                        condstimTiming{1,stno}=obj.inputs.condsAll.(conds{c,1}).(st).stim_timing
-                                    end
-                                    %                                 obj.inputs.condMat(c,obj.inputs.colLabel.si)={condSi};
-                                    obj.inputs.condMat(c,obj.inputs.colLabel.outputDevices)={condoutputDevice};
-                                    obj.inputs.condMat(c,obj.inputs.colLabel.stimMode)={condstimMode};
-                                    for timing=1:numel(condstimTiming)
-                                        for jj=1:numel(condstimTiming{1,timing})
-                                            condstimTiming{2,timing}{1,jj}=condoutputDevice{1,timing};
-                                        end
-                                    end
-                                    condstimTiming_new{1}=horzcat(condstimTiming{1,:});
-                                    condstimTiming_new{2}=horzcat(condstimTiming{2,:});
-                                    [condstimTiming_new_sorted{1},sorted_idx]=sort(condstimTiming_new{1});
-                                    
-                                    %                                  [condstimTiming_new_sorted{1},sorted_idx]=sort(cellfun(@str2num, condstimTiming_new{1}));
-                                    %                                  condstimTiming_new_sorted{1}=cellfun(@num2str, num2cell(condstimTiming_new_sorted{1}));
-                                    
-                                    
-                                    
-                                    condstimTiming_new_sorted{2}=condstimTiming_new{2}(sorted_idx);
-                                    %                                  condstimTiming_new_sorted{1}=cellfun(@num2str, num2cell(condstimTiming_new_sorted{1}));
-                                    
-                                    for stimno_tpm=1:numel(condstimTiming_new_sorted{2})
-                                        port_vector{stimno_tpm}=obj.app.par.hardware_settings.(char(condstimTiming_new_sorted{2}{1,stimno_tpm})).bb_outputport;
-                                    end
-                                    condstimTiming_new_sorted{2}=port_vector;
-                                    tpmVect=[condstimTiming_new_sorted{1};condstimTiming_new_sorted{2}];
-                                    [tpmVect_unique,ia,ic]=unique(tpmVect(1,:));
-                                    a_counts = accumarray(ic,1);
-                                    for binportloop=1:numel(tpmVect_unique)
-                                        buffer{1,binportloop}={(cell2mat(tpmVect(2,ia(binportloop):ia(binportloop)-1+a_counts(binportloop))))};
-                                        binaryZ='0000';
-                                        num=cell2mat(buffer{1,binportloop});
-                                        for binaryID=1:numel(num)
-                                            binaryZ(str2num(num(binaryID)))='1';
-                                        end
-                                        buffer{1,binportloop}=bin2dec(flip(binaryZ));
-                                        markers{1,binportloop}=0;
-                                    end
-                                    markers{1,1}=c;
-                                    condstimTiming_new_sorted=[num2cell((cellfun(@str2num, tpmVect_unique(1,1:end))));buffer;markers];
-                                    condstimTiming_new_sorted=cell2mat(condstimTiming_new_sorted)
-                                    [condstimTiming_new_sorted(1,:),sorted_idx]=sort(condstimTiming_new_sorted(1,:))
-                                    condstimTiming_new_sorted(1,:)=condstimTiming_new_sorted(1,:)/1000;
-                                    condstimTiming_new_sorted(2,:)=condstimTiming_new_sorted(2,sorted_idx)
-                                    
-                                    obj.inputs.condMat(c,obj.inputs.colLabel.tpm)={num2cell(condstimTiming_new_sorted)};
-                                    
-                                    condSi=[];
-                                    condoutputDevice=[];
-                                    condstimMode=[];
-                                    condstimTiming=[];
-                                    buffer=[];
-                                    tpmVect_unique=[];
-                                    a_counts =[];
-                                    ia=[];
-                                    ic=[];
-                                    port_vector=[];
-                                    num=[];
-                                    condstimTiming_new=[];
-                                    condstimTiming_new_sorted=[];
-                                    sorted_idx=[];
-                                    markers=[];
-                                end
-                                
-                            case 'IOC'
-                                for axesno_cond=1:numel(fieldnames(obj.inputs.condsAll))
-                                    conds=fieldnames(obj.inputs.condsAll);
-                                    targetCh{1,axesno_cond}=char(obj.inputs.condsAll.(conds{axesno_cond,1}).targetChannel);
-                                    targetChannels_ax_meas{1,axesno_cond}={'MEP_Measurement','MEP Scatter Plot','MEP IOC Fit'};
-                                end
-                                
-                                targetChannels_ax_meas=horzcat(targetChannels_ax_meas{:})
-                                targetCh_axNo_unique=unique(targetCh,'stable');
-                                jj=0;
-                                for i=1:numel(targetCh)
-                                    for j=1:numel(targetCh_axNo_unique)
-                                        if( strcmp(targetCh_axNo_unique{1,j},targetCh{1,i}))
-                                            jj=jj+1;
-                                            targetCh_axNo{1,jj}=jj;
-                                            jj=jj+1;
-                                            targetCh_axNo{1,jj}=jj;
-                                            jj=jj+1;
-                                            targetCh_axNo{1,jj}=jj;
-                                        end
-                                    end
-                                    
-                                end
-                                displayCh_axNo=num2cell(numel(obj.inputs.displayChannels)+max(cell2mat(targetCh_axNo))); %just a matrix
-                                
-                                %                               targetChannels_ax_meas=cell(1,numel(obj.inputs.targetChanel));
-                                %                               targetChannels_ax_meas(:)={{'MEP_Measurement'}}; % infact thsi would be a variable obj.inputs.targetMeasure
-                                displayChannels_ax_meas=cell(1,numel(obj.inputs.displayChannels));
-                                displayChannels_ax_meas(:)=cellstr('MEP_Measurement');
-                                obj.app.pr.ax_measures=horzcat({targetChannels_ax_meas{1,:},displayChannels_ax_meas{1,:}});
-                                
-                                displayChannels_meas=cell(1,1:numel(obj.inputs.displayChannels{1,:}));
-                                displayChannels_meas(:)=cellstr('MEP_Measurement');
-                                
-                                obj.app.pr.axesno=numel(targetCh_axNo)+numel(cell2mat(displayCh_axNo));
-                                
-                                for c=1:numel(fieldnames(obj.inputs.condsAll))
-                                    obj.inputs.condMat(c,obj.inputs.colLabel.trials)=(obj.inputs.trials);
-                                    obj.inputs.condMat(c,obj.inputs.colLabel.iti)=(obj.inputs.iti);
-                                    obj.inputs.condMat(c,obj.inputs.colLabel.inputDevices)=cellstr(obj.inputs.input_device);
-                                    conds=fieldnames(obj.inputs.condsAll);
-                                    obj.inputs.condMat(c,obj.inputs.colLabel.chLab)=horzcat({({obj.inputs.condsAll.(conds{c,1}).targetChannel,obj.inputs.displayChannels{1,:}})});
-                                    obj.inputs.condMat(c,obj.inputs.colLabel.chLab)={{char(obj.inputs.condsAll.(conds{c,1}).targetChannel),char(obj.inputs.condsAll.(conds{c,1}).targetChannel),char(obj.inputs.condsAll.(conds{c,1}).targetChannel),obj.inputs.displayChannels{1,:}}};
-                                    obj.inputs.condMat(c,obj.inputs.colLabel.axesno)=horzcat({({targetCh_axNo{1,c*3-2},targetCh_axNo{1,c*3-1},targetCh_axNo{1,c*3},displayCh_axNo{1,:}})});
-                                    obj.inputs.condMat(c,obj.inputs.colLabel.measures)={{'MEP_Measurement','MEP Scatter Plot','MEP IOC Fit',displayChannels_meas{1,:}}};
-                                    
-                                    % si cond, outputDevice, stimMode and
-                                    % [time port marker]
-                                    for stno=1:(max(size(fieldnames(obj.inputs.condsAll.(conds{c,1}))))-2)
-                                        st=['st' num2str(stno)];
-                                        condSi{1,stno}=obj.inputs.condsAll.(conds{c,1}).(st).si_pckt;
-                                        condstimMode{1,stno}= obj.inputs.condsAll.(conds{c,1}).(st).stim_mode;
-                                        condoutputDevice{1,stno}=obj.inputs.condsAll.(conds{c,1}).(st).stim_device;
-                                        condstimTiming{1,stno}=obj.inputs.condsAll.(conds{c,1}).(st).stim_timing
-                                    end
-                                    obj.inputs.condMat(c,obj.inputs.colLabel.si)={condSi};
-                                    obj.inputs.condMat(c,obj.inputs.colLabel.outputDevices)={condoutputDevice};
-                                    obj.inputs.condMat(c,obj.inputs.colLabel.stimMode)={condstimMode};
-                                    for timing=1:numel(condstimTiming)
-                                        for jj=1:numel(condstimTiming{1,timing})
-                                            condstimTiming{2,timing}{1,jj}=condoutputDevice{1,timing};
-                                        end
-                                    end
-                                    condstimTiming_new{1}=horzcat(condstimTiming{1,:});
-                                    condstimTiming_new{2}=horzcat(condstimTiming{2,:});
-                                    [condstimTiming_new_sorted{1},sorted_idx]=sort(condstimTiming_new{1});
-                                    
-                                    %                                  [condstimTiming_new_sorted{1},sorted_idx]=sort(cellfun(@str2num, condstimTiming_new{1}));
-                                    %                                  condstimTiming_new_sorted{1}=cellfun(@num2str, num2cell(condstimTiming_new_sorted{1}));
-                                    
-                                    
-                                    
-                                    condstimTiming_new_sorted{2}=condstimTiming_new{2}(sorted_idx);
-                                    %                                  condstimTiming_new_sorted{1}=cellfun(@num2str, num2cell(condstimTiming_new_sorted{1}));
-                                    
-                                    for stimno_tpm=1:numel(condstimTiming_new_sorted{2})
-                                        port_vector{stimno_tpm}=obj.app.par.hardware_settings.(char(condstimTiming_new_sorted{2}{1,stimno_tpm})).bb_outputport;
-                                    end
-                                    condstimTiming_new_sorted{2}=port_vector;
-                                    tpmVect=[condstimTiming_new_sorted{1};condstimTiming_new_sorted{2}];
-                                    [tpmVect_unique,ia,ic]=unique(tpmVect(1,:));
-                                    a_counts = accumarray(ic,1);
-                                    for binportloop=1:numel(tpmVect_unique)
-                                        buffer{1,binportloop}={(cell2mat(tpmVect(2,ia(binportloop):ia(binportloop)-1+a_counts(binportloop))))};
-                                        binaryZ='0000';
-                                        num=cell2mat(buffer{1,binportloop});
-                                        for binaryID=1:numel(num)
-                                            binaryZ(str2num(num(binaryID)))='1';
-                                        end
-                                        buffer{1,binportloop}=bin2dec(flip(binaryZ));
-                                        markers{1,binportloop}=0;
-                                    end
-                                    markers{1,1}=c;
-                                    condstimTiming_new_sorted=[num2cell((cellfun(@str2num, tpmVect_unique(1,1:end))));buffer;markers];
-                                    condstimTiming_new_sorted=cell2mat(condstimTiming_new_sorted)
-                                    [condstimTiming_new_sorted(1,:),sorted_idx]=sort(condstimTiming_new_sorted(1,:))
-                                    condstimTiming_new_sorted(1,:)=condstimTiming_new_sorted(1,:)/1000;
-                                    condstimTiming_new_sorted(2,:)=condstimTiming_new_sorted(2,sorted_idx)
-                                    
-                                    obj.inputs.condMat(c,obj.inputs.colLabel.tpm)={num2cell(condstimTiming_new_sorted)};
-                                    
-                                    condSi=[];
-                                    condoutputDevice=[];
-                                    condstimMode=[];
-                                    condstimTiming=[];
-                                    buffer=[];
-                                    tpmVect_unique=[];
-                                    a_counts =[];
-                                    ia=[];
-                                    ic=[];
-                                    port_vector=[];
-                                    num=[];
-                                    condstimTiming_new=[];
-                                    condstimTiming_new_sorted=[];
-                                    sorted_idx=[];
-                                    markers=[];
-                                    
-                                end
-                        end
-                        %                   inputmatrix=obj.inputs.condMat(:,1)
-                        obj.inputs.totalConds=numel(obj.inputs.condMat(:,1));
-                        
-                end
-            end
+            %% Old Functions
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %             if~strcmp(obj.inputs.Protocol,'MEP Measurement Protocol') || ~strcmp(obj.inputs.Protocol,'MEP Dose Response Curve Protocol')
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                 switch char(obj.inputs.measure_str)
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                     case {'MEP Measurement','Motor Hotspot Search'}
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % 
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                         % making axesno cell array conditions
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                         targetChannels_ax=1:1:(numel(obj.inputs.target_muscle));
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                         displayChannels_ax=num2cell(targetChannels_ax(end)+1:1:targetChannels_ax(end)+(numel(obj.inputs.display_scopes)));
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                         obj.app.pr.axesno=numel(targetChannels_ax)+numel(cell2mat(displayChannels_ax));
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                         obj.app.pr.axesno
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                         
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                         % making measures cell array conditions
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                         % in case of MEP this will work as the condition will be
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                         % cellstr('MEP_Measurement') in the other case the
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                         % condition will be a 1x2 cell array;
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                         targetChannels_meas=cell(1,numel(obj.inputs.target_muscle));
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                         targetChannels_meas(:)=cellstr('MEP_Measurement'); % infact thsi would be a variable obj.inputs.targetMeasure
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                         displayChannels_meas=cell(1,numel(obj.inputs.display_scopes));
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                         displayChannels_meas(:)=cellstr('MEP_Measurement');
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                         
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                         % maing unique measurement flags for each of the axes 1xn
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                         % cellstr stating the measuring indexed against axes no
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                         targetChannels_ax_meas=cell(1,numel(obj.inputs.target_muscle));
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                         targetChannels_ax_meas(:)={{'MEP_Measurement'}}; % infact thsi would be a variable obj.inputs.targetMeasure
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                         displayChannels_ax_meas=cell(1,numel(obj.inputs.display_scopes));
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                         displayChannels_ax_meas(:)=cellstr('MEP_Measurement');
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                         obj.app.pr.ax_measures={targetChannels_ax_meas{1,:},displayChannels_ax_meas{1,:}};
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                         
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                         % making stimmode
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                         
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                         
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                         % column labels
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                         obj.inputs.colLabel.inputDevices=1;
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                         obj.inputs.colLabel.outputDevices=2;
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                         obj.inputs.colLabel.si=3;
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                         obj.inputs.colLabel.iti=4;
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                         obj.inputs.colLabel.chLab=5;
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                         obj.inputs.colLabel.trials=9;
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                         obj.inputs.colLabel.axesno=6;
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                         obj.inputs.colLabel.measures=7;
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                         obj.inputs.colLabel.stimMode=8;
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                         obj.inputs.colLabel.mepamp=9;
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                         
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                         %just store the iti as a string e.g. '[iti1 iti2]' and
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                         %then it can be evaluated for the randomized value
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                         obj.inputs.totalConds=numel(obj.inputs.stimuli)*numel(obj.inputs.target_muscle)*numel(obj.inputs.iti);
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                         idx_inputDevices=0;
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                         idx_outputDevices=0;
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                         idx_targetChannels=0;
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                         idx_displayChannels=0;
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                         idx_si=0;
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                         idx_iti=0;
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                         idx_trials=0;
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                         obj.inputs.condMat=cell(obj.inputs.totalConds,9);
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                         for i=1:obj.inputs.totalConds
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                             idx_inputDevices=idx_inputDevices+1;
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                             idx_outputDevices=idx_outputDevices+1;
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                             idx_si=idx_si+1;
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                             idx_iti=idx_iti+1;
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                             idx_displayChannels=idx_displayChannels+1;
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                             idx_targetChannels=idx_targetChannels+1;
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                             idx_trials=idx_trials+1;
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                             obj.inputs.condMat(i,obj.inputs.colLabel.inputDevices)=cellstr(obj.inputs.input_device(1,idx_inputDevices));
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                             obj.inputs.condMat(i,obj.inputs.colLabel.outputDevices)={{cellstr(obj.inputs.output_device(1,idx_outputDevices))}};
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                             obj.inputs.condMat(i,obj.inputs.colLabel.trials)=(obj.inputs.trials(1,idx_trials)); % may be a problem
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                             obj.inputs.condMat(i,obj.inputs.colLabel.iti)=(obj.inputs.iti(1,idx_iti));
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                             obj.inputs.condMat(i,obj.inputs.colLabel.si)={{(obj.inputs.stimuli(1,idx_si))}};
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                             obj.inputs.condMat(i,obj.inputs.colLabel.chLab)={{char(cellstr(obj.inputs.target_muscle(1,idx_targetChannels))),obj.inputs.display_scopes{1,:}}};
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                             obj.inputs.condMat(i,obj.inputs.colLabel.axesno)={{targetChannels_ax(1,idx_targetChannels),displayChannels_ax{1,:}}};
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                             obj.inputs.condMat(i,obj.inputs.colLabel.stimMode)={{{'single_pulse'}}};
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                             obj.inputs.condMat(i,obj.inputs.colLabel.measures)={{char(targetChannels_meas(1,idx_targetChannels)),displayChannels_meas{1,:}}};
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                             
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                             
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                             if(idx_inputDevices>=numel(obj.inputs.input_device))
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                 idx_inputDevices=0;
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                             end
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                             if(idx_outputDevices>=numel(obj.inputs.output_device))
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                 idx_outputDevices=0;
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                             end
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                             if(idx_targetChannels>=numel(obj.inputs.target_muscle))
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                 idx_targetChannels=0;
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                             end
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                             if(idx_displayChannels>=numel(obj.inputs.display_scopes))
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                 idx_displayChannels=0;
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                             end
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                             if(idx_si>=numel(obj.inputs.stimuli))
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                 idx_si=0;
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                             end
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                             if(idx_iti>=numel(obj.inputs.iti))
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                 idx_iti=0;
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                             end
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                             if(idx_trials>=numel(obj.inputs.trials))
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                 idx_trials=0;
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                             end
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                             
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                         end
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                     case 'Motor Threshold Hunting'
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                         
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                         obj.inputs.colLabel.inputDevices=1;
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                         obj.inputs.colLabel.outputDevices=2;
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                         obj.inputs.colLabel.si=3;
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                         obj.inputs.colLabel.iti=4;
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                         obj.inputs.colLabel.chLab=5;
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                         obj.inputs.colLabel.trials=9;
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                         obj.inputs.colLabel.axesno=6;
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                         obj.inputs.colLabel.measures=7;
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                         obj.inputs.colLabel.stimMode=8;
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                         obj.inputs.colLabel.mepamp=9;
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                         
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                         targetChannels_ax_meas{1,:}=cell(1,numel(obj.inputs.target_muscle));
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                         for i=1:numel(obj.inputs.target_muscle)
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                             targetChannels_ax_meas{1,i}={'MEP_Measurement','Motor Threshold Hunting'};
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                         end
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                         targetChannels_ax_meas=horzcat(targetChannels_ax_meas{:});
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                         displayChannels_ax_meas=cell(1,numel(obj.inputs.display_scopes));
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                         displayChannels_ax_meas(:)=cellstr('MEP_Measurement');
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                         obj.app.pr.ax_measures={targetChannels_ax_meas{1,:},displayChannels_ax_meas{1,:}};
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                         
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                         targetChannels_meas=cell(1,numel(obj.inputs.target_muscle));
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                         targetChannels_meas(:)={{'MEP_Measurement','Threshold Trace'}}; % infact thsi would be a variable obj.inputs.targetMeasure
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                         displayChannels_meas=cell(1,numel(obj.inputs.display_scopes));
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                         displayChannels_meas(:)=cellstr('MEP_Measurement');
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                         
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                         ax_id=0;
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                         for i=1:numel(obj.inputs.target_muscle)
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                             targetChannels_ax{1,i}=num2cell(ax_id+1:1:ax_id+2); % infact thsi would be a variable obj.inputs.targetMeasure
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                             %                   targetChannels{1,i}=num2cell(ax_id+1:1:ax_id+2);
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                             targetChannels{1,i}={obj.inputs.target_muscle{1,i},obj.inputs.target_muscle{1,i}}
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                             ax_id=ax_id+2;
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                             
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                         end
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                         displayChannels_ax=num2cell(ax_id+1:1:ax_id+(numel(obj.inputs.display_scopes)));
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                         obj.app.pr.axesno=ax_id+numel(displayChannels_ax);
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                         %just store the iti as a string e.g. '[iti1 iti2]' and
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                         %then it can be evaluated for the randomized value
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                         obj.inputs.totalConds=numel(obj.inputs.stimuli)*numel(obj.inputs.target_muscle)*numel(obj.inputs.iti);
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                         idx_inputDevices=0;
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                         idx_outputDevices=0;
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                         idx_targetChannels=0;
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                         idx_displayChannels=0;
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                         idx_si=0;
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                         idx_iti=0;
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                         idx_trials=0;
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                         obj.inputs.condMat=cell(obj.inputs.totalConds,9);
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                         for i=1:obj.inputs.totalConds
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                             idx_inputDevices=idx_inputDevices+1;
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                             idx_outputDevices=idx_outputDevices+1;
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                             idx_si=idx_si+1;
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                             idx_iti=idx_iti+1;
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                             idx_displayChannels=idx_displayChannels+1;
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                             idx_targetChannels=idx_targetChannels+1;
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                             idx_trials=idx_trials+1;
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                             obj.inputs.condMat(i,obj.inputs.colLabel.inputDevices)=cellstr(obj.inputs.input_device(1,idx_inputDevices));
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                             obj.inputs.condMat(i,obj.inputs.colLabel.outputDevices)={cellstr(obj.inputs.output_device(1,idx_outputDevices))};
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                             obj.inputs.condMat(i,obj.inputs.colLabel.trials)=(obj.inputs.trials(1,idx_trials)); % may be a problem
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                             obj.inputs.condMat(i,obj.inputs.colLabel.iti)=(obj.inputs.iti(1,idx_iti));
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                             obj.inputs.condMat(i,obj.inputs.colLabel.si)={(obj.inputs.stimuli(1,idx_si))};
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                             obj.inputs.condMat(i,obj.inputs.colLabel.chLab)={{targetChannels{1,idx_targetChannels}{1,:},obj.inputs.display_scopes{1,:}}};
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                             obj.inputs.condMat(i,obj.inputs.colLabel.axesno)={{targetChannels_ax{1,idx_targetChannels}{1,:},displayChannels_ax{1,:}}};
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                             obj.inputs.condMat(i,obj.inputs.colLabel.measures)={{targetChannels_meas{1,idx_targetChannels}{1,:},displayChannels_meas{1,:}}};
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                             obj.inputs.condMat(i,obj.inputs.colLabel.stimMode)={{{'single_pulse'}}};
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                             
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                             
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                             if(idx_inputDevices>=numel(obj.inputs.input_device))
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                 idx_inputDevices=0;
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                             end
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                             if(idx_outputDevices>=numel(obj.inputs.output_device))
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                 idx_outputDevices=0;
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                             end
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                             if(idx_targetChannels>=numel(obj.inputs.target_muscle))
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                 idx_targetChannels=0;
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                             end
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                             if(idx_displayChannels>=numel(obj.inputs.display_scopes))
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                 idx_displayChannels=0;
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                             end
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                             if(idx_si>=numel(obj.inputs.stimuli))
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                 idx_si=0;
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                             end
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                             if(idx_iti>=numel(obj.inputs.iti))
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                 idx_iti=0;
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                             end
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                             if(idx_trials>=numel(obj.inputs.trials))
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                 idx_trials=0;
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                             end
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                             
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                         end
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                     case 'IOC'
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                         obj.inputs.colLabel.inputDevices=1;
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                         obj.inputs.colLabel.outputDevices=2;
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                         obj.inputs.colLabel.si=3;
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                         obj.inputs.colLabel.iti=4;
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                         obj.inputs.colLabel.chLab=5;
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                         obj.inputs.colLabel.trials=9;
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                         obj.inputs.colLabel.axesno=6;
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                         obj.inputs.colLabel.measures=7;
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                         obj.inputs.colLabel.stimMode=8;
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                         obj.inputs.colLabel.mepamp=9;
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                         
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                         
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                         % maing unique measurement flags for each of the axes 1xn
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                         % cellstr stating the measuring indexed against axes no
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                         %                   targetChannels_ax_meas{1,1}{1,:}=cell(1,numel(obj.inputs.target_muscle));
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                         %                   targetChannels_ax_meas(:)={{{'MEP_Measurement','MEP Scatter Plot','IOC Fit'}}}; % infact thsi would be a variable obj.inputs.targetMeasure
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                         targetChannels_ax_meas{1,:}=cell(1,numel(obj.inputs.target_muscle));
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                         for i=1:numel(obj.inputs.target_muscle)
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                             targetChannels_ax_meas{1,i}={'MEP_Measurement','MEP Scatter Plot','MEP IOC Fit'};
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                         end
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                         targetChannels_ax_meas=horzcat(targetChannels_ax_meas{:});
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                         displayChannels_ax_meas=cell(1,numel(obj.inputs.display_scopes));
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                         displayChannels_ax_meas(:)=cellstr('MEP_Measurement');
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                         obj.app.pr.ax_measures={targetChannels_ax_meas{1,:},displayChannels_ax_meas{1,:}};
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                         
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                         
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                         
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                         targetChannels_meas=cell(1,numel(obj.inputs.target_muscle));
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                         targetChannels_meas(:)={{'MEP_Measurement','MEP Scatter Plot','MEP IOC Fit'}}; % infact thsi would be a variable obj.inputs.targetMeasure
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                         displayChannels_meas=cell(1,numel(obj.inputs.display_scopes));
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                         displayChannels_meas(:)=cellstr('MEP_Measurement');
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                         
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                         ax_id=0;
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                         for i=1:numel(obj.inputs.target_muscle)
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                             targetChannels_ax{1,i}=num2cell(ax_id+1:1:ax_id+3); % infact thsi would be a variable obj.inputs.targetMeasure
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                             %                   targetChannels{1,i}=num2cell(ax_id+1:1:ax_id+2);
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                             targetChannels{1,i}={obj.inputs.target_muscle{1,i},obj.inputs.target_muscle{1,i},obj.inputs.target_muscle{1,i}};
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                             ax_id=ax_id+3;
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                             
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                         end
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                         displayChannels_ax=num2cell(ax_id+1:1:ax_id+(numel(obj.inputs.display_scopes)));
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                         obj.app.pr.axesno=ax_id+numel(displayChannels_ax);
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                         %                   aa=ax_id+numel(displayChannels_ax{1,:})
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                         %just store the iti as a string e.g. '[iti1 iti2]' and
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                         %then it can be evaluated for the randomized value
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                         obj.inputs.totalConds=numel(obj.inputs.stimuli)*numel(obj.inputs.target_muscle)*numel(obj.inputs.iti);
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                         idx_inputDevices=0;
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                         idx_outputDevices=0;
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                         idx_targetChannels=0;
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                         idx_displayChannels=0;
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                         idx_si=0;
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                         idx_iti=0;
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                         idx_trials=0;
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                         obj.inputs.condMat=cell(obj.inputs.totalConds,9);
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                         for i=1:obj.inputs.totalConds
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                             idx_inputDevices=idx_inputDevices+1;
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                             idx_outputDevices=idx_outputDevices+1;
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                             idx_si=idx_si+1;
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                             idx_iti=idx_iti+1;
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                             idx_displayChannels=idx_displayChannels+1;
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                             idx_targetChannels=idx_targetChannels+1;
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                             idx_trials=idx_trials+1;
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                             obj.inputs.condMat(i,obj.inputs.colLabel.inputDevices)=cellstr(obj.inputs.input_device(1,idx_inputDevices));
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                             obj.inputs.condMat(i,obj.inputs.colLabel.outputDevices)={{cellstr(obj.inputs.output_device(1,idx_outputDevices))}};
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                             obj.inputs.condMat(i,obj.inputs.colLabel.trials)=(obj.inputs.trials(1,idx_trials)); % may be a problem
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                             obj.inputs.condMat(i,obj.inputs.colLabel.iti)=(obj.inputs.iti(1,idx_iti));
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                             obj.inputs.condMat(i,obj.inputs.colLabel.si)={(obj.inputs.stimuli(1,idx_si))};
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                             obj.inputs.condMat(i,obj.inputs.colLabel.chLab)={{targetChannels{1,idx_targetChannels}{1,:},obj.inputs.display_scopes{1,:}}};
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                             obj.inputs.condMat(i,obj.inputs.colLabel.axesno)={{targetChannels_ax{1,idx_targetChannels}{1,:},displayChannels_ax{1,:}}};
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                             obj.inputs.condMat(i,obj.inputs.colLabel.measures)={{targetChannels_meas{1,idx_targetChannels}{1,:},displayChannels_meas{1,:}}};
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                             obj.inputs.condMat(i,obj.inputs.colLabel.stimMode)={{{'single_pulse'}}};
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                             
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                             
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                             if(idx_inputDevices>=numel(obj.inputs.input_device))
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                 idx_inputDevices=0;
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                             end
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                             if(idx_outputDevices>=numel(obj.inputs.output_device))
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                 idx_outputDevices=0;
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                             end
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                             if(idx_targetChannels>=numel(obj.inputs.target_muscle))
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                 idx_targetChannels=0;
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                             end
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                             if(idx_displayChannels>=numel(obj.inputs.display_scopes))
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                 idx_displayChannels=0;
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                             end
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                             if(idx_si>=numel(obj.inputs.stimuli))
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                 idx_si=0;
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                             end
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                             if(idx_iti>=numel(obj.inputs.iti))
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                 idx_iti=0;
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                             end
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                             if(idx_trials>=numel(obj.inputs.trials))
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                 idx_trials=0;
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                             end
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                             
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                         end
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                     case 'Multimodal Experiment'
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                         % assign the colLabels first
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                         obj.inputs.colLabel.inputDevices=1;
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                         obj.inputs.colLabel.outputDevices=2;
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                         obj.inputs.colLabel.si=3;
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                         obj.inputs.colLabel.iti=4;
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                         obj.inputs.colLabel.chLab=5;
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                         obj.inputs.colLabel.trials=9;
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                         obj.inputs.colLabel.axesno=6;
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                         obj.inputs.colLabel.measures=7;
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                         obj.inputs.colLabel.stimMode=8;
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                         obj.inputs.colLabel.tpm=10;
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                         obj.inputs.colLabel.mepamp=11;
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                         % since this is a generic function very long list of
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                         % variables would be given colLabels here
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                         
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                         
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                         switch obj.inputs.sub_measure_str
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                             case 'MEP Measurement'
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                 
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                 for axesno_cond=1:numel(fieldnames(obj.inputs.condsAll))
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     conds=fieldnames(obj.inputs.condsAll);
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     targetCh{1,axesno_cond}=char(obj.inputs.condsAll.(conds{axesno_cond,1}).targetChannel);
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     targetChannels_ax_meas{1,axesno_cond}=cellstr('MEP_Measurement');
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                 end
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                 targetCh_axNo_unique=unique(targetCh,'stable');
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                 
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                 for i=1:numel(targetCh)
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     for j=1:numel(targetCh_axNo_unique)
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                         if( strcmp(targetCh_axNo_unique{1,j},targetCh{1,i}))
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                             targetCh_axNo{1,j}=j;
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                         end
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     end
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                 end
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                 displayCh_axNo=num2cell(numel(obj.inputs.displayChannels)+max(cell2mat(targetCh_axNo))); %just a matrix
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                 
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                 %                               targetChannels_ax_meas=cell(1,numel(obj.inputs.targetChanel));
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                 %                               targetChannels_ax_meas(:)={{'MEP_Measurement'}}; % infact thsi would be a variable obj.inputs.targetMeasure
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                 displayChannels_ax_meas=cell(1,numel(obj.inputs.displayChannels));
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                 displayChannels_ax_meas(:)=cellstr('MEP_Measurement');
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                 obj.app.pr.ax_measures={targetChannels_ax_meas{1,:},displayChannels_ax_meas{1,:}};
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                 obj.inputs.displayChannels
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                 displayChannels_meas=cell(1,1:numel(obj.inputs.displayChannels{1,:}));
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                 displayChannels_meas(:)=cellstr('MEP_Measurement');
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                 
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                 obj.app.pr.axesno=numel(targetCh_axNo)+numel(cell2mat(displayCh_axNo));
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                 
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                 for c=1:numel(fieldnames(obj.inputs.condsAll))
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     obj.inputs.condMat(c,obj.inputs.colLabel.trials)=(obj.inputs.trials);
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     obj.inputs.condMat(c,obj.inputs.colLabel.iti)=(obj.inputs.iti);
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     %                                  (obj.inputs.input_device)
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     obj.inputs.condMat(c,obj.inputs.colLabel.inputDevices)=cellstr(obj.inputs.input_device);
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     conds=fieldnames(obj.inputs.condsAll);
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     obj.inputs.condMat(c,obj.inputs.colLabel.chLab)=horzcat({({obj.inputs.condsAll.(conds{c,1}).targetChannel,obj.inputs.displayChannels{1,:}})});
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     obj.inputs.condMat(c,obj.inputs.colLabel.chLab)={{char(obj.inputs.condsAll.(conds{c,1}).targetChannel),obj.inputs.displayChannels{1,:}}};
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     obj.inputs.condMat(c,obj.inputs.colLabel.axesno)=horzcat({({targetCh_axNo{1,c},displayCh_axNo{1,:}})});
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     obj.inputs.condMat(c,obj.inputs.colLabel.measures)={{char(cellstr('MEP_Measurement')),displayChannels_meas{1,:}}};
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     % si cond, outputDevice, stimMode and
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     % [time port marker]
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     for stno=1:(max(size(fieldnames(obj.inputs.condsAll.(conds{c,1}))))-1)
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                         st=['st' num2str(stno)];
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                         condSi{1,stno}=obj.inputs.condsAll.(conds{c,1}).(st).si_pckt;
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                         condstimMode{1,stno}= obj.inputs.condsAll.(conds{c,1}).(st).stim_mode;
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                         obj.inputs.condsAll.(conds{c,1}).(st).stim_device
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                         condoutputDevice{1,stno}=obj.inputs.condsAll.(conds{c,1}).(st).stim_device;
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                         condstimTiming{1,stno}=obj.inputs.condsAll.(conds{c,1}).(st).stim_timing
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     end
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     obj.inputs.condMat(c,obj.inputs.colLabel.si)={condSi};
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     obj.inputs.condMat(c,obj.inputs.colLabel.outputDevices)={condoutputDevice};
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     obj.inputs.condMat(c,obj.inputs.colLabel.stimMode)={condstimMode};
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     for timing=1:numel(condstimTiming)
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                         for jj=1:numel(condstimTiming{1,timing})
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                             condstimTiming{2,timing}{1,jj}=condoutputDevice{1,timing};
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                         end
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     end
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     condstimTiming_new{1}=horzcat(condstimTiming{1,:});
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     condstimTiming_new{2}=horzcat(condstimTiming{2,:});
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     [condstimTiming_new_sorted{1},sorted_idx]=sort(condstimTiming_new{1});
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     %                                  [condstimTiming_new_sorted{1},sorted_idx]=sort(cellfun(@str2num, condstimTiming_new{1}));
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     %                                  condstimTiming_new_sorted{1}=cellfun(@num2str, num2cell(condstimTiming_new_sorted{1}));
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     condstimTiming_new_sorted{2}=condstimTiming_new{2}(sorted_idx);
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     %                                  condstimTiming_new_sorted{1}=cellfun(@num2str, num2cell(condstimTiming_new_sorted{1}));
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     for stimno_tpm=1:numel(condstimTiming_new_sorted{2})
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                         port_vector{stimno_tpm}=obj.app.par.hardware_settings.(char(condstimTiming_new_sorted{2}{1,stimno_tpm})).bb_outputport;
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     end
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     condstimTiming_new_sorted{2}=port_vector;
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     tpmVect=[condstimTiming_new_sorted{1};condstimTiming_new_sorted{2}];
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     [tpmVect_unique,ia,ic]=unique(tpmVect(1,:));
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     a_counts = accumarray(ic,1);
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     for binportloop=1:numel(tpmVect_unique)
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                         buffer{1,binportloop}={(cell2mat(tpmVect(2,ia(binportloop):ia(binportloop)-1+a_counts(binportloop))))};
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                         binaryZ='0000';
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                         num=cell2mat(buffer{1,binportloop});
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                         for binaryID=1:numel(num)
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                             binaryZ(str2num(num(binaryID)))='1';
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                         end
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                         buffer{1,binportloop}=bin2dec(flip(binaryZ));
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                         markers{1,binportloop}=0;
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     end
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     markers{1,1}=c;
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     condstimTiming_new_sorted=[num2cell((cellfun(@str2num, tpmVect_unique(1,1:end))));buffer;markers];
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     condstimTiming_new_sorted=cell2mat(condstimTiming_new_sorted)
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     [condstimTiming_new_sorted(1,:),sorted_idx]=sort(condstimTiming_new_sorted(1,:))
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     condstimTiming_new_sorted(1,:)=condstimTiming_new_sorted(1,:)/1000;
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     condstimTiming_new_sorted(2,:)=condstimTiming_new_sorted(2,sorted_idx)
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     obj.inputs.condMat(c,obj.inputs.colLabel.tpm)={num2cell(condstimTiming_new_sorted)};
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     condSi=[];
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     condoutputDevice=[];
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     condstimMode=[];
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     condstimTiming=[];
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     buffer=[];
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     tpmVect_unique=[];
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     a_counts =[];
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     ia=[];
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     ic=[];
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     port_vector=[];
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     num=[];
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     condstimTiming_new=[];
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     condstimTiming_new_sorted=[];
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     sorted_idx=[];
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     markers=[];
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                 end
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                 
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                             case 'Motor Threshold Hunting'
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                 for axesno_cond=1:numel(fieldnames(obj.inputs.condsAll))
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     conds=fieldnames(obj.inputs.condsAll);
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     targetCh{1,axesno_cond}=char(obj.inputs.condsAll.(conds{axesno_cond,1}).targetChannel);
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     targetChannels_ax_meas{1,axesno_cond}={'MEP_Measurement','Motor Threshold Hunting'};
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                 end
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                 
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                 targetChannels_ax_meas=horzcat(targetChannels_ax_meas{:})
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                 targetCh_axNo_unique=unique(targetCh,'stable');
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                 jj=0;
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                 for i=1:numel(targetCh)
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     for j=1:numel(targetCh_axNo_unique)
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                         if( strcmp(targetCh_axNo_unique{1,j},targetCh{1,i}))
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                             jj=jj+1;
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                             targetCh_axNo{1,jj}=jj;
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                             jj=jj+1;
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                             targetCh_axNo{1,jj}=jj;
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                         end
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     end
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                 end
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                 displayCh_axNo=num2cell(numel(obj.inputs.displayChannels)+max(cell2mat(targetCh_axNo))); %just a matrix
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                 
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                 %                               targetChannels_ax_meas=cell(1,numel(obj.inputs.targetChanel));
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                 %                               targetChannels_ax_meas(:)={{'MEP_Measurement'}}; % infact thsi would be a variable obj.inputs.targetMeasure
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                 displayChannels_ax_meas=cell(1,numel(obj.inputs.displayChannels));
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                 displayChannels_ax_meas(:)=cellstr('MEP_Measurement');
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                 obj.app.pr.ax_measures=horzcat({targetChannels_ax_meas{1,:},displayChannels_ax_meas{1,:}});
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                 
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                 displayChannels_meas=cell(1,1:numel(obj.inputs.displayChannels{1,:}));
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                 displayChannels_meas(:)=cellstr('MEP_Measurement');
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                 
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                 obj.app.pr.axesno=numel(targetCh_axNo)+numel(cell2mat(displayCh_axNo));
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                 
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                 for c=1:numel(fieldnames(obj.inputs.condsAll))
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     obj.inputs.condMat(c,obj.inputs.colLabel.trials)=(obj.inputs.trials);
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     obj.inputs.condMat(c,obj.inputs.colLabel.iti)=(obj.inputs.iti);
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     %                                  (obj.inputs.input_device)
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     obj.inputs.condMat(c,obj.inputs.colLabel.si)={obj.inputs.stimuli(1,1)};
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     obj.inputs.condMat(c,obj.inputs.colLabel.inputDevices)=cellstr(obj.inputs.input_device);
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     conds=fieldnames(obj.inputs.condsAll);
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     obj.inputs.condMat(c,obj.inputs.colLabel.chLab)=horzcat({({obj.inputs.condsAll.(conds{c,1}).targetChannel,obj.inputs.displayChannels{1,:}})});
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     obj.inputs.condMat(c,obj.inputs.colLabel.chLab)={{char(obj.inputs.condsAll.(conds{c,1}).targetChannel),char(obj.inputs.condsAll.(conds{c,1}).targetChannel),obj.inputs.displayChannels{1,:}}};
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     obj.inputs.condMat(c,obj.inputs.colLabel.axesno)=horzcat({({targetCh_axNo{1,c*2-1},targetCh_axNo{1,c*2},displayCh_axNo{1,:}})});
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     obj.inputs.condMat(c,obj.inputs.colLabel.measures)={{'MEP_Measurement','Threshold Trace',displayChannels_meas{1,:}}};
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     % si cond, outputDevice, stimMode and
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     % [time port marker]
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     for stno=1:(max(size(fieldnames(obj.inputs.condsAll.(conds{c,1}))))-2)
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                         st=['st' num2str(stno)];
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                         %                                     condSi{1,stno}=str2num(obj.inputs.condsAll.(conds{c,1}).(st).si);
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                         condstimMode{1,stno}= obj.inputs.condsAll.(conds{c,1}).(st).stim_mode;
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                         condoutputDevice{1,stno}=obj.inputs.condsAll.(conds{c,1}).(st).stim_device;
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                         condstimTiming{1,stno}=obj.inputs.condsAll.(conds{c,1}).(st).stim_timing
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     end
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     %                                 obj.inputs.condMat(c,obj.inputs.colLabel.si)={condSi};
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     obj.inputs.condMat(c,obj.inputs.colLabel.outputDevices)={condoutputDevice};
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     obj.inputs.condMat(c,obj.inputs.colLabel.stimMode)={condstimMode};
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     for timing=1:numel(condstimTiming)
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                         for jj=1:numel(condstimTiming{1,timing})
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                             condstimTiming{2,timing}{1,jj}=condoutputDevice{1,timing};
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                         end
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     end
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     condstimTiming_new{1}=horzcat(condstimTiming{1,:});
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     condstimTiming_new{2}=horzcat(condstimTiming{2,:});
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     [condstimTiming_new_sorted{1},sorted_idx]=sort(condstimTiming_new{1});
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     %                                  [condstimTiming_new_sorted{1},sorted_idx]=sort(cellfun(@str2num, condstimTiming_new{1}));
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     %                                  condstimTiming_new_sorted{1}=cellfun(@num2str, num2cell(condstimTiming_new_sorted{1}));
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     condstimTiming_new_sorted{2}=condstimTiming_new{2}(sorted_idx);
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     %                                  condstimTiming_new_sorted{1}=cellfun(@num2str, num2cell(condstimTiming_new_sorted{1}));
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     for stimno_tpm=1:numel(condstimTiming_new_sorted{2})
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                         port_vector{stimno_tpm}=obj.app.par.hardware_settings.(char(condstimTiming_new_sorted{2}{1,stimno_tpm})).bb_outputport;
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     end
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     condstimTiming_new_sorted{2}=port_vector;
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     tpmVect=[condstimTiming_new_sorted{1};condstimTiming_new_sorted{2}];
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     [tpmVect_unique,ia,ic]=unique(tpmVect(1,:));
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     a_counts = accumarray(ic,1);
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     for binportloop=1:numel(tpmVect_unique)
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                         buffer{1,binportloop}={(cell2mat(tpmVect(2,ia(binportloop):ia(binportloop)-1+a_counts(binportloop))))};
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                         binaryZ='0000';
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                         num=cell2mat(buffer{1,binportloop});
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                         for binaryID=1:numel(num)
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                             binaryZ(str2num(num(binaryID)))='1';
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                         end
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                         buffer{1,binportloop}=bin2dec(flip(binaryZ));
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                         markers{1,binportloop}=0;
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     end
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     markers{1,1}=c;
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     condstimTiming_new_sorted=[num2cell((cellfun(@str2num, tpmVect_unique(1,1:end))));buffer;markers];
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     condstimTiming_new_sorted=cell2mat(condstimTiming_new_sorted)
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     [condstimTiming_new_sorted(1,:),sorted_idx]=sort(condstimTiming_new_sorted(1,:))
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     condstimTiming_new_sorted(1,:)=condstimTiming_new_sorted(1,:)/1000;
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     condstimTiming_new_sorted(2,:)=condstimTiming_new_sorted(2,sorted_idx)
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     obj.inputs.condMat(c,obj.inputs.colLabel.tpm)={num2cell(condstimTiming_new_sorted)};
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     condSi=[];
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     condoutputDevice=[];
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     condstimMode=[];
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     condstimTiming=[];
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     buffer=[];
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     tpmVect_unique=[];
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     a_counts =[];
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     ia=[];
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     ic=[];
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     port_vector=[];
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     num=[];
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     condstimTiming_new=[];
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     condstimTiming_new_sorted=[];
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     sorted_idx=[];
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     markers=[];
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                 end
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                 
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                             case 'IOC'
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                 for axesno_cond=1:numel(fieldnames(obj.inputs.condsAll))
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     conds=fieldnames(obj.inputs.condsAll);
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     targetCh{1,axesno_cond}=char(obj.inputs.condsAll.(conds{axesno_cond,1}).targetChannel);
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     targetChannels_ax_meas{1,axesno_cond}={'MEP_Measurement','MEP Scatter Plot','MEP IOC Fit'};
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                 end
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                 
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                 targetChannels_ax_meas=horzcat(targetChannels_ax_meas{:})
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                 targetCh_axNo_unique=unique(targetCh,'stable');
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                 jj=0;
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                 for i=1:numel(targetCh)
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     for j=1:numel(targetCh_axNo_unique)
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                         if( strcmp(targetCh_axNo_unique{1,j},targetCh{1,i}))
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                             jj=jj+1;
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                             targetCh_axNo{1,jj}=jj;
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                             jj=jj+1;
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                             targetCh_axNo{1,jj}=jj;
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                             jj=jj+1;
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                             targetCh_axNo{1,jj}=jj;
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                         end
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     end
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                 end
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                 displayCh_axNo=num2cell(numel(obj.inputs.displayChannels)+max(cell2mat(targetCh_axNo))); %just a matrix
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                 
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                 %                               targetChannels_ax_meas=cell(1,numel(obj.inputs.targetChanel));
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                 %                               targetChannels_ax_meas(:)={{'MEP_Measurement'}}; % infact thsi would be a variable obj.inputs.targetMeasure
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                 displayChannels_ax_meas=cell(1,numel(obj.inputs.displayChannels));
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                 displayChannels_ax_meas(:)=cellstr('MEP_Measurement');
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                 obj.app.pr.ax_measures=horzcat({targetChannels_ax_meas{1,:},displayChannels_ax_meas{1,:}});
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                 
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                 displayChannels_meas=cell(1,1:numel(obj.inputs.displayChannels{1,:}));
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                 displayChannels_meas(:)=cellstr('MEP_Measurement');
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                 
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                 obj.app.pr.axesno=numel(targetCh_axNo)+numel(cell2mat(displayCh_axNo));
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                 
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                 for c=1:numel(fieldnames(obj.inputs.condsAll))
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     obj.inputs.condMat(c,obj.inputs.colLabel.trials)=(obj.inputs.trials);
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     obj.inputs.condMat(c,obj.inputs.colLabel.iti)=(obj.inputs.iti);
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     obj.inputs.condMat(c,obj.inputs.colLabel.inputDevices)=cellstr(obj.inputs.input_device);
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     conds=fieldnames(obj.inputs.condsAll);
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     obj.inputs.condMat(c,obj.inputs.colLabel.chLab)=horzcat({({obj.inputs.condsAll.(conds{c,1}).targetChannel,obj.inputs.displayChannels{1,:}})});
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     obj.inputs.condMat(c,obj.inputs.colLabel.chLab)={{char(obj.inputs.condsAll.(conds{c,1}).targetChannel),char(obj.inputs.condsAll.(conds{c,1}).targetChannel),char(obj.inputs.condsAll.(conds{c,1}).targetChannel),obj.inputs.displayChannels{1,:}}};
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     obj.inputs.condMat(c,obj.inputs.colLabel.axesno)=horzcat({({targetCh_axNo{1,c*3-2},targetCh_axNo{1,c*3-1},targetCh_axNo{1,c*3},displayCh_axNo{1,:}})});
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     obj.inputs.condMat(c,obj.inputs.colLabel.measures)={{'MEP_Measurement','MEP Scatter Plot','MEP IOC Fit',displayChannels_meas{1,:}}};
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     % si cond, outputDevice, stimMode and
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     % [time port marker]
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     for stno=1:(max(size(fieldnames(obj.inputs.condsAll.(conds{c,1}))))-2)
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                         st=['st' num2str(stno)];
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                         condSi{1,stno}=obj.inputs.condsAll.(conds{c,1}).(st).si_pckt;
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                         condstimMode{1,stno}= obj.inputs.condsAll.(conds{c,1}).(st).stim_mode;
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                         condoutputDevice{1,stno}=obj.inputs.condsAll.(conds{c,1}).(st).stim_device;
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                         condstimTiming{1,stno}=obj.inputs.condsAll.(conds{c,1}).(st).stim_timing
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     end
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     obj.inputs.condMat(c,obj.inputs.colLabel.si)={condSi};
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     obj.inputs.condMat(c,obj.inputs.colLabel.outputDevices)={condoutputDevice};
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     obj.inputs.condMat(c,obj.inputs.colLabel.stimMode)={condstimMode};
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     for timing=1:numel(condstimTiming)
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                         for jj=1:numel(condstimTiming{1,timing})
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                             condstimTiming{2,timing}{1,jj}=condoutputDevice{1,timing};
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                         end
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     end
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     condstimTiming_new{1}=horzcat(condstimTiming{1,:});
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     condstimTiming_new{2}=horzcat(condstimTiming{2,:});
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     [condstimTiming_new_sorted{1},sorted_idx]=sort(condstimTiming_new{1});
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     %                                  [condstimTiming_new_sorted{1},sorted_idx]=sort(cellfun(@str2num, condstimTiming_new{1}));
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     %                                  condstimTiming_new_sorted{1}=cellfun(@num2str, num2cell(condstimTiming_new_sorted{1}));
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     condstimTiming_new_sorted{2}=condstimTiming_new{2}(sorted_idx);
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     %                                  condstimTiming_new_sorted{1}=cellfun(@num2str, num2cell(condstimTiming_new_sorted{1}));
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     for stimno_tpm=1:numel(condstimTiming_new_sorted{2})
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                         port_vector{stimno_tpm}=obj.app.par.hardware_settings.(char(condstimTiming_new_sorted{2}{1,stimno_tpm})).bb_outputport;
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     end
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     condstimTiming_new_sorted{2}=port_vector;
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     tpmVect=[condstimTiming_new_sorted{1};condstimTiming_new_sorted{2}];
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     [tpmVect_unique,ia,ic]=unique(tpmVect(1,:));
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     a_counts = accumarray(ic,1);
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     for binportloop=1:numel(tpmVect_unique)
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                         buffer{1,binportloop}={(cell2mat(tpmVect(2,ia(binportloop):ia(binportloop)-1+a_counts(binportloop))))};
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                         binaryZ='0000';
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                         num=cell2mat(buffer{1,binportloop});
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                         for binaryID=1:numel(num)
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                             binaryZ(str2num(num(binaryID)))='1';
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                         end
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                         buffer{1,binportloop}=bin2dec(flip(binaryZ));
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                         markers{1,binportloop}=0;
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     end
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     markers{1,1}=c;
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     condstimTiming_new_sorted=[num2cell((cellfun(@str2num, tpmVect_unique(1,1:end))));buffer;markers];
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     condstimTiming_new_sorted=cell2mat(condstimTiming_new_sorted)
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     [condstimTiming_new_sorted(1,:),sorted_idx]=sort(condstimTiming_new_sorted(1,:))
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     condstimTiming_new_sorted(1,:)=condstimTiming_new_sorted(1,:)/1000;
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     condstimTiming_new_sorted(2,:)=condstimTiming_new_sorted(2,sorted_idx)
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     obj.inputs.condMat(c,obj.inputs.colLabel.tpm)={num2cell(condstimTiming_new_sorted)};
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     condSi=[];
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     condoutputDevice=[];
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     condstimMode=[];
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     condstimTiming=[];
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     buffer=[];
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     tpmVect_unique=[];
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     a_counts =[];
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     ia=[];
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     ic=[];
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     port_vector=[];
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     num=[];
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     condstimTiming_new=[];
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     condstimTiming_new_sorted=[];
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     sorted_idx=[];
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     markers=[];
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                     
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                                 end
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                         end
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                         %                   inputmatrix=obj.inputs.condMat(:,1)
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                         obj.inputs.totalConds=numel(obj.inputs.condMat(:,1));
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                         
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                 end
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %             end %OLD Functions
             %             function cb_CreateColumnLabels
             % ds
             %             end
@@ -1384,11 +1526,11 @@ classdef best_toolbox < handle
                                 obj.inputs.rawData.(unique_chLab{1,i}).data(obj.inputs.trial,:)=obj.bossbox.IEEGScope.Data(:,1)';
                                 obj.inputs.rawData.(unique_chLab{1,i}).time(obj.inputs.trial,:)=obj.bossbox.IEEGScope.Time(:,1)';
                             case 'EMG'
-                                %                         obj.inputs.rawData.(unique_chLab{1,i}).data(obj.inputs.trial,:)=obj.sim_mep*rand*1000;
+                                                        obj.inputs.rawData.(unique_chLab{1,i}).data(obj.inputs.trial,:)=[obj.sim_mep(1,700:1000), obj.sim_mep(1,1:699)]*1000*obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,1}{1,1}*(randi([1 3])*0.10);
                                 obj.bossbox.EMGScope
                                 check=obj.bossbox.EMGScope.Data(:,1)';
                                 %                         obj.inputs.rawData.(unique_chLab{1,i}).data(obj.inputs.trial,:)=[obj.bossbox.EMGScope.Data(:,1)]';
-                                obj.inputs.rawData.(unique_chLab{1,i}).data(obj.inputs.trial,:)=obj.best_VisualizationFilter([obj.bossbox.EMGScope.Data(:,1)]');
+%                                 obj.inputs.rawData.(unique_chLab{1,i}).data(obj.inputs.trial,:)=obj.best_VisualizationFilter([obj.bossbox.EMGScope.Data(:,1)]');
                                 
                             case 'IA'
                             case 'EEG'
@@ -1674,15 +1816,16 @@ classdef best_toolbox < handle
                     obj.info.plt.(ax).current=plot(obj.inputs.timeVect,obj.inputs.rawData.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).data(obj.inputs.trial,:),'Color',[1 0 0],'LineWidth',2);
             end
             obj.mep_amp;
-            obj.app.pr.current_mep.(ax).String=obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.mepamp};
-            obj.app.pr.mean_mep.(ax).String=obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.mepamp};
+%             obj.app.pr.current_mep.(ax).String=obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.mepamp};
+%             obj.app.pr.mean_mep.(ax).String=obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.mepamp};
             ylim auto
             
         end
         function mep_amp(obj)
             maxx=max(obj.inputs.rawData.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).data(obj.inputs.trial,obj.inputs.mep_onset_samples:obj.inputs.mep_offset_samples));
             minn=min(obj.inputs.rawData.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).data(obj.inputs.trial,obj.inputs.mep_onset_samples:obj.inputs.mep_offset_samples));
-            obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.mepamp}=(maxx-minn);
+%             obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.mepamp}=(maxx-minn);
+            obj.inputs.results.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).MEPAmplitude(obj.inputs.trial,1)=(maxx-minn);
         end
         function mep_scat_plot(obj)
             ax=['ax' num2str(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.axesno}{1,obj.inputs.chLab_idx})];
@@ -1690,31 +1833,44 @@ classdef best_toolbox < handle
             ylim auto
             switch obj.inputs.trial
                 case 1
-                    obj.info.plt.(ax).ioc_scatplot=plot(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,1},obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.mepamp},'o','Color','r','MarkerSize',8,'MarkerFaceColor','r');
+%                     obj.info.plt.(ax).ioc_scatplot=plot(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,1}{1,1},obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.mepamp},'o','Color','r','MarkerSize',8,'MarkerFaceColor','r');
+                    obj.info.plt.(ax).ioc_scatplot=plot(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,1}{1,1},obj.inputs.results.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).MEPAmplitude(obj.inputs.trial,1),'o','Color','r','MarkerSize',8,'MarkerFaceColor','r');
                     hold on;
                     xlabel('Stimulation Intensities');   %TODO: Put if loop of RMT or MSO
                     ylabel('MEP P2P Amplitude (\muV)');
-                    low=min(cell2mat(obj.inputs.stimuli))-10;
-                    up=max(cell2mat(obj.inputs.stimuli))+10;
-                    temp_str=unique(sort([cell2mat(obj.inputs.stimuli) low up]));
+
+                    for iSI=1:numel([obj.inputs.trialMat{:,obj.inputs.colLabel.si}]')
+                        si(iSI,1)=obj.inputs.trialMat{iSI,obj.inputs.colLabel.si}{1,1}{1,1}
+                    end
+                    si=unique(si,'stable');
+% % % % % % % %                     low=min(cell2mat(obj.inputs.stimuli))-10;
+% % % % % % % %                     up=max(cell2mat(obj.inputs.stimuli))+10;
+% % % % % % % %                     temp_str=unique(sort([cell2mat(obj.inputs.stimuli) low up]));
+                    low=min(si)-10;
+                    up=max(si)+10;
+                    temp_str=unique(sort([si' low up]));
                     xlim([low up]);
                     xticks(temp_str);
                 otherwise
                     set(obj.info.plt.(ax).ioc_scatplot,'Color',[0.45 0.45 0.45],'MarkerSize',8,'MarkerFaceColor',[0.45 0.45 0.45])
             end
             
-            obj.info.plt.(ax).ioc_scatplot=plot(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,1},obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.mepamp},'o','MarkerSize',8,'Color','r','MarkerFaceColor','r');
+            obj.info.plt.(ax).ioc_scatplot=plot(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,1}{1,1},obj.inputs.results.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).MEPAmplitude(obj.inputs.trial,1),'o','MarkerSize',8,'Color','r','MarkerFaceColor','r');
             hold on;
             uistack(obj.info.plt.(ax).ioc_scatplot,'top')
         end
         function mep_stats(obj)
             %             ax=['ax' num2str(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.axesno}{1,obj.inputs.chLab_idx})];
             %             obj.inputs.rawData.(ax).mep_stats=0;
-            si=0;
-            si=cell2mat(vertcat(obj.inputs.trialMat{:,obj.inputs.colLabel.si}));
-            mepamp=(vertcat(obj.inputs.trialMat{:,obj.inputs.colLabel.mepamp}));
+            si=[];
+            for iSI=1:numel([obj.inputs.trialMat{:,obj.inputs.colLabel.si}]')
+                        si(iSI,1)=obj.inputs.trialMat{iSI,obj.inputs.colLabel.si}{1,1}{1,1};
+            end
+%             si=cell2mat(vertcat(obj.inputs.trialMat{:,obj.inputs.colLabel.si}{1,1}));
+            mepamp=obj.inputs.results.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).MEPAmplitude(:,1);
+%             mepamp=(vertcat(obj.inputs.trialMat{:,obj.inputs.colLabel.mepamp}));
             
-            [si,ia,idx] = unique(si,'stable');
+            [si,~,idx] = unique(si,'stable');
             mep_median = accumarray(idx,mepamp,[],@median);
             mep_mean = accumarray(idx,mepamp,[],@mean);
             mep_std = accumarray(idx,mepamp,[],@std);
@@ -1759,7 +1915,7 @@ classdef best_toolbox < handle
                 opts.Upper = [Inf Inf Inf];
                 
                 %% Fit sigmoid model to data
-                
+%                 MEPData=[1; 2; 3; 4; 5; 6]
                 [obj.info.ioc.fitresult,obj.info.ioc.gof] = fit( SIData, MEPData, ft, opts);
                 %% Extract fitted curve points
                 
