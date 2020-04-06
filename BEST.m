@@ -7388,27 +7388,15 @@ classdef BEST < handle
                         obj.pi.mth.EEGDisplayPeriodPost=uicontrol( 'Style','edit','Parent', expModr4 ,'FontSize',11,'Tag','EEGDisplayPeriodPost','callback',@cb_par_saving);
                         expModr4.Widths=[150 -2 -2];
                         
-                        expModr1=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
-                        uicontrol( 'Style','text','Parent', expModr1,'String','Dose Function:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-                        obj.pi.mth.DoseFunction=uicontrol( 'Style','popupmenu','Parent', expModr1 ,'FontSize',11,'String',{'Test Stimulus (TS)','Condtion Stimulus (CS)','Inter Stimulus Interval (ISI)','Inter Trial Interval (ITI)'},'Tag','DoseFunction','callback',@cb_par_saving);
-                        expModr1.Widths=[150 -2];
-                        
-                        expModr4=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
-                        uicontrol( 'Style','text','Parent', expModr4,'String','Response Function:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-                        obj.pi.mth.ResponseFunctionNumerator=uicontrol( 'Style','edit','Parent', expModr4 ,'FontSize',11,'Tag','ResponseFunctionNumerator','callback',@cb_par_saving);
-                        uicontrol( 'Style','text','Parent', expModr4,'String','÷','FontSize',13,'HorizontalAlignment','center','Units','normalized');
-                        obj.pi.mth.ResponseFunctionDenominator=uicontrol( 'Style','edit','Parent', expModr4 ,'FontSize',11,'Tag','ResponseFunctionDenominator','callback',@cb_par_saving);
-                        expModr4.Widths=[150 -2 30 -2];
-                        
-                        expModvBox.Heights=[35 45 45 35 45 45 30 35];
+                        expModvBox.Heights=[35 45 45 35 45 45];
                 end
             end
             function cb_SetHeights
                 switch obj.pi.mth.BrainState.Value
                     case 1
-                        set(obj.pi.mth.r0v1,'Heights',[40 90 300 -1 55 55])
+                        set(obj.pi.mth.r0v1,'Heights',[40 90 230 -1 55 55])
                     case 2
-                        set(obj.pi.mth.r0v1,'Heights',[40 390 340 -1 55 55])
+                        set(obj.pi.mth.r0v1,'Heights',[40 390 280 -1 55 55])
                 end
             end
             
@@ -7436,7 +7424,7 @@ classdef BEST < handle
                 ColPulseMode=6
                 ColNoOfPulses=7
                 ColTimingOnset=8
-                ColCSIntensity=9
+                ColCS=9
                 ColISI=10
                 ColTrainFreq=11
                 ColNoOfTrains=12
@@ -7446,48 +7434,51 @@ classdef BEST < handle
                 for iTableStimulator=1:numel(fieldnames(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond)))-1 %numel(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond))-1
                     iData=iData+1;
                     TableStim=['st' num2str(iTableStimulator)];
-                    TableData{iData,1}=num2str(iTableCondition);
-                    TableData{iData,8}='          -';
-                    TableData{iData,9}='          -';
-                    TableData{iData,10}='          -';
-                    TableData{iData,11}='          -';
+                    TableData{iData,ColCondition}=num2str(iTableCondition);
+                    TableData{iData,ColCS}='          -';
+                    TableData{iData,ColISI}='          -';
+                    TableData{iData,ColTrainFreq}='          -';
+                    TableData{iData,ColNoOfTrains}='          -';
                     if( isfield(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim),'si'))
-                        TableData{iData,2}=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).si_pckt{1,1});
+                        TableData{iData,ColTS}=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).si_pckt{1,1});
+                        
+                        if( isfield(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim),'threshold_level'))
+                        TableData{iData,ColThresholdLevel}=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).threshold_level); end
                         
                         %check here what has been saved and use that
                         if(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).si_units==1)
-                            TableData{iData,3}='%MSO';
-                            TableData{iData,12}='          -';
+                            TableData{iData,ColIntensityUnits}='%MSO';
+                            TableData{iData,ColMotorThreshold}='          -';
                         else
-                            TableData{iData,3}='%MT';
-                            TableData{iData,12}=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).threshold;
+                            TableData{iData,ColIntensityUnits}='%MT';
+                            TableData{iData,ColMotorThreshold}=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).threshold;
                         end
                     end
                     
                     if( isfield(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim),'stim_device'))
-                        TableData{iData,4}=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).stim_device{1,1}; end
+                        TableData{iData,ColStimulator}=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).stim_device{1,1}; end
                     
                     if( isfield(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim),'pulse_count'))
-                        TableData{iData,6}=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).pulse_count); end
+                        TableData{iData,ColNoOfPulses}=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).pulse_count); end
                     if( isfield(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim),'stim_mode'))
                         
                         switch obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).stim_mode
                             case 'single_pulse'
-                                TableData{iData,5}='Single Pulse';
+                                TableData{iData,ColPulseMode}='Single Pulse';
                             case 'paired_pulse'
-                                TableData{iData,5}='Paired Pulse';
+                                TableData{iData,ColPulseMode}='Paired Pulse';
                                 obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).si_pckt{1,2};
-                                TableData{iData,8}=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).si_pckt{1,2});
-                                TableData{iData,9}=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).si_pckt{1,3});
+                                TableData{iData,ColCS}=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).si_pckt{1,2});
+                                TableData{iData,ColISI}=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).si_pckt{1,3});
                             case 'train'
-                                TableData{iData,5}='Train';
-                                TableData{iData,10}=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).si_pckt{1,2});
-                                TableData{iData,11}=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).pulse_count);
-                                TableData{iData,6}=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).si_pckt{1,3});
+                                TableData{iData,ColPulseMode}='Train';
+                                TableData{iData,ColTrainFreq}=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).si_pckt{1,2});
+                                TableData{iData,ColNoOfTrains}=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).pulse_count);
+                                TableData{iData,ColNoOfPulses}=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).si_pckt{1,3});
                         end
                     end
                     if( isfield(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim),'stim_timing'))
-                        TableData{iData,7}=mat2str(cell2mat(horzcat((obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).stim_timing(1,:))))); end
+                        TableData{iData,ColTimingOnset}=mat2str(cell2mat(horzcat((obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).stim_timing(1,:))))); end
                     %%                   TableData{iData,8}=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).targetChannel{1,1};
                 end
                 %%                 if numel(fieldnames(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond)))==1
@@ -8262,7 +8253,7 @@ classdef BEST < handle
                 
                 r1=uix.HBox('parent',c1);
                 uicontrol( 'Style','text','Parent', r1,'String','Threshold Level (mV):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-                uicontrol( 'Style','edit','Parent', r1 ,'String','TS Intensity','FontSize',11);
+                uicontrol( 'Style','edit','Parent', r1 ,'String','0.05','FontSize',11);
                 set( r1, 'Widths', [210 200]);
                 
                 r1=uix.HBox('parent',c1);
@@ -8351,12 +8342,12 @@ classdef BEST < handle
                 r1=uix.HBox('parent',c1);
                 uicontrol( 'Style','text','Parent', r1,'String','Threshold Variable:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
                 uicontrol( 'Style','edit','Parent', r1 ,'String','TS Intensity','FontSize',11,'Enable','off');
-                set( r1, 'Widths', [210 200]);
+                set( r1, 'Widths', [250 200]);
                 
                 r1=uix.HBox('parent',c1);
                 uicontrol( 'Style','text','Parent', r1,'String','Threshold Level (mV):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-                uicontrol( 'Style','edit','Parent', r1 ,'String','TS Intensity','FontSize',11);
-                set( r1, 'Widths', [210 200]);
+                uicontrol( 'Style','edit','Parent', r1 ,'String','0.05','FontSize',11);
+                set( r1, 'Widths', [250 200]);
                 
                 r1=uix.HBox('parent',c1);
                 uicontrol( 'Style','text','Parent', r1,'String','Starting TS Intensity:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
@@ -8613,8 +8604,8 @@ classdef BEST < handle
             obj.info.defaults.EMGDisplayYLimMin={-3000};
             obj.info.defaults.Protocol={'MEP Dose Response Curve Protocol'};
             obj.info.defaults.Handles.UserData='Reserved for Future Use';
-            si=[30 40 50 60 70 80];
-            for idefaults=1:6
+            si=[30];
+            for idefaults=1:numel(si)
                 cond=['cond' num2str(idefaults)];
                 obj.info.defaults.condsAll.(cond).targetChannel=cellstr('NaN');
                 obj.info.defaults.condsAll.(cond).st1.pulse_count=1;
@@ -8625,6 +8616,7 @@ classdef BEST < handle
                 obj.info.defaults.condsAll.(cond).st1.si_units=1;
                 obj.info.defaults.condsAll.(cond).st1.threshold='';
                 obj.info.defaults.condsAll.(cond).st1.si_pckt={si(idefaults)};
+                obj.info.defaults.condsAll.(cond).st1.threshold_level=0.05;
             end
             obj.par.(obj.info.event.current_session).(obj.info.event.measure_being_added)=obj.info.defaults;
         end
