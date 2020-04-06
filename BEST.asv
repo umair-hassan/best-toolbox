@@ -7428,19 +7428,16 @@ classdef BEST < handle
             iData=0;
             for iTableCondition=1:numel(fieldnames(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll))
                 TableCond=['cond' num2str(iTableCondition)];
-                ColCondition=1
-                ColTS=2
-                ColThresholdLevel=3
-                ColIntensityUnits=4
-                ColStimulator=5
-                ColPulseMode=6
-                ColNoOfPulses=7
-                ColTimingOnset=8
-                ColCSIntensity=9
-                ColISI=10
-                ColTrainFreq=11
-                ColNoOfTrains=12
-                ColMotorThreshold=13
+                ColCondition
+                ColTS
+                ColThresholdLevel
+                ColIntensity Units
+                ColStimulator
+                ColPulseMode
+                ColNoOfPulses
+                ColTimingOnset
+                ColCSIntensity
+                ColTSInt
                 
                 
                 for iTableStimulator=1:numel(fieldnames(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond)))-1 %numel(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond))-1
