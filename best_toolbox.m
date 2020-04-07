@@ -1882,6 +1882,15 @@ classdef best_toolbox < handle
             obj.bootTrial;
             obj.stimLoop
         end
+        function best_mth(obj)
+            obj.factorizeConditions;
+            obj.planTrials
+            obj.app.resultsPanel;
+            obj.boot_inputdevice;
+            obj.boot_outputdevice;
+            obj.bootTrial;
+            obj.stimLoop
+        end
         function best_multimodal(obj)
             obj.factorizeConditions
             obj.planTrials
@@ -2333,7 +2342,7 @@ classdef best_toolbox < handle
                 obj.tc.stimvalue(StimDevice) = obj.tc.maxvalue;
                 disp('Max value reached.')
             end
-            obj.inputs.trialMat{obj.inputs.trial+1,obj.inputs.colLabel.si}{1,1}=obj.tc.stimvalue(StimDevice);
+            obj.inputs.trialMat{obj.inputs.trial+1,obj.inputs.colLabel.si}{1,1}{1,1}=obj.tc.stimvalue(StimDevice);
             
             
             
