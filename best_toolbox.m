@@ -1930,14 +1930,14 @@ classdef best_toolbox < handle
                     ylim([obj.inputs.ylimMin obj.inputs.ylimMax]);
                     mat3=linspace(obj.inputs.ylimMin,obj.inputs.ylimMax,5);
                     mat4=unique(sort([0 mat3]));
-%                     yticks(mat4);
+                    yticks(mat4);
                     ylabel('EMG Potential (\mu V)');
                     
                     
-%                     obj.info.handle_gridxy=gridxy([0 (obj.inputs.mep_onset*1000):0.25:(obj.inputs.mep_offset*1000)],'Color',[219/255 246/255 255/255],'linewidth',1) ;
-%                     obj.info.handle_gridxy_mt_lines=gridxy([],[-0.05*1000 0.05*1000],'Color',[0.45 0.45 0.45],'linewidth',1,'LineStyle','--') ;
-%                     uistack(obj.info.handle_gridxy_mt_lines,'top');
-%                     
+                    obj.info.handle_gridxy=gridxy([0 (obj.inputs.mep_onset*1000):0.25:(obj.inputs.mep_offset*1000)],'Color',[219/255 246/255 255/255],'linewidth',1) ;
+                    obj.info.handle_gridxy_mt_lines=gridxy([],[-0.05*1000 0.05*1000],'Color',[0.45 0.45 0.45],'linewidth',1,'LineStyle','--') ;
+                    uistack(obj.info.handle_gridxy_mt_lines,'top');
+                    
                     
                     
                     
@@ -1957,7 +1957,7 @@ classdef best_toolbox < handle
             obj.mep_amp;
 %             obj.app.pr.current_mep.(ax).String=obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.mepamp};
 %             obj.app.pr.mean_mep.(ax).String=obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.mepamp};
-            ylim auto
+%             ylim auto
             
         end
         function mep_amp(obj)

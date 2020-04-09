@@ -871,11 +871,8 @@ classdef BEST < handle
             obj.pr.ax_no=['ax' num2str(obj.pr.axesno)];
             ui_menu=uicontextmenu(obj.fig.handle);
             uimenu(ui_menu,'label','reset Mean MEP Plot','Callback',@(~,~)obj.fontSize,'Tag',obj.pr.ax_no);
-            uimenu(ui_menu,'label','reset Mean MEP Amplitude status','Callback',@(~,~)obj.fontSize,'Tag',obj.pr.ax_no);
-            uimenu(ui_menu,'label','set trials for Mean MEP Amplitude calculation','Callback',@(~,~)obj.fontSize,'Tag',obj.pr.ax_no);
-            uimenu(ui_menu,'label','set Y-axis limits','Callback',@obj.ylims,'Tag',obj.pr.ax_no);
-            uimenu(ui_menu,'label','set Font size','Callback',@obj.ylims,'Tag',obj.pr.ax_no);
-            uimenu(ui_menu,'label','auto-fit','Callback',@obj.ylims,'Tag',obj.pr.ax_no);
+            uimenu(ui_menu,'label','reset Mean MEP AAnnotation','Callback',@(~,~)obj.fontSize,'Tag',obj.pr.ax_no);
+            uimenu(ui_menu,'label','change Y-axis Limits','Callback',@obj.ylims,'Tag',obj.pr.ax_no);
 %             uimenu(ui_menu,'label','Y-axis Max limit Decrease','Callback',@obj.ylims,'Tag',obj.pr.ax_no);
 %             uimenu(ui_menu,'label','Y-axis Min limit Increase','Callback',@obj.yminInc,'Tag',obj.pr.ax_no);
 %             uimenu(ui_menu,'label','Y-axis Min limit Decrease','Callback',@obj.yminDec,'Tag',obj.pr.ax_no);
