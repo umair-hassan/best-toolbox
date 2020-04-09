@@ -1470,7 +1470,7 @@ classdef best_toolbox < handle
                 obj.inputs.poststim_scope_plt=obj.inputs.EMGDisplayPeriodPost;
                 obj.inputs.mep_onset=obj.inputs.MEPOnset;
                 obj.inputs.mep_offset=obj.inputs.MEPOffset;
-                obj.inputs.input_device=obj.app.pi.mth.InputDevice.String(obj.inputs.InputDevice); %TODO: the drc or mep on the 4th structure is not a good solution!
+                obj.inputs.input_device=obj.app.pi.mep.InputDevice.String(obj.inputs.InputDevice); %TODO: the drc or mep on the 4th structure is not a good solution!
                 obj.inputs.output_device=obj.inputs.condsAll.cond1.st1.stim_device;
                 obj.inputs.stim_mode='MSO';
                 obj.inputs.measure_str='MEP Measurement';
