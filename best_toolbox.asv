@@ -2359,23 +2359,41 @@ classdef best_toolbox < handle
             ax=['ax' num2str(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.axesno}{1,obj.inputs.chLab_idx})];
             axes(obj.app.pr.ax.(ax)), hold on,
             %                         plot(rand(1,500));
+%             switch obj.info.plt.(ax)
+% isfield(obj.inputs.Handles,'PhaseHistogramPeak')==0)
             switch obj.inputs.trial
-                case 1
-                    aa=cell2mat(vertcat(obj.inputs.trialMat{1,obj.inputs.colLabel.si}{1,1}))
-                    at=cell2mat(vertcat(obj.inputs.trialMat{1:2,obj.inputs.colLabel.si}{1,1}))
-                    obj.info.plt.(ax).mtplot=plot(at,'LineWidth',2);
+                case num2cell(1:numel(obj.inputs.condMat
+%                     aa=cell2mat(vertcat(obj.inputs.trialMat{1,obj.inputs.colLabel.si}{1,1}{1,1}))
+%                     x=obj.inputs.trialMat{1,obj.inputs.colLabel.si}{1,1}
+%                     at=cell2mat(vertcat(obj.inputs.trialMat{1:2,obj.inputs.colLabel.si}{1,1}))
+                    YData=obj.inputs.trialMat{1,obj.inputs.colLabel.si}{1,1}{1,1};
+                    ConditionMarker=obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.marker};
+                    TrialsNoForThisMarker=find(vertcat(obj.inputs.trialMat{1:end,obj.inputs.colLabel.marker})==ConditionMarker);
+                    TrialToUpdate=find(TrialsNoForThisMarker>obj.inputs.trial);
+                    TrialToUpdate=TrialsNoForThisMarker(TrialToUpdate(1));
+                    YDataPlusOne=obj.inputs.trialMat{TrialToUpdate,obj.inputs.colLabel.si}{1,1}{1,1};
+                    obj.info.plt.(ax).mtplot=plot(YData,'LineWidth',2);
 %                                         obj.info.plt.(ax).mtplot=plot(cell2mat(vertcat(obj.inputs.trialMat{1,obj.inputs.colLabel.si}{1,1})),'LineWidth',2);
-
+                                          
                     %obj.info.handles.mt_plot=plot(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).trials(1,1));
-                    xlabel('Trial Number');   %TODO: Put if loop of RMT or MSO
+                    xlabel('Trial Number');   
                     ylabel('Stimulation Intensities (%MSO)');
                     yticks(0:5:400);
                     xticks(1:2:100);    % will have to be referneced with GUI
                     set(gcf, 'color', 'w')
-                    %     case obj.info.totalTrials
-%                     obj.info.plt.(ax).mt_nextIntensityDot=plot(obj.inputs.trial+1,obj.inputs.trialMat{obj.inputs.trial+1,obj.inputs.colLabel.si}{1,1},'o','Color','r','MarkerSize',4,'MarkerFaceColor','r');
+                    obj.info.plt.(ax).mt_nextIntensityDot=plot(2,YDataPlusOne,'o','Color','r','MarkerSize',4,'MarkerFaceColor','r');
                 otherwise
-                    set(obj.info.plt.(ax).mtplot,'YData',cell2mat(vertcat(obj.inputs.trialMat{1:obj.inputs.trial,obj.inputs.colLabel.si}{1,1})))
+                                        yticks(0:5:400);
+                    xticks(1:2:100);   
+                    ConditionMarker=obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.marker};
+                    TrialsNoForThisMarker=find(vertcat(obj.inputs.trialMat{1:end,obj.inputs.colLabel.marker})==ConditionMarker);
+                    TrialToUpdate=find(TrialsNoForThisMarker>obj.inputs.trial);
+                    TrialToUpdate=TrialsNoForThisMarker(TrialToUpdate(1));
+                    YDataPlusOne=obj.inputs.trialMat{TrialToUpdate,obj.inputs.colLabel.si}{1,1}{1,1};
+                    obj.info.plt.(ax).mtplot.YData=[obj.info.plt.(ax).mtplot.YData obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,1}{1,1}];
+                    obj.info.plt.(ax).mt_nextIntensityDot.XData=obj.info.plt.(ax).mt_nextIntensityDot.XData+1;
+                    obj.info.plt.(ax).mt_nextIntensityDot.YData=YDataPlusOne;
+%                     set(obj.info.plt.(ax).mtplot,'YData',cell2mat(vertcat(obj.inputs.trialMat{1:obj.inputs.trial,obj.inputs.colLabel.si}{1,1})))
 %                     set(obj.info.plt.(ax).mt_nextIntensityDot,'XData',obj.inputs.trial+1,'YData',obj.inputs.trialMat{obj.inputs.trial+1,obj.inputs.colLabel.si}{1,1})
             end
         end

@@ -2235,7 +2235,9 @@ classdef best_toolbox < handle
             %             if first trial, read from starting intensity
             %                 otherwise read from the evokness and write to the
             %                 intensity function
-            if((obj.inputs.trial==1))
+            AllConditionsFirstTrial=1:obj.inputs.totalConds
+            mrk=['mrk' num2str(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.marker})];
+            if((obj.inputs.trial<=max(AllConditionsFirstTrial)))
                 experimental_condition = [];
                 experimental_condition{1}.name = 'random';
                 experimental_condition{1}.phase_target = 0;
@@ -2243,18 +2245,18 @@ classdef best_toolbox < handle
                 experimental_condition{1}.marker = 3;
                 experimental_condition{1}.random_delay_range = 0.1;
                 experimental_condition{1}.port = 1;
-                obj.tc.stimvalue = [obj.inputs.mt_starting_stim_inten 1.0 1.00];
-                obj.tc.stepsize = [1 1 1];
-                obj.tc.minstep =  1;
-                obj.tc.maxstep =  8;
-                obj.tc.minvalue = 10;
-                obj.tc.maxvalue = 90;
-                obj.tc.responses = {[] [] []};
-                obj.tc.stimvalues = {[] [] []};  %storage for post-hoc review
-                obj.tc.stepsizes = {[] [] []};   %storage for post-hoc review
+                obj.tc.(mrk).stimvalue = [obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,1}{1,1} 1.0 1.00];
+                obj.tc.(mrk).stepsize = [1 1 1];
+                obj.tc.(mrk).minstep =  1;
+                obj.tc.(mrk).maxstep =  8;
+                obj.tc.(mrk).minvalue = 10;
+                obj.tc.(mrk).maxvalue = 90;
+                obj.tc.(mrk).responses = {[] [] []};
+                obj.tc.(mrk).stimvalues = {[] [] []};  %storage for post-hoc review
+                obj.tc.(mrk).stepsizes = {[] [] []};   %storage for post-hoc review
                 
-                obj.tc.lastdouble = [0,0,0];
-                obj.tc.lastreverse = [0,0,0];
+                obj.tc.(mrk).lastdouble = [0,0,0];
+                obj.tc.(mrk).lastreverse = [0,0,0];
                 
                 
                 
@@ -2266,8 +2268,8 @@ classdef best_toolbox < handle
             condition = experimental_condition{1};
             
             
-            obj.tc.stimvalues{StimDevice} = [obj.tc.stimvalues{StimDevice}, round(obj.tc.stimvalue(StimDevice),2)];
-            obj.tc.stepsizes{StimDevice} = [obj.tc.stepsizes{StimDevice}, round(obj.tc.stepsize(StimDevice),2)];
+            obj.tc.(mrk).stimvalues{StimDevice} = [obj.tc.(mrk).stimvalues{StimDevice}, round(obj.tc.(mrk).stimvalue(StimDevice),2)];
+            obj.tc.(mrk).stepsizes{StimDevice} = [obj.tc.(mrk).stepsizes{StimDevice}, round(obj.tc.(mrk).stepsize(StimDevice),2)];
 
             obj.inputs.results.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).MEPAmplitude(obj.inputs.trial,1)=input('enter mep amp  ');
             
@@ -2282,69 +2284,69 @@ classdef best_toolbox < handle
                 answer = 0;
             end
             
-            obj.tc.responses{StimDevice} = [obj.tc.responses{StimDevice}, answer];
+            obj.tc.(mrk).responses{StimDevice} = [obj.tc.(mrk).responses{StimDevice}, answer];
             
             
-            if length(obj.tc.responses{StimDevice}) == 1
+            if length(obj.tc.(mrk).responses{StimDevice}) == 1
                 if answer == 1
-                    obj.tc.stepsize(StimDevice) =  -obj.tc.stepsize(StimDevice);
+                    obj.tc.(mrk).stepsize(StimDevice) =  -obj.tc.(mrk).stepsize(StimDevice);
                 end
-            elseif length(obj.tc.responses{StimDevice}) == 2
-                if obj.tc.responses{StimDevice}(end) ~= obj.tc.responses{StimDevice}(end-1)
-                    obj.tc.stepsize(StimDevice) = -obj.tc.stepsize(StimDevice)/2;
+            elseif length(obj.tc.(mrk).responses{StimDevice}) == 2
+                if obj.tc.(mrk).responses{StimDevice}(end) ~= obj.tc.(mrk).responses{StimDevice}(end-1)
+                    obj.tc.(mrk).stepsize(StimDevice) = -obj.tc.(mrk).stepsize(StimDevice)/2;
                     fprintf(' Step Reversed and Halved\n')
-                    obj.tc.lastreverse(StimDevice) = length(obj.tc.responses{StimDevice});
+                    obj.tc.(mrk).lastreverse(StimDevice) = length(obj.tc.(mrk).responses{StimDevice});
                 end
                 
-            elseif length(obj.tc.responses{StimDevice})  == 3
-                if obj.tc.responses{StimDevice}(end) ~= obj.tc.responses{StimDevice}(end-1)
-                    obj.tc.stepsize(StimDevice) = -obj.tc.stepsize(StimDevice)/2;
+            elseif length(obj.tc.(mrk).responses{StimDevice})  == 3
+                if obj.tc.(mrk).responses{StimDevice}(end) ~= obj.tc.(mrk).responses{StimDevice}(end-1)
+                    obj.tc.(mrk).stepsize(StimDevice) = -obj.tc.(mrk).stepsize(StimDevice)/2;
                     fprintf(' Step Reversed and Halved\n')
-                    obj.tc.lastreverse(StimDevice) = length(obj.tc.responses{StimDevice});
-                elseif obj.tc.responses{StimDevice}(end) == obj.tc.responses{StimDevice}(end-1) && obj.tc.responses{StimDevice}(end) == obj.tc.responses{StimDevice}(end-2)
-                    obj.tc.stepsize(StimDevice) = obj.tc.stepsize(StimDevice)*2;
+                    obj.tc.(mrk).lastreverse(StimDevice) = length(obj.tc.(mrk).responses{StimDevice});
+                elseif obj.tc.(mrk).responses{StimDevice}(end) == obj.tc.(mrk).responses{StimDevice}(end-1) && obj.tc.(mrk).responses{StimDevice}(end) == obj.tc.(mrk).responses{StimDevice}(end-2)
+                    obj.tc.(mrk).stepsize(StimDevice) = obj.tc.(mrk).stepsize(StimDevice)*2;
                     fprintf(' Step Size Doubled\n')
-                    obj.tc.lastdouble(StimDevice) = length(obj.tc.responses{StimDevice});
+                    obj.tc.(mrk).lastdouble(StimDevice) = length(obj.tc.(mrk).responses{StimDevice});
                 end
                 
-            elseif length(obj.tc.responses{StimDevice}) > 3
-                if obj.tc.responses{StimDevice}(end) ~= obj.tc.responses{StimDevice}(end-1)
+            elseif length(obj.tc.(mrk).responses{StimDevice}) > 3
+                if obj.tc.(mrk).responses{StimDevice}(end) ~= obj.tc.(mrk).responses{StimDevice}(end-1)
                     %             rule 1
-                    obj.tc.stepsize(StimDevice) = -obj.tc.stepsize(StimDevice)/2;
+                    obj.tc.(mrk).stepsize(StimDevice) = -obj.tc.(mrk).stepsize(StimDevice)/2;
                     fprintf(' Step Reversed and Halved\n')
-                    obj.tc.lastreverse(StimDevice) = length(obj.tc.responses{StimDevice});
+                    obj.tc.(mrk).lastreverse(StimDevice) = length(obj.tc.(mrk).responses{StimDevice});
                     %             rule 2 doesnt  need any specific dealing
                     %             rule 4
-                elseif obj.tc.responses{StimDevice}(end) == obj.tc.responses{StimDevice}(end-2) && obj.tc.responses{StimDevice}(end) == obj.tc.responses{StimDevice}(end-3)
-                    obj.tc.stepsize(StimDevice) = obj.tc.stepsize(StimDevice)*2;
+                elseif obj.tc.(mrk).responses{StimDevice}(end) == obj.tc.(mrk).responses{StimDevice}(end-2) && obj.tc.(mrk).responses{StimDevice}(end) == obj.tc.(mrk).responses{StimDevice}(end-3)
+                    obj.tc.(mrk).stepsize(StimDevice) = obj.tc.(mrk).stepsize(StimDevice)*2;
                     fprintf(' Step Size Doubled\n')
-                    obj.tc.lastdouble(StimDevice) = length(obj.tc.responses{StimDevice});
+                    obj.tc.(mrk).lastdouble(StimDevice) = length(obj.tc.(mrk).responses{StimDevice});
                     %             rule 3
-                elseif obj.tc.responses{StimDevice}(end) == obj.tc.responses{StimDevice}(end-1) && obj.tc.responses{StimDevice}(end) == obj.tc.responses{StimDevice}(end-2) && obj.tc.lastdouble(StimDevice) ~= obj.tc.lastreverse(StimDevice)-1
-                    obj.tc.stepsize(StimDevice) = obj.tc.stepsize(StimDevice)*2;
+                elseif obj.tc.(mrk).responses{StimDevice}(end) == obj.tc.(mrk).responses{StimDevice}(end-1) && obj.tc.(mrk).responses{StimDevice}(end) == obj.tc.(mrk).responses{StimDevice}(end-2) && obj.tc.(mrk).lastdouble(StimDevice) ~= obj.tc.(mrk).lastreverse(StimDevice)-1
+                    obj.tc.(mrk).stepsize(StimDevice) = obj.tc.(mrk).stepsize(StimDevice)*2;
                     fprintf(' Step Size Doubled\n')
-                    obj.tc.lastdouble(StimDevice) = length(obj.tc.responses{StimDevice});
+                    obj.tc.(mrk).lastdouble(StimDevice) = length(obj.tc.(mrk).responses{StimDevice});
                 end
                 
             end
             
-            if abs(obj.tc.stepsize(StimDevice)) < obj.tc.minstep
-                if obj.tc.stepsize(StimDevice) < 0
-                    obj.tc.stepsize(StimDevice) = -obj.tc.minstep;
+            if abs(obj.tc.(mrk).stepsize(StimDevice)) < obj.tc.(mrk).minstep
+                if obj.tc.(mrk).stepsize(StimDevice) < 0
+                    obj.tc.(mrk).stepsize(StimDevice) = -obj.tc.(mrk).minstep;
                 else
-                    obj.tc.stepsize(StimDevice) = obj.tc.minstep;
+                    obj.tc.(mrk).stepsize(StimDevice) = obj.tc.(mrk).minstep;
                 end
             end
             
-            obj.tc.stimvalue(StimDevice) = obj.tc.stimvalue(StimDevice) + obj.tc.stepsize(StimDevice);
+            obj.tc.(mrk).stimvalue(StimDevice) = obj.tc.(mrk).stimvalue(StimDevice) + obj.tc.(mrk).stepsize(StimDevice);
             
-            if obj.tc.stimvalue(StimDevice) < obj.tc.minvalue
-                obj.tc.stimvalue(StimDevice) = obj.tc.minvalue;
+            if obj.tc.(mrk).stimvalue(StimDevice) < obj.tc.(mrk).minvalue
+                obj.tc.(mrk).stimvalue(StimDevice) = obj.tc.(mrk).minvalue;
                 disp('Minimum value reached.')
             end
             
-            if obj.tc.stimvalue(StimDevice) > obj.tc.maxvalue
-                obj.tc.stimvalue(StimDevice) = obj.tc.maxvalue;
+            if obj.tc.(mrk).stimvalue(StimDevice) > obj.tc.(mrk).maxvalue
+                obj.tc.(mrk).stimvalue(StimDevice) = obj.tc.(mrk).maxvalue;
                 disp('Max value reached.')
             end
 
@@ -2352,30 +2354,48 @@ classdef best_toolbox < handle
             TrialsNoForThisMarker=find(vertcat(obj.inputs.trialMat{1:end,obj.inputs.colLabel.marker})==ConditionMarker);
             TrialToUpdate=find(TrialsNoForThisMarker>obj.inputs.trial);
             TrialToUpdate=TrialsNoForThisMarker(TrialToUpdate(1));
-            obj.inputs.trialMat{TrialToUpdate,obj.inputs.colLabel.si}{1,1}{1,1}=obj.tc.stimvalue(StimDevice);
+            obj.inputs.trialMat{TrialToUpdate,obj.inputs.colLabel.si}{1,1}{1,1}=obj.tc.(mrk).stimvalue(StimDevice);
             
         end
         function mep_threshold_trace_plot(obj)
             ax=['ax' num2str(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.axesno}{1,obj.inputs.chLab_idx})];
             axes(obj.app.pr.ax.(ax)), hold on,
             %                         plot(rand(1,500));
+%             switch obj.info.plt.(ax)
+% isfield(obj.inputs.Handles,'PhaseHistogramPeak')==0)
             switch obj.inputs.trial
-                case 1
-                    aa=cell2mat(vertcat(obj.inputs.trialMat{1,obj.inputs.colLabel.si}{1,1}))
-                    at=cell2mat(vertcat(obj.inputs.trialMat{1:2,obj.inputs.colLabel.si}{1,1}))
-                    obj.info.plt.(ax).mtplot=plot(at,'LineWidth',2);
+                case num2cell(1:obj.inputs.totalConds)
+%                     aa=cell2mat(vertcat(obj.inputs.trialMat{1,obj.inputs.colLabel.si}{1,1}{1,1}))
+%                     x=obj.inputs.trialMat{1,obj.inputs.colLabel.si}{1,1}
+%                     at=cell2mat(vertcat(obj.inputs.trialMat{1:2,obj.inputs.colLabel.si}{1,1}))
+                    YData=obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,1}{1,1};
+                    ConditionMarker=obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.marker};
+                    TrialsNoForThisMarker=find(vertcat(obj.inputs.trialMat{1:end,obj.inputs.colLabel.marker})==ConditionMarker);
+                    TrialToUpdate=find(TrialsNoForThisMarker>obj.inputs.trial);
+                    TrialToUpdate=TrialsNoForThisMarker(TrialToUpdate(1));
+                    YDataPlusOne=obj.inputs.trialMat{TrialToUpdate,obj.inputs.colLabel.si}{1,1}{1,1};
+                    obj.info.plt.(ax).mtplot=plot(YData,'LineWidth',2);
 %                                         obj.info.plt.(ax).mtplot=plot(cell2mat(vertcat(obj.inputs.trialMat{1,obj.inputs.colLabel.si}{1,1})),'LineWidth',2);
-
+                                          
                     %obj.info.handles.mt_plot=plot(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).trials(1,1));
-                    xlabel('Trial Number');   %TODO: Put if loop of RMT or MSO
+                    xlabel('Trial Number');   
                     ylabel('Stimulation Intensities (%MSO)');
                     yticks(0:5:400);
                     xticks(1:2:100);    % will have to be referneced with GUI
                     set(gcf, 'color', 'w')
-                    %     case obj.info.totalTrials
-%                     obj.info.plt.(ax).mt_nextIntensityDot=plot(obj.inputs.trial+1,obj.inputs.trialMat{obj.inputs.trial+1,obj.inputs.colLabel.si}{1,1},'o','Color','r','MarkerSize',4,'MarkerFaceColor','r');
+                    obj.info.plt.(ax).mt_nextIntensityDot=plot(2,YDataPlusOne,'o','Color','r','MarkerSize',4,'MarkerFaceColor','r');
                 otherwise
-                    set(obj.info.plt.(ax).mtplot,'YData',cell2mat(vertcat(obj.inputs.trialMat{1:obj.inputs.trial,obj.inputs.colLabel.si}{1,1})))
+                                        yticks(0:5:400);
+                    xticks(1:2:100);   
+                    ConditionMarker=obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.marker};
+                    TrialsNoForThisMarker=find(vertcat(obj.inputs.trialMat{1:end,obj.inputs.colLabel.marker})==ConditionMarker);
+                    TrialToUpdate=find(TrialsNoForThisMarker>obj.inputs.trial);
+                    TrialToUpdate=TrialsNoForThisMarker(TrialToUpdate(1));
+                    YDataPlusOne=obj.inputs.trialMat{TrialToUpdate,obj.inputs.colLabel.si}{1,1}{1,1};
+                    obj.info.plt.(ax).mtplot.YData=[obj.info.plt.(ax).mtplot.YData obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,1}{1,1}];
+                    obj.info.plt.(ax).mt_nextIntensityDot.XData=obj.info.plt.(ax).mt_nextIntensityDot.XData+1;
+                    obj.info.plt.(ax).mt_nextIntensityDot.YData=YDataPlusOne;
+%                     set(obj.info.plt.(ax).mtplot,'YData',cell2mat(vertcat(obj.inputs.trialMat{1:obj.inputs.trial,obj.inputs.colLabel.si}{1,1})))
 %                     set(obj.info.plt.(ax).mt_nextIntensityDot,'XData',obj.inputs.trial+1,'YData',obj.inputs.trialMat{obj.inputs.trial+1,obj.inputs.colLabel.si}{1,1})
             end
         end
