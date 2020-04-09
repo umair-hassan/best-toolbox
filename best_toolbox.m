@@ -89,7 +89,6 @@ classdef best_toolbox < handle
             
         end
         function factorizeConditions(obj)
-            % factorization would be done as per each measurement/protocol (or group of measurements) since the input fields and thus the conditioning variables differ
             %% Preparing Parameters to Inputs
             cb_Pars2Inputs
             %% Evaluating Selected Protocol
@@ -670,6 +669,8 @@ classdef best_toolbox < handle
                             obj.inputs.colLabel.chType=11;
                             obj.inputs.colLabel.chId=12;
                             obj.inputs.colLabel.mepamp=13;
+                            obj.inputs.colLabel.threshold=14;
+                            obj.inputs.colLabel.marker=15;
                             %% Creating Channel Measures, AxesNo, Labels
                             conds=fieldnames(obj.inputs.condsAll);
 %                             ChannelLabls=[repelem(obj.inputs.EMGTargetChannels,3),obj.inputs.EMGDisplayChannels]; %this can go directly inside the cond object in the loop
@@ -697,7 +698,8 @@ classdef best_toolbox < handle
                                 obj.inputs.condMat{c,obj.inputs.colLabel.axesno}=[{c*2-1},{c*2},DisplayChannelAxesNo];
                                 obj.inputs.condMat{c,obj.inputs.colLabel.chType}=repelem({'EMG'},4);
                                 obj.inputs.condMat{c,obj.inputs.colLabel.chId}=num2cell(1:4); %% TODO: update it later with the originigal channel index
-                                
+                                obj.inputs.condMat{c,obj.inputs.colLabel.marker}=c;
+                                obj.inputs.condMat{c,obj.inputs.colLabel.threshold}=obj.inputs.condsAll.(conds{c,1}).st1.threshold_level;
                                 for stno=1:(max(size(fieldnames(obj.inputs.condsAll.(conds{c,1}))))-1)
                                     st=['st' num2str(stno)];
                                     condSi{1,stno}=obj.inputs.condsAll.(conds{c,1}).(st).si_pckt;
@@ -1442,6 +1444,7 @@ classdef best_toolbox < handle
             %             function cb_CreateColumnLabels
             % ds
             %             end
+            %% Conversion from Pars2Inputs
             function cb_Pars2Inputs
                 obj.inputs=[];
                 obj.inputs=obj.app.par.(obj.app.info.event.current_session).(obj.app.info.event.current_measure_fullstr);
@@ -1476,6 +1479,7 @@ classdef best_toolbox < handle
                 obj.inputs.stop_event=0;
                 obj.inputs.ylimMin=-50;
                 obj.inputs.ylimMax=+50;
+                obj.inputs.mt_starting_stim_inten=obj.inputs.condsAll.cond1.st1.si_pckt{1,1};
                 
                 
             end
@@ -2264,12 +2268,13 @@ classdef best_toolbox < handle
             
             obj.tc.stimvalues{StimDevice} = [obj.tc.stimvalues{StimDevice}, round(obj.tc.stimvalue(StimDevice),2)];
             obj.tc.stepsizes{StimDevice} = [obj.tc.stepsizes{StimDevice}, round(obj.tc.stepsize(StimDevice),2)];
+
+            obj.inputs.results.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).MEPAmplitude(obj.inputs.trial,1)=input('enter mep amp  ');
             
-            obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.mepamp}=input('enter mep amp  ');
-            obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.mepamp}
-            
-            
-            if obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.mepamp} > (obj.inputs.motor_threshold*(1000))
+%             m(1:find(m,1,'last'))
+            MEPP2PAmpNonZeroIndex=find(obj.inputs.results.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).MEPAmplitude,1,'last');
+            MEPP2PAmp=obj.inputs.results.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).MEPAmplitude(MEPP2PAmpNonZeroIndex);
+            if MEPP2PAmp > (obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.threshold}*(1000)) % take the threshol for that particular condition, take the condition name from the marker or put that in the cond
                 disp('Hit')
                 answer = 1;
             else
@@ -2342,9 +2347,12 @@ classdef best_toolbox < handle
                 obj.tc.stimvalue(StimDevice) = obj.tc.maxvalue;
                 disp('Max value reached.')
             end
-            obj.inputs.trialMat{obj.inputs.trial+1,obj.inputs.colLabel.si}{1,1}{1,1}=obj.tc.stimvalue(StimDevice);
-            
-            
+
+            ConditionMarker=obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.marker};
+            TrialsNoForThisMarker=find(vertcat(obj.inputs.trialMat{1:end,obj.inputs.colLabel.marker})==ConditionMarker);
+            TrialToUpdate=find(TrialsNoForThisMarker>obj.inputs.trial);
+            TrialToUpdate=TrialsNoForThisMarker(TrialToUpdate(1));
+            obj.inputs.trialMat{TrialToUpdate,obj.inputs.colLabel.si}{1,1}{1,1}=obj.tc.stimvalue(StimDevice);
             
         end
         function mep_threshold_trace_plot(obj)
@@ -2353,8 +2361,11 @@ classdef best_toolbox < handle
             %                         plot(rand(1,500));
             switch obj.inputs.trial
                 case 1
-                    aa=cell2mat(vertcat(obj.inputs.trialMat{1:2,obj.inputs.colLabel.si}))
-                    obj.info.plt.(ax).mtplot=plot(cell2mat(vertcat(obj.inputs.trialMat{1,obj.inputs.colLabel.si})),'LineWidth',2);
+                    aa=cell2mat(vertcat(obj.inputs.trialMat{1,obj.inputs.colLabel.si}{1,1}))
+                    at=cell2mat(vertcat(obj.inputs.trialMat{1:2,obj.inputs.colLabel.si}{1,1}))
+                    obj.info.plt.(ax).mtplot=plot(at,'LineWidth',2);
+%                                         obj.info.plt.(ax).mtplot=plot(cell2mat(vertcat(obj.inputs.trialMat{1,obj.inputs.colLabel.si}{1,1})),'LineWidth',2);
+
                     %obj.info.handles.mt_plot=plot(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).trials(1,1));
                     xlabel('Trial Number');   %TODO: Put if loop of RMT or MSO
                     ylabel('Stimulation Intensities (%MSO)');
@@ -2362,10 +2373,10 @@ classdef best_toolbox < handle
                     xticks(1:2:100);    % will have to be referneced with GUI
                     set(gcf, 'color', 'w')
                     %     case obj.info.totalTrials
-                    obj.info.plt.(ax).mt_nextIntensityDot=plot(obj.inputs.trial+1,obj.inputs.trialMat{obj.inputs.trial+1,obj.inputs.colLabel.si}{1,1},'o','Color','r','MarkerSize',4,'MarkerFaceColor','r');
+%                     obj.info.plt.(ax).mt_nextIntensityDot=plot(obj.inputs.trial+1,obj.inputs.trialMat{obj.inputs.trial+1,obj.inputs.colLabel.si}{1,1},'o','Color','r','MarkerSize',4,'MarkerFaceColor','r');
                 otherwise
-                    set(obj.info.plt.(ax).mtplot,'YData',cell2mat(vertcat(obj.inputs.trialMat{1:obj.inputs.trial,obj.inputs.colLabel.si})))
-                    set(obj.info.plt.(ax).mt_nextIntensityDot,'XData',obj.inputs.trial+1,'YData',obj.inputs.trialMat{obj.inputs.trial+1,obj.inputs.colLabel.si}{1,1})
+                    set(obj.info.plt.(ax).mtplot,'YData',cell2mat(vertcat(obj.inputs.trialMat{1:obj.inputs.trial,obj.inputs.colLabel.si}{1,1})))
+%                     set(obj.info.plt.(ax).mt_nextIntensityDot,'XData',obj.inputs.trial+1,'YData',obj.inputs.trialMat{obj.inputs.trial+1,obj.inputs.colLabel.si}{1,1})
             end
         end
         
