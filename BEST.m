@@ -867,28 +867,20 @@ classdef BEST < handle
             
             set(obj.pr.vb,'Heights',[30 30 30 -9])
         end
+
         function pr_mep(obj)
             obj.pr.ax_no=['ax' num2str(obj.pr.axesno)];
             ui_menu=uicontextmenu(obj.fig.handle);
-            uimenu(ui_menu,'label','reset Mean MEP Plot','Callback',@(~,~)obj.fontSize,'Tag',obj.pr.ax_no);
-            uimenu(ui_menu,'label','reset Mean MEP Amplitude status','Callback',@(~,~)obj.fontSize,'Tag',obj.pr.ax_no);
-            uimenu(ui_menu,'label','set trials for Mean MEP Amplitude calculation','Callback',@(~,~)obj.fontSize,'Tag',obj.pr.ax_no);
+            uimenu(ui_menu,'label','reset Mean MEP Plot','Callback',@obj.pr_ResetMEPMeanPlot,'Tag',obj.pr.ax_no);
             uimenu(ui_menu,'label','set Y-axis limits','Callback',@obj.pr_SetYAxisLimits,'Tag',obj.pr.ax_no);
             uimenu(ui_menu,'label','set Font size','Callback',@obj.pr_FontSize,'Tag',obj.pr.ax_no);
             uimenu(ui_menu,'label','auto-fit','Callback',@obj.pr_AutoFit,'Tag',obj.pr.ax_no);
-%             uimenu(ui_menu,'label','Y-axis Max limit Decrease','Callback',@obj.ylims,'Tag',obj.pr.ax_no);
-%             uimenu(ui_menu,'label','Y-axis Min limit Increase','Callback',@obj.yminInc,'Tag',obj.pr.ax_no);
-%             uimenu(ui_menu,'label','Y-axis Min limit Decrease','Callback',@obj.yminDec,'Tag',obj.pr.ax_no);
-%             uimenu(ui_menu,'label','Insert Y-axis limits mannualy','Callback',@obj.ylims,'Tag',obj.pr.ax_no);
-%             uimenu(ui_menu,'label','change Font Size','Callback',@(~,~)obj.fontSize,'Tag',obj.pr.ax_no);
-            
+            uimenu(ui_menu,'label','reset Mean MEP Amplitude status','Callback',@obj.pr_ResetMEPMeanAmp,'Tag',obj.pr.ax_no);
+            uimenu(ui_menu,'label','set trials for Mean MEP Amplitude calculation','Callback',@obj.pr_setMEPMeanTrials,'Tag',obj.pr.ax_no);
             obj.pr.clab.(obj.pr.ax_no)=uix.Panel( 'Parent', obj.pr.grid, 'Padding', 0 ,'Units','normalized','Title', 'MEP Measurement','FontWeight','bold','FontSize',12,'TitlePosition','centertop' );
-            obj.pr.ax.(obj.pr.ax_no)=axes( 'Parent',  obj.pr.clab.(obj.pr.ax_no),'Units','normalized','uicontextmenu',ui_menu);
-            text(obj.pr.ax.(obj.pr.ax_no),0.9,1,'zoomin   ','units','normalized','HorizontalAlignment','right','VerticalAlignment','bottom','ButtonDownFcn',@obj.pr_YLimZoomIn,'Tag',obj.pr.ax_no,'color',[0.55 0.55 0.55])
-            text(obj.pr.ax.(obj.pr.ax_no),0.1,1,'   zoomout','units','normalized','HorizontalAlignment','left','VerticalAlignment','bottom','ButtonDownFcn',@obj.pr_YLimZoomOut,'Tag',obj.pr.ax_no,'color',[0.55 0.55 0.55])
-%             text(obj.pr.ax.(obj.pr.ax_no),0.60,1,'| limits','units','normalized','HorizontalAlignment','right','VerticalAlignment','bottom','ButtonDownFcn',@obj.yminInc,'Tag',obj.pr.ax_no,'color',[0.55 0.55 0.55])
-%             text(obj.pr.ax.(obj.pr.ax_no),0.40,1,'| YMin-','units','normalized','HorizontalAlignment','right','VerticalAlignment','bottom','ButtonDownFcn',@obj.yminDec,'Tag',obj.pr.ax_no,'color',[0.55 0.55 0.55])
-
+            obj.pr.ax.(obj.pr.ax_no)=axes(uicontainer( 'Parent',  obj.pr.clab.(obj.pr.ax_no)),'Units','normalized','uicontextmenu',ui_menu);
+            text(obj.pr.ax.(obj.pr.ax_no),1,1,'zoomin','units','normalized','HorizontalAlignment','right','VerticalAlignment','bottom','ButtonDownFcn',@obj.pr_YLimZoomIn,'Tag',obj.pr.ax_no,'color',[0.55 0.55 0.55]);
+            text(obj.pr.ax.(obj.pr.ax_no),0.1,1,'   zoomout','units','normalized','HorizontalAlignment','left','VerticalAlignment','bottom','ButtonDownFcn',@obj.pr_YLimZoomOut,'Tag',obj.pr.ax_no,'color',[0.55 0.55 0.55]);
         end
         function pr_YLimZoomIn(obj,source,~)
             selectedAxes=source.Tag;
@@ -900,6 +892,7 @@ classdef BEST < handle
             mat4=unique(sort([0 mat3]));
             yticks(obj.pr.ax.(selectedAxes),(mat4));
             ytickformat('%.2f');
+            gridxy([0 (obj.bst.inputs.mep_onset):0.25:(obj.bst.inputs.mep_offset)],'Color',[219/255 246/255 255/255],'linewidth',4) ;
         end
         function pr_YLimZoomOut(obj,source,~)
             selectedAxes=source.Tag;
@@ -911,12 +904,16 @@ classdef BEST < handle
             mat4=unique(sort([0 mat3]));
             yticks(obj.pr.ax.(selectedAxes),(mat4));
             ytickformat('%.2f');
+            gridxy([0 (obj.bst.inputs.mep_onset):0.25:(obj.bst.inputs.mep_offset)],'Color',[219/255 246/255 255/255],'linewidth',4) ;
+
         end
         function pr_AutoFit(obj,source,~)
             selectedAxes=source.Tag;
             obj.pr.ax.(selectedAxes).YLim=[-Inf Inf];
             yticks('auto');
             obj.pr.ax.(selectedAxes).YLim=[min(yticks(obj.pr.ax.(selectedAxes))) max(yticks(obj.pr.ax.(selectedAxes)))];
+            gridxy([0 (obj.bst.inputs.mep_onset):0.25:(obj.bst.inputs.mep_offset)],'Color',[219/255 246/255 255/255],'linewidth',4) ;
+
         end
         function pr_FontSize(obj,source,~)
             selectedAxes=source.Tag;
@@ -927,27 +924,12 @@ classdef BEST < handle
             function setFontSize(~,~)
                 try
                     obj.pr.ax.(selectedAxes).FontSize=str2double(font.String);
+                    obj.pr.ax.(selectedAxes).UserData.status.FontSize=str2double(font.String);
                     close(f)
                 catch
                     close(f)
                 end
             end
-
-% % %             selectedAxes=source.Tag;
-% % %             prompt = {'Enter Font Size:'};
-% % %             dlgtitle = 'BEST Toolbox | Font Size Change Dialogue Box ';
-% % %             dims = [1 35];
-% % %             definput = {'11'};
-% %             opts=struct;
-% %             opts.WindowStyle='normal';
-% %             opts.Resize='off';
-% %             opts.Interpreter='none';
-% %             uiresume
-% %             answer = inputdlg('Enter Font Size:','BEST Toolbox | Font Size Change Dialogue Box ',[1 80],{'11'},'WindowStyle', 'normal',opts);
-% %             uiresume
-% %             if ~isempty(answer)
-% %             obj.pr.ax.(source.Tag).FontSize=str2double(answer);
-% %             end
         end
         function pr_SetYAxisLimits(obj,source,~)
             %Rule: Limits input syntax [LowLimit HighLimit]
@@ -969,6 +951,15 @@ classdef BEST < handle
                     close(f)
                 end
             end
+        end
+        function pr_ResetMEPMeanPlot(obj,source,~)
+            if(obj.bst.inputs.trial>2)
+            obj.bst.info.plt.(source.Tag).mean.UserData.TrialNoForMean=obj.bst.inputs.trial;
+            end
+        end
+        function pr_ResetMEPMeanAmp(obj,source,~)
+        end
+        function pr_setMEPMeanTrials(obj,source,~)
         end
         function pr_scat_plot(obj)
             obj.pr.ax_no=['ax' num2str(obj.pr.axesno)];

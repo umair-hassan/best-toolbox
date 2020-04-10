@@ -909,7 +909,7 @@ classdef BEST < handle
             obj.pr.ax.(selectedAxes).YLim(2)=current_ylimMax*1.50; %15% normalized measure
             mat3=linspace(obj.pr.ax.(selectedAxes).YLim(1),obj.pr.ax.(selectedAxes).YLim(2),10);
             mat4=unique(sort([0 mat3]));
-            yticks(obj.pr.ax.(selectedAxes),round(mat4));
+            yticks(obj.pr.ax.(selectedAxes),(mat4));
             ytickformat('%.2f');
         end
         function pr_AutoFit(obj,source,~)
@@ -954,17 +954,27 @@ classdef BEST < handle
             selectedAxes=source.Tag;
             f=figure('Name','Y Axis Limits | BEST Toolbox','numbertitle', 'off','ToolBar', 'none','MenuBar', 'none','WindowStyle', 'modal','Units', 'normal', 'Position', [0.5 0.5 .35 .05]);
             uicontrol( 'Style','text','Parent', f,'String','Enter Y Axis Limits [min max](microV):','FontSize',11,'HorizontalAlignment','center','Units','normalized','Position',[0.05 0.5 0.5 0.4]);
-            limits=uicontrol( 'Style','edit','Parent', f,'String','11','FontSize',11,'HorizontalAlignment','center','Units','normalized','Position',[0.5 0.5 0.4 0.4]);
-            uicontrol( 'Style','pushbutton','Parent', f,'String','Set Limits','FontSize',11,'HorizontalAlignment','center','Units','normalized','Position',[0.1 0.05 0.8 0.4],'Callback',@setLimits);
+            limmin=uicontrol( 'Style','edit','Parent', f,'String','-50','FontSize',11,'HorizontalAlignment','center','Units','normalized','Position',[0.5 0.5 0.2 0.4]);
+            limmax=uicontrol( 'Style','edit','Parent', f,'String','50','FontSize',11,'HorizontalAlignment','center','Units','normalized','Position',[0.75 0.5 0.2 0.4]);
+            uicontrol( 'Style','pushbutton','Parent', f,'String','Set','FontSize',11,'HorizontalAlignment','center','Units','normalized','Position',[0.1 0.05 0.8 0.4],'Callback',@setLimits);
             function setLimits(~,~)
-                limits.String
                 try
-                    obj.pr.ax.(selectedAxes).YLim=eval(limits.String);
-                    close(f)
+                    obj.pr.ax.(selectedAxes).YLim=[str2double(limmin.String) str2double(limmax.String)];
+                    close(f);
+                    mat3=linspace(obj.pr.ax.(selectedAxes).YLim(1),obj.pr.ax.(selectedAxes).YLim(2),10);
+                    mat4=unique(sort([0 mat3]));
+                    yticks(obj.pr.ax.(selectedAxes),(mat4));
+                    ytickformat('%.2f');
                 catch
                     close(f)
                 end
             end
+        end
+        function pr_ResetMEPMeanPlot(obj,source,~)
+        end
+        function pr_ResetMEPMeanAmp(obj,source,~)
+        end
+        function pr_setMEPMeanT(obj,source,~)
         end
         function pr_scat_plot(obj)
             obj.pr.ax_no=['ax' num2str(obj.pr.axesno)];
