@@ -1477,8 +1477,8 @@ classdef best_toolbox < handle
                 obj.inputs.ylimMin=obj.inputs.EMGDisplayYLimMin;
                 obj.inputs.ylimMax=obj.inputs.EMGDisplayYLimMax;
                 obj.inputs.stop_event=0;
-                obj.inputs.ylimMin=-50;
-                obj.inputs.ylimMax=+50;
+                obj.inputs.ylimMin=-3000;
+                obj.inputs.ylimMax=+3000;
                 obj.inputs.mt_starting_stim_inten=obj.inputs.condsAll.cond1.st1.si_pckt{1,1};
                 
                 
@@ -1656,8 +1656,8 @@ classdef best_toolbox < handle
                                 obj.inputs.rawData.(unique_chLab{1,i}).data(obj.inputs.trial,:)=obj.bossbox.IEEGScope.Data(:,1)';
                                 obj.inputs.rawData.(unique_chLab{1,i}).time(obj.inputs.trial,:)=obj.bossbox.IEEGScope.Time(:,1)';
                             case 'EMG'
-                                                        obj.inputs.rawData.(unique_chLab{1,i}).data(obj.inputs.trial,:)=[obj.sim_mep(1,700:1000), obj.sim_mep(1,1:699)]*1000*obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,1}{1,1}*(randi([1 3])*0.10);
-                                obj.bossbox.EMGScope
+                                                        obj.inputs.rawData.(unique_chLab{1,i}).data(obj.inputs.trial,:)=obj.best_VisualizationFilter([obj.sim_mep(1,700:1000), obj.sim_mep(1,1:699)]*1000*obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,1}{1,1}*(randi([1 3])*0.10));
+                                obj.bossbox.EMGScope;
                                 check=obj.bossbox.EMGScope.Data(:,1)';
                                 %                         obj.inputs.rawData.(unique_chLab{1,i}).data(obj.inputs.trial,:)=[obj.bossbox.EMGScope.Data(:,1)]';
 %                                 obj.inputs.rawData.(unique_chLab{1,i}).data(obj.inputs.trial,:)=obj.best_VisualizationFilter([obj.bossbox.EMGScope.Data(:,1)]');

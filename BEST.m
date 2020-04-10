@@ -873,22 +873,102 @@ classdef BEST < handle
             uimenu(ui_menu,'label','reset Mean MEP Plot','Callback',@(~,~)obj.fontSize,'Tag',obj.pr.ax_no);
             uimenu(ui_menu,'label','reset Mean MEP Amplitude status','Callback',@(~,~)obj.fontSize,'Tag',obj.pr.ax_no);
             uimenu(ui_menu,'label','set trials for Mean MEP Amplitude calculation','Callback',@(~,~)obj.fontSize,'Tag',obj.pr.ax_no);
-            uimenu(ui_menu,'label','set Y-axis limits','Callback',@obj.ylims,'Tag',obj.pr.ax_no);
-            uimenu(ui_menu,'label','set Font size','Callback',@obj.ylims,'Tag',obj.pr.ax_no);
-            uimenu(ui_menu,'label','auto-fit','Callback',@obj.ylims,'Tag',obj.pr.ax_no);
+            uimenu(ui_menu,'label','set Y-axis limits','Callback',@obj.pr_SetYAxisLimits,'Tag',obj.pr.ax_no);
+            uimenu(ui_menu,'label','set Font size','Callback',@obj.pr_FontSize,'Tag',obj.pr.ax_no);
+            uimenu(ui_menu,'label','auto-fit','Callback',@obj.pr_AutoFit,'Tag',obj.pr.ax_no);
 %             uimenu(ui_menu,'label','Y-axis Max limit Decrease','Callback',@obj.ylims,'Tag',obj.pr.ax_no);
 %             uimenu(ui_menu,'label','Y-axis Min limit Increase','Callback',@obj.yminInc,'Tag',obj.pr.ax_no);
 %             uimenu(ui_menu,'label','Y-axis Min limit Decrease','Callback',@obj.yminDec,'Tag',obj.pr.ax_no);
 %             uimenu(ui_menu,'label','Insert Y-axis limits mannualy','Callback',@obj.ylims,'Tag',obj.pr.ax_no);
-            uimenu(ui_menu,'label','change Font Size','Callback',@(~,~)obj.fontSize,'Tag',obj.pr.ax_no);
+%             uimenu(ui_menu,'label','change Font Size','Callback',@(~,~)obj.fontSize,'Tag',obj.pr.ax_no);
             
             obj.pr.clab.(obj.pr.ax_no)=uix.Panel( 'Parent', obj.pr.grid, 'Padding', 0 ,'Units','normalized','Title', 'MEP Measurement','FontWeight','bold','FontSize',12,'TitlePosition','centertop' );
             obj.pr.ax.(obj.pr.ax_no)=axes( 'Parent',  obj.pr.clab.(obj.pr.ax_no),'Units','normalized','uicontextmenu',ui_menu);
-            text(obj.pr.ax.(obj.pr.ax_no),1,1,'zoom+   ','units','normalized','HorizontalAlignment','right','VerticalAlignment','bottom','ButtonDownFcn',@obj.ymaxInc,'Tag',obj.pr.ax_no,'color',[0.55 0.55 0.55])
-            text(obj.pr.ax.(obj.pr.ax_no),0,1,'   zoom-','units','normalized','HorizontalAlignment','left','VerticalAlignment','bottom','ButtonDownFcn',@obj.ymaxDec,'Tag',obj.pr.ax_no,'color',[0.55 0.55 0.55])
+            text(obj.pr.ax.(obj.pr.ax_no),0.9,1,'zoomin   ','units','normalized','HorizontalAlignment','right','VerticalAlignment','bottom','ButtonDownFcn',@obj.pr_YLimZoomIn,'Tag',obj.pr.ax_no,'color',[0.55 0.55 0.55])
+            text(obj.pr.ax.(obj.pr.ax_no),0.1,1,'   zoomout','units','normalized','HorizontalAlignment','left','VerticalAlignment','bottom','ButtonDownFcn',@obj.pr_YLimZoomOut,'Tag',obj.pr.ax_no,'color',[0.55 0.55 0.55])
 %             text(obj.pr.ax.(obj.pr.ax_no),0.60,1,'| limits','units','normalized','HorizontalAlignment','right','VerticalAlignment','bottom','ButtonDownFcn',@obj.yminInc,'Tag',obj.pr.ax_no,'color',[0.55 0.55 0.55])
 %             text(obj.pr.ax.(obj.pr.ax_no),0.40,1,'| YMin-','units','normalized','HorizontalAlignment','right','VerticalAlignment','bottom','ButtonDownFcn',@obj.yminDec,'Tag',obj.pr.ax_no,'color',[0.55 0.55 0.55])
 
+        end
+        function pr_YLimZoomIn(obj,source,~)
+            selectedAxes=source.Tag;
+            current_ylimMax=obj.pr.ax.(selectedAxes).YLim(2);
+            current_ylimMin=obj.pr.ax.(selectedAxes).YLim(1);
+            obj.pr.ax.(selectedAxes).YLim(1)=current_ylimMin*0.50; %50 percent normalized decrement
+            obj.pr.ax.(selectedAxes).YLim(2)=current_ylimMax*0.50; %50 prcent normalized measure
+            mat3=linspace(obj.pr.ax.(selectedAxes).YLim(1),obj.pr.ax.(selectedAxes).YLim(2),10);
+            mat4=unique(sort([0 mat3]));
+            yticks(obj.pr.ax.(selectedAxes),(mat4));
+            ytickformat('%.2f');
+        end
+        function pr_YLimZoomOut(obj,source,~)
+            selectedAxes=source.Tag;
+            current_ylimMax=obj.pr.ax.(selectedAxes).YLim(2);
+            current_ylimMin=obj.pr.ax.(selectedAxes).YLim(1);
+            obj.pr.ax.(selectedAxes).YLim(1)=current_ylimMin*1.50; %15 percent normalized decrement
+            obj.pr.ax.(selectedAxes).YLim(2)=current_ylimMax*1.50; %15% normalized measure
+            mat3=linspace(obj.pr.ax.(selectedAxes).YLim(1),obj.pr.ax.(selectedAxes).YLim(2),10);
+            mat4=unique(sort([0 mat3]));
+            yticks(obj.pr.ax.(selectedAxes),(mat4));
+            ytickformat('%.2f');
+        end
+        function pr_AutoFit(obj,source,~)
+            selectedAxes=source.Tag;
+            obj.pr.ax.(selectedAxes).YLim=[-Inf Inf];
+            yticks('auto');
+            obj.pr.ax.(selectedAxes).YLim=[min(yticks(obj.pr.ax.(selectedAxes))) max(yticks(obj.pr.ax.(selectedAxes)))];
+        end
+        function pr_FontSize(obj,source,~)
+            selectedAxes=source.Tag;
+            f=figure('Name','Font Size | BEST Toolbox','numbertitle', 'off','ToolBar', 'none','MenuBar', 'none','WindowStyle', 'modal','Units', 'normal', 'Position', [0.5 0.5 .15 .05]);
+            uicontrol( 'Style','text','Parent', f,'String','Enter Font Size:','FontSize',11,'HorizontalAlignment','center','Units','normalized','Position',[0.05 0.5 0.5 0.4]);
+            font=uicontrol( 'Style','edit','Parent', f,'String','11','FontSize',11,'HorizontalAlignment','center','Units','normalized','Position',[0.5 0.5 0.4 0.4]);
+            uicontrol( 'Style','pushbutton','Parent', f,'String','Set Size','FontSize',11,'HorizontalAlignment','center','Units','normalized','Position',[0.1 0.05 0.8 0.4],'Callback',@setFontSize);
+            function setFontSize(~,~)
+                try
+                    obj.pr.ax.(selectedAxes).FontSize=str2double(font.String);
+                    close(f)
+                catch
+                    close(f)
+                end
+            end
+
+% % %             selectedAxes=source.Tag;
+% % %             prompt = {'Enter Font Size:'};
+% % %             dlgtitle = 'BEST Toolbox | Font Size Change Dialogue Box ';
+% % %             dims = [1 35];
+% % %             definput = {'11'};
+% %             opts=struct;
+% %             opts.WindowStyle='normal';
+% %             opts.Resize='off';
+% %             opts.Interpreter='none';
+% %             uiresume
+% %             answer = inputdlg('Enter Font Size:','BEST Toolbox | Font Size Change Dialogue Box ',[1 80],{'11'},'WindowStyle', 'normal',opts);
+% %             uiresume
+% %             if ~isempty(answer)
+% %             obj.pr.ax.(source.Tag).FontSize=str2double(answer);
+% %             end
+        end
+        function pr_SetYAxisLimits(obj,source,~)
+            %Rule: Limits input syntax [LowLimit HighLimit]
+            selectedAxes=source.Tag;
+            f=figure('Name','Y Axis Limits | BEST Toolbox','numbertitle', 'off','ToolBar', 'none','MenuBar', 'none','WindowStyle', 'modal','Units', 'normal', 'Position', [0.5 0.5 .35 .05]);
+            uicontrol( 'Style','text','Parent', f,'String','Enter Y Axis Limits [min max](microV):','FontSize',11,'HorizontalAlignment','center','Units','normalized','Position',[0.05 0.5 0.5 0.4]);
+            limmin=uicontrol( 'Style','edit','Parent', f,'String','-50','FontSize',11,'HorizontalAlignment','center','Units','normalized','Position',[0.5 0.5 0.2 0.4]);
+            limmax=uicontrol( 'Style','edit','Parent', f,'String','50','FontSize',11,'HorizontalAlignment','center','Units','normalized','Position',[0.75 0.5 0.2 0.4]);
+            uicontrol( 'Style','pushbutton','Parent', f,'String','Set','FontSize',11,'HorizontalAlignment','center','Units','normalized','Position',[0.1 0.05 0.8 0.4],'Callback',@setLimits);
+            function setLimits(~,~)
+                try
+                    obj.pr.ax.(selectedAxes).YLim=[str2double(limmin.String) str2double(limmax.String)];
+                    close(f);
+                    mat3=linspace(obj.pr.ax.(selectedAxes).YLim(1),obj.pr.ax.(selectedAxes).YLim(2),10);
+                    mat4=unique(sort([0 mat3]));
+                    yticks(obj.pr.ax.(selectedAxes),(mat4));
+                    ytickformat('%.2f');
+                catch
+                    close(f)
+                end
+            end
         end
         function pr_scat_plot(obj)
             obj.pr.ax_no=['ax' num2str(obj.pr.axesno)];
@@ -1033,8 +1113,7 @@ classdef BEST < handle
             answer = inputdlg(prompt,dlgtitle,dims,definput);
             obj.pr.ax.(selectedAxes).YLim=[str2double(answer{1,1}),str2double(answer{2,1})];
         end
-        function fontSize(obj,source,~)
-        end
+
         function pr_threshold(obj)
             obj.pr.clab.(obj.pr.axesno)=uix.Panel( 'Parent', obj.pr.grid, 'Padding', 5 ,'Units','normalized','Title', 'MEP Threshold Hunting','FontWeight','bold','FontSize',12,'TitlePosition','centertop' );
             
