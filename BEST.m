@@ -7,13 +7,14 @@ classdef BEST < handle
         save_buffer
         pr
         pi
+        hw
     end
     
     properties (Hidden)
         pmd %panel_measurement_designer
         %         pi  %panel_inputs
         %         pr %panel_results
-        hw
+%         hw
         var
         grid % bottom most 3 panels
         panel
@@ -21,6 +22,7 @@ classdef BEST < handle
         fig
         menu
         icons
+        Date
         %         save_buffer
     end
     
@@ -192,10 +194,86 @@ classdef BEST < handle
             obj.pmd.lb_measures.listbox=uicontrol( 'Style','listbox','Parent', pmd_vbox ,'KeyPressFcn',@(~,~)obj.cb_pmd_lb_measure_keypressfcn,'FontSize',11,'String',obj.pmd.lb_measures.string,'uicontextmenu',m,'Callback',@(~,~)obj.cb_measure_listbox);
             m=uicontextmenu(obj.fig.handle);
             
+            LastRow = uix.HBox( 'Parent', pmd_vbox, 'Spacing', 5, 'Padding', 5  );
+            obj.pmd.RunStopButton=uicontrol( 'Parent', LastRow ,'Style','PushButton','String','Run','Enable','off','FontWeight','Bold','Callback',@obj.RunStopButton);
+            obj.pmd.PauseUnpauseButton=uicontrol( 'Parent', LastRow ,'Style','PushButton','String','Pause','Enable','off','FontWeight','Bold','Callback',@obj.PauseUnpauseButton);
+
+            set( pmd_vbox, 'Heights', [35 35 35 35 0 -0.04 -0.11 -0.04 -0.63 45]);
             
-            set( pmd_vbox, 'Heights', [35 35 35 35 0 -0.04 -0.11 -0.04 -0.63]);
+           
             
         end
+        function RunStopButton(obj,~,~)
+             if strcmp(obj.pmd.RunStopButton.String,'Stop')
+                 uiresume;
+                 obj.bst.inputs.stop_event=1;
+                 obj.pmd.RunStopButton.Enable='Off';
+                 obj.pmd.PauseUnpauseButton.Enable='off';
+                 obj.pmd.RunStopButton.String='Run';
+                 obj.pmd.PauseUnpauseButton.String='Pause';
+                 obj.enable_listboxes;
+                 
+             elseif strcmp(obj.pmd.RunStopButton.String,'Run') % && strcmp(obj.pmd.RunStopButton.Enable,'On')
+                 obj.pmd.RunStopButton.String='Stop';
+                 obj.pmd.PauseUnpauseButton.Enable='on';
+                 obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).Enable{1,1}='Off';
+                 obj.disable_listboxes;
+                 %search for all the handles and make their enable off uicontrols, table and the interactive axes  %https://www.mathworks.com/help/matlab/ref/disabledefaultinteractivity.html
+                 %make enable off in the listboxes and all pmd fields
+                 pause(0.02); %Time Buffer Necessary for Rendering 
+                 switch obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).Protocol{1,1}
+                     case 'MEP Hotspot Search Protocol'
+                         switch obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).ProtocolMode
+                             case 1 %Automated
+                                 ParametersFieldNames=fieldnames(obj.pi.hotspot);
+                                 for iLoadingParameters=1:numel(ParametersFieldNames)
+                                     obj.pi.hotspot.(ParametersFieldNames{iLoadingParameters}).Enable=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).Enable{1,1};
+                                 end
+                                 obj.bst.best_hotspot
+                             case 2 %Manual
+                                 obj.bst.best_hotspot_manual
+                         end
+                     case 'MEP Measurement Protocol'
+                 end
+             end
+         end
+        function PauseUnpauseButton(obj,~,~)
+             obj.pmd.RunStopButton.String='Stop';
+             obj.pmd.PauseUnpauseButton.Enable='on';
+             if strcmp(obj.pmd.PauseUnpauseButton.String,'Pause')
+                 obj.pmd.PauseUnpauseButton.String='Unpause';
+                 uiwait;
+             elseif strcmp(obj.pmd.PauseUnpauseButton.String,'Unpause')
+                 obj.pmd.PauseUnpauseButton.String='Pause';
+                 uiresume;
+             end
+        end
+        function DisableInteractivity(obj)
+            ParametersFieldNames=fieldnames(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr));
+            for iLoadingParameters=1:numel(ParametersFieldNames)
+                if (isa(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(ParametersFieldNames{iLoadingParameters}),'char'))
+                    obj.pi.hotspot.(ParametersFieldNames{iLoadingParameters}).String=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(ParametersFieldNames{iLoadingParameters});
+                elseif(isa(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(ParametersFieldNames{iLoadingParameters}),'double'))
+                    obj.pi.hotspot.(ParametersFieldNames{iLoadingParameters}).Value=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(ParametersFieldNames{iLoadingParameters});
+                end
+            end
+            
+             switch obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).Protocol{1,1}
+                     case 'MEP Hotspot Search Protocol'
+
+                     case 'MEP Measurement Protocol'
+             end
+        end
+
+        function disable_listboxes(obj)
+            obj.pmd.lb_measures.listbox.Enable='off';
+            obj.pmd.lb_sessions.listbox.Enable='off';
+        end
+        function enable_listboxes(obj)
+            obj.pmd.lb_measures.listbox.Enable='on';
+            obj.pmd.lb_sessions.listbox.Enable='on';
+        end
+         
         function cb_pmd_lb_session_keypressfcn(obj)
             if (numel(obj.pmd.lb_sessions.listbox.String)==0 || obj.pmd.lb_sessions.listbox.Value==0)
                 return
@@ -712,44 +790,56 @@ classdef BEST < handle
             end
         end
         function cb_pmd_lb_measure_menu_loadresult(obj)
-            if(numel(obj.pmd.lb_measures.listbox.String)==0)
-                return
-            else
-                if(strcmp(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).runEnable,'off'))
-                    delete(obj.pr.mep.axes1)
-                    delete(obj.pr.hotspot.axes1)
-                    delete(obj.pr.mt.axes_mep)
-                    delete(obj.pr.mt.axes_mtplot)
-                    delete(obj.pr.ioc.axes_mep)
-                    delete(obj.pr.ioc.axes_scatplot)
-                    delete(obj.pr.ioc.axes_fitplot)
-                    switch obj.info.event.current_measure
-                        case 'MEP Measurement'
-                            obj.pr_mep;
-                            obj.bst.inputs.current_session=obj.info.event.current_session;
-                            obj.bst.inputs.current_measurement=obj.info.event.current_measure_fullstr;
-                            obj.bst.best_mep_posthoc();
-                        case 'MEP Hotspot Search'
-                            obj.pr_hotspot
-                            obj.bst.inputs.current_session=obj.info.event.current_session;
-                            obj.bst.inputs.current_measurement=obj.info.event.current_measure_fullstr;
-                            obj.bst.best_hotspot_posthoc();
-                        case 'MEP Motor Threshold Hunting'
-                            obj.pr_mt
-                            obj.bst.inputs.current_session=obj.info.event.current_session;
-                            obj.bst.inputs.current_measurement=obj.info.event.current_measure_fullstr;
-                            obj.bst.best_mt_posthoc();
-                        case 'MEP Dose Response Curve_sp'
-                            obj.pr_ioc
-                            obj.bst.inputs.current_session=obj.info.event.current_session;
-                            obj.bst.inputs.current_measurement=obj.info.event.current_measure_fullstr;
-                            obj.bst.best_ioc_posthoc();
-                    end
-                else
-                    errordlg('No results exist for this measurement, Please collect the data if you wish to see the results for this particular measure.','BEST Toolbox');
-                    return
-                end
+            obj.bst.factorizeConditions
+            obj.bst.planTrials
+            obj.resultsPanel;
+            obj.bst.inputs.rawData=obj.bst.sessions.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).RawData;
+            obj.bst.inputs.results=obj.bst.sessions.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).Results;
+            obj.bst.inputs.trial=1;
+            for tt=1:obj.bst.inputs.totalTrials
+                obj.bst.plotTrial;
+                obj.bst.inputs.trial=obj.bst.inputs.trial+1;
             end
+            
+            %% Old Code
+%             if(numel(obj.pmd.lb_measures.listbox.String)==0)
+%                 return
+%             else
+%                 if(strcmp(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).runEnable,'off'))
+%                     delete(obj.pr.mep.axes1)
+%                     delete(obj.pr.hotspot.axes1)
+%                     delete(obj.pr.mt.axes_mep)
+%                     delete(obj.pr.mt.axes_mtplot)
+%                     delete(obj.pr.ioc.axes_mep)
+%                     delete(obj.pr.ioc.axes_scatplot)
+%                     delete(obj.pr.ioc.axes_fitplot)
+%                     switch obj.info.event.current_measure
+%                         case 'MEP Measurement'
+%                             obj.pr_mep;
+%                             obj.bst.inputs.current_session=obj.info.event.current_session;
+%                             obj.bst.inputs.current_measurement=obj.info.event.current_measure_fullstr;
+%                             obj.bst.best_mep_posthoc();
+%                         case 'MEP Hotspot Search'
+%                             obj.pr_hotspot
+%                             obj.bst.inputs.current_session=obj.info.event.current_session;
+%                             obj.bst.inputs.current_measurement=obj.info.event.current_measure_fullstr;
+%                             obj.bst.best_hotspot_posthoc();
+%                         case 'MEP Motor Threshold Hunting'
+%                             obj.pr_mt
+%                             obj.bst.inputs.current_session=obj.info.event.current_session;
+%                             obj.bst.inputs.current_measurement=obj.info.event.current_measure_fullstr;
+%                             obj.bst.best_mt_posthoc();
+%                         case 'MEP Dose Response Curve_sp'
+%                             obj.pr_ioc
+%                             obj.bst.inputs.current_session=obj.info.event.current_session;
+%                             obj.bst.inputs.current_measurement=obj.info.event.current_measure_fullstr;
+%                             obj.bst.best_ioc_posthoc();
+%                     end
+%                 else
+%                     errordlg('No results exist for this measurement, Please collect the data if you wish to see the results for this particular measure.','BEST Toolbox');
+%                     return
+%                 end
+%             end
         end
         %% input panels or Protocol Designer 
         function create_inputs_panel(obj)
@@ -875,9 +965,11 @@ classdef BEST < handle
             uimenu(ui_menu,'label','set Y-axis limits','Callback',@obj.pr_SetYAxisLimits,'Tag',obj.pr.ax_no);
             uimenu(ui_menu,'label','set Font size','Callback',@obj.pr_FontSize,'Tag',obj.pr.ax_no);
             uimenu(ui_menu,'label','auto-fit','Callback',@obj.pr_AutoFit,'Tag',obj.pr.ax_no);
-            uimenu(ui_menu,'label','reset Mean MEP Amplitude status','Callback',@obj.pr_ResetMEPMeanAmp,'Tag',obj.pr.ax_no);
-            uimenu(ui_menu,'label','set trials for Mean MEP Amplitude calculation','Callback',@obj.pr_setMEPMeanTrials,'Tag',obj.pr.ax_no);
-            obj.pr.clab.(obj.pr.ax_no)=uix.Panel( 'Parent', obj.pr.grid, 'Padding', 0 ,'Units','normalized','Title', 'MEP Measurement','FontWeight','bold','FontSize',12,'TitlePosition','centertop' );
+            uimenu(ui_menu,'label','export as MATLAB Figure','Callback',@obj.pr_FigureExport,'Tag',obj.pr.ax_no);
+% %             uimenu(ui_menu,'label','reset Mean MEP Amplitude status','Callback',@obj.pr_ResetMEPMeanAmp,'Tag',obj.pr.ax_no);
+% %             uimenu(ui_menu,'label','set trials for Mean MEP Amplitude calculation','Callback',@obj.pr_setMEPMeanTrials,'Tag',obj.pr.ax_no);
+            AxesTitle=['MEP Measurement ' obj.pr.ax_ChannelLabels{1,obj.pr.axesno}];
+            obj.pr.clab.(obj.pr.ax_no)=uix.Panel( 'Parent', obj.pr.grid, 'Padding', 0 ,'Units','normalized','Title', AxesTitle,'FontWeight','bold','FontSize',12,'TitlePosition','centertop' );
             obj.pr.ax.(obj.pr.ax_no)=axes(uicontainer( 'Parent',  obj.pr.clab.(obj.pr.ax_no)),'Units','normalized','uicontextmenu',ui_menu);
             text(obj.pr.ax.(obj.pr.ax_no),1,1,'zoomin','units','normalized','HorizontalAlignment','right','VerticalAlignment','bottom','ButtonDownFcn',@obj.pr_YLimZoomIn,'Tag',obj.pr.ax_no,'color',[0.55 0.55 0.55]);
             text(obj.pr.ax.(obj.pr.ax_no),0.1,1,'   zoomout','units','normalized','HorizontalAlignment','left','VerticalAlignment','bottom','ButtonDownFcn',@obj.pr_YLimZoomOut,'Tag',obj.pr.ax_no,'color',[0.55 0.55 0.55]);
@@ -956,6 +1048,15 @@ classdef BEST < handle
             if(obj.bst.inputs.trial>2)
             obj.bst.info.plt.(source.Tag).mean.UserData.TrialNoForMean=obj.bst.inputs.trial;
             end
+        end
+        function pr_FigureExport(obj,source,~)
+            FigureFileName1=erase(obj.bst.info.matfilstr,'.mat');
+            iaxes=str2double(erase(source.Tag,'ax'));
+            FigureFileName=[FigureFileName1 '_' obj.pr.ax_measures{1,iaxes} '_' obj.pr.ax_ChannelLabels{1,iaxes}];
+            ax=['ax' num2str(iaxes)];
+            Figure=figure('Name',FigureFileName,'NumberTitle','off');
+            copyobj(obj.pr.ax.(ax),Figure)
+            set( gca, 'Units', 'normalized', 'Position', [0.2 0.2 0.7 0.7] );
         end
         function pr_ResetMEPMeanAmp(obj,source,~)
         end
@@ -3315,10 +3416,10 @@ classdef BEST < handle
         end
         %% MEP Hotspot Search Section
         function pi_hotspot(obj)
-            obj.pi.hotspot.panel=uix.Panel( 'Parent', obj.pi.empty_panel,'FontSize',14 ,'Units','normalized','Title','MEP Hotspot Search' ,'FontWeight','Bold','TitlePosition','centertop');
-            obj.pi.hotspot.vb = uix.VBox( 'Parent', obj.pi.hotspot.panel, 'Spacing', 5, 'Padding', 5  );
+            Panel=uix.Panel( 'Parent', obj.pi.empty_panel,'FontSize',14 ,'Units','normalized','Title','MEP Hotspot Search' ,'FontWeight','Bold','TitlePosition','centertop');
+            vb = uix.VBox( 'Parent', Panel, 'Spacing', 5, 'Padding', 5  );
 
-            mep_panel_row2 = uix.HBox( 'Parent', obj.pi.hotspot.vb, 'Spacing', 5, 'Padding', 5  );
+            mep_panel_row2 = uix.HBox( 'Parent', vb, 'Spacing', 5, 'Padding', 5  );
             uicontrol( 'Style','text','Parent', mep_panel_row2,'String','Input Device:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
             str_in_device(1)= (cellstr('Select'));
             str_in_device(2:numel(obj.hw.device_added1_listbox.string)+1)=obj.hw.device_added1_listbox.string;
@@ -3326,7 +3427,7 @@ classdef BEST < handle
             set( mep_panel_row2, 'Widths', [150 -2]);
             
             % row 2f
-            mep_panel_row2f = uix.HBox( 'Parent', obj.pi.hotspot.vb, 'Spacing', 5, 'Padding', 5  );
+            mep_panel_row2f = uix.HBox( 'Parent', vb, 'Spacing', 5, 'Padding', 5  );
             uicontrol( 'Style','text','Parent', mep_panel_row2f,'String','Output Device:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
             str_out_device(1)= (cellstr('Select'));
             str_out_device(2:numel(obj.hw.device_added2_listbox.string)+1)=obj.hw.device_added2_listbox.string;
@@ -3334,52 +3435,53 @@ classdef BEST < handle
             set( mep_panel_row2f, 'Widths', [150 -2]);
             
             % row 2f
-            mep_panel_row2f = uix.HBox( 'Parent', obj.pi.hotspot.vb, 'Spacing', 5, 'Padding', 5  );
+            mep_panel_row2f = uix.HBox( 'Parent', vb, 'Spacing', 5, 'Padding', 5  );
             uicontrol( 'Style','text','Parent', mep_panel_row2f,'String','Protocol Mode:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
             obj.pi.hotspot.ProtocolMode=uicontrol( 'Style','popupmenu','Parent', mep_panel_row2f ,'String',{'Automatated','Manual'},'FontSize',11,'Tag','ProtocolMode','callback',@cb_par_saving); %,'Callback',@obj.cb_hotspot_target_muscle
             set( mep_panel_row2f, 'Widths', [150 -2]);
             
             % row 2
-            mep_panel_row2 = uix.HBox( 'Parent', obj.pi.hotspot.vb, 'Spacing', 5, 'Padding', 5  );
+            mep_panel_row2 = uix.HBox( 'Parent', vb, 'Spacing', 5, 'Padding', 5  );
             uicontrol( 'Style','text','Parent', mep_panel_row2,'String','EMG Display Channels:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
             obj.pi.hotspot.EMGDisplayChannels=uicontrol( 'Style','edit','Parent', mep_panel_row2 ,'FontSize',11,'Tag','EMGDisplayChannels','callback',@cb_par_saving); %,'Callback',@obj.cb_hotspot_target_muscle
             set( mep_panel_row2, 'Widths', [150 -2]);
             
             %row 8
-            mep_panel_row8 = uix.HBox( 'Parent', obj.pi.hotspot.vb, 'Spacing', 5, 'Padding', 5  );
+            mep_panel_row8 = uix.HBox( 'Parent', vb, 'Spacing', 5, 'Padding', 5  );
             uicontrol( 'Style','text','Parent', mep_panel_row8,'String','MEP onset (ms):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
             obj.pi.hotspot.MEPOnset=uicontrol( 'Style','edit','Parent', mep_panel_row8 ,'FontSize',11,'String','15','Tag','MEPOnset','callback',@cb_par_saving);
             obj.pi.hotspot.MEPOffset=uicontrol( 'Style','edit','Parent', mep_panel_row8 ,'FontSize',11,'String','50','Tag','MEPOffset','callback',@cb_par_saving);
             set( mep_panel_row8, 'Widths', [150 -2 -2]);
             
             %row 11
-            mep_panel_row11 = uix.HBox( 'Parent', obj.pi.hotspot.vb, 'Spacing', 5, 'Padding', 5  );
+            mep_panel_row11 = uix.HBox( 'Parent', vb, 'Spacing', 5, 'Padding', 5  );
             uicontrol( 'Style','text','Parent', mep_panel_row11,'String','EMG Display Period (ms):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
             obj.pi.hotspot.EMGDisplayPeriodPre=uicontrol( 'Style','edit','Parent', mep_panel_row11 ,'FontSize',11,'String','150','Tag','EMGDisplayPeriodPre','callback',@cb_par_saving);
             obj.pi.hotspot.EMGDisplayPeriodPost=uicontrol( 'Style','edit','Parent', mep_panel_row11 ,'FontSize',11,'String','150','Tag','EMGDisplayPeriodPost','callback',@cb_par_saving);
             set( mep_panel_row11, 'Widths', [150 -2 -2]);
 
-            mep_panel_row4 = uix.HBox( 'Parent', obj.pi.hotspot.vb, 'Spacing', 5, 'Padding', 5  );
+            mep_panel_row4 = uix.HBox( 'Parent', vb, 'Spacing', 5, 'Padding', 5  );
             uicontrol( 'Style','text','Parent', mep_panel_row4,'String','No. of Trials:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
             obj.pi.hotspot.TrialsPerCondition=uicontrol( 'Style','edit','Parent', mep_panel_row4 ,'FontSize',11,'Tag','TrialsPerCondition','callback',@cb_par_saving);
             set( mep_panel_row4, 'Widths', [150 -2]);
             
             %row 5
-            mep_panel_row5 = uix.HBox( 'Parent', obj.pi.hotspot.vb, 'Spacing', 5, 'Padding', 5  );
+            mep_panel_row5 = uix.HBox( 'Parent', vb, 'Spacing', 5, 'Padding', 5  );
             uicontrol( 'Style','text','Parent', mep_panel_row5,'String','Inter Trial Interval (s):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
             obj.pi.hotspot.ITI=uicontrol( 'Style','edit','Parent', mep_panel_row5 ,'FontSize',11,'Tag','ITI','callback',@cb_par_saving);
             set( mep_panel_row5, 'Widths', [150 -2]);
             %
-            uiextras.HBox( 'Parent', obj.pi.hotspot.vb);
+            uiextras.HBox( 'Parent', vb);
             
-            mep_panel_17 = uix.HBox( 'Parent', obj.pi.hotspot.vb, 'Spacing', 5, 'Padding', 5  );
+            mep_panel_17 = uix.HBox( 'Parent', vb, 'Spacing', 5, 'Padding', 5  );
             obj.pi.hotspot.update=uicontrol( 'Parent', mep_panel_17 ,'Style','PushButton','String','Update','FontWeight','Bold','Callback',@(~,~)obj.cb_pi_hotspot_update);
             obj.pi.hotspot.run=uicontrol( 'Parent', mep_panel_17 ,'Style','PushButton','String','Run','FontWeight','Bold','Callback',@(~,~)cb_run_hotspot);
             obj.pi.pause=uicontrol( 'Parent', mep_panel_17 ,'Style','PushButton','String','Pause','FontWeight','Bold','Callback',@(~,~)obj.pause,'Enable','on');
             obj.pi.stop=uicontrol( 'Parent', mep_panel_17 ,'Style','PushButton','String','Stop','FontWeight','Bold','Callback',@(~,~)obj.best_stop,'Enable','on');
             set( mep_panel_17, 'Widths', [-2 -4 -2 -2]);
             
-            set(obj.pi.hotspot.vb,'Heights',[30 30 30 42 35 42 35 35 -1 45])
+            set(vb,'Heights',[30 30 30 42 35 42 35 35 -1 45])
+            Interactivity;
             function cb_run_hotspot
                 switch obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).ProtocolMode
                     case 1 %Automated
@@ -3388,7 +3490,7 @@ classdef BEST < handle
                         obj.bst.best_hotspot_manual
                 end
             end
-             function cb_par_saving(source,~)
+            function cb_par_saving(source,~)
                 if strcmp(source.Tag,'InputDevice') || strcmp(source.Tag,'OutputDevice') || strcmp(source.Tag,'ProtocolMode')
                     obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(source.Tag)=source.Value;
                     if strcmp(source.Tag,'ProtocolMode')
@@ -3405,12 +3507,19 @@ classdef BEST < handle
                     obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(source.Tag)=source.String;
                 end
                 
-             end 
+            end 
+            function Interactivity
+                ParametersFieldNames=fieldnames(obj.pi.hotspot);
+                for iLoadingParameters=1:numel(ParametersFieldNames)
+                    obj.pi.hotspot.(ParametersFieldNames{iLoadingParameters}).Enable=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).Enable{1,1};
+                end
+            end
         end
         function default_par_hotspot(obj)
             % Editing Rule: Values should be Integers, Strings should
             % Strings , cells are the defaults values that do not have any
             % uicontroller
+            obj.info.defaults=[];
             obj.info.defaults.BrainState=1;
             obj.info.defaults.TrialsPerCondition='100';
             obj.info.defaults.InputDevice=1;
@@ -3426,6 +3535,7 @@ classdef BEST < handle
             obj.info.defaults.EMGDisplayYLimMin={-3000};
             obj.info.defaults.Protocol={'MEP Hotspot Search Protocol'};
             obj.info.defaults.Handles.UserData='Reserved for Future Use';
+            obj.info.defaults.Enable={'On'};
             si=NaN;
             for idefaults=1:numel(si)
                 cond=['cond' num2str(idefaults)];
@@ -3451,6 +3561,7 @@ classdef BEST < handle
                 end
             end
         end
+        %% Bin In
 %         function default_par_hotspot(obj)
 %             
 %             obj.info.defaults.input_device=1;
@@ -3540,6 +3651,7 @@ classdef BEST < handle
 %             
 %             
 %         end
+        %% Bin Out
         function cb_pi_hotspot_run(obj)
             obj.bst.inputs.measure_str=cellstr('Motor Hotspot Search');
             obj.bst.inputs.input_device=obj.pi.hotspot.input_device.String((obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).input_device));
@@ -11284,6 +11396,7 @@ classdef BEST < handle
                     obj.pi_drc;
                     obj.func_load_mepdrc_par;
             end
+            obj.pmd.RunStopButton.Enable=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).Enable{1,1};
             % obj.info.event.current_measure(obj.info.event.current_measure == ' ') = '_';
             
             
@@ -11630,80 +11743,115 @@ classdef BEST < handle
         function cb_pi_tmsfmri_mt_btn(obj)
             obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).mt_btn=str2num(obj.pi.tmsfmri.mt_btn.String);
         end
+        %% Save Parameters Using Menu
         function cb_menu_save(obj)
-            try
-                exp_name=obj.pmd.exp_title.editfield.String;
-                exp_name(exp_name == ' ') = '_';
-                
-                subj_code=obj.pmd.sub_code.editfield.String;
-                subj_code(subj_code == ' ') = '_';
-                save_str=[exp_name '_' subj_code];
-                obj.bst.info.save_str=save_str;
-                obj.bst.info.save_str_runtime=[save_str '_runtime_backup'];
-                variable_saved.(save_str).par=obj.par
-                variable_saved.(save_str).par.global_info=obj.info
-                variable_saved.(save_str).par.global_data=obj.data
-                variable_saved.(save_str).par.exp_name=exp_name;
-                variable_saved.(save_str).par.subj_code=subj_code;
-                variable_saved.(save_str).par.sess=obj.pmd.lb_sessions.string;
-                
-                variable_saved.(save_str).data.sessions=obj.bst.sessions
-                variable_saved.(save_str).data.global_info.inputs=obj.bst.inputs
-                variable_saved.(save_str).data.global_info.info=obj.bst.info
-                variable_saved.(save_str).data.global_info.info.axes=[];
-                % %             varsav=variable_saved.(save_str)
-                % %             save(save_str,'varsav')
-                
-                matfilstr=[save_str '_matfile.mat']
-                obj.bst.info.save_buffer = matfile(matfilstr,'Writable',true)
-                obj.bst.info.save_buffer.(save_str)=variable_saved.(save_str)
-                % % %
-                % %
-                % %             varr.info=obj.info
-                % %
-                % %             varr.data=obj.data
-                % %
-                % %             varr.bst.sessions=obj.bst.sessions
-                % %
-                % %
-                % %             varr.bst.inputs=obj.bst.inputs
-                % %
-                % %             varr.bst.info=obj.bst.info
-                % %             varr.bst.info.axes=[];
-                % %
-                % %
-                % %
-                % %             varr.bst.sim_mep=obj.bst.sim_mep
-                % %             varr.exp_name=exp_name;
-                % %             varr.subj_code=subj_code;
-                % %             varr.sess=obj.pmd.lb_sessions.string;
-                
-                
-                
-                
-                
-                %             save('C:\0. HARD DISK\BEST Toolbox\BEST-04.08\GUI\save',save_str,'obj')
-                %             save(save_str,'varr')
-            catch
-                disp prob is here
+            tic
+            exp_name=obj.pmd.exp_title.editfield.String;
+            exp_name(exp_name == ' ') = '_';
+            
+            subj_code=obj.pmd.sub_code.editfield.String;
+            subj_code(subj_code == ' ') = '_';
+            save_str=[exp_name '_' subj_code];
+            obj.bst.info.save_str=save_str;
+            
+            variable_saved.(save_str).ExperimentName=exp_name;
+            variable_saved.(save_str).SubjectCode=subj_code;
+            variable_saved.(save_str).Parameters=obj.par;
+            variable_saved.(save_str).Data=obj.bst.sessions;
+            
+            variable_saved.(save_str).Utilities.Info=obj.info;
+            variable_saved.(save_str).Utilities.Data=obj.data;
+            variable_saved.(save_str).Utilities.Session=obj.pmd.lb_sessions.string;
+            variable_saved.(save_str).Utilities.HardwareConfiguration.OutputDevices=obj.hw.device_added2_listbox.string;
+            variable_saved.(save_str).Utilities.HardwareConfiguration.InputDevices=obj.hw.device_added1_listbox.string;
+            
+            %                 variable_saved.(save_str).Data.Private.Inputs=obj.bst.inputs;
+            %                 variable_saved.(save_str).Data.Private.Info=obj.bst.info;
+            %                 variable_saved.(save_str).Data.Private.Info.axes=[];
+            % %             varsav=variable_saved.(save_str)
+            % %             save(save_str,'varsav')
+            % %                 Date=datestr(now);
+            % %                 Date(Date == ' ') = '_';
+            % %                 Date(Date == '-') = '_';
+            % %                 Date(Date == ':') = '_';
+            if ~isempty(obj.Date)
+                obj.bst.info.matfilstr=['BEST_' obj.Date '_' save_str '.mat'];
+                obj.bst.info.save_str_runtime=['BEST_' obj.Date '_' save_str '_Autosave.mat'];
+                if isfile(obj.bst.info.matfilstr)
+                    delete(obj.bst.info.matfilstr)
+                end
+                if isfile(obj.bst.info.save_str_runtime)
+                    delete(obj.bst.info.save_str_runtime)
+                end
             end
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %             if isfield(obj.bst.info,'matfilstr')
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                 if isfile(obj.bst.info.matfilstr)
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                     delete(obj.bst.info.matfilstr)
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                 end
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %             end
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %             if isfield(obj.bst.info,'save_str_runtime')
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                 if isfile(obj.bst.info.save_str_runtime)
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                     delete(obj.bst.info.save_str_runtime)
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                 end
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %             end
+            obj.Date=datestr(now);
+            obj.Date(obj.Date == ' ') = '_';
+            obj.Date(obj.Date == '-') = '_';
+            obj.Date(obj.Date == ':') = '_';
+            obj.bst.info.matfilstr=['BEST_' obj.Date '_' save_str '.mat'];
+            obj.bst.info.save_str_runtime=['BEST_' obj.Date '_' save_str '_Autosave.mat'];
+            obj.bst.info.save_buffer = matfile(obj.bst.info.matfilstr,'Writable',true);
+            obj.bst.info.save_buffer.(save_str)=variable_saved.(save_str);
+            % % %
+            % %
+            % %             varr.info=obj.info
+            % %
+            % %             varr.data=obj.data
+            % %
+            % %             varr.bst.sessions=obj.bst.sessions
+            % %
+            % %
+            % %             varr.bst.inputs=obj.bst.inputs
+            % %
+            % %             varr.bst.info=obj.bst.info
+            % %             varr.bst.info.axes=[];
+            % %
+            % %
+            % %
+            % %             varr.bst.sim_mep=obj.bst.sim_mep
+            % %             varr.exp_name=exp_name;
+            % %             varr.subj_code=subj_code;
+            %             save('C:\0. HARD DISK\BEST Toolbox\BEST-04.08\GUI\save',save_str,'obj')
+            %             save(save_str,'varr')
+            toc
             
         end
+        %% Load Parameters Using Menu
         function cb_menu_load(obj)
             file = uigetfile;
             varname=file;
-            varname=erase(varname,'_matfile.mat');
+            varname=erase(varname,'.mat');
+            varname = replaceBetween(varname,1,26,'');
             saved_struct=load(file,varname);
-            obj.par=saved_struct.(varname).par;
-            obj.info=saved_struct.(varname).par.global_info;
-            obj.data=saved_struct.(varname).par.global_data;
-            obj.bst.sessions=saved_struct.(varname).data.sessions;
-            obj.bst.inputs=saved_struct.(varname).data.global_info.inputs;
-            obj.bst.info=saved_struct.(varname).data.global_info.info;
-            obj.pmd.exp_title.editfield.String=saved_struct.(varname).par.exp_name;
-            obj.pmd.sub_code.editfield.String=saved_struct.(varname).par.subj_code;
-            obj.pmd.lb_sessions.listbox.String=saved_struct.(varname).par.sess;
+            obj.par=saved_struct.(varname).Parameters;
+            obj.info=saved_struct.(varname).Utilities.Info;
+            obj.data=saved_struct.(varname).Utilities.Data;
+            obj.bst.sessions=saved_struct.(varname).Data;
+%             obj.bst.inputs=saved_struct.(varname).data.global_info.inputs;
+%             obj.bst.info=saved_struct.(varname).data.global_info.info;
+            obj.pmd.exp_title.editfield.String=saved_struct.(varname).ExperimentName;
+            obj.pmd.sub_code.editfield.String=saved_struct.(varname).SubjectCode;
+            obj.pmd.lb_sessions.listbox.String=saved_struct.(varname).Utilities.Session;
+%             obj.hw=Utilities.HardwareConfiguration;
+            obj.hw.device_added2_listbox.string=saved_struct.(varname).Utilities.HardwareConfiguration.OutputDevices;
+            obj.hw.device_added1_listbox.string=saved_struct.(varname).Utilities.HardwareConfiguration.InputDevices;
             obj.cb_session_listbox;
+            obj.hw.device_added2.listbox.String=obj.hw.device_added2_listbox.string;
+            obj.hw.device_added1.listbox.String=obj.hw.device_added1_listbox.string;
+
+
+            
+            
         end
         function cb_menu_md(obj)
             obj.info.menu.md=obj.info.menu.md+1;
@@ -12530,14 +12678,7 @@ classdef BEST < handle
         
         
         
-        function disable_listboxes(obj)
-            obj.pmd.lb_measures.listbox.Enable='off';
-            obj.pmd.lb_sessions.listbox.Enable='off';
-        end
-        function enable_listboxes(obj)
-            obj.pmd.lb_measures.listbox.Enable='on';
-            obj.pmd.lb_sessions.listbox.Enable='on';
-        end
+
         function enable_default_fields(obj)
             obj.info.event.current_measure
             switch obj.info.event.current_measure

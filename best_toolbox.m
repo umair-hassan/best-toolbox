@@ -1985,17 +1985,36 @@ classdef best_toolbox < handle
                 end
             end
         end
-        function saveStart(obj)
+        function save(obj)
+            obj.app.cb_menu_save;
         end
         function saveRuntime(obj)
+            BESTToolboxAutosave=obj.inputs;
+            save(obj.info.save_str_runtime,'BESTToolboxAutosave');
         end
-        function saveFinal(obj)
+        function prepSaving(obj)
+            obj.sessions.(obj.app.info.event.current_session).(obj.app.info.event.current_measure_fullstr).ConditionsMatrix=obj.inputs.condMat;
+            obj.sessions.(obj.app.info.event.current_session).(obj.app.info.event.current_measure_fullstr).TrialsMatrix=obj.inputs.trialMat;
+            obj.sessions.(obj.app.info.event.current_session).(obj.app.info.event.current_measure_fullstr).RawData=obj.inputs.rawData;
+            obj.sessions.(obj.app.info.event.current_session).(obj.app.info.event.current_measure_fullstr).Results=obj.inputs.results;
+        end
+        function saveFigures(obj)
+            FigureFileName1=erase(obj.info.matfilstr,'.mat');
+            for iaxes=1:obj.app.pr.axesno
+                FigureFileName=[FigureFileName1 '_' obj.app.pr.ax_measures{1,iaxes} '_' obj.app.pr.ax_ChannelLabels{1,iaxes}];
+                ax=['ax' num2str(iaxes)];
+                Figure=figure('Visible','off','CreateFcn','set(gcf,''Visible'',''on'')','Name',FigureFileName,'NumberTitle','off');
+                copyobj(obj.app.pr.ax.(ax),Figure)
+                set( gca, 'Units', 'normalized', 'Position', [0.2 0.2 0.7 0.7] );
+                saveas(Figure,FigureFileName,'fig');
+                close(Figure)
+            end
         end
         
         
         
         function best_mep(obj)
-            obj.saveStart;
+            obj.save;
             obj.factorizeConditions
             obj.planTrials
             obj.app.resultsPanel;
@@ -2003,10 +2022,10 @@ classdef best_toolbox < handle
             obj.boot_inputdevice;
             obj.bootTrial;
             obj.stimLoop;
-            obj.saveFinal;
+            obj.save;
         end
         function best_hotspot(obj)
-            obj.saveStart;
+            obj.save;
             obj.factorizeConditions
             obj.planTrials
             obj.app.resultsPanel;
@@ -2014,7 +2033,9 @@ classdef best_toolbox < handle
             obj.boot_inputdevice;
             obj.bootTrial;
             obj.stimLoop;
-            obj.saveFinal;
+            obj.prepSaving;
+            obj.save;
+            obj.saveFigures;
         end
         function best_ioc(obj)
             obj.factorizeConditions
