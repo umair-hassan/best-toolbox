@@ -235,6 +235,23 @@ classdef best_toolbox < handle
                 case 'MEP Measurement Protocol'
                     switch obj.inputs.BrainState
                         case 1 %Independent
+                            %% Adjusting New Arhictecture to Old Architecture
+                            obj.inputs.prestim_scope_plt=obj.inputs.EMGDisplayPeriodPre;
+                            obj.inputs.poststim_scope_plt=obj.inputs.EMGDisplayPeriodPost;
+                            obj.inputs.mep_onset=obj.inputs.MEPOnset;
+                            obj.inputs.mep_offset=obj.inputs.MEPOffset;
+                            obj.inputs.input_device=obj.app.pi.mep.InputDevice.String(obj.inputs.InputDevice); %TODO: the drc or mep on the 4th structure is not a good solution!
+                            obj.inputs.output_device=obj.inputs.condsAll.cond1.st1.stim_device;
+                            obj.inputs.stim_mode='MSO';
+                            obj.inputs.measure_str='MEP Measurement';
+                            obj.inputs.ylimMin=obj.inputs.EMGDisplayYLimMin;
+                            obj.inputs.ylimMax=obj.inputs.EMGDisplayYLimMax;
+                            obj.inputs.stop_event=0;
+                            obj.inputs.ylimMin=-3000;
+                            obj.inputs.ylimMax=+3000;
+                            obj.inputs.TrialNoForMean=1;
+                            obj.inputs.mt_starting_stim_inten=obj.inputs.condsAll.cond1.st1.si_pckt{1,1};
+                            %% Creating Column Labels
                             obj.inputs.colLabel.inputDevices=1;
                             obj.inputs.colLabel.outputDevices=2;
                             obj.inputs.colLabel.si=3;
@@ -264,6 +281,7 @@ classdef best_toolbox < handle
                             DisplayChannelsAxesNo=num2cell(1:numel(obj.inputs.EMGDisplayChannels));
                             obj.app.pr.ax_measures=DisplayChannelsMeasures;
                             obj.app.pr.axesno=numel(obj.inputs.EMGDisplayChannels);
+                            obj.app.pr.ax_ChannelLabels=obj.inputs.EMGDisplayChannels;
                             %% Creating Stimulation Conditions
                             for c=1:numel(fieldnames(obj.inputs.condsAll))
                                 obj.inputs.condMat{c,obj.inputs.colLabel.trials}=obj.inputs.TrialsPerCondition;
@@ -2022,7 +2040,9 @@ classdef best_toolbox < handle
             obj.boot_inputdevice;
             obj.bootTrial;
             obj.stimLoop;
+            obj.prepSaving;
             obj.save;
+            obj.saveFigures;
         end
         function best_hotspot(obj)
             obj.save;

@@ -234,6 +234,7 @@ classdef BEST < handle
                                  obj.bst.best_hotspot_manual
                          end
                      case 'MEP Measurement Protocol'
+                         obj.bst.best_mep;
                  end
              end
          end
@@ -5531,6 +5532,7 @@ classdef BEST < handle
             % Editing Rule: Values should be Integers, Strings should
             % Strings , cells are the defaults values that do not have any
             % uicontroller
+            obj.info.defaults=[];
             obj.info.defaults.BrainState=1;
             obj.info.defaults.TrialsPerCondition='10';
             obj.info.defaults.InputDevice=1;
@@ -5556,6 +5558,7 @@ classdef BEST < handle
             obj.info.defaults.EMGDisplayYLimMin={-3000};
             obj.info.defaults.Protocol={'MEP Measurement Protocol'};
             obj.info.defaults.Handles.UserData='Reserved for Future Use';
+            obj.info.defaults.Enable={'On'};
             
             %             obj.info.defaults.expMode	=	1	;
             %             obj.info.defaults.inputDevice	=	1	;
