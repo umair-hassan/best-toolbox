@@ -216,7 +216,7 @@ classdef BEST < handle
              elseif strcmp(obj.pmd.RunStopButton.String,'Run') % && strcmp(obj.pmd.RunStopButton.Enable,'On')
                  obj.pmd.RunStopButton.String='Stop';
                  obj.pmd.PauseUnpauseButton.Enable='on';
-                 obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).Enable{1,1}='Off';
+                 obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).Enable{1,1}='off';
                  obj.disable_listboxes;
                  %search for all the handles and make their enable off uicontrols, table and the interactive axes  %https://www.mathworks.com/help/matlab/ref/disabledefaultinteractivity.html
                  %make enable off in the listboxes and all pmd fields
@@ -350,7 +350,7 @@ classdef BEST < handle
                 return
             else
                 obj.info.session_copy_id=obj.info.session_copy_id+1;
-                obj.info.session_copied=obj.pmd.lb_sessions.listbox.String(obj.pmd.lb_sessions.listbox.Value)
+                obj.info.session_copied=obj.pmd.lb_sessions.listbox.String(obj.pmd.lb_sessions.listbox.Value);
             end
         end
         function cb_pmd_lb_sessions_pasteup(obj)
@@ -402,11 +402,12 @@ classdef BEST < handle
                     obj.info.event.current_measure_fullstr(obj.info.event.current_measure_fullstr == ' ') = '_';
                     obj.info.event.current_measure=obj.data.(new_session).info.measurement_str(i);
                     obj.info.event.current_measure=obj.info.event.current_measure{1};
-                    obj.enable_default_fields;
+                    obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).Enable{1,1}='On';
                 end
                 
                 obj.info.session_copied=[];
                 obj.info.session_no=obj.info.session_no+1;
+                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).Enable{1,1}='On';
                 obj.cb_session_listbox;
                 
             end
@@ -454,7 +455,7 @@ classdef BEST < handle
                     obj.info.event.current_measure_fullstr(obj.info.event.current_measure_fullstr == ' ') = '_';
                     obj.info.event.current_measure=obj.data.(new_session).info.measurement_str(i);
                     obj.info.event.current_measure=obj.info.event.current_measure{1};
-                    obj.enable_default_fields;
+                    obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).Enable{1,1}='On';
                 end
                 
                 obj.info.session_copied=[];
@@ -636,7 +637,7 @@ classdef BEST < handle
                 obj.info.event.current_measure_fullstr=new_session_forpar;
                 obj.info.event.current_measure=obj.data.meas_copied_orignial;
                 obj.info.event.current_measure=obj.info.event.current_measure{1};
-                obj.enable_default_fields;
+                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).Enable{1,1}='On';
                 obj.cb_measure_listbox;
             end
         end
@@ -719,7 +720,7 @@ classdef BEST < handle
                 obj.info.event.current_measure_fullstr=new_session_forpar;
                 obj.info.event.current_measure=obj.data.meas_copied_orignial;
                 obj.info.event.current_measure=obj.info.event.current_measure{1};
-                obj.enable_default_fields;
+                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).Enable{1,1}='On';
                 obj.cb_measure_listbox;
             end
         end
@@ -791,6 +792,10 @@ classdef BEST < handle
             end
         end
         function cb_pmd_lb_measure_menu_loadresult(obj)
+            if ~isfield(obj.bst.sessions,obj.info.event.current_session) || numel(obj.pmd.lb_measures.listbox.String)==0
+                errordlg('No results exist for this measurement, Please collect the data if you wish to see the results for this particular measure.','BEST Toolbox');
+                return
+            end
             obj.bst.factorizeConditions
             obj.bst.planTrials
             obj.resultsPanel;
@@ -3536,7 +3541,7 @@ classdef BEST < handle
             obj.info.defaults.EMGDisplayYLimMin={-3000};
             obj.info.defaults.Protocol={'MEP Hotspot Search Protocol'};
             obj.info.defaults.Handles.UserData='Reserved for Future Use';
-            obj.info.defaults.Enable={'On'};
+            obj.info.defaults.Enable={'on'};
             si=NaN;
             for idefaults=1:numel(si)
                 cond=['cond' num2str(idefaults)];
@@ -3934,14 +3939,14 @@ classdef BEST < handle
             
             obj.pi.mep.r0v2 = uix.VBox( 'Parent', obj.pi.mep.r0, 'Spacing', 5, 'Padding', 0); %uicontext menu to duplicate or delete a condition goes here
             obj.pi.mm.r0v2r1=uix.Panel( 'Parent', obj.pi.mep.r0v2,'Padding',0,'Units','normalized','FontSize',8 ,'Units','normalized','Title','Stimulation Parameters' ,'FontWeight','normal','TitlePosition','centertop');
-            obj.cb_pi_mep_StimulationParametersTable;
+            table = obj.cb_pi_mep_StimulationParametersTable;
             
             obj.pi.mm.tab = uiextras.TabPanel( 'Parent', obj.pi.mep.r0v2, 'Padding', 5 );
             obj.pi.mep.r0v2.Heights=[200 -1];
             set(obj.pi.mep.r0,'Widths',[-1.45 -3]);
             obj.pi.mep.cond.no=0;
             obj.cb_pi_mep_Nconditions;
-            
+            Interactivity;
             function cb_run_mep()
                 
                 %                 obj.bst.inputs=[];
@@ -4109,10 +4114,20 @@ classdef BEST < handle
                 end
                 
             end
-            
+            function Interactivity
+                ParametersFieldNames=fieldnames(obj.pi.mep);
+                for iLoadingParameters=1:numel(ParametersFieldNames)
+                    try
+                    obj.pi.mep.(ParametersFieldNames{iLoadingParameters}).Enable=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).Enable{1,1};
+                    catch
+                    end
+                end
+                table.Enable=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).Enable{1,1};
+                obj.pi.mm.tab.Enable=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).Enable{1,1};
+            end
             
         end
-        function cb_pi_mep_StimulationParametersTable(obj)
+        function table= cb_pi_mep_StimulationParametersTable(obj)
             % create the Data from pars
             iData=0;
             for iTableCondition=1:numel(fieldnames(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll))
@@ -4173,7 +4188,7 @@ classdef BEST < handle
                 obj.hw.device_added2_listbox.string={'Select'};
             end
             % create the table and load the data
-            table=uitable( 'Parent', obj.pi.mm.r0v2r1);
+            table=uitable( 'Parent', obj.pi.mm.r0v2r1,'Tag','MEP Table');
             table.Data=TableData;%cell(6,12); % the row number comes from above
             table.FontSize=10;
             table.ColumnName = {'Condition #','TS Intensity','Intensity Units','Stimulator','Pulse Mode','# of Pulses','Timing Onset (ms)','CS Intensity','ISI (ms)','Train Freq','# of Trains','Motor Threshold (%MSO)'};
@@ -5558,7 +5573,7 @@ classdef BEST < handle
             obj.info.defaults.EMGDisplayYLimMin={-3000};
             obj.info.defaults.Protocol={'MEP Measurement Protocol'};
             obj.info.defaults.Handles.UserData='Reserved for Future Use';
-            obj.info.defaults.Enable={'On'};
+            obj.info.defaults.Enable={'on'};
             
             %             obj.info.defaults.expMode	=	1	;
             %             obj.info.defaults.inputDevice	=	1	;
