@@ -8,6 +8,7 @@ classdef best_sync2brain_bossdevice <handle
         IEEGScope
         IAScope
         IPScope
+        FileScope
     end
     
     methods
@@ -30,10 +31,10 @@ classdef best_sync2brain_bossdevice <handle
                 
                 %% Providing Channel Labels to Spatial Filter
                 outputdevice=obj.best_toolbox.inputs.condMat{1,1};
-                clab=obj.best_toolbox.app.par.hardware_settings.(outputdevice).NeurOneProtocolChannelLabels;
-                clab = clab(1:64); % remove AUX Channels 
-                clab{65} = 'FCz';
-                obj.bb.spatial_filter_clab = clab;
+%                 clab=obj.best_toolbox.app.par.hardware_settings.(outputdevice).NeurOneProtocolChannelLabels;
+%                 clab = clab(1:64); % remove AUX Channels 
+%                 clab{65} = 'FCz';
+%                 obj.bb.spatial_filter_clab = clab;
 
                 
                 %% Setting Spatial Filter
@@ -41,7 +42,7 @@ classdef best_sync2brain_bossdevice <handle
 %                 set_spatial_filter(obj.bb, obj.best_toolbox.inputs.MontageChannels, obj.best_toolbox.inputs.MontageWeights, 1)
 % % %                 set_spatial_filter(obj.bb, {'C3', 'FC1', 'FC5', 'CP1', 'CP5'}, [1 -0.25 -0.25 -0.25 -0.25], 1)
 %                 set_spatial_filter(obj.bb, {}, [], 2)
-                
+                obj.bb.spatial_filter_weights([1])
 
             end
             
@@ -85,8 +86,6 @@ while ~strcmpi(obj.EMGScope.Status,'finished'), end
             %% Configuring Trial's respective Trigger Pattern
             time_port_marker_vector=obj.best_toolbox.inputs.trialMat{obj.best_toolbox.inputs.trial,obj.best_toolbox.inputs.colLabel.tpm};
             obj.bb.configure_time_port_marker(cell2mat(time_port_marker_vector'))
-            % calculation of IA and setting of those parameters would also be done here
-            %
             pause(0.1)
             %% Starting respective Scopes
             obj.EMGScopeStart;
@@ -99,9 +98,6 @@ while ~strcmpi(obj.EMGScope.Status,'finished'), end
             obj.bb.triggers_remaining;
             obj.bb.min_inter_trig_interval = 2+rand(1);
             pause(0.1);
-            obj;
-            obj.bb;
-            
             obj.bb.arm;
             obj.bb.armed ;
             exit_flag=0;
@@ -115,9 +111,7 @@ while ~strcmpi(obj.EMGScope.Status,'finished'), end
                      while ~strcmpi(obj.IEEGScope.Status,'finished'), end
                      exit_flag=2;
                  end
-            end
-%             obj.bb.arm;
-            
+            end            
         end
         
         function EMGScopeBoot(obj,EMGDisplayPeriodPre,EMGDisplayPeriodPost)
@@ -203,7 +197,46 @@ while ~strcmpi(obj.EMGScope.Status,'finished'), end
         end
         
         function IAScopeBoot(obj)
-            % could be a free running scope
+            %% Configuring Real-Time Scopes for Amplitude Tracking
+            AMP_TRACING_SCOPES_IDS = [93 94];
+            
+            % remove any pre-existing scopes with these ids
+            for id = AMP_TRACING_SCOPES_IDS
+                if(find(obj.bb.tg.Scopes == id))
+                    fprintf('\nRemoving scope %i', id)
+                    remscope(obj.bb.tg, id);
+                end
+            end
+            
+            sig_id_amp = getsignalid(obj.bb.tg, 'OSC/alpha/IA'); %amplitude
+            sig_id_qly = getsignalid(obj.bb.tg, 'QLY/Logical Operator2'); %eeg_is_clean
+            
+            sc = addscope(obj.bb.tg, 'host', AMP_TRACING_SCOPES_IDS);
+            addsignal(sc, [sig_id_amp sig_id_qly]);
+            
+            sc(1).NumSamples = 500;
+            sc(1).Decimation = 10;
+            sc(1).TriggerSample = -1;
+            
+            sc(2).NumSamples = 500;
+            sc(2).Decimation = 10;
+            sc(2).TriggerSample = -1;
+            
+            sc(1).TriggerMode = 'Scope';
+            sc(1).TriggerScope = AMP_TRACING_SCOPES_IDS(2);
+            
+            sc(2).TriggerMode = 'Scope';
+            sc(2).TriggerScope = AMP_TRACING_SCOPES_IDS(1);
+            
+            start(sc); % now they are ready for being triggered
+            
+            activeScope = 1;
+            mAmplitudeScopeCircBufTotalBlocks = amplitude_assignment_period;
+            mAmplitudeScopeCircBufCurrentBlock = 1;
+            mAmplitudeScopeCircBuf = [];
+% %             hAmplitudeHistoryAxes = subplot(1,2,1);
+% %             hAmplitudeDistributionAxes = subplot(1,2,2);
+            trigger(sc(activeScope));
         end
         
         function EMGScopeStart(obj)

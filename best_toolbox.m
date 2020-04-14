@@ -427,6 +427,7 @@ classdef best_toolbox < handle
                             DisplayChannelsAxesNo=num2cell(1:numel(ChannelMeasures));
                             obj.app.pr.ax_measures=ChannelMeasures;
                             obj.app.pr.axesno=numel(ChannelMeasures);
+                            obj.app.pr.ax_ChannelLabels=ChannelLabels;
                             
                             %% Creating Stimulation Conditons
                             for c=1:numel(fieldnames(obj.inputs.condsAll))
@@ -938,7 +939,20 @@ classdef best_toolbox < handle
                     end
                     
             end
-            
+            %% Crossing ITI Condition with condMat
+            if iscell(obj.inputs.condMat{1,obj.inputs.colLabel.iti})
+                condMat={};
+                i=0;
+                ITI=obj.inputs.condMat{1,obj.inputs.colLabel.iti};
+                for iCond=1:numel(obj.inputs.condMat(:,1))
+                    for iITI=1:numel(ITI)
+                        i=i+1;
+                        condMat(i,:)=obj.inputs.condMat(iCond,:);
+                        condMat{i,obj.inputs.colLabel.iti}=ITI{1,iITI}; 
+                    end
+                end
+                obj.inputs.condMat=condMat;
+            end
             %% Old Functions
 % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %             if~strcmp(obj.inputs.Protocol,'MEP Measurement Protocol') || ~strcmp(obj.inputs.Protocol,'MEP Dose Response Curve Protocol')
 % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                 switch char(obj.inputs.measure_str)
@@ -1607,11 +1621,15 @@ classdef best_toolbox < handle
                 InputsFieldNames=fieldnames(obj.inputs);
                 for iInputs=1:numel(InputsFieldNames)
                     if (isa(obj.inputs.(InputsFieldNames{iInputs}),'char'))
-                        if(strcmp(InputsFieldNames{iInputs},'EMGDisplayChannels')) || (strcmp(InputsFieldNames{iInputs},'EMGTargetChannels')) || (strcmp(InputsFieldNames{iInputs},'Phase')) || (strcmp(InputsFieldNames{iInputs},'PhaseTolerance')) || (strcmp(InputsFieldNames{iInputs},'MontageChannels')) || (strcmp(InputsFieldNames{iInputs},'MontageWeights'))% ITI condition can also fall here
+                        if (strcmp(InputsFieldNames{iInputs},'ITI')) || (strcmp(InputsFieldNames{iInputs},'EMGDisplayChannels')) || (strcmp(InputsFieldNames{iInputs},'EMGTargetChannels')) || (strcmp(InputsFieldNames{iInputs},'Phase')) || (strcmp(InputsFieldNames{iInputs},'PhaseTolerance')) || (strcmp(InputsFieldNames{iInputs},'MontageChannels')) || (strcmp(InputsFieldNames{iInputs},'MontageWeights'))% ITI condition can also fall here
                             if (isempty(obj.inputs.(InputsFieldNames{iInputs})))
                                 disp donothing
                             else
+                                try 
                                 obj.inputs.(InputsFieldNames{iInputs})=eval(obj.inputs.(InputsFieldNames{iInputs}));
+                                catch
+                                    obj.inputs.(InputsFieldNames{iInputs})=str2num(obj.inputs.(InputsFieldNames{iInputs}));
+                                end
                             end
                         else
                             obj.inputs.(InputsFieldNames{iInputs})=str2double(obj.inputs.(InputsFieldNames{iInputs}));
@@ -1624,7 +1642,7 @@ classdef best_toolbox < handle
                 obj.inputs.poststim_scope_plt=obj.inputs.EMGDisplayPeriodPost;
                 obj.inputs.mep_onset=obj.inputs.MEPOnset;
                 obj.inputs.mep_offset=obj.inputs.MEPOffset;
-%                 obj.inputs.input_device=obj.app.pi.mep.InputDevice.String(obj.inputs.InputDevice); %TODO: the drc or mep on the 4th structure is not a good solution!
+                obj.inputs.input_device=obj.app.pi.mep.InputDevice.String(obj.inputs.InputDevice); %TODO: the drc or mep on the 4th structure is not a good solution!
                 obj.inputs.output_device=obj.inputs.condsAll.cond1.st1.stim_device;
                 obj.inputs.stim_mode='MSO';
                 obj.inputs.measure_str='MEP Measurement';
@@ -1667,13 +1685,13 @@ classdef best_toolbox < handle
                 obj.inputs.trialMat(i,:)=obj.inputs.condMat(randomVect(i,1),:);
             end
             %% preparing ITI
-            %             if(iscell(obj.inputs.ITI{1,1}))
-            %                 [m,~]=size(obj.inputs.trialMat);
-            %                 for i=1:m
-            %                     iti=obj.inputs.trialMat(i,obj.inputs.colLabel.iti);
-            %                     obj.inputs.trialMat(i,obj.inputs.colLabel.iti)=num2cell(round((iti{1,1}{1,1}+(iti{1,1}{1,2}-iti{1,1}{1,1} ).* rand(1,1)),3));
-            %                 end
-            %             end
+            if isvector(obj.inputs.condMat{1,obj.inputs.colLabel.iti}) && numel(obj.inputs.condMat{1,obj.inputs.colLabel.iti})==2
+                [m,~]=size(obj.inputs.trialMat);
+                for i=1:m
+                    iti=obj.inputs.trialMat{i,obj.inputs.colLabel.iti};
+                    obj.inputs.trialMat(i,obj.inputs.colLabel.iti)=num2cell(round((iti(1)+(iti(2)-iti(1) ).* rand(1,1)),3));
+                end
+            end
             
             obj.inputs.totalTrials=numel(obj.inputs.trialMat(:,1));
             
@@ -1808,7 +1826,7 @@ classdef best_toolbox < handle
                             case 'IP'
                                 obj.inputs.rawData.(unique_chLab{1,i}).data(obj.inputs.trial,1)=obj.bossbox.IPScope.Data(end,1);
                             case 'IEEG'
-                                obj.inputs.rawData.(unique_chLab{1,i}).data(obj.inputs.trial,:)=obj.bossbox.IEEGScope.Data(:,1)';
+                                obj.inputs.rawData.(unique_chLab{1,i}).data(obj.inputs.trial,:)=obj.best_VisualizationFilter([obj.bossbox.IEEGScope.Data(:,1)']);
                                 obj.inputs.rawData.(unique_chLab{1,i}).time(obj.inputs.trial,:)=obj.bossbox.IEEGScope.Time(:,1)';
                             case 'EMG'
 % %                                 obj.inputs.rawData.(unique_chLab{1,i}).data(obj.inputs.trial,:)=obj.best_VisualizationFilter([obj.sim_mep(1,700:1000), obj.sim_mep(1,1:699)]*1000*obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,1}{1,1}*(randi([1 3])*0.10));
@@ -1985,7 +2003,10 @@ classdef best_toolbox < handle
                 obj.trigTrial;
                 obj.readTrial;
                 obj.plotTrial;
+                tic
                 obj.saveRuntime;
+                toc
+                pause(1)
                 obj.prepTrial;
                 %             pause(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.iti}-toc)
                 wait_period=obj.inputs.trialMat{obj.inputs.trial-1,obj.inputs.colLabel.iti}-toc;
@@ -2710,8 +2731,8 @@ classdef best_toolbox < handle
             obj.bossbox=best_sync2brain_bossdevice(obj);
         end
         function FilteredData = best_VisualizationFilter(obj,RawData)
-            FilteredData=filtfilt(obj.FilterCoefficients.HumNoiseNotchFilter, RawData);
-            %             FilteredData=RawData;
+%             FilteredData=filtfilt(obj.FilterCoefficients.HumNoiseNotchFilter, RawData);
+                        FilteredData=RawData;
             data=FilteredData;
             % Iteration for First Order
             m=mean(data(1,1:50));

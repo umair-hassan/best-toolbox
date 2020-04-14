@@ -207,7 +207,7 @@ classdef BEST < handle
              if strcmp(obj.pmd.RunStopButton.String,'Stop')
                  uiresume;
                  obj.bst.inputs.stop_event=1;
-                 obj.pmd.RunStopButton.Enable='Off';
+                 obj.pmd.RunStopButton.Enable='off';
                  obj.pmd.PauseUnpauseButton.Enable='off';
                  obj.pmd.RunStopButton.String='Run';
                  obj.pmd.PauseUnpauseButton.String='Pause';
@@ -402,12 +402,11 @@ classdef BEST < handle
                     obj.info.event.current_measure_fullstr(obj.info.event.current_measure_fullstr == ' ') = '_';
                     obj.info.event.current_measure=obj.data.(new_session).info.measurement_str(i);
                     obj.info.event.current_measure=obj.info.event.current_measure{1};
-                    obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).Enable{1,1}='On';
+                    obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).Enable{1,1}='on';
                 end
                 
                 obj.info.session_copied=[];
                 obj.info.session_no=obj.info.session_no+1;
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).Enable{1,1}='On';
                 obj.cb_session_listbox;
                 
             end
@@ -455,7 +454,7 @@ classdef BEST < handle
                     obj.info.event.current_measure_fullstr(obj.info.event.current_measure_fullstr == ' ') = '_';
                     obj.info.event.current_measure=obj.data.(new_session).info.measurement_str(i);
                     obj.info.event.current_measure=obj.info.event.current_measure{1};
-                    obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).Enable{1,1}='On';
+                    obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).Enable{1,1}='on';
                 end
                 
                 obj.info.session_copied=[];
@@ -637,7 +636,7 @@ classdef BEST < handle
                 obj.info.event.current_measure_fullstr=new_session_forpar;
                 obj.info.event.current_measure=obj.data.meas_copied_orignial;
                 obj.info.event.current_measure=obj.info.event.current_measure{1};
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).Enable{1,1}='On';
+                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).Enable{1,1}='on';
                 obj.cb_measure_listbox;
             end
         end
@@ -720,7 +719,7 @@ classdef BEST < handle
                 obj.info.event.current_measure_fullstr=new_session_forpar;
                 obj.info.event.current_measure=obj.data.meas_copied_orignial;
                 obj.info.event.current_measure=obj.info.event.current_measure{1};
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).Enable{1,1}='On';
+                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).Enable{1,1}='on';
                 obj.cb_measure_listbox;
             end
         end
@@ -2453,7 +2452,7 @@ classdef BEST < handle
                         
                         
                         obj.pi.eegtms.amp_units=uicontrol( 'Style','popupmenu','Parent', mep_panel_13 ,'FontSize',11,'String',{'Select','Absolute','Percentile'},'Value',2','Callback',@(~,~)obj.cb_pi_eegtms_amp_units);
-                        set( mep_panel_13, 'Widths', [150 -2 -2 -2]);
+                        set( mep_panel_13, 'Widths', [150 -3 -1]);
                         
                         expModr2c=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
                         uicontrol( 'Style','text','Parent', expModr2c,'String','Inter Trial Interval (s):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
@@ -4024,12 +4023,18 @@ classdef BEST < handle
                         obj.pi.mep.PhaseTolerance=uicontrol( 'Style','edit','Parent', mep_panel_row2 ,'FontSize',11,'Tag','PhaseTolerance','Callback',@cb_par_saving);
                         set( mep_panel_row2, 'Widths', [150 -2]);
                         
+% %                         mep_panel_13 = uix.HBox( 'Parent', expModvBox, 'Spacing', 5, 'Padding', 5  );
+% %                         uicontrol( 'Style','text','Parent', mep_panel_13,'String','Amp Distribution:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+% %                         obj.pi.mep.AmplitudeLowBound=uicontrol( 'Style','edit','Parent', mep_panel_13 ,'FontSize',11,'Tag','AmplitudeLowBound','Callback',@cb_par_saving);
+% %                         obj.pi.mep.AmplitudeHighBound=uicontrol( 'Style','edit','Parent', mep_panel_13 ,'FontSize',11,'Tag','AmplitudeHighBound','Callback',@cb_par_saving);
+% %                         obj.pi.mep.AmplitudeUnits=uicontrol( 'Style','popupmenu','Parent', mep_panel_13 ,'FontSize',11,'String',{'Percentile','Absolute (micro Volts)'},'Tag','AmplitudeUnits','Callback',@cb_par_saving);
+% %                         set( mep_panel_13, 'Widths', [150 -2 -2 -2]);
                         mep_panel_13 = uix.HBox( 'Parent', expModvBox, 'Spacing', 5, 'Padding', 5  );
-                        uicontrol( 'Style','text','Parent', mep_panel_13,'String','Amp Distribution:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-                        obj.pi.mep.AmplitudeLowBound=uicontrol( 'Style','edit','Parent', mep_panel_13 ,'FontSize',11,'Tag','AmplitudeLowBound','Callback',@cb_par_saving);
-                        obj.pi.mep.AmplitudeHighBound=uicontrol( 'Style','edit','Parent', mep_panel_13 ,'FontSize',11,'Tag','AmplitudeHighBound','Callback',@cb_par_saving);
+                        uicontrol( 'Style','text','Parent', mep_panel_13,'String','Amplitude Threshold:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                        obj.pi.mep.AmplitudeThreshold=uicontrol( 'Style','edit','Parent', mep_panel_13 ,'FontSize',11,'Tag','AmplitudeThreshold','Callback',@cb_par_saving);
                         obj.pi.mep.AmplitudeUnits=uicontrol( 'Style','popupmenu','Parent', mep_panel_13 ,'FontSize',11,'String',{'Percentile','Absolute (micro Volts)'},'Tag','AmplitudeUnits','Callback',@cb_par_saving);
-                        set( mep_panel_13, 'Widths', [150 -2 -2 -2]);
+                        set( mep_panel_13, 'Widths', [150 -3 -1]);
+
                         
                         mep_panel_row2z = uix.HBox( 'Parent', expModvBox, 'Spacing', 5, 'Padding', 5  );
                         uicontrol( 'Style','text','Parent', mep_panel_row2z,'String','Amp Assignment Period(s):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
@@ -5559,8 +5564,7 @@ classdef BEST < handle
             obj.info.defaults.FrequencyBand=1;
             obj.info.defaults.Phase='';
             obj.info.defaults.PhaseTolerance='';
-            obj.info.defaults.AmplitudeLowBound='';
-            obj.info.defaults.AmplitudeHighBound='';
+            obj.info.defaults.AmplitudeThreshold='[0 1e6]';
             obj.info.defaults.AmplitudeUnits=1;
             obj.info.defaults.EMGDisplayChannels='';
             obj.info.defaults.MEPOnset='15';
@@ -6087,11 +6091,10 @@ classdef BEST < handle
                         set( mep_panel_row2, 'Widths', [150 -2]);
                         
                         mep_panel_13 = uix.HBox( 'Parent', expModvBox, 'Spacing', 5, 'Padding', 5  );
-                        uicontrol( 'Style','text','Parent', mep_panel_13,'String','Amp Distribution:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-                        obj.pi.drc.AmplitudeLowBound=uicontrol( 'Style','edit','Parent', mep_panel_13 ,'FontSize',11,'Tag','AmplitudeLowBound','Callback',@cb_par_saving);
-                        obj.pi.drc.AmplitudeHighBound=uicontrol( 'Style','edit','Parent', mep_panel_13 ,'FontSize',11,'Tag','AmplitudeHighBound','Callback',@cb_par_saving);
-                        obj.pi.drc.AmplitudeUnits=uicontrol( 'Style','popupmenu','Parent', mep_panel_13 ,'FontSize',11,'String',{'Percentile','Absolute (micro Volts)'},'Tag','AmplitudeUnits','Callback',@cb_par_saving);
-                        set( mep_panel_13, 'Widths', [150 -2 -2 -2]);
+                        uicontrol( 'Style','text','Parent', mep_panel_13,'String','Amplitude Threshold:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                        obj.pi.mep.AmplitudeThreshold=uicontrol( 'Style','edit','Parent', mep_panel_13 ,'FontSize',11,'Tag','AmplitudeThreshold','Callback',@cb_par_saving);
+                        obj.pi.mep.AmplitudeUnits=uicontrol( 'Style','popupmenu','Parent', mep_panel_13 ,'FontSize',11,'String',{'Percentile','Absolute (micro Volts)'},'Tag','AmplitudeUnits','Callback',@cb_par_saving);
+                        set( mep_panel_13, 'Widths', [150 -3 -1]);
                         
                         mep_panel_row2z = uix.HBox( 'Parent', expModvBox, 'Spacing', 5, 'Padding', 5  );
                         uicontrol( 'Style','text','Parent', mep_panel_row2z,'String','Amp Assignment Period(s):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
@@ -7306,8 +7309,7 @@ classdef BEST < handle
             obj.info.defaults.FrequencyBand=1;
             obj.info.defaults.Phase='';
             obj.info.defaults.PhaseTolerance='';
-            obj.info.defaults.AmplitudeLowBound='';
-            obj.info.defaults.AmplitudeHighBound='';
+            obj.info.defaults.AmplitudeThreshold='[0 1e6]';
             obj.info.defaults.AmplitudeUnits=1;
             obj.info.defaults.EMGTargetChannels='';
             obj.info.defaults.EMGDisplayChannels='';
@@ -7492,12 +7494,17 @@ classdef BEST < handle
                         obj.pi.mth.PhaseTolerance=uicontrol( 'Style','edit','Parent', mep_panel_row2 ,'FontSize',11,'Tag','PhaseTolerance','Callback',@cb_par_saving);
                         set( mep_panel_row2, 'Widths', [150 -2]);
                         
+% %                         mep_panel_13 = uix.HBox( 'Parent', expModvBox, 'Spacing', 5, 'Padding', 5  );
+% %                         uicontrol( 'Style','text','Parent', mep_panel_13,'String','Amp Distribution:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+% %                         obj.pi.mth.AmplitudeLowBound=uicontrol( 'Style','edit','Parent', mep_panel_13 ,'FontSize',11,'Tag','AmplitudeLowBound','Callback',@cb_par_saving);
+% %                         obj.pi.mth.AmplitudeHighBound=uicontrol( 'Style','edit','Parent', mep_panel_13 ,'FontSize',11,'Tag','AmplitudeHighBound','Callback',@cb_par_saving);
+% %                         obj.pi.mth.AmplitudeUnits=uicontrol( 'Style','popupmenu','Parent', mep_panel_13 ,'FontSize',11,'String',{'Percentile','Absolute (micro Volts)'},'Tag','AmplitudeUnits','Callback',@cb_par_saving);
+% %                         set( mep_panel_13, 'Widths', [150 -2 -2 -2]);
                         mep_panel_13 = uix.HBox( 'Parent', expModvBox, 'Spacing', 5, 'Padding', 5  );
-                        uicontrol( 'Style','text','Parent', mep_panel_13,'String','Amp Distribution:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-                        obj.pi.mth.AmplitudeLowBound=uicontrol( 'Style','edit','Parent', mep_panel_13 ,'FontSize',11,'Tag','AmplitudeLowBound','Callback',@cb_par_saving);
-                        obj.pi.mth.AmplitudeHighBound=uicontrol( 'Style','edit','Parent', mep_panel_13 ,'FontSize',11,'Tag','AmplitudeHighBound','Callback',@cb_par_saving);
-                        obj.pi.mth.AmplitudeUnits=uicontrol( 'Style','popupmenu','Parent', mep_panel_13 ,'FontSize',11,'String',{'Percentile','Absolute (micro Volts)'},'Tag','AmplitudeUnits','Callback',@cb_par_saving);
-                        set( mep_panel_13, 'Widths', [150 -2 -2 -2]);
+                        uicontrol( 'Style','text','Parent', mep_panel_13,'String','Amplitude Threshold:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                        obj.pi.mep.AmplitudeThreshold=uicontrol( 'Style','edit','Parent', mep_panel_13 ,'FontSize',11,'Tag','AmplitudeThreshold','Callback',@cb_par_saving);
+                        obj.pi.mep.AmplitudeUnits=uicontrol( 'Style','popupmenu','Parent', mep_panel_13 ,'FontSize',11,'String',{'Percentile','Absolute (micro Volts)'},'Tag','AmplitudeUnits','Callback',@cb_par_saving);
+                        set( mep_panel_13, 'Widths', [150 -3 -1]);
                         
                         mep_panel_row2z = uix.HBox( 'Parent', expModvBox, 'Spacing', 5, 'Padding', 5  );
                         uicontrol( 'Style','text','Parent', mep_panel_row2z,'String','Amp Assignment Period(s):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
@@ -8772,8 +8779,7 @@ classdef BEST < handle
             obj.info.defaults.FrequencyBand=1;
             obj.info.defaults.Phase='';
             obj.info.defaults.PhaseTolerance='';
-            obj.info.defaults.AmplitudeLowBound='';
-            obj.info.defaults.AmplitudeHighBound='';
+            obj.info.defaults.AmplitudeThreshold='[0 1e6]';
             obj.info.defaults.AmplitudeUnits=1;
             obj.info.defaults.EMGDisplayChannels='';
             obj.info.defaults.MEPOnset='15';
@@ -9922,7 +9928,7 @@ classdef BEST < handle
             
             
             obj.pi.eegtms.amp_units=uicontrol( 'Style','popupmenu','Parent', mep_panel_13 ,'FontSize',11,'String',{'Select','Absolute','Percentile'},'Value',2','Callback',@(~,~)obj.cb_pi_eegtms_amp_units);
-            set( mep_panel_13, 'Widths', [150 -2 -2 -2]);
+            set( mep_panel_13, 'Widths', [150 -3 -1]);
             
             % row 2
             mep_panel_row2 = uix.HBox( 'Parent', obj.pi.eegtms.vb, 'Spacing', 5, 'Padding', 5  );
@@ -11231,8 +11237,8 @@ classdef BEST < handle
             obj.info.session_no
             obj.info.session_no=obj.info.session_no+1;
             
-            session_name_registering=obj.pmd.sess_title.editfield.String
-            session_name_registering(session_name_registering == ' ') = '_'
+            session_name_registering=obj.pmd.sess_title.editfield.String;
+            session_name_registering(session_name_registering == ' ') = '_';
             if(isvarname(session_name_registering)==0)
                 errordlg('Session Title is an invalid string. It cannot be an empty sring or start with a space or numeric character, please use a meaningful string to add the intended session again.','BEST Toolbox');
                 obj.info.session_no=obj.info.session_no-1;
@@ -11863,9 +11869,11 @@ classdef BEST < handle
 %             obj.hw=Utilities.HardwareConfiguration;
             obj.hw.device_added2_listbox.string=saved_struct.(varname).Utilities.HardwareConfiguration.OutputDevices;
             obj.hw.device_added1_listbox.string=saved_struct.(varname).Utilities.HardwareConfiguration.InputDevices;
-            obj.cb_session_listbox;
+            
             obj.hw.device_added2.listbox.String=obj.hw.device_added2_listbox.string;
             obj.hw.device_added1.listbox.String=obj.hw.device_added1_listbox.string;
+            pause(0.5);
+            obj.cb_session_listbox;
 
 
             
