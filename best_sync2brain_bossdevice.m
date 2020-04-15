@@ -67,21 +67,32 @@ while ~strcmpi(obj.EMGScope.Status,'finished'), end
         
         function armPulse(obj)
             %% Findling IA Low and High Cutoff Values
+            % 
             %% Choosing 1 from 3x Oscillitory Models, Load Phase, PhasePlusMinus, Amplitude Low and Amplitude High
             switch obj.best_toolbox.inputs.FrequencyBand
                 case 1 % Alpha
 %                     obj.best_toolbox.inputs.trialMat{obj.best_toolbox.inputs.trial,obj.best_toolbox.inputs.colLabel.tpm}
                     obj.bb.alpha.phase_target(1) =  obj.best_toolbox.inputs.trialMat{obj.best_toolbox.inputs.trial,obj.best_toolbox.inputs.colLabel.phase}{1,1};
                     obj.bb.alpha.phase_plusminus(1) =obj.best_toolbox.inputs.trialMat{obj.best_toolbox.inputs.trial,obj.best_toolbox.inputs.colLabel.phase}{1,2};
+                    if obj.best_toolbox.inputs.AmplitudeUnits==2
+                        obj.bb.alpha.amplitude_min(1)=obj.best_toolbox.inputs.trialMat{obj.best_toolbox.inputs.trial,obj.best_toolbox.inputs.colLabel.IA}{1,1};
+                        obj.bb.alpha.amplitude_max(1)=obj.best_toolbox.inputs.trialMat{obj.best_toolbox.inputs.trial,obj.best_toolbox.inputs.colLabel.IA}{1,2};
+                    end
                 case 2 % Theta
                     obj.bb.theta.phase_target(1) = obj.best_toolbox.inputs.trialMat{obj.best_toolbox.inputs.trial,obj.best_toolbox.inputs.colLabel.phase}{1,1};
                     obj.bb.theta.phase_plusminus(1) = obj.best_toolbox.inputs.trialMat{obj.best_toolbox.inputs.trial,obj.best_toolbox.inputs.colLabel.phase}{1,2};
+                    if obj.best_toolbox.inputs.AmplitudeUnits==2
+                        obj.bb.theta.amplitude_min(1)=obj.best_toolbox.inputs.trialMat{obj.best_toolbox.inputs.trial,obj.best_toolbox.inputs.colLabel.IA}{1,1};
+                        obj.bb.theta.amplitude_max(1)=obj.best_toolbox.inputs.trialMat{obj.best_toolbox.inputs.trial,obj.best_toolbox.inputs.colLabel.IA}{1,2};
+                    end
                 case 3 % Beta
                     obj.bb.beta.phase_target(1) = obj.best_toolbox.inputs.trialMat{obj.best_toolbox.inputs.trial,obj.best_toolbox.inputs.colLabel.phase}{1,1};
                     obj.bb.beta.phase_plusminus(1) = obj.best_toolbox.inputs.trialMat{obj.best_toolbox.inputs.trial,obj.best_toolbox.inputs.colLabel.phase}{1,2};
+                    if obj.best_toolbox.inputs.AmplitudeUnits==2
+                        obj.bb.beta.amplitude_min(1)=obj.best_toolbox.inputs.trialMat{obj.best_toolbox.inputs.trial,obj.best_toolbox.inputs.colLabel.IA}{1,1};
+                        obj.bb.beta.amplitude_max(1)=obj.best_toolbox.inputs.trialMat{obj.best_toolbox.inputs.trial,obj.best_toolbox.inputs.colLabel.IA}{1,2};
+                    end
             end
-            
-            
             obj.bb.triggers_remaining = 1;
             %% Configuring Trial's respective Trigger Pattern
             time_port_marker_vector=obj.best_toolbox.inputs.trialMat{obj.best_toolbox.inputs.trial,obj.best_toolbox.inputs.colLabel.tpm};
@@ -101,17 +112,55 @@ while ~strcmpi(obj.EMGScope.Status,'finished'), end
             obj.bb.arm;
             obj.bb.armed ;
             exit_flag=0;
-            tic
             while (exit_flag<1)
-                 if(obj.bb.triggers_remaining == 0)
-                     toc
-                     obj.bb.disarm;
-                     while ~strcmpi(obj.EMGScope.Status,'finished'), end
-                     while ~strcmpi(obj.IPScope.Status,'finished'), end
-                     while ~strcmpi(obj.IEEGScope.Status,'finished'), end
-                     exit_flag=2;
-                 end
-            end            
+                if obj.best_toolbox.inputs.AmplitudeUnits==1
+                    if (strcmp(obj.FileScope.sc(obj.FileScope.activeScope).Status, 'Finished') || strcmp(obj.FileScope.sc(obj.FileScope.activeScope).Status, 'Interrupted'))
+                        data = obj.FileScope.sc(obj.FileScope.activeScope).Data;
+                        % Restart this scope.
+                        start(obj.FileScope.sc(obj.FileScope.activeScope));
+                        % Switch to the next scope.
+                        if(obj.FileScope.activeScope == 1)
+                            obj.FileScope.activeScope = 2;
+                        else
+                            obj.FileScope.activeScope = 1;
+                        end
+                        % append data in circular buffer
+                        obj.FileScope.mAmplitudeScopeCircBuf{obj.FileScope.mAmplitudeScopeCircBufCurrentBlock} = data';
+                        obj.FileScope.circular_buffer_data = cell2mat(obj.FileScope.mAmplitudeScopeCircBuf);
+                        % Switch to the next data block
+                        if(obj.FileScope.mAmplitudeScopeCircBufCurrentBlock < obj.FileScope.mAmplitudeScopeCircBufTotalBlocks)
+                            obj.FileScope.mAmplitudeScopeCircBufCurrentBlock = obj.FileScope.mAmplitudeScopeCircBufCurrentBlock + 1;
+                        else
+                            obj.FileScope.mAmplitudeScopeCircBufCurrentBlock = 1;
+                        end
+                        % remove post-stimulus data
+                        obj.FileScope.amplitude_clean = obj.FileScope.circular_buffer_data(1, obj.FileScope.circular_buffer_data(2,:) == 1);
+                        % calculate percentiles
+                        obj.best_toolbox.inputs.trialMat{obj.best_toolbox.inputs.trial,obj.best_toolbox.inputs.colLabel.IA}{1,1}= quantile(obj.FileScope.amplitude_clean, obj.best_toolbox.inputs.trialMat{obj.best_toolbox.inputs.trial,obj.best_toolbox.inputs.colLabel.IA}{1,1}/100); 
+                        obj.best_toolbox.inputs.trialMat{obj.best_toolbox.inputs.trial,obj.best_toolbox.inputs.colLabel.IA}{1,2} = quantile(obj.FileScope.amplitude_clean, obj.best_toolbox.inputs.trialMat{obj.best_toolbox.inputs.trial,obj.best_toolbox.inputs.colLabel.IA}{1,2}/100); 
+                        % set amplitude threshold
+                        switch obj.best_toolbox.inputs.FrequencyBand
+                            case 1 % Alpha
+                                obj.bb.alpha.amplitude_min(1)=obj.best_toolbox.inputs.trialMat{obj.best_toolbox.inputs.trial,obj.best_toolbox.inputs.colLabel.IA}{1,1};
+                                obj.bb.alpha.amplitude_max(1)=obj.best_toolbox.inputs.trialMat{obj.best_toolbox.inputs.trial,obj.best_toolbox.inputs.colLabel.IA}{1,2};
+                            case 2 % Theta
+                                obj.bb.theta.amplitude_min(1)=obj.best_toolbox.inputs.trialMat{obj.best_toolbox.inputs.trial,obj.best_toolbox.inputs.colLabel.IA}{1,1};
+                                obj.bb.theta.amplitude_max(1)=obj.best_toolbox.inputs.trialMat{obj.best_toolbox.inputs.trial,obj.best_toolbox.inputs.colLabel.IA}{1,2};
+                            case 3 % Beta
+                                obj.bb.beta.amplitude_min(1)=obj.best_toolbox.inputs.trialMat{obj.best_toolbox.inputs.trial,obj.best_toolbox.inputs.colLabel.IA}{1,1};
+                                obj.bb.beta.amplitude_max(1)=obj.best_toolbox.inputs.trialMat{obj.best_toolbox.inputs.trial,obj.best_toolbox.inputs.colLabel.IA}{1,2};
+                        end
+                    end % handle the amplitude tracking
+                end
+                
+                if(obj.bb.triggers_remaining == 0)
+                    obj.bb.disarm;
+                    while ~strcmpi(obj.EMGScope.Status,'finished'), end
+                    while ~strcmpi(obj.IPScope.Status,'finished'), end
+                    while ~strcmpi(obj.IEEGScope.Status,'finished'), end
+                    exit_flag=2;
+                end
+            end
         end
         
         function EMGScopeBoot(obj,EMGDisplayPeriodPre,EMGDisplayPeriodPost)
@@ -203,40 +252,79 @@ while ~strcmpi(obj.EMGScope.Status,'finished'), end
             % remove any pre-existing scopes with these ids
             for id = AMP_TRACING_SCOPES_IDS
                 if(find(obj.bb.tg.Scopes == id))
-                    fprintf('\nRemoving scope %i', id)
                     remscope(obj.bb.tg, id);
                 end
             end
+            switch obj.best_toolbox.inputs.FrequencyBand
+                case 1 % Alpha
+                    obj.FileScope.sig_id_amp = getsignalid(obj.bb.tg, 'OSC/alpha/IA'); %amplitude
+                    obj.FileScope.sig_id_qly = getsignalid(obj.bb.tg, 'QLY/Logical Operator2'); %eeg_is_clean
+                    
+                    obj.FileScope.sc = addscope(obj.bb.tg, 'host', AMP_TRACING_SCOPES_IDS);
+                    addsignal(obj.FileScope.sc, [obj.FileScope.sig_id_amp obj.FileScope.sig_id_qly]);
+                    
+                    obj.FileScope.sc(1).NumSamples = 500;
+                    obj.FileScope.sc(1).Decimation = 10;
+                    obj.FileScope.sc(1).TriggerSample = -1;
+                    
+                    obj.FileScope.sc(2).NumSamples = 500;
+                    obj.FileScope.sc(2).Decimation = 10;
+                    obj.FileScope.sc(2).TriggerSample = -1;
+                    
+                    obj.FileScope.sc(1).TriggerMode = 'Scope';
+                    obj.FileScope.sc(1).TriggerScope = AMP_TRACING_SCOPES_IDS(2);
+                    
+                    obj.FileScope.sc(2).TriggerMode = 'Scope';
+                    obj.FileScope.sc(2).TriggerScope = AMP_TRACING_SCOPES_IDS(1);
+                case 2 % Theta
+                    obj.FileScope.sig_id_amp = getsignalid(obj.bb.tg, 'OSC/theta/IA'); %amplitude
+                    obj.FileScope.sig_id_qly = getsignalid(obj.bb.tg, 'QLY/Logical Operator2'); %eeg_is_clean
+                    
+                    obj.FileScope.sc = addscope(obj.bb.tg, 'host', AMP_TRACING_SCOPES_IDS);
+                    addsignal(sc, [obj.FileScope.sig_id_amp obj.FileScope.sig_id_qly]);
+                    
+                    obj.FileScope.sc(1).NumSamples = 250;
+                    obj.FileScope.sc(1).Decimation = 20;
+                    obj.FileScope.sc(1).TriggerSample = -1;
+                    
+                    obj.FileScope.sc(2).NumSamples = 250;
+                    obj.FileScope.sc(2).Decimation = 20;
+                    obj.FileScope.sc(2).TriggerSample = -1;
+                    
+                    obj.FileScope.sc(1).TriggerMode = 'Scope';
+                    obj.FileScope.sc(1).TriggerScope = AMP_TRACING_SCOPES_IDS(2);
+                    
+                    obj.FileScope.sc(2).TriggerMode = 'Scope';
+                    obj.FileScope.sc(2).TriggerScope = AMP_TRACING_SCOPES_IDS(1);
+                case 3 % Beta
+                    obj.FileScope.sig_id_amp = getsignalid(obj.bb.tg, 'OSC/beta/IA'); %amplitude
+                    obj.FileScope.sig_id_qly = getsignalid(obj.bb.tg, 'QLY/Logical Operator2'); %eeg_is_clean
+                    
+                    obj.FileScope.sc = addscope(obj.bb.tg, 'host', AMP_TRACING_SCOPES_IDS);
+                    addsignal(sc, [obj.FileScope.sig_id_amp obj.FileScope.sig_id_qly]);
+                    
+                    obj.FileScope.sc(1).NumSamples = 1000;
+                    obj.FileScope.sc(1).Decimation = 5;
+                    obj.FileScope.sc(1).TriggerSample = -1;
+                    
+                    obj.FileScope.sc(2).NumSamples = 1000;
+                    obj.FileScope.sc(2).Decimation = 5;
+                    obj.FileScope.sc(2).TriggerSample = -1;
+                    
+                    obj.FileScope.sc(1).TriggerMode = 'Scope';
+                    obj.FileScope.sc(1).TriggerScope = AMP_TRACING_SCOPES_IDS(2);
+                    
+                    obj.FileScope.sc(2).TriggerMode = 'Scope';
+                    obj.FileScope.sc(2).TriggerScope = AMP_TRACING_SCOPES_IDS(1);
+            end
             
-            sig_id_amp = getsignalid(obj.bb.tg, 'OSC/alpha/IA'); %amplitude
-            sig_id_qly = getsignalid(obj.bb.tg, 'QLY/Logical Operator2'); %eeg_is_clean
+            start(obj.FileScope.sc);
             
-            sc = addscope(obj.bb.tg, 'host', AMP_TRACING_SCOPES_IDS);
-            addsignal(sc, [sig_id_amp sig_id_qly]);
-            
-            sc(1).NumSamples = 500;
-            sc(1).Decimation = 10;
-            sc(1).TriggerSample = -1;
-            
-            sc(2).NumSamples = 500;
-            sc(2).Decimation = 10;
-            sc(2).TriggerSample = -1;
-            
-            sc(1).TriggerMode = 'Scope';
-            sc(1).TriggerScope = AMP_TRACING_SCOPES_IDS(2);
-            
-            sc(2).TriggerMode = 'Scope';
-            sc(2).TriggerScope = AMP_TRACING_SCOPES_IDS(1);
-            
-            start(sc); % now they are ready for being triggered
-            
-            activeScope = 1;
-            mAmplitudeScopeCircBufTotalBlocks = amplitude_assignment_period;
-            mAmplitudeScopeCircBufCurrentBlock = 1;
-            mAmplitudeScopeCircBuf = [];
-% %             hAmplitudeHistoryAxes = subplot(1,2,1);
-% %             hAmplitudeDistributionAxes = subplot(1,2,2);
-            trigger(sc(activeScope));
+            obj.FileScope.activeScope = 1;
+            obj.FileScope.mAmplitudeScopeCircBufTotalBlocks = obj.best_toolbox.inputs.AmplitudeAssignmentPeriod*60; %Conversion from Minutes into Seconds
+            obj.FileScope.mAmplitudeScopeCircBufCurrentBlock = 1;
+            obj.FileScope.mAmplitudeScopeCircBuf = [];
+            trigger(obj.FileScope.sc(obj.FileScope.activeScope));
         end
         
         function EMGScopeStart(obj)
@@ -257,6 +345,7 @@ while ~strcmpi(obj.EMGScope.Status,'finished'), end
         end
         
         function IAScopeStart(obj)
+            %This has to be done inside armed loop therefore empty but just required as a Place holder for consistency of Architecture
         end
     end
 end

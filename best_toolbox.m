@@ -389,6 +389,9 @@ classdef best_toolbox < handle
                             obj.inputs.colLabel.chId=12;
                             obj.inputs.colLabel.phase=13;
                             obj.inputs.colLabel.IA=14;
+                            if obj.inputs.AmplitudeUnits==1
+                                obj.inputs.colLabel.IAPercentile=15;
+                            end
                             obj.inputs.colLabel.mepamp=15;
                             %% Creating ChannelType and ChannelID
                             switch obj.app.par.hardware_settings.(char(obj.inputs.input_device)).slct_device
@@ -530,7 +533,9 @@ classdef best_toolbox < handle
                                 idx_stimulationconditions=idx_stimulationconditions+1;
                                 obj.inputs.condMat(iTotalCrossedOverConditions,1:12)=obj.inputs.condMat(idx_stimulationconditions,1:12);
                                 obj.inputs.condMat(iTotalCrossedOverConditions,obj.inputs.colLabel.phase)=PhaseConditionVector(idx_phaseconditions);
-                                obj.inputs.condMat(iTotalCrossedOverConditions,obj.inputs.colLabel.IA)={{0,1e6}};
+                                obj.inputs.condMat(iTotalCrossedOverConditions,obj.inputs.colLabel.IA)={{25,75}};
+                                if obj.inputs.AmplitudeUnits==1
+                                obj.inputs.condMat(iTotalCrossedOverConditions,obj.inputs.colLabel.IAPercentile)={{25,75}}; end
                                 if(idx_stimulationconditions>=idx_totalstimulationconditions)
                                     idx_stimulationconditions=0;
                                     idx_phaseconditions=idx_phaseconditions+1;
@@ -1733,6 +1738,7 @@ classdef best_toolbox < handle
                             case 'IP'
                                 obj.bossbox.IPScopeBoot
                             case 'IA'
+                                obj.bossbox.IAScopeBoot
                         end
                     end
                 case 2 % fieldtrip
@@ -1835,8 +1841,33 @@ classdef best_toolbox < handle
                                 check=obj.bossbox.EMGScope.Data(:,1)';
                                 %                         obj.inputs.rawData.(unique_chLab{1,i}).data(obj.inputs.trial,:)=[obj.bossbox.EMGScope.Data(:,1)]';
 %                                 obj.inputs.rawData.(unique_chLab{1,i}).data(obj.inputs.trial,:)=obj.best_VisualizationFilter([obj.bossbox.EMGScope.Data(:,1)]');
-                                
                             case 'IA'
+                                switch obj.inputs.FrequencyBand
+                                    case 1 % Alpha
+                                        obj.inputs.rawData.(unique_chLab{1,i}).data(obj.inputs.trial,1:obj.inputs.AmplitudeAssignmentPeriod*60*500)=0;
+                                        if(size(obj.bossbox.FileScope.amplitude_clean,2)>obj.inputs.AmplitudeAssignmentPeriod*60*500)
+                                            obj.inputs.rawData.(unique_chLab{1,i}).data(obj.inputs.trial,:)=obj.bossbox.FileScope.amplitude_clean((end-obj.inputs.AmplitudeAssignmentPeriod*60*500):end);
+                                        else
+                                            obj.inputs.rawData.(unique_chLab{1,i}).data(obj.inputs.trial,1:numel(obj.bossbox.FileScope.amplitude_clean))=obj.bossbox.FileScope.amplitude_clean;
+                                            obj.inputs.rawData.(unique_chLab{1,i}).data=flip(obj.inputs.rawData.(unique_chLab{1,i}).data);
+                                        end
+                                    case 2 % Theta
+                                        obj.inputs.rawData.(unique_chLab{1,i}).data(obj.inputs.trial,1:obj.inputs.AmplitudeAssignmentPeriod*60*250)=0;
+                                        if(size(obj.bossbox.FileScope.amplitude_clean,2)>obj.inputs.AmplitudeAssignmentPeriod*60*250)
+                                            obj.inputs.rawData.(unique_chLab{1,i}).data(obj.inputs.trial,:)=obj.bossbox.FileScope.amplitude_clean((end-obj.inputs.AmplitudeAssignmentPeriod*60*250):end);
+                                        else
+                                            obj.inputs.rawData.(unique_chLab{1,i}).data(obj.inputs.trial,:)=obj.bossbox.FileScope.amplitude_clean;
+                                            obj.inputs.rawData.(unique_chLab{1,i}).data=flip(obj.inputs.rawData.(unique_chLab{1,i}).data);
+                                        end
+                                    case 3 % Beta
+                                        obj.inputs.rawData.(unique_chLab{1,i}).data(obj.inputs.trial,1:obj.inputs.AmplitudeAssignmentPeriod*60*1000)=0;
+                                        if(size(obj.bossbox.FileScope.amplitude_clean,2)>obj.inputs.AmplitudeAssignmentPeriod*60*1000)
+                                            obj.inputs.rawData.(unique_chLab{1,i}).data(obj.inputs.trial,:)=obj.bossbox.FileScope.amplitude_clean((end-obj.inputs.AmplitudeAssignmentPeriod*60*1000):end);
+                                        else
+                                            obj.inputs.rawData.(unique_chLab{1,i}).data(obj.inputs.trial,:)=obj.bossbox.FileScope.amplitude_clean;
+                                            obj.inputs.rawData.(unique_chLab{1,i}).data=flip(obj.inputs.rawData.(unique_chLab{1,i}).data);
+                                        end
+                                end
                             case 'EEG'
                         end
                         
@@ -1878,7 +1909,7 @@ classdef best_toolbox < handle
                     case 'TriggerLockedEEG'
                         obj.PlotTriggerLockedEEG;
                     case 'RunningAmplitude'
-                        
+                        obj.PlotRunnigAmplitude;
                 end
             end
             % updating analytics paneljust once in 1 trial
@@ -2820,6 +2851,19 @@ classdef best_toolbox < handle
                 end
             end
         end %End obj.PlotTriggerLockedEEG
+        function PlotRunnigAmplitude(obj)
+            ax=['ax' num2str(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.axesno}{1,obj.inputs.chLab_idx})];
+            axes(obj.app.pr.ax.(ax)), hold on,
+            ThisChannelName=obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx};
+            switch obj.inputs.trial
+                case 1
+                    obj.inputs.Handles.RunnigAmplitude=plot(obj.inputs.rawData.(ThisChannelName).data(obj.inputs.trial,:),'color','red','LineWidth',1.5);
+                    xlabel(['Celan Data for last' num2str(obj.inputs.AmplitudeAssignmentPeriod) ' min']);
+                    ylabel('Ossiciliation Amplitude ( /mu V)');
+                otherwise
+                    obj.inputs.Handles.RunnigAmplitude.YData=obj.inputs.rawData.(ThisChannelName).data(obj.inputs.trial,:);
+            end
+        end
         
         
         %% Old Scripts
