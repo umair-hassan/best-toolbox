@@ -399,8 +399,8 @@ classdef best_toolbox < handle
                                     EMGDisplayChannelType=cell(1,numel(obj.inputs.EMGDisplayChannels));
                                     EMGDisplayChannelType(:)=cellstr('EMG');
                                     EMGDisplayChannelID=num2cell(1:numel(obj.inputs.EMGDisplayChannels));
-                                    DisplayChannelType={'IP','IEEG',EMGDisplayChannelType{1,:},'IA'};
-                                    DisplayChannelID={1,1,EMGDisplayChannelID{1,:},1};
+                                    DisplayChannelType={'IP','IEEG',EMGDisplayChannelType{1,:},'IA','IADistribution'};
+                                    DisplayChannelID={1,1,EMGDisplayChannelID{1,:},1,1};
                                     obj.inputs.ChannelsTypeUnique=DisplayChannelType;
                                     
                                 case 2 % fieldtrip real time buffer
@@ -424,8 +424,8 @@ classdef best_toolbox < handle
                             DisplayChannelsMeasures(:)=cellstr('MEP_Measurement');
                             
                             
-                            ChannelLabels={'OsscillationPhase','OsscillationEEG',obj.inputs.EMGDisplayChannels{1,:},'OsscillationAmplitude'};
-                            ChannelMeasures={'PhaseHistogram','TriggerLockedEEG',DisplayChannelsMeasures{1,:},'RunningAmplitude'};
+                            ChannelLabels={'OsscillationPhase','OsscillationEEG',obj.inputs.EMGDisplayChannels{1,:},'OsscillationAmplitude','AmplitudeDistribution'};
+                            ChannelMeasures={'PhaseHistogram','TriggerLockedEEG',DisplayChannelsMeasures{1,:},'RunningAmplitude','AmplitudeDistribution'};
                             
                             DisplayChannelsAxesNo=num2cell(1:numel(ChannelMeasures));
                             obj.app.pr.ax_measures=ChannelMeasures;
@@ -1832,7 +1832,9 @@ classdef best_toolbox < handle
                             case 'IP'
                                 obj.inputs.rawData.(unique_chLab{1,i}).data(obj.inputs.trial,1)=obj.bossbox.IPScope.Data(end,1);
                             case 'IEEG'
-                                obj.inputs.rawData.(unique_chLab{1,i}).data(obj.inputs.trial,:)=obj.best_VisualizationFilter([obj.bossbox.IEEGScope.Data(:,1)']);
+%                                 obj.inputs.rawData.(unique_chLab{1,i}).data(obj.inputs.trial,:)=obj.bossbox.IEEGScope.Data(:,1)';
+%                                 obj.inputs.rawData.(unique_chLab{1,i}).data(obj.inputs.trial,:)=obj.best_DeMeanEEG(obj.bossbox.IEEGScope.Data(:,1)');
+                                obj.inputs.rawData.(unique_chLab{1,i}).data(obj.inputs.trial,:)=obj.best_VisualizationFilter(obj.bossbox.IEEGScope.Data(:,1)');
                                 obj.inputs.rawData.(unique_chLab{1,i}).time(obj.inputs.trial,:)=obj.bossbox.IEEGScope.Time(:,1)';
                             case 'EMG'
 % %                                 obj.inputs.rawData.(unique_chLab{1,i}).data(obj.inputs.trial,:)=obj.best_VisualizationFilter([obj.sim_mep(1,700:1000), obj.sim_mep(1,1:699)]*1000*obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,1}{1,1}*(randi([1 3])*0.10));
@@ -1841,33 +1843,6 @@ classdef best_toolbox < handle
                                 check=obj.bossbox.EMGScope.Data(:,1)';
                                 %                         obj.inputs.rawData.(unique_chLab{1,i}).data(obj.inputs.trial,:)=[obj.bossbox.EMGScope.Data(:,1)]';
 %                                 obj.inputs.rawData.(unique_chLab{1,i}).data(obj.inputs.trial,:)=obj.best_VisualizationFilter([obj.bossbox.EMGScope.Data(:,1)]');
-                            case 'IA'
-                                switch obj.inputs.FrequencyBand
-                                    case 1 % Alpha
-                                        obj.inputs.rawData.(unique_chLab{1,i}).data(obj.inputs.trial,1:obj.inputs.AmplitudeAssignmentPeriod*60*500)=0;
-                                        if(size(obj.bossbox.FileScope.amplitude_clean,2)>obj.inputs.AmplitudeAssignmentPeriod*60*500)
-                                            obj.inputs.rawData.(unique_chLab{1,i}).data(obj.inputs.trial,:)=obj.bossbox.FileScope.amplitude_clean((end-obj.inputs.AmplitudeAssignmentPeriod*60*500):end);
-                                        else
-                                            obj.inputs.rawData.(unique_chLab{1,i}).data(obj.inputs.trial,1:numel(obj.bossbox.FileScope.amplitude_clean))=obj.bossbox.FileScope.amplitude_clean;
-                                            obj.inputs.rawData.(unique_chLab{1,i}).data=flip(obj.inputs.rawData.(unique_chLab{1,i}).data);
-                                        end
-                                    case 2 % Theta
-                                        obj.inputs.rawData.(unique_chLab{1,i}).data(obj.inputs.trial,1:obj.inputs.AmplitudeAssignmentPeriod*60*250)=0;
-                                        if(size(obj.bossbox.FileScope.amplitude_clean,2)>obj.inputs.AmplitudeAssignmentPeriod*60*250)
-                                            obj.inputs.rawData.(unique_chLab{1,i}).data(obj.inputs.trial,:)=obj.bossbox.FileScope.amplitude_clean((end-obj.inputs.AmplitudeAssignmentPeriod*60*250):end);
-                                        else
-                                            obj.inputs.rawData.(unique_chLab{1,i}).data(obj.inputs.trial,:)=obj.bossbox.FileScope.amplitude_clean;
-                                            obj.inputs.rawData.(unique_chLab{1,i}).data=flip(obj.inputs.rawData.(unique_chLab{1,i}).data);
-                                        end
-                                    case 3 % Beta
-                                        obj.inputs.rawData.(unique_chLab{1,i}).data(obj.inputs.trial,1:obj.inputs.AmplitudeAssignmentPeriod*60*1000)=0;
-                                        if(size(obj.bossbox.FileScope.amplitude_clean,2)>obj.inputs.AmplitudeAssignmentPeriod*60*1000)
-                                            obj.inputs.rawData.(unique_chLab{1,i}).data(obj.inputs.trial,:)=obj.bossbox.FileScope.amplitude_clean((end-obj.inputs.AmplitudeAssignmentPeriod*60*1000):end);
-                                        else
-                                            obj.inputs.rawData.(unique_chLab{1,i}).data(obj.inputs.trial,:)=obj.bossbox.FileScope.amplitude_clean;
-                                            obj.inputs.rawData.(unique_chLab{1,i}).data=flip(obj.inputs.rawData.(unique_chLab{1,i}).data);
-                                        end
-                                end
                             case 'EEG'
                         end
                         
@@ -1908,8 +1883,6 @@ classdef best_toolbox < handle
                         obj.PlotPhaseHistogram;
                     case 'TriggerLockedEEG'
                         obj.PlotTriggerLockedEEG;
-                    case 'RunningAmplitude'
-                        obj.PlotRunnigAmplitude;
                 end
             end
             % updating analytics paneljust once in 1 trial
@@ -2793,26 +2766,36 @@ classdef best_toolbox < handle
             ThisChannelName=obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx};
             
             ThisPhase=obj.inputs.rawData.(ThisChannelName).data(obj.inputs.trial,1);
+            if obj.inputs.trial==1, legend('Location','southoutside','Orientation','horizontal'); hold on; end
             if obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.phase}{1,1}==0 && obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.phase}{1,2}~=pi %Peak
                 if(isfield(obj.inputs.Handles,'PhaseHistogramPeak')==0)
-                    obj.inputs.Handles.PhaseHistogramPeak=polarhistogram(ThisPhase,20,'FaceColor','green','BinEdges',deg2rad(5:10:355));
+                    obj.inputs.Handles.PhaseHistogramPeak=polarhistogram(ThisPhase,20,'FaceColor','green','BinEdges',deg2rad(5:10:355),'DisplayName','Peak');
                 else
-                    obj.inputs.Handles.PhaseHistogramPeak
                     obj.inputs.Handles.PhaseHistogramPeak=polarhistogram([obj.inputs.Handles.PhaseHistogramPeak.Data ThisPhase],20,'FaceColor','green','BinEdges',deg2rad(5:10:355));
+                    obj.inputs.Handles.PhaseHistogramPeak.Annotation.LegendInformation.IconDisplayStyle = 'off';
                 end
             elseif obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.phase}{1,1}==pi && obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.phase}{1,2}~=pi %Trough
                 if(isfield(obj.inputs.Handles,'PhaseHistogramTrough')==0)
-                    obj.inputs.Handles.PhaseHistogramTrough=polarhistogram(ThisPhase,20,'FaceColor','red','BinEdges',deg2rad(5:10:355));
+                    obj.inputs.Handles.PhaseHistogramTrough=polarhistogram(ThisPhase,20,'FaceColor','red','BinEdges',deg2rad(5:10:355),'DisplayName','Trough');
                 else
                     obj.inputs.Handles.PhaseHistogramTrough=polarhistogram([obj.inputs.Handles.PhaseHistogramTrough.Data ThisPhase],20,'FaceColor','red','BinEdges',deg2rad(5:10:355));
+                    obj.inputs.Handles.PhaseHistogramTrough.Annotation.LegendInformation.IconDisplayStyle = 'off';
                 end
             elseif obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.phase}{1,1}==0 && obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.phase}{1,2}==pi %Random
                 if(isfield(obj.inputs.Handles,'PhaseHistogramRandom')==0)
-                    obj.inputs.Handles.PhaseHistogramRandom=polarhistogram(ThisPhase,20,'FaceColor','blue','BinEdges',deg2rad(5:10:355));
+                    obj.inputs.Handles.PhaseHistogramRandom=polarhistogram(ThisPhase,20,'FaceColor','blue','BinEdges',deg2rad(5:10:355),'DisplayName','Random');
                 else
                     obj.inputs.Handles.PhaseHistogramRandom=polarhistogram([obj.inputs.Handles.PhaseHistogramRandom.Data ThisPhase],20,'FaceColor','blue','BinEdges',deg2rad(5:10:355));
+                    obj.inputs.Handles.PhaseHistogramRandom.Annotation.LegendInformation.IconDisplayStyle = 'off';
                 end
             end
+%             if isfield(obj.inputs.Handles,'PhaseHistogramPeak'), legend(obj.inputs.Handles.PhaseHistogramPeak,'Peak','Location','southoutside','Orientation','horizontal'), end
+%             if isfield(obj.inputs.Handles,'PhaseHistogramTrough'), legend(obj.inputs.Handles.PhaseHistogramTrough,'Trough','Location','southoutside','Orientation','horizontal'), end
+%             if isfield(obj.inputs.Handles,'PhaseHistogramRandom'), legend(obj.inputs.Handles.PhaseHistogramRandom, 'Random','Location','southoutside','Orientation','horizontal'), end
+% if isfield(obj.inputs.Handles,'PhaseHistogramPeak') && isfield(obj.inputs.Handles,'PhaseHistogramTrough') && isfield(obj.inputs.Handles,'PhaseHistogramRandom')
+%     legend([obj.inputs.Handles.PhaseHistogramPeak obj.inputs.Handles.PhaseHistogramTrough obj.inputs.Handles.PhaseHistogramRandom], 'Location','southoutside','Orientation','horizontal')
+% end
+
         end % End obj.PlotPhaseHistogram
         function PlotTriggerLockedEEG(obj)
             ax=['ax' num2str(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.axesno}{1,obj.inputs.chLab_idx})];
@@ -2822,7 +2805,8 @@ classdef best_toolbox < handle
             if obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.phase}{1,1}==0 && obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.phase}{1,2}~=pi %Peak
                 if(isfield(obj.inputs.Handles,'TriggerLockedEEGPeak')==0)
                     ThisEEG=obj.inputs.rawData.(ThisChannelName).data(obj.inputs.trial,:);
-                    obj.inputs.Handles.TriggerLockedEEGPeak=plot(ThisEEGTime,ThisEEG,'color','green','LineWidth',2);
+                    obj.inputs.Handles.TriggerLockedEEGPeak=plot(ThisEEGTime,ThisEEG,'color','green','LineWidth',2,'DisplayName','Peak');
+                    legend('Location','southoutside','Orientation','horizontal'); hold on;
                     obj.inputs.Handles.TriggerLockedEEGPeak.UserData(1,1)=obj.inputs.trial;
                 else
                     obj.inputs.Handles.TriggerLockedEEGPeak.UserData(1,1+numel(obj.inputs.Handles.TriggerLockedEEGPeak.UserData))=obj.inputs.trial;
@@ -2832,7 +2816,7 @@ classdef best_toolbox < handle
             elseif obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.phase}{1,1}==pi && obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.phase}{1,2}~=pi %Trough
                 if(isfield(obj.inputs.Handles,'TriggerLockedEEGTrough')==0)
                     ThisEEG=obj.inputs.rawData.(ThisChannelName).data(obj.inputs.trial,:);
-                    obj.inputs.Handles.TriggerLockedEEGTrough=plot(ThisEEGTime, ThisEEG,'color','red','LineWidth',2);
+                    obj.inputs.Handles.TriggerLockedEEGTrough=plot(ThisEEGTime, ThisEEG,'color','red','LineWidth',2,'DisplayName','Trough');
                     obj.inputs.Handles.TriggerLockedEEGTrough.UserData(1,1)=obj.inputs.trial;
                 else
                     obj.inputs.Handles.TriggerLockedEEGTrough.UserData(1,1+numel(obj.inputs.Handles.TriggerLockedEEGTrough.UserData))=obj.inputs.trial;
@@ -2842,7 +2826,7 @@ classdef best_toolbox < handle
             elseif obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.phase}{1,1}==0 && obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.phase}{1,2}==pi %Random
                 if(isfield(obj.inputs.Handles,'TriggerLockedEEGRandom')==0)
                     ThisEEG=obj.inputs.rawData.(ThisChannelName).data(obj.inputs.trial,:);
-                    obj.inputs.Handles.TriggerLockedEEGRandom=plot(ThisEEGTime, ThisEEG,'color','blue','LineWidth',2);
+                    obj.inputs.Handles.TriggerLockedEEGRandom=plot(ThisEEGTime, ThisEEG,'color','blue','LineWidth',2,'DisplayName','Random');
                     obj.inputs.Handles.TriggerLockedEEGRandom.UserData(1,1)=obj.inputs.trial;
                 else
                     obj.inputs.Handles.TriggerLockedEEGRandom.UserData(1,1+numel(obj.inputs.Handles.TriggerLockedEEGRandom.UserData))=obj.inputs.trial;
@@ -2850,6 +2834,8 @@ classdef best_toolbox < handle
                     drawnow;
                 end
             end
+            if obj.inputs.trial==1, ZeroLine=gridxy(0,'Color','k','linewidth',2,'Parent',obj.app.pr.ax.(ax));hold on; ZeroLine.Annotation.LegendInformation.IconDisplayStyle = 'off'; legend('Location','southoutside','Orientation','horizontal'); hold on; end
+
         end %End obj.PlotTriggerLockedEEG
         function PlotRunnigAmplitude(obj)
             ax=['ax' num2str(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.axesno}{1,obj.inputs.chLab_idx})];
@@ -2863,6 +2849,18 @@ classdef best_toolbox < handle
                 otherwise
                     obj.inputs.Handles.RunnigAmplitude.YData=obj.inputs.rawData.(ThisChannelName).data(obj.inputs.trial,:);
             end
+        end
+        function DeMeanedEEGData =best_DeMeanEEG(obj,RawData)
+            DeMeanedEEGData=RawData-mean(RawData);
+
+%             DeMeanedEEGData=RawData-mean(RawData(1:(obj.inputs.EEGDisplayPeriodPre*5)));
+%             m=mean(RawData(1:(obj.inputs.EEGDisplayPeriodPre*5)));
+%             if(m>0)
+%                 DeMeanedEEGData=RawData-m;
+%             elseif(m<0)
+%                 DeMeanedEEGData=RawData+m;
+%             end
+                
         end
         
         

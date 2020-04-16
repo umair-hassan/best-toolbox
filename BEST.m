@@ -884,6 +884,8 @@ classdef BEST < handle
                         obj.pr_TriggerLockedEEG
                     case 'RunningAmplitude'
                         obj.pr_RunningAmplitude;
+                    case 'AmplitudeDistribution'
+                        obj.pr_AmplitudeDistribution;
                 end
                 
             end
@@ -1249,35 +1251,17 @@ classdef BEST < handle
         end
         function pr_PhaseHistogram(obj)
             obj.pr.ax_no=['ax' num2str(obj.pr.axesno)];
-            
             obj.pr.clab.(obj.pr.ax_no)=uix.Panel( 'Parent', obj.pr.grid, 'Padding', 5 ,'Units','normalized','Title', 'Phase Histogram','FontWeight','bold','FontSize',12,'TitlePosition','centertop' );
-            mep1_vb=uix.VBox( 'Parent',  obj.pr.clab.(obj.pr.ax_no), 'Spacing', 5, 'Padding', 1  );
-            
-            mep1_r1 = uix.HBox( 'Parent', mep1_vb, 'Spacing', 5, 'Padding', 1  );
-            uiextras.HBox( 'Parent', mep1_r1)
-            obj.pr.current_mep_label.(obj.pr.ax_no)=uicontrol( 'Style','text','Parent', mep1_r1,'String','Current MEP Amp','FontSize',11,'HorizontalAlignment','center','Units','normalized');
-            obj.pr.current_mep.(obj.pr.ax_no)=uicontrol( 'Style','edit','Parent', mep1_r1,'FontSize',11,'HorizontalAlignment','center','Units','normalized');
-            obj.pr.mean_mep_label.(obj.pr.ax_no)=uicontrol( 'Style','text','Parent', mep1_r1,'String','Mean MEP Amp','FontSize',11,'HorizontalAlignment','center','Units','normalized');
-            obj.pr.mean_mep.(obj.pr.ax_no)=uicontrol( 'Style','edit','Parent', mep1_r1,'FontSize',11,'HorizontalAlignment','center','Units','normalized');
-            uiextras.HBox( 'Parent', mep1_r1)
-            set(mep1_r1,'Widths',[-0.3 130 70 130 70 -0.3])
-            
-            mep1_r2 = uix.HBox( 'Parent', mep1_vb, 'Spacing', 5, 'Padding', 1  );
-            obj.pr.ax.(obj.pr.ax_no)=polaraxes( 'Parent',  mep1_r2,'Units','normalized');
-            
-            
-            
-            set(mep1_vb,'Heights',[30 -10])
-            
-            
-            
+            obj.pr.ax.(obj.pr.ax_no)=polaraxes( uicontainer('Parent',  obj.pr.clab.(obj.pr.ax_no)),'Units','normalized');
         end
         
         function pr_TriggerLockedEEG(obj)
             obj.pr.ax_no=['ax' num2str(obj.pr.axesno)];
             
             obj.pr.clab.(obj.pr.ax_no)=uix.Panel( 'Parent', obj.pr.grid, 'Padding', 5 ,'Units','normalized','Title', 'Trigger Locked EEG','FontWeight','bold','FontSize',12,'TitlePosition','centertop' );
-            obj.pr.ax.(obj.pr.ax_no)=axes( 'Parent',   obj.pr.clab.(obj.pr.ax_no),'Units','normalized');
+            obj.pr.ax.(obj.pr.ax_no)=axes( uicontainer('Parent',   obj.pr.clab.(obj.pr.ax_no)),'Units','normalized');
+            xlabel('Time (ms)')
+            ylabel('EEG Potential (\mu V)');
             
         end
         function pr_RunningAmplitude(obj)
@@ -1292,6 +1276,10 @@ classdef BEST < handle
 % %             uimenu(ui_menu,'label','set trials for Mean MEP Amplitude calculation','Callback',@obj.pr_setMEPMeanTrials,'Tag',obj.pr.ax_no);
             obj.pr.clab.(obj.pr.ax_no)=uix.Panel( 'Parent', obj.pr.grid, 'Padding', 0 ,'Units','normalized','Title', 'Oscillation Amplitude','FontWeight','bold','FontSize',12,'TitlePosition','centertop' );
             obj.pr.ax.(obj.pr.ax_no)=axes(uicontainer( 'Parent',  obj.pr.clab.(obj.pr.ax_no)),'Units','normalized','uicontextmenu',ui_menu);
+            xlabel(['Data for Past ' num2str(obj.bst.inputs.AmplitudeAssignmentPeriod) ' mins']);
+            ylabel('EEG Quantile Amplitude (\mu V)');
+            xticks([]); xticklabels([]);
+%             obj.pr.ax.(obj.pr.ax_no).xtick=[]; obj.pr.ax.(obj.pr.ax_no).xticklabel=[];
             text(obj.pr.ax.(obj.pr.ax_no),1,1,'zoomin','units','normalized','HorizontalAlignment','right','VerticalAlignment','bottom','ButtonDownFcn',@obj.pr_YLimZoomIn,'Tag',obj.pr.ax_no,'color',[0.55 0.55 0.55]);
             text(obj.pr.ax.(obj.pr.ax_no),0.1,1,'   zoomout','units','normalized','HorizontalAlignment','left','VerticalAlignment','bottom','ButtonDownFcn',@obj.pr_YLimZoomOut,'Tag',obj.pr.ax_no,'color',[0.55 0.55 0.55]);
         end
@@ -1307,6 +1295,8 @@ classdef BEST < handle
 % %             uimenu(ui_menu,'label','set trials for Mean MEP Amplitude calculation','Callback',@obj.pr_setMEPMeanTrials,'Tag',obj.pr.ax_no);
             obj.pr.clab.(obj.pr.ax_no)=uix.Panel( 'Parent', obj.pr.grid, 'Padding', 0 ,'Units','normalized','Title', 'Amplitude Distribution','FontWeight','bold','FontSize',12,'TitlePosition','centertop' );
             obj.pr.ax.(obj.pr.ax_no)=axes(uicontainer( 'Parent',  obj.pr.clab.(obj.pr.ax_no)),'Units','normalized','uicontextmenu',ui_menu);
+            ylabel('Amplitude (microV)');
+            xticks([]); xticklabels([]);
             text(obj.pr.ax.(obj.pr.ax_no),1,1,'zoomin','units','normalized','HorizontalAlignment','right','VerticalAlignment','bottom','ButtonDownFcn',@obj.pr_YLimZoomIn,'Tag',obj.pr.ax_no,'color',[0.55 0.55 0.55]);
             text(obj.pr.ax.(obj.pr.ax_no),0.1,1,'   zoomout','units','normalized','HorizontalAlignment','left','VerticalAlignment','bottom','ButtonDownFcn',@obj.pr_YLimZoomOut,'Tag',obj.pr.ax_no,'color',[0.55 0.55 0.55]);
         end

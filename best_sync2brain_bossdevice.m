@@ -112,10 +112,21 @@ while ~strcmpi(obj.EMGScope.Status,'finished'), end
             obj.bb.arm;
             obj.bb.armed ;
             exit_flag=0;
+%             trigger(obj.FileScope.sc(obj.FileScope.activeScope));
+%             while ~(strcmp(obj.FileScope.sc(obj.FileScope.activeScope).Status, 'Finished') || strcmp(obj.FileScope.sc(obj.FileScope.activeScope).Status, 'Interrupted')), pause(0.01), end
             while (exit_flag<1)
+                                disp TrialRestarted
+
+                if ~(strcmp(obj.FileScope.sc(obj.FileScope.activeScope).Status, 'Finished') || strcmp(obj.FileScope.sc(obj.FileScope.activeScope).Status, 'Interrupted'))
+                    trigger(obj.FileScope.sc(obj.FileScope.activeScope));
+                    while ~(strcmp(obj.FileScope.sc(obj.FileScope.activeScope).Status, 'Finished') || strcmp(obj.FileScope.sc(obj.FileScope.activeScope).Status, 'Interrupted')), pause(0.01), end
+                end
                 if obj.best_toolbox.inputs.AmplitudeUnits==1
                     if (strcmp(obj.FileScope.sc(obj.FileScope.activeScope).Status, 'Finished') || strcmp(obj.FileScope.sc(obj.FileScope.activeScope).Status, 'Interrupted'))
+                        disp --------------------------
+                        time = obj.FileScope.sc(obj.FileScope.activeScope).Time;
                         data = obj.FileScope.sc(obj.FileScope.activeScope).Data;
+                        plot(obj.FileScope.hAmplitudeHistoryAxes,time, data(:,1));
                         % Restart this scope.
                         start(obj.FileScope.sc(obj.FileScope.activeScope));
                         % Switch to the next scope.
@@ -126,6 +137,15 @@ while ~strcmpi(obj.EMGScope.Status,'finished'), end
                         end
                         % append data in circular buffer
                         obj.FileScope.mAmplitudeScopeCircBuf{obj.FileScope.mAmplitudeScopeCircBufCurrentBlock} = data';
+                        
+                        obj.FileScope.maxmindata = cell2mat(cellfun(@(data) quantile(data(1, data(2,:) == 1), [obj.best_toolbox.inputs.trialMat{obj.best_toolbox.inputs.trial,obj.best_toolbox.inputs.colLabel.IAPercentile}{1,1}/100 obj.best_toolbox.inputs.trialMat{obj.best_toolbox.inputs.trial,obj.best_toolbox.inputs.colLabel.IAPercentile}{1,2}/100])', obj.FileScope.mAmplitudeScopeCircBuf, 'UniformOutput', false))';
+                        obj.FileScope.maxmindata = circshift(obj.FileScope.maxmindata, obj.FileScope.mAmplitudeScopeCircBufCurrentBlock);
+                        plot(obj.FileScope.hAmplitudeHistoryAxes, obj.FileScope.maxmindata)
+                        xlim(obj.FileScope.hAmplitudeHistoryAxes, [1 obj.FileScope.mAmplitudeScopeCircBufTotalBlocks])
+                        set(obj.FileScope.hAmplitudeHistoryAxes, 'Xdir', 'reverse')
+                        drawnow;
+                        
+                        
                         obj.FileScope.circular_buffer_data = cell2mat(obj.FileScope.mAmplitudeScopeCircBuf);
                         % Switch to the next data block
                         if(obj.FileScope.mAmplitudeScopeCircBufCurrentBlock < obj.FileScope.mAmplitudeScopeCircBufTotalBlocks)
@@ -135,9 +155,29 @@ while ~strcmpi(obj.EMGScope.Status,'finished'), end
                         end
                         % remove post-stimulus data
                         obj.FileScope.amplitude_clean = obj.FileScope.circular_buffer_data(1, obj.FileScope.circular_buffer_data(2,:) == 1);
+                        
+                        obj.FileScope.amplitude_sorted = sort(obj.FileScope.amplitude_clean);
+                        plot(obj.FileScope.hAmplitudeDistributionAxes, obj.FileScope.amplitude_sorted)
+
+                        
                         % calculate percentiles
-                        obj.best_toolbox.inputs.trialMat{obj.best_toolbox.inputs.trial,obj.best_toolbox.inputs.colLabel.IA}{1,1}= quantile(obj.FileScope.amplitude_clean, obj.best_toolbox.inputs.trialMat{obj.best_toolbox.inputs.trial,obj.best_toolbox.inputs.colLabel.IA}{1,1}/100); 
-                        obj.best_toolbox.inputs.trialMat{obj.best_toolbox.inputs.trial,obj.best_toolbox.inputs.colLabel.IA}{1,2} = quantile(obj.FileScope.amplitude_clean, obj.best_toolbox.inputs.trialMat{obj.best_toolbox.inputs.trial,obj.best_toolbox.inputs.colLabel.IA}{1,2}/100); 
+                        obj.FileScope.amp_lower= quantile(obj.FileScope.amplitude_clean, obj.best_toolbox.inputs.trialMat{obj.best_toolbox.inputs.trial,obj.best_toolbox.inputs.colLabel.IAPercentile}{1,1}/100);
+                        obj.FileScope.amp_upper = quantile(obj.FileScope.amplitude_clean, obj.best_toolbox.inputs.trialMat{obj.best_toolbox.inputs.trial,obj.best_toolbox.inputs.colLabel.IAPercentile}{1,2}/100);
+                        
+                        obj.best_toolbox.inputs.trialMat{obj.best_toolbox.inputs.trial,obj.best_toolbox.inputs.colLabel.IA}{1,1}= obj.FileScope.amp_lower;
+                        obj.best_toolbox.inputs.trialMat{obj.best_toolbox.inputs.trial,obj.best_toolbox.inputs.colLabel.IA}{1,2} = obj.FileScope.amp_upper;
+                        
+                        hold(obj.FileScope.hAmplitudeDistributionAxes, 'on')
+                        plot(obj.FileScope.hAmplitudeDistributionAxes, [1 length(obj.FileScope.amplitude_clean)], [obj.FileScope.amp_lower obj.FileScope.amp_upper; obj.FileScope.amp_lower obj.FileScope.amp_upper]);
+                        hold(obj.FileScope.hAmplitudeDistributionAxes, 'off')
+                        
+                        if length(obj.FileScope.amplitude_clean) > 1
+                            xlim(obj.FileScope.hAmplitudeDistributionAxes, [1 length(obj.FileScope.amplitude_clean)]);
+                        end
+                        if (obj.FileScope.amplitude_sorted(end) > obj.FileScope.amplitude_sorted(1))
+                            ylim(obj.FileScope.hAmplitudeDistributionAxes, [obj.FileScope.amplitude_sorted(1) obj.FileScope.amplitude_sorted(end)]);
+                        end
+                        
                         % set amplitude threshold
                         switch obj.best_toolbox.inputs.FrequencyBand
                             case 1 % Alpha
@@ -150,6 +190,16 @@ while ~strcmpi(obj.EMGScope.Status,'finished'), end
                                 obj.bb.beta.amplitude_min(1)=obj.best_toolbox.inputs.trialMat{obj.best_toolbox.inputs.trial,obj.best_toolbox.inputs.colLabel.IA}{1,1};
                                 obj.bb.beta.amplitude_max(1)=obj.best_toolbox.inputs.trialMat{obj.best_toolbox.inputs.trial,obj.best_toolbox.inputs.colLabel.IA}{1,2};
                         end
+                        title(obj.FileScope.hAmplitudeDistributionAxes, ['Min Amplitude: ', num2str(obj.FileScope.amp_lower)]);
+                        if (obj.best_toolbox.inputs.trial==1)
+                            axes(obj.FileScope.hAmplitudeHistoryAxes);
+                            xlabel(['Data for Past ' num2str(obj.best_toolbox.inputs.AmplitudeAssignmentPeriod) ' mins']);
+                            ylabel('EEG Quantile Amplitude (\mu V)');
+                            xticks([]); xticklabels([]);
+                            axes(obj.FileScope.hAmplitudeHistoryAxes);
+                            ylabel('Amplitude (microV)');
+                            xticks([]); xticklabels([]);
+                        end
                     end % handle the amplitude tracking
                 end
                 
@@ -160,6 +210,9 @@ while ~strcmpi(obj.EMGScope.Status,'finished'), end
                     while ~strcmpi(obj.IEEGScope.Status,'finished'), end
                     exit_flag=2;
                 end
+                
+                
+                pause(0.01);
             end
         end
         
@@ -184,26 +237,31 @@ while ~strcmpi(obj.EMGScope.Status,'finished'), end
         
         function IEEGScopeBoot(obj)
             %% Choosing 1 from 3x Oscillitory Models, Load Phase, PhasePlusMinus, Amplitude Low and Amplitude High
-            switch obj.best_toolbox.inputs.FrequencyBand
-                case 1 % Alpha
-                    IPSignalID = getsignalid(obj.bb.tg, 'OSC/alpha/IEEG') + int32(0);
-                    NumSamples=(obj.best_toolbox.inputs.EEGDisplayPeriodPost+obj.best_toolbox.inputs.EEGDisplayPeriodPre)*0.5;
-                    NumPrePostSamples=obj.best_toolbox.inputs.EEGDisplayPeriodPre*0.5;
-                    Decimation=100;
-                case 2 % Theta
-                    IPSignalID = getsignalid(obj.bb.tg, 'OSC/theta/IEEG') + int32(0);
-                    NumSamples=(obj.best_toolbox.inputs.EEGDisplayPeriodPost+obj.best_toolbox.inputs.EEGDisplayPeriodPre)*0.25;
-                    NumPrePostSamples=obj.best_toolbox.inputs.EEGDisplayPeriodPre*0.25;
-                    Decimation=20;
-                case 3 % Beta
-                    IPSignalID = getsignalid(obj.bb.tg, 'OSC/beta/IEEG') + int32(0);
-                    NumSamples=(obj.best_toolbox.inputs.EEGDisplayPeriodPost+obj.best_toolbox.inputs.EEGDisplayPeriodPre)*1;
-                    NumPrePostSamples=obj.best_toolbox.inputs.EEGDisplayPeriodPre*1;
-                    Decimation=1;
-            end
-                        MrkSignalID = getsignalid(obj.bb.tg, 'MRK/mrk_masked') + int32([0]);
+% %             switch obj.best_toolbox.inputs.FrequencyBand
+% %                 case 1 % Alpha
+% %                     IPSignalID = getsignalid(obj.bb.tg, 'OSC/alpha/IEEG') + int32(0);
+% %                     NumSamples=(obj.best_toolbox.inputs.EEGDisplayPeriodPost+obj.best_toolbox.inputs.EEGDisplayPeriodPre)*0.5;
+% %                     NumPrePostSamples=obj.best_toolbox.inputs.EEGDisplayPeriodPre*0.5;
+% %                     Decimation=100;
+% %                 case 2 % Theta
+% %                     IPSignalID = getsignalid(obj.bb.tg, 'OSC/theta/IEEG') + int32(0);
+% %                     NumSamples=(obj.best_toolbox.inputs.EEGDisplayPeriodPost+obj.best_toolbox.inputs.EEGDisplayPeriodPre)*0.25;
+% %                     NumPrePostSamples=obj.best_toolbox.inputs.EEGDisplayPeriodPre*0.25;
+% %                     Decimation=20;
+% %                 case 3 % Beta
+% %                     IPSignalID = getsignalid(obj.bb.tg, 'OSC/beta/IEEG') + int32(0);
+% %                     NumSamples=(obj.best_toolbox.inputs.EEGDisplayPeriodPost+obj.best_toolbox.inputs.EEGDisplayPeriodPre)*1;
+% %                     NumPrePostSamples=obj.best_toolbox.inputs.EEGDisplayPeriodPre*1;
+% %                     Decimation=1;
+% %             end
 
-%             MrkSignalID = getsignalid(obj.bb.tg, 'MRK/mrk_raw') + int32([0 1 2]);
+            %% Delete Older section
+            MrkSignalID = getsignalid(obj.bb.tg, 'MRK/mrk_masked');
+            IPSignalID = getsignalid(obj.bb.tg, 'SPF/Matrix Multiply');
+            NumSamples=(obj.best_toolbox.inputs.EEGDisplayPeriodPost+obj.best_toolbox.inputs.EEGDisplayPeriodPre)*5;
+            NumPrePostSamples=obj.best_toolbox.inputs.EEGDisplayPeriodPre*5;
+            Decimation=1;
+            %             MrkSignalID = getsignalid(obj.bb.tg, 'MRK/mrk_raw') + int32([0 1 2]);
             obj.IEEGScope = addscope(obj.bb.tg, 'host', 92);
             addsignal(obj.IEEGScope, IPSignalID);
             % If 100 samples are extracted there will be a data of 400ms for Theta, 200ms for Alpha and 100ms for Beta
@@ -324,7 +382,18 @@ while ~strcmpi(obj.EMGScope.Status,'finished'), end
             obj.FileScope.mAmplitudeScopeCircBufTotalBlocks = obj.best_toolbox.inputs.AmplitudeAssignmentPeriod*60; %Conversion from Minutes into Seconds
             obj.FileScope.mAmplitudeScopeCircBufCurrentBlock = 1;
             obj.FileScope.mAmplitudeScopeCircBuf = [];
-            trigger(obj.FileScope.sc(obj.FileScope.activeScope));
+            axOsscillationAmplitude=['ax' num2str(find(contains(obj.best_toolbox.app.pr.ax_ChannelLabels,'OsscillationAmplitude')))];
+            axAmplitudeDistribution=['ax' num2str(find(contains(obj.best_toolbox.app.pr.ax_ChannelLabels,'AmplitudeDistribution')))];
+            obj.FileScope.hAmplitudeHistoryAxes = obj.best_toolbox.app.pr.ax.(axOsscillationAmplitude);
+            obj.FileScope.hAmplitudeDistributionAxes = obj.best_toolbox.app.pr.ax.(axAmplitudeDistribution);
+            axes(obj.FileScope.hAmplitudeHistoryAxes);
+            xlabel(['Data for Past ' num2str(obj.best_toolbox.inputs.AmplitudeAssignmentPeriod) ' mins']);
+            ylabel('EEG Quantile Amplitude (\mu V)');
+            xticks([]); xticklabels([]);
+            axes(obj.FileScope.hAmplitudeHistoryAxes);
+            ylabel('Amplitude (microV)');
+            xticks([]); xticklabels([]);
+%             trigger(obj.FileScope.sc(obj.FileScope.activeScope));
         end
         
         function EMGScopeStart(obj)
