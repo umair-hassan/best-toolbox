@@ -143,6 +143,9 @@ while ~strcmpi(obj.EMGScope.Status,'finished'), end
                         plot(obj.FileScope.hAmplitudeHistoryAxes, obj.FileScope.maxmindata)
                         xlim(obj.FileScope.hAmplitudeHistoryAxes, [1 obj.FileScope.mAmplitudeScopeCircBufTotalBlocks])
                         set(obj.FileScope.hAmplitudeHistoryAxes, 'Xdir', 'reverse')
+                        xlabel(['Data for Past ' num2str(obj.best_toolbox.inputs.AmplitudeAssignmentPeriod) ' mins']);
+                        ylabel('EEG Quantile Amplitude (\mu V)');
+                        xticks([]); xticklabels([]);
                         drawnow;
                         
                         
@@ -158,6 +161,8 @@ while ~strcmpi(obj.EMGScope.Status,'finished'), end
                         
                         obj.FileScope.amplitude_sorted = sort(obj.FileScope.amplitude_clean);
                         plot(obj.FileScope.hAmplitudeDistributionAxes, obj.FileScope.amplitude_sorted)
+                        ylabel('Amplitude (microV)');
+                        xticks([]); xticklabels([]);
 
                         
                         % calculate percentiles
@@ -191,15 +196,15 @@ while ~strcmpi(obj.EMGScope.Status,'finished'), end
                                 obj.bb.beta.amplitude_max(1)=obj.best_toolbox.inputs.trialMat{obj.best_toolbox.inputs.trial,obj.best_toolbox.inputs.colLabel.IA}{1,2};
                         end
                         title(obj.FileScope.hAmplitudeDistributionAxes, ['Min Amplitude: ', num2str(obj.FileScope.amp_lower)]);
-                        if (obj.best_toolbox.inputs.trial==1)
-                            axes(obj.FileScope.hAmplitudeHistoryAxes);
-                            xlabel(['Data for Past ' num2str(obj.best_toolbox.inputs.AmplitudeAssignmentPeriod) ' mins']);
-                            ylabel('EEG Quantile Amplitude (\mu V)');
-                            xticks([]); xticklabels([]);
-                            axes(obj.FileScope.hAmplitudeHistoryAxes);
-                            ylabel('Amplitude (microV)');
-                            xticks([]); xticklabels([]);
-                        end
+%                         if (obj.best_toolbox.inputs.trial==1)
+%                             axes(obj.FileScope.hAmplitudeHistoryAxes);
+%                             xlabel(['Data for Past ' num2str(obj.best_toolbox.inputs.AmplitudeAssignmentPeriod) ' mins']);
+%                             ylabel('EEG Quantile Amplitude (\mu V)');
+%                             xticks([]); xticklabels([]);
+%                             axes(obj.FileScope.hAmplitudeHistoryAxes);
+%                             ylabel('Amplitude (microV)');
+%                             xticks([]); xticklabels([]);
+%                         end
                     end % handle the amplitude tracking
                 end
                 
