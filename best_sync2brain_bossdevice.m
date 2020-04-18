@@ -1,4 +1,5 @@
 classdef best_sync2brain_bossdevice <handle
+% % %                 set_spatial_filter(obj.bb, {'C3', 'FC1', 'FC5', 'CP1', 'CP5'}, [1 -0.25 -0.25 -0.25 -0.25], 1)
 
     
     properties
@@ -30,7 +31,7 @@ classdef best_sync2brain_bossdevice <handle
                 obj.bb.alpha.ignore; pause(0.1)
                 %% Setting Num of EEG & AUX Channels 
                 % these depends on Protocol for NeurOne, for ACS we can particularly ask the user to define Num of Aux and EEG Channels being streamed
-                InputDevice=obj.best_toolbox.inputs.condMat{c,obj.best_toolbox.inputs.colLabel.inputDevices};
+                InputDevice=obj.best_toolbox.inputs.condMat{1,obj.best_toolbox.inputs.colLabel.inputDevices};
                 if obj.best_toolbox.app.par.hardware_settings.(InputDevice).slct_device==1
                     obj.bb.eeg_channels=nnz(strcmp(obj.best_toolbox.app.par.hardware_settings.(InputDevice).NeurOneProtocolChannelSignalTypes,'EEG'));
                     obj.bb.aux_channels=nnz(strcmp(obj.best_toolbox.app.par.hardware_settings.(InputDevice).NeurOneProtocolChannelSignalTypes,'EMG'));
@@ -46,7 +47,6 @@ classdef best_sync2brain_bossdevice <handle
                 end
 
                 %% Setting Spatial Filter
-% % %                 set_spatial_filter(obj.bb, {'C3', 'FC1', 'FC5', 'CP1', 'CP5'}, [1 -0.25 -0.25 -0.25 -0.25], 1)
                 obj.bb.spatial_filter_weights(SpatialFilterWeights')
                 %% Setting LowPas Filter Coefficients
                 % For Future Use
