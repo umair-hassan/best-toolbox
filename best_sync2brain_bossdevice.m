@@ -38,7 +38,7 @@ classdef best_sync2brain_bossdevice <handle
                 end
                 %% Preparing Spatial Filter Weights for BOSS Device
                 if obj.best_toolbox.app.par.hardware_settings.(InputDevice).slct_device==1
-                    SpatialFilterWeights=zeros(numel(obj.bb.spatial_filter_weights(:,1)),1);
+                    SpatialFilterWeights=zeros(obj.bb.eeg_channels,1);
                     MontageChannelsIndicies(1,numel(obj.best_toolbox.inputs.MontageChannels))=0;
                     for iMontageChannels=1:numel(obj.best_toolbox.inputs.MontageChannels)
                         MontageChannelsIndicies(iMontageChannels)=find(strcmp(obj.best_toolbox.app.par.hardware_settings.(InputDevice).NeurOneProtocolChannelLabels,obj.best_toolbox.inputs.MontageChannels{iMontageChannels}));
@@ -47,7 +47,7 @@ classdef best_sync2brain_bossdevice <handle
                 end
 
                 %% Setting Spatial Filter
-                obj.bb.spatial_filter_weights(SpatialFilterWeights)
+                obj.bb.spatial_filter_weights=SpatialFilterWeights;
                 %% Setting LowPas Filter Coefficients
                 % For Future Use
                 
