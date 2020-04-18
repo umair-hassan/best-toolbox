@@ -30,25 +30,24 @@ classdef best_sync2brain_bossdevice <handle
                 obj.bb.alpha.ignore; pause(0.1)
                 %% Setting Num of EEG & AUX Channels 
                 % these depends on Protocol for NeurOne, for ACS we can particularly ask the user to define Num of Aux and EEG Channels being streamed
-                %in the input device search its type and if its neurone then follows
-                if obj.best_toolbox.app.par.hardware_settings.(obj.best_toolbox.inputs.InputDevice).slct_device==1
-                    obj.bb.eeg_channels=nnz(strcmp(obj.best_toolbox.app.par.hardware_settings.(obj.best_toolbox.inputs.InputDevice).NeurOneProtocolChannelSignalTypes,'EEG'));
-                    obj.bb.aux_channels=nnz(strcmp(obj.best_toolbox.app.par.hardware_settings.(obj.best_toolbox.inputs.InputDevice).NeurOneProtocolChannelSignalTypes,'EMG'));
+                InputDevice=obj.best_toolbox.inputs.condMat{c,obj.best_toolbox.inputs.colLabel.inputDevices};
+                if obj.best_toolbox.app.par.hardware_settings.(InputDevice).slct_device==1
+                    obj.bb.eeg_channels=nnz(strcmp(obj.best_toolbox.app.par.hardware_settings.(InputDevice).NeurOneProtocolChannelSignalTypes,'EEG'));
+                    obj.bb.aux_channels=nnz(strcmp(obj.best_toolbox.app.par.hardware_settings.(InputDevice).NeurOneProtocolChannelSignalTypes,'EMG'));
                 end
-                %% Providing Channel Labels to Spatial Filter
-                outputdevice=obj.best_toolbox.inputs.condMat{1,1};
-%                 clab=obj.best_toolbox.app.par.hardware_settings.(outputdevice).NeurOneProtocolChannelLabels;
-%                 clab = clab(1:64); % remove AUX Channels 
-%                 clab{65} = 'FCz';
-%                 obj.bb.spatial_filter_clab = clab;
+                %% Preparing Spatial Filter Weights for BOSS Device
+                if obj.best_toolbox.app.par.hardware_settings.(InputDevice).slct_device==1
+                    SpatialFilterWeights=zeros(numel(obj.bb.spatial_filter_weights(:,1)),1);
+                    MontageChannelsIndicies(1,numel(obj.best_toolbox.inputs.MontageChannels))=0;
+                    for iMontageChannels=1:numel(obj.best_toolbox.inputs.MontageChannels)
+                        MontageChannelsIndicies(iMontageChannels)=find(strcmp(obj.best_toolbox.app.par.hardware_settings.(InputDevice).NeurOneProtocolChannelLabels,obj.best_toolbox.inputs.MontageChannels{iMontageChannels}));
+                    end
+                    SpatialFilterWeights(MontageChannelsIndicies)=obj.best_toolbox.inputs.MontageWeights;
+                end
 
-                
                 %% Setting Spatial Filter
-                % set a spatial filter to C3 hjorth
-%                 set_spatial_filter(obj.bb, obj.best_toolbox.inputs.MontageChannels, obj.best_toolbox.inputs.MontageWeights, 1)
 % % %                 set_spatial_filter(obj.bb, {'C3', 'FC1', 'FC5', 'CP1', 'CP5'}, [1 -0.25 -0.25 -0.25 -0.25], 1)
-%                 set_spatial_filter(obj.bb, {}, [], 2)
-                obj.bb.spatial_filter_weights([1])
+                obj.bb.spatial_filter_weights(SpatialFilterWeights')
                 %% Setting LowPas Filter
                 %% Setting BandPass Filter
 
