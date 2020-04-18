@@ -153,10 +153,10 @@ while ~strcmpi(obj.EMGScope.Status,'finished'), end
                         plot(obj.FileScope.hAmplitudeHistoryAxes, obj.FileScope.maxmindata)
                         xlim(obj.FileScope.hAmplitudeHistoryAxes, [1 obj.FileScope.mAmplitudeScopeCircBufTotalBlocks])
                         set(obj.FileScope.hAmplitudeHistoryAxes, 'Xdir', 'reverse')
-                        xlabel(['Data for Past ' num2str(obj.best_toolbox.inputs.AmplitudeAssignmentPeriod) ' mins']);
-                        ylabel('EEG Quantile Amplitude (\mu V)');
-                        xticks([]); xticklabels([]);
-                        drawnow;
+% %                         xlabel(['Data for Past ' num2str(obj.best_toolbox.inputs.AmplitudeAssignmentPeriod) ' mins']);
+% %                         ylabel('EEG Quantile Amplitude (\mu V)');
+% %                         xticks([]); xticklabels([]);
+% %                         drawnow;
                         
                         
                         obj.FileScope.circular_buffer_data = cell2mat(obj.FileScope.mAmplitudeScopeCircBuf);
@@ -171,8 +171,8 @@ while ~strcmpi(obj.EMGScope.Status,'finished'), end
                         
                         obj.FileScope.amplitude_sorted = sort(obj.FileScope.amplitude_clean);
                         plot(obj.FileScope.hAmplitudeDistributionAxes, obj.FileScope.amplitude_sorted)
-                        ylabel('Amplitude (microV)');
-                        xticks([]); xticklabels([]);
+% %                         ylabel('Amplitude (microV)');
+% %                         xticks([]); xticklabels([]);
 
                         
                         % calculate percentiles
