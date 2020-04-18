@@ -48,8 +48,19 @@ classdef best_sync2brain_bossdevice <handle
                 %% Setting Spatial Filter
 % % %                 set_spatial_filter(obj.bb, {'C3', 'FC1', 'FC5', 'CP1', 'CP5'}, [1 -0.25 -0.25 -0.25 -0.25], 1)
                 obj.bb.spatial_filter_weights(SpatialFilterWeights')
-                %% Setting LowPas Filter
+                %% Setting LowPas Filter Coefficients
+                % For Future Use
+                
                 %% Setting BandPass Filter
+                switch obj.best_toolbox.inputs.FrequencyBand
+                    case 1 % Alpha
+                        obj.bb.alpha.bpf_fir_coeffs =  firls(obj.best_toolbox.inputs.BandPassFilterOrder, [0 (obj.best_toolbox.inputs.PeakFrequency + [-5 -2 +2 +5]) (500/2)]/(500/2), [0 0 1 1 0 0], [1 1 1] );
+                    case 2 % Theta
+                        obj.bb.theta.bpf_fir_coeffs =  firls(obj.best_toolbox.inputs.BandPassFilterOrder, [0 (obj.best_toolbox.inputs.PeakFrequency + [-2 -1 +1 +2]) (250/2)]/(250/2), [0 0 1 1 0 0], [1 1 1]) ;
+                    case 3 % Beta
+                        obj.bb.beta.bpf_fir_coeffs =  firls(obj.best_toolbox.inputs.BandPassFilterOrder, [0 (obj.best_toolbox.inputs.PeakFrequency + [-5 -2 +2 +5]) (1000/2)]/(1000/2), [0 0 1 1 0 0], [1 1 1]) ;
+                end
+                
 
 
             end
