@@ -28,7 +28,13 @@ classdef best_sync2brain_bossdevice <handle
                 obj.bb.theta.ignore; pause(0.1)
                 obj.bb.beta.ignore; pause(0.1)
                 obj.bb.alpha.ignore; pause(0.1)
-                
+                %% Setting Num of EEG & AUX Channels 
+                % these depends on Protocol for NeurOne, for ACS we can particularly ask the user to define Num of Aux and EEG Channels being streamed
+                %in the input device search its type and if its neurone then follows
+                if obj.best_toolbox.app.par.hardware_settings.(obj.best_toolbox.inputs.InputDevice).slct_device==1
+                    obj.bb.eeg_channels=nnz(strcmp(obj.best_toolbox.app.par.hardware_settings.(obj.best_toolbox.inputs.InputDevice).NeurOneProtocolChannelSignalTypes,'EEG'));
+                    obj.bb.aux_channels=nnz(strcmp(obj.best_toolbox.app.par.hardware_settings.(obj.best_toolbox.inputs.InputDevice).NeurOneProtocolChannelSignalTypes,'EMG'));
+                end
                 %% Providing Channel Labels to Spatial Filter
                 outputdevice=obj.best_toolbox.inputs.condMat{1,1};
 %                 clab=obj.best_toolbox.app.par.hardware_settings.(outputdevice).NeurOneProtocolChannelLabels;
@@ -43,6 +49,9 @@ classdef best_sync2brain_bossdevice <handle
 % % %                 set_spatial_filter(obj.bb, {'C3', 'FC1', 'FC5', 'CP1', 'CP5'}, [1 -0.25 -0.25 -0.25 -0.25], 1)
 %                 set_spatial_filter(obj.bb, {}, [], 2)
                 obj.bb.spatial_filter_weights([1])
+                %% Setting LowPas Filter
+                %% Setting BandPass Filter
+
 
             end
             
