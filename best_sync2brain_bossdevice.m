@@ -15,7 +15,7 @@ classdef best_sync2brain_bossdevice <handle
     methods
         function obj = best_sync2brain_bossdevice(best_toolbox)
             obj.best_toolbox=best_toolbox;
-            obj.bb=dbsp('10.10.10.1');
+            obj.bb=bossdevice;
             obj.bb.sample_and_hold_period=0;
             
             %% Set Number of EEG and AUX Channels Property 
