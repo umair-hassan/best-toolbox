@@ -10916,7 +10916,7 @@ classdef BEST < handle
                     fullfilepath=[path file];
                     [clab, signaltype] = neurone_digitalout_clab_from_xml(xmlread(fullfilepath));
                     obj.hw.vbox_rp.NeurOneProtocolChannelLabels=clab; %1xn CellString
-                    obj.hw.vbox_rp.NeurOneProtocolChannelSignalType=signaltype; %1xn CellString
+                    obj.hw.vbox_rp.NeurOneProtocolChannelSignalTypes=signaltype; %1xn CellString
                     obj.hw.vbox_rp.prtcl_name.String=file;
                 else
                     errordlg('No Protocol is attached. Attach the Protocol again to add a NeurOne device','BEST Toolbox');
