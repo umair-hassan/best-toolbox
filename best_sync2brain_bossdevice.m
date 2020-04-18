@@ -71,27 +71,14 @@ while ~strcmpi(obj.EMGScope.Status,'finished'), end
             %% Choosing 1 from 3x Oscillitory Models, Load Phase, PhasePlusMinus, Amplitude Low and Amplitude High
             switch obj.best_toolbox.inputs.FrequencyBand
                 case 1 % Alpha
-%                     obj.best_toolbox.inputs.trialMat{obj.best_toolbox.inputs.trial,obj.best_toolbox.inputs.colLabel.tpm}
                     obj.bb.alpha.phase_target(1) =  obj.best_toolbox.inputs.trialMat{obj.best_toolbox.inputs.trial,obj.best_toolbox.inputs.colLabel.phase}{1,1};
                     obj.bb.alpha.phase_plusminus(1) =obj.best_toolbox.inputs.trialMat{obj.best_toolbox.inputs.trial,obj.best_toolbox.inputs.colLabel.phase}{1,2};
-                    if obj.best_toolbox.inputs.AmplitudeUnits==2
-                        obj.bb.alpha.amplitude_min(1)=obj.best_toolbox.inputs.trialMat{obj.best_toolbox.inputs.trial,obj.best_toolbox.inputs.colLabel.IA}{1,1};
-                        obj.bb.alpha.amplitude_max(1)=obj.best_toolbox.inputs.trialMat{obj.best_toolbox.inputs.trial,obj.best_toolbox.inputs.colLabel.IA}{1,2};
-                    end
                 case 2 % Theta
                     obj.bb.theta.phase_target(1) = obj.best_toolbox.inputs.trialMat{obj.best_toolbox.inputs.trial,obj.best_toolbox.inputs.colLabel.phase}{1,1};
                     obj.bb.theta.phase_plusminus(1) = obj.best_toolbox.inputs.trialMat{obj.best_toolbox.inputs.trial,obj.best_toolbox.inputs.colLabel.phase}{1,2};
-                    if obj.best_toolbox.inputs.AmplitudeUnits==2
-                        obj.bb.theta.amplitude_min(1)=obj.best_toolbox.inputs.trialMat{obj.best_toolbox.inputs.trial,obj.best_toolbox.inputs.colLabel.IA}{1,1};
-                        obj.bb.theta.amplitude_max(1)=obj.best_toolbox.inputs.trialMat{obj.best_toolbox.inputs.trial,obj.best_toolbox.inputs.colLabel.IA}{1,2};
-                    end
                 case 3 % Beta
                     obj.bb.beta.phase_target(1) = obj.best_toolbox.inputs.trialMat{obj.best_toolbox.inputs.trial,obj.best_toolbox.inputs.colLabel.phase}{1,1};
                     obj.bb.beta.phase_plusminus(1) = obj.best_toolbox.inputs.trialMat{obj.best_toolbox.inputs.trial,obj.best_toolbox.inputs.colLabel.phase}{1,2};
-                    if obj.best_toolbox.inputs.AmplitudeUnits==2
-                        obj.bb.beta.amplitude_min(1)=obj.best_toolbox.inputs.trialMat{obj.best_toolbox.inputs.trial,obj.best_toolbox.inputs.colLabel.IA}{1,1};
-                        obj.bb.beta.amplitude_max(1)=obj.best_toolbox.inputs.trialMat{obj.best_toolbox.inputs.trial,obj.best_toolbox.inputs.colLabel.IA}{1,2};
-                    end
             end
             obj.bb.triggers_remaining = 1;
             %% Configuring Trial's respective Trigger Pattern
@@ -138,7 +125,11 @@ while ~strcmpi(obj.EMGScope.Status,'finished'), end
                         % append data in circular buffer
                         obj.FileScope.mAmplitudeScopeCircBuf{obj.FileScope.mAmplitudeScopeCircBufCurrentBlock} = data';
                         
-                        obj.FileScope.maxmindata = cell2mat(cellfun(@(data) quantile(data(1, data(2,:) == 1), [obj.best_toolbox.inputs.trialMat{obj.best_toolbox.inputs.trial,obj.best_toolbox.inputs.colLabel.IAPercentile}{1,1}/100 obj.best_toolbox.inputs.trialMat{obj.best_toolbox.inputs.trial,obj.best_toolbox.inputs.colLabel.IAPercentile}{1,2}/100])', obj.FileScope.mAmplitudeScopeCircBuf, 'UniformOutput', false))';
+                        if obj.best_toolbox.inputs.AmplitudeUnits==1
+                            obj.FileScope.maxmindata = cell2mat(cellfun(@(data) quantile(data(1, data(2,:) == 1), [obj.best_toolbox.inputs.trialMat{obj.best_toolbox.inputs.trial,obj.best_toolbox.inputs.colLabel.IAPercentile}{1,1}/100 obj.best_toolbox.inputs.trialMat{obj.best_toolbox.inputs.trial,obj.best_toolbox.inputs.colLabel.IAPercentile}{1,2}/100])', obj.FileScope.mAmplitudeScopeCircBuf, 'UniformOutput', false))';
+                        elseif obj.best_toolbox.inputs.AmplitudeUnits==2
+                            obj.FileScope.maxmindata = cell2mat(cellfun(@(data) quantile(data(1, data(2,:) == 1), [0.01 0.99])', obj.FileScope.mAmplitudeScopeCircBuf, 'UniformOutput', false))';
+                        end
                         obj.FileScope.maxmindata = circshift(obj.FileScope.maxmindata, obj.FileScope.mAmplitudeScopeCircBufCurrentBlock);
                         plot(obj.FileScope.hAmplitudeHistoryAxes, obj.FileScope.maxmindata)
                         xlim(obj.FileScope.hAmplitudeHistoryAxes, [1 obj.FileScope.mAmplitudeScopeCircBufTotalBlocks])
@@ -166,11 +157,15 @@ while ~strcmpi(obj.EMGScope.Status,'finished'), end
 
                         
                         % calculate percentiles
-                        obj.FileScope.amp_lower= quantile(obj.FileScope.amplitude_clean, obj.best_toolbox.inputs.trialMat{obj.best_toolbox.inputs.trial,obj.best_toolbox.inputs.colLabel.IAPercentile}{1,1}/100);
-                        obj.FileScope.amp_upper = quantile(obj.FileScope.amplitude_clean, obj.best_toolbox.inputs.trialMat{obj.best_toolbox.inputs.trial,obj.best_toolbox.inputs.colLabel.IAPercentile}{1,2}/100);
-                        
-                        obj.best_toolbox.inputs.trialMat{obj.best_toolbox.inputs.trial,obj.best_toolbox.inputs.colLabel.IA}{1,1}= obj.FileScope.amp_lower;
-                        obj.best_toolbox.inputs.trialMat{obj.best_toolbox.inputs.trial,obj.best_toolbox.inputs.colLabel.IA}{1,2} = obj.FileScope.amp_upper;
+                        if obj.best_toolbox.inputs.AmplitudeUnits==1
+                            obj.FileScope.amp_lower= quantile(obj.FileScope.amplitude_clean, obj.best_toolbox.inputs.trialMat{obj.best_toolbox.inputs.trial,obj.best_toolbox.inputs.colLabel.IAPercentile}{1,1}/100);
+                            obj.FileScope.amp_upper = quantile(obj.FileScope.amplitude_clean, obj.best_toolbox.inputs.trialMat{obj.best_toolbox.inputs.trial,obj.best_toolbox.inputs.colLabel.IAPercentile}{1,2}/100);
+                            obj.best_toolbox.inputs.trialMat{obj.best_toolbox.inputs.trial,obj.best_toolbox.inputs.colLabel.IA}{1,1}= obj.FileScope.amp_lower;
+                            obj.best_toolbox.inputs.trialMat{obj.best_toolbox.inputs.trial,obj.best_toolbox.inputs.colLabel.IA}{1,2} = obj.FileScope.amp_upper;
+                        elseif obj.best_toolbox.inputs.AmplitudeUnits==2
+                            obj.FileScope.amp_lower=  obj.best_toolbox.inputs.trialMat{obj.best_toolbox.inputs.trial,obj.best_toolbox.inputs.colLabel.IA}{1,1};
+                            obj.FileScope.amp_upper =  obj.best_toolbox.inputs.trialMat{obj.best_toolbox.inputs.trial,obj.best_toolbox.inputs.colLabel.IA}{1,2};
+                        end
                         
                         hold(obj.FileScope.hAmplitudeDistributionAxes, 'on')
                         plot(obj.FileScope.hAmplitudeDistributionAxes, [1 length(obj.FileScope.amplitude_clean)], [obj.FileScope.amp_lower obj.FileScope.amp_upper; obj.FileScope.amp_lower obj.FileScope.amp_upper]);
