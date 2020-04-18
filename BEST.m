@@ -11174,6 +11174,7 @@ classdef BEST < handle
             obj.par.hardware_settings.(obj.hw.vbox_rp.device_name.String).slct_device=obj.hw.vbox_rp.slct_device.Value;
             obj.par.hardware_settings.(obj.hw.vbox_rp.device_name.String).device_name=obj.hw.vbox_rp.device_name.String;
             obj.par.hardware_settings.(obj.hw.vbox_rp.device_name.String).NeurOneProtocolChannelLabels=obj.hw.vbox_rp.NeurOneProtocolChannelLabels;
+            obj.par.hardware_settings.(obj.hw.vbox_rp.device_name.String).NeurOneProtocolChannelSignalTypes=obj.hw.vbox_rp.NeurOneProtocolChannelSignalTypes;
         end
         function cb_hw_input_ft_parsaving(obj)
             obj.par.hardware_settings.(obj.hw.vbox_rp.device_name.String).device_type=obj.hw.device_type.listbox.Value;
