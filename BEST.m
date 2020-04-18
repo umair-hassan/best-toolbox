@@ -5552,6 +5552,8 @@ classdef BEST < handle
             %             obj.info.defaults.FrequencyLowBound='';
             %             obj.info.defaults.FrequencyHighBound='';
             obj.info.defaults.FrequencyBand=1;
+            obj.info.defaults.PeakFrequency='11';
+            obj.info.defaults.BandPassFilterOrder='80';
             obj.info.defaults.Phase='';
             obj.info.defaults.PhaseTolerance='';
             obj.info.defaults.AmplitudeThreshold='[0 1e6]';
