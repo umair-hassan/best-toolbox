@@ -10912,14 +10912,15 @@ classdef BEST < handle
                 [file,path] = uigetfile('*.xml');
                 if (file~=0)
                     fullfilepath=[path file];
-                    clab = neurone_digitalout_clab_from_xml(xmlread(fullfilepath));
+                    [clab, signaltype] = neurone_digitalout_clab_from_xml(xmlread(fullfilepath));
                     obj.hw.vbox_rp.NeurOneProtocolChannelLabels=clab; %1xn CellString
+                    obj.hw.vbox_rp.NeurOneProtocolChannelSignalType=signaltype; %1xn CellString
                     obj.hw.vbox_rp.prtcl_name.String=file;
                 else
                     errordlg('No Protocol is attached. Attach the Protocol again to add a NeurOne device','BEST Toolbox');
                 end
                 
-                function digitalout_clab = neurone_digitalout_clab_from_xml(protocolXmlDoc)
+                function [digitalout_clab, digitalout_signaltype] = neurone_digitalout_clab_from_xml(protocolXmlDoc)
                     % protocolXmlDoc - exported NeurOne XML protocol (used to extract digital out channels)
                     % Example: neurone_digitalout_clab_from_xml(xmlread('FRONTHETA v2.xml'))
                     
