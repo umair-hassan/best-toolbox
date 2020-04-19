@@ -2098,12 +2098,10 @@ classdef best_toolbox < handle
             end
         end
         function completed(obj)
-            questdlg('This Protocol has been completed','Completed','Okay','Okay');
+            questdlg('This Protocol has been Completed or Stopped, click Okay to continue.','Status','Okay','Okay');
             obj.app.pmd.RunStopButton.String='Stop';
             obj.app.RunStopButton
         end
-        
-        
         
         function best_mep(obj)
             obj.save;
