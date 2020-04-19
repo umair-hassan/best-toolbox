@@ -124,7 +124,7 @@ while ~strcmpi(obj.EMGScope.Status,'finished'), end
                     trigger(obj.FileScope.sc(obj.FileScope.activeScope));
                     while ~(strcmp(obj.FileScope.sc(obj.FileScope.activeScope).Status, 'Finished') || strcmp(obj.FileScope.sc(obj.FileScope.activeScope).Status, 'Interrupted')), pause(0.01), end
                 end
-                if obj.best_toolbox.inputs.AmplitudeUnits==1
+
                     if (strcmp(obj.FileScope.sc(obj.FileScope.activeScope).Status, 'Finished') || strcmp(obj.FileScope.sc(obj.FileScope.activeScope).Status, 'Interrupted'))
                         disp --------------------------
                         time = obj.FileScope.sc(obj.FileScope.activeScope).Time;
@@ -207,17 +207,8 @@ while ~strcmpi(obj.EMGScope.Status,'finished'), end
                                 obj.bb.beta.amplitude_max(1)=obj.best_toolbox.inputs.trialMat{obj.best_toolbox.inputs.trial,obj.best_toolbox.inputs.colLabel.IA}{1,2};
                         end
                         title(obj.FileScope.hAmplitudeDistributionAxes, ['Min Amplitude: ', num2str(obj.FileScope.amp_lower)]);
-%                         if (obj.best_toolbox.inputs.trial==1)
-%                             axes(obj.FileScope.hAmplitudeHistoryAxes);
-%                             xlabel(['Data for Past ' num2str(obj.best_toolbox.inputs.AmplitudeAssignmentPeriod) ' mins']);
-%                             ylabel('EEG Quantile Amplitude (\mu V)');
-%                             xticks([]); xticklabels([]);
-%                             axes(obj.FileScope.hAmplitudeHistoryAxes);
-%                             ylabel('Amplitude (microV)');
-%                             xticks([]); xticklabels([]);
-%                         end
                     end % handle the amplitude tracking
-                end
+
                 
                 if(obj.bb.triggers_remaining == 0)
                     obj.bb.disarm;
