@@ -3927,10 +3927,7 @@ classdef BEST < handle
             obj.pi.mep.pp.btn=uicontrol( 'Parent', r4 ,'Style','PushButton','String','','FontWeight','Bold','HorizontalAlignment','center','CData',obj.icons.paired_pulse,'Tooltip','Click to Add a Paired-Pulse on selected stimulator (selected stimulator is highlighted in blue colour)','Tag','paired_pulse','Callback',@obj.cb_pi_mep_pulse);%add burst or train
             obj.pi.mep.train.btn=uicontrol( 'Parent', r4 ,'Style','PushButton','String','','FontWeight','Bold','HorizontalAlignment','center','CData',obj.icons.train,'Tooltip','Click to Add a Train or Burst on selected stimulator (selected stimulator is highlighted in blue colour)','Tag','train','Callback',@obj.cb_pi_mep_pulse);%add paired pulse
             set( r4, 'Widths', [55 55 55 55 55]);
-            
-            
-            obj.pi.mep.update=uicontrol( 'Parent', obj.pi.mep.r0v1 ,'Style','PushButton','String','Run','FontWeight','Bold','HorizontalAlignment','center','Callback',@(~,~)cb_run_mep); %Run
-            
+                        
             cb_SetHeights;
             
             
@@ -3944,14 +3941,6 @@ classdef BEST < handle
             obj.pi.mep.cond.no=0;
             obj.cb_pi_mep_Nconditions;
             Interactivity;
-            function cb_run_mep()
-                
-                %                 obj.bst.inputs=[];
-                %                 obj.bst.inputs=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr);
-                
-                %                 obj.bst.factorizeConditions;
-                obj.bst.best_mep;
-            end
             function cb_UniversalPanelAdaptation(~,~)
                 obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).BrainState=obj.pi.mep.BrainState.Value;
                 cb_BrainStateParametersPanel
@@ -4102,9 +4091,9 @@ classdef BEST < handle
             function cb_SetHeights
                 switch obj.pi.mep.BrainState.Value
                     case 1
-                        set(obj.pi.mep.r0v1,'Heights',[40 90 170 40 -3 55 55])
+                        set(obj.pi.mep.r0v1,'Heights',[40 90 170 40 -3 55])
                     case 2
-                        set(obj.pi.mep.r0v1,'Heights',[40 390 220 40 -3 55 55])
+                        set(obj.pi.mep.r0v1,'Heights',[40 390 220 40 -3 55])
                 end
             end
             
