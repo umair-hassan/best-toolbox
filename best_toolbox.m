@@ -374,6 +374,22 @@ classdef best_toolbox < handle
                                 condstimTimingStrings=[];
                             end
                         case 2 %Dependent
+                            %% Adjusting New Arhictecture to Old Architecture
+                            obj.inputs.prestim_scope_plt=obj.inputs.EMGDisplayPeriodPre;
+                            obj.inputs.poststim_scope_plt=obj.inputs.EMGDisplayPeriodPost;
+                            obj.inputs.mep_onset=obj.inputs.MEPOnset;
+                            obj.inputs.mep_offset=obj.inputs.MEPOffset;
+                            obj.inputs.input_device=obj.app.pi.mep.InputDevice.String(obj.inputs.InputDevice); %TODO: the drc or mep on the 4th structure is not a good solution!
+                            obj.inputs.output_device=obj.inputs.condsAll.cond1.st1.stim_device;
+                            obj.inputs.stim_mode='MSO';
+                            obj.inputs.measure_str='MEP Measurement';
+                            obj.inputs.ylimMin=obj.inputs.EMGDisplayYLimMin;
+                            obj.inputs.ylimMax=obj.inputs.EMGDisplayYLimMax;
+                            obj.inputs.stop_event=0;
+                            obj.inputs.ylimMin=-3000;
+                            obj.inputs.ylimMax=+3000;
+                            obj.inputs.TrialNoForMean=1;
+                            obj.inputs.mt_starting_stim_inten=obj.inputs.condsAll.cond1.st1.si_pckt{1,1};
                             %% Creating Column Labels
                             obj.inputs.colLabel.inputDevices=1;
                             obj.inputs.colLabel.outputDevices=2;
