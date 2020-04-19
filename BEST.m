@@ -4904,7 +4904,6 @@ classdef BEST < handle
             end
             obj.cb_pi_mep_StimulationParametersTable;
         end
-        
         function cb_pi_mep_output_device(obj,source,~)
             obj.hw.device_added1_listbox.string
             if(isempty(obj.hw.device_added2_listbox.string))
@@ -5537,7 +5536,7 @@ classdef BEST < handle
             
             set(mep6_grid,'ColumnSizes',[-1 -1 -1],'RowSizes',[-1 -1]);
         end
-        
+        % Defaults MEP Par
         function default_par_mep(obj)
             % Editing Rule: Values should be Integers, Strings should
             % Strings , cells are the defaults values that do not have any
@@ -5547,10 +5546,8 @@ classdef BEST < handle
             obj.info.defaults.TrialsPerCondition='10';
             obj.info.defaults.InputDevice=1;
             obj.info.defaults.ITI='4';
-            obj.info.defaults.MontageChannels='';
-            obj.info.defaults.MontageWeights='';
-            %             obj.info.defaults.FrequencyLowBound='';
-            %             obj.info.defaults.FrequencyHighBound='';
+            obj.info.defaults.MontageChannels=['{' ' ''C3'',' ' ''FC1'',' ' ''FC5'',' ' ''CP1'',' ' ''CP5''}'];
+            obj.info.defaults.MontageWeights='1 -0.25 -0.25 -0.25 -0.25';
             obj.info.defaults.FrequencyBand=1;
             obj.info.defaults.PeakFrequency='11';
             obj.info.defaults.BandPassFilterOrder='80';
@@ -5598,6 +5595,7 @@ classdef BEST < handle
             end
             obj.par.(obj.info.event.current_session).(obj.info.event.measure_being_added)=obj.info.defaults;
         end
+        %Load MEP Par
         function func_load_mep_par(obj)
             %Improvement Note: for us structuctre ki sari fieldnames k
             %equal, eik fieldname read kero usko check kero k ye string he

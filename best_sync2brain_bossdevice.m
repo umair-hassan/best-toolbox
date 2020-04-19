@@ -1,7 +1,4 @@
-classdef best_sync2brain_bossdevice <handle
-% % %                 set_spatial_filter(obj.bb, {'C3', 'FC1', 'FC5', 'CP1', 'CP5'}, [1 -0.25 -0.25 -0.25 -0.25], 1) {'5', '21', '23', '25', '27'}
-
-    
+classdef best_sync2brain_bossdevice <handle    
     properties
         bb %bossbox API object
         best_toolbox
