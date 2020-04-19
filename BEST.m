@@ -857,7 +857,6 @@ classdef BEST < handle
             %           obj.panel.st=set(obj.pi.no_measure_slctd_panel.vbox,'Heights',[-2 -0.5 -2])
             set(obj.pi.no_measure_slctd_panel.vbox,'Heights',[-2 -0.5 -2])
         end
-        
         %% results panel
         function resultsPanel(obj)
             total_axesno=obj.pr.axesno;
@@ -991,7 +990,8 @@ classdef BEST < handle
             mat4=unique(sort([0 mat3]));
             yticks(obj.pr.ax.(selectedAxes),(mat4));
             ytickformat('%.2f');
-            gridxy([0 (obj.bst.inputs.mep_onset):0.25:(obj.bst.inputs.mep_offset)],'Color',[219/255 246/255 255/255],'linewidth',4) ;
+            GridLines=gridxy([0 (obj.bst.inputs.mep_onset):0.25:(obj.bst.inputs.mep_offset)],'Color',[219/255 246/255 255/255],'linewidth',4) ;
+            GridLines.Annotation.LegendInformation.IconDisplayStyle = 'off';
         end
         function pr_YLimZoomOut(obj,source,~)
             selectedAxes=source.Tag;
@@ -1003,16 +1003,16 @@ classdef BEST < handle
             mat4=unique(sort([0 mat3]));
             yticks(obj.pr.ax.(selectedAxes),(mat4));
             ytickformat('%.2f');
-            gridxy([0 (obj.bst.inputs.mep_onset):0.25:(obj.bst.inputs.mep_offset)],'Color',[219/255 246/255 255/255],'linewidth',4) ;
-
+            GridLines=gridxy([0 (obj.bst.inputs.mep_onset):0.25:(obj.bst.inputs.mep_offset)],'Color',[219/255 246/255 255/255],'linewidth',4) ;
+            GridLines.Annotation.LegendInformation.IconDisplayStyle = 'off';
         end
         function pr_AutoFit(obj,source,~)
             selectedAxes=source.Tag;
             obj.pr.ax.(selectedAxes).YLim=[-Inf Inf];
             yticks('auto');
             obj.pr.ax.(selectedAxes).YLim=[min(yticks(obj.pr.ax.(selectedAxes))) max(yticks(obj.pr.ax.(selectedAxes)))];
-            gridxy([0 (obj.bst.inputs.mep_onset):0.25:(obj.bst.inputs.mep_offset)],'Color',[219/255 246/255 255/255],'linewidth',4) ;
-
+            GridLines=gridxy([0 (obj.bst.inputs.mep_onset):0.25:(obj.bst.inputs.mep_offset)],'Color',[219/255 246/255 255/255],'linewidth',4) ;
+            GridLines.Annotation.LegendInformation.IconDisplayStyle = 'off';
         end
         function pr_FontSize(obj,source,~)
             selectedAxes=source.Tag;
@@ -1046,6 +1046,8 @@ classdef BEST < handle
                     mat4=unique(sort([0 mat3]));
                     yticks(obj.pr.ax.(selectedAxes),(mat4));
                     ytickformat('%.2f');
+                    GridLines=gridxy([0 (obj.bst.inputs.mep_onset):0.25:(obj.bst.inputs.mep_offset)],'Color',[219/255 246/255 255/255],'linewidth',4) ;
+                    GridLines.Annotation.LegendInformation.IconDisplayStyle = 'off';
                 catch
                     close(f)
                 end
