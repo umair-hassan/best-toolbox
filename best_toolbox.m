@@ -141,8 +141,6 @@ classdef best_toolbox < handle
                     obj.app.pr.ax_measures=DisplayChannelsMeasures;
                     obj.app.pr.axesno=numel(obj.inputs.EMGDisplayChannels);
                     obj.app.pr.ax_ChannelLabels=obj.inputs.EMGDisplayChannels;
-                    %% Setting the Output Device to the condsAll matrix
-                    
                     %% Creating Stimulation Conditions
                     for c=1:numel(fieldnames(obj.inputs.condsAll))
                         obj.inputs.condMat{c,obj.inputs.colLabel.trials}=obj.inputs.TrialsPerCondition;
@@ -264,7 +262,6 @@ classdef best_toolbox < handle
                             obj.inputs.colLabel.tpm=10;
                             obj.inputs.colLabel.chType=11;
                             obj.inputs.colLabel.chId=12;
-                            obj.inputs.colLabel.mepamp=13;
                             switch obj.app.par.hardware_settings.(char(obj.inputs.input_device)).slct_device
                                 case 1 %boss box
                                     
@@ -408,7 +405,6 @@ classdef best_toolbox < handle
                             if obj.inputs.AmplitudeUnits==1
                                 obj.inputs.colLabel.IAPercentile=15;
                             end
-                            obj.inputs.colLabel.mepamp=15;
                             %% Creating ChannelType and ChannelID
                             switch obj.app.par.hardware_settings.(char(obj.inputs.input_device)).slct_device
                                 case 1 %boss box
@@ -434,7 +430,6 @@ classdef best_toolbox < handle
                             obj.app.pr.ax_measures=ChannelMeasures;
                             obj.app.pr.axesno=numel(ChannelMeasures);
                             obj.app.pr.ax_ChannelLabels=ChannelLabels;
-                            
                             %% Creating Stimulation Conditons
                             for c=1:numel(fieldnames(obj.inputs.condsAll))
                                 obj.inputs.condMat{c,obj.inputs.colLabel.trials}=obj.inputs.TrialsPerCondition;
@@ -590,6 +585,22 @@ classdef best_toolbox < handle
                 case 'MEP Dose Response Curve Protocol'
                     switch obj.inputs.BrainState
                         case 1 %Independent
+                            %% Adjusting New Arhictecture to Old Architecture
+                            obj.inputs.prestim_scope_plt=obj.inputs.EMGDisplayPeriodPre;
+                            obj.inputs.poststim_scope_plt=obj.inputs.EMGDisplayPeriodPost;
+                            obj.inputs.mep_onset=obj.inputs.MEPOnset;
+                            obj.inputs.mep_offset=obj.inputs.MEPOffset;
+                            obj.inputs.input_device=obj.app.pi.drc.InputDevice.String(obj.inputs.InputDevice); %TODO: the drc or mep on the 4th structure is not a good solution!
+                            obj.inputs.output_device=obj.inputs.condsAll.cond1.st1.stim_device;
+                            obj.inputs.stim_mode='MSO';
+                            obj.inputs.measure_str='MEP Measurement';
+                            obj.inputs.ylimMin=obj.inputs.EMGDisplayYLimMin;
+                            obj.inputs.ylimMax=obj.inputs.EMGDisplayYLimMax;
+                            obj.inputs.stop_event=0;
+                            obj.inputs.ylimMin=-3000;
+                            obj.inputs.ylimMax=+3000;
+                            obj.inputs.TrialNoForMean=1;
+                            obj.inputs.mt_starting_stim_inten=obj.inputs.condsAll.cond1.st1.si_pckt{1,1};
                             %% Creating Column Labels
                             obj.inputs.colLabel.inputDevices=1;
                             obj.inputs.colLabel.outputDevices=2;
@@ -603,13 +614,14 @@ classdef best_toolbox < handle
                             obj.inputs.colLabel.tpm=10;
                             obj.inputs.colLabel.chType=11;
                             obj.inputs.colLabel.chId=12;
-                            obj.inputs.colLabel.mepamp=13;
+                            obj.inputs.colLabel.cdMrk=13;
                             %% Creating Channel Measures, AxesNo, Labels
                             ChannelLabels=[repelem(obj.inputs.EMGTargetChannels,3),obj.inputs.EMGDisplayChannels]; %this can go directly inside the cond object in the loop
                             ChannelMeasures=[repmat({'MEP_Measurement','MEP Scatter Plot','MEP IOC Fit'},1,numel(obj.inputs.EMGTargetChannels)),repmat({'MEP_Measurement'},1,numel(obj.inputs.EMGDisplayChannels))]; %dirctly inside the loop
                             ChannelAxesNo=num2cell(1:numel(ChannelLabels));
                             obj.app.pr.ax_measures=ChannelMeasures;
                             obj.app.pr.axesno=numel(ChannelAxesNo);
+                            obj.app.pr.ax_ChannelLabels=ChannelLabels;
                             %% Creating Channel Type, Channel Index
                             switch obj.app.par.hardware_settings.(char(obj.inputs.input_device)).slct_device
                                 case 1 %boss box
@@ -708,6 +720,22 @@ classdef best_toolbox < handle
                                 condstimTimingStrings=[];
                             end
                         case 2 %Dependent
+                            %% Adjusting New Arhictecture to Old Architecture
+                            obj.inputs.prestim_scope_plt=obj.inputs.EMGDisplayPeriodPre;
+                            obj.inputs.poststim_scope_plt=obj.inputs.EMGDisplayPeriodPost;
+                            obj.inputs.mep_onset=obj.inputs.MEPOnset;
+                            obj.inputs.mep_offset=obj.inputs.MEPOffset;
+                            obj.inputs.input_device=obj.app.pi.drc.InputDevice.String(obj.inputs.InputDevice); %TODO: the drc or mep on the 4th structure is not a good solution!
+                            obj.inputs.output_device=obj.inputs.condsAll.cond1.st1.stim_device;
+                            obj.inputs.stim_mode='MSO';
+                            obj.inputs.measure_str='MEP Measurement';
+                            obj.inputs.ylimMin=obj.inputs.EMGDisplayYLimMin;
+                            obj.inputs.ylimMax=obj.inputs.EMGDisplayYLimMax;
+                            obj.inputs.stop_event=0;
+                            obj.inputs.ylimMin=-3000;
+                            obj.inputs.ylimMax=+3000;
+                            obj.inputs.TrialNoForMean=1;
+                            obj.inputs.mt_starting_stim_inten=obj.inputs.condsAll.cond1.st1.si_pckt{1,1};
                             %% Creating Column Labels
                             obj.inputs.colLabel.inputDevices=1;
                             obj.inputs.colLabel.outputDevices=2;
@@ -723,13 +751,19 @@ classdef best_toolbox < handle
                             obj.inputs.colLabel.chId=12;
                             obj.inputs.colLabel.phase=13;
                             obj.inputs.colLabel.IA=14;
-                            obj.inputs.colLabel.mepamp=15;
+                            obj.inputs.colLabel.cdMrk=15;
+                            if obj.inputs.AmplitudeUnits==1
+                                obj.inputs.colLabel.IAPercentile=15;
+                                obj.inputs.colLabel.cdMrk=16;
+                            end
+                            
                             %% Creating Channel Measures, AxesNo, Labels
                             ChannelLabels=[{'OsscillationPhase'},{'OsscillationEEG'},repelem(obj.inputs.EMGTargetChannels,3),obj.inputs.EMGDisplayChannels,{'OsscillationAmplitude'}]; %[repelem(obj.inputs.EMGTargetChannels,3),obj.inputs.EMGDisplayChannels]; %this can go directly inside the cond object in the loop
                             ChannelMeasures=[{'PhaseHistogram'},{'TriggerLockedEEG'},repmat({'MEP_Measurement','MEP Scatter Plot','MEP IOC Fit'},1,numel(obj.inputs.EMGTargetChannels)),repmat({'MEP_Measurement'},1,numel(obj.inputs.EMGDisplayChannels)),{'RunningAmplitude'}]; %dirctly inside the loop
                             ChannelAxesNo=num2cell(1:numel(ChannelLabels));
                             obj.app.pr.ax_measures=ChannelMeasures;
                             obj.app.pr.axesno=numel(ChannelAxesNo);
+                            obj.app.pr.ax_ChannelLabels=ChannelLabels;
                             %% Creating Channel Type, Channel Index
                             switch obj.app.par.hardware_settings.(char(obj.inputs.input_device)).slct_device
                                 case 1 %boss box
@@ -838,24 +872,6 @@ classdef best_toolbox < handle
                                 markers=[];
                                 condstimTimingStrings=[];
                             end
-                            %% Crossing Phase Conditions with Stimulation Conditions
-                            idx_stimulationconditions=0;
-                            idx_totalstimulationconditions=numel(obj.inputs.condMat(:,1));
-                            idx_phaseconditions=1;
-                            TotalCrossedOverConditions=(numel(PhaseConditionVector))*(numel(obj.inputs.condMat(:,1)));
-                            for iTotalCrossedOverConditions=1:TotalCrossedOverConditions
-                                idx_stimulationconditions=idx_stimulationconditions+1;
-                                obj.inputs.condMat(iTotalCrossedOverConditions,1:12)=obj.inputs.condMat(idx_stimulationconditions,1:12);
-                                obj.inputs.condMat(iTotalCrossedOverConditions,obj.inputs.colLabel.phase)=PhaseConditionVector(idx_phaseconditions);
-                                obj.inputs.condMat(iTotalCrossedOverConditions,obj.inputs.colLabel.IA)={{0,1e6}};
-                                if(idx_stimulationconditions>=idx_totalstimulationconditions)
-                                    idx_stimulationconditions=0;
-                                    idx_phaseconditions=idx_phaseconditions+1;
-                                    if(idx_phaseconditions>numel(PhaseConditionVector))
-                                        idx_phaseconditions=1; end
-                                end
-                            end
-                            %% Case end
                     end
                 case 'Motor Threshold Hunting Protocol'
                     switch obj.inputs.BrainState
@@ -986,6 +1002,69 @@ classdef best_toolbox < handle
                         case 2
                     end
                     
+            end
+            %% Crossing Phase & Amplitude Condition with condMat
+            if obj.inputs.BrainState==2
+                %% Creating Phase Conditions
+                PhaseConditionVector=cell(1,numel(obj.inputs.Phase));
+                for iPhases=1:numel(obj.inputs.Phase)
+                    switch obj.inputs.Phase(iPhases)
+                        case 0 %+Ve Peak
+                            PhaseConditionVector{iPhases}={0,obj.inputs.PhaseTolerance};
+                        case pi %-Ve Trough
+                            PhaseConditionVector{iPhases}={pi,obj.inputs.PhaseTolerance};
+                        case -pi/2 %Rising Flank
+                            PhaseConditionVector{iPhases}={-pi/2,obj.inputs.PhaseTolerance};
+                        case pi/2 %Falling Flank
+                            PhaseConditionVector{iPhases}={pi/2,obj.inputs.PhaseTolerance};
+                        otherwise % NaN Value and Random Phase
+                            PhaseConditionVector{iPhases}={0,pi};
+                    end
+                end
+                %% Crossing Phase and Amplitude Conditions with Stimulation Conditions
+                idx_stimulationconditions=0;
+                idx_totalstimulationconditions=numel(obj.inputs.condMat(:,1));
+                if numel(obj.inputs.AmplitudeThreshold)/2==numel(obj.inputs.Phase) || numel(obj.inputs.AmplitudeThreshold)/2==1
+                    idx_phaseconditions=1;
+                    TotalCrossedOverConditions=(numel(obj.inputs.Phase))*(numel(obj.inputs.condMat(:,1)));
+                    for iTotalCrossedOverConditions=1:TotalCrossedOverConditions
+                        idx_stimulationconditions=idx_stimulationconditions+1;
+                        obj.inputs.condMat(iTotalCrossedOverConditions,1:12)=obj.inputs.condMat(idx_stimulationconditions,1:12);
+                        obj.inputs.condMat(iTotalCrossedOverConditions,obj.inputs.colLabel.phase)=PhaseConditionVector(idx_phaseconditions);
+                        if numel(obj.inputs.AmplitudeThreshold)/2==numel(obj.inputs.Phase)
+                            obj.inputs.condMat(iTotalCrossedOverConditions,obj.inputs.colLabel.IA)={{obj.inputs.AmplitudeThreshold(idx_phaseconditions,1),obj.inputs.AmplitudeThreshold(idx_phaseconditions,2)}};
+                            if obj.inputs.AmplitudeUnits==1
+                                obj.inputs.condMat(iTotalCrossedOverConditions,obj.inputs.colLabel.IAPercentile)={{obj.inputs.AmplitudeThreshold(idx_phaseconditions,1),obj.inputs.AmplitudeThreshold(idx_phaseconditions,2)}}; end
+                        elseif numel(obj.inputs.AmplitudeThreshold)/2==1
+                            obj.inputs.condMat(iTotalCrossedOverConditions,obj.inputs.colLabel.IA)={{obj.inputs.AmplitudeThreshold(1,1),obj.inputs.AmplitudeThreshold(1,2)}};
+                            if obj.inputs.AmplitudeUnits==1
+                                obj.inputs.condMat(iTotalCrossedOverConditions,obj.inputs.colLabel.IAPercentile)={{obj.inputs.AmplitudeThreshold(1,1),obj.inputs.AmplitudeThreshold(1,2)}}; end
+                        end
+                        if(idx_stimulationconditions>=idx_totalstimulationconditions)
+                            idx_stimulationconditions=0;
+                            idx_phaseconditions=idx_phaseconditions+1;
+                            if(idx_phaseconditions>numel(PhaseConditionVector))
+                                idx_phaseconditions=1; end
+                        end
+                    end
+                elseif numel(obj.inputs.AmplitudeThreshold)/2>numel(obj.inputs.Phase) && numel(obj.inputs.Phase)==1
+                    idx_amplitudeconditions=1;
+                    TotalCrossedOverConditions=(numel(obj.inputs.AmplitudeThreshold)/2)*(numel(obj.inputs.condMat(:,1)));
+                    for iTotalCrossedOverConditions=1:TotalCrossedOverConditions
+                        idx_stimulationconditions=idx_stimulationconditions+1;
+                        obj.inputs.condMat(iTotalCrossedOverConditions,1:12)=obj.inputs.condMat(idx_stimulationconditions,1:12);
+                        obj.inputs.condMat(iTotalCrossedOverConditions,obj.inputs.colLabel.IA)={{obj.inputs.AmplitudeThreshold(idx_amplitudeconditions,1),obj.inputs.AmplitudeThreshold(idx_amplitudeconditions,2)}};
+                        obj.inputs.condMat(iTotalCrossedOverConditions,obj.inputs.colLabel.phase)=PhaseConditionVector(1);
+                        if obj.inputs.AmplitudeUnits==1
+                            obj.inputs.condMat(iTotalCrossedOverConditions,obj.inputs.colLabel.IAPercentile)={{obj.inputs.AmplitudeThreshold(idx_amplitudeconditions,1),obj.inputs.AmplitudeThreshold(idx_amplitudeconditions,2)}}; end
+                        if(idx_stimulationconditions>=idx_totalstimulationconditions)
+                            idx_stimulationconditions=0;
+                            idx_amplitudeconditions=idx_amplitudeconditions+1;
+                            if(idx_amplitudeconditions>numel(obj.inputs.AmplitudeThreshold)/2)
+                                idx_amplitudeconditions=1; end
+                        end
+                    end
+                end
             end
             %% Crossing ITI Condition with condMat
             if iscell(obj.inputs.condMat{1,obj.inputs.colLabel.iti})
@@ -1914,7 +1993,11 @@ classdef best_toolbox < handle
                 (obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.measures}{1,i})
                 switch (obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.measures}{1,i})
                     case 'MEP_Measurement'
-                        obj.mep_plot
+                        if obj.inputs.Protocol=='MEP Dose Response Curve Protocol'
+                            obj.mep_plot_conditionwise;
+                        else
+                            obj.mep_plot
+                        end
                     case 'Threshold Trace'
                         obj.mep_threshold;
                         obj.mep_threshold_trace_plot;
@@ -2131,14 +2214,19 @@ classdef best_toolbox < handle
             obj.saveFigures;
             obj.completed;
         end
-        function best_ioc(obj)
+        function best_drc(obj)
+            obj.save;
             obj.factorizeConditions
             obj.planTrials
             obj.app.resultsPanel;
-            obj.boot_inputdevice;
             obj.boot_outputdevice;
+            obj.boot_inputdevice;
             obj.bootTrial;
-            obj.stimLoop
+            obj.stimLoop;
+            obj.prepSaving;
+            obj.save;
+            obj.saveFigures;
+            obj.completed;
         end
         function best_mth(obj)
             obj.factorizeConditions;
@@ -2233,6 +2321,45 @@ classdef best_toolbox < handle
 %             obj.app.pr.mean_mep.(ax).String=obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.mepamp};
 %             ylim auto
             
+        end
+        function mep_plot_conditionwise(obj)
+            ax=['ax' num2str(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.axesno}{1,obj.inputs.chLab_idx})];
+            axes(obj.app.pr.ax.(ax)), hold on,
+            %% Preparing Condition wrt to Dose Function
+            switch obj.inputs.DoseFunction
+                case 1 %TS 
+                    cd=['cd' num2str(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,1}{1,1})];
+                    if ~(isfield(obj.inputs.Handles,cd))
+                        DisplayName=['TS:' num2str(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,1}{1,1})];
+                        Color=[rand rand rand]+obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,1}{1,1};
+                        Color=Color/sum(Color);
+                    end
+                case 2 %CS
+                    cd=['cd' num2str(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,1}{1,2})];
+                    if ~(isfield(obj.inputs.Handles,cd))
+                        DisplayName=['CS:' num2str(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,1}{1,2})];
+                        Color=[rand rand rand]+obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,1}{1,1};
+                        Color=Color/sum(Color);
+                    end
+                case 3 %ISI
+                    cd=['cd' num2str(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,1}{1,3})];
+                    DisplayName=['ISI:' num2str(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,1}{1,3})];
+                case 4 %ITI
+                    cd=['cd' num2str(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si})];
+                    DisplayName=['ITI:' num2str(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.iti})];
+            end
+            %% Plot respectively prepared condition
+            ThisChannelName=obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx};
+            if ~(isfield(obj.inputs.Handles,cd))
+                    obj.inputs.Handles.(cd)=plot(obj.inputs.timeVect,obj.inputs.rawData.(ThisChannelName).data(obj.inputs.trial,:),'Color',Color,'LineWidth',2,'DisplayName',DisplayName);
+                    obj.inputs.Handles.(cd).UserData(1,1)=obj.inputs.trial;
+                    legend('Location','southoutside','Orientation','horizontal'); hold on;
+                else
+                    obj.inputs.Handles.(cd).UserData(1,1+numel(obj.inputs.Handles.(cd).UserData))=obj.inputs.trial;
+                    obj.inputs.Handles.(cd).YData=mean(obj.inputs.rawData.(ThisChannelName).data(obj.inputs.Handles.(cd).UserData,:));
+                    drawnow;
+            end
+            obj.mep_amp;
         end
         function mep_amp(obj)
             maxx=max(obj.inputs.rawData.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).data(obj.inputs.trial,obj.inputs.mep_onset_samples:obj.inputs.mep_offset_samples));
