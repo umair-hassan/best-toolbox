@@ -45,6 +45,7 @@ classdef best_sync2brain_bossdevice <handle
 
                 %% Setting Spatial Filter
                 obj.bb.spatial_filter_weights=SpatialFilterWeights;
+                
                 %% Setting LowPas Filter Coefficients
                 % For Future Use
                 

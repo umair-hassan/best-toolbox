@@ -2797,25 +2797,39 @@ classdef best_toolbox < handle
             ThisPhase=obj.inputs.rawData.(ThisChannelName).data(obj.inputs.trial,1);
             if obj.inputs.trial==1, legend('Location','southoutside','Orientation','horizontal'); hold on; end
             if obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.phase}{1,1}==0 && obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.phase}{1,2}~=pi %Peak
-                if(isfield(obj.inputs.Handles,'PhaseHistogramPeak')==0)
-                    obj.inputs.Handles.PhaseHistogramPeak=polarhistogram(ThisPhase,20,'FaceColor','green','BinEdges',deg2rad(5:10:355),'DisplayName','Peak');
+                if ~(isfield(obj.inputs.Handles,'PhaseHistogramPeak'))
+                    obj.inputs.Handles.PhaseHistogramPeak=polarhistogram(ThisPhase,20,'FaceColor','green','BinEdges',deg2rad([0 5:10:355 360]),'DisplayName','Peak');
                 else
-                    obj.inputs.Handles.PhaseHistogramPeak=polarhistogram([obj.inputs.Handles.PhaseHistogramPeak.Data ThisPhase],20,'FaceColor','green','BinEdges',deg2rad(5:10:355));
+                    obj.inputs.Handles.PhaseHistogramPeak=polarhistogram([obj.inputs.Handles.PhaseHistogramPeak.Data ThisPhase],20,'FaceColor','green','BinEdges',deg2rad([0 5:10:355 360]));
                     obj.inputs.Handles.PhaseHistogramPeak.Annotation.LegendInformation.IconDisplayStyle = 'off';
                 end
             elseif obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.phase}{1,1}==pi && obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.phase}{1,2}~=pi %Trough
-                if(isfield(obj.inputs.Handles,'PhaseHistogramTrough')==0)
-                    obj.inputs.Handles.PhaseHistogramTrough=polarhistogram(ThisPhase,20,'FaceColor','red','BinEdges',deg2rad(5:10:355),'DisplayName','Trough');
+                if ~(isfield(obj.inputs.Handles,'PhaseHistogramTrough'))
+                    obj.inputs.Handles.PhaseHistogramTrough=polarhistogram(ThisPhase,20,'FaceColor','red','BinEdges',deg2rad([0 5:10:355 360]),'DisplayName','Trough');
                 else
-                    obj.inputs.Handles.PhaseHistogramTrough=polarhistogram([obj.inputs.Handles.PhaseHistogramTrough.Data ThisPhase],20,'FaceColor','red','BinEdges',deg2rad(5:10:355));
+                    obj.inputs.Handles.PhaseHistogramTrough=polarhistogram([obj.inputs.Handles.PhaseHistogramTrough.Data ThisPhase],20,'FaceColor','red','BinEdges',deg2rad([0 5:10:355 360]));
                     obj.inputs.Handles.PhaseHistogramTrough.Annotation.LegendInformation.IconDisplayStyle = 'off';
                 end
             elseif obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.phase}{1,1}==0 && obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.phase}{1,2}==pi %Random
-                if(isfield(obj.inputs.Handles,'PhaseHistogramRandom')==0)
-                    obj.inputs.Handles.PhaseHistogramRandom=polarhistogram(ThisPhase,20,'FaceColor','blue','BinEdges',deg2rad(5:10:355),'DisplayName','Random');
+                if ~(isfield(obj.inputs.Handles,'PhaseHistogramRandom'))
+                    obj.inputs.Handles.PhaseHistogramRandom=polarhistogram(ThisPhase,20,'FaceColor','blue','BinEdges',deg2rad([0 5:10:355 360]),'DisplayName','Random');
                 else
-                    obj.inputs.Handles.PhaseHistogramRandom=polarhistogram([obj.inputs.Handles.PhaseHistogramRandom.Data ThisPhase],20,'FaceColor','blue','BinEdges',deg2rad(5:10:355));
+                    obj.inputs.Handles.PhaseHistogramRandom=polarhistogram([obj.inputs.Handles.PhaseHistogramRandom.Data ThisPhase],20,'FaceColor','blue','BinEdges',deg2rad([0 5:10:355 360]));
                     obj.inputs.Handles.PhaseHistogramRandom.Annotation.LegendInformation.IconDisplayStyle = 'off';
+                end
+            elseif obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.phase}{1,1}==-pi/2 && obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.phase}{1,2}~=pi %Rising Flank
+                if ~(isfield(obj.inputs.Handles,'PhaseHistogramRising'))
+                    obj.inputs.Handles.PhaseHistogramRising=polarhistogram(ThisPhase,20,'FaceColor','y','BinEdges',deg2rad([0 5:10:355 360]),'DisplayName','Rising');
+                else
+                    obj.inputs.Handles.PhaseHistogramRising=polarhistogram([obj.inputs.Handles.PhaseHistogramRising.Data ThisPhase],20,'FaceColor','y','BinEdges',deg2rad([0 5:10:355 360]));
+                    obj.inputs.Handles.PhaseHistogramRising.Annotation.LegendInformation.IconDisplayStyle = 'off';
+                end
+            elseif obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.phase}{1,1}==pi/2 && obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.phase}{1,2}~=pi %Falling Flank
+                if ~(isfield(obj.inputs.Handles,'PhaseHistogramFalling'))
+                    obj.inputs.Handles.PhaseHistogramFalling=polarhistogram(ThisPhase,20,'FaceColor','m','BinEdges',deg2rad([0 5:10:355 360]),'DisplayName','Falling');
+                else
+                    obj.inputs.Handles.PhaseHistogramFalling=polarhistogram([obj.inputs.Handles.PhaseHistogramFalling.Data ThisPhase],20,'FaceColor','m','BinEdges',deg2rad([0 5:10:355 360]));
+                    obj.inputs.Handles.PhaseHistogramFalling.Annotation.LegendInformation.IconDisplayStyle = 'off';
                 end
             end
 %             if isfield(obj.inputs.Handles,'PhaseHistogramPeak'), legend(obj.inputs.Handles.PhaseHistogramPeak,'Peak','Location','southoutside','Orientation','horizontal'), end
@@ -2860,6 +2874,26 @@ classdef best_toolbox < handle
                 else
                     obj.inputs.Handles.TriggerLockedEEGRandom.UserData(1,1+numel(obj.inputs.Handles.TriggerLockedEEGRandom.UserData))=obj.inputs.trial;
                     obj.inputs.Handles.TriggerLockedEEGRandom.YData=mean(obj.inputs.rawData.(ThisChannelName).data(obj.inputs.Handles.TriggerLockedEEGRandom.UserData,:));
+                    drawnow;
+                end
+            elseif obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.phase}{1,1}==-pi/2 && obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.phase}{1,2}~=pi %Rising Flank
+                if(isfield(obj.inputs.Handles,'TriggerLockedEEGRising')==0)
+                    ThisEEG=obj.inputs.rawData.(ThisChannelName).data(obj.inputs.trial,:);
+                    obj.inputs.Handles.TriggerLockedEEGRising=plot(ThisEEGTime, ThisEEG,'color','y','LineWidth',2,'DisplayName','Rising');
+                    obj.inputs.Handles.TriggerLockedEEGRising.UserData(1,1)=obj.inputs.trial;
+                else
+                    obj.inputs.Handles.TriggerLockedEEGRising.UserData(1,1+numel(obj.inputs.Handles.TriggerLockedEEGRising.UserData))=obj.inputs.trial;
+                    obj.inputs.Handles.TriggerLockedEEGRising.YData=mean(obj.inputs.rawData.(ThisChannelName).data(obj.inputs.Handles.TriggerLockedEEGRising.UserData,:));
+                    drawnow;
+                end
+            elseif obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.phase}{1,1}==pi/2 && obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.phase}{1,2}~=pi %Falling Flank
+                if(isfield(obj.inputs.Handles,'TriggerLockedEEGFalling')==0)
+                    ThisEEG=obj.inputs.rawData.(ThisChannelName).data(obj.inputs.trial,:);
+                    obj.inputs.Handles.TriggerLockedEEGFalling=plot(ThisEEGTime, ThisEEG,'color','m','LineWidth',2,'DisplayName','Falling');
+                    obj.inputs.Handles.TriggerLockedEEGFalling.UserData(1,1)=obj.inputs.trial;
+                else
+                    obj.inputs.Handles.TriggerLockedEEGFalling.UserData(1,1+numel(obj.inputs.Handles.TriggerLockedEEGFalling.UserData))=obj.inputs.trial;
+                    obj.inputs.Handles.TriggerLockedEEGFalling.YData=mean(obj.inputs.rawData.(ThisChannelName).data(obj.inputs.Handles.TriggerLockedEEGFalling.UserData,:));
                     drawnow;
                 end
             end
