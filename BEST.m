@@ -981,7 +981,10 @@ classdef BEST < handle
             text(obj.pr.ax.(obj.pr.ax_no),0.1,1,'   zoomout','units','normalized','HorizontalAlignment','left','VerticalAlignment','bottom','ButtonDownFcn',@obj.pr_YLimZoomOut,'Tag',obj.pr.ax_no,'color',[0.55 0.55 0.55]);
         end
         function pr_YLimZoomIn(obj,source,~)
+
             selectedAxes=source.Tag;
+                                    if isfield(obj.pr.ax.(selectedAxes).UserData,'GridLines'), delete(obj.pr.ax.(selectedAxes).UserData.GridLines), end 
+
             current_ylimMax=obj.pr.ax.(selectedAxes).YLim(2);
             current_ylimMin=obj.pr.ax.(selectedAxes).YLim(1);
             obj.pr.ax.(selectedAxes).YLim(1)=current_ylimMin*0.50; %50 percent normalized decrement
@@ -990,11 +993,14 @@ classdef BEST < handle
             mat4=unique(sort([0 mat3]));
             yticks(obj.pr.ax.(selectedAxes),(mat4));
             ytickformat('%.2f');
-            GridLines=gridxy([0 (obj.bst.inputs.mep_onset):0.25:(obj.bst.inputs.mep_offset)],'Color',[219/255 246/255 255/255],'linewidth',4) ;
-            GridLines.Annotation.LegendInformation.IconDisplayStyle = 'off';
+            obj.pr.ax.(selectedAxes).UserData.GridLines=gridxy([0 (obj.bst.inputs.mep_onset):0.25:(obj.bst.inputs.mep_offset)],'Color',[219/255 246/255 255/255],'linewidth',4,'Parent',obj.pr.ax.(selectedAxes)) ;
+            obj.pr.ax.(selectedAxes).UserData.GridLines.Annotation.LegendInformation.IconDisplayStyle = 'off';
         end
         function pr_YLimZoomOut(obj,source,~)
+
             selectedAxes=source.Tag;
+                                                if isfield(obj.pr.ax.(selectedAxes).UserData,'GridLines'), delete(obj.pr.ax.(selectedAxes).UserData.GridLines), end 
+
             current_ylimMax=obj.pr.ax.(selectedAxes).YLim(2);
             current_ylimMin=obj.pr.ax.(selectedAxes).YLim(1);
             obj.pr.ax.(selectedAxes).YLim(1)=current_ylimMin*1.50; %15 percent normalized decrement
@@ -1003,16 +1009,19 @@ classdef BEST < handle
             mat4=unique(sort([0 mat3]));
             yticks(obj.pr.ax.(selectedAxes),(mat4));
             ytickformat('%.2f');
-            GridLines=gridxy([0 (obj.bst.inputs.mep_onset):0.25:(obj.bst.inputs.mep_offset)],'Color',[219/255 246/255 255/255],'linewidth',4) ;
-            GridLines.Annotation.LegendInformation.IconDisplayStyle = 'off';
+            obj.pr.ax.(selectedAxes).UserData.GridLines=gridxy([0 (obj.bst.inputs.mep_onset):0.25:(obj.bst.inputs.mep_offset)],'Color',[219/255 246/255 255/255],'linewidth',4,'Parent',obj.pr.ax.(selectedAxes)) ;
+            obj.pr.ax.(selectedAxes).UserData.GridLines.Annotation.LegendInformation.IconDisplayStyle = 'off';
         end
         function pr_AutoFit(obj,source,~)
+
             selectedAxes=source.Tag;
+                                                if isfield(obj.pr.ax.(selectedAxes).UserData,'GridLines'), delete(obj.pr.ax.(selectedAxes).UserData.GridLines), end 
+
             obj.pr.ax.(selectedAxes).YLim=[-Inf Inf];
             yticks('auto');
             obj.pr.ax.(selectedAxes).YLim=[min(yticks(obj.pr.ax.(selectedAxes))) max(yticks(obj.pr.ax.(selectedAxes)))];
-            GridLines=gridxy([0 (obj.bst.inputs.mep_onset):0.25:(obj.bst.inputs.mep_offset)],'Color',[219/255 246/255 255/255],'linewidth',4) ;
-            GridLines.Annotation.LegendInformation.IconDisplayStyle = 'off';
+            obj.pr.ax.(selectedAxes).UserData.GridLines=gridxy([0 (obj.bst.inputs.mep_onset):0.25:(obj.bst.inputs.mep_offset)],'Color',[219/255 246/255 255/255],'linewidth',4,'Parent',obj.pr.ax.(selectedAxes)) ;
+            obj.pr.ax.(selectedAxes).UserData.GridLines.Annotation.LegendInformation.IconDisplayStyle = 'off';
         end
         function pr_FontSize(obj,source,~)
             selectedAxes=source.Tag;
@@ -1040,14 +1049,16 @@ classdef BEST < handle
             uicontrol( 'Style','pushbutton','Parent', f,'String','Set','FontSize',11,'HorizontalAlignment','center','Units','normalized','Position',[0.1 0.05 0.8 0.4],'Callback',@setLimits);
             function setLimits(~,~)
                 try
+                                    if isfield(obj.pr.ax.(selectedAxes).UserData,'GridLines'), delete(obj.pr.ax.(selectedAxes).UserData.GridLines), end 
+
                     obj.pr.ax.(selectedAxes).YLim=[str2double(limmin.String) str2double(limmax.String)];
                     close(f);
                     mat3=linspace(obj.pr.ax.(selectedAxes).YLim(1),obj.pr.ax.(selectedAxes).YLim(2),10);
                     mat4=unique(sort([0 mat3]));
                     yticks(obj.pr.ax.(selectedAxes),(mat4));
                     ytickformat('%.2f');
-                    GridLines=gridxy([0 (obj.bst.inputs.mep_onset):0.25:(obj.bst.inputs.mep_offset)],'Color',[219/255 246/255 255/255],'linewidth',4) ;
-                    GridLines.Annotation.LegendInformation.IconDisplayStyle = 'off';
+                    obj.pr.ax.(selectedAxes).UserData.GridLines=gridxy([0 (obj.bst.inputs.mep_onset):0.25:(obj.bst.inputs.mep_offset)],'Color',[219/255 246/255 255/255],'linewidth',4,'Parent',obj.pr.ax.(selectedAxes)) ;
+                    obj.pr.ax.(selectedAxes).UserData.GridLines.Annotation.LegendInformation.IconDisplayStyle = 'off';
                 catch
                     close(f)
                 end
