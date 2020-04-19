@@ -1676,7 +1676,7 @@ classdef best_toolbox < handle
                 obj.inputs.poststim_scope_plt=obj.inputs.EMGDisplayPeriodPost;
                 obj.inputs.mep_onset=obj.inputs.MEPOnset;
                 obj.inputs.mep_offset=obj.inputs.MEPOffset;
-                obj.inputs.input_device=obj.app.pi.mep.InputDevice.String(obj.inputs.InputDevice); %TODO: the drc or mep on the 4th structure is not a good solution!
+%                 obj.inputs.input_device=obj.app.pi.mep.InputDevice.String(obj.inputs.InputDevice); %TODO: the drc or mep on the 4th structure is not a good solution!
                 obj.inputs.output_device=obj.inputs.condsAll.cond1.st1.stim_device;
                 obj.inputs.stim_mode='MSO';
                 obj.inputs.measure_str='MEP Measurement';
@@ -2041,7 +2041,6 @@ classdef best_toolbox < handle
                 toc
                 pause(1)
                 obj.prepTrial;
-                %             pause(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.iti}-toc)
                 wait_period=obj.inputs.trialMat{obj.inputs.trial-1,obj.inputs.colLabel.iti}-toc;
                 wait_idx=3*floor(wait_period);
                 for wait_id=1:wait_idx
@@ -2082,6 +2081,11 @@ classdef best_toolbox < handle
                 close(Figure)
             end
         end
+        function completed(obj)
+            questdlg('This Protocol has been completed','Completed','Okay','Okay');
+            obj.app.pmd.RunStopButton.String='Stop';
+            obj.app.RunStopButton
+        end
         
         
         
@@ -2097,6 +2101,7 @@ classdef best_toolbox < handle
             obj.prepSaving;
             obj.save;
             obj.saveFigures;
+            obj.completed;
         end
         function best_hotspot(obj)
             obj.save;
@@ -2110,6 +2115,7 @@ classdef best_toolbox < handle
             obj.prepSaving;
             obj.save;
             obj.saveFigures;
+            obj.completed;
         end
         function best_ioc(obj)
             obj.factorizeConditions
