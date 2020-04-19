@@ -7288,17 +7288,19 @@ classdef BEST < handle
             % Editing Rule: Values should be Integers, Strings should
             % Strings , cells are the defaults values that do not have any
             % uicontroller
+             obj.info.defaults=[];
             obj.info.defaults.BrainState=1;
             obj.info.defaults.TrialsPerCondition='10';
             obj.info.defaults.InputDevice=1;
             obj.info.defaults.ITI='4';
-            obj.info.defaults.MontageChannels='';
-            obj.info.defaults.MontageWeights='';
+            obj.info.defaults.MontageChannels=['{' ' ''C3'',' ' ''FC1'',' ' ''FC5'',' ' ''CP1'',' ' ''CP5''}'];
+            obj.info.defaults.MontageWeights='1 -0.25 -0.25 -0.25 -0.25';
             obj.info.defaults.FrequencyBand=1;
-            obj.info.defaults.Phase='';
-            obj.info.defaults.PhaseTolerance='';
-            obj.info.defaults.AmplitudeThreshold='[0 1e6]';
-            obj.info.defaults.AmplitudeUnits=1;
+            obj.info.defaults.PeakFrequency='11';
+            obj.info.defaults.Phase='0';
+            obj.info.defaults.PhaseTolerance='pi/40';
+            obj.info.defaults.AmplitudeThreshold='0 1e6';
+            obj.info.defaults.AmplitudeUnits=2;
             obj.info.defaults.EMGTargetChannels='';
             obj.info.defaults.EMGDisplayChannels='';
             obj.info.defaults.MEPOnset='15';
