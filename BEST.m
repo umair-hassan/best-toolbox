@@ -983,8 +983,7 @@ classdef BEST < handle
         function pr_YLimZoomIn(obj,source,~)
 
             selectedAxes=source.Tag;
-                                    if isfield(obj.pr.ax.(selectedAxes).UserData,'GridLines'), delete(obj.pr.ax.(selectedAxes).UserData.GridLines), end 
-
+            if isfield(obj.pr.ax.(selectedAxes).UserData,'GridLines'), delete(obj.pr.ax.(selectedAxes).UserData.GridLines), end
             current_ylimMax=obj.pr.ax.(selectedAxes).YLim(2);
             current_ylimMin=obj.pr.ax.(selectedAxes).YLim(1);
             obj.pr.ax.(selectedAxes).YLim(1)=current_ylimMin*0.50; %50 percent normalized decrement
@@ -999,8 +998,7 @@ classdef BEST < handle
         function pr_YLimZoomOut(obj,source,~)
 
             selectedAxes=source.Tag;
-                                                if isfield(obj.pr.ax.(selectedAxes).UserData,'GridLines'), delete(obj.pr.ax.(selectedAxes).UserData.GridLines), end 
-
+            if isfield(obj.pr.ax.(selectedAxes).UserData,'GridLines'), delete(obj.pr.ax.(selectedAxes).UserData.GridLines), end
             current_ylimMax=obj.pr.ax.(selectedAxes).YLim(2);
             current_ylimMin=obj.pr.ax.(selectedAxes).YLim(1);
             obj.pr.ax.(selectedAxes).YLim(1)=current_ylimMin*1.50; %15 percent normalized decrement
@@ -1013,10 +1011,8 @@ classdef BEST < handle
             obj.pr.ax.(selectedAxes).UserData.GridLines.Annotation.LegendInformation.IconDisplayStyle = 'off';
         end
         function pr_AutoFit(obj,source,~)
-
             selectedAxes=source.Tag;
-                                                if isfield(obj.pr.ax.(selectedAxes).UserData,'GridLines'), delete(obj.pr.ax.(selectedAxes).UserData.GridLines), end 
-
+            if isfield(obj.pr.ax.(selectedAxes).UserData,'GridLines'), delete(obj.pr.ax.(selectedAxes).UserData.GridLines), end
             obj.pr.ax.(selectedAxes).YLim=[-Inf Inf];
             yticks('auto');
             obj.pr.ax.(selectedAxes).YLim=[min(yticks(obj.pr.ax.(selectedAxes))) max(yticks(obj.pr.ax.(selectedAxes)))];
@@ -1049,8 +1045,7 @@ classdef BEST < handle
             uicontrol( 'Style','pushbutton','Parent', f,'String','Set','FontSize',11,'HorizontalAlignment','center','Units','normalized','Position',[0.1 0.05 0.8 0.4],'Callback',@setLimits);
             function setLimits(~,~)
                 try
-                                    if isfield(obj.pr.ax.(selectedAxes).UserData,'GridLines'), delete(obj.pr.ax.(selectedAxes).UserData.GridLines), end 
-
+                    if isfield(obj.pr.ax.(selectedAxes).UserData,'GridLines'), delete(obj.pr.ax.(selectedAxes).UserData.GridLines), end
                     obj.pr.ax.(selectedAxes).YLim=[str2double(limmin.String) str2double(limmax.String)];
                     close(f);
                     mat3=linspace(obj.pr.ax.(selectedAxes).YLim(1),obj.pr.ax.(selectedAxes).YLim(2),10);
