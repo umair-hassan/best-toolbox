@@ -235,6 +235,8 @@ classdef BEST < handle
                          end
                      case 'MEP Measurement Protocol'
                          obj.bst.best_mep;
+                     case 'MEP Dose Response Curve Protocol'
+                         obj.bst.best_drc;
                  end
              end
          end
@@ -7305,6 +7307,7 @@ classdef BEST < handle
             obj.info.defaults.EMGDisplayYLimMin={-3000};
             obj.info.defaults.Protocol={'MEP Dose Response Curve Protocol'};
             obj.info.defaults.Handles.UserData='Reserved for Future Use';
+            obj.info.defaults.Enable={'on'};
             si=[30 40 50 60 70 80];
             for idefaults=1:6
                 cond=['cond' num2str(idefaults)];
