@@ -2331,22 +2331,30 @@ classdef best_toolbox < handle
                     cd=['cd' num2str(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,1}{1,1})];
                     if ~(isfield(obj.inputs.Handles,cd))
                         DisplayName=['TS:' num2str(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,1}{1,1})];
-                        Color=[rand rand rand]+obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,1}{1,1};
-                        Color=Color/sum(Color);
+                        Color=[rand rand rand];
+                        Color=[rand (sum(Color)+(rem(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,1}{1,1},100)/100))/4 rand];
                     end
                 case 2 %CS
                     cd=['cd' num2str(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,1}{1,2})];
                     if ~(isfield(obj.inputs.Handles,cd))
                         DisplayName=['CS:' num2str(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,1}{1,2})];
-                        Color=[rand rand rand]+obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,1}{1,1};
-                        Color=Color/sum(Color);
+                        Color=[rand rand rand];
+                        Color=[rand (sum(Color)+(rem(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,1}{1,2},100)/100))/4 rand];
                     end
                 case 3 %ISI
                     cd=['cd' num2str(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,1}{1,3})];
-                    DisplayName=['ISI:' num2str(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,1}{1,3})];
+                    if ~(isfield(obj.inputs.Handles,cd))
+                        DisplayName=['ISI:' num2str(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,1}{1,3})];
+                        Color=[rand rand rand];
+                        Color=[rand (sum(Color)+(rem(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,1}{1,3},100)/100))/4 rand];
+                    end
                 case 4 %ITI
                     cd=['cd' num2str(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si})];
-                    DisplayName=['ITI:' num2str(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.iti})];
+                    if ~(isfield(obj.inputs.Handles,cd))
+                        DisplayName=['ITI:' num2str(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.iti})];
+                        Color=[rand rand rand];
+                        Color=[rand (sum(Color)+(rem(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.iti},100)/100))/4 rand];
+                    end
             end
             %% Plot respectively prepared condition
             ThisChannelName=obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx};
