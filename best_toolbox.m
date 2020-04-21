@@ -772,17 +772,17 @@ classdef best_toolbox < handle
                                     obj.inputs.ChannelsTypeUnique=ChannelType;
                                 case 2 % fieldtrip real time buffer
                             end
-                            %% Creating Phase Conditions
-                            for iPhases=1:numel(obj.inputs.Phase)
-                                switch obj.inputs.Phase{iPhases}
-                                    case 'pi' %+Ve Peak
-                                        PhaseConditionVector{1}={0,obj.inputs.PhaseTolerance};
-                                    case '-pi' %-Ve Trough
-                                        PhaseConditionVector{2}={pi,obj.inputs.PhaseTolerance};
-                                    case 'rand' %Random Phase
-                                        PhaseConditionVector{3}={0,pi};
-                                end
-                            end
+%                             %% Creating Phase Conditions
+%                             for iPhases=1:numel(obj.inputs.Phase)
+%                                 switch obj.inputs.Phase{iPhases}
+%                                     case 'pi' %+Ve Peak
+%                                         PhaseConditionVector{1}={0,obj.inputs.PhaseTolerance};
+%                                     case '-pi' %-Ve Trough
+%                                         PhaseConditionVector{2}={pi,obj.inputs.PhaseTolerance};
+%                                     case 'rand' %Random Phase
+%                                         PhaseConditionVector{3}={0,pi};
+%                                 end
+%                             end
                             %% Creating Stimulation Conditions
                             for c=1:numel(fieldnames(obj.inputs.condsAll))
                                 obj.inputs.condMat{c,obj.inputs.colLabel.trials}=obj.inputs.TrialsPerCondition;
