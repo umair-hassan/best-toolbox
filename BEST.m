@@ -6005,7 +6005,7 @@ classdef BEST < handle
                 cb_BrainStateParametersPanel
                 cb_DisplayParametersPanel
                 cb_SetHeights
-                obj.func_load_mep_par;
+                obj.func_load_mepdrc_par;
             end
             function cb_BrainStateParametersPanel(~,~)
                 switch obj.pi.drc.BrainState.Value
@@ -6071,13 +6071,13 @@ classdef BEST < handle
                         
                         mep_panel_13 = uix.HBox( 'Parent', expModvBox, 'Spacing', 5, 'Padding', 5  );
                         uicontrol( 'Style','text','Parent', mep_panel_13,'String','Amplitude Threshold:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-                        obj.pi.mep.AmplitudeThreshold=uicontrol( 'Style','edit','Parent', mep_panel_13 ,'FontSize',11,'Tag','AmplitudeThreshold','Callback',@cb_par_saving);
-                        obj.pi.mep.AmplitudeUnits=uicontrol( 'Style','popupmenu','Parent', mep_panel_13 ,'FontSize',11,'String',{'Percentile','Absolute (micro Volts)'},'Tag','AmplitudeUnits','Callback',@cb_par_saving);
+                        obj.pi.drc.AmplitudeThreshold=uicontrol( 'Style','edit','Parent', mep_panel_13 ,'FontSize',11,'Tag','AmplitudeThreshold','Callback',@cb_par_saving);
+                        obj.pi.drc.AmplitudeUnits=uicontrol( 'Style','popupmenu','Parent', mep_panel_13 ,'FontSize',11,'String',{'Percentile','Absolute (micro Volts)'},'Tag','AmplitudeUnits','Callback',@cb_par_saving);
                         set( mep_panel_13, 'Widths', [150 -3 -1]);
                         
                         mep_panel_row2z = uix.HBox( 'Parent', expModvBox, 'Spacing', 5, 'Padding', 5  );
                         uicontrol( 'Style','text','Parent', mep_panel_row2z,'String','Amp Assignment Period(s):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-                        uicontrol( 'Style','edit','Parent', mep_panel_row2z ,'FontSize',11,'Tag','AmplitudeAssignmentPeriod','Callback',@cb_par_saving);
+                        obj.pi.drc.AmplitudeAssignmentPeriod=uicontrol( 'Style','edit','Parent', mep_panel_row2z ,'FontSize',11,'Tag','AmplitudeAssignmentPeriod','Callback',@cb_par_saving);
                         set( mep_panel_row2z, 'Widths', [150 -2]);
                         
                         expModr2c=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
@@ -7292,6 +7292,7 @@ classdef BEST < handle
             obj.info.defaults.PhaseTolerance='pi/40';
             obj.info.defaults.AmplitudeThreshold='0 1e6';
             obj.info.defaults.AmplitudeUnits=2;
+            obj.info.defaults.AmplitudeAssignmentPeriod='4';
             obj.info.defaults.EMGTargetChannels='';
             obj.info.defaults.EMGDisplayChannels='';
             obj.info.defaults.MEPOnset='15';
