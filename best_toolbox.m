@@ -421,8 +421,7 @@ classdef best_toolbox < handle
                             %% Creating DisplayChannels Measures, AxesNo, Channel Labels Buffers
                             DisplayChannelsMeasures=cell(1,numel(obj.inputs.EMGDisplayChannels));
                             DisplayChannelsMeasures(:)=cellstr('MEP_Measurement');
-                            
-                            
+
                             ChannelLabels={'OsscillationPhase','OsscillationEEG',obj.inputs.EMGDisplayChannels{1,:},'OsscillationAmplitude','AmplitudeDistribution'};
                             ChannelMeasures={'PhaseHistogram','TriggerLockedEEG',DisplayChannelsMeasures{1,:},'RunningAmplitude','AmplitudeDistribution'};
                             
@@ -757,8 +756,8 @@ classdef best_toolbox < handle
                                 obj.inputs.colLabel.cdMrk=16;
                             end
                             %% Creating Channel Measures, AxesNo, Labels
-                            ChannelLabels=[{'OsscillationPhase'},{'OsscillationEEG'},repelem(obj.inputs.EMGTargetChannels,3),obj.inputs.EMGDisplayChannels,{'OsscillationAmplitude'}]; %[repelem(obj.inputs.EMGTargetChannels,3),obj.inputs.EMGDisplayChannels]; %this can go directly inside the cond object in the loop
-                            ChannelMeasures=[{'PhaseHistogram'},{'TriggerLockedEEG'},repmat({'MEP_Measurement','MEP Scatter Plot','MEP IOC Fit'},1,numel(obj.inputs.EMGTargetChannels)),repmat({'MEP_Measurement'},1,numel(obj.inputs.EMGDisplayChannels)),{'RunningAmplitude'}]; %dirctly inside the loop
+                            ChannelLabels=[{'OsscillationPhase'},{'OsscillationEEG'},repelem(obj.inputs.EMGTargetChannels,3),obj.inputs.EMGDisplayChannels,{'OsscillationAmplitude'},{'AmplitudeDistribution'}]; %[repelem(obj.inputs.EMGTargetChannels,3),obj.inputs.EMGDisplayChannels]; %this can go directly inside the cond object in the loop
+                            ChannelMeasures=[{'PhaseHistogram'},{'TriggerLockedEEG'},repmat({'MEP_Measurement','MEP Scatter Plot','MEP IOC Fit'},1,numel(obj.inputs.EMGTargetChannels)),repmat({'MEP_Measurement'},1,numel(obj.inputs.EMGDisplayChannels)),{'RunningAmplitude'},{'AmplitudeDistribution'}]; %dirctly inside the loop
                             ChannelAxesNo=num2cell(1:numel(ChannelLabels));
                             obj.app.pr.ax_measures=ChannelMeasures;
                             obj.app.pr.axesno=numel(ChannelAxesNo);
@@ -766,8 +765,8 @@ classdef best_toolbox < handle
                             %% Creating Channel Type, Channel Index
                             switch obj.app.par.hardware_settings.(char(obj.inputs.input_device)).slct_device
                                 case 1 %boss box
-                                    ChannelType=[{'IP'},{'IEEG'},repmat({'EMG'},1,3*numel(obj.inputs.EMGTargetChannels)),repmat({'EMG'},1,numel(obj.inputs.EMGDisplayChannels)),{'IA'}];
-                                    ChannelID=[{1},{1},num2cell(1:numel(ChannelLabels)-3),{1}]; %TODO: make this more systematic and extract from channel labels of neurone or acs protocol
+                                    ChannelType=[{'IP'},{'IEEG'},repmat({'EMG'},1,3*numel(obj.inputs.EMGTargetChannels)),repmat({'EMG'},1,numel(obj.inputs.EMGDisplayChannels)),{'IA'},{'IADistribution'}];
+                                    ChannelID=[{1},{1},num2cell(1:numel(ChannelLabels)-3),{1},{1}]; %TODO: make this more systematic and extract from channel labels of neurone or acs protocol
                                     obj.inputs.ChannelsTypeUnique=ChannelType;
                                 case 2 % fieldtrip real time buffer
                             end
