@@ -756,7 +756,6 @@ classdef best_toolbox < handle
                                 obj.inputs.colLabel.IAPercentile=15;
                                 obj.inputs.colLabel.cdMrk=16;
                             end
-                            
                             %% Creating Channel Measures, AxesNo, Labels
                             ChannelLabels=[{'OsscillationPhase'},{'OsscillationEEG'},repelem(obj.inputs.EMGTargetChannels,3),obj.inputs.EMGDisplayChannels,{'OsscillationAmplitude'}]; %[repelem(obj.inputs.EMGTargetChannels,3),obj.inputs.EMGDisplayChannels]; %this can go directly inside the cond object in the loop
                             ChannelMeasures=[{'PhaseHistogram'},{'TriggerLockedEEG'},repmat({'MEP_Measurement','MEP Scatter Plot','MEP IOC Fit'},1,numel(obj.inputs.EMGTargetChannels)),repmat({'MEP_Measurement'},1,numel(obj.inputs.EMGDisplayChannels)),{'RunningAmplitude'}]; %dirctly inside the loop
@@ -772,17 +771,6 @@ classdef best_toolbox < handle
                                     obj.inputs.ChannelsTypeUnique=ChannelType;
                                 case 2 % fieldtrip real time buffer
                             end
-%                             %% Creating Phase Conditions
-%                             for iPhases=1:numel(obj.inputs.Phase)
-%                                 switch obj.inputs.Phase{iPhases}
-%                                     case 'pi' %+Ve Peak
-%                                         PhaseConditionVector{1}={0,obj.inputs.PhaseTolerance};
-%                                     case '-pi' %-Ve Trough
-%                                         PhaseConditionVector{2}={pi,obj.inputs.PhaseTolerance};
-%                                     case 'rand' %Random Phase
-%                                         PhaseConditionVector{3}={0,pi};
-%                                 end
-%                             end
                             %% Creating Stimulation Conditions
                             for c=1:numel(fieldnames(obj.inputs.condsAll))
                                 obj.inputs.condMat{c,obj.inputs.colLabel.trials}=obj.inputs.TrialsPerCondition;
