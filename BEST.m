@@ -7288,6 +7288,7 @@ classdef BEST < handle
             obj.info.defaults.MontageWeights='1 -0.25 -0.25 -0.25 -0.25';
             obj.info.defaults.FrequencyBand=1;
             obj.info.defaults.PeakFrequency='11';
+            obj.info.defaults.BandPassFilterOrder='80';
             obj.info.defaults.Phase='0';
             obj.info.defaults.PhaseTolerance='pi/40';
             obj.info.defaults.AmplitudeThreshold='0 1e6';
