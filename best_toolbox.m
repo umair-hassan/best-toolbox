@@ -2318,35 +2318,31 @@ classdef best_toolbox < handle
                     cd=['cd' num2str(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,1}{1,1})];
                     if ~(isfield(obj.inputs.Handles,cd))
                         DisplayName=['TS:' num2str(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,1}{1,1})];
-                        Color=[rand rand rand];
-                        Color=[rand (sum(Color)+(rem(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,1}{1,1},100)/100))/4 rand];
+                        obj.app.pr.ax.(ax).UserData.ColorsIndex=obj.app.pr.ax.(ax).UserData.ColorsIndex+1;
                     end
                 case 2 %CS
                     cd=['cd' num2str(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,1}{1,2})];
                     if ~(isfield(obj.inputs.Handles,cd))
                         DisplayName=['CS:' num2str(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,1}{1,2})];
-                        Color=[rand rand rand];
-                        Color=[rand (sum(Color)+(rem(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,1}{1,2},100)/100))/4 rand];
+                        obj.app.pr.ax.(ax).UserData.ColorsIndex=obj.app.pr.ax.(ax).UserData.ColorsIndex+1;
                     end
                 case 3 %ISI
                     cd=['cd' num2str(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,1}{1,3})];
                     if ~(isfield(obj.inputs.Handles,cd))
                         DisplayName=['ISI:' num2str(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,1}{1,3})];
-                        Color=[rand rand rand];
-                        Color=[rand (sum(Color)+(rem(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,1}{1,3},100)/100))/4 rand];
+                        obj.app.pr.ax.(ax).UserData.ColorsIndex=obj.app.pr.ax.(ax).UserData.ColorsIndex+1;
                     end
                 case 4 %ITI
                     cd=['cd' num2str(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si})];
                     if ~(isfield(obj.inputs.Handles,cd))
                         DisplayName=['ITI:' num2str(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.iti})];
-                        Color=[rand rand rand];
-                        Color=[rand (sum(Color)+(rem(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.iti},100)/100))/4 rand];
+                        obj.app.pr.ax.(ax).UserData.ColorsIndex=obj.app.pr.ax.(ax).UserData.ColorsIndex+1;
                     end
             end
             %% Plot respectively prepared condition
             ThisChannelName=obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx};
             if ~(isfield(obj.inputs.Handles,cd))
-                    obj.inputs.Handles.(cd)=plot(obj.inputs.timeVect,obj.inputs.rawData.(ThisChannelName).data(obj.inputs.trial,:),'Color',Color,'LineWidth',2,'DisplayName',DisplayName);
+                    obj.inputs.Handles.(cd)=plot(obj.inputs.timeVect,obj.inputs.rawData.(ThisChannelName).data(obj.inputs.trial,:),'Color',obj.app.pr.ax.(ax).UserData.Colors(obj.app.pr.ax.(ax).UserData.ColorsIndex,:),'LineWidth',2,'DisplayName',DisplayName);
                     obj.inputs.Handles.(cd).UserData(1,1)=obj.inputs.trial;
                     legend('Location','southoutside','Orientation','horizontal'); hold on;
                 else
