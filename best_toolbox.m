@@ -613,7 +613,8 @@ classdef best_toolbox < handle
                             obj.inputs.colLabel.tpm=10;
                             obj.inputs.colLabel.chType=11;
                             obj.inputs.colLabel.chId=12;
-                            obj.inputs.colLabel.cdMrk=13;
+                            obj.inputs.colLabel.stimcdMrk=13;
+                            obj.inputs.colLabel.cdMrk=14;
                             %% Creating Channel Measures, AxesNo, Labels
                             ChannelLabels=[repelem(obj.inputs.EMGTargetChannels,3),obj.inputs.EMGDisplayChannels]; %this can go directly inside the cond object in the loop
                             ChannelMeasures=[repmat({'MEP_Measurement','MEP Scatter Plot','MEP IOC Fit'},1,numel(obj.inputs.EMGTargetChannels)),repmat({'MEP_Measurement'},1,numel(obj.inputs.EMGDisplayChannels))]; %dirctly inside the loop
@@ -639,6 +640,7 @@ classdef best_toolbox < handle
                                 obj.inputs.condMat{c,obj.inputs.colLabel.axesno}=ChannelAxesNo;
                                 obj.inputs.condMat{c,obj.inputs.colLabel.chType}=ChannelType;
                                 obj.inputs.condMat{c,obj.inputs.colLabel.chId}=ChannelID;
+                                obj.inputs.condMat{c,obj.inputs.colLabel.stimcdMrk}=c;
                                 conds=fieldnames(obj.inputs.condsAll);
                                 for stno=1:(max(size(fieldnames(obj.inputs.condsAll.(conds{c,1}))))-1)
                                     st=['st' num2str(stno)];
@@ -748,12 +750,12 @@ classdef best_toolbox < handle
                             obj.inputs.colLabel.tpm=10;
                             obj.inputs.colLabel.chType=11;
                             obj.inputs.colLabel.chId=12;
-                            obj.inputs.colLabel.phase=13;
-                            obj.inputs.colLabel.IA=14;
-                            obj.inputs.colLabel.cdMrk=15;
+                            obj.inputs.colLabel.phase=15;
+                            obj.inputs.colLabel.IA=16;
+                            obj.inputs.colLabel.stimcdMrk=13;
+                            obj.inputs.colLabel.cdMrk=14;
                             if obj.inputs.AmplitudeUnits==1
-                                obj.inputs.colLabel.IAPercentile=15;
-                                obj.inputs.colLabel.cdMrk=16;
+                                obj.inputs.colLabel.IAPercentile=17;
                             end
                             %% Creating Channel Measures, AxesNo, Labels
                             ChannelLabels=[{'OsscillationPhase'},{'OsscillationEEG'},repelem(obj.inputs.EMGTargetChannels,3),obj.inputs.EMGDisplayChannels,{'OsscillationAmplitude'},{'AmplitudeDistribution'}]; %[repelem(obj.inputs.EMGTargetChannels,3),obj.inputs.EMGDisplayChannels]; %this can go directly inside the cond object in the loop
@@ -780,6 +782,7 @@ classdef best_toolbox < handle
                                 obj.inputs.condMat{c,obj.inputs.colLabel.axesno}=ChannelAxesNo;
                                 obj.inputs.condMat{c,obj.inputs.colLabel.chType}=ChannelType;
                                 obj.inputs.condMat{c,obj.inputs.colLabel.chId}=ChannelID;
+                                obj.inputs.condMat{c,obj.inputs.colLabel.stimcdMrk}=c; 
                                 conds=fieldnames(obj.inputs.condsAll);
                                 for stno=1:(max(size(fieldnames(obj.inputs.condsAll.(conds{c,1}))))-1)
                                     st=['st' num2str(stno)];
@@ -2312,35 +2315,49 @@ classdef best_toolbox < handle
         function mep_plot_conditionwise(obj)
             ax=['ax' num2str(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.axesno}{1,obj.inputs.chLab_idx})];
             axes(obj.app.pr.ax.(ax)), hold on,
+            ThisChannelName=obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx};
             %% Preparing Condition wrt to Dose Function
             switch obj.inputs.DoseFunction
-                case 1 %TS 
-                    cd=['cd' num2str(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,1}{1,1})];
-                    if ~(isfield(obj.inputs.Handles,cd))
-                        DisplayName=['TS:' num2str(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,1}{1,1})];
-                        obj.app.pr.ax.(ax).UserData.ColorsIndex=obj.app.pr.ax.(ax).UserData.ColorsIndex+1;
-                    end
-                case 2 %CS
-                    cd=['cd' num2str(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,1}{1,2})];
-                    if ~(isfield(obj.inputs.Handles,cd))
-                        DisplayName=['CS:' num2str(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,1}{1,2})];
-                        obj.app.pr.ax.(ax).UserData.ColorsIndex=obj.app.pr.ax.(ax).UserData.ColorsIndex+1;
-                    end
-                case 3 %ISI
-                    cd=['cd' num2str(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,1}{1,3})];
-                    if ~(isfield(obj.inputs.Handles,cd))
-                        DisplayName=['ISI:' num2str(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,1}{1,3})];
-                        obj.app.pr.ax.(ax).UserData.ColorsIndex=obj.app.pr.ax.(ax).UserData.ColorsIndex+1;
-                    end
-                case 4 %ITI
-                    cd=['cd' num2str(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si})];
-                    if ~(isfield(obj.inputs.Handles,cd))
-                        DisplayName=['ITI:' num2str(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.iti})];
-                        obj.app.pr.ax.(ax).UserData.ColorsIndex=obj.app.pr.ax.(ax).UserData.ColorsIndex+1;
-                    end
+                case {1,2,3}
+                    cd=['cd' num2str(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.stimcdMrk})];
+                case 4
+                    cd=['cd' num2str(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.iti})];
+                otherwise
+                    error('BEST Toolbox: MEP Plot Function does not any have Dose Function to decide about plot condition.')
             end
-            %% Plot respectively prepared condition
-            ThisChannelName=obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx};
+            if ~(isfield(obj.inputs.Handles,cd))
+                switch obj.inputs.DoseFunction
+                    case 1 %TS
+                            DisplayName=['TS:' num2str(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,1}{1,1})];
+                            obj.app.pr.ax.(ax).UserData.ColorsIndex=obj.app.pr.ax.(ax).UserData.ColorsIndex+1;
+                    case 2 %CS
+                        if obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,1}{1,2}~=0
+                            DisplayName=['CS:' num2str(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,1}{1,2})];
+                        else
+                            DisplayName=['TS:' num2str(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,1}{1,1})];
+                        end
+                            obj.app.pr.ax.(ax).UserData.ColorsIndex=obj.app.pr.ax.(ax).UserData.ColorsIndex+1;
+                    case 3 %ISI
+                        if obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,1}{1,3}~=0
+                            DisplayName=['ISI:' num2str(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,1}{1,3})];
+                        else
+                            DisplayName=['TS:' num2str(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,1}{1,1})];
+                        end
+                            obj.app.pr.ax.(ax).UserData.ColorsIndex=obj.app.pr.ax.(ax).UserData.ColorsIndex+1;
+                    case 4 %ITI
+                            DisplayName=['ITI:' num2str(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.iti})];
+                            obj.app.pr.ax.(ax).UserData.ColorsIndex=obj.app.pr.ax.(ax).UserData.ColorsIndex+1;
+                end
+            end
+            %% Plot Latest Trial
+            if ~(isfield(obj.inputs.Handles,'LatestMEP'))
+                obj.inputs.Handles.LatestMEP=plot(obj.inputs.timeVect,obj.inputs.rawData.(ThisChannelName).data(obj.inputs.trial,:),'LineStyle','-.','Color','k','LineWidth',1.5,'DisplayName','Latest');
+                legend('Location','southoutside','Orientation','horizontal'); hold on;
+            else
+                obj.inputs.Handles.LatestMEP.YData=obj.inputs.rawData.(ThisChannelName).data(obj.inputs.trial,:);
+                drawnow;
+            end
+            %% Plot Mean respectively prepared condition
             if ~(isfield(obj.inputs.Handles,cd))
                     obj.inputs.Handles.(cd)=plot(obj.inputs.timeVect,obj.inputs.rawData.(ThisChannelName).data(obj.inputs.trial,:),'Color',obj.app.pr.ax.(ax).UserData.Colors(obj.app.pr.ax.(ax).UserData.ColorsIndex,:),'LineWidth',2,'DisplayName',DisplayName);
                     obj.inputs.Handles.(cd).UserData(1,1)=obj.inputs.trial;
@@ -2350,7 +2367,9 @@ classdef best_toolbox < handle
                     obj.inputs.Handles.(cd).YData=mean(obj.inputs.rawData.(ThisChannelName).data(obj.inputs.Handles.(cd).UserData,:));
                     drawnow;
             end
+            %% Trigger MEPP2P Amplitude Calculation
             obj.mep_amp;
+            uistack(obj.inputs.Handles.LatestMEP,'top')
         end
         function mep_amp(obj)
             maxx=max(obj.inputs.rawData.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).data(obj.inputs.trial,obj.inputs.mep_onset_samples:obj.inputs.mep_offset_samples));
