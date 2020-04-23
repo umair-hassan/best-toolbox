@@ -2451,7 +2451,7 @@ classdef best_toolbox < handle
                 obj.mep_stats;
                 ax=['ax' num2str(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.axesno}{1,obj.inputs.chLab_idx})];
                 axes(obj.app.pr.ax.(ax)), hold on,
-                %             plot(rand(1,500));
+                try
                 [SIData, MEPData] = prepareCurveData(obj.inputs.rawData.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).mep_stats(:,1) ,obj.inputs.rawData.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).mep_stats(:,2));
                 ft = fittype( 'MEPmax*SI^n/(SI^n+SI50^n)', 'independent', 'SI', 'dependent', 'MEP' );
                 %             ft = best_fittype( 'MEPmax*SI^n/(SI^n+SI50^n)', 'independent', 'SI', 'dependent', 'MEP' );
@@ -2472,14 +2472,9 @@ classdef best_toolbox < handle
                 plot( obj.info.ioc.fitresult, SIData, MEPData);
                 
                 obj.info.handle.ioc_curve= get(gca,'Children');
-                x1lim=xlim
-                y1lim=ylim
-                
-                
-                
+                x1lim=xlim;
+                y1lim=ylim;
                 bg = gca; legend(bg,'off');
-                
-                
                 format short g
                 %% Inflection point (ip) detection on fitted curve
                 %             index_ip=find(abs(obj.curve(1).XData-obj.fitresult.SI50)<10^-1, 1, 'first');
@@ -2514,15 +2509,39 @@ classdef best_toolbox < handle
                 
                 [value_th , index_th] = min(abs(obj.info.handle.ioc_curve(1).YData-50 ) );   % change the 50 to be adaptive to what threshold in mV or microV is given
                 obj.info.th=obj.info.handle.ioc_curve(1).XData(index_th);
-                
-                
-                
-                
-                %% Creating plot
-                %         figure(4)
                 hold on;
                 h = plot( obj.info.ioc.fitresult, obj.inputs.SI, obj.inputs.MEP);
                 set(h(1), 'MarkerFaceColor',[0 0 0],'MarkerEdgeColor',[0 0 0],'Marker','square','LineStyle','none');
+                catch
+                    SIData=obj.inputs.rawData.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).mep_stats(:,1);
+                    MEPData=obj.inputs.rawData.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).mep_stats(:,2);
+                    m(1,1)=0;
+                    for i=1:numel(MEPData)-1
+                        m(i)=(MEPData(i+1)-MEPData(i))/(SIData(i+1)-SIData(i)); %m is standard variable used for slope
+                    end
+                    SIfit = min(SIData):.01:max(SIData);
+                    MEPfit = pchip(SIData,MEPData,SIfit);
+                    %% Estimating Inflection Points
+                    [~ ,sortedidx]= sort(m(:),'descend');
+                    obj.info.ip_x=mean(SIData(sortedidx(1):sortedidx(1)+1));
+                    ip_y=mean(MEPData(sortedidx(1):sortedidx(1)+1));
+                    %% Estimating Plateu Points
+                    [~ ,index_pt] = min(abs(MEPfit-(0.993*(max(MEPfit)) ) ) );   %99.3 % of MEP max
+                    obj.info.pt_x=SIfit(index_pt);
+                    pt_y=MEPfit(index_pt);
+                    %% Estimating Threshold Points
+                    [~ ,index_th] = min(abs(MEPfit-50));
+                    obj.info.th=SIfit(index_th);
+                    hold on;
+                    h = plot(SIfit, MEPfit);
+                    set(h(1), 'MarkerFaceColor',[0 0 0],'MarkerEdgeColor',[0 0 0],'Marker','square','LineStyle','none');
+                    
+                end
+                %% Creating plot
+                %         figure(4)
+% % %                 hold on;
+% % %                 h = plot( obj.info.ioc.fitresult, obj.inputs.SI, obj.inputs.MEP);
+% % %                 set(h(1), 'MarkerFaceColor',[0 0 0],'MarkerEdgeColor',[0 0 0],'Marker','square','LineStyle','none');
                 
                 % Plotting SEM on Curve points
                 errorbar(obj.inputs.SI, obj.inputs.MEP ,obj.inputs.SEM, 'o');
