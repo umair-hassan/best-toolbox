@@ -1118,14 +1118,7 @@ classdef BEST < handle
         function pr_scat_plot(obj)
             obj.pr.ax_no=['ax' num2str(obj.pr.axesno)];
             obj.pr.clab.(obj.pr.ax_no)=uix.Panel( 'Parent', obj.pr.grid, 'Padding', 5 ,'Units','normalized','Title', 'MEP Scatter Plot','FontWeight','bold','FontSize',12,'TitlePosition','centertop' );
-            mep1_vb=uix.VBox( 'Parent',  obj.pr.clab.(obj.pr.ax_no), 'Spacing', 5, 'Padding', 1  );
-            
-            mep1_r1 = uix.HBox( 'Parent', mep1_vb, 'Spacing', 5, 'Padding', 1  );
-            uiextras.HBox( 'Parent', mep1_r1)
-            
-            mep1_r2 = uix.HBox( 'Parent', mep1_vb, 'Spacing', 5, 'Padding', 1  );
-            obj.pr.ax.(obj.pr.ax_no)=axes( 'Parent',  mep1_r2,'Units','normalized');
-            set(mep1_vb,'Heights',[30 -10])
+            obj.pr.ax.(obj.pr.ax_no)=axes( uicontainer( 'Parent',  obj.pr.clab.(obj.pr.ax_no)),'Units','normalized');
         end
         function pr_fit_plot(obj)
             obj.pr.ax_no=['ax' num2str(obj.pr.axesno)];
