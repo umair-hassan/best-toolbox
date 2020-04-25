@@ -2399,8 +2399,6 @@ classdef best_toolbox < handle
             ax=['ax' num2str(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.axesno}{1,obj.inputs.chLab_idx})];
             axes(obj.app.pr.ax.(ax)), hold on,
             ylim auto
-                        si(iSI,1)=obj.inputs.trialMat{iSI,obj.inputs.colLabel.si}{1,1}{1,1}
-                    low=min(si)-10;
             if obj.inputs.ResponseFunctionNumerator ==1 && obj.inputs.ResponseFunctionDenominator ==1
                 %% Preparing xvalue on the basis of Dose Function
                 switch obj.inputs.DoseFunction
