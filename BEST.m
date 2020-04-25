@@ -907,6 +907,36 @@ classdef BEST < handle
                 case 6
                     obj.pr.grid.ColumnSizes=[-1 -1 -1];
                     obj.pr.grid.RowSizes=[-1 -1];
+                case 7
+                    obj.pr.grid.ColumnSizes=[-1 -1 -1 -1];
+                    obj.pr.grid.RowSizes=[-1 -1];
+                case 8
+                    obj.pr.grid.ColumnSizes=[-1 -1 -1 -1];
+                    obj.pr.grid.RowSizes=[-1 -1];
+                case 9
+                    obj.pr.grid.ColumnSizes=[-1 -1 -1 -1];
+                    obj.pr.grid.RowSizes=[-1 -1 -1];
+                case 10
+                    obj.pr.grid.ColumnSizes=[-1 -1 -1 -1];
+                    obj.pr.grid.RowSizes=[-1 -1 -1];
+                case 11
+                    obj.pr.grid.ColumnSizes=[-1 -1 -1 -1];
+                    obj.pr.grid.RowSizes=[-1 -1 -1];
+                case 12
+                    obj.pr.grid.ColumnSizes=[-1 -1 -1 -1];
+                    obj.pr.grid.RowSizes=[-1 -1 -1];
+                case 13
+                    obj.pr.grid.ColumnSizes=[-1 -1 -1 -1];
+                    obj.pr.grid.RowSizes=[-1 -1 -1 -1];
+                case 14
+                    obj.pr.grid.ColumnSizes=[-1 -1 -1 -1];
+                    obj.pr.grid.RowSizes=[-1 -1 -1 -1];
+                case 15
+                    obj.pr.grid.ColumnSizes=[-1 -1 -1 -1];
+                    obj.pr.grid.RowSizes=[-1 -1-1 -1];
+                case 16
+                    obj.pr.grid.ColumnSizes=[-1 -1 -1 -1];
+                    obj.pr.grid.RowSizes=[-1 -1 -1 -1];
             end
         end
         function pr_analytics(obj)
