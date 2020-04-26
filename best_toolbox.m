@@ -600,6 +600,7 @@ classdef best_toolbox < handle
                             obj.inputs.ylimMax=+3000;
                             obj.inputs.TrialNoForMean=1;
                             obj.inputs.mt_starting_stim_inten=obj.inputs.condsAll.cond1.st1.si_pckt{1,1};
+                            obj.inputs.TSOnlyMean=NaN;
                             %% Creating Column Labels
                             obj.inputs.colLabel.inputDevices=1;
                             obj.inputs.colLabel.outputDevices=2;
@@ -737,6 +738,7 @@ classdef best_toolbox < handle
                             obj.inputs.ylimMax=+3000;
                             obj.inputs.TrialNoForMean=1;
                             obj.inputs.mt_starting_stim_inten=obj.inputs.condsAll.cond1.st1.si_pckt{1,1};
+                            obj.inputs.TSOnlyMean=NaN;
                             %% Creating Column Labels
                             obj.inputs.colLabel.inputDevices=1;
                             obj.inputs.colLabel.outputDevices=2;
@@ -786,6 +788,10 @@ classdef best_toolbox < handle
                                 conds=fieldnames(obj.inputs.condsAll);
                                 for stno=1:(max(size(fieldnames(obj.inputs.condsAll.(conds{c,1}))))-1)
                                     st=['st' num2str(stno)];
+                                    if(obj.inputs.condsAll.(conds{c,1}).(st).stim_mode=='single_pulse')
+                                        obj.inputs.condsAll.(conds{c,1}).(st).si_pckt{1,2}=0;
+                                        obj.inputs.condsAll.(conds{c,1}).(st).si_pckt{1,3}=0;
+                                    end
                                     condSi{1,stno}=obj.inputs.condsAll.(conds{c,1}).(st).si_pckt;
                                     condstimMode{1,stno}= obj.inputs.condsAll.(conds{c,1}).(st).stim_mode;
                                     obj.inputs.condsAll.(conds{c,1}).(st).stim_device
@@ -1748,7 +1754,7 @@ classdef best_toolbox < handle
                                     obj.inputs.(InputsFieldNames{iInputs})=str2num(obj.inputs.(InputsFieldNames{iInputs}));
                                 end
                             end
-                        elseif strcmp(InputsFieldNames{iInputs},'MontageWeights')
+                        elseif strcmp(InputsFieldNames{iInputs},'MontageWeights') || strcmp(InputsFieldNames{iInputs},'ResponseFunctionNumerator') || strcmp(InputsFieldNames{iInputs},'ResponseFunctionDenominator')
                             obj.inputs.(InputsFieldNames{iInputs})=str2num(obj.inputs.(InputsFieldNames{iInputs}));
                         else
                             obj.inputs.(InputsFieldNames{iInputs})=str2double(obj.inputs.(InputsFieldNames{iInputs}));
@@ -2362,10 +2368,18 @@ classdef best_toolbox < handle
                     obj.inputs.Handles.(cd)=plot(obj.inputs.timeVect,obj.inputs.rawData.(ThisChannelName).data(obj.inputs.trial,:),'Color',obj.app.pr.ax.(ax).UserData.Colors(obj.app.pr.ax.(ax).UserData.ColorsIndex,:),'LineWidth',2,'DisplayName',DisplayName);
                     obj.inputs.Handles.(cd).UserData(1,1)=obj.inputs.trial;
                     legend('Location','southoutside','Orientation','horizontal'); hold on;
+                    
                 else
                     obj.inputs.Handles.(cd).UserData(1,1+numel(obj.inputs.Handles.(cd).UserData))=obj.inputs.trial;
                     obj.inputs.Handles.(cd).YData=mean(obj.inputs.rawData.(ThisChannelName).data(obj.inputs.Handles.(cd).UserData,:));
                     drawnow;
+            end
+            %% Plotting Zero and Search Window GirdLine on 1st Trial only
+            if obj.inputs.trial==1
+                ZeroLine=gridxy([0 (obj.inputs.mep_onset):0.25:(obj.inputs.mep_offset)],'Color',[219/255 246/255 255/255],'linewidth',4,'Parent',obj.app.pr.ax.(ax)) ;
+                ZeroLine.Annotation.LegendInformation.IconDisplayStyle = 'off';
+                xlabel('Time (ms)');
+                ylabel('EMG Potential (\mu V)');
             end
             %% Trigger MEPP2P Amplitude Calculation
             obj.mep_amp;
@@ -2375,23 +2389,42 @@ classdef best_toolbox < handle
             maxx=max(obj.inputs.rawData.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).data(obj.inputs.trial,obj.inputs.mep_onset_samples:obj.inputs.mep_offset_samples));
             minn=min(obj.inputs.rawData.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).data(obj.inputs.trial,obj.inputs.mep_onset_samples:obj.inputs.mep_offset_samples));
             obj.inputs.results.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).MEPAmplitude(obj.inputs.trial,1)=(maxx-minn);
-            % just adding as test delete afterwards
-            obj.inputs.results.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).MEPAmplitude(obj.inputs.trial,1)=obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.stimcdMrk};
+            % the purpose of below line is a mere simulation
+%             obj.inputs.results.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).MEPAmplitude(obj.inputs.trial,1)=obj.inputs.trial+obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.stimcdMrk};
             %% Calculating Ratios NEW METHOD
             if obj.inputs.ResponseFunctionNumerator~=obj.inputs.ResponseFunctionDenominator
-                TSOnly=any(ismember(obj.inputs.ResponseFunctionDenominator,obj.inputs.trialMat{:,obj.inputs.colLabel.stimcdMrk}))
-                %changigns below in this function are not valid, 
-                TestOnlyConditions=find(obj.inputs.trialMat{:,obj.inputs.colLabel.stimcdMrk}==obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab});
-                TestOnlyConditionsToTruncate = find(TestOnlyConditions>obj.inputs.trial);
-                TestOnlyConditions(TestOnlyConditionsToTruncate)=[];
-                TSOnlyUpdatedMean=mean(obj.inputs.results.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).MEPAmplitude(TestOnlyConditions,1));
-                %find out to which indices this test only means applies
+                obj.inputs.results.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).MEPAmplitudeRatios(obj.inputs.trial,1)=obj.inputs.results.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).MEPAmplitude(obj.inputs.trial,1);
+                obj.inputs.results.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).MEPAmplitudeRatios(obj.inputs.trial,2)=obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,1}{1,1};
+                obj.inputs.results.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).MEPAmplitudeRatios(obj.inputs.trial,3)=obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,1}{1,2};
+                obj.inputs.results.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).MEPAmplitudeRatios(obj.inputs.trial,4)=obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,1}{1,3};
+                obj.inputs.results.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).MEPAmplitudeRatios(obj.inputs.trial,5)=obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.iti};
                 if numel(obj.inputs.ResponseFunctionDenominator)==1
-                    TSCSConditions=find(obj.inputs.trialMat{:,obj.inputs.colLabel.stimcdMrk}~=obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab});
-                    TSCSConditionsToTruncate = find(TestOnlyConditions>obj.inputs.trial);
-                    TSCSConditions(TSCSConditionsToTruncate)=[];
-                    obj.inputs.results.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).MEPAmplitudeRatios(TSCSConditions,1)=obj.inputs.results.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).MEPAmplitude(TSCSConditions,1)/TSOnlyUpdatedMean;
+                    if any(ismember(obj.inputs.ResponseFunctionDenominator,obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.stimcdMrk}))
+                        obj.inputs.results.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).MEPAmplitudeRatios(obj.inputs.trial,1:5)=0;
+                        TSOnlyConditions=find(vertcat(obj.inputs.trialMat{1:obj.inputs.trial,obj.inputs.colLabel.stimcdMrk})==obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.stimcdMrk});
+                        obj.inputs.TSOnlyMean=mean(obj.inputs.results.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).MEPAmplitude(TSOnlyConditions,1));
+                        obj.inputs.TSOnlyMean=obj.inputs.trial;
+                    end
+                    obj.inputs.results.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).MEPAmplitudeRatiosNew=100*((obj.inputs.results.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).MEPAmplitudeRatios)/obj.inputs.TSOnlyMean);
                 elseif numel(obj.inputs.ResponseFunctionDenominator)>1
+                    if any(ismember(obj.inputs.ResponseFunctionDenominator,obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.stimcdMrk}))
+                        obj.inputs.results.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).MEPAmplitudeRatios(obj.inputs.trial,1:5)=0;
+                        obj.inputs.results.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).MEPAmplitudeRatiosNew(obj.inputs.trial,1)=0;
+                        numeratoridx=find(ismember(obj.inputs.ResponseFunctionDenominator,obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.stimcdMrk})==1);
+                        meancd=['TSOnlyMean' num2str(obj.inputs.ResponseFunctionNumerator(numeratoridx))];
+                        TSOnlyConditions=find(vertcat(obj.inputs.trialMat{1:obj.inputs.trial,obj.inputs.colLabel.stimcdMrk})==obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.stimcdMrk});
+                        obj.inputs.(meancd)=mean(obj.inputs.results.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).MEPAmplitude(TSOnlyConditions,1));
+                        cdtoupdate=meancd;
+                        TSCSConditions=find(vertcat(obj.inputs.trialMat{1:obj.inputs.trial,obj.inputs.colLabel.stimcdMrk})==obj.inputs.ResponseFunctionNumerator(numeratoridx));
+                    else
+                        cdtoupdate=['TSOnlyMean' num2str(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.stimcdMrk})];
+                        TSCSConditions=obj.inputs.trial;
+                    end
+                    try
+                        obj.inputs.results.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).MEPAmplitudeRatiosNew(TSCSConditions,1)=100*((obj.inputs.results.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).MEPAmplitudeRatios(TSCSConditions,1))/obj.inputs.(cdtoupdate));
+                    catch
+                        obj.inputs.results.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).MEPAmplitudeRatiosNew(obj.inputs.trial,1)=NaN;
+                    end
                 end
             end
         end
@@ -2399,7 +2432,7 @@ classdef best_toolbox < handle
             ax=['ax' num2str(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.axesno}{1,obj.inputs.chLab_idx})];
             axes(obj.app.pr.ax.(ax)), hold on,
             ylim auto
-            if obj.inputs.ResponseFunctionNumerator ==1 && obj.inputs.ResponseFunctionDenominator ==1
+            if numel(obj.inputs.ResponseFunctionNumerator) ==1 && numel(obj.inputs.ResponseFunctionDenominator) ==1 && any(obj.inputs.ResponseFunctionNumerator==obj.inputs.ResponseFunctionDenominator)
                 %% Preparing xvalue on the basis of Dose Function
                 switch obj.inputs.DoseFunction
                     case 1 % TS
@@ -2471,18 +2504,13 @@ classdef best_toolbox < handle
                 %% Preparing xvalue on the basis of Dose Function
                 switch obj.inputs.DoseFunction
                     case 1 % TS
-                        xvalue=obj.inputs.trialMat{1:obj.inputs.trial,obj.inputs.colLabel.si}{1,1}{1,1};
-                        stimcdMrkvalue=obj.inputs.trialMat{1:obj.inputs.trial,obj.inputs.colLabel.stimcdMrk};
-                        for iDenominators=1:numel(obj.inputs.ResponseFunctionDenominator)
-                            indextodelete=find(stimcdMrkvalue==obj.inputs.ResponseFunctionDenominator(iDenominators));
-                            xvalue(indextodelete)=0;
-                        end
-                        xvalue=nonzeros(xvalue);
+                        xvalue=nonzeros(obj.inputs.results.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).MEPAmplitudeRatios(:,2));
                         if obj.inputs.trial==1
                             xlabelstring='TS Intensity';
-                            ylabelstring='MEP Response Function';
-                            xlimvalue=obj.inputs.trialMat{:,obj.inputs.colLabel.si}{1,1}{1,1};
-                            stimcdMrkvalue=obj.inputs.trialMat{:,obj.inputs.colLabel.stimcdMrk};
+                            ylabelstring='MEP Amp. ( % Control )';
+                            xlimvalue=vertcat(obj.inputs.trialMat{:,obj.inputs.colLabel.si});
+                            xlimvalue=vertcat(xlimvalue{:}); xlimvalue=cell2mat(xlimvalue); xlimvalue=xlimvalue(:,1);
+                            stimcdMrkvalue=vertcat(obj.inputs.trialMat{:,obj.inputs.colLabel.stimcdMrk});
                             for iDenominators=1:numel(obj.inputs.ResponseFunctionDenominator)
                                 indextodelete=find(stimcdMrkvalue==obj.inputs.ResponseFunctionDenominator(iDenominators));
                                 xlimvalue(indextodelete)=0;
@@ -2560,17 +2588,15 @@ classdef best_toolbox < handle
                         end
                 end
                 %% Preparing yvalue
-                yvalue=obj.inputs.results.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).MEPAmplitudeRatios(1:obj.inputs.trial,1);
+                yvalue=nonzeros(obj.inputs.results.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).MEPAmplitudeRatiosNew(:,1));
                 %% Plotting
-                switch obj.inputs.trial
-                    case 1
-                        obj.info.plt.(ax).ioc_scatplot=plot(xvalue,yvalue,'o','Color','r','MarkerSize',8,'MarkerFaceColor','r');
-                        hold on;
-                        xlabel(xlabelstring); ylabel(ylabelstring); xlim(xlimvector); xticks(xtickvector);
-                    otherwise
-                        set(obj.info.plt.(ax).ioc_scatplot,'Color',[0.45 0.45 0.45],'MarkerSize',8,'MarkerFaceColor',[0.45 0.45 0.45])
+                if obj.inputs.trial==1
+                    obj.info.plt.(ax).ioc_scatplot=plot(xvalue,yvalue,'o','Color',[0.45 0.45 0.45],'MarkerSize',8,'MarkerFaceColor',[0.45 0.45 0.45]);
+                    xlabel(xlabelstring); ylabel(ylabelstring); xlim(xlimvector); xticks(xtickvector);
+                else
+                    obj.info.plt.(ax).ioc_scatplot.XData=xvalue; obj.info.plt.(ax).ioc_scatplot.YData=yvalue;
                 end
-                obj.info.plt.(ax).ioc_scatplot=plot(xvalue,yvalue,'o','MarkerSize',8,'Color','r','MarkerFaceColor','r'); hold on; uistack(obj.info.plt.(ax).ioc_scatplot,'top')
+
             end
             
         end %end mep_scat_plot
