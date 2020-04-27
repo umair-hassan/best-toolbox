@@ -8995,7 +8995,6 @@ classdef BEST < handle
                 TableCond=['cond' num2str(iTableCondition)];
                 ColCondition=1;
                 ColTS=2;
-%                 ColThresholdLevel=3;
                 ColIntensityUnits=3;
                 ColStimulator=4;
                 ColPulseMode=5;
@@ -9006,7 +9005,6 @@ classdef BEST < handle
                 ColISI=10;
                 ColTrainFreq=11;
                 ColNoOfTrains=12;
-                ColMotorThreshold=13;
                 
                 for iTableStimulator=1:numel(fieldnames(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond)))-1 %numel(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond))-1
                     iData=iData+1;
@@ -9025,10 +9023,8 @@ classdef BEST < handle
                         %check here what has been saved and use that
                         if(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).si_units==1)
                             TableData{iData,ColIntensityUnits}='mA';
-                            TableData{iData,ColMotorThreshold}='          -';
                         else
                             TableData{iData,ColIntensityUnits}='mA';
-                            TableData{iData,ColMotorThreshold}=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).threshold;
                         end
                     end
                     
@@ -9095,8 +9091,7 @@ classdef BEST < handle
                     case ColTS %TS Intensity
                         obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).si_pckt{1,1}=str2double(CellEditData.NewData);
                         obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).si=CellEditData.NewData;
-                    case ColThresholdLevel
-                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).threshold_level=str2double(CellEditData.NewData);
+
                     case ColIntensityUnits %Intensity Units
                         switch CellEditData.NewData
                             case '%MSO'
@@ -9175,14 +9170,7 @@ classdef BEST < handle
                             end
                             
                         end
-                    case ColMotorThreshold
-                        if ~(strcmp(table.Data{CellEditData.Indices(1),3},'%MT'))
-                            table.Data(CellEditData.Indices(1),CellEditData.Indices(2))=cellstr('          -');
-                            errordlg('The selected Stimulation Intensity Units are %MSO, change it to %MT from its dropdown menu if you desire to update this value to a specific threshold','Warning | BEST Toolbox',opts);
-                        else
-                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).threshold=CellEditData.NewData;
-                            
-                        end
+
                 end
                 %Improvement Note :Requirement 96
                 %                 obj.pr_psychmth;
