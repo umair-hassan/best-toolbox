@@ -2390,7 +2390,7 @@ classdef best_toolbox < handle
             minn=min(obj.inputs.rawData.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).data(obj.inputs.trial,obj.inputs.mep_onset_samples:obj.inputs.mep_offset_samples));
             obj.inputs.results.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).MEPAmplitude(obj.inputs.trial,1)=(maxx-minn);
             % the purpose of below line is a mere simulation
-%             obj.inputs.results.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).MEPAmplitude(obj.inputs.trial,1)=obj.inputs.trial+obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.stimcdMrk};
+%             obj.inputs.results.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).MEPAmplitude(obj.inputs.trial,1)=obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.stimcdMrk};
             %% Calculating Ratios NEW METHOD
             if obj.inputs.ResponseFunctionNumerator~=obj.inputs.ResponseFunctionDenominator
                 obj.inputs.results.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).MEPAmplitudeRatios(obj.inputs.trial,1)=obj.inputs.results.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).MEPAmplitude(obj.inputs.trial,1);
@@ -2403,9 +2403,9 @@ classdef best_toolbox < handle
                         obj.inputs.results.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).MEPAmplitudeRatios(obj.inputs.trial,1:5)=0;
                         TSOnlyConditions=find(vertcat(obj.inputs.trialMat{1:obj.inputs.trial,obj.inputs.colLabel.stimcdMrk})==obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.stimcdMrk});
                         obj.inputs.TSOnlyMean=mean(obj.inputs.results.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).MEPAmplitude(TSOnlyConditions,1));
-                        obj.inputs.TSOnlyMean=obj.inputs.trial;
+%                         obj.inputs.TSOnlyMean=obj.inputs.trial;
                     end
-                    obj.inputs.results.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).MEPAmplitudeRatiosNew=100*((obj.inputs.results.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).MEPAmplitudeRatios)/obj.inputs.TSOnlyMean);
+                    obj.inputs.results.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).MEPAmplitudeRatiosNew=100*((obj.inputs.results.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).MEPAmplitudeRatios(:,1))/obj.inputs.TSOnlyMean);
                 elseif numel(obj.inputs.ResponseFunctionDenominator)>1
                     if any(ismember(obj.inputs.ResponseFunctionDenominator,obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.stimcdMrk}))
                         obj.inputs.results.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).MEPAmplitudeRatios(obj.inputs.trial,1:5)=0;
@@ -2521,18 +2521,13 @@ classdef best_toolbox < handle
                             xtickvector=unique(sort([xlimvalue']));
                         end
                     case 2 % CS
-                        xvalue=obj.inputs.trialMat{1:obj.inputs.trial,obj.inputs.colLabel.si}{1,1}{1,2};
-                        stimcdMrkvalue=obj.inputs.trialMat{1:obj.inputs.trial,obj.inputs.colLabel.stimcdMrk};
-                        for iDenominators=1:numel(obj.inputs.ResponseFunctionDenominator)
-                            indextodelete=find(stimcdMrkvalue==obj.inputs.ResponseFunctionDenominator(iDenominators));
-                            xvalue(indextodelete)=0;
-                        end
-                        xvalue=nonzeros(xvalue);
+                        xvalue=nonzeros(obj.inputs.results.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).MEPAmplitudeRatios(:,3));
                         if obj.inputs.trial==1
                             xlabelstring='CS Intensity';
-                            ylabelstring='MEP Response Function';
-                            xlimvalue=obj.inputs.trialMat{:,obj.inputs.colLabel.si}{1,1}{1,2};
-                            stimcdMrkvalue=obj.inputs.trialMat{:,obj.inputs.colLabel.stimcdMrk};
+                            ylabelstring='MEP Amp. ( % Control )';
+                            xlimvalue=vertcat(obj.inputs.trialMat{:,obj.inputs.colLabel.si});
+                            xlimvalue=vertcat(xlimvalue{:}); xlimvalue=cell2mat(xlimvalue); xlimvalue=xlimvalue(:,2);
+                            stimcdMrkvalue=vertcat(obj.inputs.trialMat{:,obj.inputs.colLabel.stimcdMrk});
                             for iDenominators=1:numel(obj.inputs.ResponseFunctionDenominator)
                                 indextodelete=find(stimcdMrkvalue==obj.inputs.ResponseFunctionDenominator(iDenominators));
                                 xlimvalue(indextodelete)=0;
@@ -2543,18 +2538,13 @@ classdef best_toolbox < handle
                             xtickvector=unique(sort([xlimvalue']));
                         end
                     case 3 % ISI
-                        xvalue=obj.inputs.trialMat{1:obj.inputs.trial,obj.inputs.colLabel.si}{1,1}{1,3};
-                        stimcdMrkvalue=obj.inputs.trialMat{1:obj.inputs.trial,obj.inputs.colLabel.stimcdMrk};
-                        for iDenominators=1:numel(obj.inputs.ResponseFunctionDenominator)
-                            indextodelete=find(stimcdMrkvalue==obj.inputs.ResponseFunctionDenominator(iDenominators));
-                            xvalue(indextodelete)=0;
-                        end
-                        xvalue=nonzeros(xvalue);
+                        xvalue=nonzeros(obj.inputs.results.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).MEPAmplitudeRatios(:,4));
                         if obj.inputs.trial==1
-                            xlabelstring='ISI';
-                            ylabelstring='MEP Response Function';
-                            xlimvalue=obj.inputs.trialMat{:,obj.inputs.colLabel.si}{1,1}{1,3};
-                            stimcdMrkvalue=obj.inputs.trialMat{:,obj.inputs.colLabel.stimcdMrk};
+                            xlabelstring='ISI (ms)';
+                            ylabelstring='MEP Amp. ( % Control )';
+                            xlimvalue=vertcat(obj.inputs.trialMat{:,obj.inputs.colLabel.si});
+                            xlimvalue=vertcat(xlimvalue{:}); xlimvalue=cell2mat(xlimvalue); xlimvalue=xlimvalue(:,3);
+                            stimcdMrkvalue=vertcat(obj.inputs.trialMat{:,obj.inputs.colLabel.stimcdMrk});
                             for iDenominators=1:numel(obj.inputs.ResponseFunctionDenominator)
                                 indextodelete=find(stimcdMrkvalue==obj.inputs.ResponseFunctionDenominator(iDenominators));
                                 xlimvalue(indextodelete)=0;
@@ -2565,18 +2555,12 @@ classdef best_toolbox < handle
                             xtickvector=unique(sort([xlimvalue']));
                         end
                     case 4 % ITI
-                        xvalue=obj.inputs.trialMat{1:obj.inputs.trial,obj.inputs.colLabel.iti};
-                        stimcdMrkvalue=obj.inputs.trialMat{1:obj.inputs.trial,obj.inputs.colLabel.stimcdMrk};
-                        for iDenominators=1:numel(obj.inputs.ResponseFunctionDenominator)
-                            indextodelete=find(stimcdMrkvalue==obj.inputs.ResponseFunctionDenominator(iDenominators));
-                            xvalue(indextodelete)=0;
-                        end
-                        xvalue=nonzeros(xvalue);
+                        xvalue=nonzeros(obj.inputs.results.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).MEPAmplitudeRatios(:,5));
                         if obj.inputs.trial==1
-                            xlabelstring='ITI';
-                            ylabelstring='MEP Response Function';
-                            xlimvalue=obj.inputs.trialMat{:,obj.inputs.colLabel.iti};
-                            stimcdMrkvalue=obj.inputs.trialMat{:,obj.inputs.colLabel.stimcdMrk};
+                            xlabelstring='ITI (ms)';
+                            ylabelstring='MEP Amp. ( % Control )';
+                            xlimvalue=vertcat(obj.inputs.trialMat{:,obj.inputs.colLabel.iti});
+                            stimcdMrkvalue=vertcat(obj.inputs.trialMat{:,obj.inputs.colLabel.stimcdMrk});
                             for iDenominators=1:numel(obj.inputs.ResponseFunctionDenominator)
                                 indextodelete=find(stimcdMrkvalue==obj.inputs.ResponseFunctionDenominator(iDenominators));
                                 xlimvalue(indextodelete)=0;
@@ -2637,173 +2621,133 @@ classdef best_toolbox < handle
             
         end
         function ioc_fit_plot(obj)
-            
             if(obj.inputs.trial==obj.inputs.totalTrials)
-                obj.mep_stats;
-                ax=['ax' num2str(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.axesno}{1,obj.inputs.chLab_idx})];
-                axes(obj.app.pr.ax.(ax)), hold on,
-                try
-                [SIData, MEPData] = prepareCurveData(obj.inputs.rawData.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).mep_stats(:,1) ,obj.inputs.rawData.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).mep_stats(:,2));
-                ft = fittype( 'MEPmax*SI^n/(SI^n+SI50^n)', 'independent', 'SI', 'dependent', 'MEP' );
-                %             ft = best_fittype( 'MEPmax*SI^n/(SI^n+SI50^n)', 'independent', 'SI', 'dependent', 'MEP' );
-                
-                %% Optimization of fit paramters;
-                
-                opts = fitoptions( ft );
-                opts.Display = 'Off';
-                opts.Lower = [0 0 0 ];
-                opts.StartPoint = [10 10 10];
-                opts.Upper = [Inf Inf Inf];
-                
-                %% Fit sigmoid model to data
-%                 MEPData=[1; 2; 3; 4; 5; 6]
-                [obj.info.ioc.fitresult,obj.info.ioc.gof] = fit( SIData, MEPData, ft, opts);
-                %% Extract fitted curve points
-                
-                plot( obj.info.ioc.fitresult, SIData, MEPData);
-                
-                obj.info.handle.ioc_curve= get(gca,'Children');
-                x1lim=xlim;
-                y1lim=ylim;
-                bg = gca; legend(bg,'off');
-                format short g
-                %% Inflection point (ip) detection on fitted curve
-                %             index_ip=find(abs(obj.curve(1).XData-obj.fitresult.SI50)<10^-1, 1, 'first');
-                %              obj.ip_x=obj.curve(1).XData(index_ip);
-                %             ip_y = obj.curve(1).YData(index_ip)
-                
-                [value_ip , index_ip] = min(abs(obj.info.handle.ioc_curve(1).XData-obj.info.ioc.fitresult.SI50));
-                obj.info.ip_x = obj.info.handle.ioc_curve(1).XData(index_ip);
-                ip_y = obj.info.handle.ioc_curve(1).YData(index_ip);
-                
-                %% Plateau (pt) detection on fitted curve
-                %             index_pt=find(abs(obj.curve(1).YData-obj.fitresult.MEPmax)<10^1, 1, 'first');
-                %             obj.pt_x=obj.curve(1).XData(index_pt);
-                %             pt_y=obj.curve(1).YData(index_pt);
-                %
-                [value_pt , index_pt] = min(abs(obj.info.handle.ioc_curve(1).YData-(0.993*(obj.info.ioc.fitresult.MEPmax) ) ) );   %99.3 % of MEP max %TODO: Test it with longer plateu
-                obj.info.pt_x=obj.info.handle.ioc_curve(1).XData(index_pt);
-                pt_y=obj.info.handle.ioc_curve(1).YData(index_pt);
-                
-                %% Threshold (th) detection on fitted curve
-                %             if(strcmp(obj.inputs.stim_mode,'MSO'))
-                %
-                %                     index_ip1=index_ip+2;
-                %                 ip1_x=obj.info.handle.ioc_curve(1).XData(index_ip1);
-                %                 ip1_y=obj.info.handle.ioc_curve(1).YData(index_ip1);
-                %                 % Calculating slope (m) using two-points equation
-                %                 m1=(ip1_y-ip_y)/(ip1_x-obj.info.ip_x)
-                %                 m=m1
-                %                 % Calculating threshold (th) using point-slope equation
-                %                 obj.info.th=obj.info.ip_x-(ip_y/m);
-                %             end
-                
-                [value_th , index_th] = min(abs(obj.info.handle.ioc_curve(1).YData-50 ) );   % change the 50 to be adaptive to what threshold in mV or microV is given
-                obj.info.th=obj.info.handle.ioc_curve(1).XData(index_th);
-                hold on;
-                h = plot( obj.info.ioc.fitresult, obj.inputs.SI, obj.inputs.MEP);
-                set(h(1), 'MarkerFaceColor',[0 0 0],'MarkerEdgeColor',[0 0 0],'Marker','square','LineStyle','none');
-                catch
-                    SIData=obj.inputs.rawData.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).mep_stats(:,1);
-                    MEPData=obj.inputs.rawData.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).mep_stats(:,2);
-                    m(1,1)=0;
-                    for i=1:numel(MEPData)-1
-                        m(i)=(MEPData(i+1)-MEPData(i))/(SIData(i+1)-SIData(i)); %m is standard variable used for slope
+                if obj.inputs.DoseFunction==1 && numel(obj.inputs.ResponseFunctionNumerator) ==1 && numel(obj.inputs.ResponseFunctionDenominator) ==1 && any(obj.inputs.ResponseFunctionNumerator==obj.inputs.ResponseFunctionDenominator)
+                    %% Simplest Response Function Case
+                    obj.mep_stats;
+                    ax=['ax' num2str(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.axesno}{1,obj.inputs.chLab_idx})];
+                    axes(obj.app.pr.ax.(ax)), hold on,
+                    try
+                        [SIData, MEPData] = prepareCurveData(obj.inputs.rawData.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).mep_stats(:,1) ,obj.inputs.rawData.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).mep_stats(:,2));
+                        ft = fittype( 'MEPmax*SI^n/(SI^n+SI50^n)', 'independent', 'SI', 'dependent', 'MEP' );
+                        %             ft = best_fittype( 'MEPmax*SI^n/(SI^n+SI50^n)', 'independent', 'SI', 'dependent', 'MEP' );
+                        
+                        %% Optimization of fit paramters;
+                        
+                        opts = fitoptions( ft );
+                        opts.Display = 'Off';
+                        opts.Lower = [0 0 0 ];
+                        opts.StartPoint = [10 10 10];
+                        opts.Upper = [Inf Inf Inf];
+                        
+                        %% Fit sigmoid model to data
+                        %                 MEPData=[1; 2; 3; 4; 5; 6]
+                        [obj.info.ioc.fitresult,obj.info.ioc.gof] = fit( SIData, MEPData, ft, opts);
+                        %% Extract fitted curve points
+                        
+                        plot( obj.info.ioc.fitresult, SIData, MEPData);
+                        
+                        obj.info.handle.ioc_curve= get(gca,'Children');
+                        x1lim=xlim;
+                        y1lim=ylim;
+                        bg = gca; legend(bg,'off');
+                        format short g
+                        %% Inflection point (ip) detection on fitted curve
+                        %             index_ip=find(abs(obj.curve(1).XData-obj.fitresult.SI50)<10^-1, 1, 'first');
+                        %              obj.ip_x=obj.curve(1).XData(index_ip);
+                        %             ip_y = obj.curve(1).YData(index_ip)
+                        
+                        [value_ip , index_ip] = min(abs(obj.info.handle.ioc_curve(1).XData-obj.info.ioc.fitresult.SI50));
+                        obj.info.ip_x = obj.info.handle.ioc_curve(1).XData(index_ip);
+                        ip_y = obj.info.handle.ioc_curve(1).YData(index_ip);
+                        
+                        %% Plateau (pt) detection on fitted curve
+                        %             index_pt=find(abs(obj.curve(1).YData-obj.fitresult.MEPmax)<10^1, 1, 'first');
+                        %             obj.pt_x=obj.curve(1).XData(index_pt);
+                        %             pt_y=obj.curve(1).YData(index_pt);
+                        %
+                        [value_pt , index_pt] = min(abs(obj.info.handle.ioc_curve(1).YData-(0.993*(obj.info.ioc.fitresult.MEPmax) ) ) );   %99.3 % of MEP max %TODO: Test it with longer plateu
+                        obj.info.pt_x=obj.info.handle.ioc_curve(1).XData(index_pt);
+                        pt_y=obj.info.handle.ioc_curve(1).YData(index_pt);
+                        
+                        %% Threshold (th) detection on fitted curve
+                        %             if(strcmp(obj.inputs.stim_mode,'MSO'))
+                        %
+                        %                     index_ip1=index_ip+2;
+                        %                 ip1_x=obj.info.handle.ioc_curve(1).XData(index_ip1);
+                        %                 ip1_y=obj.info.handle.ioc_curve(1).YData(index_ip1);
+                        %                 % Calculating slope (m) using two-points equation
+                        %                 m1=(ip1_y-ip_y)/(ip1_x-obj.info.ip_x)
+                        %                 m=m1
+                        %                 % Calculating threshold (th) using point-slope equation
+                        %                 obj.info.th=obj.info.ip_x-(ip_y/m);
+                        %             end
+                        
+                        [~ , index_th] = min(abs(obj.info.handle.ioc_curve(1).YData-50 ) ); 
+                        obj.info.th=obj.info.handle.ioc_curve(1).XData(index_th);
+                        hold on;
+                        h = plot( obj.info.ioc.fitresult, obj.inputs.SI, obj.inputs.MEP);
+                        set(h(1), 'MarkerFaceColor',[0 0 0],'MarkerEdgeColor',[0 0 0],'Marker','square','LineStyle','none');
+                        % Plotting SEM on Curve points
+                        errorbar(obj.inputs.SI, obj.inputs.MEP ,obj.inputs.SEM, 'o');
+                        set(h(2),'LineWidth',2);
+                        xlim([min(obj.inputs.SI)-5 max(obj.inputs.SI)+5]);
+                    catch
+                        SIData=obj.inputs.rawData.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).mep_stats(:,1);
+                        MEPData=obj.inputs.rawData.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).mep_stats(:,2);
+                        SEMData=obj.inputs.rawData.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).mep_stats(:,8);
+                        m(1,1)=0;
+                        for i=1:numel(MEPData)-1
+                            m(i)=(MEPData(i+1)-MEPData(i))/(SIData(i+1)-SIData(i)); %m is standard variable used for slope
+                        end
+                        SIfit = min(SIData):.01:max(SIData);
+                        MEPfit = pchip(SIData,MEPData,SIfit);
+                        %% Estimating Inflection Points
+                        [~ ,sortedidx]= sort(m(:),'descend');
+                        obj.info.ip_x=mean(SIData(sortedidx(1):sortedidx(1)+1));
+                        ip_y=mean(MEPData(sortedidx(1):sortedidx(1)+1));
+                        %% Estimating Plateu Points
+                        [~ ,index_pt] = min(abs(MEPfit-(0.993*(max(MEPfit)) ) ) );   %99.3 % of MEP max
+                        obj.info.pt_x=SIfit(index_pt);
+                        pt_y=MEPfit(index_pt);
+                        %% Estimating Threshold Points
+                        [~ ,index_th] = min(abs(MEPfit-50));
+                        obj.info.th=SIfit(index_th);
+                        hold on;
+                        h = plot(SIfit, MEPfit,'LineWidth',2,'Color','r');
+                        errorbar(SIData, MEPData ,SEMData, 'o');     
+                        xlim([min(SIfit)-5 max(SIfit)+5]);
                     end
-                    SIfit = min(SIData):.01:max(SIData);
-                    MEPfit = pchip(SIData,MEPData,SIfit);
-                    %% Estimating Inflection Points
-                    [~ ,sortedidx]= sort(m(:),'descend');
-                    obj.info.ip_x=mean(SIData(sortedidx(1):sortedidx(1)+1));
-                    ip_y=mean(MEPData(sortedidx(1):sortedidx(1)+1));
-                    %% Estimating Plateu Points
-                    [~ ,index_pt] = min(abs(MEPfit-(0.993*(max(MEPfit)) ) ) );   %99.3 % of MEP max
-                    obj.info.pt_x=SIfit(index_pt);
-                    pt_y=MEPfit(index_pt);
-                    %% Estimating Threshold Points
-                    [~ ,index_th] = min(abs(MEPfit-50));
-                    obj.info.th=SIfit(index_th);
-                    hold on;
-                    h = plot(SIfit, MEPfit);
-                    set(h(1), 'MarkerFaceColor',[0 0 0],'MarkerEdgeColor',[0 0 0],'Marker','square','LineStyle','none');
+                    %% Creating plot
+                    xlabel(' Stimulation Intensity');
+                    ylabel('MEP Amplitude ( \mu V)');
                     
-                end
-                %% Creating plot
-                %         figure(4)
-% % %                 hold on;
-% % %                 h = plot( obj.info.ioc.fitresult, obj.inputs.SI, obj.inputs.MEP);
-% % %                 set(h(1), 'MarkerFaceColor',[0 0 0],'MarkerEdgeColor',[0 0 0],'Marker','square','LineStyle','none');
-                
-                % Plotting SEM on Curve points
-                errorbar(obj.inputs.SI, obj.inputs.MEP ,obj.inputs.SEM, 'o');
-                set(h(2),'LineWidth',2);
-                
-                % Create xlabel
-                xlabel(' Stimulation Intensity');   %TODO: Put if loop of RMT or MSO
-                
-                % Create ylabel
-                ylabel('MEP Amplitude ( \mu V)');
-                
-                
-                
-                % x & y ticks and labels
-                %             yticks(-1:0.5:10000);  % will have to be referneced with GUI
-                %             xticks(0:5:1000);    % will have to be referneced with GUI
-                
-                % Create title
-                %             title({'Input Output Curve'},'FontWeight','bold','FontSize',14,'FontName','Calibri');
-                set(gcf, 'color', 'w')
-                
-                
-                SI_min_point = (round(min(obj.inputs.SI)/5)*5)-5; % Referncing the dotted lines wrt to lowest 5ths of SI_min
-                % SI_min_point = 0;
-                seet=-0.5;
-                ylim_ioc=-500;
-                
-                
-                % Plotting Inflection point's horizontal & vertical dotted lines
-                % %             plot([obj.info.ip_x,SI_min_point],[ip_y,ip_y],'--','Color' , [0.75 0.75 0.75]);
-                % %             plot([obj.info.ip_x,obj.info.ip_x],[ip_y,seet],'--','Color' , [0.75 0.75 0.75]);
-                % %             legend_ip=plot(obj.info.ip_x,ip_y,'rs','MarkerSize',15);
-                
-                plot([obj.info.ip_x,min(xlim)],[ip_y,ip_y],'--','Color' , [0.75 0.75 0.75]);
-                plot([obj.info.ip_x,obj.info.ip_x],[ip_y,ylim_ioc],'--','Color' , [0.75 0.75 0.75]);
-                legend_ip=plot(obj.info.ip_x,ip_y,'rs','MarkerSize',15);
-                
-                
-                % Plotting Plateau's horizontal & vertical dotted lines
-                plot([obj.info.pt_x,min(xlim)],[pt_y,pt_y],'--','Color' , [0.75 0.75 0.75]); %xline
-                plot([obj.info.pt_x,obj.info.pt_x],[pt_y,ylim_ioc],'--','Color' , [0.75 0.75 0.75]);
-                legend_pt=plot(obj.info.pt_x,pt_y,'rd','MarkerSize',15);
-                
-                % Plotting Threshold's horizontal & vertical dotted lines
-                if(strcmp(obj.inputs.stim_mode,'MT'))
-                    %% Creating legends
-                    h_legend=[h(1); h(2); legend_ip;legend_pt];
-                    %l=legend(h_legend, 'Amp(MEP) vs Stim. Inten', 'Sigmoid Fit', 'Inflection Point','Plateau');
-                    %set(l,'Orientation','horizontal','Location', 'southoutside','FontSize',12);
-                    
-                    %% Creating Properties annotation box
-                    
-                    str_ip=['Inflection Point: ',num2str(obj.info.ip_x),' (%MT)',' , ',num2str(ip_y),' (\muV)'];
-                    str_pt=['Plateau: ',num2str(obj.info.pt_x),' (%MT)',' , ',num2str(pt_y),' (\muV)'];
+                    set(gcf, 'color', 'w')
+
+                    SI_min_point = (round(min(obj.inputs.SI)/5)*5)-5; % Referncing the dotted lines wrt to lowest 5ths of SI_min
+                    % SI_min_point = 0;
+                    seet=-0.5;
+                    ylim_ioc=-500;
+
+                    plot([obj.info.ip_x,min(xlim)],[ip_y,ip_y],'--','Color' , [0.75 0.75 0.75]);
+                    plot([obj.info.ip_x,obj.info.ip_x],[ip_y,ylim_ioc],'--','Color' , [0.75 0.75 0.75]);
+                    legend_ip=plot(obj.info.ip_x,ip_y,'rs','MarkerSize',15);
                     
                     
-                    dim = [0.69 0.35 0 0];
-                    str = {str_ip,[],str_pt};
-                    annotation('textbox',dim,'String',str,'FitBoxToText','on','FontSize',12);
-                else
-                    disp('error is here');
+                    % Plotting Plateau's horizontal & vertical dotted lines
+                    plot([obj.info.pt_x,min(xlim)],[pt_y,pt_y],'--','Color' , [0.75 0.75 0.75]); %xline
+                    plot([obj.info.pt_x,obj.info.pt_x],[pt_y,ylim_ioc],'--','Color' , [0.75 0.75 0.75]);
+                    legend_pt=plot(obj.info.pt_x,pt_y,'rd','MarkerSize',15);
+                    
+                    
                     plot([obj.info.th,min(xlim)],[0.05,0.05],'--','Color' , [0.75 0.75 0.75]);
                     plot([obj.info.th,obj.info.th],[0.05,ylim_ioc],'--','Color' , [0.75 0.75 0.75]);
                     legend_th=plot(obj.info.th, 0.05,'r*','MarkerSize',15);
-                    
-                    
-                    
+
                     %% Creating legends
-                    h_legend=[h(1); h(2); legend_ip;legend_pt;legend_th];
-                    %l=legend(h_legend, 'Amp(MEP) vs Stim. Inten', 'Sigmoid Fit', 'Inflection Point','Plateau','Threshold');
-                    %set(l,'Orientation','horizontal','Location', 'southoutside','FontSize',12);
+                    h_legend=[h(1); legend_ip;legend_pt;legend_th];
+                    l=legend(h_legend, 'Dose-Response Curve', 'Inflection Point','Plateau','Threshold');
+                    set(l,'Orientation','horizontal','Location', 'southoutside','FontSize',12);
                     
                     %% Creating Properties annotation box
                     
@@ -2813,40 +2757,91 @@ classdef best_toolbox < handle
                     
                     dim = [0 0 0.5 0.5];
                     str = {str_ip,[],str_th,[],str_pt};
-                    %                 annotation('textbox',dim,'String',str,'FitBoxToText','on','FontSize',12,'units','normalized');
+                    ylim([-500 Inf])
                     
+                    %% Test String of IP, PT and TH
+                    obj.app.pr.ip_mso.(ax).String=obj.info.ip_x;
+                    obj.app.pr.ip_muv.(ax).String=ip_y;
+                    obj.app.pr.pt_mso.(ax).String=obj.info.pt_x;
+                    obj.app.pr.pt_muv.(ax).String=pt_y;
+                    obj.app.pr.th_mso.(ax).String=obj.info.th;
+                    obj.app.pr.th_muv.(ax).String=0.05;
+                    box off; drawnow;
+                elseif numel(obj.inputs.ResponseFunctionNumerator)>1
+                    %%  Complicated Response Function case 
+                    ax=['ax' num2str(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.axesno}{1,obj.inputs.chLab_idx})];
+                    axes(obj.app.pr.ax.(ax)), hold on,
+                    xdata=nonzeros(obj.inputs.results.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).MEPAmplitudeRatios(:,2));
+                    ydata=nonzeros(obj.inputs.results.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).MEPAmplitudeRatiosNew);
+                    [xdataunique,~,idx] = unique(xdata);
+                    mep_median = accumarray(idx,ydata,[],@median);
+                    M=[xdataunique,mep_median];
+                    obj.inputs.rawData.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).mep_stats(:,1)=M(:,1); %Sampled Dose Function
+                    obj.inputs.rawData.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).mep_stats(:,2)=M(:,2); %Sampled Response Function
+                    obj.inputs.DoseFunctionValues=obj.inputs.rawData.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).mep_stats(:,1);
+                    obj.inputs.ResponseFunctionValues=obj.inputs.rawData.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).mep_stats(:,2);
+                    plot(obj.inputs.DoseFunctionValues,obj.inputs.ResponseFunctionValues);
+                    %% Preparing Graphical Legend Enteries
+                    switch obj.inputs.DoseFunction
+                        case 1 % TS
+                            xlabelstring='TS Intensity';
+                            ylabelstring='MEP Amp. ( % Control )';
+                            xlimvalue=vertcat(obj.inputs.trialMat{:,obj.inputs.colLabel.si});
+                            xlimvalue=vertcat(xlimvalue{:}); xlimvalue=cell2mat(xlimvalue); xlimvalue=xlimvalue(:,1);
+                            stimcdMrkvalue=vertcat(obj.inputs.trialMat{:,obj.inputs.colLabel.stimcdMrk});
+                            for iDenominators=1:numel(obj.inputs.ResponseFunctionDenominator)
+                                indextodelete=find(stimcdMrkvalue==obj.inputs.ResponseFunctionDenominator(iDenominators));
+                                xlimvalue(indextodelete)=0;
+                            end
+                            xlimvalue=nonzeros(xlimvalue);
+                            xlimvalue=unique(xlimvalue,'stable');
+                            xlimvector=[min(xlimvalue)-(min(xlimvalue)*.10) max(xlimvalue)+(max(xlimvalue)*.10)];
+                            xtickvector=unique(sort([xlimvalue']));
+                            
+                        case 2 % CS
+                            xlabelstring='CS Intensity';
+                            ylabelstring='MEP Amp. ( % Control )';
+                            xlimvalue=vertcat(obj.inputs.trialMat{:,obj.inputs.colLabel.si});
+                            xlimvalue=vertcat(xlimvalue{:}); xlimvalue=cell2mat(xlimvalue); xlimvalue=xlimvalue(:,2);
+                            stimcdMrkvalue=vertcat(obj.inputs.trialMat{:,obj.inputs.colLabel.stimcdMrk});
+                            for iDenominators=1:numel(obj.inputs.ResponseFunctionDenominator)
+                                indextodelete=find(stimcdMrkvalue==obj.inputs.ResponseFunctionDenominator(iDenominators));
+                                xlimvalue(indextodelete)=0;
+                            end
+                            xlimvalue=nonzeros(xlimvalue);
+                            xlimvalue=unique(xlimvalue,'stable');
+                            xlimvector=[min(xlimvalue)-(min(xlimvalue)*.10) max(xlimvalue)+(max(xlimvalue)*.10)];
+                            xtickvector=unique(sort([xlimvalue']));
+                        case 3 % ISI
+                            xlabelstring='ISI (ms)';
+                            ylabelstring='MEP Amp. ( % Control )';
+                            xlimvalue=vertcat(obj.inputs.trialMat{:,obj.inputs.colLabel.si});
+                            xlimvalue=vertcat(xlimvalue{:}); xlimvalue=cell2mat(xlimvalue); xlimvalue=xlimvalue(:,3);
+                            stimcdMrkvalue=vertcat(obj.inputs.trialMat{:,obj.inputs.colLabel.stimcdMrk});
+                            for iDenominators=1:numel(obj.inputs.ResponseFunctionDenominator)
+                                indextodelete=find(stimcdMrkvalue==obj.inputs.ResponseFunctionDenominator(iDenominators));
+                                xlimvalue(indextodelete)=0;
+                            end
+                            xlimvalue=nonzeros(xlimvalue);
+                            xlimvalue=unique(xlimvalue,'stable');
+                            xlimvector=[min(xlimvalue)-(min(xlimvalue)*.10) max(xlimvalue)+(max(xlimvalue)*.10)];
+                            xtickvector=unique(sort([xlimvalue']));
+                        case 4 % ITI
+                            xlabelstring='ITI (ms)';
+                            ylabelstring='MEP Amp. ( % Control )';
+                            xlimvalue=vertcat(obj.inputs.trialMat{:,obj.inputs.colLabel.iti});
+                            stimcdMrkvalue=vertcat(obj.inputs.trialMat{:,obj.inputs.colLabel.stimcdMrk});
+                            for iDenominators=1:numel(obj.inputs.ResponseFunctionDenominator)
+                                indextodelete=find(stimcdMrkvalue==obj.inputs.ResponseFunctionDenominator(iDenominators));
+                                xlimvalue(indextodelete)=0;
+                            end
+                            xlimvalue=nonzeros(xlimvalue);
+                            xlimvalue=unique(xlimvalue,'stable');
+                            xlimvector=[min(xlimvalue)-(min(xlimvalue)*.10) max(xlimvalue)+(max(xlimvalue)*.10)];
+                            xtickvector=unique(sort([xlimvalue']));
+                    end
+                    xlabel(xlabelstring); ylabel(ylabelstring); xlim(xlimvector); xticks(xtickvector);
                 end
-                xlim
-                ylim([-500 Inf])
-                xticks
-                yticks
-                store2=get(gca,'YTick')
-                xticklabels
-                yticklabels
-                xlim([min(obj.inputs.SI)-5 max(obj.inputs.SI)+5]);
-                % %             store2=get(gca,'YTick')
-                %             xlim([min(xlim) (max(xlim)+5)])
-                %             y_limm=ylim
-                %             yt=yticks
-                %             xt=xticks
-                %             xl=xlim
-                %             text((max(xlim)-30), -200,str,'FontSize',12);
-                obj.app.pr.ip_mso.(ax).String=obj.info.ip_x;
-                obj.app.pr.ip_muv.(ax).String=ip_y;
-                obj.app.pr.pt_mso.(ax).String=obj.info.pt_x;
-                obj.app.pr.pt_muv.(ax).String=pt_y;
-                obj.app.pr.th_mso.(ax).String=obj.info.th;
-                obj.app.pr.th_muv.(ax).String=0.05;
-                
-                bt = gca; legend(bt,'off');
-                box on; drawnow;
-                
-                % %             code for copying the axes from one fig to another fig
-                
-                % % % % % % %              f1 = figure('Units','normalized', 'Position', [0 0 0.8 0.8]); % Open a new figure with handle f1
-                % % % % % % % s = copyobj(obj.info.axes.ioc_second,f1)
-                
-                % set(gcf,'Visible', 'on');
             end
         end
         function boot_threshold(obj)

@@ -1122,61 +1122,9 @@ classdef BEST < handle
         end
         function pr_fit_plot(obj)
             obj.pr.ax_no=['ax' num2str(obj.pr.axesno)];
-            obj.pr.ax_no
-            ui_menu=uicontextmenu(obj.fig.handle);
-            uimenu(ui_menu,'label','Y-axis Max limit Increase','Callback',@obj.ymaxInc,'Tag',obj.pr.ax_no);
-            uimenu(ui_menu,'label','Y-axis Max limit Decrease','Callback',@obj.ymaxDec,'Tag',obj.pr.ax_no);
-            uimenu(ui_menu,'label','Y-axis Min limit Increase','Callback',@obj.yminInc,'Tag',obj.pr.ax_no);
-            uimenu(ui_menu,'label','Y-axis Min limit Decrease','Callback',@obj.yminDec,'Tag',obj.pr.ax_no);
-            uimenu(ui_menu,'label','Insert Y-axis limits mannualy','Callback',@obj.ylims,'Tag',obj.pr.ax_no);
-            uimenu(ui_menu,'label','Change Font Size','Callback',@(~,~)obj.fontSize,'Tag',obj.pr.ax_no);
-            
-            obj.pr.clab.(obj.pr.ax_no)=uix.Panel( 'Parent', obj.pr.grid, 'Padding', 5 ,'Units','normalized','Title', 'Input Output Curve','FontWeight','bold','FontSize',12,'TitlePosition','centertop' );
-            mep1_vb=uix.VBox( 'Parent',  obj.pr.clab.(obj.pr.ax_no), 'Spacing', 5, 'Padding', 1  );
-            
-            mep1_row1 = uix.HBox( 'Parent', mep1_vb, 'Spacing', 5, 'Padding', 1  );
-            mep1_row1_vb=uix.VBox( 'Parent',  mep1_row1, 'Spacing', 5, 'Padding', 1  );
-            mep1_r1 = uix.HBox( 'Parent', mep1_row1_vb, 'Spacing', 5, 'Padding', 1  );
-            uiextras.HBox( 'Parent', mep1_r1)
-            obj.pr.inflectionPoint_label.(obj.pr.ax_no)=uicontrol( 'Style','text','Parent', mep1_r1,'String','Inflection Point','FontSize',11,'HorizontalAlignment','center','Units','normalized');
-            obj.pr.ip_mso.(obj.pr.ax_no)=uicontrol( 'Style','edit','Parent', mep1_r1,'FontSize',11,'HorizontalAlignment','center','Units','normalized');
-            obj.pr.ip_mso_units.(obj.pr.ax_no)=uicontrol( 'Style','text','Parent', mep1_r1,'String','(%MSO))','FontSize',11,'HorizontalAlignment','center','Units','normalized');
-            obj.pr.ip_muv.(obj.pr.ax_no)=uicontrol( 'Style','edit','Parent', mep1_r1,'FontSize',11,'HorizontalAlignment','center','Units','normalized');
-            obj.pr.ip_muv_units.(obj.pr.ax_no)=uicontrol( 'Style','text','Parent', mep1_r1,'String','(\muV))','FontSize',11,'HorizontalAlignment','center','Units','normalized');
-            uiextras.HBox( 'Parent', mep1_r1)
-            set(mep1_r1,'Widths',[-0.3 130 70 60 70 60 -0.3])
-            
-            
-            mep1_r2a = uix.HBox( 'Parent',  mep1_row1_vb, 'Spacing', 5, 'Padding', 1  );
-            uiextras.HBox( 'Parent', mep1_r2a)
-            obj.pr.pt_label.(obj.pr.ax_no)=uicontrol( 'Style','text','Parent', mep1_r2a,'String','Plateau','FontSize',11,'HorizontalAlignment','center','Units','normalized');
-            obj.pr.pt_mso.(obj.pr.ax_no)=uicontrol( 'Style','edit','Parent', mep1_r2a,'FontSize',11,'HorizontalAlignment','center','Units','normalized');
-            obj.pr.pt_mso_units.(obj.pr.ax_no)=uicontrol( 'Style','text','Parent', mep1_r2a,'String','(%MSO))','FontSize',11,'HorizontalAlignment','center','Units','normalized');
-            obj.pr.pt_muv.(obj.pr.ax_no)=uicontrol( 'Style','edit','Parent', mep1_r2a,'FontSize',11,'HorizontalAlignment','center','Units','normalized');
-            obj.pr.pt_muv_units.(obj.pr.ax_no)=uicontrol( 'Style','text','Parent', mep1_r2a,'String','(\muV))','FontSize',11,'HorizontalAlignment','center','Units','normalized');
-            uiextras.HBox( 'Parent', mep1_r2a)
-            set(mep1_r2a,'Widths',[-0.3 130 70 60 70 60 -0.3])
-            
-            mep1_r2b = uix.HBox( 'Parent', mep1_row1_vb, 'Spacing', 5, 'Padding', 1  );
-            uiextras.HBox( 'Parent', mep1_r2b)
-            obj.pr.th_label.(obj.pr.ax_no)=uicontrol( 'Style','text','Parent', mep1_r2b,'String','Threshold','FontSize',11,'HorizontalAlignment','center','Units','normalized');
-            obj.pr.th_mso.(obj.pr.ax_no)=uicontrol( 'Style','edit','Parent', mep1_r2b,'FontSize',11,'HorizontalAlignment','center','Units','normalized');
-            obj.pr.th_mso_units.(obj.pr.ax_no)=uicontrol( 'Style','text','Parent', mep1_r2b,'String','(%MSO))','FontSize',11,'HorizontalAlignment','center','Units','normalized');
-            obj.pr.th_muv.(obj.pr.ax_no)=uicontrol( 'Style','edit','Parent', mep1_r2b,'FontSize',11,'HorizontalAlignment','center','Units','normalized');
-            obj.pr.th_muv_units.(obj.pr.ax_no)=uicontrol( 'Style','text','Parent', mep1_r2b,'String','(\muV))','FontSize',11,'HorizontalAlignment','center','Units','normalized');
-            uiextras.HBox( 'Parent', mep1_r2b)
-            set(mep1_r2b,'Widths',[-0.3 130 70 60 70 60 -0.3])
-            
-            set(mep1_row1_vb,'Heights',[-1 -1 -1])
-            
-            
-            
-            mep1_r2 = uix.HBox( 'Parent', mep1_vb, 'Spacing', 5, 'Padding', 1  );
-            obj.pr.ax.(obj.pr.ax_no)=axes( 'Parent',  mep1_r2,'Units','normalized','uicontextmenu',ui_menu);
-            
-            
-            
-            set(mep1_vb,'Heights',[65 -10])
+            AxesTitle=['MEP Dose-Response Curve ' obj.pr.ax_ChannelLabels{1,obj.pr.axesno}];
+            obj.pr.clab.(obj.pr.ax_no)=uix.Panel( 'Parent', obj.pr.grid, 'Padding', 5 ,'Units','normalized','Title', AxesTitle,'FontWeight','bold','FontSize',12,'TitlePosition','centertop' );
+            obj.pr.ax.(obj.pr.ax_no)=axes( uicontainer('Parent',  obj.pr.clab.(obj.pr.ax_no)),'Units','normalized');
         end
         function pr_threshold_trace_plot(obj)
             obj.pr.ax_no=['ax' num2str(obj.pr.axesno)];
