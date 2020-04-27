@@ -12248,16 +12248,19 @@ classdef BEST < handle
         end
         function cb_hw_vbox_rp_slct_device2(obj)
             obj.hw.output.slct_device2=obj.hw.vbox_rp.slct_device2.Value;
-            if (obj.hw.vbox_rp.slct_device2.Value<=4)
-                obj.hw_output_pc
-            elseif(obj.hw.vbox_rp.slct_device2.Value>4)
-                obj.hw_output_neurone
+            switch obj.hw.vbox_rp.slct_device2.Value
+                case {1,2,3,4}
+                    obj.hw_output_pc;
+                case {5,6,7,8}
+                    obj.hw_output_neurone;
+                case 9
+                    obj.hw_output_Digitimer;
             end
         end
         function cb_cfg_newdevice(obj)
             obj.hw_input_neurone
-            obj.hw.device_added1.listbox.Value=1
-            obj.hw.device_added2.listbox.Value=1
+            obj.hw.device_added1.listbox.Value=1;
+            obj.hw.device_added2.listbox.Value=1;
         end
         function hw_input_neurone(obj)
             delete(obj.hw.vbox_rightpanel)
@@ -12265,13 +12268,13 @@ classdef BEST < handle
             obj.hw.vbox_rightpanel=uix.VBox( 'Parent', obj.hw.rightpanel, 'Spacing', 5, 'Padding', 5  );
             
             row0=uix.HBox( 'Parent', obj.hw.vbox_rightpanel, 'Spacing', 5, 'Padding', 5  );
-            uicontrol( 'Style','text','Parent', row0,'String','Devie Type','FontSize',12,'HorizontalAlignment','left','Units','normalized');
+            uicontrol( 'Style','text','Parent', row0,'String','Device Type','FontSize',12,'HorizontalAlignment','left','Units','normalized');
             obj.hw.device_type.listbox=uicontrol( 'Style','popupmenu','Parent', row0 ,'FontSize',11,'String',{'Input Device (Recording Device)','Output Device (Stimulating Device)'},'Callback',@(~,~)obj.cb_hw_device_type_listbox,'Value',1);
             set(row0,'Widths',[200 -2]);
             
             row1=uix.HBox( 'Parent', obj.hw.vbox_rightpanel, 'Spacing', 5, 'Padding', 5  );
             uicontrol( 'Style','text','Parent', row1,'String','Select Device','FontSize',12,'HorizontalAlignment','left','Units','normalized');
-            obj.hw.vbox_rp.slct_device=uicontrol( 'Style','popupmenu','Parent', row1 ,'FontSize',11,'String',{'BOSS Box controlled NeurOne','FieldTrip Real-Time Buffer'},'Callback',@(~,~)obj.cb_hw_vbox_rp_slct_device,'Value',1);
+            obj.hw.vbox_rp.slct_device=uicontrol( 'Style','popupmenu','Parent', row1 ,'FontSize',11,'String',{'BOSS Box controlled NeurOne','FieldTrip Real-Time Buffer','BOSS Device Controlled ActiCHamp System','Button Box','Keyboard','Data Simulation (Reading from Disk)'},'Callback',@(~,~)obj.cb_hw_vbox_rp_slct_device,'Value',1);
             set(row1,'Widths',[200 -2]);
             
             
@@ -12379,7 +12382,7 @@ classdef BEST < handle
             obj.hw.vbox_rightpanel=uix.VBox( 'Parent', obj.hw.rightpanel, 'Spacing', 5, 'Padding', 5  );
             
             row0=uix.HBox( 'Parent', obj.hw.vbox_rightpanel, 'Spacing', 5, 'Padding', 5  );
-            uicontrol( 'Style','text','Parent', row0,'String','Devie Type','FontSize',12,'HorizontalAlignment','left','Units','normalized');
+            uicontrol( 'Style','text','Parent', row0,'String','Device Type','FontSize',12,'HorizontalAlignment','left','Units','normalized');
             obj.hw.device_type.listbox=uicontrol( 'Style','popupmenu','Parent', row0 ,'FontSize',11,'String',{'Input Device (Recording Device)','Output Device (Stimulating Device)'},'Callback',@(~,~)obj.cb_hw_device_type_listbox,'Value',1);
             set(row0,'Widths',[200 -2]);
             
@@ -12430,19 +12433,52 @@ classdef BEST < handle
             set(obj.hw.vbox_rightpanel,'Heights',[-1 -1 -1 -1 -1 -1 -1 -1 -5 -1])
             
         end
+        function hw_input_acs(obj)
+        end
+        function hw_input_buttonbox(obj)
+        end
+        function hw_input_keyboard(obj)
+            delete(obj.hw.vbox_rightpanel)
+            
+            obj.hw.vbox_rightpanel=uix.VBox( 'Parent', obj.hw.rightpanel, 'Spacing', 5, 'Padding', 5  );
+            
+            row0=uix.HBox( 'Parent', obj.hw.vbox_rightpanel, 'Spacing', 5, 'Padding', 5  );
+            uicontrol( 'Style','text','Parent', row0,'String','Device Type','FontSize',12,'HorizontalAlignment','left','Units','normalized');
+            obj.hw.device_type.listbox=uicontrol( 'Style','popupmenu','Parent', row0 ,'FontSize',11,'String',{'Input Device (Recording Device)','Output Device (Stimulating Device)'},'Callback',@(~,~)obj.cb_hw_device_type_listbox,'Value',1);
+            set(row0,'Widths',[200 -2]);
+            
+            row1=uix.HBox( 'Parent', obj.hw.vbox_rightpanel, 'Spacing', 5, 'Padding', 5  );
+            uicontrol( 'Style','text','Parent', row1,'String','Select Device','FontSize',12,'HorizontalAlignment','left','Units','normalized');
+            obj.hw.vbox_rp.slct_device=uicontrol( 'Style','popupmenu','Parent', row1 ,'FontSize',11,'String',{'BOSS Box controlled NeurOne','FieldTrip Real-Time Buffer','BOSS Device Controlled ActiCHamp System','Button Box','Keyboard and Mouse','Data Simulation (Reading from Disk)'},'Callback',@(~,~)obj.cb_hw_vbox_rp_slct_device,'Value',5);
+            set(row1,'Widths',[200 -2]);
+            
+            row2=uix.HBox( 'Parent', obj.hw.vbox_rightpanel, 'Spacing', 5, 'Padding', 5  );
+            uicontrol( 'Style','text','Parent', row2,'String','Device Reference Name','FontSize',12,'HorizontalAlignment','left','Units','normalized');
+            obj.hw.vbox_rp.device_name=uicontrol( 'Style','edit','Parent', row2 ,'FontSize',11);
+            set(row2,'Widths',[200 -2]);
+
+            uiextras.HBox( 'Parent', obj.hw.vbox_rightpanel)
+            
+            uicontrol( 'Parent', obj.hw.vbox_rightpanel ,'Style','PushButton','String','Add Device','FontWeight','Bold','Callback',@(~,~)obj.cb_add_input)
+            
+            set(obj.hw.vbox_rightpanel,'Heights',[-1 -1 -1 -10 -1])
+        end
+        
+        function hw_bestsimulation(obj)
+        end
         function hw_output_neurone(obj)
             delete(obj.hw.vbox_rightpanel)
             
             obj.hw.vbox_rightpanel=uix.VBox( 'Parent', obj.hw.rightpanel, 'Spacing', 5, 'Padding', 5  );
             
             row0=uix.HBox( 'Parent', obj.hw.vbox_rightpanel, 'Spacing', 5, 'Padding', 5  );
-            uicontrol( 'Style','text','Parent', row0,'String','Devie Type','FontSize',12,'HorizontalAlignment','left','Units','normalized');
+            uicontrol( 'Style','text','Parent', row0,'String','Device Type','FontSize',12,'HorizontalAlignment','left','Units','normalized');
             obj.hw.device_type.listbox=uicontrol( 'Style','popupmenu','Parent', row0 ,'FontSize',11,'String',{'Input Device (Recording Device)','Output Device (Stimulating Device)'},'Callback',@(~,~)obj.cb_hw_device_type_listbox,'Value',2);
             set(row0,'Widths',[200 -2]);
             
             row1=uix.HBox( 'Parent', obj.hw.vbox_rightpanel, 'Spacing', 5, 'Padding', 5  );
             uicontrol( 'Style','text','Parent', row1,'String','Select Device','FontSize',12,'HorizontalAlignment','left','Units','normalized');
-            obj.hw.vbox_rp.slct_device2=uicontrol( 'Style','popupmenu','Parent', row1 ,'FontSize',11,'String',{'Host PC controlled MagVenture','Host PC controlled MagStim','Host PC controlled BiStim','Host PC controlled Rapid','BOSS Box controlled MagVenture','BOSS Box controlled MagStim','BOSS Box controlled BiStim','BOSS Box controlled Rapid','Simulation'},'Callback',@(~,~)obj.cb_hw_vbox_rp_slct_device2,'Value',obj.hw.output.slct_device2);
+            obj.hw.vbox_rp.slct_device2=uicontrol( 'Style','popupmenu','Parent', row1 ,'FontSize',11,'String',{'Host PC controlled MagVenture','Host PC controlled MagStim','Host PC controlled BiStim','Host PC controlled Rapid','BOSS Box controlled MagVenture','BOSS Box controlled MagStim','BOSS Box controlled BiStim','BOSS Box controlled Rapid','Digitimer','Simulation'},'Callback',@(~,~)obj.cb_hw_vbox_rp_slct_device2,'Value',obj.hw.output.slct_device2);
             set(row1,'Widths',[200 -2]);
             
             
@@ -12483,13 +12519,13 @@ classdef BEST < handle
             obj.hw.vbox_rightpanel=uix.VBox( 'Parent', obj.hw.rightpanel, 'Spacing', 5, 'Padding', 5  );
             
             row0=uix.HBox( 'Parent', obj.hw.vbox_rightpanel, 'Spacing', 5, 'Padding', 5  );
-            uicontrol( 'Style','text','Parent', row0,'String','Devie Type','FontSize',12,'HorizontalAlignment','left','Units','normalized');
+            uicontrol( 'Style','text','Parent', row0,'String','Device Type','FontSize',12,'HorizontalAlignment','left','Units','normalized');
             obj.hw.device_type.listbox=uicontrol( 'Style','popupmenu','Parent', row0 ,'FontSize',11,'String',{'Input Device (Recording Device)','Output Device (Stimulating Device)'},'Callback',@(~,~)obj.cb_hw_device_type_listbox,'Value',2);
             set(row0,'Widths',[200 -2]);
             
             row1=uix.HBox( 'Parent', obj.hw.vbox_rightpanel, 'Spacing', 5, 'Padding', 5  );
             uicontrol( 'Style','text','Parent', row1,'String','Select Device','FontSize',12,'HorizontalAlignment','left','Units','normalized');
-            obj.hw.vbox_rp.slct_device2=uicontrol( 'Style','popupmenu','Parent', row1 ,'FontSize',11,'String',{'Host PC controlled MagVenture','Host PC controlled MagStim','Host PC controlled BiStim','Host PC controlled Rapid','BOSS Box controlled MagVenture','BOSS Box controlled MagStim','BOSS Box controlled BiStim','BOSS Box controlled Rapid','Simulation'},'Callback',@(~,~)obj.cb_hw_vbox_rp_slct_device2,'Value',obj.hw.output.slct_device2);
+            obj.hw.vbox_rp.slct_device2=uicontrol( 'Style','popupmenu','Parent', row1 ,'FontSize',11,'String',{'Host PC controlled MagVenture','Host PC controlled MagStim','Host PC controlled BiStim','Host PC controlled Rapid','BOSS Box controlled MagVenture','BOSS Box controlled MagStim','BOSS Box controlled BiStim','BOSS Box controlled Rapid','Digitimer','Simulation'},'Callback',@(~,~)obj.cb_hw_vbox_rp_slct_device2,'Value',obj.hw.output.slct_device2);
             set(row1,'Widths',[200 -2]);
             
             
@@ -12515,6 +12551,129 @@ classdef BEST < handle
             set(obj.hw.vbox_rightpanel,'Heights',[-1 -1 -1 -1 -8 -1])
             
         end
+        function hw_output_Digitimer(obj)
+            delete(obj.hw.vbox_rightpanel)
+            
+            obj.hw.vbox_rightpanel=uix.VBox( 'Parent', obj.hw.rightpanel, 'Spacing', 5, 'Padding', 5  );
+            
+            row0=uix.HBox( 'Parent', obj.hw.vbox_rightpanel, 'Spacing', 5, 'Padding', 5  );
+            uicontrol( 'Style','text','Parent', row0,'String','Device Type','FontSize',12,'HorizontalAlignment','left','Units','normalized');
+            obj.hw.device_type.listbox=uicontrol( 'Style','popupmenu','Parent', row0 ,'FontSize',11,'String',{'Input Device (Recording Device)','Output Device (Stimulating Device)'},'Callback',@(~,~)obj.cb_hw_device_type_listbox,'Value',2);
+            set(row0,'Widths',[200 -2]);
+            
+            row1=uix.HBox( 'Parent', obj.hw.vbox_rightpanel, 'Spacing', 5, 'Padding', 5  );
+            uicontrol( 'Style','text','Parent', row1,'String','Select Device','FontSize',12,'HorizontalAlignment','left','Units','normalized');
+            obj.hw.vbox_rp.slct_device2=uicontrol( 'Style','popupmenu','Parent', row1 ,'FontSize',11,'String',{'Host PC controlled MagVenture','Host PC controlled MagStim','Host PC controlled BiStim','Host PC controlled Rapid','BOSS Box controlled MagVenture','BOSS Box controlled MagStim','BOSS Box controlled BiStim','BOSS Box controlled Rapid','Digitimer','Simulation'},'Callback',@(~,~)obj.cb_hw_vbox_rp_slct_device2,'Value',obj.hw.output.slct_device2);
+            set(row1,'Widths',[200 -2]);
+            
+            row2=uix.HBox( 'Parent', obj.hw.vbox_rightpanel, 'Spacing', 5, 'Padding', 5  );
+            uicontrol( 'Style','text','Parent', row2,'String','Device Reference Name','FontSize',12,'HorizontalAlignment','left','Units','normalized');
+            obj.hw.vbox_rp.device_name=uicontrol( 'Style','edit','Parent', row2 ,'FontSize',11);
+            set(row2,'Widths',[200 -2]);
+            
+            row1=uix.HBox( 'Parent', obj.hw.vbox_rightpanel, 'Spacing', 5, 'Padding', 5  );
+            uicontrol( 'Style','text','Parent', row1,'String','Trigger Control','FontSize',12,'HorizontalAlignment','left','Units','normalized');
+            obj.hw.vbox_rp.TriggerControl=uicontrol( 'Style','popupmenu','Parent', row1 ,'FontSize',11,'String',{'BOSS Device','Host PC Serial PCI Card','Host PC Parallel PCI Card','Arduino','Raspberry Pi','Manual'},'Callback',@cbTriggerControl);
+            set(row1,'Widths',[200 -2]);
+            
+            row1=uix.HBox( 'Parent', obj.hw.vbox_rightpanel, 'Spacing', 5, 'Padding', 5  );
+            uicontrol( 'Style','text','Parent', row1,'String','Intensity Control','FontSize',12,'HorizontalAlignment','left','Units','normalized');
+            obj.hw.vbox_rp.IntensityControl=uicontrol( 'Style','popupmenu','Parent', row1 ,'FontSize',11,'String',{'Manual','Arduino'},'Callback',@cbIntensityControl);
+            set(row1,'Widths',[200 -2]);
+            panelTriggerControl=uix.Panel( 'Parent', obj.hw.vbox_rightpanel,'Padding',5,'Units','normalized','FontSize',8 ,'Units','normalized','BorderType','none','Title', 'Trigger Control Parameters','FontSize',12,'TitlePosition','centertop' );
+            panelIntensityControl=uix.Panel( 'Parent', obj.hw.vbox_rightpanel,'Padding',5,'Units','normalized','FontSize',8 ,'Units','normalized','BorderType','none','Title', 'Intensity Control Parameters','FontSize',12,'TitlePosition','centertop');
+
+            cbpanelTriggerControl
+            cbpanelIntensityControl
+
+            
+            uiextras.HBox( 'Parent', obj.hw.vbox_rightpanel)
+            
+            uicontrol( 'Parent', obj.hw.vbox_rightpanel ,'Style','PushButton','String','Add Device','FontWeight','Bold','Callback',@(~,~)obj.cb_add_output)
+
+            set(obj.hw.vbox_rightpanel,'Heights',[35 35 35 35 35 120 120 -10 45])
+            
+            
+            function cbTriggerControl(~,~)
+                cbpanelTriggerControl
+            end
+            function cbIntensityControl(~,~)
+                cbpanelIntensityControl
+            end
+            function cbpanelTriggerControl
+                switch obj.hw.vbox_rp.TriggerControl.Value
+                    case 1 %bossdevice
+                        expModvBox=uix.VBox( 'Parent', panelTriggerControl, 'Spacing', 0, 'Padding', 0  );
+                        expModr2c=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
+                        uicontrol( 'Style','text','Parent', expModr2c,'String','BOSS Device Output Port #:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                        obj.hw.vbox_rp.BOSSDevicePort=uicontrol( 'Style','edit','Parent', expModr2c ,'String','1','FontSize',11,'Tag','BOSSDevicePort','callback',@cbParSaving);
+                        expModr2c.Widths=[200 -2];
+                        expModvBox.Heights=[45];
+                    case 2 %host pc serial
+                        expModvBox=uix.VBox( 'Parent', panelTriggerControl, 'Spacing', 0, 'Padding', 0  );
+                        expModr2c=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
+                        uicontrol( 'Style','text','Parent', expModr2c,'String','Host PC Serial COM Address:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                        HostPCCOMPort=uicontrol( 'Style','edit','Parent', expModr2c ,'String','COM1','FontSize',11,'Tag','HostPCCOMPort','callback',@cbParSaving);
+                        expModr2c.Widths=[200 -2];
+                        expModvBox.Heights=[45];
+                    case 3 %host pc parallel
+                        expModvBox=uix.VBox( 'Parent', panelTriggerControl, 'Spacing', 0, 'Padding', 0  );
+                        expModr2c=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
+                        uicontrol( 'Style','text','Parent', expModr2c,'String','Host PC Parallel LPT Address:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                        HostPCLPTPort=uicontrol( 'Style','edit','Parent', expModr2c ,'String','LPT1','FontSize',11,'Tag','HostPCLPTPort','callback',@cbParSaving);
+                        expModr2c.Widths=[200 -2];
+                        expModvBox.Heights=[45];
+                    case 4 %arduino
+                        expModvBox=uix.VBox( 'Parent', panelTriggerControl, 'Spacing', 0, 'Padding', 0  );
+                        expModr2c=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
+                        uicontrol( 'Style','text','Parent', expModr2c,'String','Arduino COM Port Address:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                        TriggerControlArduinoCOMPort=uicontrol( 'Style','edit','Parent', expModr2c ,'String','COM1','FontSize',11,'Tag','TriggerControlArduinoCOMPort','callback',@cbParSaving);
+                        expModr2c.Widths=[200 -2];
+                        expModr2c=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
+                        uicontrol( 'Style','text','Parent', expModr2c,'String','Arduino Digital Pin Connected to Digitmer:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                        TriggerControlArduinoDigitalPin=uicontrol( 'Style','edit','Parent', expModr2c ,'String','D2','FontSize',11,'Tag','TriggerControlArduinoDigitalPin','callback',@cbParSaving);
+                        expModr2c.Widths=[200 -2];
+                        expModvBox.Heights=[45 45];
+                    case 5 %rpi
+                        expModvBox=uix.VBox( 'Parent', panelTriggerControl, 'Spacing', 0, 'Padding', 0  );
+                        expModr2c=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
+                        uicontrol( 'Style','text','Parent', expModr2c,'String','Raspberry Pi Name:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                        TriggerControlRasPiName=uicontrol( 'Style','edit','Parent', expModr2c ,'String','COM1','FontSize',11,'Tag','TriggerControlRasPiName','callback',@cbParSaving);
+                        expModr2c.Widths=[200 -2];
+                        expModr2c=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
+                        uicontrol( 'Style','text','Parent', expModr2c,'String','RasPi Digital Pin Connected to Digitmer:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                        TriggerControlRasPiDigitalPin=uicontrol( 'Style','edit','Parent', expModr2c ,'String','4','FontSize',11,'Tag','TriggerControlRasPiDigitalPin','callback',@cbParSaving);
+                        expModr2c.Widths=[200 -2];
+                        expModvBox.Heights=[45 45];
+                    case 6 %manual
+                        expModvBox=uix.VBox( 'Parent', panelTriggerControl, 'Spacing', 0, 'Padding', 0  );
+                        uicontrol( 'Style','text','Parent', expModvBox,'String','Since you have chosen manual Trigger Control, an instructive dialogue box will proide instricutions to Experimenter.','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                end
+            end
+            function cbpanelIntensityControl
+                switch obj.hw.vbox_rp.IntensityControl.Value
+                    case 2 %arduino
+                        expModvBox=uix.VBox( 'Parent', panelIntensityControl, 'Spacing', 0, 'Padding', 0  );
+                        expModr2c=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
+                        uicontrol( 'Style','text','Parent', expModr2c,'String','Arduino COM Port Address:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                        IntensityControlArduinoCOMPort=uicontrol( 'Style','edit','Parent', expModr2c ,'String','COM1','FontSize',11,'Tag','IntensityControlArduinoCOMPort','callback',@cbParSaving);
+                        expModr2c.Widths=[200 -2];
+                        expModr2c=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
+                        uicontrol( 'Style','text','Parent', expModr2c,'String','Arduino Digital Pin Connected to Digitmer:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                        IntensityControlArduinoDigitalPin=uicontrol( 'Style','edit','Parent', expModr2c ,'String','D2','FontSize',11,'Tag','IntensityControlArduinoDigitalPin','callback',@cbParSaving);
+                        expModr2c.Widths=[200 -2];
+                        expModvBox.Heights=[45 45];
+                    case 1 %manual
+                        expModvBox=uix.VBox( 'Parent', panelIntensityControl, 'Spacing', 0, 'Padding', 0  );
+                        uicontrol( 'Style','text','Parent', expModvBox,'String','Since you have chosen manual Intensity Control, an instructive dialogue box will proide instricutions to Experimenter.','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                end
+            end
+            function cbParSaving(~,~)
+                obj.par.hardware_settings.(obj.hw.vbox_rp.device_name.String).device_type=obj.hw.device_type.listbox.Value;
+                obj.par.hardware_settings.(obj.hw.vbox_rp.device_name.String).slct_device=obj.hw.vbox_rp.slct_device2.Value;
+                obj.par.hardware_settings.(obj.hw.vbox_rp.device_name.String).device_name=obj.hw.vbox_rp.device_name.String;
+            end
+        end
         function cb_add_output(obj)
             
             obj.hw.device_added2_listbox.string(numel(obj.hw.device_added2_listbox.string)+1)=cellstr(obj.hw.vbox_rp.device_name.String);
@@ -12523,8 +12682,10 @@ classdef BEST < handle
                 switch obj.hw.vbox_rp.slct_device2.Value
                     case {1,2,3,4}
                         obj.cb_hw_output_pc_parsaving;
-                    case {5,6,7,8,9}
+                    case {5,6,7,8}
                         obj.cb_hw_output_neurone_parsaving;
+                    case 9
+                        obj.cb_hw_output_Digitimer_parsaving;
                 end
             end
         end
@@ -12538,6 +12699,8 @@ classdef BEST < handle
                         obj.cb_hw_input_neurone_parsaving;
                     case 2
                         obj.cb_hw_input_ft_parsaving;
+                    case 5
+                        obj.cb_hw_input_keyboard_parsaving;
                 end
             end
             
@@ -12547,12 +12710,19 @@ classdef BEST < handle
         
         function cb_hw_vbox_rp_slct_device (obj)
             switch obj.hw.vbox_rp.slct_device.Value
-                case 1
+                case 1 %NeurOne
                     obj.hw_input_neurone
-                case 2
+                case 2 %FieldTrip
                     obj.hw_input_ft
+                case 3 % ACS
+                    obj.hw_input_acs;
+                case 4 % ButtonBox
+                    obj.hw_input_buttonbox;
+                case 5 %Keyboard
+                    obj.hw_input_keyboard;
+                case 6 %Reading from BEST Toolbox Disk Mat File
+                    obj.hw_bestsimulation;
             end
-            
         end
         
         function cb_hw_input_neurone_parsaving(obj)
@@ -12572,6 +12742,11 @@ classdef BEST < handle
             obj.par.hardware_settings.(obj.hw.vbox_rp.device_name.String).samplesno=obj.hw.vbox_rp.samplesno.String;
             obj.par.hardware_settings.(obj.hw.vbox_rp.device_name.String).samplingrate=obj.hw.vbox_rp.samplingrate.String;
         end
+        function cb_hw_input_keyboard_parsaving(obj)
+            obj.par.hardware_settings.(obj.hw.vbox_rp.device_name.String).device_type=obj.hw.device_type.listbox.Value;
+            obj.par.hardware_settings.(obj.hw.vbox_rp.device_name.String).slct_device=obj.hw.vbox_rp.slct_device.Value;
+            obj.par.hardware_settings.(obj.hw.vbox_rp.device_name.String).device_name=obj.hw.vbox_rp.device_name.String;
+        end
         function cb_hw_output_neurone_parsaving(obj)
             obj.par.hardware_settings.(obj.hw.vbox_rp.device_name.String).device_type=obj.hw.device_type.listbox.Value;
             obj.par.hardware_settings.(obj.hw.vbox_rp.device_name.String).slct_device=obj.hw.vbox_rp.slct_device2.Value;
@@ -12586,12 +12761,20 @@ classdef BEST < handle
             obj.par.hardware_settings.(obj.hw.vbox_rp.device_name.String).device_name=obj.hw.vbox_rp.device_name.String;
             obj.par.hardware_settings.(obj.hw.vbox_rp.device_name.String).comport=obj.hw.vbox_rp.comport.String;
         end
+        function cb_hw_output_Digitimer_parsaving(obj)
+            obj.par.hardware_settings.(obj.hw.vbox_rp.device_name.String).device_type=obj.hw.device_type.listbox.Value;
+            obj.par.hardware_settings.(obj.hw.vbox_rp.device_name.String).slct_device=obj.hw.vbox_rp.slct_device2.Value;
+            obj.par.hardware_settings.(obj.hw.vbox_rp.device_name.String).device_name=obj.hw.vbox_rp.device_name.String;
+            obj.par.hardware_settings.(obj.hw.vbox_rp.device_name.String).TriggerControl=obj.hw.vbox_rp.TriggerControl.Value;
+            obj.par.hardware_settings.(obj.hw.vbox_rp.device_name.String).IntensityControl=obj.hw.vbox_rp.IntensityControl.Value;
+            obj.par.hardware_settings.(obj.hw.vbox_rp.device_name.String).bb_outputport=obj.hw.vbox_rp.BOSSDevicePort.String;
+        end
         
         function cb_hw_listbox_input(obj)
             slctd_input=char(obj.hw.device_added1.listbox.String(obj.hw.device_added1.listbox.Value));
             
             switch obj.par.hardware_settings.(slctd_input).slct_device
-                case 1
+                case 1 %NeurOe
                     %                     obj.cb_hw_input_neurone_parsaving;
                     obj.hw_input_neurone;
                     obj.hw.device_type.listbox.Value=obj.par.hardware_settings.(slctd_input).device_type;
@@ -12600,7 +12783,7 @@ classdef BEST < handle
                     obj.hw.vbox_rp.device_name.String=obj.par.hardware_settings.(slctd_input).device_name;
                     obj.hw.vbox_rp.prtcl_name.String=obj.par.hardware_settings.(slctd_input).prtcl_name;
                     
-                case 2
+                case 2 %FieldTrip Buffer
                     %                     obj.cb_hw_input_ft_parsaving;
                     obj.hw_input_ft;
                     obj.hw.device_type.listbox.Value=obj.par.hardware_settings.(slctd_input).device_type;
@@ -12612,6 +12795,14 @@ classdef BEST < handle
                     obj.hw.vbox_rp.channellabels.String=obj.par.hardware_settings.(slctd_input).channellabels;
                     obj.hw.vbox_rp.samplesno.String=obj.par.hardware_settings.(slctd_input).samplesno;
                     obj.hw.vbox_rp.samplingrate.String=obj.par.hardware_settings.(slctd_input).samplingrate;
+                case 3 % ACS
+                    obj.hw_input_acs;
+                case 4 % ButtonBox
+                    obj.hw_input_buttonbox;
+                case 5 %Keyboard
+                    obj.hw_input_keyboard;
+                case 6 %Reading from BEST Toolbox Disk Mat File
+                    obj.hw_bestsimulation;
             end
         end
         
