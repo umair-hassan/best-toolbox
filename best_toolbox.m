@@ -2430,9 +2430,8 @@ classdef best_toolbox < handle
         end
         function mep_scat_plot(obj)
             ax=['ax' num2str(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.axesno}{1,obj.inputs.chLab_idx})];
-            axes(obj.app.pr.ax.(ax)), hold on,
-            ylim auto
-            if numel(obj.inputs.ResponseFunctionNumerator) ==1 && numel(obj.inputs.ResponseFunctionDenominator) ==1 && any(obj.inputs.ResponseFunctionNumerator==obj.inputs.ResponseFunctionDenominator)
+            axes(obj.app.pr.ax.(ax)), hold on, ylim auto
+            if  numel(obj.inputs.ResponseFunctionNumerator) ==1 && numel(obj.inputs.ResponseFunctionDenominator) ==1 && any(obj.inputs.ResponseFunctionNumerator==obj.inputs.ResponseFunctionDenominator)
                 %% Preparing xvalue on the basis of Dose Function
                 switch obj.inputs.DoseFunction
                     case 1 % TS
@@ -2580,9 +2579,7 @@ classdef best_toolbox < handle
                 else
                     obj.info.plt.(ax).ioc_scatplot.XData=xvalue; obj.info.plt.(ax).ioc_scatplot.YData=yvalue;
                 end
-
             end
-            
         end %end mep_scat_plot
         function mep_stats(obj)
             %             ax=['ax' num2str(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.axesno}{1,obj.inputs.chLab_idx})];
