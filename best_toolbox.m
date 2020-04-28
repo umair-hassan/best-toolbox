@@ -24,9 +24,10 @@ classdef best_toolbox < handle
     properties (Hidden)
         
         magven
-        magstim
+        magStim
         bistim
         rapid
+        digitimer
         fieldtrip
         app;
         tc
@@ -1028,17 +1029,6 @@ classdef best_toolbox < handle
                             ChannelMeasures=repmat({'Psychometric Threshold Hunting'},1,numel(conds));
                             obj.app.pr.ax_measures=ChannelMeasures;
                             obj.app.pr.axesno=numel(ChannelMeasures);
-                            %% ---------------------------------
-                            %% Creating Channel Type, Channel Index
-                            switch obj.app.par.hardware_settings.(char(obj.inputs.input_device)).slct_device
-                                case 1 %boss box
-                                    ChannelType={'Psychometric'};
-                                    % % % %                                     ChannelID=num2cell(1:numel(ChannelLabels)); %TODO: make this more systematic and extract from channel labels of neurone or acs protocol
-                                    obj.inputs.ChannelsTypeUnique=ChannelType;
-                                case 2 % fieldtrip real time buffer
-                                case 5 %Keyboard and mouse
-                                    % nothing necessary is needed
-                            end
                             %% Creating Stimulation Conditions
                             for c=1:numel(fieldnames(obj.inputs.condsAll))
                                 obj.inputs.condMat{c,obj.inputs.colLabel.trials}=obj.inputs.TrialsPerCondition;
@@ -1047,7 +1037,7 @@ classdef best_toolbox < handle
                                 TargetChannel=obj.inputs.condsAll.(conds{c,1}).targetChannel;
                                 obj.app.pr.ax_ChannelLabels(c)=TargetChannel;
                                 obj.inputs.condMat{c,obj.inputs.colLabel.chLab}=TargetChannel;
-                                obj.inputs.condMat{c,obj.inputs.colLabel.measures}={'Threshold Trace'};
+                                obj.inputs.condMat{c,obj.inputs.colLabel.measures}={'Psychometric Threshold Trace'};
                                 obj.inputs.condMat{c,obj.inputs.colLabel.axesno}={c};
                                 obj.inputs.condMat{c,obj.inputs.colLabel.chType}={'Psychometric'};
                                 obj.inputs.condMat{c,obj.inputs.colLabel.chId}=num2cell(1); %% TODO: update it later with the originigal channel index
@@ -2001,33 +1991,49 @@ classdef best_toolbox < handle
                     % http://www.fieldtriptoolbox.org/faq/how_should_i_get_started_with_the_fieldtrip_realtime_buffer/
                 case 3 %Future: input box
                 case 4  %Future: no input box is selected
+                case 5 %Keyboard and Mouse
+                    % No specific booting is required
             end
         end
         function boot_outputdevice(obj)
             % 18-Mar-2020 11:01:08
+            device=0;
             delete(instrfindall);
-            switch obj.app.par.hardware_settings.(char(obj.inputs.output_device)).slct_device
-                case 1 % pc controlled magven
-                    obj.boot_magven
-                case 2 % pc controlled magstim
-                    obj.boot_magstim;
-                case 3 % pc controlled bistim
-                    obj.boot_bistim;
-                case 4 % pc controlled rapid
-                    obj.boot_rapid;
-                case 5 % boss box controlled magven
-                    obj.boot_magven;
-                    obj.boot_bossbox;
-                case 6% boss box controlled magstim
-                    obj.boot_magstim;
-                    obj.boot_bossbox;
-                case 7% boss box controlled bistim
-                    obj.boot_bistim;
-                    obj.boot_bossbox;
-                case 8% boss box controlled rapid
-                    obj.boot_rapid;
-                    obj.boot_bossbox;
-                case 9 %simulation
+            for allDevices=1:obj.inputs.totalConds
+                for alldevices=1:numel(obj.inputs.condMat{allDevices,obj.inputs.colLabel.outputDevices})
+                    device=device+1;
+                    allOutputDevices{device}=char(obj.inputs.condMat{allDevices,obj.inputs.colLabel.outputDevices}{1,alldevices});
+                end
+            end
+            uniqueOutputDevices=unique(allOutputDevices);
+            for i=1:numel(uniqueOutputDevices)
+                switch obj.app.par.hardware_settings.(uniqueOutputDevices{i}).slct_device
+                    case 1 % pc controlled magven
+                        if isempty(obj.magven), obj.boot_magven; end
+                    case 2 % pc controlled magstim
+                        if isempty(obj.magStim), obj.boot_magstim;end
+                    case 3 % pc controlled bistim
+                        if isempty(obj.bistim), obj.boot_bistim; end
+                    case 4 % pc controlled rapid
+                        if isempty(obj.rapid), obj.boot_rapid; end
+                    case 5 % boss box controlled magven
+                        if isempty(obj.magven), obj.boot_magven; end
+                        if isempty(obj.bossbox), obj.boot_bossbox; end
+                    case 6% boss box controlled magstim
+                        if isempty(obj.magven), obj.boot_magstim; end
+                        if isempty(obj.bossbox), obj.boot_bossbox; end
+                    case 7% boss box controlled bistim
+                        if isempty(obj.magven), obj.boot_bistim; end
+                        if isempty(obj.bossbox), obj.boot_bossbox; end
+                    case 8% boss box controlled rapid
+                        if isempty(obj.magven), obj.boot_rapid; end
+                        if isempty(obj.bossbox), obj.boot_bossbox; end
+                    case 9 %digitimer
+                        obj.boot_digitimer(uniqueOutputDevices{i});
+                        if obj.app.par.hardware_settings.(uniqueOutputDevices{i}).TriggerControl==1
+                            if isempty(obj.bossbox), obj.boot_bossbox; end
+                        end
+                end
             end
         end
         function bootTrial(obj)
@@ -2042,31 +2048,34 @@ classdef best_toolbox < handle
                 case 3 % pc controlled bistim
                 case 4 % pc controlled rapid
                 case {5,6,7,8} %bossbox controlled stimulator
-                    %obj.bossbox.singlePulse(str2double(obj.app.par.hardware_settings.(char(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.outputDevices}{1,1})).bb_outputport));
                     switch obj.inputs.BrainState
                         case 1
-                            % %obj.bossbox.EMGScopeStart; %moved at top of multiPulse function
-                            obj.bossbox.multiPulse(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.tpm});
+                            obj.bossbox.multiPulseAndScope(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.tpm});
                             tic;
                         case 2
-                            obj.bossbox.armPulse;
+                            obj.bossbox.armPulseAndScope;
                             obj.bossbox.bb.triggers_remaining
-% % % %                             while (true)
-% % % %                                 if (obj.bossbox.bb.triggers_remaining == 0)
-% % % %                                     obj.bossbox.bb.disarm;
-% % % %                                     break;
-% % % %                                 end
-% % % %                                 
-% % % %                             end
-% % %                             while (obj.bossbox.bb.triggers_remaining ~= 0)
-% % %                                     disp >>>>>>>>>>>>>>>>
-% % %                             end
-% % %                             obj.bossbox.bb.disarm;
-% % % 
-% % %                             a=1
                             tic;
                     end
-                case 9 %simulation
+                case 9 %% digitimer
+                    switch obj.app.par.hardware_settings.(char(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.outputDevices}{1,1})).TriggerControl
+                        case 1 %bossdevice
+                            switch obj.inputs.BrainState
+                                case 1
+                                    obj.bossbox.multiPulseOnly(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.tpm});
+                                    tic;
+                                case 2
+                                    obj.bossbox.armPulseOnly;
+                                    tic;
+                            end
+                        case 2 %COM
+                        case 3 %LPT
+                        case 4 %Arduino
+                        case 5 %Raspi
+                        case 6 %Manual
+                    end
+
+                case 10%simulation
                     disp simulatedTRIGGER
             end
         end
@@ -2101,9 +2110,6 @@ classdef best_toolbox < handle
 %                                 obj.inputs.rawData.(unique_chLab{1,i}).data(obj.inputs.trial,:)=obj.best_VisualizationFilter([obj.bossbox.EMGScope.Data(:,1)]');
                             case 'EEG'
                         end
-                        
-
-                        
                     end
                 case 2 % fieldtrip
                     % http://www.fieldtriptoolbox.org/faq/how_should_i_get_started_with_the_fieldtrip_realtime_buffer/
@@ -2112,7 +2118,8 @@ classdef best_toolbox < handle
                     for i=1:numel(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab})
                         obj.inputs.rawData.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,i}).data(obj.inputs.trial,:)=(rand (1,obj.inputs.sc_samples))+5000000;
                     end
-                case 5 %Future: no input box is selected
+                case 5 % Keyboard and Mouse
+                    obj.inputs.rawData.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,1}).data(obj.inputs.trial,1)=obj.responseKeyboardAndMouse;
             end
         end
         function processTrial(obj)
@@ -2143,6 +2150,9 @@ classdef best_toolbox < handle
                         obj.PlotPhaseHistogram;
                     case 'TriggerLockedEEG'
                         obj.PlotTriggerLockedEEG;
+                    case 'Psychometric Threshold Trace'
+                        obj.psych_threshold;
+                        obj.psych_threshold_trace_plot;
                 end
             end
             % updating analytics paneljust once in 1 trial
@@ -2248,7 +2258,16 @@ classdef best_toolbox < handle
                                         case 'paired_pulse'
                                         case 'train'
                                     end
-                                case 9 %simulation
+                                case 9 %digitimer
+                                    switch obj.app.par.hardware_settings.(char(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.outputDevices}{1,i})).IntensityControl
+                                        case 1 % Manual 
+                                            OutputDevice=char(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.outputDevices}{1,i});
+                                            obj.digitimer.(OutputDevice).setManualAmplitude(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,i}{1,1},OutputDevice);
+                                        case 2 % Arduino
+                                            OutputDevice=char(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.outputDevices}{1,i});
+                                            obj.digitimer.(OutputDevice).setAutomaticAmplitude(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,i}{1,1});
+                                    end
+                                case 10 %simulation
                                     switch char(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.stimMode}{1,i})
                                         case 'single_pulse'
                                             disp single_pulse_prepared
@@ -2298,7 +2317,7 @@ classdef best_toolbox < handle
             obj.sessions.(obj.app.info.event.current_session).(obj.app.info.event.current_measure_fullstr).ConditionsMatrix=obj.inputs.condMat;
             obj.sessions.(obj.app.info.event.current_session).(obj.app.info.event.current_measure_fullstr).TrialsMatrix=obj.inputs.trialMat;
             obj.sessions.(obj.app.info.event.current_session).(obj.app.info.event.current_measure_fullstr).RawData=obj.inputs.rawData;
-            obj.sessions.(obj.app.info.event.current_session).(obj.app.info.event.current_measure_fullstr).Results=obj.inputs.results;
+            try obj.sessions.(obj.app.info.event.current_session).(obj.app.info.event.current_measure_fullstr).Results=obj.inputs.results; catch, end
         end
         function saveFigures(obj)
             FigureFileName1=erase(obj.info.matfilstr,'.mat');
@@ -3009,11 +3028,16 @@ classdef best_toolbox < handle
                 experimental_condition{1}.random_delay_range = 0.1;
                 experimental_condition{1}.port = 1;
                 obj.tc.(mrk).stimvalue = [obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,1}{1,1} 1.0 1.00];
-                obj.tc.(mrk).stepsize = [1 1 1];
-                obj.tc.(mrk).minstep =  1;
-                obj.tc.(mrk).maxstep =  8;
-                obj.tc.(mrk).minvalue = 10;
-                obj.tc.(mrk).maxvalue = 90;
+%                 obj.tc.(mrk).stepsize = [1 1 1];
+%                 obj.tc.(mrk).minstep =  1;
+%                 obj.tc.(mrk).maxstep =  8;
+%                 obj.tc.(mrk).minvalue = 10;
+%                 obj.tc.(mrk).maxvalue = 90;
+                obj.tc.(mrk).stepsize = [0.4 0.4 0.4];
+                obj.tc.(mrk).minstep =  0.01;
+                obj.tc.(mrk).maxstep =  1.00;
+                obj.tc.(mrk).minvalue = 0.20;
+                obj.tc.(mrk).maxvalue = 9;
                 obj.tc.(mrk).responses = {[] [] []};
                 obj.tc.(mrk).stimvalues = {[] [] []};  %storage for post-hoc review
                 obj.tc.(mrk).stepsizes = {[] [] []};   %storage for post-hoc review
@@ -3040,6 +3064,129 @@ classdef best_toolbox < handle
             MEPP2PAmpNonZeroIndex=find(obj.inputs.results.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).MEPAmplitude,1,'last');
             MEPP2PAmp=obj.inputs.results.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).MEPAmplitude(MEPP2PAmpNonZeroIndex);
             if MEPP2PAmp > (obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.threshold}*(1000)) % take the threshol for that particular condition, take the condition name from the marker or put that in the cond
+                disp('Hit')
+                answer = 1;
+            else
+                disp('Miss')
+                answer = 0;
+            end
+            
+            obj.tc.(mrk).responses{StimDevice} = [obj.tc.(mrk).responses{StimDevice}, answer];
+            
+            
+            if length(obj.tc.(mrk).responses{StimDevice}) == 1
+                if answer == 1
+                    obj.tc.(mrk).stepsize(StimDevice) =  -obj.tc.(mrk).stepsize(StimDevice);
+                end
+            elseif length(obj.tc.(mrk).responses{StimDevice}) == 2
+                if obj.tc.(mrk).responses{StimDevice}(end) ~= obj.tc.(mrk).responses{StimDevice}(end-1)
+                    obj.tc.(mrk).stepsize(StimDevice) = -obj.tc.(mrk).stepsize(StimDevice)/2;
+                    fprintf(' Step Reversed and Halved\n')
+                    obj.tc.(mrk).lastreverse(StimDevice) = length(obj.tc.(mrk).responses{StimDevice});
+                end
+                
+            elseif length(obj.tc.(mrk).responses{StimDevice})  == 3
+                if obj.tc.(mrk).responses{StimDevice}(end) ~= obj.tc.(mrk).responses{StimDevice}(end-1)
+                    obj.tc.(mrk).stepsize(StimDevice) = -obj.tc.(mrk).stepsize(StimDevice)/2;
+                    fprintf(' Step Reversed and Halved\n')
+                    obj.tc.(mrk).lastreverse(StimDevice) = length(obj.tc.(mrk).responses{StimDevice});
+                elseif obj.tc.(mrk).responses{StimDevice}(end) == obj.tc.(mrk).responses{StimDevice}(end-1) && obj.tc.(mrk).responses{StimDevice}(end) == obj.tc.(mrk).responses{StimDevice}(end-2)
+                    obj.tc.(mrk).stepsize(StimDevice) = obj.tc.(mrk).stepsize(StimDevice)*2;
+                    fprintf(' Step Size Doubled\n')
+                    obj.tc.(mrk).lastdouble(StimDevice) = length(obj.tc.(mrk).responses{StimDevice});
+                end
+                
+            elseif length(obj.tc.(mrk).responses{StimDevice}) > 3
+                if obj.tc.(mrk).responses{StimDevice}(end) ~= obj.tc.(mrk).responses{StimDevice}(end-1)
+                    %             rule 1
+                    obj.tc.(mrk).stepsize(StimDevice) = -obj.tc.(mrk).stepsize(StimDevice)/2;
+                    fprintf(' Step Reversed and Halved\n')
+                    obj.tc.(mrk).lastreverse(StimDevice) = length(obj.tc.(mrk).responses{StimDevice});
+                    %             rule 2 doesnt  need any specific dealing
+                    %             rule 4
+                elseif obj.tc.(mrk).responses{StimDevice}(end) == obj.tc.(mrk).responses{StimDevice}(end-2) && obj.tc.(mrk).responses{StimDevice}(end) == obj.tc.(mrk).responses{StimDevice}(end-3)
+                    obj.tc.(mrk).stepsize(StimDevice) = obj.tc.(mrk).stepsize(StimDevice)*2;
+                    fprintf(' Step Size Doubled\n')
+                    obj.tc.(mrk).lastdouble(StimDevice) = length(obj.tc.(mrk).responses{StimDevice});
+                    %             rule 3
+                elseif obj.tc.(mrk).responses{StimDevice}(end) == obj.tc.(mrk).responses{StimDevice}(end-1) && obj.tc.(mrk).responses{StimDevice}(end) == obj.tc.(mrk).responses{StimDevice}(end-2) && obj.tc.(mrk).lastdouble(StimDevice) ~= obj.tc.(mrk).lastreverse(StimDevice)-1
+                    obj.tc.(mrk).stepsize(StimDevice) = obj.tc.(mrk).stepsize(StimDevice)*2;
+                    fprintf(' Step Size Doubled\n')
+                    obj.tc.(mrk).lastdouble(StimDevice) = length(obj.tc.(mrk).responses{StimDevice});
+                end
+                
+            end
+            
+            if abs(obj.tc.(mrk).stepsize(StimDevice)) < obj.tc.(mrk).minstep
+                if obj.tc.(mrk).stepsize(StimDevice) < 0
+                    obj.tc.(mrk).stepsize(StimDevice) = -obj.tc.(mrk).minstep;
+                else
+                    obj.tc.(mrk).stepsize(StimDevice) = obj.tc.(mrk).minstep;
+                end
+            end
+            
+            obj.tc.(mrk).stimvalue(StimDevice) = obj.tc.(mrk).stimvalue(StimDevice) + obj.tc.(mrk).stepsize(StimDevice);
+            
+            if obj.tc.(mrk).stimvalue(StimDevice) < obj.tc.(mrk).minvalue
+                obj.tc.(mrk).stimvalue(StimDevice) = obj.tc.(mrk).minvalue;
+                disp('Minimum value reached.')
+            end
+            
+            if obj.tc.(mrk).stimvalue(StimDevice) > obj.tc.(mrk).maxvalue
+                obj.tc.(mrk).stimvalue(StimDevice) = obj.tc.(mrk).maxvalue;
+                disp('Max value reached.')
+            end
+
+            ConditionMarker=obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.marker};
+            TrialsNoForThisMarker=find(vertcat(obj.inputs.trialMat{1:end,obj.inputs.colLabel.marker})==ConditionMarker);
+            TrialToUpdate=find(TrialsNoForThisMarker>obj.inputs.trial);
+            TrialToUpdate=TrialsNoForThisMarker(TrialToUpdate(1));
+            obj.inputs.trialMat{TrialToUpdate,obj.inputs.colLabel.si}{1,1}{1,1}=obj.tc.(mrk).stimvalue(StimDevice);
+            
+        end
+        function psych_threshold(obj)
+            %             if first trial, read from starting intensity
+            %                 otherwise read from the evokness and write to the
+            %                 intensity function
+            AllConditionsFirstTrial=1:obj.inputs.totalConds
+            mrk=['mrk' num2str(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.marker})];
+            if((obj.inputs.trial<=max(AllConditionsFirstTrial)))
+                experimental_condition = [];
+                experimental_condition{1}.name = 'random';
+                experimental_condition{1}.phase_target = 0;
+                experimental_condition{1}.phase_plusminus = pi;
+                experimental_condition{1}.marker = 3;
+                experimental_condition{1}.random_delay_range = 0.1;
+                experimental_condition{1}.port = 1;
+                obj.tc.(mrk).stimvalue = [obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,1}{1,1} 1.0 1.00];
+                obj.tc.(mrk).stepsize = [0.4 0.4 0.4];
+                obj.tc.(mrk).minstep =  0.01;
+                obj.tc.(mrk).maxstep =  1.00;
+                obj.tc.(mrk).minvalue = 0.20;
+                obj.tc.(mrk).maxvalue = 9;
+                obj.tc.(mrk).responses = {[] [] []};
+                obj.tc.(mrk).stimvalues = {[] [] []};  %storage for post-hoc review
+                obj.tc.(mrk).stepsizes = {[] [] []};   %storage for post-hoc review
+                
+                obj.tc.(mrk).lastdouble = [0,0,0];
+                obj.tc.(mrk).lastreverse = [0,0,0];
+            end
+            StimDevice=1;
+            stimtype = 1;
+            experimental_condition{1}.port = 1;
+            
+            condition = experimental_condition{1};
+            
+            
+            obj.tc.(mrk).stimvalues{StimDevice} = [obj.tc.(mrk).stimvalues{StimDevice}, round(obj.tc.(mrk).stimvalue(StimDevice),2)];
+            obj.tc.(mrk).stepsizes{StimDevice} = [obj.tc.(mrk).stepsizes{StimDevice}, round(obj.tc.(mrk).stepsize(StimDevice),2)];
+
+%             obj.inputs.results.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).MEPAmplitude(obj.inputs.trial,1)=input('enter mep amp  ');
+%             obj.inputs.results.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).MEPAmplitude
+%             m(1:find(m,1,'last'))
+            MEPP2PAmpNonZeroIndex=find(obj.inputs.rawData.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).data,1,'last');
+            MEPP2PAmp=obj.inputs.rawData.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).data(MEPP2PAmpNonZeroIndex);
+            if MEPP2PAmp == (obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.threshold}) % take the threshol for that particular condition, take the condition name from the marker or put that in the cond
                 disp('Hit')
                 answer = 1;
             else
@@ -3162,6 +3309,37 @@ classdef best_toolbox < handle
 %                     set(obj.info.plt.(ax).mt_nextIntensityDot,'XData',obj.inputs.trial+1,'YData',obj.inputs.trialMat{obj.inputs.trial+1,obj.inputs.colLabel.si}{1,1})
             end
         end
+        function psych_threshold_trace_plot(obj)
+            ax=['ax' num2str(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.axesno}{1,obj.inputs.chLab_idx})];
+            axes(obj.app.pr.ax.(ax)), hold on,
+            switch obj.inputs.trial
+                case num2cell(1:obj.inputs.totalConds)
+                    YData=obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,1}{1,1};
+                    ConditionMarker=obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.marker};
+                    TrialsNoForThisMarker=find(vertcat(obj.inputs.trialMat{1:end,obj.inputs.colLabel.marker})==ConditionMarker);
+                    TrialToUpdate=find(TrialsNoForThisMarker>obj.inputs.trial);
+                    TrialToUpdate=TrialsNoForThisMarker(TrialToUpdate(1));
+                    YDataPlusOne=obj.inputs.trialMat{TrialToUpdate,obj.inputs.colLabel.si}{1,1}{1,1};
+                    obj.info.plt.(ax).mtplot=plot(YData,'LineWidth',2);
+                    xlabel('Trial Number');   
+                    ylabel('Stimulation Intensities (mA)');
+%                     yticks(0:5:400);
+%                     xticks(1:2:100); 
+                    set(gcf, 'color', 'w')
+                    obj.info.plt.(ax).mt_nextIntensityDot=plot(2,YDataPlusOne,'o','Color','r','MarkerSize',4,'MarkerFaceColor','r');
+                otherwise
+%                     yticks(0:5:400);
+%                     xticks(1:2:100);   
+                    ConditionMarker=obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.marker};
+                    TrialsNoForThisMarker=find(vertcat(obj.inputs.trialMat{1:end,obj.inputs.colLabel.marker})==ConditionMarker);
+                    TrialToUpdate=find(TrialsNoForThisMarker>obj.inputs.trial);
+                    TrialToUpdate=TrialsNoForThisMarker(TrialToUpdate(1));
+                    YDataPlusOne=obj.inputs.trialMat{TrialToUpdate,obj.inputs.colLabel.si}{1,1}{1,1};
+                    obj.info.plt.(ax).mtplot.YData=[obj.info.plt.(ax).mtplot.YData obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,1}{1,1}];
+                    obj.info.plt.(ax).mt_nextIntensityDot.XData=obj.info.plt.(ax).mt_nextIntensityDot.XData+1;
+                    obj.info.plt.(ax).mt_nextIntensityDot.YData=YDataPlusOne;
+            end
+        end
         
         function planTrials_scopePeriods(obj)
             disp enteredtimevect-------------
@@ -3255,9 +3433,9 @@ classdef best_toolbox < handle
             obj.magven.arm;
         end
         function boot_magstim(obj)
-            obj.magstim=magstim(obj.app.par.hardware_settings.(obj.inputs.output_device).comport);
-            obj.magstim.connect;
-            obj.magstim.arm;
+            obj.magStim=magstim(obj.app.par.hardware_settings.(obj.inputs.output_device).comport);
+            obj.magStim.connect;
+            obj.magStim.arm;
         end
         function boot_bistim(obj)
             obj.bistim=magstim(obj.app.par.hardware_settings.(obj.inputs.output_device).comport);
@@ -3268,6 +3446,10 @@ classdef best_toolbox < handle
             obj.rapid=magstim(obj.app.par.hardware_settings.(obj.inputs.output_device).comport);
             obj.rapid.connect;
             obj.rapid.arm;
+        end
+        function boot_digitimer(obj,OutputDevice)
+            obj.digitimer.(OutputDevice)=best_digitimer(obj);
+            
         end
         function boot_bossbox(obj)
             obj.bossbox=best_sync2brain_bossdevice(obj);
@@ -3434,7 +3616,23 @@ classdef best_toolbox < handle
 %             end
                 
         end
-        
+        function Response = responseKeyboardAndMouse(obj)
+            f=figure('Name','Response Box | BEST Toolbox','numbertitle', 'off','ToolBar', 'none','MenuBar', 'none','WindowStyle', 'modal','Units', 'normal', 'Position', [0.5 0.5 .25 .05],'Resize','off','CloseRequestFcn',@(~,~)CloseReqFcn);
+            uicontrol( 'Style','text','Parent', f,'String','Did the subject experience a sensation? ' ,'FontSize',13,'HorizontalAlignment','center','Units','normalized','Position',[0.05 0.5 1 0.4]);
+            uicontrol( 'Style','pushbutton','Parent', f,'String','Yes','FontSize',12,'HorizontalAlignment','center','Units','normalized','Position',[0.3 0.05 0.2 0.4],'Callback',@cbResponse);
+            uicontrol( 'Style','pushbutton','Parent', f,'String','No','FontSize',12,'HorizontalAlignment','center','Units','normalized','Position',[0.6 0.05 0.2 0.4],'Callback',@cbResponse);
+            waitfor(f)
+            function cbResponse(source,~)
+                    switch source.String
+                        case 'Yes'
+                            Response=1;
+                        case 'No'
+                            Response=-1;
+                    end
+                    delete(f)
+            end
+            function CloseReqFcn, end
+        end
         
         %% Old Scripts
         function best_motorhotspot(obj)
