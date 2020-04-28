@@ -237,6 +237,8 @@ classdef BEST < handle
                          obj.bst.best_mep;
                      case 'MEP Dose Response Curve Protocol'
                          obj.bst.best_drc;
+                     case 'Psychometric Threshold Hunting Protocol'
+                         obj.bst.best_psychmth;
                  end
              end
          end
@@ -887,6 +889,8 @@ classdef BEST < handle
                         obj.pr_RunningAmplitude;
                     case 'AmplitudeDistribution'
                         obj.pr_AmplitudeDistribution;
+                    case 'Psychometric Threshold Hunting'
+                        obj.pr_PsychometricThresholdHunting;
                 end
                 
             end
@@ -1286,6 +1290,14 @@ classdef BEST < handle
             xticks([]); xticklabels([]);
             text(obj.pr.ax.(obj.pr.ax_no),1,1,'zoomin','units','normalized','HorizontalAlignment','right','VerticalAlignment','bottom','ButtonDownFcn',@obj.pr_YLimZoomIn,'Tag',obj.pr.ax_no,'color',[0.55 0.55 0.55]);
             text(obj.pr.ax.(obj.pr.ax_no),0.1,1,'   zoomout','units','normalized','HorizontalAlignment','left','VerticalAlignment','bottom','ButtonDownFcn',@obj.pr_YLimZoomOut,'Tag',obj.pr.ax_no,'color',[0.55 0.55 0.55]);
+        end
+        function pr_PsychometricThresholdHunting(obj)
+            obj.pr.ax_no=['ax' num2str(obj.pr.axesno)];
+            AxesTitle=['Threshold Trace ' obj.pr.ax_ChannelLabels{1,obj.pr.axesno}];
+            obj.pr.clab.(obj.pr.ax_no)=uix.Panel( 'Parent', obj.pr.grid, 'Padding', 5 ,'Units','normalized','Title',AxesTitle,'FontWeight','bold','FontSize',12,'TitlePosition','centertop' );
+            obj.pr.ax.(obj.pr.ax_no)=axes( uicontainer('Parent',   obj.pr.clab.(obj.pr.ax_no)),'Units','normalized');
+            xlabel('No. of Trials')
+            ylabel('Intensity (mA)');
         end
         %% multimodal old and new
         
@@ -9066,9 +9078,9 @@ classdef BEST < handle
             table=uitable( 'Parent', obj.pi.mm.r0v2r1);
             table.Data=TableData;%cell(6,12); % the row number comes from above
             table.FontSize=10;
-            table.ColumnName = {'Condition #','TS Intensity','Intensity Units','Stimulator','Pulse Mode','# of Pulses','Timing Onset (ms)','Target EMG Channel','CS Intensity','ISI (ms)','Train Freq','# of Trains'};
+            table.ColumnName = {'Condition #','Starting TS Intensity','Intensity Units','Stimulator','Pulse Mode','# of Pulses','Timing Onset (ms)','Target Location','CS Intensity','ISI (ms)','Train Freq','# of Trains'};
             table.ColumnFormat={[],[],{'mA'},obj.hw.device_added2_listbox.string,{'Single Pulse','Paired Pulse', 'Train'},[],[],[],[],[],[],[]};
-            table.ColumnWidth = {100,100,100, 100,100,100,100,100,100,100,90,90,90};
+            table.ColumnWidth = {100,110,100, 100,100,100,100,100,100,100,90,90,90};
             table.ColumnEditable =true(1,numel(table.ColumnName));
             table.RowStriping='on';
             table.RearrangeableColumns='on';
@@ -10147,7 +10159,7 @@ classdef BEST < handle
             % uicontroller
             obj.info.defaults=[];
             obj.info.defaults.BrainState=1;
-            obj.info.defaults.TrialsPerCondition='10';
+            obj.info.defaults.TrialsPerCondition='40';
             obj.info.defaults.InputDevice=1;
             obj.info.defaults.ITI='4';
             obj.info.defaults.MontageChannels=['{' ' ''C3'',' ' ''FC1'',' ' ''FC5'',' ' ''CP1'',' ' ''CP5''}'];
@@ -10168,10 +10180,10 @@ classdef BEST < handle
             obj.info.defaults.EEGDisplayPeriodPost='100';
             obj.info.defaults.EMGDisplayYLimMax={100};
             obj.info.defaults.EMGDisplayYLimMin={-100};
-            obj.info.defaults.Protocol={'Motor Threshold Hunting Protocol'};
+            obj.info.defaults.Protocol={'Psychometric Threshold Hunting Protocol'};
             obj.info.defaults.Handles.UserData='Reserved for Future Use';
             obj.info.defaults.Enable={'on'};
-            si=[30];
+            si=[1];
             for idefaults=1:numel(si)
                 cond=['cond' num2str(idefaults)];
                 obj.info.defaults.condsAll.(cond).targetChannel=cellstr('NaN');
