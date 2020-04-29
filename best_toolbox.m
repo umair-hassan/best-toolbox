@@ -1038,6 +1038,8 @@ classdef best_toolbox < handle
                                 obj.inputs.condMat{c,obj.inputs.colLabel.iti}=obj.inputs.ITI;
                                 obj.inputs.condMat{c,obj.inputs.colLabel.inputDevices}=char(obj.app.pi.psychmth.InputDevice.String(obj.inputs.InputDevice));
                                 TargetChannel=obj.inputs.condsAll.(conds{c,1}).targetChannel;
+                                obj.inputs.results.(TargetChannel{1}).PsychometricThreshold=obj.inputs.PsychometricThreshold;
+                                obj.inputs.results.(TargetChannel{1}).NoOfLastTrialsToAverage=obj.inputs.NoOfTrialsToAverage;
                                 obj.app.pr.ax_ChannelLabels(c)=TargetChannel;
                                 obj.inputs.condMat{c,obj.inputs.colLabel.chLab}=TargetChannel;
                                 obj.inputs.condMat{c,obj.inputs.colLabel.measures}={'Psychometric Threshold Trace'};
@@ -1175,6 +1177,8 @@ classdef best_toolbox < handle
                                 obj.inputs.condMat{c,obj.inputs.colLabel.iti}=obj.inputs.ITI;
                                 obj.inputs.condMat{c,obj.inputs.colLabel.inputDevices}=char(obj.app.pi.psychmth.InputDevice.String(obj.inputs.InputDevice));
                                 TargetChannel=obj.inputs.condsAll.(conds{c,1}).targetChannel;
+                                obj.inputs.results.(TargetChannel).PsychometricThreshold=obj.inputs.PsychometricThreshold;
+                                obj.inputs.results.(TargetChannel).NoOfLastTrialsToAverage=obj.inputs.NoOfTrialsToAverage;
                                 ChannelLabels{c}=TargetChannel;
                                 obj.inputs.condMat{c,obj.inputs.colLabel.chLab}=[{'OsscillationPhase'},{'OsscillationEEG'},cellstr(TargetChannel),{'OsscillationAmplitude'},{'AmplitudeDistribution'}];
                                 obj.inputs.condMat{c,obj.inputs.colLabel.measures}=[{'PhaseHistogram'},{'TriggerLockedEEG'},{'Psychometric Threshold Trace'},{'RunningAmplitude'},{'AmplitudeDistribution'}];
@@ -3508,6 +3512,9 @@ classdef best_toolbox < handle
                     xticks(1:2:1000); yticks(0:0.2:20); ylim auto
                     xlim([obj.app.pr.ax.(ax).XLim(1) obj.app.pr.ax.(ax).XLim(2)+1])
                     ylim([obj.app.pr.ax.(ax).YLim(1) (obj.app.pr.ax.(ax).YLim(2)*1.1)])
+                    textPsychometricThresholdStatus={['Trials to Average:' num2str(obj.inputs.NoOfTrialsToAverage)],['Threshold (mV):' sprintf('%.1f',obj.inputs.PsychometricThreshold)]};
+                    obj.app.pr.ax.(ax).UserData.status=text(obj.app.pr.ax.(ax),1,1,textPsychometricThresholdStatus,'units','normalized','HorizontalAlignment','right','VerticalAlignment','cap','color',[0.45 0.45 0.45]);
+                    obj.app.pr.ax.(ax).UserData.ThresholdGirdLine=gridxy([],0,'Color','k','linewidth',1,'Parent',obj.app.pr.ax.(ax));
                 otherwise
                     xticks(1:1:1000);   
                     ConditionMarker=obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.marker};
@@ -3520,6 +3527,18 @@ classdef best_toolbox < handle
                     obj.info.plt.(ax).mt_nextIntensityDot.YData=YDataPlusOne;
                     xlim([obj.app.pr.ax.(ax).XLim(1) obj.app.pr.ax.(ax).XLim(2)+1])
                     ylim auto; ylim([obj.app.pr.ax.(ax).YLim(1) (obj.app.pr.ax.(ax).YLim(2)*1.1)])
+                    Channel=obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx};
+                    obj.computePsychometricThreshold(Channel,obj.info.plt.(ax).mtplot.YData)
+                    obj.app.pr.ax.(ax).UserData.status.String={['Trials to Average:' num2str(obj.inputs.results.(Channel).NoOfLastTrialsToAverage)],['Threshold (mV):' sprintf('%.1f',obj.inputs.results.(Channel).PsychometricThreshold)]};
+                    delete(obj.app.pr.ax.(ax).UserData.ThresholdGirdLine)
+                    obj.app.pr.ax.(ax).UserData.ThresholdGirdLine=gridxy([],obj.inputs.results.(Channel).PsychometricThreshold,'Color','k','linewidth',1,'Parent',obj.app.pr.ax.(ax));
+            end
+        end
+        function computePsychometricThreshold(obj,Channel,AllIntensities)
+            if obj.inputs.results.(Channel).NoOfLastTrialsToAverage<numel(AllIntensities)
+                obj.inputs.results.(Channel).PsychometricThreshold=mean(AllIntensities(end-10:end));
+            else
+                obj.inputs.results.(Channel).PsychometricThreshold=mean(AllIntensities);
             end
         end
         

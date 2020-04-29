@@ -10187,6 +10187,8 @@ classdef BEST < handle
             obj.info.defaults.Protocol={'Psychometric Threshold Hunting Protocol'};
             obj.info.defaults.Handles.UserData='Reserved for Future Use';
             obj.info.defaults.Enable={'on'};
+            obj.info.defaults.NoOfTrialsToAverage='10';
+            obj.info.defaults.PsychometricThreshold='NaN';
             si=[1];
             for idefaults=1:numel(si)
                 cond=['cond' num2str(idefaults)];
@@ -10199,7 +10201,7 @@ classdef BEST < handle
                 obj.info.defaults.condsAll.(cond).st1.si_units=1;
                 obj.info.defaults.condsAll.(cond).st1.threshold='';
                 obj.info.defaults.condsAll.(cond).st1.si_pckt={si(idefaults)};
-                obj.info.defaults.condsAll.(cond).st1.threshold_level=0.05;
+                obj.info.defaults.condsAll.(cond).st1.threshold_level=1;
             end
             obj.par.(obj.info.event.current_session).(obj.info.event.measure_being_added)=obj.info.defaults;
         end
