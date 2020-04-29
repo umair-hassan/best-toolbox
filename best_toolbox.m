@@ -3323,13 +3323,13 @@ classdef best_toolbox < handle
                     obj.info.plt.(ax).mtplot=plot(YData,'LineWidth',2);
                     xlabel('Trial Number');   
                     ylabel('Stimulation Intensities (mA)');
-%                     yticks(0:5:400);
-%                     xticks(1:2:100); 
                     set(gcf, 'color', 'w')
                     obj.info.plt.(ax).mt_nextIntensityDot=plot(2,YDataPlusOne,'o','Color','r','MarkerSize',4,'MarkerFaceColor','r');
+                    xticks(1:2:1000); yticks(0:0.2:20); ylim auto
+                    xlim([obj.app.pr.ax.(ax).XLim(1) obj.app.pr.ax.(ax).XLim(2)+1])
+                    ylim([obj.app.pr.ax.(ax).YLim(1) (obj.app.pr.ax.(ax).YLim(2)*1.1)])
                 otherwise
-%                     yticks(0:5:400);
-%                     xticks(1:2:100);   
+                    xticks(1:1:1000);   
                     ConditionMarker=obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.marker};
                     TrialsNoForThisMarker=find(vertcat(obj.inputs.trialMat{1:end,obj.inputs.colLabel.marker})==ConditionMarker);
                     TrialToUpdate=find(TrialsNoForThisMarker>obj.inputs.trial);
@@ -3338,6 +3338,8 @@ classdef best_toolbox < handle
                     obj.info.plt.(ax).mtplot.YData=[obj.info.plt.(ax).mtplot.YData obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,1}{1,1}];
                     obj.info.plt.(ax).mt_nextIntensityDot.XData=obj.info.plt.(ax).mt_nextIntensityDot.XData+1;
                     obj.info.plt.(ax).mt_nextIntensityDot.YData=YDataPlusOne;
+                    xlim([obj.app.pr.ax.(ax).XLim(1) obj.app.pr.ax.(ax).XLim(2)+1])
+                    ylim auto; ylim([obj.app.pr.ax.(ax).YLim(1) (obj.app.pr.ax.(ax).YLim(2)*1.1)])
             end
         end
         
