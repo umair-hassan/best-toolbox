@@ -1134,14 +1134,14 @@ classdef best_toolbox < handle
                             obj.inputs.colLabel.outputDevices=2;
                             obj.inputs.colLabel.si=3;
                             obj.inputs.colLabel.iti=4;
-                            obj.inputs.colLabel.chLab=5;
+                            obj.inputs.colLabel.chLab=5; %prob
                             obj.inputs.colLabel.trials=9;
                             obj.inputs.colLabel.axesno=6;
                             obj.inputs.colLabel.measures=7;
                             obj.inputs.colLabel.stimMode=8;
                             obj.inputs.colLabel.tpm=10;
                             obj.inputs.colLabel.chType=11;
-                            obj.inputs.colLabel.chId=12;
+                            obj.inputs.colLabel.chId=12; %prob
                             obj.inputs.colLabel.phase=15;
                             obj.inputs.colLabel.IA=16;
                             obj.inputs.colLabel.threshold=13;
@@ -1177,7 +1177,7 @@ classdef best_toolbox < handle
                                 obj.inputs.condMat{c,obj.inputs.colLabel.measures}=[{'PhaseHistogram'},{'TriggerLockedEEG'},{'Psychometric Threshold Hunting'},{'RunningAmplitude'},{'AmplitudeDistribution'}];
                                 obj.inputs.condMat{c,obj.inputs.colLabel.axesno}={1,2,axesno{c+2},axesno{end-1},axesno{end}};
                                 obj.inputs.condMat{c,obj.inputs.colLabel.chType}=[{'IP'},{'IEEG'},{'Psyhcometric'},{'IA'},{'IADistribution'}];
-                                obj.inputs.condMat{c,obj.inputs.colLabel.chId}={ChannelID{1},ChannelID{2},ChannelID{c+2},{1},{1}};
+                                obj.inputs.condMat{c,obj.inputs.colLabel.chId}={ChannelID{1},ChannelID{2},ChannelID{c+2},1,1};
                                 obj.inputs.condMat{c,obj.inputs.colLabel.marker}=c;
                                 obj.inputs.condMat{c,obj.inputs.colLabel.threshold}=1;
                                 conds=fieldnames(obj.inputs.condsAll);
@@ -1240,10 +1240,10 @@ classdef best_toolbox < handle
                                 end
                                 markers{1,1}=c;
                                 condstimTiming_new_sorted=[num2cell((cellfun(@str2num, tpmVect_unique(1,1:end))));buffer;markers];
-                                condstimTiming_new_sorted=cell2mat(condstimTiming_new_sorted)
-                                [condstimTiming_new_sorted(1,:),sorted_idx]=sort(condstimTiming_new_sorted(1,:))
+                                condstimTiming_new_sorted=cell2mat(condstimTiming_new_sorted);
+                                [condstimTiming_new_sorted(1,:),sorted_idx]=sort(condstimTiming_new_sorted(1,:));
                                 condstimTiming_new_sorted(1,:)=condstimTiming_new_sorted(1,:)/1000;
-                                condstimTiming_new_sorted(2,:)=condstimTiming_new_sorted(2,sorted_idx)
+                                condstimTiming_new_sorted(2,:)=condstimTiming_new_sorted(2,sorted_idx);
                                 
                                 obj.inputs.condMat(c,obj.inputs.colLabel.tpm)={num2cell(condstimTiming_new_sorted)};
                                 condSi=[];
@@ -1263,7 +1263,7 @@ classdef best_toolbox < handle
                                 markers=[];
                                 condstimTimingStrings=[];
                             end
-                            obj.app.pr.ax_ChannelLabels=[{'OsscillationPhase'},{'OsscillationEEG'},ChannelLabels,{'OsscillationAmplitude'},{'AmplitudeDistribution'}];;
+                            obj.app.pr.ax_ChannelLabels=[{'OsscillationPhase'},{'OsscillationEEG'},ChannelLabels,{'OsscillationAmplitude'},{'AmplitudeDistribution'}];
                     end
                     
             end
@@ -2122,7 +2122,6 @@ classdef best_toolbox < handle
                                 obj.bossbox.EMGScopeBoot(obj.inputs.EMGDisplayPeriodPre,obj.inputs.EMGDisplayPeriodPost)
                             case 'IEEG'
                                 obj.bossbox.IEEGScopeBoot
-                                
                             case 'IP'
                                 obj.bossbox.IPScopeBoot
                             case 'IA'
@@ -2135,6 +2134,22 @@ classdef best_toolbox < handle
                 case 4  %Future: no input box is selected
                 case 5 %Keyboard and Mouse
                     % No specific booting is required
+                    if obj.inputs.BrainState==1
+                        UniqueChannelType=unique(obj.inputs.ChannelsTypeUnique);
+                        for i=1:numel(UniqueChannelType)
+                            switch UniqueChannelType{1,i}
+                                case 'EMG'
+                                    obj.bossbox.EMGScopeBoot(obj.inputs.EMGDisplayPeriodPre,obj.inputs.EMGDisplayPeriodPost)
+                                case 'IEEG'
+                                    obj.bossbox.IEEGScopeBoot
+                                    
+                                case 'IP'
+                                    obj.bossbox.IPScopeBoot
+                                case 'IA'
+                                    obj.bossbox.IAScopeBoot
+                            end
+                        end
+                    end
             end
         end
         function boot_outputdevice(obj)

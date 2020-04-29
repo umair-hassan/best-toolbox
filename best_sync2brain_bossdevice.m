@@ -83,8 +83,6 @@ while ~strcmpi(obj.EMGScope.Status,'finished'), end
         end
         
         function armPulseAndScope(obj)
-            %% Findling IA Low and High Cutoff Values
-            % 
             %% Choosing 1 from 3x Oscillitory Models, Load Phase, PhasePlusMinus, Amplitude Low and Amplitude High
             switch obj.best_toolbox.inputs.FrequencyBand
                 case 1 % Alpha
@@ -540,7 +538,6 @@ while ~strcmpi(obj.EMGScope.Status,'finished'), end
             axes(obj.FileScope.hAmplitudeHistoryAxes);
             ylabel('Amplitude (microV)');
             xticks([]); xticklabels([]);
-%             trigger(obj.FileScope.sc(obj.FileScope.activeScope));
         end
         
         function EMGScopeStart(obj)
@@ -561,7 +558,7 @@ while ~strcmpi(obj.EMGScope.Status,'finished'), end
         end
         
         function IAScopeStart(obj)
-            %This has to be done inside armed loop therefore empty but just required as a Place holder for consistency of Architecture
+            %This has to be done inside armed loop therefore empty but just required as a Place holder for consistency of Architecture and may be used in future
         end
     end
 end

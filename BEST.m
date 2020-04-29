@@ -12290,7 +12290,7 @@ classdef BEST < handle
             
             row1=uix.HBox( 'Parent', obj.hw.vbox_rightpanel, 'Spacing', 5, 'Padding', 5  );
             uicontrol( 'Style','text','Parent', row1,'String','Select Device','FontSize',12,'HorizontalAlignment','left','Units','normalized');
-            obj.hw.vbox_rp.slct_device=uicontrol( 'Style','popupmenu','Parent', row1 ,'FontSize',11,'String',{'BOSS Box controlled NeurOne','FieldTrip Real-Time Buffer','BOSS Device Controlled ActiCHamp System','Button Box','Keyboard','Data Simulation (Reading from Disk)'},'Callback',@(~,~)obj.cb_hw_vbox_rp_slct_device,'Value',1);
+            obj.hw.vbox_rp.slct_device=uicontrol( 'Style','popupmenu','Parent', row1 ,'FontSize',11,'String',{'BOSS Device controlled NeurOne','FieldTrip Real-Time Buffer','BOSS Device Controlled ActiCHamp System','Button Box','Keyboard and Mouse','BOSS Device controlled NeurOne, Keyboard and Mouse','BOSS Device controlled ActiCHamp, Keyboard and Mouse','BOSS Device controlled NeurOne and Button Box','BOSS Device controlled ActiCHamp and Button Box','Data Simulation (Reading from Disk)'},'Callback',@(~,~)obj.cb_hw_vbox_rp_slct_device,'Value',1);
             set(row1,'Widths',[200 -2]);
             
             
@@ -12404,7 +12404,7 @@ classdef BEST < handle
             
             row1=uix.HBox( 'Parent', obj.hw.vbox_rightpanel, 'Spacing', 5, 'Padding', 5  );
             uicontrol( 'Style','text','Parent', row1,'String','Select Device','FontSize',12,'HorizontalAlignment','left','Units','normalized');
-            obj.hw.vbox_rp.slct_device=uicontrol( 'Style','popupmenu','Parent', row1 ,'FontSize',11,'String',{'BOSS Box controlled NeurOne','FieldTrip Real-Time Buffer'},'Callback',@(~,~)obj.cb_hw_vbox_rp_slct_device,'Value',2);
+            obj.hw.vbox_rp.slct_device=uicontrol( 'Style','popupmenu','Parent', row1 ,'FontSize',11,'String',{'BOSS Device controlled NeurOne','FieldTrip Real-Time Buffer','BOSS Device Controlled ActiCHamp System','Button Box','Keyboard and Mouse','BOSS Device controlled NeurOne, Keyboard and Mouse','BOSS Device controlled ActiCHamp, Keyboard and Mouse','BOSS Device controlled NeurOne and Button Box','BOSS Device controlled ActiCHamp and Button Box','Data Simulation (Reading from Disk)'},'Callback',@(~,~)obj.cb_hw_vbox_rp_slct_device,'Value',2);
             set(row1,'Widths',[200 -2]);
             
             
@@ -12465,7 +12465,7 @@ classdef BEST < handle
             
             row1=uix.HBox( 'Parent', obj.hw.vbox_rightpanel, 'Spacing', 5, 'Padding', 5  );
             uicontrol( 'Style','text','Parent', row1,'String','Select Device','FontSize',12,'HorizontalAlignment','left','Units','normalized');
-            obj.hw.vbox_rp.slct_device=uicontrol( 'Style','popupmenu','Parent', row1 ,'FontSize',11,'String',{'BOSS Box controlled NeurOne','FieldTrip Real-Time Buffer','BOSS Device Controlled ActiCHamp System','Button Box','Keyboard and Mouse','Data Simulation (Reading from Disk)'},'Callback',@(~,~)obj.cb_hw_vbox_rp_slct_device,'Value',5);
+            obj.hw.vbox_rp.slct_device=uicontrol( 'Style','popupmenu','Parent', row1 ,'FontSize',11,'String',{'BOSS Device controlled NeurOne','FieldTrip Real-Time Buffer','BOSS Device Controlled ActiCHamp System','Button Box','Keyboard and Mouse','BOSS Device controlled NeurOne, Keyboard and Mouse','BOSS Device controlled ActiCHamp, Keyboard and Mouse','BOSS Device controlled NeurOne and Button Box','BOSS Device controlled ActiCHamp and Button Box','Data Simulation (Reading from Disk)'},'Callback',@(~,~)obj.cb_hw_vbox_rp_slct_device,'Value',5);
             set(row1,'Widths',[200 -2]);
             
             row2=uix.HBox( 'Parent', obj.hw.vbox_rightpanel, 'Spacing', 5, 'Padding', 5  );
@@ -12478,6 +12478,450 @@ classdef BEST < handle
             uicontrol( 'Parent', obj.hw.vbox_rightpanel ,'Style','PushButton','String','Add Device','FontWeight','Bold','Callback',@(~,~)obj.cb_add_input)
             
             set(obj.hw.vbox_rightpanel,'Heights',[-1 -1 -1 -10 -1])
+        end
+        function hw_input_NeurOneKeyboadMouse(obj)
+            delete(obj.hw.vbox_rightpanel)
+            
+            obj.hw.vbox_rightpanel=uix.VBox( 'Parent', obj.hw.rightpanel, 'Spacing', 5, 'Padding', 5  );
+            
+            row0=uix.HBox( 'Parent', obj.hw.vbox_rightpanel, 'Spacing', 5, 'Padding', 5  );
+            uicontrol( 'Style','text','Parent', row0,'String','Device Type','FontSize',12,'HorizontalAlignment','left','Units','normalized');
+            obj.hw.device_type.listbox=uicontrol( 'Style','popupmenu','Parent', row0 ,'FontSize',11,'String',{'Input Device (Recording Device)','Output Device (Stimulating Device)'},'Callback',@(~,~)obj.cb_hw_device_type_listbox,'Value',1);
+            set(row0,'Widths',[200 -2]);
+            
+            row1=uix.HBox( 'Parent', obj.hw.vbox_rightpanel, 'Spacing', 5, 'Padding', 5  );
+            uicontrol( 'Style','text','Parent', row1,'String','Select Device','FontSize',12,'HorizontalAlignment','left','Units','normalized');
+            obj.hw.vbox_rp.slct_device=uicontrol( 'Style','popupmenu','Parent', row1 ,'FontSize',11,'String',{'BOSS Device controlled NeurOne','FieldTrip Real-Time Buffer','BOSS Device Controlled ActiCHamp System','Button Box','Keyboard and Mouse','BOSS Device controlled NeurOne, Keyboard and Mouse','BOSS Device controlled ActiCHamp, Keyboard and Mouse','BOSS Device controlled NeurOne and Button Box','BOSS Device controlled ActiCHamp and Button Box','Data Simulation (Reading from Disk)'},'Callback',@(~,~)obj.cb_hw_vbox_rp_slct_device,'Value',6);
+            set(row1,'Widths',[200 -2]);
+            
+            
+            row2=uix.HBox( 'Parent', obj.hw.vbox_rightpanel, 'Spacing', 5, 'Padding', 5  );
+            uicontrol( 'Style','text','Parent', row2,'String','Device Reference Name','FontSize',12,'HorizontalAlignment','left','Units','normalized');
+            obj.hw.vbox_rp.device_name=uicontrol( 'Style','edit','Parent', row2 ,'FontSize',11);
+            set(row2,'Widths',[200 -2]);
+            
+            
+            row3=uix.HBox( 'Parent', obj.hw.vbox_rightpanel, 'Spacing', 5, 'Padding', 5  );
+            uicontrol( 'Style','text','Parent', row3,'String','NeurOne Protocol XML File','FontSize',12,'HorizontalAlignment','left','Units','normalized');
+            obj.hw.vbox_rp.prtcl_name=uicontrol( 'Parent', row3 ,'Style','PushButton','String','Click to Attach','FontWeight','Normal','Callback',@cb_add_NeurOneProtocolFile);
+            %             obj.hw.vbox_rp.prtcl_name=uicontrol( 'Style','edit','Parent', row3 ,'FontSize',11,'String','neurone.xml');
+            set(row3,'Widths',[200 -2]);
+            
+            uiextras.HBox( 'Parent', obj.hw.vbox_rightpanel)
+            
+            uicontrol( 'Parent', obj.hw.vbox_rightpanel ,'Style','PushButton','String','Add Device','FontWeight','Bold','Callback',@(~,~)obj.cb_add_input)
+
+            set(obj.hw.vbox_rightpanel,'Heights',[-1 -1 -1 -1 -9 -1])
+            
+            function cb_add_NeurOneProtocolFile(~,~)
+                [file,path] = uigetfile('*.xml');
+                if (file~=0)
+                    fullfilepath=[path file];
+                    [clab, signaltype] = neurone_digitalout_clab_from_xml(xmlread(fullfilepath));
+                    obj.hw.vbox_rp.NeurOneProtocolChannelLabels=clab; %1xn CellString
+                    obj.hw.vbox_rp.NeurOneProtocolChannelSignalTypes=signaltype; %1xn CellString
+                    obj.hw.vbox_rp.prtcl_name.String=file;
+                else
+                    errordlg('No Protocol is attached. Attach the Protocol again to add a NeurOne device','BEST Toolbox');
+                end
+                
+                function [digitalout_clab, digitalout_signaltype] = neurone_digitalout_clab_from_xml(protocolXmlDoc)
+                    % protocolXmlDoc - exported NeurOne XML protocol (used to extract digital out channels)
+                    % Example: neurone_digitalout_clab_from_xml(xmlread('FRONTHETA v2.xml'))
+                    
+                    % parse the NeurOne protocol in order to determine the realtime out channels
+                    
+                    inputIdNameMap = containers.Map;
+                    allInputElements = protocolXmlDoc.getElementsByTagName('DataSetProtocol').item(0).getElementsByTagName('TableProtocolInput');
+                    for k = 0:allInputElements.getLength-1
+                        thisElement = allInputElements.item(k);
+                        inputName = thisElement.getElementsByTagName('Name').item(0).getFirstChild.getData;
+                        inputId = thisElement.getElementsByTagName('Id').item(0).getFirstChild.getData;
+                        inputIdNameMap(char(inputId)) = inputName;
+                    end
+                    
+                    outputChannelNumberNameMap = containers.Map;
+                    allOutputElements = protocolXmlDoc.getElementsByTagName('DataSetProtocol').item(0).getElementsByTagName('TableOutputActive');
+                    for k = 0:allOutputElements.getLength-1
+                        thisElement = allOutputElements.item(k);
+                        outputChannelNumber = thisElement.getElementsByTagName('OutputChannelNumber').item(0).getFirstChild.getData;
+                        inputId = thisElement.getElementsByTagName('InputId').item(0).getFirstChild.getData;
+                        inputName = inputIdNameMap(char(inputId));
+                        outputChannelNumberNameMap(char(outputChannelNumber)) = inputName;
+                    end
+                    
+                    sortedOutputChannels = sort(cellfun(@str2num, outputChannelNumberNameMap.keys));
+                    digitalout_clab = [{}];
+                    i = 0;
+                    for channel = sortedOutputChannels
+                        i = i + 1;
+                        digitalout_clab(i) = outputChannelNumberNameMap(num2str(channel));
+                    end
+
+                    
+                    inputIdNameMap = containers.Map;
+                    allInputElements = protocolXmlDoc.getElementsByTagName('DataSetProtocol').item(0).getElementsByTagName('TableProtocolInput');
+                    for k = 0:allInputElements.getLength-1
+                        thisElement = allInputElements.item(k);
+                        inputName = thisElement.getElementsByTagName('SignalType').item(0).getFirstChild.getData;
+                        inputId = thisElement.getElementsByTagName('Id').item(0).getFirstChild.getData;
+                        inputIdNameMap(char(inputId)) = inputName;
+                    end
+                    
+                    outputChannelNumberNameMap = containers.Map;
+                    allOutputElements = protocolXmlDoc.getElementsByTagName('DataSetProtocol').item(0).getElementsByTagName('TableOutputActive');
+                    for k = 0:allOutputElements.getLength-1
+                        thisElement = allOutputElements.item(k);
+                        outputChannelNumber = thisElement.getElementsByTagName('OutputChannelNumber').item(0).getFirstChild.getData;
+                        inputId = thisElement.getElementsByTagName('InputId').item(0).getFirstChild.getData;
+                        inputName = inputIdNameMap(char(inputId));
+                        outputChannelNumberNameMap(char(outputChannelNumber)) = inputName;
+                    end
+                    
+                    sortedOutputChannels = sort(cellfun(@str2num, outputChannelNumberNameMap.keys));
+                    digitalout_signaltype = [{}];
+                    i = 0;
+                    for channel = sortedOutputChannels
+                        i = i + 1;
+                        digitalout_signaltype(i) = outputChannelNumberNameMap(num2str(channel));
+                    end
+                    
+                end
+            end
+            
+        end
+        function hw_input_ACSKeyboadMouse(obj)
+            delete(obj.hw.vbox_rightpanel)
+            
+            obj.hw.vbox_rightpanel=uix.VBox( 'Parent', obj.hw.rightpanel, 'Spacing', 5, 'Padding', 5  );
+            
+            row0=uix.HBox( 'Parent', obj.hw.vbox_rightpanel, 'Spacing', 5, 'Padding', 5  );
+            uicontrol( 'Style','text','Parent', row0,'String','Device Type','FontSize',12,'HorizontalAlignment','left','Units','normalized');
+            obj.hw.device_type.listbox=uicontrol( 'Style','popupmenu','Parent', row0 ,'FontSize',11,'String',{'Input Device (Recording Device)','Output Device (Stimulating Device)'},'Callback',@(~,~)obj.cb_hw_device_type_listbox,'Value',1);
+            set(row0,'Widths',[200 -2]);
+            
+            row1=uix.HBox( 'Parent', obj.hw.vbox_rightpanel, 'Spacing', 5, 'Padding', 5  );
+            uicontrol( 'Style','text','Parent', row1,'String','Select Device','FontSize',12,'HorizontalAlignment','left','Units','normalized');
+            obj.hw.vbox_rp.slct_device=uicontrol( 'Style','popupmenu','Parent', row1 ,'FontSize',11,'String',{'BOSS Device controlled NeurOne','FieldTrip Real-Time Buffer','BOSS Device Controlled ActiCHamp System','Button Box','Keyboard and Mouse','BOSS Device controlled NeurOne, Keyboard and Mouse','BOSS Device controlled ActiCHamp, Keyboard and Mouse','BOSS Device controlled NeurOne and Button Box','BOSS Device controlled ActiCHamp and Button Box','Data Simulation (Reading from Disk)'},'Callback',@(~,~)obj.cb_hw_vbox_rp_slct_device,'Value',7);
+            set(row1,'Widths',[200 -2]);
+            
+            
+            row2=uix.HBox( 'Parent', obj.hw.vbox_rightpanel, 'Spacing', 5, 'Padding', 5  );
+            uicontrol( 'Style','text','Parent', row2,'String','Device Reference Name','FontSize',12,'HorizontalAlignment','left','Units','normalized');
+            obj.hw.vbox_rp.device_name=uicontrol( 'Style','edit','Parent', row2 ,'FontSize',11);
+            set(row2,'Widths',[200 -2]);
+            
+            
+            row3=uix.HBox( 'Parent', obj.hw.vbox_rightpanel, 'Spacing', 5, 'Padding', 5  );
+            uicontrol( 'Style','text','Parent', row3,'String','NeurOne Protocol XML File','FontSize',12,'HorizontalAlignment','left','Units','normalized');
+            obj.hw.vbox_rp.prtcl_name=uicontrol( 'Parent', row3 ,'Style','PushButton','String','Click to Attach','FontWeight','Normal','Callback',@cb_add_NeurOneProtocolFile);
+            %             obj.hw.vbox_rp.prtcl_name=uicontrol( 'Style','edit','Parent', row3 ,'FontSize',11,'String','neurone.xml');
+            set(row3,'Widths',[200 -2]);
+            
+            uiextras.HBox( 'Parent', obj.hw.vbox_rightpanel)
+            
+            uicontrol( 'Parent', obj.hw.vbox_rightpanel ,'Style','PushButton','String','Add Device','FontWeight','Bold','Callback',@(~,~)obj.cb_add_input)
+
+            set(obj.hw.vbox_rightpanel,'Heights',[-1 -1 -1 -1 -9 -1])
+            
+            function cb_add_NeurOneProtocolFile(~,~)
+                [file,path] = uigetfile('*.xml');
+                if (file~=0)
+                    fullfilepath=[path file];
+                    [clab, signaltype] = neurone_digitalout_clab_from_xml(xmlread(fullfilepath));
+                    obj.hw.vbox_rp.NeurOneProtocolChannelLabels=clab; %1xn CellString
+                    obj.hw.vbox_rp.NeurOneProtocolChannelSignalTypes=signaltype; %1xn CellString
+                    obj.hw.vbox_rp.prtcl_name.String=file;
+                else
+                    errordlg('No Protocol is attached. Attach the Protocol again to add a NeurOne device','BEST Toolbox');
+                end
+                
+                function [digitalout_clab, digitalout_signaltype] = neurone_digitalout_clab_from_xml(protocolXmlDoc)
+                    % protocolXmlDoc - exported NeurOne XML protocol (used to extract digital out channels)
+                    % Example: neurone_digitalout_clab_from_xml(xmlread('FRONTHETA v2.xml'))
+                    
+                    % parse the NeurOne protocol in order to determine the realtime out channels
+                    
+                    inputIdNameMap = containers.Map;
+                    allInputElements = protocolXmlDoc.getElementsByTagName('DataSetProtocol').item(0).getElementsByTagName('TableProtocolInput');
+                    for k = 0:allInputElements.getLength-1
+                        thisElement = allInputElements.item(k);
+                        inputName = thisElement.getElementsByTagName('Name').item(0).getFirstChild.getData;
+                        inputId = thisElement.getElementsByTagName('Id').item(0).getFirstChild.getData;
+                        inputIdNameMap(char(inputId)) = inputName;
+                    end
+                    
+                    outputChannelNumberNameMap = containers.Map;
+                    allOutputElements = protocolXmlDoc.getElementsByTagName('DataSetProtocol').item(0).getElementsByTagName('TableOutputActive');
+                    for k = 0:allOutputElements.getLength-1
+                        thisElement = allOutputElements.item(k);
+                        outputChannelNumber = thisElement.getElementsByTagName('OutputChannelNumber').item(0).getFirstChild.getData;
+                        inputId = thisElement.getElementsByTagName('InputId').item(0).getFirstChild.getData;
+                        inputName = inputIdNameMap(char(inputId));
+                        outputChannelNumberNameMap(char(outputChannelNumber)) = inputName;
+                    end
+                    
+                    sortedOutputChannels = sort(cellfun(@str2num, outputChannelNumberNameMap.keys));
+                    digitalout_clab = [{}];
+                    i = 0;
+                    for channel = sortedOutputChannels
+                        i = i + 1;
+                        digitalout_clab(i) = outputChannelNumberNameMap(num2str(channel));
+                    end
+
+                    
+                    inputIdNameMap = containers.Map;
+                    allInputElements = protocolXmlDoc.getElementsByTagName('DataSetProtocol').item(0).getElementsByTagName('TableProtocolInput');
+                    for k = 0:allInputElements.getLength-1
+                        thisElement = allInputElements.item(k);
+                        inputName = thisElement.getElementsByTagName('SignalType').item(0).getFirstChild.getData;
+                        inputId = thisElement.getElementsByTagName('Id').item(0).getFirstChild.getData;
+                        inputIdNameMap(char(inputId)) = inputName;
+                    end
+                    
+                    outputChannelNumberNameMap = containers.Map;
+                    allOutputElements = protocolXmlDoc.getElementsByTagName('DataSetProtocol').item(0).getElementsByTagName('TableOutputActive');
+                    for k = 0:allOutputElements.getLength-1
+                        thisElement = allOutputElements.item(k);
+                        outputChannelNumber = thisElement.getElementsByTagName('OutputChannelNumber').item(0).getFirstChild.getData;
+                        inputId = thisElement.getElementsByTagName('InputId').item(0).getFirstChild.getData;
+                        inputName = inputIdNameMap(char(inputId));
+                        outputChannelNumberNameMap(char(outputChannelNumber)) = inputName;
+                    end
+                    
+                    sortedOutputChannels = sort(cellfun(@str2num, outputChannelNumberNameMap.keys));
+                    digitalout_signaltype = [{}];
+                    i = 0;
+                    for channel = sortedOutputChannels
+                        i = i + 1;
+                        digitalout_signaltype(i) = outputChannelNumberNameMap(num2str(channel));
+                    end
+                    
+                end
+            end
+            
+        end
+        function hw_input_ACSButtonBox(obj)
+            delete(obj.hw.vbox_rightpanel)
+            
+            obj.hw.vbox_rightpanel=uix.VBox( 'Parent', obj.hw.rightpanel, 'Spacing', 5, 'Padding', 5  );
+            
+            row0=uix.HBox( 'Parent', obj.hw.vbox_rightpanel, 'Spacing', 5, 'Padding', 5  );
+            uicontrol( 'Style','text','Parent', row0,'String','Device Type','FontSize',12,'HorizontalAlignment','left','Units','normalized');
+            obj.hw.device_type.listbox=uicontrol( 'Style','popupmenu','Parent', row0 ,'FontSize',11,'String',{'Input Device (Recording Device)','Output Device (Stimulating Device)'},'Callback',@(~,~)obj.cb_hw_device_type_listbox,'Value',1);
+            set(row0,'Widths',[200 -2]);
+            
+            row1=uix.HBox( 'Parent', obj.hw.vbox_rightpanel, 'Spacing', 5, 'Padding', 5  );
+            uicontrol( 'Style','text','Parent', row1,'String','Select Device','FontSize',12,'HorizontalAlignment','left','Units','normalized');
+            obj.hw.vbox_rp.slct_device=uicontrol( 'Style','popupmenu','Parent', row1 ,'FontSize',11,'String',{'BOSS Device controlled NeurOne','FieldTrip Real-Time Buffer','BOSS Device Controlled ActiCHamp System','Button Box','Keyboard and Mouse','BOSS Device controlled NeurOne, Keyboard and Mouse','BOSS Device controlled ActiCHamp, Keyboard and Mouse','BOSS Device controlled NeurOne and Button Box','BOSS Device controlled ActiCHamp and Button Box','Data Simulation (Reading from Disk)'},'Callback',@(~,~)obj.cb_hw_vbox_rp_slct_device,'Value',9);
+            set(row1,'Widths',[200 -2]);
+            
+            
+            row2=uix.HBox( 'Parent', obj.hw.vbox_rightpanel, 'Spacing', 5, 'Padding', 5  );
+            uicontrol( 'Style','text','Parent', row2,'String','Device Reference Name','FontSize',12,'HorizontalAlignment','left','Units','normalized');
+            obj.hw.vbox_rp.device_name=uicontrol( 'Style','edit','Parent', row2 ,'FontSize',11);
+            set(row2,'Widths',[200 -2]);
+            
+            
+            row3=uix.HBox( 'Parent', obj.hw.vbox_rightpanel, 'Spacing', 5, 'Padding', 5  );
+            uicontrol( 'Style','text','Parent', row3,'String','NeurOne Protocol XML File','FontSize',12,'HorizontalAlignment','left','Units','normalized');
+            obj.hw.vbox_rp.prtcl_name=uicontrol( 'Parent', row3 ,'Style','PushButton','String','Click to Attach','FontWeight','Normal','Callback',@cb_add_NeurOneProtocolFile);
+            %             obj.hw.vbox_rp.prtcl_name=uicontrol( 'Style','edit','Parent', row3 ,'FontSize',11,'String','neurone.xml');
+            set(row3,'Widths',[200 -2]);
+            
+            uiextras.HBox( 'Parent', obj.hw.vbox_rightpanel)
+            
+            uicontrol( 'Parent', obj.hw.vbox_rightpanel ,'Style','PushButton','String','Add Device','FontWeight','Bold','Callback',@(~,~)obj.cb_add_input)
+
+            set(obj.hw.vbox_rightpanel,'Heights',[-1 -1 -1 -1 -9 -1])
+            
+            function cb_add_NeurOneProtocolFile(~,~)
+                [file,path] = uigetfile('*.xml');
+                if (file~=0)
+                    fullfilepath=[path file];
+                    [clab, signaltype] = neurone_digitalout_clab_from_xml(xmlread(fullfilepath));
+                    obj.hw.vbox_rp.NeurOneProtocolChannelLabels=clab; %1xn CellString
+                    obj.hw.vbox_rp.NeurOneProtocolChannelSignalTypes=signaltype; %1xn CellString
+                    obj.hw.vbox_rp.prtcl_name.String=file;
+                else
+                    errordlg('No Protocol is attached. Attach the Protocol again to add a NeurOne device','BEST Toolbox');
+                end
+                
+                function [digitalout_clab, digitalout_signaltype] = neurone_digitalout_clab_from_xml(protocolXmlDoc)
+                    % protocolXmlDoc - exported NeurOne XML protocol (used to extract digital out channels)
+                    % Example: neurone_digitalout_clab_from_xml(xmlread('FRONTHETA v2.xml'))
+                    
+                    % parse the NeurOne protocol in order to determine the realtime out channels
+                    
+                    inputIdNameMap = containers.Map;
+                    allInputElements = protocolXmlDoc.getElementsByTagName('DataSetProtocol').item(0).getElementsByTagName('TableProtocolInput');
+                    for k = 0:allInputElements.getLength-1
+                        thisElement = allInputElements.item(k);
+                        inputName = thisElement.getElementsByTagName('Name').item(0).getFirstChild.getData;
+                        inputId = thisElement.getElementsByTagName('Id').item(0).getFirstChild.getData;
+                        inputIdNameMap(char(inputId)) = inputName;
+                    end
+                    
+                    outputChannelNumberNameMap = containers.Map;
+                    allOutputElements = protocolXmlDoc.getElementsByTagName('DataSetProtocol').item(0).getElementsByTagName('TableOutputActive');
+                    for k = 0:allOutputElements.getLength-1
+                        thisElement = allOutputElements.item(k);
+                        outputChannelNumber = thisElement.getElementsByTagName('OutputChannelNumber').item(0).getFirstChild.getData;
+                        inputId = thisElement.getElementsByTagName('InputId').item(0).getFirstChild.getData;
+                        inputName = inputIdNameMap(char(inputId));
+                        outputChannelNumberNameMap(char(outputChannelNumber)) = inputName;
+                    end
+                    
+                    sortedOutputChannels = sort(cellfun(@str2num, outputChannelNumberNameMap.keys));
+                    digitalout_clab = [{}];
+                    i = 0;
+                    for channel = sortedOutputChannels
+                        i = i + 1;
+                        digitalout_clab(i) = outputChannelNumberNameMap(num2str(channel));
+                    end
+
+                    
+                    inputIdNameMap = containers.Map;
+                    allInputElements = protocolXmlDoc.getElementsByTagName('DataSetProtocol').item(0).getElementsByTagName('TableProtocolInput');
+                    for k = 0:allInputElements.getLength-1
+                        thisElement = allInputElements.item(k);
+                        inputName = thisElement.getElementsByTagName('SignalType').item(0).getFirstChild.getData;
+                        inputId = thisElement.getElementsByTagName('Id').item(0).getFirstChild.getData;
+                        inputIdNameMap(char(inputId)) = inputName;
+                    end
+                    
+                    outputChannelNumberNameMap = containers.Map;
+                    allOutputElements = protocolXmlDoc.getElementsByTagName('DataSetProtocol').item(0).getElementsByTagName('TableOutputActive');
+                    for k = 0:allOutputElements.getLength-1
+                        thisElement = allOutputElements.item(k);
+                        outputChannelNumber = thisElement.getElementsByTagName('OutputChannelNumber').item(0).getFirstChild.getData;
+                        inputId = thisElement.getElementsByTagName('InputId').item(0).getFirstChild.getData;
+                        inputName = inputIdNameMap(char(inputId));
+                        outputChannelNumberNameMap(char(outputChannelNumber)) = inputName;
+                    end
+                    
+                    sortedOutputChannels = sort(cellfun(@str2num, outputChannelNumberNameMap.keys));
+                    digitalout_signaltype = [{}];
+                    i = 0;
+                    for channel = sortedOutputChannels
+                        i = i + 1;
+                        digitalout_signaltype(i) = outputChannelNumberNameMap(num2str(channel));
+                    end
+                    
+                end
+            end
+            
+        end
+        function hw_input_NeurOneButtonBox(obj)
+            delete(obj.hw.vbox_rightpanel)
+            
+            obj.hw.vbox_rightpanel=uix.VBox( 'Parent', obj.hw.rightpanel, 'Spacing', 5, 'Padding', 5  );
+            
+            row0=uix.HBox( 'Parent', obj.hw.vbox_rightpanel, 'Spacing', 5, 'Padding', 5  );
+            uicontrol( 'Style','text','Parent', row0,'String','Device Type','FontSize',12,'HorizontalAlignment','left','Units','normalized');
+            obj.hw.device_type.listbox=uicontrol( 'Style','popupmenu','Parent', row0 ,'FontSize',11,'String',{'Input Device (Recording Device)','Output Device (Stimulating Device)'},'Callback',@(~,~)obj.cb_hw_device_type_listbox,'Value',1);
+            set(row0,'Widths',[200 -2]);
+            
+            row1=uix.HBox( 'Parent', obj.hw.vbox_rightpanel, 'Spacing', 5, 'Padding', 5  );
+            uicontrol( 'Style','text','Parent', row1,'String','Select Device','FontSize',12,'HorizontalAlignment','left','Units','normalized');
+            obj.hw.vbox_rp.slct_device=uicontrol( 'Style','popupmenu','Parent', row1 ,'FontSize',11,'String',{'BOSS Device controlled NeurOne','FieldTrip Real-Time Buffer','BOSS Device Controlled ActiCHamp System','Button Box','Keyboard and Mouse','BOSS Device controlled NeurOne, Keyboard and Mouse','BOSS Device controlled ActiCHamp, Keyboard and Mouse','BOSS Device controlled NeurOne and Button Box','BOSS Device controlled ActiCHamp and Button Box','Data Simulation (Reading from Disk)'},'Callback',@(~,~)obj.cb_hw_vbox_rp_slct_device,'Value',8);
+            set(row1,'Widths',[200 -2]);
+            
+            
+            row2=uix.HBox( 'Parent', obj.hw.vbox_rightpanel, 'Spacing', 5, 'Padding', 5  );
+            uicontrol( 'Style','text','Parent', row2,'String','Device Reference Name','FontSize',12,'HorizontalAlignment','left','Units','normalized');
+            obj.hw.vbox_rp.device_name=uicontrol( 'Style','edit','Parent', row2 ,'FontSize',11);
+            set(row2,'Widths',[200 -2]);
+            
+            
+            row3=uix.HBox( 'Parent', obj.hw.vbox_rightpanel, 'Spacing', 5, 'Padding', 5  );
+            uicontrol( 'Style','text','Parent', row3,'String','NeurOne Protocol XML File','FontSize',12,'HorizontalAlignment','left','Units','normalized');
+            obj.hw.vbox_rp.prtcl_name=uicontrol( 'Parent', row3 ,'Style','PushButton','String','Click to Attach','FontWeight','Normal','Callback',@cb_add_NeurOneProtocolFile);
+            %             obj.hw.vbox_rp.prtcl_name=uicontrol( 'Style','edit','Parent', row3 ,'FontSize',11,'String','neurone.xml');
+            set(row3,'Widths',[200 -2]);
+            
+            uiextras.HBox( 'Parent', obj.hw.vbox_rightpanel)
+            
+            uicontrol( 'Parent', obj.hw.vbox_rightpanel ,'Style','PushButton','String','Add Device','FontWeight','Bold','Callback',@(~,~)obj.cb_add_input)
+
+            set(obj.hw.vbox_rightpanel,'Heights',[-1 -1 -1 -1 -9 -1])
+            
+            function cb_add_NeurOneProtocolFile(~,~)
+                [file,path] = uigetfile('*.xml');
+                if (file~=0)
+                    fullfilepath=[path file];
+                    [clab, signaltype] = neurone_digitalout_clab_from_xml(xmlread(fullfilepath));
+                    obj.hw.vbox_rp.NeurOneProtocolChannelLabels=clab; %1xn CellString
+                    obj.hw.vbox_rp.NeurOneProtocolChannelSignalTypes=signaltype; %1xn CellString
+                    obj.hw.vbox_rp.prtcl_name.String=file;
+                else
+                    errordlg('No Protocol is attached. Attach the Protocol again to add a NeurOne device','BEST Toolbox');
+                end
+                
+                function [digitalout_clab, digitalout_signaltype] = neurone_digitalout_clab_from_xml(protocolXmlDoc)
+                    % protocolXmlDoc - exported NeurOne XML protocol (used to extract digital out channels)
+                    % Example: neurone_digitalout_clab_from_xml(xmlread('FRONTHETA v2.xml'))
+                    
+                    % parse the NeurOne protocol in order to determine the realtime out channels
+                    
+                    inputIdNameMap = containers.Map;
+                    allInputElements = protocolXmlDoc.getElementsByTagName('DataSetProtocol').item(0).getElementsByTagName('TableProtocolInput');
+                    for k = 0:allInputElements.getLength-1
+                        thisElement = allInputElements.item(k);
+                        inputName = thisElement.getElementsByTagName('Name').item(0).getFirstChild.getData;
+                        inputId = thisElement.getElementsByTagName('Id').item(0).getFirstChild.getData;
+                        inputIdNameMap(char(inputId)) = inputName;
+                    end
+                    
+                    outputChannelNumberNameMap = containers.Map;
+                    allOutputElements = protocolXmlDoc.getElementsByTagName('DataSetProtocol').item(0).getElementsByTagName('TableOutputActive');
+                    for k = 0:allOutputElements.getLength-1
+                        thisElement = allOutputElements.item(k);
+                        outputChannelNumber = thisElement.getElementsByTagName('OutputChannelNumber').item(0).getFirstChild.getData;
+                        inputId = thisElement.getElementsByTagName('InputId').item(0).getFirstChild.getData;
+                        inputName = inputIdNameMap(char(inputId));
+                        outputChannelNumberNameMap(char(outputChannelNumber)) = inputName;
+                    end
+                    
+                    sortedOutputChannels = sort(cellfun(@str2num, outputChannelNumberNameMap.keys));
+                    digitalout_clab = [{}];
+                    i = 0;
+                    for channel = sortedOutputChannels
+                        i = i + 1;
+                        digitalout_clab(i) = outputChannelNumberNameMap(num2str(channel));
+                    end
+
+                    
+                    inputIdNameMap = containers.Map;
+                    allInputElements = protocolXmlDoc.getElementsByTagName('DataSetProtocol').item(0).getElementsByTagName('TableProtocolInput');
+                    for k = 0:allInputElements.getLength-1
+                        thisElement = allInputElements.item(k);
+                        inputName = thisElement.getElementsByTagName('SignalType').item(0).getFirstChild.getData;
+                        inputId = thisElement.getElementsByTagName('Id').item(0).getFirstChild.getData;
+                        inputIdNameMap(char(inputId)) = inputName;
+                    end
+                    
+                    outputChannelNumberNameMap = containers.Map;
+                    allOutputElements = protocolXmlDoc.getElementsByTagName('DataSetProtocol').item(0).getElementsByTagName('TableOutputActive');
+                    for k = 0:allOutputElements.getLength-1
+                        thisElement = allOutputElements.item(k);
+                        outputChannelNumber = thisElement.getElementsByTagName('OutputChannelNumber').item(0).getFirstChild.getData;
+                        inputId = thisElement.getElementsByTagName('InputId').item(0).getFirstChild.getData;
+                        inputName = inputIdNameMap(char(inputId));
+                        outputChannelNumberNameMap(char(outputChannelNumber)) = inputName;
+                    end
+                    
+                    sortedOutputChannels = sort(cellfun(@str2num, outputChannelNumberNameMap.keys));
+                    digitalout_signaltype = [{}];
+                    i = 0;
+                    for channel = sortedOutputChannels
+                        i = i + 1;
+                        digitalout_signaltype(i) = outputChannelNumberNameMap(num2str(channel));
+                    end
+                    
+                end
+            end
+            
         end
         
         function hw_bestsimulation(obj)
@@ -12711,7 +13155,7 @@ classdef BEST < handle
             obj.hw.device_added1.listbox.String=obj.hw.device_added1_listbox.string;
             if(obj.hw.device_type.listbox.Value==1)
                 switch obj.hw.vbox_rp.slct_device.Value
-                    case 1
+                    case {1,6}
                         obj.cb_hw_input_neurone_parsaving;
                     case 2
                         obj.cb_hw_input_ft_parsaving;
@@ -12719,8 +13163,6 @@ classdef BEST < handle
                         obj.cb_hw_input_keyboard_parsaving;
                 end
             end
-            
-            
         end
         
         
@@ -12736,7 +13178,15 @@ classdef BEST < handle
                     obj.hw_input_buttonbox;
                 case 5 %Keyboard
                     obj.hw_input_keyboard;
-                case 6 %Reading from BEST Toolbox Disk Mat File
+                case 6 %NeurOne Keyboard
+                    obj.hw_input_NeurOneKeyboadMouse;
+                case 7 %ACS Keyboard
+                    obj.hw_input_ACSKeyboadMouse;
+                case 8 %NeurOne Button Box
+                    obj.hw_input_NeurOneButtonBox;
+                case 9 %ACS Button Box
+                    obj.hw_input_ACSButtonBox;
+                case 10 %Reading from BEST Toolbox Disk Mat File
                     obj.hw_bestsimulation;
             end
         end
