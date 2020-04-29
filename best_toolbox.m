@@ -49,8 +49,6 @@ classdef best_toolbox < handle
             obj.info.method=0;
             %iNITILIZATION FUNCTION COMMANDS CAN COME HERE AND THIS BEST
             %MAIN NAME CAN BE CHANGED TO BEST INITILIZE
-            
-            
             %%
             
             %             ----------------------------------
@@ -86,10 +84,15 @@ classdef best_toolbox < handle
             obj.info.event.pest_tc=NaN;
             obj.inputs.mt_starting_stim_inten=25;
             obj.info.event.best_mt_pest_tc=0;
-            
-            
         end
         function factorizeConditions(obj)
+            %% Deleting Previous best_toolbox class
+            obj.inputs=[];
+            obj.bossbox=[];
+            obj.magven=[];
+            obj.magStim=[];
+            obj.digitimer=[];
+            obj.fieldtrip=[];
             %% Preparing Parameters to Inputs
             cb_Pars2Inputs
             %% Evaluating Selected Protocol
@@ -1160,7 +1163,7 @@ classdef best_toolbox < handle
 %                             obj.app.pr.ax_ChannelLabels=ChannelLabels;
                             %% Creating Channel Type, Channel Index
                             switch obj.app.par.hardware_settings.(char(obj.inputs.input_device)).slct_device
-                                case {1,5} %boss box or keyboard mouse
+                                case {1,6} %boss box or keyboard mouse
                                     ChannelType=[{'IP'},{'IEEG'},repmat({'Psyhcometric'},1,numel(conds)),{'IA'},{'IADistribution'}];
                                     ChannelID=[{1},{1},num2cell(1:numel(conds)),{1},{1}]; %TODO: make this more systematic and extract from channel labels of neurone or acs protocol
                                     obj.inputs.ChannelsTypeUnique=ChannelType;
@@ -1174,7 +1177,7 @@ classdef best_toolbox < handle
                                 TargetChannel=obj.inputs.condsAll.(conds{c,1}).targetChannel;
                                 ChannelLabels{c}=TargetChannel;
                                 obj.inputs.condMat{c,obj.inputs.colLabel.chLab}=[{'OsscillationPhase'},{'OsscillationEEG'},cellstr(TargetChannel),{'OsscillationAmplitude'},{'AmplitudeDistribution'}];
-                                obj.inputs.condMat{c,obj.inputs.colLabel.measures}=[{'PhaseHistogram'},{'TriggerLockedEEG'},{'Psychometric Threshold Hunting'},{'RunningAmplitude'},{'AmplitudeDistribution'}];
+                                obj.inputs.condMat{c,obj.inputs.colLabel.measures}=[{'PhaseHistogram'},{'TriggerLockedEEG'},{'Psychometric Threshold Trace'},{'RunningAmplitude'},{'AmplitudeDistribution'}];
                                 obj.inputs.condMat{c,obj.inputs.colLabel.axesno}={1,2,axesno{c+2},axesno{end-1},axesno{end}};
                                 obj.inputs.condMat{c,obj.inputs.colLabel.chType}=[{'IP'},{'IEEG'},{'Psyhcometric'},{'IA'},{'IADistribution'}];
                                 obj.inputs.condMat{c,obj.inputs.colLabel.chId}={ChannelID{1},ChannelID{2},ChannelID{c+2},1,1};
@@ -1263,7 +1266,7 @@ classdef best_toolbox < handle
                                 markers=[];
                                 condstimTimingStrings=[];
                             end
-                            obj.app.pr.ax_ChannelLabels=[{'OsscillationPhase'},{'OsscillationEEG'},ChannelLabels,{'OsscillationAmplitude'},{'AmplitudeDistribution'}];
+                            obj.app.pr.ax_ChannelLabels=[{'OsscillationPhase'},{'OsscillationEEG'},ChannelLabels{:},{'OsscillationAmplitude'},{'AmplitudeDistribution'}];
                     end
                     
             end
@@ -2007,7 +2010,6 @@ classdef best_toolbox < handle
             %             end
             %% Conversion from Pars2Inputs
             function cb_Pars2Inputs
-                obj.inputs=[];
                 obj.inputs=obj.app.par.(obj.app.info.event.current_session).(obj.app.info.event.current_measure_fullstr);
                 InputsFieldNames=fieldnames(obj.inputs);
                 for iInputs=1:numel(InputsFieldNames)
@@ -2134,15 +2136,16 @@ classdef best_toolbox < handle
                 case 4  %Future: no input box is selected
                 case 5 %Keyboard and Mouse
                     % No specific booting is required
-                    if obj.inputs.BrainState==1
+                case 6 %NeurOne, Keyboard and Mouse
+                    if obj.inputs.BrainState==2
+                        if isempty(obj.bossbox), obj.boot_bossbox; end
                         UniqueChannelType=unique(obj.inputs.ChannelsTypeUnique);
                         for i=1:numel(UniqueChannelType)
                             switch UniqueChannelType{1,i}
-                                case 'EMG'
+                                case 'EMG' %Future Release: This can be depricated
                                     obj.bossbox.EMGScopeBoot(obj.inputs.EMGDisplayPeriodPre,obj.inputs.EMGDisplayPeriodPost)
                                 case 'IEEG'
                                     obj.bossbox.IEEGScopeBoot
-                                    
                                 case 'IP'
                                     obj.bossbox.IPScopeBoot
                                 case 'IA'
@@ -2247,9 +2250,6 @@ classdef best_toolbox < handle
                     % uski as per jonsa channel he us se
                     unique_chLab=unique(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab},'stable');
                     for i=1:numel(unique_chLab)
-                        % switch case for channel Type either EMG, IEEG, IP, IA etc 
-                        % visual filter go to the EMG type only either for BB or FieldTrip
-
                         switch obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chType}{1,i}
                             case 'IP'
                                 obj.inputs.rawData.(unique_chLab{1,i}).data(obj.inputs.trial,1)=obj.bossbox.IPScope.Data(end,1);
@@ -2275,8 +2275,31 @@ classdef best_toolbox < handle
                     for i=1:numel(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab})
                         obj.inputs.rawData.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,i}).data(obj.inputs.trial,:)=(rand (1,obj.inputs.sc_samples))+5000000;
                     end
-                case 5 % Keyboard and Mouse
+                case 5 % Keyboard and Mouse 
                     obj.inputs.rawData.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,1}).data(obj.inputs.trial,1)=obj.responseKeyboardAndMouse;
+                case 6 % NeurOne Keyboard and Mouse
+                    unique_chLab=unique(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab},'stable');
+                    for i=1:numel(unique_chLab) 
+                        switch obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chType}{1,i}
+                            case 'IP'
+                                obj.inputs.rawData.(unique_chLab{1,i}).data(obj.inputs.trial,1)=obj.bossbox.IPScope.Data(end,1);
+                            case 'IEEG'
+%                                 obj.inputs.rawData.(unique_chLab{1,i}).data(obj.inputs.trial,:)=obj.bossbox.IEEGScope.Data(:,1)';
+%                                 obj.inputs.rawData.(unique_chLab{1,i}).data(obj.inputs.trial,:)=obj.best_DeMeanEEG(obj.bossbox.IEEGScope.Data(:,1)');
+                                obj.inputs.rawData.(unique_chLab{1,i}).data(obj.inputs.trial,:)=obj.best_VisualizationFilter(obj.bossbox.IEEGScope.Data(:,1)');
+                                obj.inputs.rawData.(unique_chLab{1,i}).time(obj.inputs.trial,:)=obj.bossbox.IEEGScope.Time(:,1)';
+                            case 'EMG'
+% %                                 obj.inputs.rawData.(unique_chLab{1,i}).data(obj.inputs.trial,:)=obj.best_VisualizationFilter([obj.sim_mep(1,700:1000), obj.sim_mep(1,1:699)]*1000*obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,1}{1,1}*(randi([1 3])*0.10));
+                                obj.inputs.rawData.(unique_chLab{1,i}).data(obj.inputs.trial,:)=obj.best_VisualizationFilter([obj.sim_mep(1,700:1000), obj.sim_mep(1,1:699)]*1000*(randi([1 3])*0.10));
+                                obj.bossbox.EMGScope;
+                                check=obj.bossbox.EMGScope.Data(:,1)';
+                                %                         obj.inputs.rawData.(unique_chLab{1,i}).data(obj.inputs.trial,:)=[obj.bossbox.EMGScope.Data(:,1)]';
+%                                 obj.inputs.rawData.(unique_chLab{1,i}).data(obj.inputs.trial,:)=obj.best_VisualizationFilter([obj.bossbox.EMGScope.Data(:,1)]');
+                            case 'EEG'
+                            case 'Psyhcometric'
+                                obj.inputs.rawData.(unique_chLab{1,i}).data(obj.inputs.trial,1)=obj.responseKeyboardAndMouse;
+                        end
+                    end
             end
         end
         function processTrial(obj)
