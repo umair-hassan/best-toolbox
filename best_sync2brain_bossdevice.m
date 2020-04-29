@@ -34,7 +34,7 @@ classdef best_sync2brain_bossdevice <handle
                     obj.bb.aux_channels=nnz(strcmp(obj.best_toolbox.app.par.hardware_settings.(InputDevice).NeurOneProtocolChannelSignalTypes,'EMG'));
                 end
                 %% Preparing Spatial Filter Weights for BOSS Device
-                if obj.best_toolbox.app.par.hardware_settings.(InputDevice).slct_device==1
+                if obj.best_toolbox.app.par.hardware_settings.(InputDevice).slct_device==1 || obj.best_toolbox.app.par.hardware_settings.(InputDevice).slct_device==6 %%NeurOneOnly OR NeurOnewithKeyboard
                     SpatialFilterWeights=zeros(obj.bb.eeg_channels,1);
                     MontageChannelsIndicies(1,numel(obj.best_toolbox.inputs.MontageChannels))=0;
                     for iMontageChannels=1:numel(obj.best_toolbox.inputs.MontageChannels)
