@@ -864,7 +864,8 @@ classdef BEST < handle
         %% results panel
         function resultsPanel(obj)
             total_axesno=obj.pr.axesno;
-            obj.pr.panel_1= uix.Panel( 'Parent', obj.pr.empty_panel, 'Padding', 5 ,'Units','normalized','Title', 'Results','FontWeight','bold','FontSize',14,'TitlePosition','centertop' );
+            Title=['Results - ' obj.bst.inputs.Protocol];
+            obj.pr.panel_1= uix.Panel( 'Parent', obj.pr.empty_panel, 'Padding', 5 ,'Units','normalized','Title', Title,'FontWeight','bold','FontSize',14,'TitlePosition','centertop' );
 % %             if(obj.pr.axesno>1)
                 obj.pr.grid=uiextras.GridFlex('Parent',obj.pr.panel_1, 'Spacing', 4 );
 % %             end
@@ -1293,11 +1294,13 @@ classdef BEST < handle
         end
         function pr_PsychometricThresholdHunting(obj)
             obj.pr.ax_no=['ax' num2str(obj.pr.axesno)];
+            ui_menu=uicontextmenu(obj.fig.handle);
+            uimenu(ui_menu,'label','set Font size','Callback',@obj.pr_FontSize,'Tag',obj.pr.ax_no);
+            uimenu(ui_menu,'label','export as MATLAB Figure','Callback',@obj.pr_FigureExport,'Tag',obj.pr.ax_no);
             AxesTitle=['Threshold Trace ' obj.pr.ax_ChannelLabels{1,obj.pr.axesno}];
             obj.pr.clab.(obj.pr.ax_no)=uix.Panel( 'Parent', obj.pr.grid, 'Padding', 5 ,'Units','normalized','Title',AxesTitle,'FontWeight','bold','FontSize',12,'TitlePosition','centertop' );
-            obj.pr.ax.(obj.pr.ax_no)=axes( uicontainer('Parent',   obj.pr.clab.(obj.pr.ax_no)),'Units','normalized');
-            xlabel('No. of Trials')
-            ylabel('Intensity (mA)');
+            obj.pr.ax.(obj.pr.ax_no)=axes( uicontainer('Parent',   obj.pr.clab.(obj.pr.ax_no)),'Units','normalized','uicontextmenu',ui_menu);
+            xlabel('Trial Number'), ylabel('Stimulation Intensity (mA)');
         end
         %% multimodal old and new
         
@@ -8941,13 +8944,13 @@ classdef BEST < handle
 % %                         set( mep_panel_13, 'Widths', [150 -2 -2 -2]);
                         mep_panel_13 = uix.HBox( 'Parent', expModvBox, 'Spacing', 5, 'Padding', 5  );
                         uicontrol( 'Style','text','Parent', mep_panel_13,'String','Amplitude Threshold:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-                        obj.pi.mep.AmplitudeThreshold=uicontrol( 'Style','edit','Parent', mep_panel_13 ,'FontSize',11,'Tag','AmplitudeThreshold','Callback',@cb_par_saving);
-                        obj.pi.mep.AmplitudeUnits=uicontrol( 'Style','popupmenu','Parent', mep_panel_13 ,'FontSize',11,'String',{'Percentile','Absolute (micro Volts)'},'Tag','AmplitudeUnits','Callback',@cb_par_saving);
+                        obj.pi.psychmth.AmplitudeThreshold=uicontrol( 'Style','edit','Parent', mep_panel_13 ,'FontSize',11,'Tag','AmplitudeThreshold','Callback',@cb_par_saving);
+                        obj.pi.psychmth.AmplitudeUnits=uicontrol( 'Style','popupmenu','Parent', mep_panel_13 ,'FontSize',11,'String',{'Percentile','Absolute (micro Volts)'},'Tag','AmplitudeUnits','Callback',@cb_par_saving);
                         set( mep_panel_13, 'Widths', [150 -3 -1]);
                         
                         mep_panel_row2z = uix.HBox( 'Parent', expModvBox, 'Spacing', 5, 'Padding', 5  );
                         uicontrol( 'Style','text','Parent', mep_panel_row2z,'String','Amp Assignment Period(s):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-                        uicontrol( 'Style','edit','Parent', mep_panel_row2z ,'FontSize',11,'Tag','AmplitudeAssignmentPeriod','Callback',@cb_par_saving);
+                        obj.pi.psychmth.AmplitudeAssignmentPeriod=uicontrol( 'Style','edit','Parent', mep_panel_row2z ,'FontSize',11,'Tag','AmplitudeAssignmentPeriod','Callback',@cb_par_saving);
                         set( mep_panel_row2z, 'Widths', [150 -2]);
                         
                         expModr2c=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
@@ -8976,8 +8979,15 @@ classdef BEST < handle
                         uicontrol( 'Style','text','Parent', expModr2,'String','Trials Per Condition:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
                         obj.pi.psychmth.TrialsPerCondition=uicontrol( 'Style','edit','Parent', expModr2 ,'FontSize',11,'Tag','TrialsPerCondition','callback',@cb_par_saving);
                         expModr2.Widths=[150 -2];
+                        
+                        expModr4=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
+                        uicontrol( 'Style','text','Parent', expModr4,'String','EEG Display Period (ms):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                        obj.pi.psychmth.EEGDisplayPeriodPre=uicontrol( 'Style','edit','Parent', expModr4 ,'FontSize',11,'Tag','EEGDisplayPeriodPre','callback',@cb_par_saving);
+                        obj.pi.psychmth.EEGDisplayPeriodPost=uicontrol( 'Style','edit','Parent', expModr4 ,'FontSize',11,'Tag','EEGDisplayPeriodPost','callback',@cb_par_saving);
+                        expModr4.Widths=[150 -2 -2];
 
-                        expModvBox.Heights=[35];
+
+                        expModvBox.Heights=[35 45];
                 end
             end
             function cb_SetHeights
@@ -8985,7 +8995,7 @@ classdef BEST < handle
                     case 1
                         set(obj.pi.psychmth.r0v1,'Heights',[40 90 70 -1 55 55])
                     case 2
-                        set(obj.pi.psychmth.r0v1,'Heights',[40 390 70 -1 55 55])
+                        set(obj.pi.psychmth.r0v1,'Heights',[40 390 110 -1 55 55])
                 end
             end
             
@@ -10171,15 +10181,9 @@ classdef BEST < handle
             obj.info.defaults.PhaseTolerance='pi/40';
             obj.info.defaults.AmplitudeThreshold='0 1e6';
             obj.info.defaults.AmplitudeUnits=2;
-            obj.info.defaults.EMGDisplayChannels='';
-            obj.info.defaults.MEPOnset='15';
-            obj.info.defaults.MEPOffset='50';
-            obj.info.defaults.EMGDisplayPeriodPre='50';
-            obj.info.defaults.EMGDisplayPeriodPost='150';
+            obj.info.defaults.AmplitudeAssignmentPeriod='4';
             obj.info.defaults.EEGDisplayPeriodPre='100';
             obj.info.defaults.EEGDisplayPeriodPost='100';
-            obj.info.defaults.EMGDisplayYLimMax={100};
-            obj.info.defaults.EMGDisplayYLimMin={-100};
             obj.info.defaults.Protocol={'Psychometric Threshold Hunting Protocol'};
             obj.info.defaults.Handles.UserData='Reserved for Future Use';
             obj.info.defaults.Enable={'on'};
