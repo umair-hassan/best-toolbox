@@ -3447,8 +3447,10 @@ classdef best_toolbox < handle
             ConditionMarker=obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.marker};
             TrialsNoForThisMarker=find(vertcat(obj.inputs.trialMat{1:end,obj.inputs.colLabel.marker})==ConditionMarker);
             TrialToUpdate=find(TrialsNoForThisMarker>obj.inputs.trial);
-            TrialToUpdate=TrialsNoForThisMarker(TrialToUpdate(1));
-            obj.inputs.trialMat{TrialToUpdate,obj.inputs.colLabel.si}{1,1}{1,1}=obj.tc.(mrk).stimvalue(StimDevice);
+            if obj.inputs.trial~=obj.inputs.totalTrials
+                TrialToUpdate=TrialsNoForThisMarker(TrialToUpdate(1));
+                obj.inputs.trialMat{TrialToUpdate,obj.inputs.colLabel.si}{1,1}{1,1}=obj.tc.(mrk).stimvalue(StimDevice);
+            end
             
         end
         function mep_threshold_trace_plot(obj)
@@ -3519,6 +3521,7 @@ classdef best_toolbox < handle
                     xticks(1:1:1000);   
                     ConditionMarker=obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.marker};
                     TrialsNoForThisMarker=find(vertcat(obj.inputs.trialMat{1:end,obj.inputs.colLabel.marker})==ConditionMarker);
+                    if obj.inputs.trial~=obj.inputs.totalTrials
                     TrialToUpdate=find(TrialsNoForThisMarker>obj.inputs.trial);
                     TrialToUpdate=TrialsNoForThisMarker(TrialToUpdate(1));
                     YDataPlusOne=obj.inputs.trialMat{TrialToUpdate,obj.inputs.colLabel.si}{1,1}{1,1};
@@ -3532,6 +3535,7 @@ classdef best_toolbox < handle
                     obj.app.pr.ax.(ax).UserData.status.String={['Trials to Average:' num2str(obj.inputs.results.(Channel).NoOfLastTrialsToAverage)],['Threshold (mV):' sprintf('%.1f',obj.inputs.results.(Channel).PsychometricThreshold)]};
                     delete(obj.app.pr.ax.(ax).UserData.ThresholdGirdLine)
                     obj.app.pr.ax.(ax).UserData.ThresholdGirdLine=gridxy([],obj.inputs.results.(Channel).PsychometricThreshold,'Color','k','linewidth',1,'Parent',obj.app.pr.ax.(ax));
+                    end
             end
         end
         function computePsychometricThreshold(obj,Channel,AllIntensities)
