@@ -1120,6 +1120,22 @@ classdef BEST < handle
         end
         function pr_setMEPMeanTrials(obj,source,~)
         end
+        function pr_NoOfTrialsToAverage(obj,source,~)
+           Channel=source.Tag;
+            f=figure('Name','Set Trials to Avg | BEST Toolbox','numbertitle', 'off','ToolBar', 'none','MenuBar', 'none','WindowStyle', 'modal','Units', 'normal', 'Position', [0.5 0.5 .15 .05]);
+            uicontrol( 'Style','text','Parent', f,'String','Enter No of Last Trials to Avg for Threshold:','FontSize',11,'HorizontalAlignment','center','Units','normalized','Position',[0.05 0.5 0.5 0.4]);
+            NoOfTrialsToAverage=uicontrol( 'Style','edit','Parent', f,'String','10','FontSize',11,'HorizontalAlignment','center','Units','normalized','Position',[0.5 0.5 0.4 0.4]);
+            uicontrol( 'Style','pushbutton','Parent', f,'String','Update','FontSize',11,'HorizontalAlignment','center','Units','normalized','Position',[0.1 0.05 0.8 0.4],'Callback',@setFontSize);
+            function setFontSize(~,~)
+                try
+                    obj.bst.inputs.results.(Channel).NoOfLastTrialsToAverage=str2double(NoOfTrialsToAverage.String);
+                    obj.bst.inputs.results.(Channel).NoOfLastTrialsToAverage
+                    close(f)
+                catch
+                    close(f)
+                end
+            end
+        end
         function pr_scat_plot(obj)
             obj.pr.ax_no=['ax' num2str(obj.pr.axesno)];
             obj.pr.clab.(obj.pr.ax_no)=uix.Panel( 'Parent', obj.pr.grid, 'Padding', 5 ,'Units','normalized','Title', 'MEP Scatter Plot','FontWeight','bold','FontSize',12,'TitlePosition','centertop' );
@@ -1295,6 +1311,8 @@ classdef BEST < handle
         function pr_PsychometricThresholdHunting(obj)
             obj.pr.ax_no=['ax' num2str(obj.pr.axesno)];
             ui_menu=uicontextmenu(obj.fig.handle);
+            obj.pr.ax_ChannelLabels{obj.pr.axesno}
+            uimenu(ui_menu,'label','set Last No. of Trials to Calculate Average for Threshold','Callback',@obj.pr_NoOfTrialsToAverage,'Tag',obj.pr.ax_ChannelLabels{obj.pr.axesno});
             uimenu(ui_menu,'label','set Font size','Callback',@obj.pr_FontSize,'Tag',obj.pr.ax_no);
             uimenu(ui_menu,'label','export as MATLAB Figure','Callback',@obj.pr_FigureExport,'Tag',obj.pr.ax_no);
             AxesTitle=['Threshold Trace - ' obj.pr.ax_ChannelLabels{1,obj.pr.axesno}];
