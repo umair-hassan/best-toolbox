@@ -3452,15 +3452,10 @@ classdef best_toolbox < handle
             ConditionMarker=obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.marker};
             TrialsNoForThisMarker=find(vertcat(obj.inputs.trialMat{1:end,obj.inputs.colLabel.marker})==ConditionMarker);
             TrialToUpdate=find(TrialsNoForThisMarker>obj.inputs.trial);
-            if obj.inputs.trial~=obj.inputs.totalTrials
-                try
-                TrialToUpdate=TrialsNoForThisMarker(TrialToUpdate(1));
-                obj.inputs.trialMat{TrialToUpdate,obj.inputs.colLabel.si}{1,1}{1,1}=obj.tc.(mrk).stimvalue(StimDevice);
-                catch
-                    
-                end
-            end
-            
+                if ~isempty(TrialToUpdate)
+                    TrialToUpdate=TrialsNoForThisMarker(TrialToUpdate(1));
+                    obj.inputs.trialMat{TrialToUpdate,obj.inputs.colLabel.si}{1,1}{1,1}=obj.tc.(mrk).stimvalue(StimDevice);
+                end            
         end
         function mep_threshold_trace_plot(obj)
             ax=['ax' num2str(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.axesno}{1,obj.inputs.chLab_idx})];
@@ -3527,23 +3522,23 @@ classdef best_toolbox < handle
                     obj.app.pr.ax.(ax).UserData.status=text(obj.app.pr.ax.(ax),1,1,textPsychometricThresholdStatus,'units','normalized','HorizontalAlignment','right','VerticalAlignment','cap','color',[0.45 0.45 0.45]);
                     obj.app.pr.ax.(ax).UserData.ThresholdGirdLine=gridxy([],0,'Color','k','linewidth',1,'Parent',obj.app.pr.ax.(ax));
                 otherwise
-                    xticks(1:1:1000);   
+                    xticks(1:1:1000);
                     ConditionMarker=obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.marker};
                     TrialsNoForThisMarker=find(vertcat(obj.inputs.trialMat{1:end,obj.inputs.colLabel.marker})==ConditionMarker);
-                    if obj.inputs.trial~=obj.inputs.totalTrials
                     TrialToUpdate=find(TrialsNoForThisMarker>obj.inputs.trial);
-                    TrialToUpdate=TrialsNoForThisMarker(TrialToUpdate(1));
-                    YDataPlusOne=obj.inputs.trialMat{TrialToUpdate,obj.inputs.colLabel.si}{1,1}{1,1};
-                    obj.info.plt.(ax).mtplot.YData=[obj.info.plt.(ax).mtplot.YData obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,1}{1,1}];
-                    obj.info.plt.(ax).mt_nextIntensityDot.XData=obj.info.plt.(ax).mt_nextIntensityDot.XData+1;
-                    obj.info.plt.(ax).mt_nextIntensityDot.YData=YDataPlusOne;
-                    xlim([obj.app.pr.ax.(ax).XLim(1) obj.app.pr.ax.(ax).XLim(2)+1])
-                    ylim auto; ylim([obj.app.pr.ax.(ax).YLim(1) (obj.app.pr.ax.(ax).YLim(2)*1.1)])
-                    Channel=obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx};
-                    obj.computePsychometricThreshold(Channel,obj.info.plt.(ax).mtplot.YData)
-                    obj.app.pr.ax.(ax).UserData.status.String={['Trials to Average:' num2str(obj.inputs.results.(Channel).NoOfLastTrialsToAverage)],['Threshold (mV):' sprintf('%.1f',obj.inputs.results.(Channel).PsychometricThreshold)]};
-                    delete(obj.app.pr.ax.(ax).UserData.ThresholdGirdLine)
-                    obj.app.pr.ax.(ax).UserData.ThresholdGirdLine=gridxy([],obj.inputs.results.(Channel).PsychometricThreshold,'Color','k','linewidth',1,'Parent',obj.app.pr.ax.(ax));
+                    if ~isempty(TrialToUpdate)
+                        TrialToUpdate=TrialsNoForThisMarker(TrialToUpdate(1));
+                        YDataPlusOne=obj.inputs.trialMat{TrialToUpdate,obj.inputs.colLabel.si}{1,1}{1,1};
+                        obj.info.plt.(ax).mtplot.YData=[obj.info.plt.(ax).mtplot.YData obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,1}{1,1}];
+                        obj.info.plt.(ax).mt_nextIntensityDot.XData=obj.info.plt.(ax).mt_nextIntensityDot.XData+1;
+                        obj.info.plt.(ax).mt_nextIntensityDot.YData=YDataPlusOne;
+                        xlim([obj.app.pr.ax.(ax).XLim(1) obj.app.pr.ax.(ax).XLim(2)+1])
+                        ylim auto; ylim([obj.app.pr.ax.(ax).YLim(1) (obj.app.pr.ax.(ax).YLim(2)*1.1)])
+                        Channel=obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx};
+                        obj.computePsychometricThreshold(Channel,obj.info.plt.(ax).mtplot.YData)
+                        obj.app.pr.ax.(ax).UserData.status.String={['Trials to Average:' num2str(obj.inputs.results.(Channel).NoOfLastTrialsToAverage)],['Threshold (mV):' sprintf('%.1f',obj.inputs.results.(Channel).PsychometricThreshold)]};
+                        delete(obj.app.pr.ax.(ax).UserData.ThresholdGirdLine)
+                        obj.app.pr.ax.(ax).UserData.ThresholdGirdLine=gridxy([],obj.inputs.results.(Channel).PsychometricThreshold,'Color','k','linewidth',1,'Parent',obj.app.pr.ax.(ax));
                     end
             end
         end
