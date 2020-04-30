@@ -1029,9 +1029,10 @@ classdef best_toolbox < handle
                             obj.inputs.colLabel.marker=15;
                             %% Creating Channel Measures, AxesNo, Labels
                             conds=fieldnames(obj.inputs.condsAll);
-                            ChannelMeasures=repmat({'Psychometric Threshold Hunting'},1,numel(conds));
+                            ChannelMeasures=[repmat({'Psychometric Threshold Hunting'},1,numel(conds)),{'StatusTable'}];
                             obj.app.pr.ax_measures=ChannelMeasures;
                             obj.app.pr.axesno=numel(ChannelMeasures);
+                            obj.app.pr.ax_ChannelLabels(obj.app.pr.axesno)={'StatusTable'};
                             %% Creating Stimulation Conditions
                             for c=1:numel(fieldnames(obj.inputs.condsAll))
                                 obj.inputs.condMat{c,obj.inputs.colLabel.trials}=obj.inputs.TrialsPerCondition;
@@ -1041,10 +1042,10 @@ classdef best_toolbox < handle
                                 obj.inputs.results.(TargetChannel{1}).PsychometricThreshold=obj.inputs.PsychometricThreshold;
                                 obj.inputs.results.(TargetChannel{1}).NoOfLastTrialsToAverage=obj.inputs.NoOfTrialsToAverage;
                                 obj.app.pr.ax_ChannelLabels(c)=TargetChannel;
-                                obj.inputs.condMat{c,obj.inputs.colLabel.chLab}=TargetChannel;
-                                obj.inputs.condMat{c,obj.inputs.colLabel.measures}={'Psychometric Threshold Trace'};
-                                obj.inputs.condMat{c,obj.inputs.colLabel.axesno}={c};
-                                obj.inputs.condMat{c,obj.inputs.colLabel.chType}={'Psychometric'};
+                                obj.inputs.condMat{c,obj.inputs.colLabel.chLab}=[TargetChannel,{'StatusTable'}];
+                                obj.inputs.condMat{c,obj.inputs.colLabel.measures}={'Psychometric Threshold Trace','StatusTable'};
+                                obj.inputs.condMat{c,obj.inputs.colLabel.axesno}=[{c},{obj.app.pr.axesno}];
+                                obj.inputs.condMat{c,obj.inputs.colLabel.chType}={'Psychometric','StatusTable'};
                                 obj.inputs.condMat{c,obj.inputs.colLabel.chId}=num2cell(1); %% TODO: update it later with the originigal channel index
                                 obj.inputs.condMat{c,obj.inputs.colLabel.marker}=c;
                                 obj.inputs.condMat{c,obj.inputs.colLabel.threshold}=1;
@@ -2337,6 +2338,8 @@ classdef best_toolbox < handle
                     case 'Psychometric Threshold Trace'
                         obj.psych_threshold;
                         obj.psych_threshold_trace_plot;
+                    case 'StatusTable'
+                        obj.StatusTable;
                 end
             end
             % updating analytics paneljust once in 1 trial
@@ -2506,13 +2509,15 @@ classdef best_toolbox < handle
         function saveFigures(obj)
             FigureFileName1=erase(obj.info.matfilstr,'.mat');
             for iaxes=1:obj.app.pr.axesno
-                FigureFileName=[FigureFileName1 '_' obj.app.pr.ax_measures{1,iaxes} '_' obj.app.pr.ax_ChannelLabels{1,iaxes}];
-                ax=['ax' num2str(iaxes)];
-                Figure=figure('Visible','off','CreateFcn','set(gcf,''Visible'',''on'')','Name',FigureFileName,'NumberTitle','off');
-                copyobj(obj.app.pr.ax.(ax),Figure)
-                set( gca, 'Units', 'normalized', 'Position', [0.2 0.2 0.7 0.7] );
-                saveas(Figure,FigureFileName,'fig');
-                close(Figure)
+                if ~strcmp(obj.app.pr.ax_ChannelLabels{1,iaxes},'StatusTable')
+                    FigureFileName=[FigureFileName1 '_' obj.app.pr.ax_measures{1,iaxes} '_' obj.app.pr.ax_ChannelLabels{1,iaxes}];
+                    ax=['ax' num2str(iaxes)];
+                    Figure=figure('Visible','off','CreateFcn','set(gcf,''Visible'',''on'')','Name',FigureFileName,'NumberTitle','off');
+                    copyobj(obj.app.pr.ax.(ax),Figure)
+                    set( gca, 'Units', 'normalized', 'Position', [0.2 0.2 0.7 0.7] );
+                    saveas(Figure,FigureFileName,'fig');
+                    close(Figure)
+                end
             end
         end
         function completed(obj)
@@ -3448,8 +3453,12 @@ classdef best_toolbox < handle
             TrialsNoForThisMarker=find(vertcat(obj.inputs.trialMat{1:end,obj.inputs.colLabel.marker})==ConditionMarker);
             TrialToUpdate=find(TrialsNoForThisMarker>obj.inputs.trial);
             if obj.inputs.trial~=obj.inputs.totalTrials
+                try
                 TrialToUpdate=TrialsNoForThisMarker(TrialToUpdate(1));
                 obj.inputs.trialMat{TrialToUpdate,obj.inputs.colLabel.si}{1,1}{1,1}=obj.tc.(mrk).stimvalue(StimDevice);
+                catch
+                    
+                end
             end
             
         end
@@ -3544,6 +3553,25 @@ classdef best_toolbox < handle
             else
                 obj.inputs.results.(Channel).PsychometricThreshold=mean(AllIntensities);
             end
+        end
+        function StatusTable(obj)
+            ax=['ax' num2str(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.axesno}{1,obj.inputs.chLab_idx})];
+            if obj.inputs.trial~=obj.inputs.totalTrials
+                obj.app.pr.ax.(ax).Data(1,1)={[num2str(obj.inputs.trial) '/' num2str(obj.inputs.totalTrials)]};
+                obj.app.pr.ax.(ax).Data(1,2)={[num2str(obj.inputs.trial+1) '/' num2str(obj.inputs.totalTrials)]};
+                obj.app.pr.ax.(ax).Data(2,1)={num2str(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.iti})};
+                obj.app.pr.ax.(ax).Data(2,2)={num2str(obj.inputs.trialMat{obj.inputs.trial+1,obj.inputs.colLabel.iti})};
+                obj.app.pr.ax.(ax).Data(3,1)={num2str(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,1}{1,1})};
+                obj.app.pr.ax.(ax).Data(3,2)={num2str(obj.inputs.trialMat{obj.inputs.trial+1,obj.inputs.colLabel.si}{1,1}{1,1})};
+            else
+                obj.app.pr.ax.(ax).Data(1,1)={[num2str(obj.inputs.trial) '/' num2str(obj.inputs.totalTrials)]};
+                obj.app.pr.ax.(ax).Data(1,2)={''};
+                obj.app.pr.ax.(ax).Data(2,1)={num2str(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.iti})};
+                obj.app.pr.ax.(ax).Data(2,2)={''};
+                obj.app.pr.ax.(ax).Data(3,1)={num2str(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,1}{1,1})};
+                obj.app.pr.ax.(ax).Data(3,2)={''};
+            end
+            obj.app.pr.ax.(ax).Data
         end
         
         function planTrials_scopePeriods(obj)

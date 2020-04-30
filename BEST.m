@@ -214,6 +214,9 @@ classdef BEST < handle
                  obj.enable_listboxes;
                  
              elseif strcmp(obj.pmd.RunStopButton.String,'Run') % && strcmp(obj.pmd.RunStopButton.Enable,'On')
+                 obj.fig.main.Widths(1)=-1.15;
+                 obj.fig.main.Widths(2)=0;
+                 obj.fig.main.Widths(3)=-3.35;
                  obj.pmd.RunStopButton.String='Stop';
                  obj.pmd.PauseUnpauseButton.Enable='on';
                  obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).Enable{1,1}='off';
@@ -892,6 +895,8 @@ classdef BEST < handle
                         obj.pr_AmplitudeDistribution;
                     case 'Psychometric Threshold Hunting'
                         obj.pr_PsychometricThresholdHunting;
+                    case 'StatusTable'
+                        obj.pr_StatusTable;
                 end
                 
             end
@@ -1311,7 +1316,6 @@ classdef BEST < handle
         function pr_PsychometricThresholdHunting(obj)
             obj.pr.ax_no=['ax' num2str(obj.pr.axesno)];
             ui_menu=uicontextmenu(obj.fig.handle);
-            obj.pr.ax_ChannelLabels{obj.pr.axesno}
             uimenu(ui_menu,'label','set Last No. of Trials to Calculate Average for Threshold','Callback',@obj.pr_NoOfTrialsToAverage,'Tag',obj.pr.ax_ChannelLabels{obj.pr.axesno});
             uimenu(ui_menu,'label','set Font size','Callback',@obj.pr_FontSize,'Tag',obj.pr.ax_no);
             uimenu(ui_menu,'label','export as MATLAB Figure','Callback',@obj.pr_FigureExport,'Tag',obj.pr.ax_no);
@@ -1319,6 +1323,42 @@ classdef BEST < handle
             obj.pr.clab.(obj.pr.ax_no)=uix.Panel( 'Parent', obj.pr.grid, 'Padding', 5 ,'Units','normalized','Title',AxesTitle,'FontWeight','bold','FontSize',12,'TitlePosition','centertop' );
             obj.pr.ax.(obj.pr.ax_no)=axes( uicontainer('Parent',   obj.pr.clab.(obj.pr.ax_no)),'Units','normalized','uicontextmenu',ui_menu);
             xlabel('Trial Number'), ylabel('Stimulation Intensity (mA)');
+        end
+        function pr_StatusTable(obj)
+            obj.pr.ax_no=['ax' num2str(obj.pr.axesno)];
+            ui_menu=uicontextmenu(obj.fig.handle);
+            uimenu(ui_menu,'label','set Font size','Callback',@cbFontSize,'Tag',obj.pr.ax_no);
+            obj.pr.clab.(obj.pr.ax_no)=uix.Panel( 'Parent', obj.pr.grid, 'Padding', 5 ,'Units','normalized','Title','Protocol Progress','FontWeight','bold','FontSize',12,'TitlePosition','centertop','uicontextmenu',ui_menu );
+            obj.pr.ax.(obj.pr.ax_no)=uitable(uicontainer( 'Parent', obj.pr.clab.(obj.pr.ax_no)),'uicontextmenu',ui_menu);
+            obj.pr.ax.(obj.pr.ax_no).Data={'','';'','';'',''};
+            obj.pr.ax.(obj.pr.ax_no).FontSize=12;
+            obj.pr.ax.(obj.pr.ax_no).ColumnName = {'Current Trial','Next Trial'};
+            obj.pr.ax.(obj.pr.ax_no).ColumnWidth = {100,100};
+            obj.pr.ax.(obj.pr.ax_no).RowName = {'Trials','ITI (ms)','TS',};
+            obj.pr.ax.(obj.pr.ax_no).RowStriping='on';
+            obj.pr.ax.(obj.pr.ax_no).Units='normalized'; %Future Use: obj.pr.ax.(obj.pr.ax_no).Position(3:4) = obj.pr.ax.(obj.pr.ax_no).Extent(3:4);
+            if obj.pr.axesno==2 || obj.pr.axesno==3
+                obj.pr.ax.(obj.pr.ax_no).Position = [0.25 0.5 0.41 0.135];
+                obj.pr.ax.(obj.pr.ax_no).Units='pixels';
+                obj.pr.ax.(obj.pr.ax_no).Position(3:4) = obj.pr.ax.(obj.pr.ax_no).Extent(3:4);
+            else
+                obj.pr.ax.(obj.pr.ax_no).Position = [0.15 0.5 0.65 0.215];
+            end
+            function cbFontSize(source,~)
+                ax=source.Tag;
+                f=figure('Name','Font Size | BEST Toolbox','numbertitle', 'off','ToolBar', 'none','MenuBar', 'none','WindowStyle', 'modal','Units', 'normal', 'Position', [0.5 0.5 .15 .05]);
+                uicontrol( 'Style','text','Parent', f,'String','Enter Font Size:','FontSize',11,'HorizontalAlignment','center','Units','normalized','Position',[0.05 0.5 0.5 0.4]);
+                font=uicontrol( 'Style','edit','Parent', f,'String','11','FontSize',11,'HorizontalAlignment','center','Units','normalized','Position',[0.5 0.5 0.4 0.4]);
+                uicontrol( 'Style','pushbutton','Parent', f,'String','Set Size','FontSize',11,'HorizontalAlignment','center','Units','normalized','Position',[0.1 0.05 0.8 0.4],'Callback',@setFontSize);
+                function setFontSize(~,~)
+                    try
+                        obj.pr.ax.(ax).FontSize=str2double(font.String);
+                        close(f)
+                    catch
+                        close(f)
+                    end
+                end
+            end
         end
         %% multimodal old and new
         
