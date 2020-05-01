@@ -9025,13 +9025,23 @@ classdef BEST < handle
                         expModvBox=uix.VBox( 'Parent', DisplayParametersPanel, 'Spacing', 0, 'Padding', 0  );
                         
                         expModr2=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
+                        uicontrol( 'Style','text','Parent', expModr2,'String','Threshold Methood:','FontSize',11,'HorizontalAlignment','left','Units','normalized'); % Inter Trial Inteval (s)
+                        obj.pi.psychmth.ThresholdMethod=uicontrol( 'Style','popupmenu','Parent', expModr2 ,'FontSize',11,'Tag','ThresholdMethod','String',{'Adaptive Staircase Estimation', 'Maximum Likelihood Estimation'},'Callback',@cb_par_saving);
+                        expModr2.Widths=[150 -2];
+                        
+                        expModr2=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
                         uicontrol( 'Style','text','Parent', expModr2,'String','Trials Per Condition:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
                         obj.pi.psychmth.TrialsPerCondition=uicontrol( 'Style','edit','Parent', expModr2 ,'FontSize',11,'Tag','TrialsPerCondition','callback',@cb_par_saving);
                         expModr2.Widths=[150 -2];
                         
-                        expModvBox.Heights=[35];
+                        expModvBox.Heights=[30 35];
                     case 2
                         expModvBox=uix.VBox( 'Parent', DisplayParametersPanel, 'Spacing', 0, 'Padding', 0  );
+                        
+                        expModr2=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
+                        uicontrol( 'Style','text','Parent', expModr2,'String','Threshold Methood:','FontSize',11,'HorizontalAlignment','left','Units','normalized'); % Inter Trial Inteval (s)
+                        obj.pi.psychmth.ThresholdMethod=uicontrol( 'Style','popupmenu','Parent', expModr2 ,'FontSize',11,'Tag','ThresholdMethod','String',{'Adaptive Staircase Estimation', 'Maximum Likelihood Estimation'},'Callback',@cb_par_saving);
+                        expModr2.Widths=[150 -2];
                         
                         expModr2=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
                         uicontrol( 'Style','text','Parent', expModr2,'String','Trials Per Condition:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
@@ -9043,23 +9053,23 @@ classdef BEST < handle
                         obj.pi.psychmth.EEGDisplayPeriodPre=uicontrol( 'Style','edit','Parent', expModr4 ,'FontSize',11,'Tag','EEGDisplayPeriodPre','callback',@cb_par_saving);
                         obj.pi.psychmth.EEGDisplayPeriodPost=uicontrol( 'Style','edit','Parent', expModr4 ,'FontSize',11,'Tag','EEGDisplayPeriodPost','callback',@cb_par_saving);
                         expModr4.Widths=[150 -2 -2];
-
-
-                        expModvBox.Heights=[35 45];
+                        
+                        
+                        expModvBox.Heights=[30 35 45];
                 end
             end
             function cb_SetHeights
                 switch obj.pi.psychmth.BrainState.Value
                     case 1
-                        set(obj.pi.psychmth.r0v1,'Heights',[40 90 70 -1 55 55])
+                        set(obj.pi.psychmth.r0v1,'Heights',[40 90 100 -1 55 55])
                     case 2
-                        set(obj.pi.psychmth.r0v1,'Heights',[40 390 110 -1 55 55])
+                        set(obj.pi.psychmth.r0v1,'Heights',[40 390 150 -1 55 55])
                 end
             end
             
             
             function cb_par_saving(source,~)
-                if strcmp(source.Tag,'InputDevice') || strcmp(source.Tag,'AmplitudeUnits') || strcmp(source.Tag,'FrequencyBand') || strcmp(source.Tag,'DoseFunction')
+                if strcmp(source.Tag,'InputDevice') || strcmp(source.Tag,'AmplitudeUnits') || strcmp(source.Tag,'FrequencyBand') || strcmp(source.Tag,'DoseFunction') || strcmp(source.Tag,'ThresholdMethod')
                     obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(source.Tag)=source.Value;
                 else
                     obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(source.Tag)=source.String;
@@ -10247,6 +10257,7 @@ classdef BEST < handle
             obj.info.defaults.Enable={'on'};
             obj.info.defaults.NoOfTrialsToAverage='10';
             obj.info.defaults.PsychometricThreshold='NaN';
+            obj.info.defaults.ThresholdMethod=1;
             si=[1];
             for idefaults=1:numel(si)
                 cond=['cond' num2str(idefaults)];
