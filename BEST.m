@@ -7464,7 +7464,7 @@ classdef BEST < handle
                 cb_BrainStateParametersPanel
                 cb_DisplayParametersPanel
                 cb_SetHeights
-                obj.func_load_mep_par;
+                obj.func_load_mth_par;
             end
             function cb_BrainStateParametersPanel(~,~)
                 switch obj.pi.mth.BrainState.Value
@@ -7535,7 +7535,7 @@ classdef BEST < handle
                         set( mep_panel_13, 'Widths', [150 -3 -1]);
                         
                         mep_panel_row2z = uix.HBox( 'Parent', expModvBox, 'Spacing', 5, 'Padding', 5  );
-                        uicontrol( 'Style','text','Parent', mep_panel_row2z,'String','Amp Assignment Period(s):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                        uicontrol( 'Style','text','Parent', mep_panel_row2z,'String','Amp Assignment Period (s):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
                         obj.pi.mth.AmplitudeAssignmentPeriod=uicontrol( 'Style','edit','Parent', mep_panel_row2z ,'FontSize',11,'Tag','AmplitudeAssignmentPeriod','Callback',@cb_par_saving);
                         set( mep_panel_row2z, 'Widths', [150 -2]);
                         
@@ -7553,7 +7553,7 @@ classdef BEST < handle
                         expModvBox=uix.VBox( 'Parent', DisplayParametersPanel, 'Spacing', 0, 'Padding', 0  );
                         
                         expModr2=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
-                        uicontrol( 'Style','text','Parent', expModr2,'String','Threshold Methood:','FontSize',11,'HorizontalAlignment','left','Units','normalized'); % Inter Trial Inteval (s)
+                        uicontrol( 'Style','text','Parent', expModr2,'String','Threshold Method:','FontSize',11,'HorizontalAlignment','left','Units','normalized'); % Inter Trial Inteval (s)
                         obj.pi.mth.ThresholdMethod=uicontrol( 'Style','popupmenu','Parent', expModr2 ,'FontSize',11,'Tag','ThresholdMethod','String',{'Adaptive Staircase Estimation', 'Maximum Likelihood Estimation'},'Callback',@cb_par_saving);
                         expModr2.Widths=[150 -2];
                         
@@ -7584,7 +7584,7 @@ classdef BEST < handle
                         expModvBox=uix.VBox( 'Parent', DisplayParametersPanel, 'Spacing', 0, 'Padding', 0  );
                         
                         expModr2=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
-                        uicontrol( 'Style','text','Parent', expModr2,'String','Threshold Methood:','FontSize',11,'HorizontalAlignment','left','Units','normalized'); % Inter Trial Inteval (s)
+                        uicontrol( 'Style','text','Parent', expModr2,'String','Threshold Method:','FontSize',11,'HorizontalAlignment','left','Units','normalized'); % Inter Trial Inteval (s)
                         obj.pi.mth.ThresholdMethod=uicontrol( 'Style','popupmenu','Parent', expModr2 ,'FontSize',11,'Tag','ThresholdMethod','String',{'Adaptive Staircase Estimation', 'Maximum Likelihood Estimation'},'Callback',@cb_par_saving);
                         expModr2.Widths=[150 -2];
                         
@@ -9036,7 +9036,7 @@ classdef BEST < handle
                         expModvBox=uix.VBox( 'Parent', DisplayParametersPanel, 'Spacing', 0, 'Padding', 0  );
                         
                         expModr2=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
-                        uicontrol( 'Style','text','Parent', expModr2,'String','Threshold Methood:','FontSize',11,'HorizontalAlignment','left','Units','normalized'); % Inter Trial Inteval (s)
+                        uicontrol( 'Style','text','Parent', expModr2,'String','Threshold Method:','FontSize',11,'HorizontalAlignment','left','Units','normalized'); % Inter Trial Inteval (s)
                         obj.pi.psychmth.ThresholdMethod=uicontrol( 'Style','popupmenu','Parent', expModr2 ,'FontSize',11,'Tag','ThresholdMethod','String',{'Adaptive Staircase Estimation', 'Maximum Likelihood Estimation'},'Callback',@cb_par_saving);
                         expModr2.Widths=[150 -2];
                         
@@ -9050,7 +9050,7 @@ classdef BEST < handle
                         expModvBox=uix.VBox( 'Parent', DisplayParametersPanel, 'Spacing', 0, 'Padding', 0  );
                         
                         expModr2=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
-                        uicontrol( 'Style','text','Parent', expModr2,'String','Threshold Methood:','FontSize',11,'HorizontalAlignment','left','Units','normalized'); % Inter Trial Inteval (s)
+                        uicontrol( 'Style','text','Parent', expModr2,'String','Threshold Method:','FontSize',11,'HorizontalAlignment','left','Units','normalized'); % Inter Trial Inteval (s)
                         obj.pi.psychmth.ThresholdMethod=uicontrol( 'Style','popupmenu','Parent', expModr2 ,'FontSize',11,'Tag','ThresholdMethod','String',{'Adaptive Staircase Estimation', 'Maximum Likelihood Estimation'},'Callback',@cb_par_saving);
                         expModr2.Widths=[150 -2];
                         
