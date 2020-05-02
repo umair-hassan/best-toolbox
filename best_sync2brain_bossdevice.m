@@ -58,9 +58,6 @@ classdef best_sync2brain_bossdevice <handle
                     case 3 % Beta
                         obj.bb.beta.bpf_fir_coeffs =  firls(obj.best_toolbox.inputs.BandPassFilterOrder, [0 (obj.best_toolbox.inputs.PeakFrequency + [-5 -2 +2 +5]) (1000/2)]/(1000/2), [0 0 1 1 0 0], [1 1 1]) ;
                 end
-                
-
-
             end
             
         end
