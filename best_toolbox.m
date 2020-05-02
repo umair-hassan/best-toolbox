@@ -2945,7 +2945,7 @@ classdef best_toolbox < handle
                     obj.info.plt.(ax).ioc_scatplot.XData=xvalue; obj.info.plt.(ax).ioc_scatplot.YData=yvalue;
                 end
             end
-        end %end mep_scat_plot
+        end
         function mep_stats(obj)
             %             ax=['ax' num2str(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.axesno}{1,obj.inputs.chLab_idx})];
             %             obj.inputs.rawData.(ax).mep_stats=0;

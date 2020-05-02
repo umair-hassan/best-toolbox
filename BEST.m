@@ -8804,17 +8804,21 @@ classdef BEST < handle
             % Editing Rule: Values should be Integers, Strings should
             % Strings , cells are the defaults values that do not have any
             % uicontroller
+            obj.info.defaults=[];
             obj.info.defaults.BrainState=1;
             obj.info.defaults.TrialsPerCondition='10';
             obj.info.defaults.InputDevice=1;
             obj.info.defaults.ITI='4';
-            obj.info.defaults.MontageChannels='';
-            obj.info.defaults.MontageWeights='';
+            obj.info.defaults.MontageChannels=['{' ' ''C3'',' ' ''FC1'',' ' ''FC5'',' ' ''CP1'',' ' ''CP5''}'];
+            obj.info.defaults.MontageWeights='1 -0.25 -0.25 -0.25 -0.25';
             obj.info.defaults.FrequencyBand=1;
+            obj.info.defaults.PeakFrequency='11';
+            obj.info.defaults.BandPassFilterOrder='80';
             obj.info.defaults.Phase='0';
-            obj.info.defaults.PhaseTolerance='';
-            obj.info.defaults.AmplitudeThreshold='[0 1e6]';
-            obj.info.defaults.AmplitudeUnits=1;
+            obj.info.defaults.PhaseTolerance='pi/40';
+            obj.info.defaults.AmplitudeThreshold='0 1e6';
+            obj.info.defaults.AmplitudeUnits=2;
+            obj.info.defaults.AmplitudeAssignmentPeriod='4';
             obj.info.defaults.EMGDisplayChannels='';
             obj.info.defaults.MEPOnset='15';
             obj.info.defaults.MEPOffset='50';
@@ -8827,6 +8831,9 @@ classdef BEST < handle
             obj.info.defaults.Protocol={'Psychometric Threshold Hunting Protocol'};
             obj.info.defaults.Handles.UserData='Reserved for Future Use';
             obj.info.defaults.Enable={'on'};
+            obj.info.defaults.NoOfTrialsToAverage='10';
+            obj.info.defaults.PsychometricThreshold='NaN';
+            obj.info.defaults.ThresholdMethod=1;
             si=[30];
             for idefaults=1:numel(si)
                 cond=['cond' num2str(idefaults)];
@@ -9077,7 +9084,7 @@ classdef BEST < handle
             end
             
             
-        end %% END obj.pr_psychmth
+        end 
         function cb_pr_psychmth_StimulationParametersTable(obj)
             % create the Data from pars
             iData=0;
