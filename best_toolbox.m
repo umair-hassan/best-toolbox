@@ -1020,7 +1020,155 @@ classdef best_toolbox < handle
                                 condstimTimingStrings=[];
                                 obj.app.pr.ax_ChannelLabels=[obj.app.pr.ax_ChannelLabels,obj.inputs.EMGDisplayChannels,{'StatusTable'}];
                             end
-                        case 2
+                        case 2 %Dependent
+                            %% Adjusting New Arhictecture to Old Architecture
+                            obj.inputs.prestim_scope_plt=obj.inputs.EMGDisplayPeriodPre;
+                            obj.inputs.poststim_scope_plt=obj.inputs.EMGDisplayPeriodPost;
+                            obj.inputs.mep_onset=obj.inputs.MEPOnset;
+                            obj.inputs.mep_offset=obj.inputs.MEPOffset;
+                            obj.inputs.input_device=obj.app.pi.mth.InputDevice.String(obj.inputs.InputDevice); %TODO: the drc or mep on the 4th structure is not a good solution!
+                            obj.inputs.output_device=obj.inputs.condsAll.cond1.st1.stim_device;
+                            obj.inputs.stim_mode='MSO';
+                            obj.inputs.measure_str='Motor Threshold Hunting Protocol';
+                            obj.inputs.ylimMin=obj.inputs.EMGDisplayYLimMin;
+                            obj.inputs.ylimMax=obj.inputs.EMGDisplayYLimMax;
+                            obj.inputs.stop_event=0;
+                            obj.inputs.ylimMin=-3000;
+                            obj.inputs.ylimMax=+3000;
+                            obj.inputs.TrialNoForMean=1;
+                            obj.inputs.mt_starting_stim_inten=obj.inputs.condsAll.cond1.st1.si_pckt{1,1};
+                            obj.inputs.Handles.ThresholdData=struct;
+                            %% Creating Column Labels
+                            obj.inputs.colLabel.inputDevices=1;
+                            obj.inputs.colLabel.outputDevices=2;
+                            obj.inputs.colLabel.si=3;
+                            obj.inputs.colLabel.iti=4;
+                            obj.inputs.colLabel.chLab=5;
+                            obj.inputs.colLabel.trials=9;
+                            obj.inputs.colLabel.axesno=6;
+                            obj.inputs.colLabel.measures=7;
+                            obj.inputs.colLabel.stimMode=8;
+                            obj.inputs.colLabel.tpm=10;
+                            obj.inputs.colLabel.chType=11;
+                            obj.inputs.colLabel.chId=12;
+                            obj.inputs.colLabel.phase=15;
+                            obj.inputs.colLabel.IA=16;
+                            obj.inputs.colLabel.threshold=13;
+                            obj.inputs.colLabel.marker=14;
+                            if obj.inputs.AmplitudeUnits==1
+                                obj.inputs.colLabel.IAPercentile=17;
+                            end
+                            %% Creating Channel Measures, AxesNo, Labels
+                            conds=fieldnames(obj.inputs.condsAll);
+                            %                             ChannelLabls=[repelem(obj.inputs.EMGTargetChannels,3),obj.inputs.EMGDisplayChannels]; %this can go directly inside the cond object in the loop
+                            ChannelMeasures=[{'PhaseHistogram'},{'TriggerLockedEEG'},repmat({'MEP_Measurement','Motor Threshold Hunting'},1,numel(conds)),repmat({'MEP_Measurement'},1,numel(obj.inputs.EMGDisplayChannels)),{'RunningAmplitude'},{'AmplitudeDistribution'},{'StatusTable'}];
+                            % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                             ChannelAxesNo=num2cell(1:numel(ChannelLabels));
+                            DisplayChannelAxesNo=num2cell(2+numel(conds)*2+1:numel(ChannelMeasures));
+                            obj.app.pr.ax_measures=ChannelMeasures;
+                            obj.app.pr.axesno=numel(ChannelMeasures);
+                            %                             obj.app.pr.ax_ChannelLabels=ChannelMeasures; write in the end and remove from here
+                            %% Creating Channel Type, Channel Index
+                            switch obj.app.par.hardware_settings.(char(obj.inputs.input_device)).slct_device
+                                case 1 %boss box NeurOne
+                                    ChannelType=[{'IP'},{'IEEG'},repmat({'EMG','None'},1,numel(conds)),repmat({'EMG'},1,numel(obj.inputs.EMGDisplayChannels)),{'IA'},{'IADistribution'},{'StatusTable'}]; %dirctly inside the loop
+                                    ChannelID=num2cell(1:numel(ChannelType)); %TODO: make this more systematic and extract from channel labels of neurone or acs protocol
+                                case 2 % fieldtrip real time buffer
+                            end
+                            %% Creating Stimulation Conditions
+                            for c=1:numel(fieldnames(obj.inputs.condsAll))
+                                obj.inputs.condMat{c,obj.inputs.colLabel.trials}=obj.inputs.TrialsPerCondition;
+                                obj.inputs.condMat{c,obj.inputs.colLabel.iti}=obj.inputs.ITI;
+                                obj.inputs.condMat{c,obj.inputs.colLabel.inputDevices}=char(obj.app.pi.mth.InputDevice.String(obj.inputs.InputDevice));
+                                TargetChannel=obj.inputs.condsAll.(conds{c,1}).targetChannel;
+                                obj.inputs.results.(TargetChannel{1}).MotorThreshold=obj.inputs.MotorThreshold;
+                                obj.inputs.results.(TargetChannel{1}).NoOfLastTrialsToAverage=obj.inputs.NoOfTrialsToAverage;
+                                obj.app.pr.ax_ChannelLabels([c*2-1,c*2])=[TargetChannel,TargetChannel];
+                                obj.inputs.condMat{c,obj.inputs.colLabel.chLab}=[{'OsscillationPhase'},{'OsscillationEEG'},repelem(TargetChannel,2),obj.inputs.EMGDisplayChannels,{'StatusTable'}];
+                                obj.inputs.condMat{c,obj.inputs.colLabel.measures}=[{'PhaseHistogram'},{'TriggerLockedEEG'},{'MEP_Measurement'},{'Threshold Trace'},repmat({'MEP_Measurement'},1,numel(obj.inputs.EMGDisplayChannels)),{'StatusTable'}];
+                                obj.inputs.condMat{c,obj.inputs.colLabel.axesno}=[1,2,{2+(c*2-1)},{2+(c*2)},DisplayChannelAxesNo];
+                                obj.inputs.condMat{c,obj.inputs.colLabel.chType}=[{'IP'},{'IEEG'},ChannelType(2+(c*2-1)),ChannelType(2+(c*2-1)),ChannelType(end-numel(obj.inputs.EMGDisplayChannels)-2:end)];%{'EMG','None',repmat('EMG',1,numel(obj.inputs.EMGDisplayChannels)),'StatusTable'};
+                                obj.inputs.condMat{c,obj.inputs.colLabel.chId}=[{1,1},ChannelID(2+(c*2-1)),ChannelID(2+(c*2-1)),ChannelID(end-numel(obj.inputs.EMGDisplayChannels)-2:end)]; %% TODO: update it later with the originigal channel index
+                                obj.inputs.condMat{c,obj.inputs.colLabel.marker}=c;
+                                obj.inputs.condMat{c,obj.inputs.colLabel.threshold}=obj.inputs.condsAll.(conds{c,1}).st1.threshold_level;
+                                for stno=1:(max(size(fieldnames(obj.inputs.condsAll.(conds{c,1}))))-1)
+                                    st=['st' num2str(stno)];
+                                    condSi{1,stno}=obj.inputs.condsAll.(conds{c,1}).(st).si_pckt;
+                                    condstimMode{1,stno}= obj.inputs.condsAll.(conds{c,1}).(st).stim_mode;
+                                    obj.inputs.condsAll.(conds{c,1}).(st).stim_device
+                                    condoutputDevice{1,stno}=obj.inputs.condsAll.(conds{c,1}).(st).stim_device;
+                                    for i=1:numel(obj.inputs.condsAll.(conds{c,1}).(st).stim_timing)
+                                        condstimTimingStrings{1,i}=num2str(obj.inputs.condsAll.(conds{c,1}).(st).stim_timing{1,i});
+                                    end
+                                    condstimTiming{1,stno}=condstimTimingStrings;
+                                end
+                                obj.inputs.condMat(c,obj.inputs.colLabel.si)={condSi};
+                                obj.inputs.condMat(c,obj.inputs.colLabel.outputDevices)={condoutputDevice};
+                                obj.inputs.condMat(c,obj.inputs.colLabel.stimMode)={condstimMode};
+                                %                         condstimTiming=condstimTiming{1,1};
+                                %                         condstimTiming={{cellfun(@num2str, condstimTiming{1,1}(1,1:end))}};
+                                %                                                 condstimTiming={{arrayfun(@num2str, condstimTiming{1,1}(1,1:end))}};
+                                
+                                %                         condstimTiming=cellstr(condstimTiming);
+                                for timing=1:numel(condstimTiming)
+                                    for jj=1:numel(condstimTiming{1,timing})
+                                        condstimTiming{2,timing}{1,jj}=condoutputDevice{1,timing};
+                                    end
+                                end
+                                condstimTiming_new{1}=horzcat(condstimTiming{1,:});
+                                condstimTiming_new{2}=horzcat(condstimTiming{2,:});
+                                [condstimTiming_new_sorted{1},sorted_idx]=sort(condstimTiming_new{1});
+                                
+                                %                                  [condstimTiming_new_sorted{1},sorted_idx]=sort(cellfun(@str2num, condstimTiming_new{1}));
+                                %                                  condstimTiming_new_sorted{1}=cellfun(@num2str, num2cell(condstimTiming_new_sorted{1}));
+                                
+                                
+                                
+                                condstimTiming_new_sorted{2}=condstimTiming_new{1,2}(sorted_idx);
+                                %                                  condstimTiming_new_sorted{1}=cellfun(@num2str, num2cell(condstimTiming_new_sorted{1}));
+                                
+                                for stimno_tpm=1:numel(condstimTiming_new_sorted{2})
+                                    port_vector{stimno_tpm}=obj.app.par.hardware_settings.(char(condstimTiming_new_sorted{2}{1,stimno_tpm})).bb_outputport;
+                                end
+                                condstimTiming_new_sorted{2}=port_vector;
+                                tpmVect=[condstimTiming_new_sorted{1};condstimTiming_new_sorted{2}];
+                                [tpmVect_unique,ia,ic]=unique(tpmVect(1,:));
+                                a_counts = accumarray(ic,1);
+                                for binportloop=1:numel(tpmVect_unique)
+                                    buffer{1,binportloop}={(cell2mat(tpmVect(2,ia(binportloop):ia(binportloop)-1+a_counts(binportloop))))};
+                                    binaryZ='0000';
+                                    num=cell2mat(buffer{1,binportloop});
+                                    for binaryID=1:numel(num)
+                                        binaryZ(str2num(num(binaryID)))='1';
+                                    end
+                                    buffer{1,binportloop}=bin2dec(flip(binaryZ));
+                                    markers{1,binportloop}=0;
+                                end
+                                markers{1,1}=c;
+                                condstimTiming_new_sorted=[num2cell((cellfun(@str2num, tpmVect_unique(1,1:end))));buffer;markers];
+                                condstimTiming_new_sorted=cell2mat(condstimTiming_new_sorted)
+                                [condstimTiming_new_sorted(1,:),sorted_idx]=sort(condstimTiming_new_sorted(1,:))
+                                condstimTiming_new_sorted(1,:)=condstimTiming_new_sorted(1,:)/1000;
+                                condstimTiming_new_sorted(2,:)=condstimTiming_new_sorted(2,sorted_idx)
+                                
+                                obj.inputs.condMat(c,obj.inputs.colLabel.tpm)={num2cell(condstimTiming_new_sorted)};
+                                condSi=[];
+                                condoutputDevice=[];
+                                condstimMode=[];
+                                condstimTiming=[];
+                                buffer=[];
+                                tpmVect_unique=[];
+                                a_counts =[];
+                                ia=[];
+                                ic=[];
+                                port_vector=[];
+                                num=[];
+                                condstimTiming_new=[];
+                                condstimTiming_new_sorted=[];
+                                sorted_idx=[];
+                                markers=[];
+                                condstimTimingStrings=[];
+                                obj.app.pr.ax_ChannelLabels=[{'OsscillationPhase'},{'OsscillationEEG'},obj.app.pr.ax_ChannelLabels{:},obj.inputs.EMGDisplayChannels,{'OsscillationAmplitude'},{'AmplitudeDistribution'},{'StatusTable'}];
+                            end
                     end
                 case 'Psychometric Threshold Hunting Protocol'
                     switch obj.inputs.BrainState
@@ -1163,14 +1311,14 @@ classdef best_toolbox < handle
                             obj.inputs.colLabel.outputDevices=2;
                             obj.inputs.colLabel.si=3;
                             obj.inputs.colLabel.iti=4;
-                            obj.inputs.colLabel.chLab=5; %prob
+                            obj.inputs.colLabel.chLab=5; 
                             obj.inputs.colLabel.trials=9;
                             obj.inputs.colLabel.axesno=6;
                             obj.inputs.colLabel.measures=7;
                             obj.inputs.colLabel.stimMode=8;
                             obj.inputs.colLabel.tpm=10;
                             obj.inputs.colLabel.chType=11;
-                            obj.inputs.colLabel.chId=12; %prob
+                            obj.inputs.colLabel.chId=12; 
                             obj.inputs.colLabel.phase=15;
                             obj.inputs.colLabel.IA=16;
                             obj.inputs.colLabel.threshold=13;
@@ -1296,7 +1444,6 @@ classdef best_toolbox < handle
                             end
                             obj.app.pr.ax_ChannelLabels=[{'OsscillationPhase'},{'OsscillationEEG'},ChannelLabels{:},{'OsscillationAmplitude'},{'AmplitudeDistribution'},{'StatusTable'}];
                     end
-                    
             end
             %% Crossing Phase & Amplitude Condition with condMat
             if obj.inputs.BrainState==2
@@ -2346,7 +2493,12 @@ classdef best_toolbox < handle
                             obj.mep_plot
                         end
                     case 'Threshold Trace'
-                        obj.mep_threshold;
+                        switch obj.inputs.ThresholdMethod
+                            case 1
+                                obj.mep_threshold;
+                            case 2
+                                obj.mep_threshold_MLE;
+                        end
                         obj.mep_threshold_trace_plot;
                     case 'IOC'
                     case 'Motor Hotspot Search'
@@ -3273,10 +3425,9 @@ classdef best_toolbox < handle
 
             obj.inputs.results.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).MEPAmplitude(obj.inputs.trial,1)=input('enter mep amp  ');
             
-%             m(1:find(m,1,'last'))
             MEPP2PAmpNonZeroIndex=find(obj.inputs.results.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).MEPAmplitude,1,'last');
             MEPP2PAmp=obj.inputs.results.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).MEPAmplitude(MEPP2PAmpNonZeroIndex);
-            if MEPP2PAmp > (obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.threshold}*(1000)) % take the threshol for that particular condition, take the condition name from the marker or put that in the cond
+            if MEPP2PAmp >= (obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.threshold}*(1000)) 
                 disp('Hit')
                 answer = 1;
             else
@@ -3356,6 +3507,112 @@ classdef best_toolbox < handle
             if ~isempty(TrialToUpdate)
                 TrialToUpdate=TrialsNoForThisMarker(TrialToUpdate(1));
                 obj.inputs.trialMat{TrialToUpdate,obj.inputs.colLabel.si}{1,1}{1,1}=obj.tc.(mrk).stimvalue(StimDevice);
+            end
+        end
+        function mep_threshold_MLE(obj)
+            mrk=['mrk' num2str(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.marker})];
+            
+            if ~isfield(obj.inputs.Handles.ThresholdData,mrk)
+                [~,obj.inputs.Handles.ThresholdData.(mrk).L]=MT_initialize_likelihood_mth(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,1}{1,1});
+            end
+            MEPP2PAmpNonZeroIndex=find(obj.inputs.results.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).MEPAmplitude,1,'last');
+            MEPP2PAmp=obj.inputs.results.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).MEPAmplitude(MEPP2PAmpNonZeroIndex);
+            [nextInt,obj.inputs.Handles.ThresholdData.(mrk).L]=MT_update_likelihood_mth(MEPP2PAmp,obj.inputs.Handles.ThresholdData.(mrk).L);
+            ConditionMarker=obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.marker};
+            TrialsNoForThisMarker=find(vertcat(obj.inputs.trialMat{1:end,obj.inputs.colLabel.marker})==ConditionMarker);
+            TrialToUpdate=find(TrialsNoForThisMarker>obj.inputs.trial);
+            if ~isempty(TrialToUpdate)
+                TrialToUpdate=TrialsNoForThisMarker(TrialToUpdate(1));
+                obj.inputs.trialMat{TrialToUpdate,obj.inputs.colLabel.si}{1,1}{1,1}=nextInt;
+            end
+            function [nextInt, L] = MT_initialize_likelihood_mth(startInt)
+                
+                % Custom cdf where 'm' is mean and '0.07*m' is predifined variance
+                cdfFormula = @(m) normcdf(0:0.5:100,m,0.07*m);
+                
+                % this is the cdf I am trying to emulate
+                realCdf = zeros(2,201);
+                spot = 1;
+                for i = 0:0.5:100
+                    realCdf(1,spot) = i;
+                    spot = spot + 1;
+                end
+                if startInt<10
+                    startInt=10;
+                end
+                central=startInt;
+                first=(central+1)-10;
+                last=(central+1)+10;
+                
+                realCdf(2,:) = normcdf(0:0.5:100,central,0.07*central);
+                
+                %% Log likelihood function
+                L = zeros(2,201);
+                spot = 1;
+                for i = 0:0.5:100
+                    L(1,spot) = i;
+                    spot = spot + 1;
+                end
+                %% Start with hit at 100% intensity and miss at 0% intensity
+                spot = 1;
+                for i = 0:0.5:100 % go through all possible intensities
+                    thisCdf = cdfFormula(i);
+                    % calculate log likelihood function
+                    L(2,spot) = log(thisCdf(last)) + log(1-thisCdf(first));
+                    spot = spot + 1;
+                end
+                
+                %%
+                
+                %find max values, returns intensity (no indice problem)
+                maxValues = L(1,find(L(2,:) == max(L(2,:))));
+                
+                % Middle Value from maxValues
+                nextInt = round((min(maxValues) + max(maxValues))/2);
+                % nextInt=sprintf('%.1f', nextInt)
+                
+                
+            end
+            function [nextInt, L] = MT_update_likelihood_mth(MEP, L)
+                
+                % Custom cdf where 'm' is mean and '0.07*m' is predifined variance
+                cdfFormula = @(m) normcdf(0:0.5:100,m,0.07*m);
+                
+                
+                if MEP >= (obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.threshold}*(1000))
+                    disp('Hit')
+                    evokedMEP = 1;
+                else
+                    disp('Miss')
+                    evokedMEP = 0;
+                    
+                end
+                
+                %find max values
+                maxValues = L(1,find(L(2,:) == max(L(2,:))));
+                % Middle Value from maxValues
+                nextInt = round((min(maxValues) + max(maxValues))/2);
+
+                
+                % calculate updated log likelihood function
+                spot = 1;
+                for i = 0:0.5:100 % go through all possible intensities
+                    thisCdf = cdfFormula(i);
+                    central=nextInt*10+1;
+                    
+                    if evokedMEP == 1 % hit!
+                        L(2,spot) = L(2,spot) + 1*log(thisCdf(central));
+                    elseif evokedMEP == 0 % miss!
+                        L(2,spot) = L(2,spot) + 1*log(1-thisCdf(central));
+                    end
+                    spot = spot + 1;
+                end
+                %find max values
+                maxValues = L(1,find(L(2,:) == max(L(2,:))));
+                % Middle Value from maxValues
+                nextInt = round((min(maxValues) + max(maxValues))/2);
+                %nextInt = maxValues(round(length(maxValues)/2));
+                %display(sprintf('using next intensity: %.2f', nextInt))
             end
         end
         function psych_threshold(obj)
@@ -3998,97 +4255,6 @@ classdef best_toolbox < handle
                     delete(f)
             end
             function CloseReqFcn, end
-        end
-        
-        function [nextInt, L] = MT_initialize_likelihood_mth()
-
-% Custom cdf where 'm' is mean and '0.07*m' is predifined variance
-cdfFormula = @(m) normcdf(0:0.5:100,m,0.07*m);
-
-% this is the cdf I am trying to emulate
-realCdf = zeros(2,201);
-spot = 1;
-for i = 0:0.5:100
-    realCdf(1,spot) = i; 
-    spot = spot + 1;
-end
-
-central=40;
-first=(central*2)-20+1;
-% first=1;
-last=(central*2)+20+1;
-
-realCdf(2,:) = normcdf(0:0.5:100,central,0.07*central);
-
-%% Log likelihood function
-L = zeros(2,201);
-spot = 1;
-for i = 0:0.5:100
-    L(1,spot) = i;
-    spot = spot + 1;
-end
-%% Start with hit at 100% intensity and miss at 0% intensity
-spot = 1;
-for i = 0:0.5:100 % go through all possible intensities
-    thisCdf = cdfFormula(i);
-    % calculate log likelihood function
-    L(2,spot) = log(thisCdf(last)) + log(1-thisCdf(first));
-    spot = spot + 1;
-end
-
-%%
-
-%find max values
-maxValues = L(1,find(L(2,:) == max(L(2,:))));
-% Middle Value from maxValues
-nextInt = round((min(maxValues) + max(maxValues)) / 2);
-%nextInt = maxValues(round(length(maxValues)/2));
-    
-
-        end
-        function [nextInt, L] = MT_update_likelihood_mth(MEP, L, factor)
-
-% Custom cdf where 'm' is mean and '0.07*m' is predifined variance
-m=1
-cdfFormula = @(m) normcdf(0:0.5:100,m,0.07*m);
-
-
-if MEP > 50
-    disp('Hit')
-    evokedMEP = 1;
-else
-    disp('Miss')
-    evokedMEP = 0;
-
-end
-
-%find max values
-maxValues = L(1,find(L(2,:) == max(L(2,:))));
-% Middle Value from maxValues
-nextInt = round((min(maxValues) + max(maxValues)) / 2);
-%nextInt = maxValues(round(length(maxValues)/2));
-    
-% calculate updated log likelihood function
-spot = 1;
-for i = 0:0.5:100 % go through all possible intensities
-    thisCdf = cdfFormula(i);
-    if evokedMEP == 1 % hit!
-        L(2,spot) = L(2,spot) + factor*log(thisCdf(2*nextInt+1));
-    elseif evokedMEP == 0 % miss!
-        L(2,spot) = L(2,spot) + factor*log(1-thisCdf(2*nextInt+1));
-    end
-    spot = spot + 1;
-end
-
-%find max values
-maxValues = L(1,find(L(2,:) == max(L(2,:))));
-% Middle Value from maxValues
-nextInt = round((min(maxValues) + max(maxValues)) / 2);
-%nextInt = maxValues(round(length(maxValues)/2));
-    
-
-display(sprintf('using next intensity: %.2f', nextInt))
-
         end
         
         
