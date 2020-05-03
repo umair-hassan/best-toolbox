@@ -7458,15 +7458,7 @@ classdef BEST < handle
             set(obj.pi.mth.r0,'Widths',[-1.45 -3]);
             obj.pi.mth.cond.no=0;
             obj.cb_pr_mth_Nconditions;
-            
-            function cb_run_mep()
-                
-                %                 obj.bst.inputs=[];
-                %                 obj.bst.inputs=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr);
-                
-                %                 obj.bst.factorizeConditions;
-                obj.bst.best_mep;
-            end
+
             function cb_UniversalPanelAdaptation(~,~)
                 obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).BrainState=obj.pi.mth.BrainState.Value;
                 cb_BrainStateParametersPanel
@@ -8933,15 +8925,7 @@ classdef BEST < handle
             set(obj.pi.psychmth.r0,'Widths',[-1.45 -3]);
             obj.pi.psychmth.cond.no=0;
             obj.cb_pr_psychmth_Nconditions;
-            
-            function cb_run_mep()
-                
-                %                 obj.bst.inputs=[];
-                %                 obj.bst.inputs=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr);
-                
-                %                 obj.bst.factorizeConditions;
-                obj.bst.best_mep;
-            end
+
             function cb_UniversalPanelAdaptation(~,~)
                 obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).BrainState=obj.pi.psychmth.BrainState.Value;
                 cb_BrainStateParametersPanel
