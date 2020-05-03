@@ -70,15 +70,7 @@ classdef BEST < handle
             
             % set(fig, 'Position', get(0, 'Screensize'));
             set(obj.fig.handle,'Units','normalized', 'Position', [0 0 0.8 0.8]);
-            
-            
-            obj.pr.mep.axes1=axes;
-            obj.pr.hotspot.axes1=axes;
-            obj.pr.mt.axes_mep=axes;
-            obj.pr.mt.axes_mtplot=axes;
-            obj.pr.ioc.axes_mep=axes;
-            obj.pr.ioc.axes_scatplot=axes;
-            obj.pr.ioc.axes_fitplot=axes;
+ 
             obj.info.pause=0;
             obj.info.session_copy_id=0;
             obj.info.measurement_paste_marker=0;
@@ -870,7 +862,7 @@ classdef BEST < handle
         function resultsPanel(obj)
             total_axesno=obj.pr.axesno;
             Title=['Results - ' obj.bst.inputs.Protocol];
-            obj.pr.panel_1= uix.Panel( 'Parent', obj.pr.empty_panel, 'Padding', 5 ,'Units','normalized','Title', Title,'FontWeight','bold','FontSize',14,'TitlePosition','centertop' );
+            obj.pr.panel_1= uix.Panel( 'Parent', obj.fig.pr_empty_panel, 'Padding', 5 ,'Units','normalized','Title', Title,'FontWeight','bold','FontSize',14,'TitlePosition','centertop' );
             obj.pr.grid=uiextras.GridFlex('Parent',obj.pr.panel_1, 'Spacing', 4 );
             
             for i=1:total_axesno
@@ -1125,15 +1117,17 @@ classdef BEST < handle
         function pr_setMEPMeanTrials(obj,source,~)
         end
         function pr_NoOfTrialsToAverage(obj,source,~)
-           Channel=source.Tag;
+            Channel=source.Tag;
+            ax=source.UserData;
             f=figure('Name','Set Trials to Avg | BEST Toolbox','numbertitle', 'off','ToolBar', 'none','MenuBar', 'none','WindowStyle', 'modal','Units', 'normal', 'Position', [0.5 0.5 .15 .05]);
             uicontrol( 'Style','text','Parent', f,'String','Enter No of Last Trials to Avg for Threshold:','FontSize',11,'HorizontalAlignment','center','Units','normalized','Position',[0.05 0.5 0.5 0.4]);
             NoOfTrialsToAverage=uicontrol( 'Style','edit','Parent', f,'String','10','FontSize',11,'HorizontalAlignment','center','Units','normalized','Position',[0.5 0.5 0.4 0.4]);
-            uicontrol( 'Style','pushbutton','Parent', f,'String','Update','FontSize',11,'HorizontalAlignment','center','Units','normalized','Position',[0.1 0.05 0.8 0.4],'Callback',@setFontSize);
-            function setFontSize(~,~)
+            uicontrol( 'Style','pushbutton','Parent', f,'String','Update','FontSize',11,'HorizontalAlignment','center','Units','normalized','Position',[0.1 0.05 0.8 0.4],'Callback',@set);
+            function set(~,~)
                 try
                     obj.bst.inputs.results.(Channel).NoOfLastTrialsToAverage=str2double(NoOfTrialsToAverage.String);
-                    obj.bst.inputs.results.(Channel).NoOfLastTrialsToAverage
+                    obj.bst.computeMotorThreshold(Channel,obj.bst.inputs.Handles.(ax).mtplot.YData)
+                    obj.pr.ax.(ax).UserData.status.String={['Trials to Average:' num2str(obj.bst.inputs.results.(Channel).NoOfLastTrialsToAverage)],['Threshold (%MSO):' num2str(obj.bst.inputs.results.(Channel).MotorThreshold)]};
                     close(f)
                 catch
                     close(f)
@@ -1314,8 +1308,13 @@ classdef BEST < handle
         end
         function pr_MotorThresholdHunting(obj)
             obj.pr.ax_no=['ax' num2str(obj.pr.axesno)];
+%             aa=obj.pr.ax_no
+%             tag=['{' obj.pr.ax_no ',' obj.pr.ax_ChannelLabels{obj.pr.axesno} '}']
+%             tag=['{' ''' a '','' b ''}']
+%             ['{' ' ''C3'',' ' ''FC1'',' ' ''FC5'',' ' ''CP1'',' ' ''CP5''}'];
+%             obj.pr.ax_ChannelLabels{obj.pr.axesno}
             ui_menu=uicontextmenu(obj.fig.handle);
-            uimenu(ui_menu,'label','set Last No. of Trials to Calculate Average for Threshold','Callback',@obj.pr_NoOfTrialsToAverage,'Tag',obj.pr.ax_ChannelLabels{obj.pr.axesno});
+            uimenu(ui_menu,'label','set Last No. of Trials to Calculate Average for Threshold','Callback',@obj.pr_NoOfTrialsToAverage,'Tag',obj.pr.ax_ChannelLabels{obj.pr.axesno},'UserData',obj.pr.ax_no);
             uimenu(ui_menu,'label','set Font size','Callback',@obj.pr_FontSize,'Tag',obj.pr.ax_no);
             uimenu(ui_menu,'label','export as MATLAB Figure','Callback',@obj.pr_FigureExport,'Tag',obj.pr.ax_no);
             AxesTitle=['Threshold Trace - ' obj.pr.ax_ChannelLabels{1,obj.pr.axesno}];
@@ -1352,7 +1351,9 @@ classdef BEST < handle
                 obj.pr.ax.(obj.pr.ax_no).Units='pixels';
                 obj.pr.ax.(obj.pr.ax_no).Position(3:4) = obj.pr.ax.(obj.pr.ax_no).Extent(3:4);
             else
-                obj.pr.ax.(obj.pr.ax_no).Position = [0.15 0.5 0.65 0.215];
+%                 obj.pr.ax.(obj.pr.ax_no).Position = [0.15 0.5 0.65 0.215];
+                obj.pr.ax.(obj.pr.ax_no).Units='pixels';
+                obj.pr.ax.(obj.pr.ax_no).Position(3:4) = obj.pr.ax.(obj.pr.ax_no).Extent(3:4);
             end
             function cbFontSize(source,~)
                 ax=source.Tag;
@@ -12242,8 +12243,10 @@ classdef BEST < handle
         end
         %% results panel
         function create_results_panel(obj)
-            obj.pr.empty_panel= uix.Panel( 'Parent', obj.fig.main, 'Padding', 5 ,'Units','normalized','BorderType','none' );
-            uix.Panel( 'Parent', obj.pr.empty_panel, 'Padding', 5 ,'Units','normalized','Title', 'Results','FontWeight','bold','FontSize',14,'TitlePosition','centertop' );
+            obj.fig.pr_empty_panel= uix.Panel( 'Parent', obj.fig.main, 'Padding', 5 ,'Units','normalized','BorderType','none' );
+
+%             obj.pr.empty_panel= uix.Panel( 'Parent', obj.fig.main, 'Padding', 5 ,'Units','normalized','BorderType','none' );
+            uix.Panel( 'Parent', obj.fig.pr_empty_panel, 'Padding', 5 ,'Units','normalized','Title', 'Results','FontWeight','bold','FontSize',14,'TitlePosition','centertop' );
             %             set( obj.fig.main, 'Widths', [-1.15 -1.35 -2] );
         end
         
