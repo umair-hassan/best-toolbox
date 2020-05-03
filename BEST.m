@@ -884,7 +884,7 @@ classdef BEST < handle
                     case 'MEP IOC Fit'
                         obj.pr_fit_plot;
                     case 'Motor Threshold Hunting'
-                        obj.pr_threshold_trace_plot;
+                        obj.pr_MotorThresholdHunting;
                     case 'PhaseHistogram'
                         obj.pr_PhaseHistogram;
                     case 'TriggerLockedEEG'
@@ -1311,6 +1311,17 @@ classdef BEST < handle
             xticks([]); xticklabels([]);
             text(obj.pr.ax.(obj.pr.ax_no),1,1,'zoomin','units','normalized','HorizontalAlignment','right','VerticalAlignment','bottom','ButtonDownFcn',@obj.pr_YLimZoomIn,'Tag',obj.pr.ax_no,'color',[0.55 0.55 0.55]);
             text(obj.pr.ax.(obj.pr.ax_no),0.1,1,'   zoomout','units','normalized','HorizontalAlignment','left','VerticalAlignment','bottom','ButtonDownFcn',@obj.pr_YLimZoomOut,'Tag',obj.pr.ax_no,'color',[0.55 0.55 0.55]);
+        end
+        function pr_MotorThresholdHunting(obj)
+            obj.pr.ax_no=['ax' num2str(obj.pr.axesno)];
+            ui_menu=uicontextmenu(obj.fig.handle);
+            uimenu(ui_menu,'label','set Last No. of Trials to Calculate Average for Threshold','Callback',@obj.pr_NoOfTrialsToAverage,'Tag',obj.pr.ax_ChannelLabels{obj.pr.axesno});
+            uimenu(ui_menu,'label','set Font size','Callback',@obj.pr_FontSize,'Tag',obj.pr.ax_no);
+            uimenu(ui_menu,'label','export as MATLAB Figure','Callback',@obj.pr_FigureExport,'Tag',obj.pr.ax_no);
+            AxesTitle=['Threshold Trace - ' obj.pr.ax_ChannelLabels{1,obj.pr.axesno}];
+            obj.pr.clab.(obj.pr.ax_no)=uix.Panel( 'Parent', obj.pr.grid, 'Padding', 5 ,'Units','normalized','Title',AxesTitle,'FontWeight','bold','FontSize',12,'TitlePosition','centertop' );
+            obj.pr.ax.(obj.pr.ax_no)=axes( uicontainer('Parent',   obj.pr.clab.(obj.pr.ax_no)),'Units','normalized','uicontextmenu',ui_menu);
+            xlabel('Trial Number'), ylabel('Stimulation Intensity (mA)');
         end
         function pr_PsychometricThresholdHunting(obj)
             obj.pr.ax_no=['ax' num2str(obj.pr.axesno)];
