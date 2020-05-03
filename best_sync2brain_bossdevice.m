@@ -202,7 +202,7 @@ while ~strcmpi(obj.EMGScope.Status,'finished'), end
                                 obj.bb.beta.amplitude_min(1)=obj.best_toolbox.inputs.trialMat{obj.best_toolbox.inputs.trial,obj.best_toolbox.inputs.colLabel.IA}{1,1};
                                 obj.bb.beta.amplitude_max(1)=obj.best_toolbox.inputs.trialMat{obj.best_toolbox.inputs.trial,obj.best_toolbox.inputs.colLabel.IA}{1,2};
                         end
-                        title(obj.FileScope.hAmplitudeDistributionAxes, ['Min Amplitude: ', num2str(obj.FileScope.amp_lower)]);
+                        title(obj.FileScope.hAmplitudeDistributionAxes, ['Amplitude(Min Max): [', num2str(obj.FileScope.amp_lower) '  ' num2str(obj.FileScope.amp_upper) ']']);
                     end % handle the amplitude tracking
 
                 
@@ -344,7 +344,7 @@ while ~strcmpi(obj.EMGScope.Status,'finished'), end
                                 obj.bb.beta.amplitude_min(1)=obj.best_toolbox.inputs.trialMat{obj.best_toolbox.inputs.trial,obj.best_toolbox.inputs.colLabel.IA}{1,1};
                                 obj.bb.beta.amplitude_max(1)=obj.best_toolbox.inputs.trialMat{obj.best_toolbox.inputs.trial,obj.best_toolbox.inputs.colLabel.IA}{1,2};
                         end
-                        title(obj.FileScope.hAmplitudeDistributionAxes, ['Min Amplitude: ', num2str(obj.FileScope.amp_lower)]);
+                        title(obj.FileScope.hAmplitudeDistributionAxes, ['Amplitude(Min Max): [', num2str(obj.FileScope.amp_lower) '  ' num2str(obj.FileScope.amp_upper) ']']);
                     end % handle the amplitude tracking
 
                 
@@ -529,12 +529,12 @@ while ~strcmpi(obj.EMGScope.Status,'finished'), end
             obj.FileScope.hAmplitudeHistoryAxes = obj.best_toolbox.app.pr.ax.(axOsscillationAmplitude);
             obj.FileScope.hAmplitudeDistributionAxes = obj.best_toolbox.app.pr.ax.(axAmplitudeDistribution);
             axes(obj.FileScope.hAmplitudeHistoryAxes);
-            xlabel(['Data for Past ' num2str(obj.best_toolbox.inputs.AmplitudeAssignmentPeriod) ' mins']);
-            ylabel('EEG Quantile Amplitude (\mu V)');
-            xticks([]); xticklabels([]);
+            %Future Use: xlabel(['Data for Past ' num2str(obj.best_toolbox.inputs.AmplitudeAssignmentPeriod) ' mins']);
+            %Future Use: ylabel('EEG Quantile Amplitude (\mu V)');
+            %Future Use: xticks([]); xticklabels([]);
             axes(obj.FileScope.hAmplitudeHistoryAxes);
-            ylabel('Amplitude (microV)');
-            xticks([]); xticklabels([]);
+            %Future Use: ylabel('Amplitude (microV)');
+            %Future Use: xticks([]); xticklabels([]);
         end
         
         function EMGScopeStart(obj)
