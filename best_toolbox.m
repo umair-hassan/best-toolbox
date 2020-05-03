@@ -3641,11 +3641,11 @@ classdef best_toolbox < handle
                     TrialToUpdate=find(TrialsNoForThisMarker>obj.inputs.trial);
                     TrialToUpdate=TrialsNoForThisMarker(TrialToUpdate(1));
                     YDataPlusOne=obj.inputs.trialMat{TrialToUpdate,obj.inputs.colLabel.si}{1,1}{1,1};
-                    obj.info.plt.(ax).mtplot=plot(YData,'LineWidth',2);
+                    obj.inputs.Handles.(ax).mtplot=plot(YData,'LineWidth',2);
                     xlabel('Trial Number');   
                     ylabel('Stimulation Intensities (mA)');
                     set(gcf, 'color', 'w')
-                    obj.info.plt.(ax).mt_nextIntensityDot=plot(2,YDataPlusOne,'o','Color','r','MarkerSize',4,'MarkerFaceColor','r');
+                    obj.inputs.Handles.(ax).mt_nextIntensityDot=plot(2,YDataPlusOne,'o','Color','r','MarkerSize',4,'MarkerFaceColor','r');
                     xticks(1:2:1000); yticks(0:0.2:20); ylim auto
                     xlim([obj.app.pr.ax.(ax).XLim(1) obj.app.pr.ax.(ax).XLim(2)+1])
                     ylim([obj.app.pr.ax.(ax).YLim(1) (obj.app.pr.ax.(ax).YLim(2)*1.1)])
@@ -3660,13 +3660,13 @@ classdef best_toolbox < handle
                     if ~isempty(TrialToUpdate)
                         TrialToUpdate=TrialsNoForThisMarker(TrialToUpdate(1));
                         YDataPlusOne=obj.inputs.trialMat{TrialToUpdate,obj.inputs.colLabel.si}{1,1}{1,1};
-                        obj.info.plt.(ax).mtplot.YData=[obj.info.plt.(ax).mtplot.YData obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,1}{1,1}];
-                        obj.info.plt.(ax).mt_nextIntensityDot.XData=obj.info.plt.(ax).mt_nextIntensityDot.XData+1;
-                        obj.info.plt.(ax).mt_nextIntensityDot.YData=YDataPlusOne;
+                        obj.inputs.Handles.(ax).mtplot.YData=[obj.inputs.Handles.(ax).mtplot.YData obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,1}{1,1}];
+                        obj.inputs.Handles.(ax).mt_nextIntensityDot.XData=obj.inputs.Handles.(ax).mt_nextIntensityDot.XData+1;
+                        obj.inputs.Handles.(ax).mt_nextIntensityDot.YData=YDataPlusOne;
                         xlim([obj.app.pr.ax.(ax).XLim(1) obj.app.pr.ax.(ax).XLim(2)+1])
                         ylim auto; ylim([obj.app.pr.ax.(ax).YLim(1) (obj.app.pr.ax.(ax).YLim(2)*1.1)])
                         Channel=obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx};
-                        obj.computePsychometricThreshold(Channel,obj.info.plt.(ax).mtplot.YData)
+                        obj.computePsychometricThreshold(Channel,obj.inputs.Handles.(ax).mtplot.YData)
                         obj.app.pr.ax.(ax).UserData.status.String={['Trials to Average:' num2str(obj.inputs.results.(Channel).NoOfLastTrialsToAverage)],['Threshold (mV):' sprintf('%.1f',obj.inputs.results.(Channel).PsychometricThreshold)]};
                         delete(obj.app.pr.ax.(ax).UserData.ThresholdGirdLine)
                         obj.app.pr.ax.(ax).UserData.ThresholdGirdLine=gridxy([],obj.inputs.results.(Channel).PsychometricThreshold,'Color','k','linewidth',1,'Parent',obj.app.pr.ax.(ax));
