@@ -240,6 +240,8 @@ classdef BEST < handle
                          obj.bst.best_mep;
                      case 'MEP Dose Response Curve Protocol'
                          obj.bst.best_drc;
+                     case 'Motor Threshold Hunting Protocol'
+                         obj.bst.best_mth;
                      case 'Psychometric Threshold Hunting Protocol'
                          obj.bst.best_psychmth;
                  end
@@ -869,9 +871,7 @@ classdef BEST < handle
             total_axesno=obj.pr.axesno;
             Title=['Results - ' obj.bst.inputs.Protocol];
             obj.pr.panel_1= uix.Panel( 'Parent', obj.pr.empty_panel, 'Padding', 5 ,'Units','normalized','Title', Title,'FontWeight','bold','FontSize',14,'TitlePosition','centertop' );
-% %             if(obj.pr.axesno>1)
-                obj.pr.grid=uiextras.GridFlex('Parent',obj.pr.panel_1, 'Spacing', 4 );
-% %             end
+            obj.pr.grid=uiextras.GridFlex('Parent',obj.pr.panel_1, 'Spacing', 4 );
             
             for i=1:total_axesno
                 obj.pr.axesno=i;
@@ -898,7 +898,6 @@ classdef BEST < handle
                     case 'StatusTable'
                         obj.pr_StatusTable;
                 end
-                
             end
             switch obj.pr.axesno
                 case 1
@@ -8832,11 +8831,11 @@ classdef BEST < handle
             obj.info.defaults.EEGDisplayPeriodPost='100';
             obj.info.defaults.EMGDisplayYLimMax={100};
             obj.info.defaults.EMGDisplayYLimMin={-100};
-            obj.info.defaults.Protocol={'Psychometric Threshold Hunting Protocol'};
+            obj.info.defaults.Protocol={'Motor Threshold Hunting Protocol'};
             obj.info.defaults.Handles.UserData='Reserved for Future Use';
             obj.info.defaults.Enable={'on'};
             obj.info.defaults.NoOfTrialsToAverage='10';
-            obj.info.defaults.PsychometricThreshold='NaN';
+            obj.info.defaults.MotorThreshold='NaN';
             obj.info.defaults.ThresholdMethod=1;
             si=[30];
             for idefaults=1:numel(si)
@@ -8892,7 +8891,7 @@ classdef BEST < handle
             obj.pi.psychmth.r0v1 = uix.VBox( 'Parent', obj.pi.psychmth.r0p1, 'Spacing', 5, 'Padding', 5  );
             
             r0=uiextras.HBox( 'Parent', obj.pi.psychmth.r0v1,'Spacing', 5, 'Padding', 5 );
-            uicontrol( 'Style','text','Parent', r0,'String','Brain State:','FontSize',11,'HorizontalAlignment','left','Units','normalized'); % Inter Trial Inteval (s)
+            uicontrol( 'Style','text','Parent', r0,'String','Brain State:','FontSize',11,'HorizontalAlignment','left','Units','normalized'); 
             obj.pi.psychmth.BrainState=uicontrol( 'Style','popupmenu','Parent', r0 ,'FontSize',11,'String',{'Independent','Dependent'},'Callback',@cb_UniversalPanelAdaptation);
             set( r0, 'Widths', [150 -2]);
             

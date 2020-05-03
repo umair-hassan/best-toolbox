@@ -876,6 +876,23 @@ classdef best_toolbox < handle
                 case 'Motor Threshold Hunting Protocol'
                     switch obj.inputs.BrainState
                         case 1 %Independent
+                            %% Adjusting New Arhictecture to Old Architecture
+                            obj.inputs.prestim_scope_plt=obj.inputs.EMGDisplayPeriodPre;
+                            obj.inputs.poststim_scope_plt=obj.inputs.EMGDisplayPeriodPost;
+                            obj.inputs.mep_onset=obj.inputs.MEPOnset;
+                            obj.inputs.mep_offset=obj.inputs.MEPOffset;
+                            obj.inputs.input_device=obj.app.pi.mth.InputDevice.String(obj.inputs.InputDevice); %TODO: the drc or mep on the 4th structure is not a good solution!
+                            obj.inputs.output_device=obj.inputs.condsAll.cond1.st1.stim_device;
+                            obj.inputs.stim_mode='MSO';
+                            obj.inputs.measure_str='Motor Threshold Hunting Protocol';
+                            obj.inputs.ylimMin=obj.inputs.EMGDisplayYLimMin;
+                            obj.inputs.ylimMax=obj.inputs.EMGDisplayYLimMax;
+                            obj.inputs.stop_event=0;
+                            obj.inputs.ylimMin=-3000;
+                            obj.inputs.ylimMax=+3000;
+                            obj.inputs.TrialNoForMean=1;
+                            obj.inputs.mt_starting_stim_inten=obj.inputs.condsAll.cond1.st1.si_pckt{1,1};
+                            obj.inputs.Handles.ThresholdData=struct;
                             %% Creating Column Labels
                             obj.inputs.colLabel.inputDevices=1;
                             obj.inputs.colLabel.outputDevices=2;
@@ -895,17 +912,17 @@ classdef best_toolbox < handle
                             %% Creating Channel Measures, AxesNo, Labels
                             conds=fieldnames(obj.inputs.condsAll);
                             %                             ChannelLabls=[repelem(obj.inputs.EMGTargetChannels,3),obj.inputs.EMGDisplayChannels]; %this can go directly inside the cond object in the loop
-                            ChannelMeasures=[repmat({'MEP_Measurement','Motor Threshold Hunting'},1,numel(conds)),repmat({'MEP_Measurement'},1,numel(obj.inputs.EMGDisplayChannels))]; %dirctly inside the loop
+                            ChannelMeasures=[repmat({'MEP_Measurement','Motor Threshold Hunting'},1,numel(conds)),repmat({'MEP_Measurement'},1,numel(obj.inputs.EMGDisplayChannels)),{'StatusTable'}]; %dirctly inside the loop
                             % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                             ChannelAxesNo=num2cell(1:numel(ChannelLabels));
-                            DisplayChannelAxesNo=num2cell(numel(conds)*2+1:numel(conds)*2+2);
+                            DisplayChannelAxesNo=num2cell(numel(conds)*2+1:numel(ChannelMeasures));
                             obj.app.pr.ax_measures=ChannelMeasures;
                             obj.app.pr.axesno=numel(ChannelMeasures);
+%                             obj.app.pr.ax_ChannelLabels=ChannelMeasures; write in the end and remove from here
                             %% Creating Channel Type, Channel Index
                             switch obj.app.par.hardware_settings.(char(obj.inputs.input_device)).slct_device
-                                case 1 %boss box
-                                    ChannelType=repelem({'EMG'},4);
-                                    % % % %                                     ChannelID=num2cell(1:numel(ChannelLabels)); %TODO: make this more systematic and extract from channel labels of neurone or acs protocol
-                                    obj.inputs.ChannelsTypeUnique=ChannelType;
+                                case 1 %boss box NeurOne
+                                    ChannelType=[repmat({'EMG','None'},1,numel(conds)),repmat({'EMG'},1,numel(obj.inputs.EMGDisplayChannels)),{'StatusTable'}]; %dirctly inside the loop
+                                    ChannelID=num2cell(1:numel(ChannelType)); %TODO: make this more systematic and extract from channel labels of neurone or acs protocol
                                 case 2 % fieldtrip real time buffer
                             end
                             %% Creating Stimulation Conditions
@@ -914,11 +931,14 @@ classdef best_toolbox < handle
                                 obj.inputs.condMat{c,obj.inputs.colLabel.iti}=obj.inputs.ITI;
                                 obj.inputs.condMat{c,obj.inputs.colLabel.inputDevices}=char(obj.app.pi.mth.InputDevice.String(obj.inputs.InputDevice));
                                 TargetChannel=obj.inputs.condsAll.(conds{c,1}).targetChannel;
-                                obj.inputs.condMat{c,obj.inputs.colLabel.chLab}=[repelem(TargetChannel,2),obj.inputs.EMGDisplayChannels];
-                                obj.inputs.condMat{c,obj.inputs.colLabel.measures}=[{'MEP_Measurement'},{'Threshold Trace'},repmat({'MEP_Measurement'},1,numel(obj.inputs.EMGDisplayChannels))];
+                                obj.inputs.results.(TargetChannel{1}).MotorThreshold=obj.inputs.MotorThreshold;
+                                obj.inputs.results.(TargetChannel{1}).NoOfLastTrialsToAverage=obj.inputs.NoOfTrialsToAverage;
+                                obj.app.pr.ax_ChannelLabels([c*2-1,c*2])=[TargetChannel,TargetChannel];
+                                obj.inputs.condMat{c,obj.inputs.colLabel.chLab}=[repelem(TargetChannel,2),obj.inputs.EMGDisplayChannels,{'StatusTable'}];
+                                obj.inputs.condMat{c,obj.inputs.colLabel.measures}=[{'MEP_Measurement'},{'Threshold Trace'},repmat({'MEP_Measurement'},1,numel(obj.inputs.EMGDisplayChannels)),{'StatusTable'}];
                                 obj.inputs.condMat{c,obj.inputs.colLabel.axesno}=[{c*2-1},{c*2},DisplayChannelAxesNo];
-                                obj.inputs.condMat{c,obj.inputs.colLabel.chType}=repelem({'EMG'},4);
-                                obj.inputs.condMat{c,obj.inputs.colLabel.chId}=num2cell(1:4); %% TODO: update it later with the originigal channel index
+                                obj.inputs.condMat{c,obj.inputs.colLabel.chType}=[ChannelType(c*2-1),ChannelType(c*2),ChannelType(end-numel(obj.inputs.EMGDisplayChannels):end)];%{'EMG','None',repmat('EMG',1,numel(obj.inputs.EMGDisplayChannels)),'StatusTable'};
+                                obj.inputs.condMat{c,obj.inputs.colLabel.chId}=[ChannelID(c*2-1),ChannelID(c*2),ChannelID(end-numel(obj.inputs.EMGDisplayChannels):end)]; %% TODO: update it later with the originigal channel index
                                 obj.inputs.condMat{c,obj.inputs.colLabel.marker}=c;
                                 obj.inputs.condMat{c,obj.inputs.colLabel.threshold}=obj.inputs.condsAll.(conds{c,1}).st1.threshold_level;
                                 for stno=1:(max(size(fieldnames(obj.inputs.condsAll.(conds{c,1}))))-1)
@@ -998,6 +1018,7 @@ classdef best_toolbox < handle
                                 sorted_idx=[];
                                 markers=[];
                                 condstimTimingStrings=[];
+                                obj.app.pr.ax_ChannelLabels=[obj.app.pr.ax_ChannelLabels,obj.inputs.EMGDisplayChannels,{'StatusTable'}];
                             end
                         case 2
                     end
@@ -2576,13 +2597,18 @@ classdef best_toolbox < handle
             obj.completed;
         end
         function best_mth(obj)
-            obj.factorizeConditions;
+            obj.save;
+            obj.factorizeConditions
             obj.planTrials
             obj.app.resultsPanel;
-            obj.boot_inputdevice;
             obj.boot_outputdevice;
+            obj.boot_inputdevice;
             obj.bootTrial;
-            obj.stimLoop
+            obj.stimLoop;
+            obj.prepSaving;
+            obj.save;
+            obj.saveFigures;
+            obj.completed;
         end
         function best_psychmth (obj)
             obj.save;
