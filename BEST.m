@@ -7445,10 +7445,7 @@ classdef BEST < handle
             obj.pi.mth.pp.btn=uicontrol( 'Parent', r4 ,'Style','PushButton','String','','FontWeight','Bold','HorizontalAlignment','center','CData',obj.icons.paired_pulse,'Tooltip','Click to Add a Paired-Pulse on selected stimulator (selected stimulator is highlighted in blue colour)','Tag','paired_pulse','Callback',@obj.cb_pr_mth_pulse);%add burst or train
             obj.pi.mth.train.btn=uicontrol( 'Parent', r4 ,'Style','PushButton','String','','FontWeight','Bold','HorizontalAlignment','center','CData',obj.icons.train,'Tooltip','Click to Add a Train or Burst on selected stimulator (selected stimulator is highlighted in blue colour)','Tag','train','Callback',@obj.cb_pr_mth_pulse);%add paired pulse
             set( r4, 'Widths', [55 55 55 55 55]);
-            
-            
-            obj.pi.mth.update=uicontrol( 'Parent', obj.pi.mth.r0v1 ,'Style','PushButton','String','Run','FontWeight','Bold','HorizontalAlignment','center','Callback',@(~,~)cb_run_mep); %Run
-            
+                        
             cb_SetHeights;
             
             
@@ -7633,9 +7630,9 @@ classdef BEST < handle
             function cb_SetHeights
                 switch obj.pi.mth.BrainState.Value
                     case 1
-                        set(obj.pi.mth.r0v1,'Heights',[40 90 240 -1 55 55])
+                        set(obj.pi.mth.r0v1,'Heights',[40 90 240 -1 55])
                     case 2
-                        set(obj.pi.mth.r0v1,'Heights',[40 390 280 -1 55 55])
+                        set(obj.pi.mth.r0v1,'Heights',[40 390 280 -1 55])
                 end
             end
             
