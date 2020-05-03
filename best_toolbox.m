@@ -3250,25 +3250,16 @@ classdef best_toolbox < handle
                 experimental_condition{1}.random_delay_range = 0.1;
                 experimental_condition{1}.port = 1;
                 obj.tc.(mrk).stimvalue = [obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,1}{1,1} 1.0 1.00];
-%                 obj.tc.(mrk).stepsize = [1 1 1];
-%                 obj.tc.(mrk).minstep =  1;
-%                 obj.tc.(mrk).maxstep =  8;
-%                 obj.tc.(mrk).minvalue = 10;
-%                 obj.tc.(mrk).maxvalue = 90;
-                obj.tc.(mrk).stepsize = [0.4 0.4 0.4];
-                obj.tc.(mrk).minstep =  0.01;
-                obj.tc.(mrk).maxstep =  1.00;
-                obj.tc.(mrk).minvalue = 0.20;
-                obj.tc.(mrk).maxvalue = 9;
+                obj.tc.(mrk).stepsize = [1 1 1];
+                obj.tc.(mrk).minstep =  1;
+                obj.tc.(mrk).maxstep =  8;
+                obj.tc.(mrk).minvalue = 10;
+                obj.tc.(mrk).maxvalue = 90;
                 obj.tc.(mrk).responses = {[] [] []};
                 obj.tc.(mrk).stimvalues = {[] [] []};  %storage for post-hoc review
                 obj.tc.(mrk).stepsizes = {[] [] []};   %storage for post-hoc review
-                
                 obj.tc.(mrk).lastdouble = [0,0,0];
                 obj.tc.(mrk).lastreverse = [0,0,0];
-                
-                
-                
             end
             StimDevice=1;
             stimtype = 1;
@@ -3362,15 +3353,16 @@ classdef best_toolbox < handle
             ConditionMarker=obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.marker};
             TrialsNoForThisMarker=find(vertcat(obj.inputs.trialMat{1:end,obj.inputs.colLabel.marker})==ConditionMarker);
             TrialToUpdate=find(TrialsNoForThisMarker>obj.inputs.trial);
-            TrialToUpdate=TrialsNoForThisMarker(TrialToUpdate(1));
-            obj.inputs.trialMat{TrialToUpdate,obj.inputs.colLabel.si}{1,1}{1,1}=obj.tc.(mrk).stimvalue(StimDevice);
-            
+            if ~isempty(TrialToUpdate)
+                TrialToUpdate=TrialsNoForThisMarker(TrialToUpdate(1));
+                obj.inputs.trialMat{TrialToUpdate,obj.inputs.colLabel.si}{1,1}{1,1}=obj.tc.(mrk).stimvalue(StimDevice);
+            end
         end
         function psych_threshold(obj)
             %             if first trial, read from starting intensity
             %                 otherwise read from the evokness and write to the
             %                 intensity function
-            AllConditionsFirstTrial=1:obj.inputs.totalConds
+            AllConditionsFirstTrial=1:obj.inputs.totalConds;
             mrk=['mrk' num2str(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.marker})];
             if((obj.inputs.trial<=max(AllConditionsFirstTrial)))
                 experimental_condition = [];
@@ -3599,43 +3591,43 @@ classdef best_toolbox < handle
         function mep_threshold_trace_plot(obj)
             ax=['ax' num2str(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.axesno}{1,obj.inputs.chLab_idx})];
             axes(obj.app.pr.ax.(ax)), hold on,
-            %                         plot(rand(1,500));
-%             switch obj.info.plt.(ax)
-% isfield(obj.inputs.Handles,'PhaseHistogramPeak')==0)
             switch obj.inputs.trial
                 case num2cell(1:obj.inputs.totalConds)
-%                     aa=cell2mat(vertcat(obj.inputs.trialMat{1,obj.inputs.colLabel.si}{1,1}{1,1}))
-%                     x=obj.inputs.trialMat{1,obj.inputs.colLabel.si}{1,1}
-%                     at=cell2mat(vertcat(obj.inputs.trialMat{1:2,obj.inputs.colLabel.si}{1,1}))
                     YData=obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,1}{1,1};
                     ConditionMarker=obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.marker};
                     TrialsNoForThisMarker=find(vertcat(obj.inputs.trialMat{1:end,obj.inputs.colLabel.marker})==ConditionMarker);
                     TrialToUpdate=find(TrialsNoForThisMarker>obj.inputs.trial);
                     TrialToUpdate=TrialsNoForThisMarker(TrialToUpdate(1));
                     YDataPlusOne=obj.inputs.trialMat{TrialToUpdate,obj.inputs.colLabel.si}{1,1}{1,1};
-                    obj.info.plt.(ax).mtplot=plot(YData,'LineWidth',2);
-%                                         obj.info.plt.(ax).mtplot=plot(cell2mat(vertcat(obj.inputs.trialMat{1,obj.inputs.colLabel.si}{1,1})),'LineWidth',2);
-                                          
-                    %obj.info.handles.mt_plot=plot(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).trials(1,1));
+                    obj.inputs.Handles.(ax).mtplot=plot(YData,'LineWidth',2);
                     xlabel('Trial Number');   
                     ylabel('Stimulation Intensities (%MSO)');
-                    yticks(0:5:400);
-                    xticks(1:2:100);    % will have to be referneced with GUI
                     set(gcf, 'color', 'w')
-                    obj.info.plt.(ax).mt_nextIntensityDot=plot(2,YDataPlusOne,'o','Color','r','MarkerSize',4,'MarkerFaceColor','r');
-                otherwise
-                                        yticks(0:5:400);
-                    xticks(1:2:100);   
+                    obj.inputs.Handles.(ax).mt_nextIntensityDot=plot(2,YDataPlusOne,'o','Color','r','MarkerSize',4,'MarkerFaceColor','r');
+                    yticks(0:2:100); xticks(1:1:1000); ylim auto
+                    xlim([obj.app.pr.ax.(ax).XLim(1) obj.app.pr.ax.(ax).XLim(2)+1])
+                    ylim([obj.app.pr.ax.(ax).YLim(1) (obj.app.pr.ax.(ax).YLim(2)*1.1)])
+                    textMotorThresholdStatus={['Trials to Average:' num2str(obj.inputs.NoOfTrialsToAverage)],['Threshold (%MSO):' num2str(obj.inputs.MotorThreshold)]};
+                    obj.app.pr.ax.(ax).UserData.status=text(obj.app.pr.ax.(ax),1,1,textMotorThresholdStatus,'units','normalized','HorizontalAlignment','right','VerticalAlignment','cap','color',[0.45 0.45 0.45]);
+                    obj.app.pr.ax.(ax).UserData.ThresholdGirdLine=gridxy([],0,'Color','k','linewidth',1,'Parent',obj.app.pr.ax.(ax));
+                otherwise  
                     ConditionMarker=obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.marker};
                     TrialsNoForThisMarker=find(vertcat(obj.inputs.trialMat{1:end,obj.inputs.colLabel.marker})==ConditionMarker);
                     TrialToUpdate=find(TrialsNoForThisMarker>obj.inputs.trial);
-                    TrialToUpdate=TrialsNoForThisMarker(TrialToUpdate(1));
-                    YDataPlusOne=obj.inputs.trialMat{TrialToUpdate,obj.inputs.colLabel.si}{1,1}{1,1};
-                    obj.info.plt.(ax).mtplot.YData=[obj.info.plt.(ax).mtplot.YData obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,1}{1,1}];
-                    obj.info.plt.(ax).mt_nextIntensityDot.XData=obj.info.plt.(ax).mt_nextIntensityDot.XData+1;
-                    obj.info.plt.(ax).mt_nextIntensityDot.YData=YDataPlusOne;
-%                     set(obj.info.plt.(ax).mtplot,'YData',cell2mat(vertcat(obj.inputs.trialMat{1:obj.inputs.trial,obj.inputs.colLabel.si}{1,1})))
-%                     set(obj.info.plt.(ax).mt_nextIntensityDot,'XData',obj.inputs.trial+1,'YData',obj.inputs.trialMat{obj.inputs.trial+1,obj.inputs.colLabel.si}{1,1})
+                    if ~isempty(TrialToUpdate)
+                        TrialToUpdate=TrialsNoForThisMarker(TrialToUpdate(1));
+                        YDataPlusOne=obj.inputs.trialMat{TrialToUpdate,obj.inputs.colLabel.si}{1,1}{1,1};
+                        obj.inputs.Handles.(ax).mtplot.YData=[obj.inputs.Handles.(ax).mtplot.YData obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,1}{1,1}];
+                        obj.inputs.Handles.(ax).mt_nextIntensityDot.XData=obj.inputs.Handles.(ax).mt_nextIntensityDot.XData+1;
+                        obj.inputs.Handles.(ax).mt_nextIntensityDot.YData=YDataPlusOne;
+                        xlim([obj.app.pr.ax.(ax).XLim(1) obj.app.pr.ax.(ax).XLim(2)+1])
+                        ylim auto; ylim([obj.app.pr.ax.(ax).YLim(1) (obj.app.pr.ax.(ax).YLim(2)*1.1)])
+                        Channel=obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx};
+                        obj.computeMotorThreshold(Channel,obj.inputs.Handles.(ax).mtplot.YData)
+                        obj.app.pr.ax.(ax).UserData.status.String={['Trials to Average:' num2str(obj.inputs.results.(Channel).NoOfLastTrialsToAverage)],['Threshold (%MSO):' num2str(obj.inputs.results.(Channel).MotorThreshold)]};
+                        delete(obj.app.pr.ax.(ax).UserData.ThresholdGirdLine)
+                        obj.app.pr.ax.(ax).UserData.ThresholdGirdLine=gridxy([],obj.inputs.results.(Channel).MotorThreshold,'Color','k','linewidth',1,'Parent',obj.app.pr.ax.(ax));
+                    end
             end
         end
         function psych_threshold_trace_plot(obj)
@@ -3683,9 +3675,16 @@ classdef best_toolbox < handle
         end
         function computePsychometricThreshold(obj,Channel,AllIntensities)
             if obj.inputs.results.(Channel).NoOfLastTrialsToAverage<numel(AllIntensities)
-                obj.inputs.results.(Channel).PsychometricThreshold=mean(AllIntensities(end-10:end));
+                obj.inputs.results.(Channel).PsychometricThreshold=round(mean(AllIntensities(end-10:end)),1);
             else
-                obj.inputs.results.(Channel).PsychometricThreshold=mean(AllIntensities);
+                obj.inputs.results.(Channel).PsychometricThreshold=round(mean(AllIntensities),1);
+            end
+        end
+        function computeMotorThreshold(obj,Channel,AllIntensities)
+            if obj.inputs.results.(Channel).NoOfLastTrialsToAverage<numel(AllIntensities)
+                obj.inputs.results.(Channel).MotorThreshold=ceil(mean(AllIntensities(end-10:end)));
+            else
+                obj.inputs.results.(Channel).MotorThreshold=ceil(mean(AllIntensities));
             end
         end
         function StatusTable(obj)
