@@ -141,7 +141,7 @@ classdef BEST < handle
             % drop-down select measure: fourth horizontal row on first panel
             pmd_hbox_slct_mes = uix.HBox( 'Parent', pmd_vbox, 'Spacing', 5, 'Padding', 5  );
             uicontrol( 'Style','text','Parent', pmd_hbox_slct_mes,'String','Select Protocol:','FontSize',11,'HorizontalAlignment','left' ,'Units','normalized');
-            obj.pmd.select_measure.string={'Psychometric Threshold Hunting','MEP Dose Response Curve','MEP Measurement','MEP IOC_new','Multimodal Experiment','MEP Hotspot Search','MEP Motor Threshold Hunting','EEG triggered Stimulation','TMS fMRI','TEP Measurement','ERP Measurement','rs EEG Analysis','rTMS Intervention'};
+            obj.pmd.select_measure.string={'rsEEG Measurement','Psychometric Threshold Hunting','MEP Dose Response Curve','MEP Measurement','MEP IOC_new','Multimodal Experiment','MEP Hotspot Search','MEP Motor Threshold Hunting','EEG triggered Stimulation','TMS fMRI','TEP Measurement','ERP Measurement','rTMS Intervention'};
             obj.pmd.select_measure.popupmenu=uicontrol( 'Style','popupmenu','Parent', pmd_hbox_slct_mes ,'FontSize',11,'String',obj.pmd.select_measure.string);
             obj.pmd.select_measure.btn=uicontrol( 'Parent', pmd_hbox_slct_mes ,'Style','PushButton','String','+','FontWeight','Bold','Callback',@(~,~)obj.cb_measure_add);
             set( pmd_hbox_slct_mes, 'Widths', [120 -0.7 -0.09]);
@@ -11246,6 +11246,12 @@ classdef BEST < handle
             
             
         end
+        %% rsEEG Measurement
+        
+        
+        
+        
+        
         %% ioc section
         function pi_ioc(obj)
             main
@@ -11779,8 +11785,6 @@ classdef BEST < handle
         function cb_pi_ioc_save_plt(obj)
             obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).save_plt=obj.pi.ioc.save_plt.Value;
         end
-        
-        
         %% threshold section
         function pi_mt(obj)
             obj.pi.mt.panel=uix.Panel( 'Parent', obj.pi.empty_panel,'FontSize',14 ,'Units','normalized','Title','Motor Threshold Hunting' ,'FontWeight','Bold','TitlePosition','centertop');
@@ -14738,10 +14742,7 @@ classdef BEST < handle
             
             
         end
-        %% input callbacks
-        
-        %% hotspot inputs callbacks
-        
+
         %% motor thresholding inputs callbacks
         function cb_pi_mt_target_muscle(obj)
             obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).target_muscle=obj.pi.mt.target_muscle.String;
