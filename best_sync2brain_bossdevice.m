@@ -73,10 +73,8 @@ while ~strcmpi(obj.EMGScope.Status,'finished'), end
         end
         
         function multiPulseAndScope(obj,time_port_marker_vector)
-            obj.EMGScopeStart;
             obj.bb.configure_time_port_marker(cell2mat(time_port_marker_vector'));
             obj.bb.manualTrigger;
-            while ~strcmpi(obj.EMGScope.Status,'finished'), end
         end
         
         function armPulseAndScope(obj)
@@ -98,9 +96,7 @@ while ~strcmpi(obj.EMGScope.Status,'finished'), end
             obj.bb.configure_time_port_marker(cell2mat(time_port_marker_vector'))
             pause(0.1)
             %% Starting respective Scopes
-            obj.EMGScopeStart;
-            obj.IEEGScopeStart;
-            obj.IPScopeStart;
+
             obj.IAScopeStart; % not sure if this would be necessary
             
             %% Starting 
@@ -208,9 +204,6 @@ while ~strcmpi(obj.EMGScope.Status,'finished'), end
                 
                 if(obj.bb.triggers_remaining == 0)
                     obj.bb.disarm;
-                    while ~strcmpi(obj.EMGScope.Status,'finished'), end
-                    while ~strcmpi(obj.IPScope.Status,'finished'), end
-                    while ~strcmpi(obj.IEEGScope.Status,'finished'), end
                     exit_flag=2;
                 end
                 
@@ -557,6 +550,22 @@ while ~strcmpi(obj.EMGScope.Status,'finished'), end
         function IAScopeStart(obj)
             %This has to be done inside armed loop therefore empty but just required as a Place holder for consistency of Architecture and may be used in future
         end
+        function Data = EMGScopeRead(obj,Channel)
+            while ~strcmpi(obj.EMGScope.Status,'finished'), end
+            Data=[obj.EMGScope.Data(:,Channel)]';
+            obj.EMGScopeStart;
+        end
+        function Data = IPScopeRead(obj)
+            while ~strcmpi(obj.IPScope.Status,'finished'), end
+            Data=obj.IPScope.Data(end,1);
+            obj.IPScopeStart;
+        end
+        function Data = IEEGScopeRead(obj)
+            while ~strcmpi(obj.IEEGScope.Status,'finished'), end
+            Data=obj.IEEGScope.Data(:,1)';
+            obj.IEEGScopeStart;
+        end
+        
     end
 end
 
