@@ -1471,6 +1471,7 @@ classdef best_toolbox < handle
                         case 1 %Independent
                             %% Adjusting New Arhictecture to Old Architecture
                             obj.inputs.output_device=obj.inputs.condsAll.cond1.st1.stim_device;
+                            obj.inputs.input_device={'Utility'};
                             obj.inputs.stim_mode='MSO';
                             obj.inputs.measure_str='MEP Measurement';
                             obj.inputs.stop_event=0;
@@ -2789,12 +2790,12 @@ classdef best_toolbox < handle
                     for i=1:numel(unique_chLab)
                         switch obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chType}{1,i}
                             case 'IP'
-                                obj.inputs.rawData.(unique_chLab{1,i}).data(obj.inputs.trial,1)=obj.bossbox.IPScope.Data(end,1);
+                                obj.inputs.rawData.(unique_chLab{1,i}).data(obj.inputs.trial,1)=obj.bossbox.IPScopeRead;
                             case 'IEEG'
 %                                 obj.inputs.rawData.(unique_chLab{1,i}).data(obj.inputs.trial,:)=obj.bossbox.IEEGScope.Data(:,1)';
 %                                 obj.inputs.rawData.(unique_chLab{1,i}).data(obj.inputs.trial,:)=obj.best_DeMeanEEG(obj.bossbox.IEEGScope.Data(:,1)');
-                                obj.inputs.rawData.(unique_chLab{1,i}).data(obj.inputs.trial,:)=obj.best_VisualizationFilter(obj.bossbox.IEEGScope.Data(:,1)');
-                                obj.inputs.rawData.(unique_chLab{1,i}).time(obj.inputs.trial,:)=obj.bossbox.IEEGScope.Time(:,1)';
+                                obj.inputs.rawData.(unique_chLab{1,i}).data(obj.inputs.trial,:)=obj.best_VisualizationFilter(obj.bossbox.IEEGScopeRead);
+                                % obj.inputs.rawData.(unique_chLab{1,i}).time(obj.inputs.trial,:)=obj.bossbox.IEEGScope.Time(:,1)'; May Be Deprecated
                             case 'EMG'
 % %                                 obj.inputs.rawData.(unique_chLab{1,i}).data(obj.inputs.trial,:)=obj.best_VisualizationFilter([obj.sim_mep(1,700:1000), obj.sim_mep(1,1:699)]*1000*obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,1}{1,1}*(randi([1 3])*0.10));
                                 obj.inputs.rawData.(unique_chLab{1,i}).data(obj.inputs.trial,:)=obj.best_VisualizationFilter([obj.sim_mep(1,700:1000), obj.sim_mep(1,1:699)]*1000*(randi([1 3])*0.10));
@@ -2802,6 +2803,7 @@ classdef best_toolbox < handle
                                 check=obj.bossbox.EMGScope.Data(:,1)';
                                 %                         obj.inputs.rawData.(unique_chLab{1,i}).data(obj.inputs.trial,:)=[obj.bossbox.EMGScope.Data(:,1)]';
 %                                 obj.inputs.rawData.(unique_chLab{1,i}).data(obj.inputs.trial,:)=obj.best_VisualizationFilter([obj.bossbox.EMGScope.Data(:,1)]');
+% NewUseThis obj.inputs.rawData.(unique_chLab{1,i}).data(obj.inputs.trial,:)=obj.best_VisualizationFilter(obj.bossbox.EMGScopeRead(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chID}{1,i}))   %%[obj.bossbox.EMGScope.Data(:,1)]');
                             case 'EEG'
                         end
                     end
@@ -2819,19 +2821,15 @@ classdef best_toolbox < handle
                     for i=1:numel(unique_chLab) 
                         switch obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chType}{1,i}
                             case 'IP'
-                                obj.inputs.rawData.(unique_chLab{1,i}).data(obj.inputs.trial,1)=obj.bossbox.IPScope.Data(end,1);
+                                obj.inputs.rawData.(unique_chLab{1,i}).data(obj.inputs.trial,1)=obj.bossbox.IPScopeRead;
                             case 'IEEG'
-%                                 obj.inputs.rawData.(unique_chLab{1,i}).data(obj.inputs.trial,:)=obj.bossbox.IEEGScope.Data(:,1)';
-%                                 obj.inputs.rawData.(unique_chLab{1,i}).data(obj.inputs.trial,:)=obj.best_DeMeanEEG(obj.bossbox.IEEGScope.Data(:,1)');
-                                obj.inputs.rawData.(unique_chLab{1,i}).data(obj.inputs.trial,:)=obj.best_VisualizationFilter(obj.bossbox.IEEGScope.Data(:,1)');
-                                obj.inputs.rawData.(unique_chLab{1,i}).time(obj.inputs.trial,:)=obj.bossbox.IEEGScope.Time(:,1)';
+                                obj.inputs.rawData.(unique_chLab{1,i}).data(obj.inputs.trial,:)=obj.best_VisualizationFilter(obj.bossbox.IEEGScopeRead);
                             case 'EMG'
 % %                                 obj.inputs.rawData.(unique_chLab{1,i}).data(obj.inputs.trial,:)=obj.best_VisualizationFilter([obj.sim_mep(1,700:1000), obj.sim_mep(1,1:699)]*1000*obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,1}{1,1}*(randi([1 3])*0.10));
                                 obj.inputs.rawData.(unique_chLab{1,i}).data(obj.inputs.trial,:)=obj.best_VisualizationFilter([obj.sim_mep(1,700:1000), obj.sim_mep(1,1:699)]*1000*(randi([1 3])*0.10));
                                 obj.bossbox.EMGScope;
                                 check=obj.bossbox.EMGScope.Data(:,1)';
-                                %                         obj.inputs.rawData.(unique_chLab{1,i}).data(obj.inputs.trial,:)=[obj.bossbox.EMGScope.Data(:,1)]';
-%                                 obj.inputs.rawData.(unique_chLab{1,i}).data(obj.inputs.trial,:)=obj.best_VisualizationFilter([obj.bossbox.EMGScope.Data(:,1)]');
+% NewUseThis obj.inputs.rawData.(unique_chLab{1,i}).data(obj.inputs.trial,:)=obj.best_VisualizationFilter(obj.bossbox.EMGScopeRead(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chID}{1,i}))   %%[obj.bossbox.EMGScope.Data(:,1)]');
                             case 'EEG'
                             case 'Psyhcometric'
                                 obj.inputs.rawData.(unique_chLab{1,i}).data(obj.inputs.trial,1)=obj.responseKeyboardAndMouse;
@@ -2941,12 +2939,11 @@ classdef best_toolbox < handle
                                         case 'single_pulse'
                                             obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,i}
                                             obj.magven.setAmplitude(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,i}{1,1});
-                                            % aaj ye remove ker do neche
-                                            % vali 1 line
-                                            pause(0.2)
                                         case 'paired_pulse'
                                             disp PAIREDpulseENTERED
                                         case 'train'
+                                            obj.magven.setAmplitude(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,i}{1,1});
+                                            
                                             disp trainENTERED
                                     end
                                 case {2,6} % pc or bb controlled magstim
@@ -2995,6 +2992,7 @@ classdef best_toolbox < handle
         end
         function stimLoop(obj)
             for tt=1:obj.inputs.totalTrials
+                tic
                 obj.trigTrial;
                 obj.readTrial;
                 obj.plotTrial;
@@ -3016,6 +3014,9 @@ classdef best_toolbox < handle
                     obj.inputs.stop_event=0;
                     break;
                 end
+                toc
+                disp('................................................');
+                pause(15)
             end
         end
         function save(obj)
