@@ -2884,23 +2884,6 @@ classdef best_toolbox < handle
                         obj.StatusTable;
                 end
             end
-            % updating analytics paneljust once in 1 trial
-            obj.app.pr.current_totaltrial_no.String=(obj.inputs.totalTrials);
-            obj.app.pr.current_trial.String=obj.inputs.trial;
-            obj.app.pr.current_si.String=obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,1};
-            obj.app.pr.current_iti.String=obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.iti};
-            
-            if(obj.inputs.trial==obj.inputs.totalTrials)
-                obj.app.pr.next_totaltrial_no.String=obj.inputs.totalTrials;
-                obj.app.pr.next_trial.String='Completed';
-                obj.app.pr.next_si.String='Completed';
-                obj.app.pr.next_iti.String='Completed';
-            else
-                obj.app.pr.next_totaltrial_no.String=obj.inputs.totalTrials;
-                obj.app.pr.next_trial.String=obj.inputs.trial+1;
-                obj.app.pr.next_si.String=obj.inputs.trialMat{obj.inputs.trial+1,obj.inputs.colLabel.si}{1,1};
-                obj.app.pr.next_iti.String=obj.inputs.trialMat{obj.inputs.trial+1,obj.inputs.colLabel.iti};
-            end
         end
         function prepTrial(obj)
             if(obj.inputs.trial<obj.inputs.totalTrials)
