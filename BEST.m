@@ -14681,67 +14681,6 @@ classdef BEST < handle
             obj.pi.eegtms.phase_tolerance.String	=	num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).phase_tolerance);
             
         end
-        %% run n update
-        
-        
-        
-        
-        function cb_pi_eegtms_run(obj)
-            
-            target_montage_channels={'C3', 'FC1', 'FC5', 'CP1', 'CP5'};
-            target_montage_weights=[1 -0.25 -0.25 -0.25 -0.25];
-            neurone_protocol='RMT - Duplicate_NeurOneProtocol.xml';
-            
-            
-            obj.bst.inputs.current_session=obj.info.event.current_session;
-            obj.bst.inputs.current_measurement=obj.info.event.current_measure_fullstr;
-            obj.bst.inputs.phase_angle=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).target_phase;
-            obj.bst.inputs.stimuli=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).stimulation_intensities;
-            obj.bst.inputs.trials=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).trials_per_condition;
-            obj.bst.inputs.iti=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).iti;
-            obj.bst.inputs.phase_tolerance=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).phase_tolerance;
-            obj.bst.inputs.amp_low=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).amp_low;
-            obj.bst.inputs.amp_hi=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).amp_hi;
-            obj.bst.inputs.offset_samples=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).offset_samples;
-            
-            
-            
-            
-            
-            obj.bst.inputs.target_montage_channels=target_montage_channels;
-            obj.bst.inputs.target_montage_weights=target_montage_weights;
-            obj.bst.inputs.neurone_protocol=neurone_protocol;
-            obj.bst.best_eegtms;
-            
-            %             phase_angle=[pi 0];
-            %             stim_intensity=50;
-            %             trials_per_condition=200;
-            %             iti=[1];
-            %             phase_tolerance=pi/50;
-            %             %attach neurone protocole file in the settings panel
-            %             % things to be taken from the hardware configuration
-            %             target_montage_channels={'C3', 'FC1', 'FC5', 'CP1', 'CP5'};
-            %             target_montage_weights=[1 -0.25 -0.25 -0.25 -0.25];
-            %             neurone_protocol='RMT - Duplicate_NeurOneProtocol.xml'
-            %
-            %             obj.bst.inputs.current_session=obj.info.event.current_session;
-            %             obj.bst.inputs.current_measurement=obj.info.event.current_measure_fullstr;
-            %             obj.bst.inputs.phase_angle=phase_angle
-            %             obj.bst.inputs.stimuli=stim_intensity
-            %             obj.bst.inputs.trials=trials_per_condition
-            %             obj.bst.inputs.iti=iti
-            %             obj.bst.inputs.phase_tolerance=phase_tolerance
-            %             obj.bst.inputs.target_montage_channels=target_montage_channels
-            %             obj.bst.inputs.target_montage_weights=target_montage_weights
-            %             obj.bst.inputs.neurone_protocol=neurone_protocol
-            %
-            %             obj.bst.best_eegtms
-            
-            
-            
-            
-            
-        end
 
         %% tms fmri callbacks
         function cb_pi_tmsfmri_ta(obj)
