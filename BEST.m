@@ -14743,71 +14743,7 @@ classdef BEST < handle
             
         end
 
-        %% motor thresholding inputs callbacks
-        function cb_pi_mt_target_muscle(obj)
-            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).target_muscle=obj.pi.mt.target_muscle.String;
-        end
-        function cb_pi_mt_thresholding_method(obj)
-            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).thresholding_method=str2num(obj.pi.mt.thresholding_method.Value);
-        end
-        function cb_pi_mt_mt_mv(obj)
-            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).mt_mv=str2num(obj.pi.mt.mt_mv.String);
-        end
-        function cb_pi_mt_trials_per_condition(obj)
-            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).trials_per_condition=str2num(obj.pi.mt.trials_per_condition.String);
-        end
-        function cb_pi_mt_trials_to_avg(obj)
-            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).trials_to_avg=str2num(obj.pi.mt.trials_to_avg.String);
-        end
-        function cb_pi_mt_iti(obj)
-            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).iti=str2num(obj.pi.mt.iti.String);
-        end
-        function cb_pi_mt_mep_onset(obj)
-            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).mep_onset=str2num(obj.pi.mt.mep_onset.String);
-        end
-        function cb_pi_mt_mep_offset(obj)
-            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).mep_offset=str2num(obj.pi.mt.mep_offset.String);
-        end
-        function cb_pi_mt_prestim_scope_ext(obj)
-            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).prestim_scope_ext=str2num(obj.pi.mt.prestim_scope_ext.String);
-        end
-        function cb_pi_mt_poststim_scope_ext(obj)
-            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).poststim_scope_ext=str2num(obj.pi.mt.poststim_scope_ext.String);
-        end
-        function cb_pi_mt_prestim_scope_plt(obj)
-            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).prestim_scope_plt=str2num(obj.pi.mt.prestim_scope_plt.String);
-        end
-        function cb_pi_mt_poststim_scope_plt(obj)
-            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).poststim_scope_plt=str2num(obj.pi.mt.poststim_scope_plt.String);
-        end
-        function cb_pi_mt_ylim_min(obj)
-            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).ylim_min=str2num(obj.pi.mt.ylim_min.String);
-        end
-        function cb_pi_mt_ylim_max(obj)
-            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).ylim_max=str2num(obj.pi.mt.ylim_max.String);
-        end
-        function cb_pi_mt_FontSize(obj)
-            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).FontSize=str2num(obj.pi.mt.FontSize.String);
-        end
-        function cb_pi_mt_trials_for_mean_annotation(obj)
-            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).trials_for_mean_annotation=str2num(obj.pi.mt.trials_for_mean_annotation.String);
-        end
-        function cb_pi_mt_trials_reset(obj)
-            obj.bst.sessions.(obj.bst.inputs.current_session).(obj.bst.inputs.current_measurement).inputs.trials_for_mean_annotation=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).trials_for_mean_annotation;
-            obj.bst.sessions.(obj.bst.inputs.current_session).(obj.bst.inputs.current_measurement).inputs.reset_pressed_counter=0;
-            obj.bst.sessions.(obj.bst.inputs.current_session).(obj.bst.inputs.current_measurement).inputs.reset_pressed=1;
-        end
-        function cb_pi_mt_plot_reset(obj)
-            delete(obj.bst.info.handles.mean_mep_plot)
-            obj.bst.sessions.(obj.bst.inputs.current_session).(obj.bst.inputs.current_measurement).inputs.plot_reset_pressed=1;
-            obj.bst.sessions.(obj.bst.inputs.current_session).(obj.bst.inputs.current_measurement).inputs.plot_reset_idx=obj.bst.sessions.(obj.bst.inputs.current_session).(obj.bst.inputs.current_measurement).info.trial;
-        end
-        function cb_pi_mt_save_plt(obj)
-            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).save_plt=obj.pi.mt.save_plt.Value;
-        end
-        function cb_pi_mt_result_mt(obj)
-            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).result_mt=str2double(obj.pi.mt.result_mt.String);
-        end
+
         %% ioc calbacks
         
         %% tms fmri callbacks
