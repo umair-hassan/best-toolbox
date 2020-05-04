@@ -940,6 +940,13 @@ classdef BEST < handle
                     obj.pr.grid.RowSizes=[-1 -1 -1 -1];
             end
         end
+        function create_results_panel(obj)
+            obj.fig.pr_empty_panel= uix.Panel( 'Parent', obj.fig.main, 'Padding', 5 ,'Units','normalized','BorderType','none' );
+
+%             obj.pr.empty_panel= uix.Panel( 'Parent', obj.fig.main, 'Padding', 5 ,'Units','normalized','BorderType','none' );
+            uix.Panel( 'Parent', obj.fig.pr_empty_panel, 'Padding', 5 ,'Units','normalized','Title', 'Results','FontWeight','bold','FontSize',14,'TitlePosition','centertop' );
+            %             set( obj.fig.main, 'Widths', [-1.15 -1.35 -2] );
+        end
         function pr_analytics(obj)
             %FUTURE: each of dusplay module (MEP, Thresholding, IOC, PP
             %IOC, etc will have their own analytics panel, for now
@@ -13169,13 +13176,7 @@ classdef BEST < handle
             obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).manual_stim_inten=(obj.pi.tmsfmri.manual_stim_inten.Value);
         end
         %% results panel
-        function create_results_panel(obj)
-            obj.fig.pr_empty_panel= uix.Panel( 'Parent', obj.fig.main, 'Padding', 5 ,'Units','normalized','BorderType','none' );
-
-%             obj.pr.empty_panel= uix.Panel( 'Parent', obj.fig.main, 'Padding', 5 ,'Units','normalized','BorderType','none' );
-            uix.Panel( 'Parent', obj.fig.pr_empty_panel, 'Padding', 5 ,'Units','normalized','Title', 'Results','FontWeight','bold','FontSize',14,'TitlePosition','centertop' );
-            %             set( obj.fig.main, 'Widths', [-1.15 -1.35 -2] );
-        end
+        
 
         %%  hardware configuration panel
         function create_hwcfg_panel(obj)
