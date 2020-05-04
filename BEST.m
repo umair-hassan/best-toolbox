@@ -26,7 +26,6 @@ classdef BEST < handle
         %         save_buffer
     end
     
-    
     methods
         %% BEST
         function obj=BEST()
@@ -847,7 +846,7 @@ classdef BEST < handle
 %                 end
 %             end
         end
-        %% input panels or Protocol Designer 
+        %% Protocol Designer or input panels
         function create_inputs_panel(obj)
             obj.pi.empty_panel = uix.Panel( 'Parent', obj.fig.main, 'Padding', 5 ,'Units','normalized','BorderType','none' );
             obj.pi.no_measure_slctd_panel.handle=uix.Panel( 'Parent', obj.pi.empty_panel,'FontSize',14 ,'Units','normalized','Title','Protocol Designer','FontWeight','Bold','TitlePosition','centertop' );
@@ -858,7 +857,7 @@ classdef BEST < handle
             %           obj.panel.st=set(obj.pi.no_measure_slctd_panel.vbox,'Heights',[-2 -0.5 -2])
             set(obj.pi.no_measure_slctd_panel.vbox,'Heights',[-2 -0.5 -2])
         end
-        %% results panel
+        %% Results panel
         function resultsPanel(obj)
             total_axesno=obj.pr.axesno;
             Title=['Results - ' obj.bst.inputs.Protocol];
@@ -1323,7 +1322,7 @@ classdef BEST < handle
                 end
             end
         end
-        %% multimodal old and new
+        %% Delete: multimodal old and new
         
         function pi_multimodal(obj)
             %         %% Multimodal
@@ -3579,8 +3578,6 @@ classdef BEST < handle
                 end
             end
         end
-       
-
         %% MEP Section
         function pi_mep(obj)
             obj.fig.main.Widths(1)=-1.15;
@@ -6689,8 +6686,6 @@ classdef BEST < handle
             
             
         end
-        %% hotspot section
-        
         %% MEP Threshold Hunting
         function pr_mth(obj)
             obj.fig.main.Widths(1)=-1.15;
@@ -10872,12 +10867,8 @@ classdef BEST < handle
             
         end
         %% rsEEG Measurement
-        
-        
-        
-        
-        
-        %% ioc section
+
+        %% Delete: ioc section
         function pi_ioc(obj)
             main
             function main
@@ -11410,7 +11401,7 @@ classdef BEST < handle
         function cb_pi_ioc_save_plt(obj)
             obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).save_plt=obj.pi.ioc.save_plt.Value;
         end
-        %% threshold section
+        %% Delete: threshold section
         function pi_mt(obj)
             obj.pi.mt.panel=uix.Panel( 'Parent', obj.pi.empty_panel,'FontSize',14 ,'Units','normalized','Title','Motor Threshold Hunting' ,'FontWeight','Bold','TitlePosition','centertop');
             obj.pi.mt.vb = uix.VBox( 'Parent', obj.pi.mt.panel, 'Spacing', 5, 'Padding', 5  );
@@ -12793,10 +12784,7 @@ classdef BEST < handle
         function cb_pi_tmsfmri_manual_stim_inten(obj)
             obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).manual_stim_inten=(obj.pi.tmsfmri.manual_stim_inten.Value);
         end
-        %% results panel
-        
-
-        %%  hardware configuration panel
+        %% hardware configuration panel
         function create_hwcfg_panel(obj)
             obj.hw.empty_panel=uix.Panel( 'Parent', obj.fig.main, 'Padding', 5 ,'Units','normalized','BorderType','none' );
             set( obj.fig.main, 'Widths', [-1.15 -1.35 -2 0] );
@@ -13873,8 +13861,6 @@ classdef BEST < handle
                     obj.hw.vbox_rp.bb_inputport.String=obj.par.hardware_settings.(slctd_output).bb_inputport;
             end
         end
-        
-        
         %% sessions measures listboxes
         function cb_session_add(obj)
             obj.info.session_no
@@ -14237,7 +14223,6 @@ classdef BEST < handle
             obj.pi.eegtms.phase_tolerance.String	=	num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).phase_tolerance);
             
         end
-
         %% tms fmri callbacks
         function cb_pi_tmsfmri_ta(obj)
             obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).ta=str2num(obj.pi.tmsfmri.ta.String);
@@ -14574,7 +14559,6 @@ classdef BEST < handle
         %
     end
     
-    %method end
 end
 
 
