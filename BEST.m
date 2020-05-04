@@ -947,62 +947,7 @@ classdef BEST < handle
             uix.Panel( 'Parent', obj.fig.pr_empty_panel, 'Padding', 5 ,'Units','normalized','Title', 'Results','FontWeight','bold','FontSize',14,'TitlePosition','centertop' );
             %             set( obj.fig.main, 'Widths', [-1.15 -1.35 -2] );
         end
-        function pr_analytics(obj)
-            %FUTURE: each of dusplay module (MEP, Thresholding, IOC, PP
-            %IOC, etc will have their own analytics panel, for now
-            %generalized is ok
-            % this below code will be then suitable for MEP , Hotspot, IOC
-            % single pulse measurements
-            
-            
-            %iska axis no se koi tauliq nahi hoga q k ye generalized hogi
-            %har module ki, har module k lye mukthali fields hongi jo k is
-            %module k update kerny valy function ko he sirf pata hongi
-            
-            obj.pr.panel_1= uix.Panel( 'Parent', obj.pr.empty_panel, 'Padding', 5 ,'Units','normalized','Title', 'Results','FontWeight','bold','FontSize',14,'TitlePosition','centertop' );
-            obj.pr.vb=uix.VBox( 'Parent', obj.pr.panel_1, 'Spacing', 5, 'Padding', 5  );
-            
-            row1=uix.HBox( 'Parent', obj.pr.vb, 'Spacing', 5, 'Padding', 0  );
-            uiextras.HBox( 'Parent', row1)
-            uiextras.HBox( 'Parent', row1)
-            obj.pr.total_trials_label=uicontrol( 'Style','text','Parent', row1,'String','Total Trials','FontSize',11,'HorizontalAlignment','center','Units','normalized');
-            
-            obj.pr.trial_no_label=uicontrol( 'Style','text','Parent', row1,'String','Trial No.','FontSize',11,'HorizontalAlignment','center','Units','normalized');
-            if(strcmp(obj.bst.inputs.stim_mode,'MSO'))
-                obj.pr.stim_intensity_label=uicontrol( 'Style','text','Parent', row1,'String','Intensity (%MSO)','FontSize',11,'HorizontalAlignment','center','Units','normalized');
-            else
-                obj.pr.stim_intensity_label=uicontrol( 'Style','text','Parent', row1,'String','Stim Intensity (%MT)','FontSize',11,'HorizontalAlignment','center','Units','normalized');
-            end
-            obj.pr.iti_label=uicontrol( 'Style','text','Parent', row1,'String','ITI (s)','FontSize',11,'HorizontalAlignment','center','Units','normalized');
-            uiextras.HBox( 'Parent', row1)
-            set(row1,'Widths',[-0.3 100 100 100 130 100 -0.3])
-            
-            row2= uix.HBox( 'Parent', obj.pr.vb, 'Spacing', 5, 'Padding', 0  );
-            uiextras.HBox( 'Parent', row2)
-            obj.pr.current_trial_label=uicontrol( 'Style','text','Parent', row2,'String','Current Trial','FontSize',11,'HorizontalAlignment','center','Units','normalized');
-            obj.pr.current_totaltrial_no=uicontrol( 'Style','edit','Parent', row2,'FontSize',11,'HorizontalAlignment','center','Units','normalized');
-            obj.pr.current_trial=uicontrol( 'Style','edit','Parent', row2,'FontSize',11,'HorizontalAlignment','center','Units','normalized');
-            obj.pr.current_si=uicontrol( 'Style','edit','Parent', row2,'FontSize',11,'HorizontalAlignment','center','Units','normalized');
-            obj.pr.current_iti=uicontrol( 'Style','edit','Parent', row2,'FontSize',11,'HorizontalAlignment','center','Units','normalized');
-            uiextras.HBox( 'Parent', row2)
-            set(row2,'Widths',[-0.3 100 100 100 130 100 -0.3])
-            
-            row3= uix.HBox( 'Parent',obj.pr.vb, 'Spacing', 5, 'Padding', 1  );
-            uiextras.HBox( 'Parent', row3)
-            obj.pr.next_trial_label=uicontrol( 'Style','text','Parent', row3,'String','Next Trial','FontSize',11,'HorizontalAlignment','center','Units','normalized');
-            obj.pr.next_totaltrial_no=uicontrol( 'Style','edit','Parent', row3,'FontSize',11,'HorizontalAlignment','center','Units','normalized');
-            obj.pr.next_trial=uicontrol( 'Style','edit','Parent', row3,'FontSize',11,'HorizontalAlignment','center','Units','normalized');
-            obj.pr.next_si=uicontrol( 'Style','edit','Parent', row3,'FontSize',11,'HorizontalAlignment','center','Units','normalized');
-            obj.pr.next_iti=uicontrol( 'Style','edit','Parent', row3,'FontSize',11,'HorizontalAlignment','center','Units','normalized');
-            uiextras.HBox( 'Parent', row3)
-            set(row3,'Widths',[-0.3 100 100 100 130 100 -0.3])
-            
-            
-            obj.pr.row4= uix.HBox( 'Parent', obj.pr.vb, 'Spacing', 5, 'Padding', 5  );
-            
-            
-            set(obj.pr.vb,'Heights',[30 30 30 -9])
-        end
+        
 
         function pr_mep(obj)
             obj.pr.ax_no=['ax' num2str(obj.pr.axesno)];
