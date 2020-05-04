@@ -1466,83 +1466,94 @@ classdef best_toolbox < handle
                             end
                             obj.app.pr.ax_ChannelLabels=[{'OsscillationPhase'},{'OsscillationEEG'},ChannelLabels{:},{'OsscillationAmplitude'},{'AmplitudeDistribution'},{'StatusTable'}];
                     end
+                case 'rs EEG Measurement Protocol'
+                    obj.app.pr.ax_measures={'rsEEGMeasurement'};
+                    obj.app.pr.axesno=1;
+                    obj.app.pr.ax_ChannelLabels={'EEG Channels'};
+                    obj.inputs.ChannelsTypeUnique={'EEG'};
+                    obj.inputs.input_device=char(obj.app.pi.rseeg.InputDevice.String(obj.inputs.InputDevice));
             end
             %% Crossing Phase & Amplitude Condition with condMat
-            if obj.inputs.BrainState==2
-                %% Creating Phase Conditions
-                PhaseConditionVector=cell(1,numel(obj.inputs.Phase));
-                for iPhases=1:numel(obj.inputs.Phase)
-                    switch obj.inputs.Phase(iPhases)
-                        case 0 %+Ve Peak
-                            PhaseConditionVector{iPhases}={0,obj.inputs.PhaseTolerance};
-                        case pi %-Ve Trough
-                            PhaseConditionVector{iPhases}={pi,obj.inputs.PhaseTolerance};
-                        case -pi/2 %Rising Flank
-                            PhaseConditionVector{iPhases}={-pi/2,obj.inputs.PhaseTolerance};
-                        case pi/2 %Falling Flank
-                            PhaseConditionVector{iPhases}={pi/2,obj.inputs.PhaseTolerance};
-                        otherwise % NaN Value and Random Phase
-                            PhaseConditionVector{iPhases}={0,pi};
-                    end
-                end
-                %% Crossing Phase and Amplitude Conditions with Stimulation Conditions
-                idx_stimulationconditions=0;
-                idx_totalstimulationconditions=numel(obj.inputs.condMat(:,1));
-                if numel(obj.inputs.AmplitudeThreshold)/2==numel(obj.inputs.Phase) || numel(obj.inputs.AmplitudeThreshold)/2==1
-                    idx_phaseconditions=1;
-                    TotalCrossedOverConditions=(numel(obj.inputs.Phase))*(numel(obj.inputs.condMat(:,1)));
-                    for iTotalCrossedOverConditions=1:TotalCrossedOverConditions
-                        idx_stimulationconditions=idx_stimulationconditions+1;
-                        obj.inputs.condMat(iTotalCrossedOverConditions,1:12)=obj.inputs.condMat(idx_stimulationconditions,1:12);
-                        obj.inputs.condMat(iTotalCrossedOverConditions,obj.inputs.colLabel.phase)=PhaseConditionVector(idx_phaseconditions);
-                        if numel(obj.inputs.AmplitudeThreshold)/2==numel(obj.inputs.Phase)
-                            obj.inputs.condMat(iTotalCrossedOverConditions,obj.inputs.colLabel.IA)={{obj.inputs.AmplitudeThreshold(idx_phaseconditions,1),obj.inputs.AmplitudeThreshold(idx_phaseconditions,2)}};
-                            if obj.inputs.AmplitudeUnits==1
-                                obj.inputs.condMat(iTotalCrossedOverConditions,obj.inputs.colLabel.IAPercentile)={{obj.inputs.AmplitudeThreshold(idx_phaseconditions,1),obj.inputs.AmplitudeThreshold(idx_phaseconditions,2)}}; end
-                        elseif numel(obj.inputs.AmplitudeThreshold)/2==1
-                            obj.inputs.condMat(iTotalCrossedOverConditions,obj.inputs.colLabel.IA)={{obj.inputs.AmplitudeThreshold(1,1),obj.inputs.AmplitudeThreshold(1,2)}};
-                            if obj.inputs.AmplitudeUnits==1
-                                obj.inputs.condMat(iTotalCrossedOverConditions,obj.inputs.colLabel.IAPercentile)={{obj.inputs.AmplitudeThreshold(1,1),obj.inputs.AmplitudeThreshold(1,2)}}; end
-                        end
-                        if(idx_stimulationconditions>=idx_totalstimulationconditions)
-                            idx_stimulationconditions=0;
-                            idx_phaseconditions=idx_phaseconditions+1;
-                            if(idx_phaseconditions>numel(PhaseConditionVector))
-                                idx_phaseconditions=1; end
+            if isfield(obj.inputs,'BrainState')
+                if obj.inputs.BrainState==2
+                    %% Creating Phase Conditions
+                    PhaseConditionVector=cell(1,numel(obj.inputs.Phase));
+                    for iPhases=1:numel(obj.inputs.Phase)
+                        switch obj.inputs.Phase(iPhases)
+                            case 0 %+Ve Peak
+                                PhaseConditionVector{iPhases}={0,obj.inputs.PhaseTolerance};
+                            case pi %-Ve Trough
+                                PhaseConditionVector{iPhases}={pi,obj.inputs.PhaseTolerance};
+                            case -pi/2 %Rising Flank
+                                PhaseConditionVector{iPhases}={-pi/2,obj.inputs.PhaseTolerance};
+                            case pi/2 %Falling Flank
+                                PhaseConditionVector{iPhases}={pi/2,obj.inputs.PhaseTolerance};
+                            otherwise % NaN Value and Random Phase
+                                PhaseConditionVector{iPhases}={0,pi};
                         end
                     end
-                elseif numel(obj.inputs.AmplitudeThreshold)/2>numel(obj.inputs.Phase) && numel(obj.inputs.Phase)==1
-                    idx_amplitudeconditions=1;
-                    TotalCrossedOverConditions=(numel(obj.inputs.AmplitudeThreshold)/2)*(numel(obj.inputs.condMat(:,1)));
-                    for iTotalCrossedOverConditions=1:TotalCrossedOverConditions
-                        idx_stimulationconditions=idx_stimulationconditions+1;
-                        obj.inputs.condMat(iTotalCrossedOverConditions,1:12)=obj.inputs.condMat(idx_stimulationconditions,1:12);
-                        obj.inputs.condMat(iTotalCrossedOverConditions,obj.inputs.colLabel.IA)={{obj.inputs.AmplitudeThreshold(idx_amplitudeconditions,1),obj.inputs.AmplitudeThreshold(idx_amplitudeconditions,2)}};
-                        obj.inputs.condMat(iTotalCrossedOverConditions,obj.inputs.colLabel.phase)=PhaseConditionVector(1);
-                        if obj.inputs.AmplitudeUnits==1
-                            obj.inputs.condMat(iTotalCrossedOverConditions,obj.inputs.colLabel.IAPercentile)={{obj.inputs.AmplitudeThreshold(idx_amplitudeconditions,1),obj.inputs.AmplitudeThreshold(idx_amplitudeconditions,2)}}; end
-                        if(idx_stimulationconditions>=idx_totalstimulationconditions)
-                            idx_stimulationconditions=0;
-                            idx_amplitudeconditions=idx_amplitudeconditions+1;
-                            if(idx_amplitudeconditions>numel(obj.inputs.AmplitudeThreshold)/2)
-                                idx_amplitudeconditions=1; end
+                    %% Crossing Phase and Amplitude Conditions with Stimulation Conditions
+                    idx_stimulationconditions=0;
+                    idx_totalstimulationconditions=numel(obj.inputs.condMat(:,1));
+                    if numel(obj.inputs.AmplitudeThreshold)/2==numel(obj.inputs.Phase) || numel(obj.inputs.AmplitudeThreshold)/2==1
+                        idx_phaseconditions=1;
+                        TotalCrossedOverConditions=(numel(obj.inputs.Phase))*(numel(obj.inputs.condMat(:,1)));
+                        for iTotalCrossedOverConditions=1:TotalCrossedOverConditions
+                            idx_stimulationconditions=idx_stimulationconditions+1;
+                            obj.inputs.condMat(iTotalCrossedOverConditions,1:12)=obj.inputs.condMat(idx_stimulationconditions,1:12);
+                            obj.inputs.condMat(iTotalCrossedOverConditions,obj.inputs.colLabel.phase)=PhaseConditionVector(idx_phaseconditions);
+                            if numel(obj.inputs.AmplitudeThreshold)/2==numel(obj.inputs.Phase)
+                                obj.inputs.condMat(iTotalCrossedOverConditions,obj.inputs.colLabel.IA)={{obj.inputs.AmplitudeThreshold(idx_phaseconditions,1),obj.inputs.AmplitudeThreshold(idx_phaseconditions,2)}};
+                                if obj.inputs.AmplitudeUnits==1
+                                    obj.inputs.condMat(iTotalCrossedOverConditions,obj.inputs.colLabel.IAPercentile)={{obj.inputs.AmplitudeThreshold(idx_phaseconditions,1),obj.inputs.AmplitudeThreshold(idx_phaseconditions,2)}}; end
+                            elseif numel(obj.inputs.AmplitudeThreshold)/2==1
+                                obj.inputs.condMat(iTotalCrossedOverConditions,obj.inputs.colLabel.IA)={{obj.inputs.AmplitudeThreshold(1,1),obj.inputs.AmplitudeThreshold(1,2)}};
+                                if obj.inputs.AmplitudeUnits==1
+                                    obj.inputs.condMat(iTotalCrossedOverConditions,obj.inputs.colLabel.IAPercentile)={{obj.inputs.AmplitudeThreshold(1,1),obj.inputs.AmplitudeThreshold(1,2)}}; end
+                            end
+                            if(idx_stimulationconditions>=idx_totalstimulationconditions)
+                                idx_stimulationconditions=0;
+                                idx_phaseconditions=idx_phaseconditions+1;
+                                if(idx_phaseconditions>numel(PhaseConditionVector))
+                                    idx_phaseconditions=1; end
+                            end
+                        end
+                    elseif numel(obj.inputs.AmplitudeThreshold)/2>numel(obj.inputs.Phase) && numel(obj.inputs.Phase)==1
+                        idx_amplitudeconditions=1;
+                        TotalCrossedOverConditions=(numel(obj.inputs.AmplitudeThreshold)/2)*(numel(obj.inputs.condMat(:,1)));
+                        for iTotalCrossedOverConditions=1:TotalCrossedOverConditions
+                            idx_stimulationconditions=idx_stimulationconditions+1;
+                            obj.inputs.condMat(iTotalCrossedOverConditions,1:12)=obj.inputs.condMat(idx_stimulationconditions,1:12);
+                            obj.inputs.condMat(iTotalCrossedOverConditions,obj.inputs.colLabel.IA)={{obj.inputs.AmplitudeThreshold(idx_amplitudeconditions,1),obj.inputs.AmplitudeThreshold(idx_amplitudeconditions,2)}};
+                            obj.inputs.condMat(iTotalCrossedOverConditions,obj.inputs.colLabel.phase)=PhaseConditionVector(1);
+                            if obj.inputs.AmplitudeUnits==1
+                                obj.inputs.condMat(iTotalCrossedOverConditions,obj.inputs.colLabel.IAPercentile)={{obj.inputs.AmplitudeThreshold(idx_amplitudeconditions,1),obj.inputs.AmplitudeThreshold(idx_amplitudeconditions,2)}}; end
+                            if(idx_stimulationconditions>=idx_totalstimulationconditions)
+                                idx_stimulationconditions=0;
+                                idx_amplitudeconditions=idx_amplitudeconditions+1;
+                                if(idx_amplitudeconditions>numel(obj.inputs.AmplitudeThreshold)/2)
+                                    idx_amplitudeconditions=1; end
+                            end
                         end
                     end
                 end
             end
             %% Crossing ITI Condition with condMat
-            if iscell(obj.inputs.condMat{1,obj.inputs.colLabel.iti})
-                condMat={};
-                i=0;
-                ITI=obj.inputs.condMat{1,obj.inputs.colLabel.iti};
-                for iCond=1:numel(obj.inputs.condMat(:,1))
-                    for iITI=1:numel(ITI)
-                        i=i+1;
-                        condMat(i,:)=obj.inputs.condMat(iCond,:);
-                        condMat{i,obj.inputs.colLabel.iti}=ITI{1,iITI};
+            if isfield(obj.inputs,'condMat')
+                if iscell(obj.inputs.condMat{1,obj.inputs.colLabel.iti})
+                    condMat={};
+                    i=0;
+                    ITI=obj.inputs.condMat{1,obj.inputs.colLabel.iti};
+                    for iCond=1:numel(obj.inputs.condMat(:,1))
+                        for iITI=1:numel(ITI)
+                            i=i+1;
+                            condMat(i,:)=obj.inputs.condMat(iCond,:);
+                            condMat{i,obj.inputs.colLabel.iti}=ITI{1,iITI};
+                        end
                     end
+                    obj.inputs.condMat=condMat;
                 end
-                obj.inputs.condMat=condMat;
+                obj.inputs.totalConds=numel(obj.inputs.condMat(:,1));
             end
             %% Old Functions
             % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %             if~strcmp(obj.inputs.Protocol,'MEP Measurement Protocol') || ~strcmp(obj.inputs.Protocol,'MEP Dose Response Curve Protocol')
@@ -2235,7 +2246,7 @@ classdef best_toolbox < handle
 %                 obj.inputs.mep_onset=obj.inputs.MEPOnset;
 %                 obj.inputs.mep_offset=obj.inputs.MEPOffset;
 %                 obj.inputs.input_device=obj.app.pi.mep.InputDevice.String(obj.inputs.InputDevice); %TODO: the drc or mep on the 4th structure is not a good solution!
-                obj.inputs.output_device=obj.inputs.condsAll.cond1.st1.stim_device;
+%                 obj.inputs.output_device=obj.inputs.condsAll.cond1.st1.stim_device;
                 obj.inputs.stim_mode='MSO';
                 obj.inputs.measure_str='MEP Measurement';
 %                 obj.inputs.ylimMin=obj.inputs.EMGDisplayYLimMin;
@@ -2244,11 +2255,10 @@ classdef best_toolbox < handle
                 obj.inputs.ylimMin=-3000;
                 obj.inputs.ylimMax=+3000;
                 obj.inputs.TrialNoForMean=1;
-                obj.inputs.mt_starting_stim_inten=obj.inputs.condsAll.cond1.st1.si_pckt{1,1};
+%                 obj.inputs.mt_starting_stim_inten=obj.inputs.condsAll.cond1.st1.si_pckt{1,1};
                 
                 
             end
-            obj.inputs.totalConds=numel(obj.inputs.condMat(:,1));
         end
         
         
@@ -2325,6 +2335,8 @@ classdef best_toolbox < handle
                                 obj.bossbox.IPScopeBoot
                             case 'IA'
                                 obj.bossbox.IAScopeBoot
+                            case 'EEG'
+                                %% #rsEEGTODO: create this scope and boot it here
                         end
                     end
                 case 2 % fieldtrip
@@ -2799,6 +2811,18 @@ classdef best_toolbox < handle
             obj.saveFigures;
             obj.completed;
         end
+        function best_rseeg(obj)
+            obj.save;
+            obj.factorizeConditions;
+            obj.app.resultsPanel;
+%             obj.boot_inputdevice;
+
+            obj.fieldtrip=best_fieldtrip(obj);
+            obj.fieldtrip.ftirasa;
+            %% %% #rsEEGTODO: acquire data from the scope and show wait on the area
+            %% #rsEEGTODO: call ftp api here to process and plot on this ax1
+        end
+        
         function best_multimodal(obj)
             obj.factorizeConditions
             obj.planTrials
