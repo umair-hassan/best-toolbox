@@ -13176,70 +13176,7 @@ classdef BEST < handle
             uix.Panel( 'Parent', obj.fig.pr_empty_panel, 'Padding', 5 ,'Units','normalized','Title', 'Results','FontWeight','bold','FontSize',14,'TitlePosition','centertop' );
             %             set( obj.fig.main, 'Widths', [-1.15 -1.35 -2] );
         end
-        
-        function pr_hotspot(obj)
-            obj.pr.hotspot.handle= uix.Panel( 'Parent', obj.pr.empty_panel, 'Padding', 5 ,'Units','normalized','Title', 'Results','FontWeight','bold','FontSize',14,'TitlePosition','centertop' );
-            m_mep=uicontextmenu(obj.fig.handle);
-            uimenu(m_mep,'label','Export as Matlab Figure','Callback',@(~,~)obj.cb_pr_hotspot_export_mepplot);
-            obj.pr.hotspot.axes1=axes( 'Parent', obj.pr.hotspot.handle,'Units','normalized','Tag','mep','uicontextmenu',m_mep);
-        end
-        function pr_mt(obj)
-            
-            
-            obj.pr.mt.handle= uix.Panel( 'Parent', obj.pr.empty_panel, 'Padding', 5 ,'Units','normalized','Title', 'Results','FontWeight','bold','FontSize',14,'TitlePosition','centertop' );
-            obj.pr.mt.hbox=uix.HBoxFlex( 'Parent', obj.pr.mt.handle, 'Padding', 5 ,'Units','normalized' );
-            obj.pr.mt.panel_mep= uix.Panel( 'Parent', obj.pr.mt.hbox, 'Padding', 5 ,'Units','normalized','Title', 'Live MEP Plot','FontSize',12,'TitlePosition','centertop' );
-            obj.pr.mt.panel_mtplot= uix.Panel( 'Parent', obj.pr.mt.hbox, 'Padding', 5 ,'Units','normalized','Title', 'Live Intensity Trace','FontSize',12,'TitlePosition','centertop' );
-            
-            m_mep=uicontextmenu(obj.fig.handle);
-            uimenu(m_mep,'label','Export as Matlab Figure','Callback',@(~,~)obj.cb_pr_mt_export_mepplot);
-            
-            m_mt=uicontextmenu(obj.fig.handle);
-            uimenu(m_mt,'label','Export as Matlab Figure','Callback',@(~,~)obj.cb_pr_mt_export_mtplot);
-            
-            obj.pr.mt.axes_mep=axes( 'Parent',  obj.pr.mt.panel_mep,'Units','normalized','Tag','mep','uicontextmenu',m_mep);
-            obj.pr.mt.axes_mtplot=axes( 'Parent',obj.pr.mt.panel_mtplot,'Units','normalized','Tag','rmt','uicontextmenu',m_mt);
-            set(obj.pr.mt.hbox,'Widths',[-1 -1])
-            
-            
-        end
-        function pr_ioc(obj)
-            
-            
-            obj.pr.ioc.handle= uix.Panel( 'Parent', obj.pr.empty_panel, 'Padding', 5 ,'Units','normalized','Title', 'Results','FontWeight','bold','FontSize',14,'TitlePosition','centertop' );
-            tab = uiextras.TabPanel( 'Parent', obj.pr.ioc.handle, 'Padding', 5 );
-            
-            
-            obj.pr.ioc.hbox=uix.HBoxFlex( 'Parent', tab, 'Padding', 5 ,'Units','normalized' );
-            obj.pr.ioc.panel_mep= uix.Panel( 'Parent', obj.pr.ioc.hbox, 'Padding', 5 ,'Units','normalized','Title', 'Live MEP Plot','FontSize',12,'TitlePosition','centertop' );
-            obj.pr.ioc.panel_scatplot= uix.Panel( 'Parent', obj.pr.ioc.hbox, 'Padding', 5 ,'Units','normalized','Title', 'MEP P2P Scatt Plot','FontSize',12,'TitlePosition','centertop' );
-            obj.pr.ioc.panel_fitplot= uix.Panel( 'Parent', tab, 'Padding', 5 ,'Units','normalized','Title', 'Fitted Dose-Response Curve','FontSize',12,'TitlePosition','centertop' );
-            
-            m_mep=uicontextmenu(obj.fig.handle);
-            uimenu(m_mep,'label','Export as Matlab Figure','Callback',@(~,~)obj.cb_pr_ioc_export_mepplot);
-            
-            m_scatplot=uicontextmenu(obj.fig.handle);
-            uimenu(m_scatplot,'label','Export as Matlab Figure','Callback',@(~,~)obj.cb_pr_ioc_export_scatplot);
-            
-            m_iocfit=uicontextmenu(obj.fig.handle);
-            uimenu(m_iocfit,'label','Export as Matlab Figure','Callback',@(~,~)obj.cb_pr_ioc_export_iocfit);
-            
-            
-            
-            
-            
-            obj.pr.ioc.axes_mep=axes( 'Parent',  obj.pr.ioc.panel_mep,'Units','normalized','Tag','mep','uicontextmenu',m_mep);
-            obj.pr.ioc.axes_scatplot=axes( 'Parent',obj.pr.ioc.panel_scatplot,'Units','normalized','Tag','ioc','uicontextmenu',m_scatplot);
-            obj.pr.ioc.axes_fitplot=axes( 'Parent',obj.pr.ioc.panel_fitplot,'Units','normalized','Tag','ioc_fit','uicontextmenu',m_iocfit);
-            
-            set(obj.pr.ioc.hbox,'Widths',[-1 -1])
-            
-            tab.TabNames={'Live Results','Fitted IOC'};
-            tab.SelectedChild=1;
-            tab.TabSize=200;
-            tab.FontSize=12;
-            
-        end
+
         %%  hardware configuration panel
         function create_hwcfg_panel(obj)
             obj.hw.empty_panel=uix.Panel( 'Parent', obj.fig.main, 'Padding', 5 ,'Units','normalized','BorderType','none' );
