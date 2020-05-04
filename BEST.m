@@ -235,6 +235,8 @@ classdef BEST < handle
                          obj.bst.best_mth;
                      case 'Psychometric Threshold Hunting Protocol'
                          obj.bst.best_psychmth;
+                     case 'rTMS Intervention Protocol'
+                         obj.bst.best_rtms;
                      case 'rs EEG Measurement Protocol'
                          obj.bst.best_rseeg;
                  end
@@ -859,7 +861,7 @@ classdef BEST < handle
             %           obj.panel.st=set(obj.pi.no_measure_slctd_panel.vbox,'Heights',[-2 -0.5 -2])
             set(obj.pi.no_measure_slctd_panel.vbox,'Heights',[-2 -0.5 -2])
         end
-        %% Results panel
+        %% Results Panel
         function resultsPanel(obj)
             total_axesno=obj.pr.axesno;
             Title=['Results - ' obj.bst.inputs.Protocol];
