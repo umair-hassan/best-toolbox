@@ -10867,6 +10867,152 @@ classdef BEST < handle
             
         end
         %% rsEEG Measurement
+        function pi_rseeg(obj)
+            Panel=uix.Panel( 'Parent', obj.pi.empty_panel,'FontSize',14 ,'Units','normalized','Title','resting-state EEG Measurement' ,'FontWeight','Bold','TitlePosition','centertop');
+            vb = uix.VBox( 'Parent', Panel, 'Spacing', 5, 'Padding', 5  );
+
+            mep_panel_row2 = uix.HBox( 'Parent', vb, 'Spacing', 5, 'Padding', 5  );
+            uicontrol( 'Style','text','Parent', mep_panel_row2,'String','Input Device:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+            str_in_device(1)= (cellstr('Select'));
+            str_in_device(2:numel(obj.hw.device_added1_listbox.string)+1)=obj.hw.device_added1_listbox.string;
+            obj.pi.rseeg.InputDevice=uicontrol( 'Style','popupmenu','Parent', mep_panel_row2 ,'FontSize',11,'String',str_in_device,'Tag','InputDevice','callback',@cb_par_saving); %,'Callback',@obj.cb_hotspot_target_muscle
+            set( mep_panel_row2, 'Widths', [150 -2]);
+            
+            % row 2f
+            mep_panel_row2f = uix.HBox( 'Parent', vb, 'Spacing', 5, 'Padding', 5  );
+            uicontrol( 'Style','text','Parent', mep_panel_row2f,'String','Output Device:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+            str_out_device(1)= (cellstr('Select'));
+            str_out_device(2:numel(obj.hw.device_added2_listbox.string)+1)=obj.hw.device_added2_listbox.string;
+            obj.pi.rseeg.OutputDevice=uicontrol( 'Style','popupmenu','Parent', mep_panel_row2f ,'String',str_out_device,'FontSize',11,'Tag','OutputDevice','callback',@cb_par_saving); %,'Callback',@obj.cb_hotspot_target_muscle
+            set( mep_panel_row2f, 'Widths', [150 -2]);
+            
+            % row 2f
+            mep_panel_row2f = uix.HBox( 'Parent', vb, 'Spacing', 5, 'Padding', 5  );
+            uicontrol( 'Style','text','Parent', mep_panel_row2f,'String','Protocol Mode:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+            obj.pi.rseeg.ProtocolMode=uicontrol( 'Style','popupmenu','Parent', mep_panel_row2f ,'String',{'Automatated','Manual'},'FontSize',11,'Tag','ProtocolMode','callback',@cb_par_saving); %,'Callback',@obj.cb_hotspot_target_muscle
+            set( mep_panel_row2f, 'Widths', [150 -2]);
+            
+            % row 2
+            mep_panel_row2 = uix.HBox( 'Parent', vb, 'Spacing', 5, 'Padding', 5  );
+            uicontrol( 'Style','text','Parent', mep_panel_row2,'String','EMG Display Channels:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+            obj.pi.rseeg.EMGDisplayChannels=uicontrol( 'Style','edit','Parent', mep_panel_row2 ,'FontSize',11,'Tag','EMGDisplayChannels','callback',@cb_par_saving); %,'Callback',@obj.cb_hotspot_target_muscle
+            set( mep_panel_row2, 'Widths', [150 -2]);
+            
+            %row 8
+            mep_panel_row8 = uix.HBox( 'Parent', vb, 'Spacing', 5, 'Padding', 5  );
+            uicontrol( 'Style','text','Parent', mep_panel_row8,'String','MEP onset (ms):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+            obj.pi.rseeg.MEPOnset=uicontrol( 'Style','edit','Parent', mep_panel_row8 ,'FontSize',11,'String','15','Tag','MEPOnset','callback',@cb_par_saving);
+            obj.pi.rseeg.MEPOffset=uicontrol( 'Style','edit','Parent', mep_panel_row8 ,'FontSize',11,'String','50','Tag','MEPOffset','callback',@cb_par_saving);
+            set( mep_panel_row8, 'Widths', [150 -2 -2]);
+            
+            %row 11
+            mep_panel_row11 = uix.HBox( 'Parent', vb, 'Spacing', 5, 'Padding', 5  );
+            uicontrol( 'Style','text','Parent', mep_panel_row11,'String','EMG Display Period (ms):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+            obj.pi.rseeg.EMGDisplayPeriodPre=uicontrol( 'Style','edit','Parent', mep_panel_row11 ,'FontSize',11,'String','150','Tag','EMGDisplayPeriodPre','callback',@cb_par_saving);
+            obj.pi.rseeg.EMGDisplayPeriodPost=uicontrol( 'Style','edit','Parent', mep_panel_row11 ,'FontSize',11,'String','150','Tag','EMGDisplayPeriodPost','callback',@cb_par_saving);
+            set( mep_panel_row11, 'Widths', [150 -2 -2]);
+
+            mep_panel_row4 = uix.HBox( 'Parent', vb, 'Spacing', 5, 'Padding', 5  );
+            uicontrol( 'Style','text','Parent', mep_panel_row4,'String','No. of Trials:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+            obj.pi.rseeg.TrialsPerCondition=uicontrol( 'Style','edit','Parent', mep_panel_row4 ,'FontSize',11,'Tag','TrialsPerCondition','callback',@cb_par_saving);
+            set( mep_panel_row4, 'Widths', [150 -2]);
+            
+            %row 5
+            mep_panel_row5 = uix.HBox( 'Parent', vb, 'Spacing', 5, 'Padding', 5  );
+            uicontrol( 'Style','text','Parent', mep_panel_row5,'String','Inter Trial Interval (s):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+            obj.pi.rseeg.ITI=uicontrol( 'Style','edit','Parent', mep_panel_row5 ,'FontSize',11,'Tag','ITI','callback',@cb_par_saving);
+            set( mep_panel_row5, 'Widths', [150 -2]);
+            %
+            uiextras.HBox( 'Parent', vb);
+            
+            mep_panel_17 = uix.HBox( 'Parent', vb, 'Spacing', 5, 'Padding', 5  );
+            obj.pi.rseeg.update=uicontrol( 'Parent', mep_panel_17 ,'Style','PushButton','String','Update','FontWeight','Bold','Callback',@(~,~)obj.cb_pi_rseeg_update);
+            obj.pi.rseeg.run=uicontrol( 'Parent', mep_panel_17 ,'Style','PushButton','String','Run','FontWeight','Bold','Callback',@(~,~)cb_run_hotspot);
+            obj.pi.pause=uicontrol( 'Parent', mep_panel_17 ,'Style','PushButton','String','Pause','FontWeight','Bold','Callback',@(~,~)obj.pause,'Enable','on');
+            obj.pi.stop=uicontrol( 'Parent', mep_panel_17 ,'Style','PushButton','String','Stop','FontWeight','Bold','Callback',@(~,~)obj.best_stop,'Enable','on');
+            set( mep_panel_17, 'Widths', [-2 -4 -2 -2]);
+            
+            set(vb,'Heights',[30 30 30 42 35 42 35 35 -1 45])
+            Interactivity;
+            function cb_run_hotspot
+                switch obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).ProtocolMode
+                    case 1 %Automated
+                        obj.bst.best_hotspot
+                    case 2 %Manual
+                        obj.bst.best_hotspot_manual
+                end
+            end
+            function cb_par_saving(source,~)
+                if strcmp(source.Tag,'InputDevice') || strcmp(source.Tag,'OutputDevice') || strcmp(source.Tag,'ProtocolMode')
+                    obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(source.Tag)=source.Value;
+                    if strcmp(source.Tag,'ProtocolMode')
+                        switch source.Value
+                            case 1 % Automated
+                                mep_panel_row4.Visible='on';
+                                mep_panel_row5.Visible='on';
+                            case 2 % Manual
+                                mep_panel_row4.Visible='off';
+                                mep_panel_row5.Visible='off';
+                        end
+                    end
+                else
+                    obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(source.Tag)=source.String;
+                end
+                
+            end 
+            function Interactivity
+                ParametersFieldNames=fieldnames(obj.pi.rseeg);
+                for iLoadingParameters=1:numel(ParametersFieldNames)
+                    obj.pi.rseeg.(ParametersFieldNames{iLoadingParameters}).Enable=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).Enable{1,1};
+                end
+            end
+        end
+        function default_par_rseeg(obj)
+            % Editing Rule: Values should be Integers, Strings should
+            % Strings , cells are the defaults values that do not have any
+            % uicontroller
+            obj.info.defaults=[];
+            obj.info.defaults.BrainState=1;
+            obj.info.defaults.TrialsPerCondition='100';
+            obj.info.defaults.InputDevice=1;
+            obj.info.defaults.OutputDevice=1;
+            obj.info.defaults.ProtocolMode=1;
+            obj.info.defaults.ITI='4';
+            obj.info.defaults.EMGDisplayChannels='';
+            obj.info.defaults.MEPOnset='15';
+            obj.info.defaults.MEPOffset='50';
+            obj.info.defaults.EMGDisplayPeriodPre='50';
+            obj.info.defaults.EMGDisplayPeriodPost='150';
+            obj.info.defaults.EMGDisplayYLimMax={3000};
+            obj.info.defaults.EMGDisplayYLimMin={-3000};
+            obj.info.defaults.Protocol={'MEP Hotspot Search Protocol'};
+            obj.info.defaults.Handles.UserData='Reserved for Future Use';
+            obj.info.defaults.Enable={'on'};
+            si=NaN;
+            for idefaults=1:numel(si)
+                cond=['cond' num2str(idefaults)];
+                obj.info.defaults.condsAll.(cond).targetChannel=cellstr('NaN');
+                obj.info.defaults.condsAll.(cond).st1.pulse_count=1;
+                obj.info.defaults.condsAll.(cond).st1.stim_device={'Select'};
+                obj.info.defaults.condsAll.(cond).st1.stim_mode='single_pulse';
+                obj.info.defaults.condsAll.(cond).st1.stim_timing=num2cell(0);
+                obj.info.defaults.condsAll.(cond).st1.si=si(idefaults);
+                obj.info.defaults.condsAll.(cond).st1.si_units=1;
+                obj.info.defaults.condsAll.(cond).st1.threshold='';
+                obj.info.defaults.condsAll.(cond).st1.si_pckt={si(idefaults)};
+            end
+            obj.par.(obj.info.event.current_session).(obj.info.event.measure_being_added)=obj.info.defaults;
+        end
+        function func_load_rseeg_par(obj)
+            ParametersFieldNames=fieldnames(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr));
+            for iLoadingParameters=1:numel(ParametersFieldNames)
+                if (isa(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(ParametersFieldNames{iLoadingParameters}),'char'))
+                    obj.pi.rseeg.(ParametersFieldNames{iLoadingParameters}).String=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(ParametersFieldNames{iLoadingParameters});
+                elseif(isa(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(ParametersFieldNames{iLoadingParameters}),'double'))
+                    obj.pi.rseeg.(ParametersFieldNames{iLoadingParameters}).Value=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(ParametersFieldNames{iLoadingParameters});
+                end
+            end
+        end
 
         %% Delete: ioc section
         function pi_ioc(obj)
@@ -12489,8 +12635,8 @@ classdef BEST < handle
             [file,path] = uigetfile;
         end
         
-        
-        function pi_rseeg(obj)
+        %% Delete
+        function pi_rseeg_OLD(obj)
             obj.pi.rtms.panel=uix.Panel( 'Parent', obj.pi.empty_panel,'FontSize',14 ,'Units','normalized','Title','resting-state EEG Analysis' ,'FontWeight','Bold','TitlePosition','centertop');
             %             obj.pi.mep.panel=uix.ScrollingPanel( 'Parent', obj.pi.empty_panel,'Units','normalized');
             
@@ -14035,8 +14181,6 @@ classdef BEST < handle
                 case 'ERP Measurement'
                     obj.pi_erp
                     %                     obj.func_load_mep_par;
-                case 'rs EEG Analysis'
-                    obj.pi_rseeg;
                 case 'rTMS Interventions'
                     obj.pi_rtms_train
                 case 'Multimodal Experiment'
@@ -14054,6 +14198,9 @@ classdef BEST < handle
                 case 'rTMS Intervention'
                     obj.pi_rtms;
                     obj.func_load_rtms_par;
+                case 'rsEEG Measurement'
+                    obj.pi_rseeg; 
+                    obj.func_load_rseeg_par;
             end
             obj.pmd.RunStopButton.Enable=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).Enable{1,1};
             % obj.info.event.current_measure(obj.info.event.current_measure == ' ') = '_';
@@ -14093,6 +14240,8 @@ classdef BEST < handle
                     obj.default_par_psychmth;
                 case 'rTMS Intervention'
                     obj.default_par_rtms;
+                case 'rsEEG Measurement'
+                    obj.default_par_rseeg;
             end
         end
         
