@@ -7,6 +7,7 @@ classdef best_sync2brain_bossdevice <handle
         IAScope
         IPScope
         FileScope
+        EEGScope
     end
     
     methods
@@ -269,7 +270,7 @@ while ~strcmpi(obj.EMGScope.Status,'finished'), end
 %             obj.IEEGScope.TriggerSignal = MrkSignalID; %in Tuebingen setup the 2nd coloumn of signal was giving the return values, however in Mainz setup it was the third coloumn
             obj.IEEGScope.TriggerLevel = 0.5;
             obj.IEEGScope.TriggerSlope = 'Rising';
-            obj.best_toolbox.inputs.rawdata.IEEG.time=linspace(-1*(obj.best_toolbox.inputs.EEGDisplayPeriodPre),obj.best_toolbox.inputs.EEGDisplayPeriodPost,NumSamples);
+            obj.best_toolbox.inputs.rawData.IEEG.time=linspace(-1*(obj.best_toolbox.inputs.EEGDisplayPeriodPre),obj.best_toolbox.inputs.EEGDisplayPeriodPost,NumSamples);
 
         end
         
@@ -398,6 +399,25 @@ while ~strcmpi(obj.EMGScope.Status,'finished'), end
             %Future Use: xticks([]); xticklabels([]);
         end
         
+        function EEGScopeBoot(obj,EEGDisplayPeriodPre,EEGDisplayPeriodPost)
+            % ArgIn EEGDisplayPeriodPre is ms
+            % ArgIn EEGDisplayPeriodPost is ms
+            NumSamples=(EEGDisplayPeriodPost+EEGDisplayPeriodPre)*5;
+            NumPrePostSamples=EEGDisplayPeriodPre*5;
+            obj.EEGScope = addscope(obj.bb.tg, 'host', 90);
+            AuxSignalID = getsignalid(obj.bb.tg, 'UDP/raw_eeg') + int32(0:obj.bb.eeg_channels-1);
+            MrkSignalID = getsignalid(obj.bb.tg, 'UDP/raw_mrk') + int32([0 1 2]);
+            addsignal(obj.EEGScope, AuxSignalID);
+            obj.EEGScope.NumSamples = NumSamples;
+            obj.EEGScope.NumPrePostSamples = -NumPrePostSamples;
+            obj.EEGScope.Decimation = 1;
+            obj.EEGScope.TriggerMode = 'Signal';
+            obj.EEGScope.TriggerSignal = getsignalid(obj.bb.tg, 'gen_running'); %Remove it in Official Usee
+%             obj.EEGScope.TriggerSignal = MrkSignalID(3); %in Tuebingen setup the 2nd coloumn of signal was giving the return values, however in Mainz setup it was the third coloumn
+            obj.EEGScope.TriggerLevel = 0.5;
+            obj.EEGScope.TriggerSlope = 'Rising';
+        end
+        
         function EMGScopeStart(obj)
             start(obj.EMGScope);
 %             pause(0.1); % give the scope time to pre-aquire
@@ -413,6 +433,11 @@ while ~strcmpi(obj.EMGScope.Status,'finished'), end
         function IPScopeStart(obj)
              start(obj.IPScope);
              while ~strcmpi(obj.IPScope.Status,'Ready for being Triggered'), end
+        end
+        
+        function EEGScopeStart(obj)
+             start(obj.EEGScope);
+             while ~strcmpi(obj.EEGScope.Status,'Ready for being Triggered'), end
         end
         
         function IAScopeStart(obj)
@@ -432,6 +457,12 @@ while ~strcmpi(obj.EMGScope.Status,'finished'), end
             while ~strcmpi(obj.IEEGScope.Status,'finished'), end
             Data=obj.IEEGScope.Data(:,1)';
             obj.IEEGScopeStart;
+        end
+        function [Time, Data]=EEGScopeRead(obj)
+            while ~strcmpi(obj.EEGScope.Status,'finished'), end
+            Data=obj.EEGScope.Data';
+            Time=obj.EEGScope.Time';
+            obj.EEGScopeStart;
         end
         
     end
