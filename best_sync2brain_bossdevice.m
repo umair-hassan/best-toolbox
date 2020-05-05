@@ -386,8 +386,8 @@ while ~strcmpi(obj.EMGScope.Status,'finished'), end
                 obj.FileScope.hAmplitudeDistributionAxes = obj.best_toolbox.app.pr.ax.(axAmplitudeDistribution);
             else
                 disp ('The Oscillation Amplitude Tracking and Distribution plots have been switched off');
-                obj.FileScope.hAmplitudeHistoryAxes = axes('Visible',off);
-                obj.FileScope.hAmplitudeDistributionAxes = axes('Visible',off);
+                obj.FileScope.hAmplitudeHistoryAxes = axes('Visible','off');
+                obj.FileScope.hAmplitudeDistributionAxes = axes('Visible','off');
             end
             axes(obj.FileScope.hAmplitudeHistoryAxes);
             %Future Use: xlabel(['Data for Past ' num2str(obj.best_toolbox.inputs.AmplitudeAssignmentPeriod) ' mins']);
