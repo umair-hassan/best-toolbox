@@ -1496,7 +1496,7 @@ classdef best_toolbox < handle
                             for c=1:numel(fieldnames(obj.inputs.condsAll))
                                 obj.inputs.condMat{c,obj.inputs.colLabel.trials}=obj.inputs.TrialsPerCondition;
                                 obj.inputs.condMat{c,obj.inputs.colLabel.iti}=obj.inputs.ITI;
-                                obj.inputs.condMat{c,obj.inputs.colLabel.inputDevices}=NaN;
+                                obj.inputs.condMat{c,obj.inputs.colLabel.inputDevices}='Utility';
                                 obj.inputs.condMat{c,obj.inputs.colLabel.chLab}={'StatusTable'};
                                 obj.inputs.condMat{c,obj.inputs.colLabel.measures}={'StatusTable'};
                                 obj.inputs.condMat{c,obj.inputs.colLabel.axesno}={1};
@@ -2747,10 +2747,10 @@ classdef best_toolbox < handle
                 case {5,6,7,8} %bossbox controlled stimulator
                     switch obj.inputs.BrainState
                         case 1
-                            obj.bossbox.multiPulseAndScope(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.tpm});
+                            obj.bossbox.multiPulse(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.tpm});
                             tic;
                         case 2
-                            obj.bossbox.armPulseAndScope;
+                            obj.bossbox.armPulse;
                             obj.bossbox.bb.triggers_remaining
                             tic;
                     end
@@ -2759,10 +2759,10 @@ classdef best_toolbox < handle
                         case 1 %bossdevice
                             switch obj.inputs.BrainState
                                 case 1
-                                    obj.bossbox.multiPulseOnly(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.tpm});
+                                    obj.bossbox.multiPulse(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.tpm});
                                     tic;
                                 case 2
-                                    obj.bossbox.armPulseOnly;
+                                    obj.bossbox.armPulse;
                                     tic;
                             end
                         case 2 %COM
@@ -2937,13 +2937,18 @@ classdef best_toolbox < handle
                                     obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.stimMode}{1,i}
                                     switch char(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.stimMode}{1,i})
                                         case 'single_pulse'
+                                            obj.magven.arm;
                                             obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,i}
                                             obj.magven.setAmplitude(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,i}{1,1});
                                         case 'paired_pulse'
+                                            obj.magven.arm;
+                                            obj.magven.setAmplitude(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,i}{1,1});
+                                            obj.magven.setMode('Twin','Normal', 2, obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,i}{1,3}, obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,i}{1,1}/obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,i}{1,2});
                                             disp PAIREDpulseENTERED
                                         case 'train'
+                                            obj.magven.arm;
                                             obj.magven.setAmplitude(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,i}{1,1});
-                                            
+                                            obj.magven.setTrain(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,i}{1,2},obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,i}{1,3},1,0.1);
                                             disp trainENTERED
                                     end
                                 case {2,6} % pc or bb controlled magstim
@@ -3016,7 +3021,6 @@ classdef best_toolbox < handle
                 end
                 toc
                 disp('................................................');
-                pause(15)
             end
         end
         function save(obj)
@@ -3029,8 +3033,8 @@ classdef best_toolbox < handle
         function prepSaving(obj)
             obj.sessions.(obj.app.info.event.current_session).(obj.app.info.event.current_measure_fullstr).ConditionsMatrix=obj.inputs.condMat;
             obj.sessions.(obj.app.info.event.current_session).(obj.app.info.event.current_measure_fullstr).TrialsMatrix=obj.inputs.trialMat;
-            obj.sessions.(obj.app.info.event.current_session).(obj.app.info.event.current_measure_fullstr).RawData=obj.inputs.rawData;
-            try obj.sessions.(obj.app.info.event.current_session).(obj.app.info.event.current_measure_fullstr).Results=obj.inputs.results; catch, end
+            try obj.sessions.(obj.app.info.event.current_session).(obj.app.info.event.current_measure_fullstr).RawData=obj.inputs.rawData; catch, end %Known Error when run on rTMS
+            try obj.sessions.(obj.app.info.event.current_session).(obj.app.info.event.current_measure_fullstr).Results=obj.inputs.results; catch, end %Known Error when run on PsychMTH
         end
         function saveFigures(obj)
             FigureFileName1=erase(obj.info.matfilstr,'.mat');
