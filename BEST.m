@@ -10849,6 +10849,10 @@ classdef BEST < handle
                 obj.info.defaults.condsAll.(cond).st1.threshold='';
                 obj.info.defaults.condsAll.(cond).st1.si_pckt={si(idefaults),5,3};
             end
+            %% create an Utility Device here whose' input device type is -1 
+            obj.par.hardware_settings.Utility.device_type=1;
+            obj.par.hardware_settings.Utility.slct_device=-1;
+            obj.par.hardware_settings.Utility.device_name='Utility';
             obj.par.(obj.info.event.current_session).(obj.info.event.measure_being_added)=obj.info.defaults;
         end
         function func_load_rtms_par(obj)
