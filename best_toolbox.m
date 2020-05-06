@@ -3055,7 +3055,7 @@ classdef best_toolbox < handle
         end
         function best_rseeg(obj)
             obj.save;
-            obj.factorizeConditions; %% create the condMat this will help in indexing channel numbers interacting with the other architectureal parts
+            obj.factorizeConditions; 
             obj.app.resultsPanel;
             obj.rseegInProcess;
             obj.boot_bossbox; 
@@ -3064,18 +3064,18 @@ classdef best_toolbox < handle
             obj.bossbox.EEGScopeStart; obj.bossbox.EEGScopeTrigger;
             [obj.inputs.rawData.EEG.Time , obj.inputs.rawData.EEG.Data]=obj.bossbox.EEGScopeRead;
             obj.fieldtrip.best2ftdata(obj.inputs.rawData.EEG,obj.inputs.input_device);
-
-            % read the scope
-            % best2ftdata ch 
-            % switch case for IRASA and FFT
-            % for loop for irasa , the index of for loop will decide the chanel name and plots 
-            % 
-%             obj.boot_inputdevice;
-
+            switch obj.inputs.SpectralAnalysis
+                case 1 %IRASA
+                    obj.fieldtrip.irasa;
+                case 2 %FFT
+                    obj.fieldtrip.fft;
+            end
+            obj.prepSaving;
+            obj.save;
+            obj.saveFigures;
+            obj.completed;
             
-            obj.fieldtrip.ftirasa;
-            %% %% #rsEEGTODO: acquire data from the scope and show wait on the area
-            %% #rsEEGTODO: call ftp api here to process and plot on this ax1
+            % for loop for irasa , the index of for loop will decide the chanel name and plots 
         end
         function best_rtms(obj)
             obj.save;
