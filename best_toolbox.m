@@ -1709,11 +1709,19 @@ classdef best_toolbox < handle
                             end
                     end
                 case 'rs EEG Measurement Protocol'
-                    obj.app.pr.ax_measures={'rsEEGMeasurement'};
-                    obj.app.pr.axesno=1;
-                    obj.app.pr.ax_ChannelLabels={'EEG Channels'};
-                    obj.inputs.ChannelsTypeUnique={'EEG'};
-                    obj.inputs.input_device=char(obj.app.pi.rseeg.InputDevice.String(obj.inputs.InputDevice));
+                    switch obj.inputs.SpectralAnalysis
+                        case 1 %IRASA
+                            obj.app.pr.ax_measures={'rsEEGMeasurement'};
+                            obj.app.pr.axesno=1;
+                            obj.app.pr.ax_ChannelLabels={'EEG Channels'};
+                            obj.inputs.ChannelsTypeUnique={'EEG'};
+                            obj.inputs.input_device=char(obj.app.pi.rseeg.InputDevice.String(obj.inputs.InputDevice));
+                            obj.inputs.colLabel.inputDevices=1;
+                            obj.inputs.colLabel.iti=2;
+                            obj.inputs.condMat{1,obj.inputs.colLabel.inputDevices}=char(obj.app.pi.rseeg.InputDevice.String(obj.inputs.InputDevice));
+                            obj.inputs.condMat{1,obj.inputs.colLabel.iti}=NaN;
+                        case 2 %FFT
+                    end
             end
             %% Crossing Phase & Amplitude Condition with condMat
             if isfield(obj.inputs,'BrainState')
@@ -2969,6 +2977,11 @@ classdef best_toolbox < handle
             obj.app.pmd.RunStopButton.String='Stop';
             obj.app.RunStopButton
         end
+        function rseegInProcess(obj)
+            %% create a simple figure and show the message on it 
+            obj.inputs.Handles.InProcessFigure=figure('Name','BEST Toolbox','numbertitle', 'off','ToolBar', 'none','MenuBar', 'none','WindowStyle', 'normal','Units', 'normal', 'Position', [0.5 0.5 .4 .05]);
+            uicontrol( 'Style','text','Parent', obj.inputs.Handles.InProcessFigure,'String','BEST Toolbox is processing EEG Data, please observe MATLAB command line for further details.','FontSize',11,'HorizontalAlignment','center','Units','normalized','Position',[0.05 0.5 1 0.4]);
+        end
         
         function best_mep(obj)
             obj.save;
@@ -3042,11 +3055,24 @@ classdef best_toolbox < handle
         end
         function best_rseeg(obj)
             obj.save;
-            obj.factorizeConditions;
+            obj.factorizeConditions; %% create the condMat this will help in indexing channel numbers interacting with the other architectureal parts
             obj.app.resultsPanel;
+            obj.rseegInProcess;
+            obj.boot_bossbox; 
+            obj.boot_fieldtrip;
+            obj.bossbox.EEGScopeBoot(0,obj.inputs.EEGAcquisitionPeriod*60*1000);
+            obj.bossbox.EEGScopeStart; obj.bossbox.EEGScopeTrigger;
+            [obj.inputs.rawData.EEG.Time , obj.inputs.rawData.EEG.Data]=obj.bossbox.EEGScopeRead;
+            obj.fieldtrip.best2ftdata(obj.inputs.rawData.EEG,obj.inputs.input_device);
+
+            % read the scope
+            % best2ftdata ch 
+            % switch case for IRASA and FFT
+            % for loop for irasa , the index of for loop will decide the chanel name and plots 
+            % 
 %             obj.boot_inputdevice;
 
-            obj.fieldtrip=best_fieldtrip(obj);
+            
             obj.fieldtrip.ftirasa;
             %% %% #rsEEGTODO: acquire data from the scope and show wait on the area
             %% #rsEEGTODO: call ftp api here to process and plot on this ax1
@@ -4416,6 +4442,9 @@ classdef best_toolbox < handle
         function boot_bossbox(obj)
             obj.bossbox=best_sync2brain_bossdevice(obj);
         end
+        function boot_fieldtrip(obj)
+            obj.fieldtrip=best_fieldtrip(obj);
+        end
         function FilteredData = best_VisualizationFilter(obj,RawData)
 %             FilteredData=filtfilt(obj.FilterCoefficients.HumNoiseNotchFilter, RawData);
                         FilteredData=RawData;
@@ -4497,7 +4526,7 @@ classdef best_toolbox < handle
             ax=['ax' num2str(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.axesno}{1,obj.inputs.chLab_idx})];
             axes(obj.app.pr.ax.(ax)), hold on,
             ThisChannelName=obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx};
-            ThisEEGTime=obj.inputs.rawdata.IEEG.time;
+            ThisEEGTime=obj.inputs.rawData.IEEG.time;
             if obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.phase}{1,1}==0 && obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.phase}{1,2}~=pi %Peak
                 if(isfield(obj.inputs.Handles,'TriggerLockedEEGPeak')==0)
                     ThisEEG=obj.inputs.rawData.(ThisChannelName).data(obj.inputs.trial,:);

@@ -10989,9 +10989,10 @@ classdef BEST < handle
             % Strings , cells are the defaults values that do not have any
             % uicontroller
             obj.info.defaults=[];
+            obj.info.defaults.BrainState=1;
             obj.info.defaults.SpectralAnalysis=1;
             obj.info.defaults.InputDevice=1;
-            obj.info.defaults.EEGAcquisitionPeriod='2';
+            obj.info.defaults.EEGAcquisitionPeriod='2'; 
             obj.info.defaults.EEGEpochPeriod='4';
             obj.info.defaults.TargetFrequencyRange='10 12';
             obj.info.defaults.TargetChannels='';
