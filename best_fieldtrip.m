@@ -9,8 +9,14 @@ classdef best_fieldtrip <handle
             obj.best_toolbox=best_toolbox;
         end
         
-        function best2ftdata(obj)
-            disp $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+        function best2ftdata(obj,EEGData,InputDevice)
+            %Reference: http://www.fieldtriptoolbox.org/faq/how_can_i_import_my_own_dataformat/
+            EEGChannelsIndex=find(strcmp(obj.best_toolbox.app.par.hardware_settings.(InputDevice).NeurOneProtocolChannelSignalTypes,'EEG'));
+            EEGChanelsLabels=obj.best_toolbox.app.par.hardware_settings.(InputDevice).NeurOneProtocolChannelLabels(EEGChannelsIndex);
+            obj.fieldtrip.data.label=EEGChanelsLabels';
+            obj.fieldtrip.data.fsample=5000;
+            obj.fieldtrip.data.trial={EEGData.Data};
+            obj.fieldtrip.data.time={EEGData.Time};            
         end
         
         function ftirasa(obj)
