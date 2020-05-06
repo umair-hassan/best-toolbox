@@ -14,26 +14,22 @@ classdef best_sync2brain_bossdevice <handle
         function obj = best_sync2brain_bossdevice(best_toolbox)
             obj.best_toolbox=best_toolbox;
             obj.bb=bossdevice;
+            %% Loading defaults
+            obj.bb.calibration_mode = 'no';
+            obj.bb.armed = 'no';
             obj.bb.sample_and_hold_period=0;
-            
-            %% Set Number of EEG and AUX Channels Property 
-            % to be done later
-            
-            if(obj.best_toolbox.inputs.BrainState==2)
-                %% Loading defaults
-                obj.bb.calibration_mode = 'no';
-                obj.bb.armed = 'no';
-                obj.bb.sample_and_hold_period=0;
-                obj.bb.theta.ignore; pause(0.1)
-                obj.bb.beta.ignore; pause(0.1)
-                obj.bb.alpha.ignore; pause(0.1)
-                %% Setting Num of EEG & AUX Channels 
-                % these depends on Protocol for NeurOne, for ACS we can particularly ask the user to define Num of Aux and EEG Channels being streamed
-                InputDevice=obj.best_toolbox.inputs.condMat{1,obj.best_toolbox.inputs.colLabel.inputDevices};
-                if obj.best_toolbox.app.par.hardware_settings.(InputDevice).slct_device==1
-                    obj.bb.eeg_channels=nnz(strcmp(obj.best_toolbox.app.par.hardware_settings.(InputDevice).NeurOneProtocolChannelSignalTypes,'EEG'));
-                    obj.bb.aux_channels=nnz(strcmp(obj.best_toolbox.app.par.hardware_settings.(InputDevice).NeurOneProtocolChannelSignalTypes,'EMG'));
-                end
+            obj.bb.theta.ignore; pause(0.1)
+            obj.bb.beta.ignore; pause(0.1)
+            obj.bb.alpha.ignore; pause(0.1)
+            %% Setting Num of EEG & AUX Channels
+            % these depends on Protocol for NeurOne, for ACS we can particularly ask the user to define Num of Aux and EEG Channels being streamed
+            InputDevice=obj.best_toolbox.inputs.condMat{1,obj.best_toolbox.inputs.colLabel.inputDevices};
+            if obj.best_toolbox.app.par.hardware_settings.(InputDevice).slct_device==1
+                obj.bb.eeg_channels=nnz(strcmp(obj.best_toolbox.app.par.hardware_settings.(InputDevice).NeurOneProtocolChannelSignalTypes,'EEG'));
+                obj.bb.aux_channels=nnz(strcmp(obj.best_toolbox.app.par.hardware_settings.(InputDevice).NeurOneProtocolChannelSignalTypes,'EMG'));
+            end
+            %% Setting Brain State Dependent Defaults 
+            if(obj.best_toolbox.inputs.BrainState==2)                
                 %% Preparing Spatial Filter Weights for BOSS Device
                 if obj.best_toolbox.app.par.hardware_settings.(InputDevice).slct_device==1 || obj.best_toolbox.app.par.hardware_settings.(InputDevice).slct_device==6 %%NeurOneOnly OR NeurOnewithKeyboard
                     SpatialFilterWeights=zeros(obj.bb.eeg_channels,1);
@@ -65,12 +61,6 @@ classdef best_sync2brain_bossdevice <handle
         
         function singlePulse(obj,portNo)
                 obj.bb.sendPulse(portNo)
-                pause(0.1)
-% while ~strcmpi(sc.Status,'finished'), end;
-% assert(strcmp(obj.EMGScope.Status, 'Finished'))
-while ~strcmpi(obj.EMGScope.Status,'finished'), end
-%             obj.bb.configure_time_port_marker([0 1 1]);
-%             obj.bb.manualTrigger;
         end
         
         function multiPulse(obj,time_port_marker_vector)
@@ -402,9 +392,9 @@ while ~strcmpi(obj.EMGScope.Status,'finished'), end
         function EEGScopeBoot(obj,EEGDisplayPeriodPre,EEGDisplayPeriodPost)
             % ArgIn EEGDisplayPeriodPre is ms
             % ArgIn EEGDisplayPeriodPost is ms
-            NumSamples=(EEGDisplayPeriodPost+EEGDisplayPeriodPre)*5;
+            NumSamples=(EEGDisplayPeriodPost+EEGDisplayPeriodPre)*5; %Maximum Limit is of 1020000 Samples imposed by Simulink Real Time
             NumPrePostSamples=EEGDisplayPeriodPre*5;
-            obj.EEGScope = addscope(obj.bb.tg, 'host', 90);
+            obj.EEGScope = addscope(obj.bb.tg, 'host', 95);
             AuxSignalID = getsignalid(obj.bb.tg, 'UDP/raw_eeg') + int32(0:obj.bb.eeg_channels-1);
             MrkSignalID = getsignalid(obj.bb.tg, 'UDP/raw_mrk') + int32([0 1 2]);
             addsignal(obj.EEGScope, AuxSignalID);
@@ -461,8 +451,12 @@ while ~strcmpi(obj.EMGScope.Status,'finished'), end
         function [Time, Data]=EEGScopeRead(obj)
             while ~strcmpi(obj.EEGScope.Status,'finished'), end
             Data=obj.EEGScope.Data';
-            Time=obj.EEGScope.Time';
+            Time=(obj.EEGScope.Time-obj.EEGScope.Time(1)+(obj.EEGScope.Time(2)-obj.EEGScope.Time(1)))';
             obj.EEGScopeStart;
+        end
+        
+        function EEGScopeTrigger(obj)
+            trigger(obj.EEGScope);
         end
         
     end
