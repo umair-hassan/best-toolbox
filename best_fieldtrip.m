@@ -19,7 +19,7 @@ classdef best_fieldtrip <handle
             obj.fieldtrip.data.time={EEGData.Time};            
         end
         
-        function ftirasa(obj)
+        function irasa(obj)
             t = (1:1000)/1000; % time axis
             for rpt = 1:100
                 % generate pink noise
@@ -98,7 +98,7 @@ classdef best_fieldtrip <handle
             set(gca, 'YLim', yl);
         end
         
-        function ftfft (obj)
+        function fft (obj)
             %% 2 EEG mu-alpha peak frequency determination
             % do 2 min resting state EEg recording
             % export to BVA format as eg.g. P03_rsEEG.dat
