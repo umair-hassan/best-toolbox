@@ -130,7 +130,8 @@ classdef best_fieldtrip <handle
                 %% DB Scaling 
                 obj.best_toolbox.inputs.results.dbOscillationOverFractalComponent.powspctrm=log10(obj.best_toolbox.inputs.results.percentageOscillationOverFractalComponent.powspctrm);
                 obj.best_toolbox.inputs.results.dbOscillationOverFractalComponent.freq=obj.best_toolbox.inputs.results.FractalComponents.freq;
-                %% Plotting 
+                %% Plotting , Annotating and Saving Peak Frequency
+                %Find Index of Frequecy Limits
                 for channel=1:numel(obj.best_toolbox.inputs.results.OriginalComponents.label)
                     ax1=['ax' num2str(channel*4-3)];
                     axes(obj.best_toolbox.app.pr.ax.(ax1))
@@ -142,6 +143,7 @@ classdef best_fieldtrip <handle
                     axes(obj.best_toolbox.app.pr.ax.(ax2))
                     plot(obj.best_toolbox.inputs.results.OscillationComponents.freq, obj.best_toolbox.inputs.results.OscillationComponents.powspctrm(chanel,:),'linewidth', 3, 'color', [0 0 0]); hold on;
                     gridxy((obj.best_toolbox.inputs.TargetFrequencyRange(1)):0.25:(obj.best_toolbox.inputs.TargetFrequencyRange(2)),'Color',[219/255 246/255 255/255],'linewidth',4) ;
+                    %Find Peak Frequency, store it and annotate it 
                     
                     ax3=['ax' num2str(channel*4-1)];
                     axes(obj.best_toolbox.app.pr.ax.(ax3))
@@ -153,10 +155,6 @@ classdef best_fieldtrip <handle
                     plot(obj.best_toolbox.inputs.results.dbOscillationOverFractalComponent.freq, obj.best_toolbox.inputs.results.dbOscillationOverFractalComponent.powspctrm(chanel,:),'linewidth', 3, 'color', [0 0 0]); hold on;
                     gridxy((obj.best_toolbox.inputs.TargetFrequencyRange(1)):0.25:(obj.best_toolbox.inputs.TargetFrequencyRange(2)),'Color',[219/255 246/255 255/255],'linewidth',4) ;
                 end
-                %% Annotating and Saving Peak Frequency
-                % find the peak frequency,
-                % create a text with that annotation 
-                % store the frequency into results as results.PeakFrequency
         end
             
         function fft(obj,EEGData,InputDevice)
@@ -239,17 +237,17 @@ classdef best_fieldtrip <handle
                 cfg.pad           = 'nextpow2';
                 cfg.method        = 'mtmfft';
                 obj.best_toolbox.inputs.results.OriginalComponents = ft_freqanalysis(cfg, obj.best_toolbox.inputs.results.SegmentedData); %Raw
-                %% Plotting 
+                %% Plotting, Annotating and Saving Peak Frequency
+                TargetFrequencyRange=(find(obj.best_toolbox.inputs.results.OriginalComponents.freq == obj.best_toolbox.inputs.TargetFrequencyRange(1)):find(obj.best_toolbox.inputs.results.OriginalComponents.freq == obj.best_toolbox.inputs.TargetFrequencyRange(2)))
                 for channel=1:numel(obj.best_toolbox.inputs.results.OriginalComponents.label)
                     ax1=['ax' num2str(channel)];
                     axes(obj.best_toolbox.app.pr.ax.(ax1))
                     plot(obj.best_toolbox.inputs.results.OriginalComponents.freq, obj.best_toolbox.inputs.results.OriginalComponents.powspctrm(chanel,:),'linewidth', 3, 'color', [0 0 0]); hold on;
                     gridxy((obj.best_toolbox.inputs.TargetFrequencyRange(1)):0.25:(obj.best_toolbox.inputs.TargetFrequencyRange(2)),'Color',[219/255 246/255 255/255],'linewidth',4) ;
+                    [~,PeakPowerIndex] = max(obj.best_toolbox.inputs.results.OriginalComponents.powspctrm(channel,TargetFrequencyRange));%.*[8:0.5:14]);
+                    obj.best_toolbox.inputs.results.PeakFrequency.(obj.best_toolbox.inputs.results.OriginalComponents.label(channel))=obj.best_toolbox.inputs.results.OriginalComponents.freq(1,PeakPowerIndex);
+                    %and annotate it
                 end
-                %% Annotating and Saving Peak Frequency
-                % find the peak frequency,
-                % create a text with that annotation 
-                % store the frequency into results as results.PeakFrequency
             end
 
     end
