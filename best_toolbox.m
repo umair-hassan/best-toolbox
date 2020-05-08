@@ -3068,7 +3068,7 @@ classdef best_toolbox < handle
                 case 1 %IRASA
                     obj.fieldtrip.irasa(obj.inputs.rawData.EEG,obj.inputs.input_device);
                 case 2 %FFT
-                    obj.fieldtrip.fft;
+                    obj.fieldtrip.fft(obj.inputs.rawData.EEG,obj.inputs.input_device);
             end
             obj.prepSaving;
             obj.save;

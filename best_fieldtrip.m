@@ -134,24 +134,123 @@ classdef best_fieldtrip <handle
                 for channel=1:numel(obj.inputs.results.OriginalComponents.label)
                     ax1=['ax' num2str(channel*4-3)];
                     axes(obj.best_toolbox.app.pr.ax.(ax1))
-                    plot(obj.inputs.results.FractalComponents.freq, obj.inputs.results.FractalComponents.powspctrm(chanel,:),'linewidth', 3, 'color', [0 0 0]); hold on;
-                    plot(obj.inputs.results.OriginalComponents.freq, obj.inputs.results.OriginalComponents.powspctrm(chanel,:),'linewidth', 3, 'color', [0.6 0.6 0.6])
+                    plot(obj.inputs.results.FractalComponents.freq, obj.inputs.results.FractalComponents.powspctrm(chanel,:),'linewidth', 3, 'color', [0 0 0],'DisplayName','Fractal'); hold on; legend;
+                    plot(obj.inputs.results.OriginalComponents.freq, obj.inputs.results.OriginalComponents.powspctrm(chanel,:),'linewidth', 3, 'color', [0.6 0.6 0.6],'DisplayName','Original')
+                    gridxy((obj.inputs.TargetFrequencyRange(1)):0.25:(obj.inputs.TargetFrequencyRange(2)),'Color',[219/255 246/255 255/255],'linewidth',4) ;
                     
                     ax2=['ax' num2str(channel*4-2)];
                     axes(obj.best_toolbox.app.pr.ax.(ax2))
-                    plot(obj.inputs.results.OscillationComponents.freq, obj.inputs.results.OscillationComponents.powspctrm(chanel,:),'linewidth', 3, 'color', [0 0 0]);
+                    plot(obj.inputs.results.OscillationComponents.freq, obj.inputs.results.OscillationComponents.powspctrm(chanel,:),'linewidth', 3, 'color', [0 0 0]); hold on;
+                    gridxy((obj.inputs.TargetFrequencyRange(1)):0.25:(obj.inputs.TargetFrequencyRange(2)),'Color',[219/255 246/255 255/255],'linewidth',4) ;
                     
                     ax3=['ax' num2str(channel*4-1)];
                     axes(obj.best_toolbox.app.pr.ax.(ax3))
-                    plot(obj.inputs.results.percentageOscillationOverFractalComponent.freq, obj.inputs.results.percentageOscillationOverFractalComponent.powspctrm(chanel,:),'linewidth', 3, 'color', [0 0 0]);
-                    
+                    plot(obj.inputs.results.percentageOscillationOverFractalComponent.freq, obj.inputs.results.percentageOscillationOverFractalComponent.powspctrm(chanel,:),'linewidth', 3, 'color', [0 0 0]); hold on;
+                    gridxy((obj.inputs.TargetFrequencyRange(1)):0.25:(obj.inputs.TargetFrequencyRange(2)),'Color',[219/255 246/255 255/255],'linewidth',4) ;
+
                     ax4=['ax' num2str(channel*4)];
                     axes(obj.best_toolbox.app.pr.ax.(ax4))
-                    plot(obj.inputs.results.dbOscillationOverFractalComponent.freq, obj.inputs.results.dbOscillationOverFractalComponent.powspctrm(chanel,:),'linewidth', 3, 'color', [0 0 0]);
+                    plot(obj.inputs.results.dbOscillationOverFractalComponent.freq, obj.inputs.results.dbOscillationOverFractalComponent.powspctrm(chanel,:),'linewidth', 3, 'color', [0 0 0]); hold on;
+                    gridxy((obj.inputs.TargetFrequencyRange(1)):0.25:(obj.inputs.TargetFrequencyRange(2)),'Color',[219/255 246/255 255/255],'linewidth',4) ;
                 end
-                %% Annotating Peak Frequency
+                %% Annotating and Saving Peak Frequency
+                % find the peak frequency,
+                % create a text with that annotation 
+                % store the frequency into results as results.PeakFrequency
             
+        end
             
+        function fft(obj,EEGData,InputDevice)
+                %% Rename obj.inputs to obj.best_toolbox.inputs
+                EEGChannelsIndex=find(strcmp(obj.best_toolbox.app.par.hardware_settings.(InputDevice).NeurOneProtocolChannelSignalTypes,'EEG'));
+                EEGChanelsLabels=obj.best_toolbox.app.par.hardware_settings.(InputDevice).NeurOneProtocolChannelLabels(EEGChannelsIndex);                
+                %% Creating RawEEGData
+                obj.inputs.results.RawEEGData.label=EEGChanelsLabels';
+                obj.inputs.results.RawEEGData.fsample=5000;
+                obj.inputs.results.RawEEGData.trial={EEGData.Data};
+                obj.inputs.results.RawEEGData.time={EEGData.Time};
+                %% Referencing RawEEGData
+                if ~isempty(obj.inputs.TargetChannels)
+                    if ~isempty(obj.inputs.ReferenceChannels)
+                        cfg=[];
+                        cfg.reref         = 'yes';
+                        cfg.refchannel    = obj.inputs.ReferenceChannels;
+                        if ~isempty(obj.inputs.RecordingReference)
+                            cfg.implicitref   =obj.inputs.RecordingReference;
+                        end
+                        obj.inputs.results.ReReferencedData = ft_preprocessing(cfg, obj.inputs.results.RawEEGData);
+                    end
+                end
+                %% Montage Creation
+                if ~isempty(obj.inputs.MontageChannels)
+                    montage=[];
+                    montage.tra = obj.inputs.MontageWeights;
+                    montage.labelold = obj.inputs.MontageChannels;
+                    montage.labelnew = {'Montage1'};
+                    obj.inputs.results.MontageData = ft_apply_montage(obj.inputs.results.RawEEGData,montage);
+                end
+                %% Selected Data
+                if ~isempty(obj.inputs.TargetChannels)
+                    cfg=[];
+                    cfg.channel = obj.inputs.TargetChannels;
+                    if ~isempty(obj.inputs.ReferenceChannels)
+                        SelectedEEGData=ft_selectdata(cfg,obj.inputs.results.ReReferenced);
+                    else
+                        SelectedEEGData=ft_selectdata(cfg,obj.inputs.results.RawEEGData) ;
+                    end
+                end
+                
+                if ~isempty(obj.inputs.TargetChannels) && ~isempty(obj.inputs.MontageChannels)
+                    cfg=[];
+                    cfg.keepsampleinfo ='no';                    
+                    obj.inputs.results.SelectedData=ft_appenddata(cfg , SelectedEEGData , obj.inputs.results.MontageData); %% Check if this works properly
+                elseif ~isempty(obj.inputs.TargetChannels) && isempty(obj.inputs.MontageChannels)
+                    obj.inputs.results.SelectedChannels=SelectedEEGData;
+                elseif isempty(obj.inputs.TargetChannels)>0 && ~isempty(obj.inputs.MontageChannels)
+                    obj.inputs.results.SelectedData=obj.inputs.results.MontageData;
+                end
+                %% Filtered Data
+                cfg=[];
+                if ~isempty(obj.inputs.HighPassFrequency)
+                    cfg.hpfilter      = 'yes'; % high-pass in order to get rid of low-freq trends
+                    cfg.hpfiltord     = obj.inputs.HighPassFilterOrder;
+                    cfg.hpfreq        = obj.inputs.HighPassFrequency;
+                end
+                if ~isempty(obj.inputs.BandStopFrequency)
+                    cfg.bsfilter      = 'yes'; % band-stop filter, to take out 50 Hz and its harmonics
+                    cfg.bsfiltord     = obj.inputs.BandPassFilterOrder;
+                    cfg.bsfreq        = obj.inputs.BandPassFrequency;
+                end
+                if ~isempty(cfg)
+                    obj.inputs.results.FilteredData = ft_preprocessing(cfg, obj.inputs.results.SelectedData); %% 
+                end
+                %% Segmented Data
+                cfg               = [];
+                cfg.length        = obj.inputs.EEGEpochPeriod;
+                cfg.overlap       = 0;
+                if isfield(obj.inputs.results,'FilteredData')
+                    obj.inputs.results.SegmentedData = ft_redefinetrial(cfg, obj.inputs.results.FilteredData);
+                else
+                    obj.inputs.results.SegmentedData = ft_redefinetrial(cfg, obj.inputs.results.SelectedData);
+                end
+                %% Orignial, Fractal and Oscillation Components Spectral Analysis
+                cfg               = [];
+                cfg.foilim        = [1:1/obj.inputs.EEGEpochPeriod:45];
+                cfg.taper         = 'hanning';
+                cfg.pad           = 'nextpow2';
+                cfg.method        = 'mtmfft';
+                obj.inputs.results.OriginalComponents = ft_freqanalysis(cfg, obj.inputs.results.SegmentedData); %Raw
+                %% Plotting 
+                for channel=1:numel(obj.inputs.results.OriginalComponents.label)
+                    ax1=['ax' num2str(channel)];
+                    axes(obj.best_toolbox.app.pr.ax.(ax1))
+                    plot(obj.inputs.results.OriginalComponents.freq, obj.inputs.results.OriginalComponents.powspctrm(chanel,:),'linewidth', 3, 'color', [0 0 0]); hold on;
+                    gridxy((obj.inputs.TargetFrequencyRange(1)):0.25:(obj.inputs.TargetFrequencyRange(2)),'Color',[219/255 246/255 255/255],'linewidth',4) ;
+                end
+                %% Annotating and Saving Peak Frequency
+                % find the peak frequency,
+                % create a text with that annotation 
+                % store the frequency into results as results.PeakFrequency
             end
         
         function irasa_deprecate(obj)
@@ -237,7 +336,7 @@ classdef best_fieldtrip <handle
             set(gca, 'YLim', yl);
         end
         
-        function fft (obj)
+        function fft_from_cz (obj)
             %% 2 EEG mu-alpha peak frequency determination
             % do 2 min resting state EEg recording
             % export to BVA format as eg.g. P03_rsEEG.dat
