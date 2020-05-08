@@ -918,7 +918,7 @@ classdef best_toolbox < handle
                             DisplayChannelAxesNo=num2cell(numel(conds)*2+1:numel(ChannelMeasures));
                             obj.app.pr.ax_measures=ChannelMeasures;
                             obj.app.pr.axesno=numel(ChannelMeasures);
-%                             obj.app.pr.ax_ChannelLabels=ChannelMeasures; write in the end and remove from here
+                            %                             obj.app.pr.ax_ChannelLabels=ChannelMeasures; write in the end and remove from here
                             %% Creating Channel Type, Channel Index
                             switch obj.app.par.hardware_settings.(char(obj.inputs.input_device)).slct_device
                                 case 1 %boss box NeurOne
@@ -933,7 +933,7 @@ classdef best_toolbox < handle
                                         obj.inputs.condsAll.(conds{ChannelType2,1}).targetChannel;
                                         ChannelID{2*numel(conds)+ChannelType2}=find(strcmp(obj.app.par.hardware_settings.(char(obj.inputs.input_device)).NeurOneProtocolChannelLabels,obj.inputs.EMGDisplayChannels{ChannelType2}));
                                     end
-
+                                    
                                 case 2 % fieldtrip real time buffer
                             end
                             %% Creating Stimulation Conditions
@@ -1333,14 +1333,14 @@ classdef best_toolbox < handle
                             obj.inputs.colLabel.outputDevices=2;
                             obj.inputs.colLabel.si=3;
                             obj.inputs.colLabel.iti=4;
-                            obj.inputs.colLabel.chLab=5; 
+                            obj.inputs.colLabel.chLab=5;
                             obj.inputs.colLabel.trials=9;
                             obj.inputs.colLabel.axesno=6;
                             obj.inputs.colLabel.measures=7;
                             obj.inputs.colLabel.stimMode=8;
                             obj.inputs.colLabel.tpm=10;
                             obj.inputs.colLabel.chType=11;
-                            obj.inputs.colLabel.chId=12; 
+                            obj.inputs.colLabel.chId=12;
                             obj.inputs.colLabel.phase=15;
                             obj.inputs.colLabel.IA=16;
                             obj.inputs.colLabel.threshold=13;
@@ -1350,13 +1350,13 @@ classdef best_toolbox < handle
                             end
                             %% Creating Channel Measures, AxesNo, Labels
                             conds=fieldnames(obj.inputs.condsAll);
-%                             ChannelLabels=[{'OsscillationPhase'},{'OsscillationEEG'},repmat({'Psychometric Threshold Hunting'},1,numel(conds)),obj.inputs.EMGDisplayChannels,{'OsscillationAmplitude'},{'AmplitudeDistribution'}]; %[repelem(obj.inputs.EMGTargetChannels,3),obj.inputs.EMGDisplayChannels]; %this can go directly inside the cond object in the loop
-                            ChannelMeasures=[{'PhaseHistogram'},{'TriggerLockedEEG'},repmat({'Psychometric Threshold Hunting'},1,numel(conds)),{'RunningAmplitude'},{'AmplitudeDistribution'},{'StatusTable'}]; 
-%                             ChannelAxesNo=num2cell(1:numel(ChannelLabels));
+                            %                             ChannelLabels=[{'OsscillationPhase'},{'OsscillationEEG'},repmat({'Psychometric Threshold Hunting'},1,numel(conds)),obj.inputs.EMGDisplayChannels,{'OsscillationAmplitude'},{'AmplitudeDistribution'}]; %[repelem(obj.inputs.EMGTargetChannels,3),obj.inputs.EMGDisplayChannels]; %this can go directly inside the cond object in the loop
+                            ChannelMeasures=[{'PhaseHistogram'},{'TriggerLockedEEG'},repmat({'Psychometric Threshold Hunting'},1,numel(conds)),{'RunningAmplitude'},{'AmplitudeDistribution'},{'StatusTable'}];
+                            %                             ChannelAxesNo=num2cell(1:numel(ChannelLabels));
                             obj.app.pr.ax_measures=ChannelMeasures;
                             obj.app.pr.axesno=numel(ChannelMeasures);
                             axesno=num2cell(1:numel(ChannelMeasures));
-%                             obj.app.pr.ax_ChannelLabels=ChannelLabels;
+                            %                             obj.app.pr.ax_ChannelLabels=ChannelLabels;
                             %% Creating Channel Type, Channel Index
                             switch obj.app.par.hardware_settings.(char(obj.inputs.input_device)).slct_device
                                 case {1,6} %boss box or keyboard mouse
@@ -1590,7 +1590,7 @@ classdef best_toolbox < handle
                             obj.inputs.stim_mode='MSO';
                             obj.inputs.measure_str='MEP Measurement';
                             obj.inputs.stop_event=0;
-                            % These below have to be adjusted in Future Release 
+                            % These below have to be adjusted in Future Release
                             obj.inputs.prestim_scope_plt=50;
                             obj.inputs.poststim_scope_plt=150;
                             obj.inputs.mep_onset=15;
@@ -2491,21 +2491,21 @@ classdef best_toolbox < handle
                         obj.inputs.(InputsFieldNames{iInputs})=obj.inputs.(InputsFieldNames{iInputs}){1,1};
                     end
                 end
-%                 obj.inputs.prestim_scope_plt=obj.inputs.EMGDisplayPeriodPre;
-%                 obj.inputs.poststim_scope_plt=obj.inputs.EMGDisplayPeriodPost;
-%                 obj.inputs.mep_onset=obj.inputs.MEPOnset;
-%                 obj.inputs.mep_offset=obj.inputs.MEPOffset;
-%                 obj.inputs.input_device=obj.app.pi.mep.InputDevice.String(obj.inputs.InputDevice); %TODO: the drc or mep on the 4th structure is not a good solution!
-%                 obj.inputs.output_device=obj.inputs.condsAll.cond1.st1.stim_device;
+                %                 obj.inputs.prestim_scope_plt=obj.inputs.EMGDisplayPeriodPre;
+                %                 obj.inputs.poststim_scope_plt=obj.inputs.EMGDisplayPeriodPost;
+                %                 obj.inputs.mep_onset=obj.inputs.MEPOnset;
+                %                 obj.inputs.mep_offset=obj.inputs.MEPOffset;
+                %                 obj.inputs.input_device=obj.app.pi.mep.InputDevice.String(obj.inputs.InputDevice); %TODO: the drc or mep on the 4th structure is not a good solution!
+                %                 obj.inputs.output_device=obj.inputs.condsAll.cond1.st1.stim_device;
                 obj.inputs.stim_mode='MSO';
                 obj.inputs.measure_str='MEP Measurement';
-%                 obj.inputs.ylimMin=obj.inputs.EMGDisplayYLimMin;
-%                 obj.inputs.ylimMax=obj.inputs.EMGDisplayYLimMax;
+                %                 obj.inputs.ylimMin=obj.inputs.EMGDisplayYLimMin;
+                %                 obj.inputs.ylimMax=obj.inputs.EMGDisplayYLimMax;
                 obj.inputs.stop_event=0;
                 obj.inputs.ylimMin=-3000;
                 obj.inputs.ylimMax=+3000;
                 obj.inputs.TrialNoForMean=1;
-%                 obj.inputs.mt_starting_stim_inten=obj.inputs.condsAll.cond1.st1.si_pckt{1,1};
+                %                 obj.inputs.mt_starting_stim_inten=obj.inputs.condsAll.cond1.st1.si_pckt{1,1};
                 
                 
             end
@@ -2693,7 +2693,7 @@ classdef best_toolbox < handle
                         case 5 %Raspi
                         case 6 %Manual
                     end
-
+                    
                 case 10%simulation
                     disp simulatedTRIGGER
             end
@@ -2714,18 +2714,18 @@ classdef best_toolbox < handle
                             case 'IP'
                                 obj.inputs.rawData.(unique_chLab{1,i}).data(obj.inputs.trial,1)=obj.bossbox.IPScopeRead;
                             case 'IEEG'
-%                                 obj.inputs.rawData.(unique_chLab{1,i}).data(obj.inputs.trial,:)=obj.bossbox.IEEGScope.Data(:,1)';
-%                                 obj.inputs.rawData.(unique_chLab{1,i}).data(obj.inputs.trial,:)=obj.best_DeMeanEEG(obj.bossbox.IEEGScope.Data(:,1)');
+                                %                                 obj.inputs.rawData.(unique_chLab{1,i}).data(obj.inputs.trial,:)=obj.bossbox.IEEGScope.Data(:,1)';
+                                %                                 obj.inputs.rawData.(unique_chLab{1,i}).data(obj.inputs.trial,:)=obj.best_DeMeanEEG(obj.bossbox.IEEGScope.Data(:,1)');
                                 obj.inputs.rawData.(unique_chLab{1,i}).data(obj.inputs.trial,:)=obj.best_VisualizationFilter(obj.bossbox.IEEGScopeRead);
                                 % obj.inputs.rawData.(unique_chLab{1,i}).time(obj.inputs.trial,:)=obj.bossbox.IEEGScope.Time(:,1)'; May Be Deprecated
                             case 'EMG'
-% %                                 obj.inputs.rawData.(unique_chLab{1,i}).data(obj.inputs.trial,:)=obj.best_VisualizationFilter([obj.sim_mep(1,700:1000), obj.sim_mep(1,1:699)]*1000*obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,1}{1,1}*(randi([1 3])*0.10));
+                                % %                                 obj.inputs.rawData.(unique_chLab{1,i}).data(obj.inputs.trial,:)=obj.best_VisualizationFilter([obj.sim_mep(1,700:1000), obj.sim_mep(1,1:699)]*1000*obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,1}{1,1}*(randi([1 3])*0.10));
                                 obj.inputs.rawData.(unique_chLab{1,i}).data(obj.inputs.trial,:)=obj.best_VisualizationFilter([obj.sim_mep(1,700:1000), obj.sim_mep(1,1:699)]*1000*(randi([1 3])*0.10));
                                 obj.bossbox.EMGScope;
                                 check=obj.bossbox.EMGScope.Data(:,1)';
                                 %                         obj.inputs.rawData.(unique_chLab{1,i}).data(obj.inputs.trial,:)=[obj.bossbox.EMGScope.Data(:,1)]';
-%                                 obj.inputs.rawData.(unique_chLab{1,i}).data(obj.inputs.trial,:)=obj.best_VisualizationFilter([obj.bossbox.EMGScope.Data(:,1)]');
-% NewUseThis obj.inputs.rawData.(unique_chLab{1,i}).data(obj.inputs.trial,:)=obj.best_VisualizationFilter(obj.bossbox.EMGScopeRead(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chID}{1,i}))   %%[obj.bossbox.EMGScope.Data(:,1)]');
+                                %                                 obj.inputs.rawData.(unique_chLab{1,i}).data(obj.inputs.trial,:)=obj.best_VisualizationFilter([obj.bossbox.EMGScope.Data(:,1)]');
+                                % NewUseThis obj.inputs.rawData.(unique_chLab{1,i}).data(obj.inputs.trial,:)=obj.best_VisualizationFilter(obj.bossbox.EMGScopeRead(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chID}{1,i}))   %%[obj.bossbox.EMGScope.Data(:,1)]');
                             case 'EEG'
                         end
                     end
@@ -2736,22 +2736,22 @@ classdef best_toolbox < handle
                     for i=1:numel(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab})
                         obj.inputs.rawData.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,i}).data(obj.inputs.trial,:)=(rand (1,obj.inputs.sc_samples))+5000000;
                     end
-                case 5 % Keyboard and Mouse 
+                case 5 % Keyboard and Mouse
                     obj.inputs.rawData.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,1}).data(obj.inputs.trial,1)=obj.responseKeyboardAndMouse;
                 case 6 % NeurOne Keyboard and Mouse
                     unique_chLab=unique(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab},'stable');
-                    for i=1:numel(unique_chLab) 
+                    for i=1:numel(unique_chLab)
                         switch obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chType}{1,i}
                             case 'IP'
                                 obj.inputs.rawData.(unique_chLab{1,i}).data(obj.inputs.trial,1)=obj.bossbox.IPScopeRead;
                             case 'IEEG'
                                 obj.inputs.rawData.(unique_chLab{1,i}).data(obj.inputs.trial,:)=obj.best_VisualizationFilter(obj.bossbox.IEEGScopeRead);
                             case 'EMG'
-% %                                 obj.inputs.rawData.(unique_chLab{1,i}).data(obj.inputs.trial,:)=obj.best_VisualizationFilter([obj.sim_mep(1,700:1000), obj.sim_mep(1,1:699)]*1000*obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,1}{1,1}*(randi([1 3])*0.10));
+                                % %                                 obj.inputs.rawData.(unique_chLab{1,i}).data(obj.inputs.trial,:)=obj.best_VisualizationFilter([obj.sim_mep(1,700:1000), obj.sim_mep(1,1:699)]*1000*obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,1}{1,1}*(randi([1 3])*0.10));
                                 obj.inputs.rawData.(unique_chLab{1,i}).data(obj.inputs.trial,:)=obj.best_VisualizationFilter([obj.sim_mep(1,700:1000), obj.sim_mep(1,1:699)]*1000*(randi([1 3])*0.10));
                                 obj.bossbox.EMGScope;
                                 check=obj.bossbox.EMGScope.Data(:,1)';
-% NewUseThis obj.inputs.rawData.(unique_chLab{1,i}).data(obj.inputs.trial,:)=obj.best_VisualizationFilter(obj.bossbox.EMGScopeRead(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chID}{1,i}))   %%[obj.bossbox.EMGScope.Data(:,1)]');
+                                % NewUseThis obj.inputs.rawData.(unique_chLab{1,i}).data(obj.inputs.trial,:)=obj.best_VisualizationFilter(obj.bossbox.EMGScopeRead(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chID}{1,i}))   %%[obj.bossbox.EMGScope.Data(:,1)]');
                             case 'EEG'
                             case 'Psyhcometric'
                                 obj.inputs.rawData.(unique_chLab{1,i}).data(obj.inputs.trial,1)=obj.responseKeyboardAndMouse;
@@ -2896,7 +2896,7 @@ classdef best_toolbox < handle
                                     end
                                 case 9 %digitimer
                                     switch obj.app.par.hardware_settings.(char(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.outputDevices}{1,i})).IntensityControl
-                                        case 1 % Manual 
+                                        case 1 % Manual
                                             OutputDevice=char(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.outputDevices}{1,i});
                                             obj.digitimer.(OutputDevice).setManualAmplitude(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,i}{1,1},OutputDevice);
                                         case 2 % Arduino
@@ -2978,7 +2978,7 @@ classdef best_toolbox < handle
             obj.app.RunStopButton
         end
         function rseegInProcess(obj)
-            %% create a simple figure and show the message on it 
+            %% create a simple figure and show the message on it
             obj.inputs.Handles.InProcessFigure=figure('Name','BEST Toolbox','numbertitle', 'off','ToolBar', 'none','MenuBar', 'none','WindowStyle', 'normal','Units', 'normal', 'Position', [0.5 0.5 .4 .05]);
             uicontrol( 'Style','text','Parent', obj.inputs.Handles.InProcessFigure,'String','BEST Toolbox is processing EEG Data, please observe MATLAB command line for further details.','FontSize',11,'HorizontalAlignment','center','Units','normalized','Position',[0.05 0.5 1 0.4]);
         end
@@ -3055,15 +3055,56 @@ classdef best_toolbox < handle
         end
         function best_rseeg(obj)
             obj.save;
-            obj.factorizeConditions; 
+            obj.factorizeConditions;
             obj.app.resultsPanel;
             obj.rseegInProcess;
-            obj.boot_bossbox; 
+            obj.boot_bossbox;
             obj.boot_fieldtrip;
             obj.bossbox.EEGScopeBoot(0,obj.inputs.EEGAcquisitionPeriod*60*1000);
             obj.bossbox.EEGScopeStart; obj.bossbox.EEGScopeTrigger;
-            [obj.inputs.rawData.EEG.Time , obj.inputs.rawData.EEG.Data]=obj.bossbox.EEGScopeRead;
-            obj.fieldtrip.best2ftdata(obj.inputs.rawData.EEG,obj.inputs.input_device);
+            [obj.inputs.rawData.EEG.Time , obj.inputs.rawData.EEG.Data]=obj.bossbox.EEGScopeRead; %now 1:64 channels will be added
+            createMontage % this will create another data row into EEG.Data %now 65th channel will be added
+            obj.fieldtrip.best2ftdata(obj.inputs.rawData.EEG,obj.inputs.input_device); %not this will have 65 channels
+            %obj.inputs.results.step1_ReReferencing 
+            %obj.inputs.results.step1_Filtering 
+            %obj.inputs.results.step2_Segmentation
+            %obj.inputs.results.step3_Overlapping
+            %obj.inputs.results.step4_RawSpectralAnalysis
+            %obj.inputs.results.step5_FractalSpectralAnalysis
+            %obj.inputs.results.step6_OscillatorySpectralAnalysis
+            %obj.inputs.results.step7_PercentageDifference
+            %obj.inputs.results.step8_DBScaling
+
+            
+
+
+
+
+
+            %1 preprocessing of only eeg data
+            %create data of eeg
+            %create data of montage
+            %preprocess data of eeg
+            %append data of eeg and montage together , process to step 3 of segmentation
+            %2 discard the channels required only i.e. Target Channels + Montage channels use SelectChannels function here
+            
+            %3 segment the data
+            %4 overlap the data
+            %6 find originial
+            %5 if irasa,
+            find fractal
+            
+            %7 if irasa, find oscillation
+            %8 if irasa, find percentage diff
+            %9 find the db scale
+            %10 plot one by one for all available channels %here for loop will first count the powspectrum rows, from there its evident that what plot and what ax it will be
+            
+            
+            %-------tests to conduct
+            %see if specifying ch will keep other channels or remove them in resultant preprocessed on, otherwise have to merge them -->Failed!
+            %test2: http://www.fieldtriptoolbox.org/reference/ft_appenddata/ now see if the data can be appended easily , then use this to append data, and also store them differently in best2ftdata ,
+            %... matlab vo unko eik data bnana ka koi faida nahi jab bad me he usko alag ker na aur phir merge kerna he to isil ye sary EEG ko alag convert kero , sary montage ko alag combine kero
+            
             switch obj.inputs.SpectralAnalysis
                 case 1 %IRASA
                     obj.fieldtrip.irasa;
@@ -3074,8 +3115,14 @@ classdef best_toolbox < handle
             obj.save;
             obj.saveFigures;
             obj.completed;
+            %% delete the rseegInProcess dialogue box which was opened before
             
-            % for loop for irasa , the index of for loop will decide the chanel name and plots 
+            % %             % #TODO: ye decide kero k ab target channels aur montage channels ko kese treat kerna he, montage channels ko prepare bhi kerna hoga fieldtrip.data matlab
+            % % % aur pehle to one by one sary Target channels ko set kero , usky lye idea ye he k eik eik for loop lagao
+            % % % % for i=1:allTargetChannels
+            % % % %     channel=TargetChannel(i)
+            % % % %     obj.fieldtrip.irasa(channel,axes,type(montage or simple)), udhor irasa k andar switch lagao k agr to montage he to dosri tarha behave kere, agr simple channel he to dosri tarha bhv ekere
+            % % % % end
         end
         function best_rtms(obj)
             obj.save;
@@ -3083,7 +3130,7 @@ classdef best_toolbox < handle
             obj.planTrials
             obj.app.resultsPanel;
             obj.boot_outputdevice;
-            obj.boot_inputdevice; 
+            obj.boot_inputdevice;
             if obj.inputs.BrainState==2, obj.bossbox.IAScopeBoot; end % This is bascially an Anomoly which can be generalized in Future Releases
             obj.bootTrial;
             obj.stimLoop;
@@ -3130,12 +3177,12 @@ classdef best_toolbox < handle
                     mat4=unique(sort([0 mat3]));
                     yticks(mat4);
                     ylabel('EMG Potential (\mu V)');
-% %                     obj.info.plt.(ax).current.UserData.VerticalGridXY
-% %                     obj.info.handle_gridxy=gridxy([0 (obj.inputs.mep_onset):0.25:(obj.inputs.mep_offset)],'Color',[219/255 246/255 255/255],'linewidth',4) ;
-
+                    % %                     obj.info.plt.(ax).current.UserData.VerticalGridXY
+                    % %                     obj.info.handle_gridxy=gridxy([0 (obj.inputs.mep_onset):0.25:(obj.inputs.mep_offset)],'Color',[219/255 246/255 255/255],'linewidth',4) ;
+                    
                     gridxy([0 (obj.inputs.mep_onset):0.25:(obj.inputs.mep_offset)],'Color',[219/255 246/255 255/255],'linewidth',4) ;
                     obj.info.handle_gridxy_mt_lines=gridxy([],[-0.05*1000 0.05*1000],'Color',[0.45 0.45 0.45],'linewidth',1,'LineStyle','--') ;
-                    uistack(obj.info.handle_gridxy_mt_lines,'top'); 
+                    uistack(obj.info.handle_gridxy_mt_lines,'top');
                 case 2
                     delete(obj.info.plt.(ax).current)
                     obj.info.plt.(ax).past=plot(obj.inputs.timeVect,obj.inputs.rawData.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).data(obj.inputs.trial-1,:),'Color',[0.75 0.75 0.75]);
@@ -3146,16 +3193,16 @@ classdef best_toolbox < handle
                     obj.info.plt.(ax).past=plot(obj.inputs.timeVect,obj.inputs.rawData.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).data(obj.inputs.trial-1,:),'Color',[0.75 0.75 0.75]);
                     obj.info.plt.(ax).mean.YData=mean(obj.inputs.rawData.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).data(obj.info.plt.(ax).mean.UserData.TrialNoForMean:end,:));
                     obj.info.plt.(ax).current.YData=obj.inputs.rawData.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).data(obj.inputs.trial,:);
-                    uistack(obj.info.plt.(ax).current,'top'); 
-%                     legend(obj.app.pr.ax.(ax),'a','b','c','Location','southoutside','ornt','horizontal','bkgd','boxoff')
-                     LegendGrouping=[obj.info.plt.(ax).past; obj.info.plt.(ax).mean; obj.info.plt.(ax).current];
-                     legend(LegendGrouping, 'Previous', 'Mean', 'Latest','Location','southoutside','Orientation','horizontal');
-
-%                      legend(LegendGrouping, 'Previous MEPs', 'Mean Plot', 'Latest MEP','FontSize',11,'Location','southoutside','Orientation','horizontal');
-% %                     delete(obj.info.plt.(ax).current)
-% %                     delete(obj.info.plt.(ax).mean)
-% %                     obj.info.plt.(ax).mean=plot(obj.inputs.timeVect,mean(obj.inputs.rawData.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).data(obj.info.plt.(ax).mean.UserData.TrialNoForMean:end,:)),'color',[0,0,0],'LineWidth',1.5);
-% %                     obj.info.plt.(ax).current=plot(obj.inputs.timeVect,obj.inputs.rawData.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).data(obj.inputs.trial,:),'Color',[1 0 0],'LineWidth',2);
+                    uistack(obj.info.plt.(ax).current,'top');
+                    %                     legend(obj.app.pr.ax.(ax),'a','b','c','Location','southoutside','ornt','horizontal','bkgd','boxoff')
+                    LegendGrouping=[obj.info.plt.(ax).past; obj.info.plt.(ax).mean; obj.info.plt.(ax).current];
+                    legend(LegendGrouping, 'Previous', 'Mean', 'Latest','Location','southoutside','Orientation','horizontal');
+                    
+                    %                      legend(LegendGrouping, 'Previous MEPs', 'Mean Plot', 'Latest MEP','FontSize',11,'Location','southoutside','Orientation','horizontal');
+                    % %                     delete(obj.info.plt.(ax).current)
+                    % %                     delete(obj.info.plt.(ax).mean)
+                    % %                     obj.info.plt.(ax).mean=plot(obj.inputs.timeVect,mean(obj.inputs.rawData.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).data(obj.info.plt.(ax).mean.UserData.TrialNoForMean:end,:)),'color',[0,0,0],'LineWidth',1.5);
+                    % %                     obj.info.plt.(ax).current=plot(obj.inputs.timeVect,obj.inputs.rawData.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).data(obj.inputs.trial,:),'Color',[1 0 0],'LineWidth',2);
             end
             obj.mep_amp;
             %% Update the Current MEP Amp & Mean MEP Amp Stauts on Axes
@@ -3173,9 +3220,9 @@ classdef best_toolbox < handle
             else
                 obj.app.pr.ax.(ax).UserData.status=text(obj.app.pr.ax.(ax),1,1,textMEPAmpStatus,'units','normalized','HorizontalAlignment','right','VerticalAlignment','cap','color',[0.45 0.45 0.45]);
             end
-%             obj.app.pr.current_mep.(ax).String=obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.mepamp};
-%             obj.app.pr.mean_mep.(ax).String=obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.mepamp};
-%             ylim auto
+            %             obj.app.pr.current_mep.(ax).String=obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.mepamp};
+            %             obj.app.pr.mean_mep.(ax).String=obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.mepamp};
+            %             ylim auto
             
         end
         function mep_plot(obj)
@@ -3240,25 +3287,25 @@ classdef best_toolbox < handle
             if ~(isfield(obj.inputs.Handles,cd))
                 switch obj.inputs.DoseFunction
                     case 1 %TS
-                            DisplayName=['TS:' num2str(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,1}{1,1})];
-                            obj.app.pr.ax.(ax).UserData.ColorsIndex=obj.app.pr.ax.(ax).UserData.ColorsIndex+1;
+                        DisplayName=['TS:' num2str(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,1}{1,1})];
+                        obj.app.pr.ax.(ax).UserData.ColorsIndex=obj.app.pr.ax.(ax).UserData.ColorsIndex+1;
                     case 2 %CS
                         if obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,1}{1,2}~=0
                             DisplayName=['CS:' num2str(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,1}{1,2})];
                         else
                             DisplayName=['TS:' num2str(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,1}{1,1})];
                         end
-                            obj.app.pr.ax.(ax).UserData.ColorsIndex=obj.app.pr.ax.(ax).UserData.ColorsIndex+1;
+                        obj.app.pr.ax.(ax).UserData.ColorsIndex=obj.app.pr.ax.(ax).UserData.ColorsIndex+1;
                     case 3 %ISI
                         if obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,1}{1,3}~=0
                             DisplayName=['ISI:' num2str(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,1}{1,3})];
                         else
                             DisplayName=['TS:' num2str(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,1}{1,1})];
                         end
-                            obj.app.pr.ax.(ax).UserData.ColorsIndex=obj.app.pr.ax.(ax).UserData.ColorsIndex+1;
+                        obj.app.pr.ax.(ax).UserData.ColorsIndex=obj.app.pr.ax.(ax).UserData.ColorsIndex+1;
                     case 4 %ITI
-                            DisplayName=['ITI:' num2str(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.iti})];
-                            obj.app.pr.ax.(ax).UserData.ColorsIndex=obj.app.pr.ax.(ax).UserData.ColorsIndex+1;
+                        DisplayName=['ITI:' num2str(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.iti})];
+                        obj.app.pr.ax.(ax).UserData.ColorsIndex=obj.app.pr.ax.(ax).UserData.ColorsIndex+1;
                 end
             end
             %% Plot Latest Trial
@@ -3271,14 +3318,14 @@ classdef best_toolbox < handle
             end
             %% Plot Mean respectively prepared condition
             if ~(isfield(obj.inputs.Handles,cd))
-                    obj.inputs.Handles.(cd)=plot(obj.inputs.timeVect,obj.inputs.rawData.(ThisChannelName).data(obj.inputs.trial,:),'Color',obj.app.pr.ax.(ax).UserData.Colors(obj.app.pr.ax.(ax).UserData.ColorsIndex,:),'LineWidth',2,'DisplayName',DisplayName);
-                    obj.inputs.Handles.(cd).UserData(1,1)=obj.inputs.trial;
-                    legend('Location','southoutside','Orientation','horizontal'); hold on;
-                    
-                else
-                    obj.inputs.Handles.(cd).UserData(1,1+numel(obj.inputs.Handles.(cd).UserData))=obj.inputs.trial;
-                    obj.inputs.Handles.(cd).YData=mean(obj.inputs.rawData.(ThisChannelName).data(obj.inputs.Handles.(cd).UserData,:));
-                    drawnow;
+                obj.inputs.Handles.(cd)=plot(obj.inputs.timeVect,obj.inputs.rawData.(ThisChannelName).data(obj.inputs.trial,:),'Color',obj.app.pr.ax.(ax).UserData.Colors(obj.app.pr.ax.(ax).UserData.ColorsIndex,:),'LineWidth',2,'DisplayName',DisplayName);
+                obj.inputs.Handles.(cd).UserData(1,1)=obj.inputs.trial;
+                legend('Location','southoutside','Orientation','horizontal'); hold on;
+                
+            else
+                obj.inputs.Handles.(cd).UserData(1,1+numel(obj.inputs.Handles.(cd).UserData))=obj.inputs.trial;
+                obj.inputs.Handles.(cd).YData=mean(obj.inputs.rawData.(ThisChannelName).data(obj.inputs.Handles.(cd).UserData,:));
+                drawnow;
             end
             %% Plotting Zero and Search Window GirdLine on 1st Trial only
             if obj.inputs.trial==1
@@ -3494,11 +3541,11 @@ classdef best_toolbox < handle
             %             obj.inputs.rawData.(ax).mep_stats=0;
             si=[];
             for iSI=1:numel([obj.inputs.trialMat{:,obj.inputs.colLabel.si}]')
-                        si(iSI,1)=obj.inputs.trialMat{iSI,obj.inputs.colLabel.si}{1,1}{1,1};
+                si(iSI,1)=obj.inputs.trialMat{iSI,obj.inputs.colLabel.si}{1,1}{1,1};
             end
-%             si=cell2mat(vertcat(obj.inputs.trialMat{:,obj.inputs.colLabel.si}{1,1}));
+            %             si=cell2mat(vertcat(obj.inputs.trialMat{:,obj.inputs.colLabel.si}{1,1}));
             mepamp=obj.inputs.results.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).MEPAmplitude(:,1);
-%             mepamp=(vertcat(obj.inputs.trialMat{:,obj.inputs.colLabel.mepamp}));
+            %             mepamp=(vertcat(obj.inputs.trialMat{:,obj.inputs.colLabel.mepamp}));
             
             [si,~,idx] = unique(si,'stable');
             mep_median = accumarray(idx,mepamp,[],@median);
@@ -3588,7 +3635,7 @@ classdef best_toolbox < handle
                         %                 obj.info.th=obj.info.ip_x-(ip_y/m);
                         %             end
                         
-                        [~ , index_th] = min(abs(obj.info.handle.ioc_curve(1).YData-50 ) ); 
+                        [~ , index_th] = min(abs(obj.info.handle.ioc_curve(1).YData-50 ) );
                         obj.info.th=obj.info.handle.ioc_curve(1).XData(index_th);
                         hold on;
                         h = plot( obj.info.ioc.fitresult, obj.inputs.SI, obj.inputs.MEP);
@@ -3620,7 +3667,7 @@ classdef best_toolbox < handle
                         obj.info.th=SIfit(index_th);
                         hold on;
                         h = plot(SIfit, MEPfit,'LineWidth',2,'Color','r');
-                        errorbar(SIData, MEPData ,SEMData, 'o');     
+                        errorbar(SIData, MEPData ,SEMData, 'o');
                         xlim([min(SIfit)-5 max(SIfit)+5]);
                     end
                     %% Creating plot
@@ -3628,12 +3675,12 @@ classdef best_toolbox < handle
                     ylabel('MEP Amplitude ( \mu V)');
                     
                     set(gcf, 'color', 'w')
-
+                    
                     SI_min_point = (round(min(obj.inputs.SI)/5)*5)-5; % Referncing the dotted lines wrt to lowest 5ths of SI_min
                     % SI_min_point = 0;
                     seet=-0.5;
                     ylim_ioc=-500;
-
+                    
                     plot([obj.info.ip_x,min(xlim)],[ip_y,ip_y],'--','Color' , [0.75 0.75 0.75]);
                     plot([obj.info.ip_x,obj.info.ip_x],[ip_y,ylim_ioc],'--','Color' , [0.75 0.75 0.75]);
                     legend_ip=plot(obj.info.ip_x,ip_y,'rs','MarkerSize',15);
@@ -3648,7 +3695,7 @@ classdef best_toolbox < handle
                     plot([obj.info.th,min(xlim)],[0.05,0.05],'--','Color' , [0.75 0.75 0.75]);
                     plot([obj.info.th,obj.info.th],[0.05,ylim_ioc],'--','Color' , [0.75 0.75 0.75]);
                     legend_th=plot(obj.info.th, 0.05,'r*','MarkerSize',15);
-
+                    
                     %% Creating legends
                     h_legend=[h(1); legend_ip;legend_pt;legend_th];
                     l=legend(h_legend, 'Dose-Response Curve', 'Inflection Point','Plateau','Threshold');
@@ -3673,7 +3720,7 @@ classdef best_toolbox < handle
                     obj.app.pr.th_muv.(ax).String=0.05;
                     box off; drawnow;
                 elseif numel(obj.inputs.ResponseFunctionNumerator)>1
-                    %%  Complicated Response Function case 
+                    %%  Complicated Response Function case
                     ax=['ax' num2str(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.axesno}{1,obj.inputs.chLab_idx})];
                     axes(obj.app.pr.ax.(ax)), hold on,
                     xdata=nonzeros(obj.inputs.results.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).MEPAmplitudeRatios(:,2));
@@ -3787,12 +3834,12 @@ classdef best_toolbox < handle
             
             obj.tc.(mrk).stimvalues{StimDevice} = [obj.tc.(mrk).stimvalues{StimDevice}, round(obj.tc.(mrk).stimvalue(StimDevice),2)];
             obj.tc.(mrk).stepsizes{StimDevice} = [obj.tc.(mrk).stepsizes{StimDevice}, round(obj.tc.(mrk).stepsize(StimDevice),2)];
-
+            
             obj.inputs.results.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).MEPAmplitude(obj.inputs.trial,1)=input('enter mep amp  ');
             
             MEPP2PAmpNonZeroIndex=find(obj.inputs.results.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).MEPAmplitude,1,'last');
             MEPP2PAmp=obj.inputs.results.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).MEPAmplitude(MEPP2PAmpNonZeroIndex);
-            if MEPP2PAmp >= (obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.threshold}*(1000)) 
+            if MEPP2PAmp >= (obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.threshold}*(1000))
                 disp('Hit')
                 answer = 1;
             else
@@ -3865,7 +3912,7 @@ classdef best_toolbox < handle
                 obj.tc.(mrk).stimvalue(StimDevice) = obj.tc.(mrk).maxvalue;
                 disp('Max value reached.')
             end
-
+            
             ConditionMarker=obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.marker};
             TrialsNoForThisMarker=find(vertcat(obj.inputs.trialMat{1:end,obj.inputs.colLabel.marker})==ConditionMarker);
             TrialToUpdate=find(TrialsNoForThisMarker>obj.inputs.trial);
@@ -3958,7 +4005,7 @@ classdef best_toolbox < handle
                 maxValues = L(1,find(L(2,:) == max(L(2,:))));
                 % Middle Value from maxValues
                 nextInt = round((min(maxValues) + max(maxValues))/2);
-
+                
                 
                 % calculate updated log likelihood function
                 spot = 1;
@@ -4017,10 +4064,10 @@ classdef best_toolbox < handle
             
             obj.tc.(mrk).stimvalues{StimDevice} = [obj.tc.(mrk).stimvalues{StimDevice}, round(obj.tc.(mrk).stimvalue(StimDevice),2)];
             obj.tc.(mrk).stepsizes{StimDevice} = [obj.tc.(mrk).stepsizes{StimDevice}, round(obj.tc.(mrk).stepsize(StimDevice),2)];
-
-%             obj.inputs.results.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).MEPAmplitude(obj.inputs.trial,1)=input('enter mep amp  ');
-%             obj.inputs.results.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).MEPAmplitude
-%             m(1:find(m,1,'last'))
+            
+            %             obj.inputs.results.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).MEPAmplitude(obj.inputs.trial,1)=input('enter mep amp  ');
+            %             obj.inputs.results.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).MEPAmplitude
+            %             m(1:find(m,1,'last'))
             MEPP2PAmpNonZeroIndex=find(obj.inputs.rawData.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).data,1,'last');
             MEPP2PAmp=obj.inputs.rawData.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).data(MEPP2PAmpNonZeroIndex);
             if MEPP2PAmp == (obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.threshold}) % take the threshol for that particular condition, take the condition name from the marker or put that in the cond
@@ -4096,14 +4143,14 @@ classdef best_toolbox < handle
                 obj.tc.(mrk).stimvalue(StimDevice) = obj.tc.(mrk).maxvalue;
                 disp('Max value reached.')
             end
-
+            
             ConditionMarker=obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.marker};
             TrialsNoForThisMarker=find(vertcat(obj.inputs.trialMat{1:end,obj.inputs.colLabel.marker})==ConditionMarker);
             TrialToUpdate=find(TrialsNoForThisMarker>obj.inputs.trial);
-                if ~isempty(TrialToUpdate)
-                    TrialToUpdate=TrialsNoForThisMarker(TrialToUpdate(1));
-                    obj.inputs.trialMat{TrialToUpdate,obj.inputs.colLabel.si}{1,1}{1,1}=obj.tc.(mrk).stimvalue(StimDevice);
-                end            
+            if ~isempty(TrialToUpdate)
+                TrialToUpdate=TrialsNoForThisMarker(TrialToUpdate(1));
+                obj.inputs.trialMat{TrialToUpdate,obj.inputs.colLabel.si}{1,1}{1,1}=obj.tc.(mrk).stimvalue(StimDevice);
+            end
         end
         function psych_threshold_MLE(obj)
             mrk=['mrk' num2str(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.marker})];
@@ -4188,7 +4235,7 @@ classdef best_toolbox < handle
                 maxValues = L(1,find(L(2,:) == max(L(2,:))));
                 % Middle Value from maxValues
                 nextInt = round((min(maxValues) + max(maxValues))/2,1);
-
+                
                 
                 % calculate updated log likelihood function
                 spot = 1;
@@ -4446,8 +4493,8 @@ classdef best_toolbox < handle
             obj.fieldtrip=best_fieldtrip(obj);
         end
         function FilteredData = best_VisualizationFilter(obj,RawData)
-%             FilteredData=filtfilt(obj.FilterCoefficients.HumNoiseNotchFilter, RawData);
-                        FilteredData=RawData;
+            %             FilteredData=filtfilt(obj.FilterCoefficients.HumNoiseNotchFilter, RawData);
+            FilteredData=RawData;
             data=FilteredData;
             % Iteration for First Order
             m=mean(data(1,1:50));
@@ -4469,7 +4516,7 @@ classdef best_toolbox < handle
                 %
                 data(1,:)=data(1,:)+m;
             end
-            FilteredData=data;            
+            FilteredData=data;
         end
         function PlotPhaseHistogram(obj)
             ax=['ax' num2str(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.axesno}{1,obj.inputs.chLab_idx})];
@@ -4514,13 +4561,13 @@ classdef best_toolbox < handle
                     obj.inputs.Handles.PhaseHistogramFalling.Annotation.LegendInformation.IconDisplayStyle = 'off';
                 end
             end
-%             if isfield(obj.inputs.Handles,'PhaseHistogramPeak'), legend(obj.inputs.Handles.PhaseHistogramPeak,'Peak','Location','southoutside','Orientation','horizontal'), end
-%             if isfield(obj.inputs.Handles,'PhaseHistogramTrough'), legend(obj.inputs.Handles.PhaseHistogramTrough,'Trough','Location','southoutside','Orientation','horizontal'), end
-%             if isfield(obj.inputs.Handles,'PhaseHistogramRandom'), legend(obj.inputs.Handles.PhaseHistogramRandom, 'Random','Location','southoutside','Orientation','horizontal'), end
-% if isfield(obj.inputs.Handles,'PhaseHistogramPeak') && isfield(obj.inputs.Handles,'PhaseHistogramTrough') && isfield(obj.inputs.Handles,'PhaseHistogramRandom')
-%     legend([obj.inputs.Handles.PhaseHistogramPeak obj.inputs.Handles.PhaseHistogramTrough obj.inputs.Handles.PhaseHistogramRandom], 'Location','southoutside','Orientation','horizontal')
-% end
-
+            %             if isfield(obj.inputs.Handles,'PhaseHistogramPeak'), legend(obj.inputs.Handles.PhaseHistogramPeak,'Peak','Location','southoutside','Orientation','horizontal'), end
+            %             if isfield(obj.inputs.Handles,'PhaseHistogramTrough'), legend(obj.inputs.Handles.PhaseHistogramTrough,'Trough','Location','southoutside','Orientation','horizontal'), end
+            %             if isfield(obj.inputs.Handles,'PhaseHistogramRandom'), legend(obj.inputs.Handles.PhaseHistogramRandom, 'Random','Location','southoutside','Orientation','horizontal'), end
+            % if isfield(obj.inputs.Handles,'PhaseHistogramPeak') && isfield(obj.inputs.Handles,'PhaseHistogramTrough') && isfield(obj.inputs.Handles,'PhaseHistogramRandom')
+            %     legend([obj.inputs.Handles.PhaseHistogramPeak obj.inputs.Handles.PhaseHistogramTrough obj.inputs.Handles.PhaseHistogramRandom], 'Location','southoutside','Orientation','horizontal')
+            % end
+            
         end % End obj.PlotPhaseHistogram
         function PlotTriggerLockedEEG(obj)
             ax=['ax' num2str(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.axesno}{1,obj.inputs.chLab_idx})];
@@ -4580,7 +4627,7 @@ classdef best_toolbox < handle
                 end
             end
             if obj.inputs.trial==1, ZeroLine=gridxy(0,'Color','k','linewidth',2,'Parent',obj.app.pr.ax.(ax));hold on; ZeroLine.Annotation.LegendInformation.IconDisplayStyle = 'off'; legend('Location','southoutside','Orientation','horizontal'); hold on; end
-
+            
         end %End obj.PlotTriggerLockedEEG
         function PlotRunnigAmplitude(obj)
             ax=['ax' num2str(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.axesno}{1,obj.inputs.chLab_idx})];
@@ -4597,15 +4644,15 @@ classdef best_toolbox < handle
         end
         function DeMeanedEEGData =best_DeMeanEEG(obj,RawData)
             DeMeanedEEGData=RawData-mean(RawData);
-
-%             DeMeanedEEGData=RawData-mean(RawData(1:(obj.inputs.EEGDisplayPeriodPre*5)));
-%             m=mean(RawData(1:(obj.inputs.EEGDisplayPeriodPre*5)));
-%             if(m>0)
-%                 DeMeanedEEGData=RawData-m;
-%             elseif(m<0)
-%                 DeMeanedEEGData=RawData+m;
-%             end
-                
+            
+            %             DeMeanedEEGData=RawData-mean(RawData(1:(obj.inputs.EEGDisplayPeriodPre*5)));
+            %             m=mean(RawData(1:(obj.inputs.EEGDisplayPeriodPre*5)));
+            %             if(m>0)
+            %                 DeMeanedEEGData=RawData-m;
+            %             elseif(m<0)
+            %                 DeMeanedEEGData=RawData+m;
+            %             end
+            
         end
         function Response = responseKeyboardAndMouse(obj)
             f=figure('Name','Response Box | BEST Toolbox','numbertitle', 'off','ToolBar', 'none','MenuBar', 'none','WindowStyle', 'modal','Units', 'normal', 'Position', [0.5 0.5 .25 .05],'Resize','off','CloseRequestFcn',@(~,~)CloseReqFcn);
@@ -4614,15 +4661,76 @@ classdef best_toolbox < handle
             uicontrol( 'Style','pushbutton','Parent', f,'String','No','FontSize',12,'HorizontalAlignment','center','Units','normalized','Position',[0.6 0.05 0.2 0.4],'Callback',@cbResponse);
             waitfor(f)
             function cbResponse(source,~)
-                    switch source.String
-                        case 'Yes'
-                            Response=1;
-                        case 'No'
-                            Response=-1;
-                    end
-                    delete(f)
+                switch source.String
+                    case 'Yes'
+                        Response=1;
+                    case 'No'
+                        Response=-1;
+                end
+                delete(f)
             end
             function CloseReqFcn, end
+        end
+        function help (obj)
+            %% ----EMG Line Noise Removal Start
+            %% Checking toolboxes
+            try which ft_defaults; catch, disp ('Umair, Fieldtrip is not on path'), end
+            try which nt_zapline; catch, disp ('Umair, NoseTools Toolbox is not on path. Download from: http://audition.ens.fr/adc/NoiseTools/'), end
+            
+            %% loading sim_mep data
+            load sim_mep;
+            ftmep=sim_mep';
+            
+            %% Fieldtrip DFT Method 1
+            [filt] = ft_preproc_dftfilter(ftmep, 5000, 50,'dftreplace','zero');
+            figure
+            plot(ftmep,'DisplayName','unfiltered')
+            hold on
+            plot(filt,'DisplayName','filtered')
+            legend
+            
+            %% Fieldtrip DFT Method 2
+            [filt2] = ft_preproc_dftfilter(ftmep, 5000, [40 51],'dftreplace','neighbour','dftbandwidth', [1 2], 'dftneighbourwidth', [2 2]);
+            figure
+            plot(ftmep,'DisplayName','unfiltered')
+            hold on
+            plot(filt2,'DisplayName','filtered')
+            legend
+            
+            %% Fieldtrip Bandstop Filter
+            [filt3] = ft_preproc_bandstopfilter(ftmep, 5000, [40 51],4);
+            figure
+            plot(ftmep,'DisplayName','unfiltered')
+            hold on
+            plot(filt3,'DisplayName','filtered')
+            legend
+            
+            %% Zap Line Case 1, Fs=5000
+            [filt4,~]=nt_zapline(sim_mep,50/5000,1);
+            figure
+            plot(sim_mep,'DisplayName','unfiltered')
+            hold on
+            plot(filt4,'DisplayName','filtered')
+            legend
+            
+            %% Zap Line Case 2, Fs=1000
+            [filt4,~]=nt_zapline(sim_mep,50/1000,1);
+            figure
+            plot(sim_mep,'DisplayName','unfiltered')
+            hold on
+            plot(filt4,'DisplayName','filtered')
+            legend
+            
+            %% Zap Line Case 2, Fs=500
+            [filt4,~]=nt_zapline(sim_mep,50/500,1);
+            figure
+            plot(sim_mep,'DisplayName','unfiltered')
+            hold on
+            plot(filt4,'DisplayName','filtered')
+            legend
+            
+            %% ----EMG Line Noise Removal End
+            
         end
         
         
