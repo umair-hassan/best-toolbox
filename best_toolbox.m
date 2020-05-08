@@ -3063,8 +3063,17 @@ classdef best_toolbox < handle
             obj.bossbox.EEGScopeBoot(0,obj.inputs.EEGAcquisitionPeriod*60*1000);
             obj.bossbox.EEGScopeStart; obj.bossbox.EEGScopeTrigger;
             [obj.inputs.rawData.EEG.Time , obj.inputs.rawData.EEG.Data]=obj.bossbox.EEGScopeRead; %now 1:64 channels will be added
-            createMontage % this will create another data row into EEG.Data %now 65th channel will be added
-            obj.fieldtrip.best2ftdata(obj.inputs.rawData.EEG,obj.inputs.input_device); %not this will have 65 channels
+            %             obj.fieldtrip.best2ftdata(obj.inputs.rawData.EEG,obj.inputs.input_device); %not this will have 65 channels
+            switch obj.inputs.SpectralAnalysis
+                case 1 %IRASA
+                    obj.fieldtrip.irasa(obj.inputs.rawData.EEG,obj.inputs.input_device);
+                case 2 %FFT
+                    obj.fieldtrip.fft;
+            end
+            obj.prepSaving;
+            obj.save;
+            obj.saveFigures;
+            obj.completed;
             %obj.inputs.results.step1_ReReferencing 
             %obj.inputs.results.step1_Filtering 
             %obj.inputs.results.step2_Segmentation
@@ -3092,7 +3101,7 @@ classdef best_toolbox < handle
             %4 overlap the data
             %6 find originial
             %5 if irasa,
-            find fractal
+%             find fractal
             
             %7 if irasa, find oscillation
             %8 if irasa, find percentage diff
@@ -3105,16 +3114,7 @@ classdef best_toolbox < handle
             %test2: http://www.fieldtriptoolbox.org/reference/ft_appenddata/ now see if the data can be appended easily , then use this to append data, and also store them differently in best2ftdata ,
             %... matlab vo unko eik data bnana ka koi faida nahi jab bad me he usko alag ker na aur phir merge kerna he to isil ye sary EEG ko alag convert kero , sary montage ko alag combine kero
             
-            switch obj.inputs.SpectralAnalysis
-                case 1 %IRASA
-                    obj.fieldtrip.irasa;
-                case 2 %FFT
-                    obj.fieldtrip.fft;
-            end
-            obj.prepSaving;
-            obj.save;
-            obj.saveFigures;
-            obj.completed;
+
             %% delete the rseegInProcess dialogue box which was opened before
             
             % %             % #TODO: ye decide kero k ab target channels aur montage channels ko kese treat kerna he, montage channels ko prepare bhi kerna hoga fieldtrip.data matlab

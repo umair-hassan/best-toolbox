@@ -9,17 +9,10 @@ classdef best_fieldtrip <handle
             obj.best_toolbox=best_toolbox;
         end
         
-        function best2ftdata(obj,EEGData,InputDevice)
-            if ~isempty(obj.inputs.TargetChannels)
+        function irasa(obj,EEGData,InputDevice)
                 %% Rename obj.inputs to obj.best_toolbox.inputs
-                
                 EEGChannelsIndex=find(strcmp(obj.best_toolbox.app.par.hardware_settings.(InputDevice).NeurOneProtocolChannelSignalTypes,'EEG'));
-                EEGChanelsLabels=obj.best_toolbox.app.par.hardware_settings.(InputDevice).NeurOneProtocolChannelLabels(EEGChannelsIndex);
-                obj.fieldtrip.data.label=EEGChanelsLabels';
-                obj.fieldtrip.data.fsample=5000;
-                obj.fieldtrip.data.trial={EEGData.Data};
-                obj.fieldtrip.data.time={EEGData.Time};
-                
+                EEGChanelsLabels=obj.best_toolbox.app.par.hardware_settings.(InputDevice).NeurOneProtocolChannelLabels(EEGChannelsIndex);                
                 %% Creating RawEEGData
                 obj.inputs.results.RawEEGData.label=EEGChanelsLabels';
                 obj.inputs.results.RawEEGData.fsample=5000;
@@ -81,15 +74,91 @@ classdef best_fieldtrip <handle
                     obj.inputs.results.FilteredData = ft_preprocessing(cfg, obj.inputs.results.SelectedData); %% 
                 end
                 %% Segmented Data
+                cfg               = [];
+                cfg.length        = obj.inputs.EEGEpochPeriod;
+                cfg.overlap       = 0;
+                if isfield(obj.inputs.results,'FilteredData')
+                    obj.inputs.results.SegmentedData = ft_redefinetrial(cfg, obj.inputs.results.FilteredData);
+                else
+                    obj.inputs.results.SegmentedData = ft_redefinetrial(cfg, obj.inputs.results.SelectedData);
+                end
                 %% Overlapped Data etc
+                w = obj.inputs.results.SegmentedData.time{1}(end)-obj.inputs.results.SegmentedData.time{1}(1); % window length
+                cfg               = [];
+                cfg.length        = w*.9;
+                cfg.overlap       = 1-(((w-cfg.length)/cfg.length)/(10-1));
+                obj.inputs.results.OverlappedData = ft_redefinetrial(cfg, obj.inputs.results.SegmentedData);
+                %% Orignial, Fractal and Oscillation Components Spectral Analysis
+                cfg               = [];
+                cfg.foilim        = [1:1/obj.inputs.EEGEpochPeriod:45];
+                cfg.taper         = 'hanning';
+                cfg.pad           = 'nextpow2';
+                cfg.keeptrials    = 'yes';
+                cfg.method        = 'irasa';
+                frac_r = ft_freqanalysis(cfg, obj.inputs.results.OverlappedData); % Frac
+                cfg.method        = 'mtmfft';
+                orig_r = ft_freqanalysis(cfg, obj.inputs.results.OverlappedData); %Raw
                 
+                % average across the sub-segments
+                frac_s = {};
+                orig_s = {};
+                for rpt = unique(frac_r.trialinfo(:,end))'
+                    cfg               = [];
+                    cfg.trials        = find(frac_r.trialinfo(:,end)==rpt);
+                    cfg.avgoverrpt    = 'yes';
+                    frac_s{end+1} = ft_selectdata(cfg, frac_r);
+                    orig_s{end+1} = ft_selectdata(cfg, orig_r);
+                end
+                frac_a = ft_appendfreq([], frac_s{:}); %Frac
+                orig_a = ft_appendfreq([], orig_s{:}); %Raw
+                
+                % average across trials
+                cfg               = [];
+                cfg.trials        = 'all';
+                cfg.avgoverrpt    = 'yes';
+                obj.inputs.results.FractalComponents = ft_selectdata(cfg, frac_a); %Frac
+                obj.inputs.results.OriginalComponents = ft_selectdata(cfg, orig_a); %Raw
+                
+                % subtract the fractal component from the power spectrum
+                cfg               = [];
+                cfg.parameter     = 'powspctrm';
+                cfg.operation     = 'x2-x1';
+                obj.inputs.results.OscillationComponents = ft_math(cfg, obj.inputs.results.FractalComponents, obj.inputs.results.OriginalComponents); %Osci
+                %% Percentage Difference 
+                obj.inputs.results.percentageOscillationOverFractalComponent.powspctrm=obj.inputs.results.OscillationComponents.powspctrm/obj.inputs.results.FractalComponents.powspctrm;
+                obj.inputs.results.percentageOscillationOverFractalComponent.freq=obj.inputs.results.FractalComponents.freq;
+                %% DB Scaling 
+                obj.inputs.results.dbOscillationOverFractalComponent.powspctrm=log10(obj.inputs.results.percentageOscillationOverFractalComponent.powspctrm);
+                obj.inputs.results.dbOscillationOverFractalComponent.freq=obj.inputs.results.FractalComponents.freq;
+                %% Plotting 
+                for channel=1:numel(obj.inputs.results.OriginalComponents.label)
+                    ax1=['ax' num2str(channel*4-3)];
+                    axes(obj.best_toolbox.app.pr.ax.(ax1))
+                    plot(obj.inputs.results.FractalComponents.freq, obj.inputs.results.FractalComponents.powspctrm(chanel,:),'linewidth', 3, 'color', [0 0 0]); hold on;
+                    plot(obj.inputs.results.OriginalComponents.freq, obj.inputs.results.OriginalComponents.powspctrm(chanel,:),'linewidth', 3, 'color', [0.6 0.6 0.6])
+                    
+                    ax2=['ax' num2str(channel*4-2)];
+                    axes(obj.best_toolbox.app.pr.ax.(ax2))
+                    plot(obj.inputs.results.OscillationComponents.freq, obj.inputs.results.OscillationComponents.powspctrm(chanel,:),'linewidth', 3, 'color', [0 0 0]);
+                    
+                    ax3=['ax' num2str(channel*4-1)];
+                    axes(obj.best_toolbox.app.pr.ax.(ax3))
+                    plot(obj.inputs.results.percentageOscillationOverFractalComponent.freq, obj.inputs.results.percentageOscillationOverFractalComponent.powspctrm(chanel,:),'linewidth', 3, 'color', [0 0 0]);
+                    
+                    ax4=['ax' num2str(channel*4)];
+                    axes(obj.best_toolbox.app.pr.ax.(ax4))
+                    plot(obj.inputs.results.dbOscillationOverFractalComponent.freq, obj.inputs.results.dbOscillationOverFractalComponent.powspctrm(chanel,:),'linewidth', 3, 'color', [0 0 0]);
+                end
+                %% Annotating Peak Frequency
+            
+            
             end
-            
-            
-            
-        end
         
-        function irasa(obj)
+        function irasa_deprecate(obj)
+                            obj.fieldtrip.data.label=EEGChanelsLabels';
+                obj.fieldtrip.data.fsample=5000;
+                obj.fieldtrip.data.trial={EEGData.Data};
+                obj.fieldtrip.data.time={EEGData.Time};
             t = (1:1000)/1000; % time axis
             for rpt = 1:100
                 % generate pink noise
