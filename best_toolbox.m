@@ -1225,6 +1225,7 @@ classdef best_toolbox < handle
                             obj.app.pr.ax_measures=ChannelMeasures;
                             obj.app.pr.axesno=numel(ChannelMeasures);
                             obj.app.pr.ax_ChannelLabels(obj.app.pr.axesno)={'StatusTable'};
+                            obj.inputs.Figures=cell(1,obj.app.pr.axesno);
                             %% Creating Stimulation Conditions
                             for c=1:numel(fieldnames(obj.inputs.condsAll))
                                 obj.inputs.condMat{c,obj.inputs.colLabel.trials}=obj.inputs.TrialsPerCondition;
@@ -2803,6 +2804,11 @@ classdef best_toolbox < handle
                     case 'StatusTable'
                         obj.StatusTable;
                 end
+                AxesNum=obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.axesno}{1,obj.inputs.chLab_idx};
+                AxesField=['ax' num2str(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.axesno}{1,obj.inputs.chLab_idx})];
+                CopiedAxes=copy(obj.app.pr.ax.(AxesField)); 
+                CopiedAxes.Parent=[]; pause(0.1)
+                obj.inputs.Figures{AxesNum}=CopiedAxes;
             end
         end
         function prepTrial(obj)
@@ -2955,6 +2961,7 @@ classdef best_toolbox < handle
         function prepSaving(obj)
             obj.sessions.(obj.app.info.event.current_session).(obj.app.info.event.current_measure_fullstr).ConditionsMatrix=obj.inputs.condMat;
             obj.sessions.(obj.app.info.event.current_session).(obj.app.info.event.current_measure_fullstr).TrialsMatrix=obj.inputs.trialMat;
+            obj.sessions.(obj.app.info.event.current_session).(obj.app.info.event.current_measure_fullstr).Figures=obj.inputs.Figures;
             try obj.sessions.(obj.app.info.event.current_session).(obj.app.info.event.current_measure_fullstr).RawData=obj.inputs.rawData; catch, end %Known Error when run on rTMS
             try obj.sessions.(obj.app.info.event.current_session).(obj.app.info.event.current_measure_fullstr).Results=obj.inputs.results; catch, end %Known Error when run on PsychMTH
         end

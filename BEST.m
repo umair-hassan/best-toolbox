@@ -795,20 +795,46 @@ classdef BEST < handle
             end
         end
         function cb_pmd_lb_measure_menu_loadresult(obj)
-            if ~isfield(obj.bst.sessions,obj.info.event.current_session) || numel(obj.pmd.lb_measures.listbox.String)==0
+            if ~isfield(obj.bst.sessions,obj.info.event.current_session) || numel(obj.pmd.lb_measures.listbox.String)==0 %only sessions tree is added, add tree of measure here as well
                 errordlg('No results exist for this measurement, Please collect the data if you wish to see the results for this particular measure.','BEST Toolbox');
                 return
             end
+            
             obj.bst.factorizeConditions
-            obj.bst.planTrials
             obj.resultsPanel;
-            obj.bst.inputs.rawData=obj.bst.sessions.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).RawData;
-            obj.bst.inputs.results=obj.bst.sessions.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).Results;
-            obj.bst.inputs.trial=1;
-            for tt=1:obj.bst.inputs.totalTrials
-                obj.bst.plotTrial;
-                obj.bst.inputs.trial=obj.bst.inputs.trial+1;
+            obj.bst.inputs.Figures=obj.bst.sessions.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).Figures;
+            for i=1:obj.pr.axesno
+                ax=['ax' num2str(i)];
+                Parent=obj.pr.ax.(ax).Parent;
+                UIContextMenu=obj.pr.ax.(ax).UIContextMenu;
+                delete(allchild(Parent))
+                Figure=copy(obj.bst.inputs.Figures{i});
+                
+                Figure.Parent=Parent;
+                Figure.UIContextMenu=UIContextMenu;
+                obj.pr.ax.(ax)=Figure;
+                
             end
+            
+            %% better would be to save all the app.pr parameters in object too so that entire information is intact, when results is called those may be assigned from the obj.inputs
+            %% load all from particualr session and measure into inputs 
+            %% call results
+            %% try copying in legacy mode so that all the necessary callbacks are copied too 
+            %% reasign Parent --DONE!
+            
+            
+            
+            %copy figures from 
+            % clear inputs , 
+            % load Figures result from this particular measure and session into inputs
+            
+%             obj.bst.inputs.rawData=obj.bst.sessions.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).RawData;
+%             obj.bst.inputs.results=obj.bst.sessions.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).Results;
+%             obj.bst.inputs.trial=1;
+%             for tt=1:obj.bst.inputs.totalTrials
+%                 obj.bst.plotTrial;
+%                 obj.bst.inputs.trial=obj.bst.inputs.trial+1;
+%             end
             
             %% Old Code
 %             if(numel(obj.pmd.lb_measures.listbox.String)==0)
@@ -1062,6 +1088,7 @@ classdef BEST < handle
         end
         function pr_FigureExport(obj,source,~)
             FigureFileName1=erase(obj.bst.info.matfilstr,'.mat');
+            % if this doesnt exit creates matfilstr
             iaxes=str2double(erase(source.Tag,'ax'));
             FigureFileName=[FigureFileName1 '_' obj.pr.ax_measures{1,iaxes} '_' obj.pr.ax_ChannelLabels{1,iaxes}];
             ax=['ax' num2str(iaxes)];
