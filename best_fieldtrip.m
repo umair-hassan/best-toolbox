@@ -90,7 +90,7 @@ classdef best_fieldtrip <handle
                 obj.best_toolbox.inputs.results.OverlappedData = ft_redefinetrial(cfg, obj.best_toolbox.inputs.results.SegmentedData);
                 %% Orignial, Fractal and Oscillation Components Spectral Analysis
                 cfg               = [];
-                cfg.foilim        = [1:1/obj.best_toolbox.inputs.EEGEpochPeriod:45];
+                cfg.foi        = [1:1/obj.best_toolbox.inputs.EEGEpochPeriod:45];
                 cfg.taper         = 'hanning';
                 cfg.pad           = 'nextpow2';
                 cfg.keeptrials    = 'yes';
@@ -125,13 +125,13 @@ classdef best_fieldtrip <handle
                 cfg.operation     = 'x2-x1';
                 obj.best_toolbox.inputs.results.OscillationComponents = ft_math(cfg, obj.best_toolbox.inputs.results.FractalComponents, obj.best_toolbox.inputs.results.OriginalComponents); %Osci
                 %% Percentage Difference 
-                obj.best_toolbox.inputs.results.percentageOscillationOverFractalComponent.powspctrm=obj.best_toolbox.inputs.results.OscillationComponents.powspctrm/obj.best_toolbox.inputs.results.FractalComponents.powspctrm;
+                obj.best_toolbox.inputs.results.percentageOscillationOverFractalComponent.powspctrm=100*(obj.best_toolbox.inputs.results.OscillationComponents.powspctrm./obj.best_toolbox.inputs.results.FractalComponents.powspctrm);
                 obj.best_toolbox.inputs.results.percentageOscillationOverFractalComponent.freq=obj.best_toolbox.inputs.results.FractalComponents.freq;
                 %% DB Scaling 
-                obj.best_toolbox.inputs.results.dbOscillationOverFractalComponent.powspctrm=log10(obj.best_toolbox.inputs.results.percentageOscillationOverFractalComponent.powspctrm);
+                obj.best_toolbox.inputs.results.dbOscillationOverFractalComponent.powspctrm=real(log10(100*(obj.best_toolbox.inputs.results.percentageOscillationOverFractalComponent.powspctrm)));
                 obj.best_toolbox.inputs.results.dbOscillationOverFractalComponent.freq=obj.best_toolbox.inputs.results.FractalComponents.freq;
                 %% Plotting , Annotating and Saving Peak Frequency
-                %Find Index of Frequecy Limits
+                TargetFrequencyRange=(find(obj.best_toolbox.inputs.results.OriginalComponents.freq == obj.best_toolbox.inputs.TargetFrequencyRange(1)):find(obj.best_toolbox.inputs.results.OriginalComponents.freq == obj.best_toolbox.inputs.TargetFrequencyRange(2)));
                 for channel=1:numel(obj.best_toolbox.inputs.results.OriginalComponents.label)
                     ax1=['ax' num2str(channel*4-3)];
                     axes(obj.best_toolbox.app.pr.ax.(ax1))
@@ -144,6 +144,10 @@ classdef best_fieldtrip <handle
                     plot(obj.best_toolbox.inputs.results.OscillationComponents.freq, obj.best_toolbox.inputs.results.OscillationComponents.powspctrm(chanel,:),'linewidth', 3, 'color', [0 0 0]); hold on;
                     gridxy((obj.best_toolbox.inputs.TargetFrequencyRange(1)):0.25:(obj.best_toolbox.inputs.TargetFrequencyRange(2)),'Color',[219/255 246/255 255/255],'linewidth',4) ;
                     %Find Peak Frequency, store it and annotate it 
+                     [~,PeakPowerIndex] = find(obj.best_toolbox.inputs.results.OscillationComponents.powspctrm(channel,TargetFrequencyRange)==max(obj.best_toolbox.inputs.results.OscillationComponents.powspctrm(channel,TargetFrequencyRange)));
+                    obj.best_toolbox.inputs.results.PeakFrequency.(obj.best_toolbox.inputs.results.OscillationComponents.label(channel))=obj.best_toolbox.inputs.results.OscillationComponents.freq(1,PeakPowerIndex);
+                    obj.best_toolbox.app.pr.ax.(ax2).UserData.TextAnnotationPeakFrequency=text(obj.app.pr.ax.(ax),1,1,{['Peak Freq (Hz):' num2str(obj.best_toolbox.inputs.results.PeakFrequency.(obj.best_toolbox.inputs.results.OscillationComponents.label(channel)))]},'units','normalized','HorizontalAlignment','right','VerticalAlignment','cap','color',[0.45 0.45 0.45]);
+               
                     
                     ax3=['ax' num2str(channel*4-1)];
                     axes(obj.best_toolbox.app.pr.ax.(ax3))
@@ -238,15 +242,15 @@ classdef best_fieldtrip <handle
                 cfg.method        = 'mtmfft';
                 obj.best_toolbox.inputs.results.OriginalComponents = ft_freqanalysis(cfg, obj.best_toolbox.inputs.results.SegmentedData); %Raw
                 %% Plotting, Annotating and Saving Peak Frequency
-                TargetFrequencyRange=(find(obj.best_toolbox.inputs.results.OriginalComponents.freq == obj.best_toolbox.inputs.TargetFrequencyRange(1)):find(obj.best_toolbox.inputs.results.OriginalComponents.freq == obj.best_toolbox.inputs.TargetFrequencyRange(2)))
+                TargetFrequencyRange=(find(obj.best_toolbox.inputs.results.OriginalComponents.freq == obj.best_toolbox.inputs.TargetFrequencyRange(1)):find(obj.best_toolbox.inputs.results.OriginalComponents.freq == obj.best_toolbox.inputs.TargetFrequencyRange(2)));
                 for channel=1:numel(obj.best_toolbox.inputs.results.OriginalComponents.label)
                     ax1=['ax' num2str(channel)];
                     axes(obj.best_toolbox.app.pr.ax.(ax1))
                     plot(obj.best_toolbox.inputs.results.OriginalComponents.freq, obj.best_toolbox.inputs.results.OriginalComponents.powspctrm(chanel,:),'linewidth', 3, 'color', [0 0 0]); hold on;
                     gridxy((obj.best_toolbox.inputs.TargetFrequencyRange(1)):0.25:(obj.best_toolbox.inputs.TargetFrequencyRange(2)),'Color',[219/255 246/255 255/255],'linewidth',4) ;
-                    [~,PeakPowerIndex] = max(obj.best_toolbox.inputs.results.OriginalComponents.powspctrm(channel,TargetFrequencyRange));%.*[8:0.5:14]);
+                    [~,PeakPowerIndex] = find(obj.best_toolbox.inputs.results.OriginalComponents.powspctrm(channel,TargetFrequencyRange)==max(obj.best_toolbox.inputs.results.OriginalComponents.powspctrm(channel,TargetFrequencyRange)));%.*[8:0.5:14]);
                     obj.best_toolbox.inputs.results.PeakFrequency.(obj.best_toolbox.inputs.results.OriginalComponents.label(channel))=obj.best_toolbox.inputs.results.OriginalComponents.freq(1,PeakPowerIndex);
-                    %and annotate it
+                    obj.best_toolbox.app.pr.ax.(ax1).UserData.TextAnnotationPeakFrequency=text(obj.app.pr.ax.(ax),1,1,{['Peak Freq (Hz):' num2str(obj.best_toolbox.inputs.results.PeakFrequency.(obj.best_toolbox.inputs.results.OriginalComponents.label(channel)))]},'units','normalized','HorizontalAlignment','right','VerticalAlignment','cap','color',[0.45 0.45 0.45]);
                 end
             end
 
