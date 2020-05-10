@@ -1756,13 +1756,13 @@ classdef best_toolbox < handle
                             for i=1:numel(obj.inputs.TargetChannels)
                                 ChannelLabel=['Power Spectrum - '];
                                 obj.app.pr.ax_ChannelLabels_0(i)={ChannelLabel};
-                                obj.app.pr.ax_ChannelLabels=obj.inputs.TargetChannels(i);
+                                obj.app.pr.ax_ChannelLabels(i)=obj.inputs.TargetChannels(i);
                             end
                             if ~isempty(obj.inputs.MontageChannels)
                                  for j=1:size(obj.inputs.MontageChannels,1)
                                     ChannelLabel=['Power Spectrum - '];
                                     obj.app.pr.ax_ChannelLabels_0(i+1*j)={ChannelLabel};
-                                    obj.app.pr.ax_ChannelLabels={['Montage' num2str(j)]};
+                                    obj.app.pr.ax_ChannelLabels(i+1*j)={['Montage' num2str(j)]};
                                 end
                             end
                             obj.inputs.ChannelsTypeUnique={'EEG'};

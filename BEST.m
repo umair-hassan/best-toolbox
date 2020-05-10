@@ -1090,7 +1090,11 @@ classdef BEST < handle
             FigureFileName1=erase(obj.bst.info.matfilstr,'.mat');
             % if this doesnt exit creates matfilstr
             iaxes=str2double(erase(source.Tag,'ax'));
-            FigureFileName=[FigureFileName1 '_' obj.pr.ax_measures{1,iaxes} '_' obj.pr.ax_ChannelLabels{1,iaxes}];
+            if isfield(obj.pr,'ax_ChannelLabels_0')
+                FigureFileName=[FigureFileName1 '_' obj.pr.ax_measures{1,iaxes} '_' obj.pr.ax_ChannelLabels_0{1,iaxes} '_' obj.pr.ax_ChannelLabels{1,iaxes}];
+            else
+                FigureFileName=[FigureFileName1 '_' obj.pr.ax_measures{1,iaxes} '_' obj.pr.ax_ChannelLabels{1,iaxes}];
+            end
             ax=['ax' num2str(iaxes)];
             Figure=figure('Name',FigureFileName,'NumberTitle','off');
             copyobj(obj.pr.ax.(ax),Figure)
@@ -3495,6 +3499,7 @@ classdef BEST < handle
         end
         %% MEP Hotspot Search Section
         function pi_hotspot(obj)
+            obj.fig.main.Widths([1 2 3])=[-1.15 -3.35 -0];
             Panel=uix.Panel( 'Parent', obj.pi.empty_panel,'FontSize',14 ,'Units','normalized','Title','MEP Hotspot Search' ,'FontWeight','Bold','TitlePosition','centertop');
             vb = uix.VBox( 'Parent', Panel, 'Spacing', 5, 'Padding', 5  );
 
@@ -10934,6 +10939,7 @@ classdef BEST < handle
         end
         %% rsEEG Measurement
         function pi_rseeg(obj)
+            obj.fig.main.Widths([1 2 3])=[-1.15 -3.35 -0];
             Panel=uix.Panel( 'Parent', obj.pi.empty_panel,'FontSize',14 ,'Units','normalized','Title','resting-state EEG Measurement' ,'FontWeight','Bold','TitlePosition','centertop');
             vb = uix.VBox( 'Parent', Panel, 'Spacing', 5, 'Padding', 5  );
     
@@ -11015,22 +11021,11 @@ classdef BEST < handle
             set(vb,'Heights',[35 35 45 45 45 45 45 45 45 45 45 45 -1])
             
             function cb_par_saving(source,~)
-                if strcmp(source.Tag,'InputDevice') || strcmp(source.Tag,'OutputDevice') || strcmp(source.Tag,'ProtocolMode')
+                if strcmp(source.Tag,'InputDevice') || strcmp(source.Tag,'OutputDevice') || strcmp(source.Tag,'SpectralAnalysis')
                     obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(source.Tag)=source.Value;
-                    if strcmp(source.Tag,'ProtocolMode')
-                        switch source.Value
-                            case 1 % Automated
-                                mep_panel_row4.Visible='on';
-                                mep_panel_row5.Visible='on';
-                            case 2 % Manual
-                                mep_panel_row4.Visible='off';
-                                mep_panel_row5.Visible='off';
-                        end
-                    end
                 else
-                    obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(source.Tag)=source.String;
+                    obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(source.Tag)=source.String;  
                 end
-                
             end 
 
         end
