@@ -1719,14 +1719,14 @@ classdef best_toolbox < handle
                                 OscillationChannelLabel=['Oscillation Power Spectrum - ' ];
                                 PercentageChangeChannelLabel=['Oscillation/Fractal Change - ' ];
                                 dBChannelLabel=['Oscillation/Fractal dB - ' ];
-                                obj.app.pr.ax_ChannelLabels_0(i)={FractalOriginalChannelLabel};
-                                obj.app.pr.ax_ChannelLabels_0(i+1)={OscillationChannelLabel};
-                                obj.app.pr.ax_ChannelLabels_0(i+2)={PercentageChangeChannelLabel};
-                                obj.app.pr.ax_ChannelLabels_0(i+3)={dBChannelLabel};
-                                obj.app.pr.ax_ChannelLabels(i)= obj.inputs.TargetChannels(i);
-                                obj.app.pr.ax_ChannelLabels(i+1)=obj.inputs.TargetChannels(i);
-                                obj.app.pr.ax_ChannelLabels(i+2)=obj.inputs.TargetChannels(i);
-                                obj.app.pr.ax_ChannelLabels(i+3)=obj.inputs.TargetChannels(i);
+                                obj.app.pr.ax_ChannelLabels_0(4*i-3)={FractalOriginalChannelLabel};
+                                obj.app.pr.ax_ChannelLabels_0(4*i-2)={OscillationChannelLabel};
+                                obj.app.pr.ax_ChannelLabels_0(4*i-1)={PercentageChangeChannelLabel};
+                                obj.app.pr.ax_ChannelLabels_0(4*i)={dBChannelLabel};
+                                obj.app.pr.ax_ChannelLabels(4*i-3)= obj.inputs.TargetChannels(i);
+                                obj.app.pr.ax_ChannelLabels(4*i-2)=obj.inputs.TargetChannels(i);
+                                obj.app.pr.ax_ChannelLabels(4*i-1)=obj.inputs.TargetChannels(i);
+                                obj.app.pr.ax_ChannelLabels(4*i)=obj.inputs.TargetChannels(i);
                             end
                             if ~isempty(obj.inputs.MontageChannels)
                                 for j=1:size(obj.inputs.MontageChannels,1)
@@ -1738,10 +1738,10 @@ classdef best_toolbox < handle
                                     obj.app.pr.ax_ChannelLabels_0(i+4*j-2)={OscillationChannelLabel};
                                     obj.app.pr.ax_ChannelLabels_0(i+4*j-1)={PercentageChangeChannelLabel};
                                     obj.app.pr.ax_ChannelLabels_0(i+4*j)={dBChannelLabel};
-                                    obj.app.pr.ax_ChannelLabels(i)= {['Montage' num2str(j)]};
-                                    obj.app.pr.ax_ChannelLabels(i+1)={['Montage' num2str(j)]};
-                                    obj.app.pr.ax_ChannelLabels(i+2)={['Montage' num2str(j)]};
-                                    obj.app.pr.ax_ChannelLabels(i+3)={['Montage' num2str(j)]};
+                                    obj.app.pr.ax_ChannelLabels(i+4*j-3)= {['Montage' num2str(j)]};
+                                    obj.app.pr.ax_ChannelLabels(i+4*j-2)={['Montage' num2str(j)]};
+                                    obj.app.pr.ax_ChannelLabels(i+4*j-1)={['Montage' num2str(j)]};
+                                    obj.app.pr.ax_ChannelLabels(i+4*j)={['Montage' num2str(j)]};
                                 end
                             end
                             obj.inputs.ChannelsTypeUnique={'EEG'};
@@ -2522,7 +2522,7 @@ classdef best_toolbox < handle
                 InputsFieldNames=fieldnames(obj.inputs);
                 for iInputs=1:numel(InputsFieldNames)
                     if (isa(obj.inputs.(InputsFieldNames{iInputs}),'char'))
-                        if (strcmp(InputsFieldNames{iInputs},'ITI')) || (strcmp(InputsFieldNames{iInputs},'EMGDisplayChannels')) || (strcmp(InputsFieldNames{iInputs},'EMGTargetChannels')) || (strcmp(InputsFieldNames{iInputs},'Phase')) || (strcmp(InputsFieldNames{iInputs},'PhaseTolerance')) || (strcmp(InputsFieldNames{iInputs},'MontageChannels')) || (strcmp(InputsFieldNames{iInputs},'AmplitudeThreshold'))
+                        if (strcmp(InputsFieldNames{iInputs},'ITI')) || (strcmp(InputsFieldNames{iInputs},'EMGDisplayChannels')) || (strcmp(InputsFieldNames{iInputs},'EMGTargetChannels')) || (strcmp(InputsFieldNames{iInputs},'Phase')) || (strcmp(InputsFieldNames{iInputs},'PhaseTolerance')) || (strcmp(InputsFieldNames{iInputs},'MontageChannels')) || (strcmp(InputsFieldNames{iInputs},'AmplitudeThreshold'))|| (strcmp(InputsFieldNames{iInputs},'TargetChannels'))
                             if (isempty(obj.inputs.(InputsFieldNames{iInputs})))
                                 disp donothing
                             else
