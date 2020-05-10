@@ -1712,9 +1712,38 @@ classdef best_toolbox < handle
                 case 'rs EEG Measurement Protocol'
                     switch obj.inputs.SpectralAnalysis
                         case 1 %IRASA
-                            obj.app.pr.ax_measures={'rsEEGMeasurement'};
-                            obj.app.pr.axesno=1;
-                            obj.app.pr.ax_ChannelLabels={'EEG Channels'};
+                            obj.app.pr.ax_measures=repmat({'rsEEGMeasurement'},1,4*(numel(obj.inputs.TargetChannels)+size(obj.inputs.MontageChannels,1)));
+                            obj.app.pr.axesno=numel(obj.app.pr.ax_measures);
+                            for i=1:numel(obj.inputs.TargetChannels)
+                                FractalOriginalChannelLabel=['Fractal & Original Power Spectrum - '];
+                                OscillationChannelLabel=['Oscillation Power Spectrum - ' ];
+                                PercentageChangeChannelLabel=['Oscillation/Fractal Change - ' ];
+                                dBChannelLabel=['Oscillation/Fractal dB - ' ];
+                                obj.app.pr.ax_ChannelLabels_0(i)={FractalOriginalChannelLabel};
+                                obj.app.pr.ax_ChannelLabels_0(i+1)={OscillationChannelLabel};
+                                obj.app.pr.ax_ChannelLabels_0(i+2)={PercentageChangeChannelLabel};
+                                obj.app.pr.ax_ChannelLabels_0(i+3)={dBChannelLabel};
+                                obj.app.pr.ax_ChannelLabels(i)= obj.inputs.TargetChannels(i);
+                                obj.app.pr.ax_ChannelLabels(i+1)=obj.inputs.TargetChannels(i);
+                                obj.app.pr.ax_ChannelLabels(i+2)=obj.inputs.TargetChannels(i);
+                                obj.app.pr.ax_ChannelLabels(i+3)=obj.inputs.TargetChannels(i);
+                            end
+                            if ~isempty(obj.inputs.MontageChannels)
+                                for j=1:size(obj.inputs.MontageChannels,1)
+                                    FractalOriginalChannelLabel=['Fractal & Original Power Spectrum - '];
+                                    OscillationChannelLabel=['Oscillation Power Spectrum - '];
+                                    PercentageChangeChannelLabel=['Oscillation/Fractal Change - ' ];
+                                    dBChannelLabel=['Oscillation/Fractal dB - '];
+                                    obj.app.pr.ax_ChannelLabels_0(i+4*j-3)={FractalOriginalChannelLabel};
+                                    obj.app.pr.ax_ChannelLabels_0(i+4*j-2)={OscillationChannelLabel};
+                                    obj.app.pr.ax_ChannelLabels_0(i+4*j-1)={PercentageChangeChannelLabel};
+                                    obj.app.pr.ax_ChannelLabels_0(i+4*j)={dBChannelLabel};
+                                    obj.app.pr.ax_ChannelLabels(i)= {['Montage' num2str(j)]};
+                                    obj.app.pr.ax_ChannelLabels(i+1)={['Montage' num2str(j)]};
+                                    obj.app.pr.ax_ChannelLabels(i+2)={['Montage' num2str(j)]};
+                                    obj.app.pr.ax_ChannelLabels(i+3)={['Montage' num2str(j)]};
+                                end
+                            end
                             obj.inputs.ChannelsTypeUnique={'EEG'};
                             obj.inputs.input_device=char(obj.app.pi.rseeg.InputDevice.String(obj.inputs.InputDevice));
                             obj.inputs.colLabel.inputDevices=1;
@@ -1722,6 +1751,26 @@ classdef best_toolbox < handle
                             obj.inputs.condMat{1,obj.inputs.colLabel.inputDevices}=char(obj.app.pi.rseeg.InputDevice.String(obj.inputs.InputDevice));
                             obj.inputs.condMat{1,obj.inputs.colLabel.iti}=NaN;
                         case 2 %FFT
+                            obj.app.pr.ax_measures=repmat({'rsEEGMeasurement'},1,(numel(obj.inputs.TargetChannels)+size(obj.inputs.MontageChannels,1)));
+                            obj.app.pr.axesno=numel(obj.app.pr.ax_measures);
+                            for i=1:numel(obj.inputs.TargetChannels)
+                                ChannelLabel=['Power Spectrum - '];
+                                obj.app.pr.ax_ChannelLabels_0(i)={ChannelLabel};
+                                obj.app.pr.ax_ChannelLabels=obj.inputs.TargetChannels(i);
+                            end
+                            if ~isempty(obj.inputs.MontageChannels)
+                                 for j=1:size(obj.inputs.MontageChannels,1)
+                                    ChannelLabel=['Power Spectrum - '];
+                                    obj.app.pr.ax_ChannelLabels_0(i+1*j)={ChannelLabel};
+                                    obj.app.pr.ax_ChannelLabels={['Montage' num2str(j)]};
+                                end
+                            end
+                            obj.inputs.ChannelsTypeUnique={'EEG'};
+                            obj.inputs.input_device=char(obj.app.pi.rseeg.InputDevice.String(obj.inputs.InputDevice));
+                            obj.inputs.colLabel.inputDevices=1;
+                            obj.inputs.colLabel.iti=2;
+                            obj.inputs.condMat{1,obj.inputs.colLabel.inputDevices}=char(obj.app.pi.rseeg.InputDevice.String(obj.inputs.InputDevice));
+                            obj.inputs.condMat{1,obj.inputs.colLabel.iti}=NaN;
                     end
             end
             %% Crossing Phase & Amplitude Condition with condMat
