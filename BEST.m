@@ -1118,6 +1118,23 @@ classdef BEST < handle
                 end
             end
         end
+        function pr_OverWirtePeakFrequency(obj,source,~)
+            Channel=source.Tag;
+            ax=source.UserData;
+            f=figure('Name','Overwrite Peak Frequency | BEST Toolbox','numbertitle', 'off','ToolBar', 'none','MenuBar', 'none','WindowStyle', 'modal','Units', 'normal', 'Position', [0.5 0.5 .15 .05]);
+            uicontrol( 'Style','text','Parent', f,'String','Enter Peak Frequency you want to set for this Channel:','FontSize',11,'HorizontalAlignment','center','Units','normalized','Position',[0.05 0.5 0.5 0.4]);
+            PeakFrequency=uicontrol( 'Style','edit','Parent', f,'String','10','FontSize',11,'HorizontalAlignment','center','Units','normalized','Position',[0.5 0.5 0.4 0.4]);
+            uicontrol( 'Style','pushbutton','Parent', f,'String','Update','FontSize',11,'HorizontalAlignment','center','Units','normalized','Position',[0.1 0.05 0.8 0.4],'Callback',@set);
+            function set(~,~)
+                try
+                    obj.bst.inputs.results.PeakFrequency.(Channel)=str2double(PeakFrequency.String);
+                    obj.pr.ax.(ax).UserData.TextAnnotationPeakFrequency.String={['Peak Frequency (Hz):' num2str(obj.bst.inputs.results.PeakFrequency.(Channel))]};
+                    close(f)
+                catch
+                    close(f)
+                end
+            end
+        end
         function pr_scat_plot(obj)
             obj.pr.ax_no=['ax' num2str(obj.pr.axesno)];
             obj.pr.clab.(obj.pr.ax_no)=uix.Panel( 'Parent', obj.pr.grid, 'Padding', 5 ,'Units','normalized','Title', 'MEP Scatter Plot','FontWeight','bold','FontSize',12,'TitlePosition','centertop' );
@@ -1319,8 +1336,14 @@ classdef BEST < handle
         end
         function pr_rsEEGMeasurement(obj)
             obj.pr.ax_no=['ax' num2str(obj.pr.axesno)];
-            obj.pr.clab.(obj.pr.ax_no)=uix.Panel( 'Parent', obj.pr.grid, 'Padding', 5 ,'Units','normalized','Title','IRASA','FontWeight','bold','FontSize',12,'TitlePosition','centertop' );
+            AxesTitle=obj.pr.ax_ChannelLabels{obj.pr.axesno};
+            ui_menu=uicontextmenu(obj.fig.handle);
+            uimenu(ui_menu,'label','Overwrite Peak Frequency of this Channel','Callback',@obj.pr_OverWirtePeakFrequency,'Tag',obj.pr.ax_ChannelLabels{obj.pr.axesno});
+            uimenu(ui_menu,'label','set Font size','Callback',@cbFontSize,'Tag',obj.pr.ax_no);
+            uimenu(ui_menu,'label','export as MATLAB Figure','Callback',@obj.pr_FigureExport,'Tag',obj.pr.ax_no);
+            obj.pr.clab.(obj.pr.ax_no)=uix.Panel( 'Parent', obj.pr.grid, 'Padding', 5 ,'Units','normalized','Title',AxesTitle,'FontWeight','bold','FontSize',12,'TitlePosition','centertop' );
             obj.pr.ax.(obj.pr.ax_no)=axes( uicontainer('Parent',   obj.pr.clab.(obj.pr.ax_no)),'Units','normalized');
+%             obj.pr.ax.(obj.pr.ax_no).UserData.TextAnnotationPeakFrequency Future Release: take the text annnotations out of those graphs since they will be needed in results reloading
             xlabel('Frequency (Hz)'), ylabel('Power');
         end
         function pr_StatusTable(obj)
