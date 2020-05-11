@@ -1772,6 +1772,145 @@ classdef best_toolbox < handle
                             obj.inputs.condMat{1,obj.inputs.colLabel.inputDevices}=char(obj.app.pi.rseeg.InputDevice.String(obj.inputs.InputDevice));
                             obj.inputs.condMat{1,obj.inputs.colLabel.iti}=NaN;
                     end
+                case 'TEP Hotspot Search Protocol'
+                    %% Adjusting New Arhictecture to Old Architecture
+                    obj.inputs.input_device=char(obj.app.pi.tephs.InputDevice.String(obj.inputs.InputDevice)); %TODO: the drc or mep on the 4th structure is not a good solution!
+                    obj.inputs.output_device=obj.app.pi.tephs.OutputDevice.String(obj.inputs.OutputDevice);
+                    obj.inputs.stim_mode='MSO';
+                    obj.inputs.measure_str='Motor Hotspot Search';
+                    obj.inputs.stop_event=0;
+                    obj.inputs.ylimMin=-3000;
+                    obj.inputs.ylimMax=+3000;
+                    obj.inputs.TrialNoForMean=1;
+                    %% Creating Column Labels
+                    obj.inputs.colLabel.inputDevices=1;
+                    obj.inputs.colLabel.outputDevices=2;
+                    obj.inputs.colLabel.si=3;
+                    obj.inputs.colLabel.iti=4;
+                    obj.inputs.colLabel.chLab=5;
+                    obj.inputs.colLabel.trials=9;
+                    obj.inputs.colLabel.axesno=6;
+                    obj.inputs.colLabel.measures=7;
+                    obj.inputs.colLabel.stimMode=8;
+                    obj.inputs.colLabel.tpm=10;
+                    obj.inputs.colLabel.chType=11;
+                    obj.inputs.colLabel.chId=12;
+                    %% Creating Channel Type and Channel ID
+                    switch obj.app.par.hardware_settings.(char(obj.inputs.input_device)).slct_device
+                        case 1 %boss box
+                            
+                            DisplayChannelType=cell(1,1);
+                            DisplayChannelType(:)=cellstr('EEG');
+                            DisplayChannelID=num2cell(1:1);
+                            obj.inputs.ChannelsTypeUnique=DisplayChannelType;
+                            
+                        case 2 % fieldtrip real time buffer
+                    end
+                    %% Creating Channel Measures, Axes No
+                    obj.app.pr.ax_measures={'TEP Measurement','TEP Measurement','TEP Measurement','TEP Measurement','StatusTable'};
+                    obj.app.pr.axesno=5;
+                    obj.app.pr.ax_ChannelLabels={'Vertical Plot',obj.inputs.TargetChannels,'TopoplotER','MultiplotER','StatusTable'};
+                    obj.inputs.Figures=cell(1,obj.app.pr.axesno);
+                    %% Creating Configuration 
+                    if(obj.inputs.EEGDisplayPeriod(1)<0)
+                        obj.inputs.Configuration.detrend='yes';
+                        obj.inputs.Configuration.demean='yes';
+                        obj.inputs.Configuration.baselinewindow=[obj.inputs.EEGDisplayPeriod(1)/1000 0];
+                    end
+                    if ~isempty(obj.inputs.ReferenceChannels)
+                        obj.inputs.Configuration.reref='yes';
+                        obj.inputs.Configuration.refchannel=obj.inputs.ReferenceChannels;
+                    end
+                    
+                    %% Creating Stimulation Conditions
+                    for c=1:numel(fieldnames(obj.inputs.condsAll))
+                        obj.inputs.condMat{c,obj.inputs.colLabel.trials}=obj.inputs.TrialsPerCondition;
+                        obj.inputs.condMat{c,obj.inputs.colLabel.iti}=obj.inputs.ITI;
+                        obj.inputs.condMat{c,obj.inputs.colLabel.inputDevices}=char(obj.app.pi.tephs.InputDevice.String(obj.inputs.InputDevice));
+                        obj.inputs.condMat{c,obj.inputs.colLabel.chLab}={'TEP','TEP','TEP','TEP','StatusTable'};
+                        obj.inputs.condMat{c,obj.inputs.colLabel.measures}={'TEP Measurement Vertical Plot','TEP Measurement Single Plot','TEP Measurement Topo Plot','TEP Measurement Multi Plot','StatusTable'};
+                        obj.inputs.condMat{c,obj.inputs.colLabel.axesno}={1,2,3,4,5};
+                        obj.inputs.condMat{c,obj.inputs.colLabel.chType}={'EEG','EEG','EEG','EEG','StatusTable'};
+                        obj.inputs.condMat{c,obj.inputs.colLabel.chId}={1,1,1,1,1};
+                        conds=fieldnames(obj.inputs.condsAll);
+                        for stno=1:(max(size(fieldnames(obj.inputs.condsAll.(conds{c,1}))))-1)
+                            st=['st' num2str(stno)];
+                            condSi{1,stno}=obj.inputs.condsAll.(conds{c,1}).(st).si_pckt;
+                            condstimMode{1,stno}= obj.inputs.condsAll.(conds{c,1}).(st).stim_mode;
+                            obj.inputs.condsAll.(conds{c,1}).(st).stim_device
+                            condoutputDevice{1,stno}=char(obj.inputs.output_device);
+                            for i=1:numel(obj.inputs.condsAll.(conds{c,1}).(st).stim_timing)
+                                condstimTimingStrings{1,i}=num2str(obj.inputs.condsAll.(conds{c,1}).(st).stim_timing{1,i});
+                            end
+                            condstimTiming{1,stno}=condstimTimingStrings;
+                        end
+                        obj.inputs.condMat(c,obj.inputs.colLabel.si)={condSi};
+                        obj.inputs.condMat(c,obj.inputs.colLabel.outputDevices)={condoutputDevice};
+                        obj.inputs.condMat(c,obj.inputs.colLabel.stimMode)={condstimMode};
+                        %                         condstimTiming=condstimTiming{1,1};
+                        %                         condstimTiming={{cellfun(@num2str, condstimTiming{1,1}(1,1:end))}};
+                        %                                                 condstimTiming={{arrayfun(@num2str, condstimTiming{1,1}(1,1:end))}};
+                        
+                        %                         condstimTiming=cellstr(condstimTiming);
+                        for timing=1:numel(condstimTiming)
+                            for jj=1:numel(condstimTiming{1,timing})
+                                condstimTiming{2,timing}{1,jj}=condoutputDevice{1,timing};
+                            end
+                        end
+                        condstimTiming_new{1}=horzcat(condstimTiming{1,:});
+                        condstimTiming_new{2}=horzcat(condstimTiming{2,:});
+                        [condstimTiming_new_sorted{1},sorted_idx]=sort(condstimTiming_new{1});
+                        
+                        %                                  [condstimTiming_new_sorted{1},sorted_idx]=sort(cellfun(@str2num, condstimTiming_new{1}));
+                        %                                  condstimTiming_new_sorted{1}=cellfun(@num2str, num2cell(condstimTiming_new_sorted{1}));
+                        
+                        
+                        
+                        condstimTiming_new_sorted{2}=condstimTiming_new{1,2}(sorted_idx);
+                        %                                  condstimTiming_new_sorted{1}=cellfun(@num2str, num2cell(condstimTiming_new_sorted{1}));
+                        
+                        for stimno_tpm=1:numel(condstimTiming_new_sorted{2})
+                            port_vector{stimno_tpm}=obj.app.par.hardware_settings.(char(condstimTiming_new_sorted{2}{1,stimno_tpm})).bb_outputport;
+                        end
+                        condstimTiming_new_sorted{2}=port_vector;
+                        tpmVect=[condstimTiming_new_sorted{1};condstimTiming_new_sorted{2}];
+                        [tpmVect_unique,ia,ic]=unique(tpmVect(1,:));
+                        a_counts = accumarray(ic,1);
+                        for binportloop=1:numel(tpmVect_unique)
+                            buffer{1,binportloop}={(cell2mat(tpmVect(2,ia(binportloop):ia(binportloop)-1+a_counts(binportloop))))};
+                            binaryZ='0000';
+                            num=cell2mat(buffer{1,binportloop});
+                            for binaryID=1:numel(num)
+                                binaryZ(str2num(num(binaryID)))='1';
+                            end
+                            buffer{1,binportloop}=bin2dec(flip(binaryZ));
+                            markers{1,binportloop}=0;
+                        end
+                        markers{1,1}=c;
+                        condstimTiming_new_sorted=[num2cell((cellfun(@str2num, tpmVect_unique(1,1:end))));buffer;markers];
+                        condstimTiming_new_sorted=cell2mat(condstimTiming_new_sorted)
+                        [condstimTiming_new_sorted(1,:),sorted_idx]=sort(condstimTiming_new_sorted(1,:))
+                        condstimTiming_new_sorted(1,:)=condstimTiming_new_sorted(1,:)/1000;
+                        condstimTiming_new_sorted(2,:)=condstimTiming_new_sorted(2,sorted_idx)
+                        
+                        obj.inputs.condMat(c,obj.inputs.colLabel.tpm)={num2cell(condstimTiming_new_sorted)};
+                        condSi=[];
+                        condoutputDevice=[];
+                        condstimMode=[];
+                        condstimTiming=[];
+                        buffer=[];
+                        tpmVect_unique=[];
+                        a_counts =[];
+                        ia=[];
+                        ic=[];
+                        port_vector=[];
+                        num=[];
+                        condstimTiming_new=[];
+                        condstimTiming_new_sorted=[];
+                        sorted_idx=[];
+                        markers=[];
+                        condstimTimingStrings=[];
+                    end
             end
             %% Crossing Phase & Amplitude Condition with condMat
             if isfield(obj.inputs,'BrainState')
@@ -2521,8 +2660,8 @@ classdef best_toolbox < handle
                 obj.inputs=obj.app.par.(obj.app.info.event.current_session).(obj.app.info.event.current_measure_fullstr);
                 InputsFieldNames=fieldnames(obj.inputs);
                 for iInputs=1:numel(InputsFieldNames)
-                    if (isa(obj.inputs.(InputsFieldNames{iInputs}),'char'))
-                        if (strcmp(InputsFieldNames{iInputs},'ITI')) || (strcmp(InputsFieldNames{iInputs},'EMGDisplayChannels')) || (strcmp(InputsFieldNames{iInputs},'EMGTargetChannels')) || (strcmp(InputsFieldNames{iInputs},'Phase')) || (strcmp(InputsFieldNames{iInputs},'PhaseTolerance')) || (strcmp(InputsFieldNames{iInputs},'MontageChannels')) || (strcmp(InputsFieldNames{iInputs},'AmplitudeThreshold'))|| (strcmp(InputsFieldNames{iInputs},'TargetChannels'))
+                    if (isa(obj.inputs.(InputsFieldNames{iInputs}),'char')) 
+                        if (strcmp(InputsFieldNames{iInputs},'ReferenceChannels')) || (strcmp(InputsFieldNames{iInputs},'ITI')) || (strcmp(InputsFieldNames{iInputs},'EMGDisplayChannels')) || (strcmp(InputsFieldNames{iInputs},'EMGTargetChannels')) || (strcmp(InputsFieldNames{iInputs},'Phase')) || (strcmp(InputsFieldNames{iInputs},'PhaseTolerance')) || (strcmp(InputsFieldNames{iInputs},'MontageChannels')) || (strcmp(InputsFieldNames{iInputs},'AmplitudeThreshold'))|| (strcmp(InputsFieldNames{iInputs},'TargetChannels')) || (strcmp(InputsFieldNames{iInputs},'EEGDisplayPeriod'))
                             if (isempty(obj.inputs.(InputsFieldNames{iInputs})))
                                 disp donothing
                             else
@@ -2636,7 +2775,8 @@ classdef best_toolbox < handle
                             case 'IA'
                                 obj.bossbox.IAScopeBoot
                             case 'EEG'
-                                %% #rsEEGTODO: create this scope and boot it here
+                                obj.bossbox.EEGScopeBoot(obj.inputs.EEGDisplayPeriod(1),obj.inputs.EEGDisplayPeriod(2));
+                                obj.boot_fieldtrip;
                         end
                     end
                 case 2 % fieldtrip
@@ -2720,6 +2860,7 @@ classdef best_toolbox < handle
                     switch obj.inputs.BrainState
                         case 1
                             obj.bossbox.multiPulse(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.tpm});
+                            obj.bossbox.EEGScopeTrigger;
                             tic;
                         case 2
                             obj.bossbox.armPulse;
@@ -2777,6 +2918,9 @@ classdef best_toolbox < handle
                                 %                                 obj.inputs.rawData.(unique_chLab{1,i}).data(obj.inputs.trial,:)=obj.best_VisualizationFilter([obj.bossbox.EMGScope.Data(:,1)]');
                                 % NewUseThis obj.inputs.rawData.(unique_chLab{1,i}).data(obj.inputs.trial,:)=obj.best_VisualizationFilter(obj.bossbox.EMGScopeRead(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chID}{1,i}))   %%[obj.bossbox.EMGScope.Data(:,1)]');
                             case 'EEG'
+                                [obj.inputs.rawData.time{obj.inputs.trial} , obj.inputs.rawData.data{obj.inputs.trial}]=obj.bossbox.EEGScopeRead;
+                                obj.fieldtrip.best2ftdata(obj.inputs.rawData,obj.inputs.trial,obj.inputs.input_device);
+                                obj.fieldtrip.preprocess(obj.inputs.Configuration, obj.inputs.rawData.ftdata,obj.inputs.trial)
                         end
                     end
                 case 2 % fieldtrip
@@ -2850,14 +2994,22 @@ classdef best_toolbox < handle
                                 obj.psych_threshold_MLE;
                         end
                         obj.psych_threshold_trace_plot;
+                    case 'TEP Measurement Vertical Plot'
+                        obj.TEPMeasurementVerticalPlot;
+                    case 'TEP Measurement Single Plot'
+                        obj.TEPMeasurementSinglePlot;
+                    case 'TEP Measurement Topo Plot'
+                        obj.TEPMeasurementTopoPlot;
+                    case 'TEP Measurement Multi Plot'
+                        obj.TEPMeasurementMultiPlot;
                     case 'StatusTable'
                         obj.StatusTable;
                 end
                 AxesNum=obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.axesno}{1,obj.inputs.chLab_idx};
                 AxesField=['ax' num2str(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.axesno}{1,obj.inputs.chLab_idx})];
-                CopiedAxes=copy(obj.app.pr.ax.(AxesField)); 
-                CopiedAxes.Parent=[]; pause(0.1)
-                obj.inputs.Figures{AxesNum}=CopiedAxes;
+%                 CopiedAxes=copy(obj.app.pr.ax.(AxesField)); 
+%                 CopiedAxes.Parent=[]; pause(0.1)
+%                 obj.inputs.Figures{AxesNum}=CopiedAxes;
             end
         end
         function prepTrial(obj)
@@ -3055,8 +3207,8 @@ classdef best_toolbox < handle
         end
         function best_hotspot(obj)
             obj.save;
-            obj.factorizeConditions
-            obj.planTrials
+            obj.factorizeConditions;
+            obj.planTrials;
             obj.app.resultsPanel;
             obj.boot_outputdevice;
             obj.boot_inputdevice;
@@ -3188,6 +3340,20 @@ classdef best_toolbox < handle
             obj.boot_outputdevice;
             obj.boot_inputdevice;
             if obj.inputs.BrainState==2, obj.bossbox.IAScopeBoot; end % This is bascially an Anomoly which can be generalized in Future Releases
+            obj.bootTrial;
+            obj.stimLoop;
+            obj.prepSaving;
+            obj.save;
+            obj.saveFigures;
+            obj.completed;
+        end
+        function best_tephs(obj)
+            obj.save;
+            obj.factorizeConditions;
+            obj.planTrials;
+            obj.app.resultsPanel;
+            obj.boot_outputdevice;
+            obj.boot_inputdevice;
             obj.bootTrial;
             obj.stimLoop;
             obj.prepSaving;
@@ -4413,6 +4579,101 @@ classdef best_toolbox < handle
                 obj.inputs.results.(Channel).MotorThreshold=ceil(mean(AllIntensities));
             end
         end
+        function TEPMeasurementVerticalPlot(obj)
+            ax=['ax' num2str(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.axesno}{1,obj.inputs.chLab_idx})];
+            cfg=[];
+            cfg.trials=obj.inputs.trial;
+            load('S5_raw_segmented.mat');
+            obj.inputs.PreProcessedData=data;
+            dataA=ft_selectdata(cfg, obj.inputs.PreProcessedData);
+            cfg=[];
+            cfg.channel=obj.inputs.PreProcessedData.label(1:64);
+            dataB=ft_selectdata(cfg, dataA);
+            dataB.label=obj.inputs.rawData.ftdata.label;
+            cfg=[];
+            cfg.viewmode='vertical';
+            ft_databrowser(cfg,dataB);
+            ah=copy(gca); fh=gcf; fh.Visible='off';
+            delete(allchild(obj.app.pr.container.(ax)))
+            copyobj(ah,obj.app.pr.container.(ax))
+            delete(fh); pause(0.1);
+        end
+        function TEPMeasurementSinglePlot(obj)
+            ax=['ax' num2str(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.axesno}{1,obj.inputs.chLab_idx})];
+            cfg=[];
+            cfg.trials=obj.inputs.trial;
+            load('S5_raw_segmented.mat');
+            obj.inputs.PreProcessedData=data;
+            dataA=ft_selectdata(cfg, obj.inputs.PreProcessedData);
+            cfg=[];
+            cfg.channel=obj.inputs.PreProcessedData.label(5);
+            dataB=ft_selectdata(cfg, dataA);
+            dataB.label={'C3'};
+            cfg=[];
+            cfg.viewmode='vertical';
+            ft_databrowser(cfg,dataB);
+            ah=copy(gca); fh=gcf; fh.Visible='off';
+            delete(allchild(obj.app.pr.container.(ax)))
+            copyobj(ah,obj.app.pr.container.(ax))
+            gca, ylim auto;
+            delete(fh); pause(0.1);
+        end
+        function TEPMeasurementTopoPlot(obj)
+            ax=['ax' num2str(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.axesno}{1,obj.inputs.chLab_idx})];
+            
+            cfg=[];
+            cfg.layout='easycapM1.mat';
+            layout=ft_prepare_layout(cfg); 
+            
+            load('S5_raw_segmented.mat');
+            obj.inputs.PreProcessedData=data;
+            
+            cfg=[];
+            cfg.channel=obj.inputs.PreProcessedData.label(1:64);
+            dataB=ft_selectdata(cfg, obj.inputs.PreProcessedData);
+            layout.label=dataB.label;
+
+            
+            cfg=[];
+            cfg.layout=layout;
+            cfg.colorbar='yes';
+            cfg.trials=obj.inputs.trial;
+            figure('Visible','off'); ft_topoplotER(cfg,dataB);
+            fh=gcf; % fh.Visible='off';
+            delete(allchild(obj.app.pr.container.(ax)))
+            fh.Children(3).Parent=obj.app.pr.container.(ax);
+%             fh.Children(2).Parent=obj.app.pr.container.(ax);
+            
+            delete(fh); pause(0.1);
+        end
+        function TEPMeasurementMultiPlot(obj)
+            ax=['ax' num2str(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.axesno}{1,obj.inputs.chLab_idx})];
+            
+            cfg=[];
+            cfg.layout='easycapM1.mat';
+            layout=ft_prepare_layout(cfg); 
+            
+            load('S5_raw_segmented.mat');
+            obj.inputs.PreProcessedData=data;
+            
+            cfg=[];
+            cfg.channel=obj.inputs.PreProcessedData.label(1:64);
+            dataB=ft_selectdata(cfg, obj.inputs.PreProcessedData);
+            layout.label=dataB.label;
+
+            
+            cfg=[];
+            cfg.layout=layout;
+            cfg.colorbar='yes';
+            cfg.trials=obj.inputs.trial;
+            figure('Visible','off'); ft_multiplotER(cfg,dataB);
+            fh=gcf; % fh.Visible='off';
+            delete(allchild(obj.app.pr.container.(ax)))
+            fh.Children(2).Parent=obj.app.pr.container.(ax);
+%             fh.Children(2).Parent=obj.app.pr.container.(ax);
+            
+            delete(fh); pause(0.1);
+        end
         function StatusTable(obj)
             ax=['ax' num2str(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.axesno}{1,obj.inputs.chLab_idx})];
             if obj.inputs.trial~=obj.inputs.totalTrials
@@ -4439,18 +4700,22 @@ classdef best_toolbox < handle
                 case 1 % boss box
                     % multiplying by 5 because the sampling rate is 5khz
                     % and the time is in milieseconds
-                    obj.inputs.sc_samples=((obj.inputs.prestim_scope_plt)+(obj.inputs.poststim_scope_plt))*5;
-                    obj.inputs.sc_prepostsamples=(obj.inputs.prestim_scope_plt)*(-5);
+                    if isfield(obj.inputs,'prestim_scope_plt') && isfield(obj.inputs,'poststim_scope_plt')
+                        obj.inputs.sc_samples=((obj.inputs.prestim_scope_plt)+(obj.inputs.poststim_scope_plt))*5;
+                        obj.inputs.sc_prepostsamples=(obj.inputs.prestim_scope_plt)*(-5);
+                        obj.inputs.timeVect=linspace(-1*(obj.inputs.prestim_scope_plt),obj.inputs.poststim_scope_plt,obj.inputs.sc_samples);
+                    end
                     
                     %onset, offset samples conversion to sampling rate
-                    obj.inputs.mep_onset_samples=obj.inputs.mep_onset*5;
-                    obj.inputs.mep_offset_samples=obj.inputs.mep_offset*5;
+                    if isfield(obj.inputs,'mep_onset_samples') && isfield(obj.inputs,'mep_offset_samples')
+                        obj.inputs.mep_onset_samples=obj.inputs.mep_onset*5;
+                        obj.inputs.mep_offset_samples=obj.inputs.mep_offset*5;
+                    end
                     disp enteredtimevect-------------
                     % 18-Mar-2020 18:11:00
                     %                     switch char(obj.inputs.measure_str) || char(obj.inputs.sub_measure_str)%because not all will require MEPs to plot such as the intervention functions or multi stimulator paradigm so this is nec
                     %                         case {'MEP Measurement','Motor Hotspot Search','Motor Threshold Hunting','IOC'}
                     %                             disp enteredtimevect-------------
-                    obj.inputs.timeVect=linspace(-1*(obj.inputs.prestim_scope_plt),obj.inputs.poststim_scope_plt,obj.inputs.sc_samples);
                     %                         otherwise
                     %                     end
                     
@@ -4698,6 +4963,12 @@ classdef best_toolbox < handle
                     obj.inputs.Handles.RunnigAmplitude.YData=obj.inputs.rawData.(ThisChannelName).data(obj.inputs.trial,:);
             end
         end
+
+        
+        
+        
+        
+        
         function DeMeanedEEGData =best_DeMeanEEG(obj,RawData)
             DeMeanedEEGData=RawData-mean(RawData);
             
@@ -4788,8 +5059,6 @@ classdef best_toolbox < handle
             %% ----EMG Line Noise Removal End
             
         end
-        
-        
         %% Old Scripts
         function best_motorhotspot(obj)
             obj.info.method=obj.info.method+1;

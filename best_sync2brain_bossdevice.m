@@ -220,29 +220,11 @@ classdef best_sync2brain_bossdevice <handle
             obj.EMGScope.TriggerLevel = 0.5;
             obj.EMGScope.TriggerSlope = 'Rising';
             obj.best_toolbox.FilterCoefficients.HumNoiseNotchFilter=designfilt('bandstopiir','FilterOrder',2,'HalfPowerFrequency1',39,'HalfPowerFrequency2',61,'DesignMethod','butter','SampleRate',NumSamples);
+            %% Starting Scope
+            obj.EMGScopeStart;
         end
         
         function IEEGScopeBoot(obj)
-            %% Choosing 1 from 3x Oscillitory Models, Load Phase, PhasePlusMinus, Amplitude Low and Amplitude High
-% %             switch obj.best_toolbox.inputs.FrequencyBand
-% %                 case 1 % Alpha
-% %                     IPSignalID = getsignalid(obj.bb.tg, 'OSC/alpha/IEEG') + int32(0);
-% %                     NumSamples=(obj.best_toolbox.inputs.EEGDisplayPeriodPost+obj.best_toolbox.inputs.EEGDisplayPeriodPre)*0.5;
-% %                     NumPrePostSamples=obj.best_toolbox.inputs.EEGDisplayPeriodPre*0.5;
-% %                     Decimation=100;
-% %                 case 2 % Theta
-% %                     IPSignalID = getsignalid(obj.bb.tg, 'OSC/theta/IEEG') + int32(0);
-% %                     NumSamples=(obj.best_toolbox.inputs.EEGDisplayPeriodPost+obj.best_toolbox.inputs.EEGDisplayPeriodPre)*0.25;
-% %                     NumPrePostSamples=obj.best_toolbox.inputs.EEGDisplayPeriodPre*0.25;
-% %                     Decimation=20;
-% %                 case 3 % Beta
-% %                     IPSignalID = getsignalid(obj.bb.tg, 'OSC/beta/IEEG') + int32(0);
-% %                     NumSamples=(obj.best_toolbox.inputs.EEGDisplayPeriodPost+obj.best_toolbox.inputs.EEGDisplayPeriodPre)*1;
-% %                     NumPrePostSamples=obj.best_toolbox.inputs.EEGDisplayPeriodPre*1;
-% %                     Decimation=1;
-% %             end
-
-            %% Delete Older section
             MrkSignalID = getsignalid(obj.bb.tg, 'MRK/mrk_masked');
             IPSignalID = getsignalid(obj.bb.tg, 'SPF/Matrix Multiply');
             NumSamples=(obj.best_toolbox.inputs.EEGDisplayPeriodPost+obj.best_toolbox.inputs.EEGDisplayPeriodPre)*5;
@@ -261,7 +243,8 @@ classdef best_sync2brain_bossdevice <handle
             obj.IEEGScope.TriggerLevel = 0.5;
             obj.IEEGScope.TriggerSlope = 'Rising';
             obj.best_toolbox.inputs.rawData.IEEG.time=linspace(-1*(obj.best_toolbox.inputs.EEGDisplayPeriodPre),obj.best_toolbox.inputs.EEGDisplayPeriodPost,NumSamples);
-
+            %% Starting Scope
+            obj.IEEGScopeStart;
         end
         
         function IPScopeBoot(obj)
@@ -288,6 +271,8 @@ classdef best_sync2brain_bossdevice <handle
 %             obj.IPScope.TriggerSignal = MrkSignalID; %in Tuebingen setup the 2nd coloumn of signal was giving the return values, however in Mainz setup it was the third coloumn
             obj.IPScope.TriggerLevel = 0.5;
             obj.IPScope.TriggerSlope = 'Rising';
+            %% Starting Scope
+            obj.IPScopeStart;
         end
         
         function IAScopeBoot(obj)
@@ -392,20 +377,22 @@ classdef best_sync2brain_bossdevice <handle
         function EEGScopeBoot(obj,EEGDisplayPeriodPre,EEGDisplayPeriodPost)
             % ArgIn EEGDisplayPeriodPre is ms
             % ArgIn EEGDisplayPeriodPost is ms
-            NumSamples=(EEGDisplayPeriodPost+EEGDisplayPeriodPre)*5; %Maximum Limit is of 1020000 Samples imposed by Simulink Real Time
+            NumSamples=(EEGDisplayPeriodPost+EEGDisplayPeriodPre*(-1))*5; %Maximum Limit is of 1020000 Samples imposed by Simulink Real Time
             NumPrePostSamples=EEGDisplayPeriodPre*5;
             obj.EEGScope = addscope(obj.bb.tg, 'host', 95);
             AuxSignalID = getsignalid(obj.bb.tg, 'UDP/raw_eeg') + int32(0:obj.bb.eeg_channels-1);
             MrkSignalID = getsignalid(obj.bb.tg, 'UDP/raw_mrk') + int32([0 1 2]);
             addsignal(obj.EEGScope, AuxSignalID);
             obj.EEGScope.NumSamples = NumSamples;
-            obj.EEGScope.NumPrePostSamples = -NumPrePostSamples;
+            obj.EEGScope.NumPrePostSamples = NumPrePostSamples;
             obj.EEGScope.Decimation = 1;
             obj.EEGScope.TriggerMode = 'Signal';
             obj.EEGScope.TriggerSignal = getsignalid(obj.bb.tg, 'gen_running'); %Remove it in Official Usee
 %             obj.EEGScope.TriggerSignal = MrkSignalID(3); %in Tuebingen setup the 2nd coloumn of signal was giving the return values, however in Mainz setup it was the third coloumn
             obj.EEGScope.TriggerLevel = 0.5;
             obj.EEGScope.TriggerSlope = 'Rising';
+            %% Starting Scope
+            obj.EEGScopeStart;
         end
         
         function EMGScopeStart(obj)
@@ -449,9 +436,13 @@ classdef best_sync2brain_bossdevice <handle
             obj.IEEGScopeStart;
         end
         function [Time, Data]=EEGScopeRead(obj)
+            obj.EEGScope.Status,  trigger(obj.EEGScope); obj.EEGScope.Status, 
             while ~strcmpi(obj.EEGScope.Status,'finished'), end
             Data=obj.EEGScope.Data';
             Time=(obj.EEGScope.Time-obj.EEGScope.Time(1)+(obj.EEGScope.Time(2)-obj.EEGScope.Time(1)))';
+            if ~strcmpi(obj.best_toolbox.inputs.Protocol,'rs EEG Measurement Protocol')
+                Time=(Time*1000)+obj.best_toolbox.inputs.EEGDisplayPeriod(1);
+            end
             obj.EEGScopeStart;
         end
         
