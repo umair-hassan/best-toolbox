@@ -140,7 +140,7 @@ classdef BEST < handle
             % drop-down select measure: fourth horizontal row on first panel
             pmd_hbox_slct_mes = uix.HBox( 'Parent', pmd_vbox, 'Spacing', 5, 'Padding', 5  );
             uicontrol( 'Style','text','Parent', pmd_hbox_slct_mes,'String','Select Protocol:','FontSize',11,'HorizontalAlignment','left' ,'Units','normalized');
-            obj.pmd.select_measure.string={'rsEEG Measurement','Psychometric Threshold Hunting','MEP Dose Response Curve','MEP Measurement','MEP IOC_new','Multimodal Experiment','MEP Hotspot Search','MEP Motor Threshold Hunting','EEG triggered Stimulation','TMS fMRI','TEP Measurement','ERP Measurement','rTMS Intervention'};
+            obj.pmd.select_measure.string={'TEP Hotspot Search','rsEEG Measurement','Psychometric Threshold Hunting','MEP Dose Response Curve','MEP Measurement','MEP IOC_new','Multimodal Experiment','MEP Hotspot Search','MEP Motor Threshold Hunting','EEG triggered Stimulation','TMS fMRI','TEP Measurement','ERP Measurement','rTMS Intervention'};
             obj.pmd.select_measure.popupmenu=uicontrol( 'Style','popupmenu','Parent', pmd_hbox_slct_mes ,'FontSize',11,'String',obj.pmd.select_measure.string);
             obj.pmd.select_measure.btn=uicontrol( 'Parent', pmd_hbox_slct_mes ,'Style','PushButton','String','+','FontWeight','Bold','Callback',@(~,~)obj.cb_measure_add);
             set( pmd_hbox_slct_mes, 'Widths', [120 -0.7 -0.09]);
@@ -2772,7 +2772,7 @@ classdef BEST < handle
                                 obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).si_pckt{1,3}=NaN;
                         end
                         
-                    case 6 %# of Pulses
+                    case 6 % # of Pulses
                         obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).pulse_count=str2double(CellEditData.NewData);
                         %AAJ: idher add kero k Stimulation Mode bhi nill ho jaye units bhi Nill ho
                         %jaye intensity bhi khtam ho jaye matlab jese he pulse 0 zero ho to sirf vo
@@ -3989,7 +3989,7 @@ classdef BEST < handle
                                 obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).si_pckt{1,3}=NaN;
                         end
                         
-                    case 6 %# of Pulses
+                    case 6 % # of Pulses
                         obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).pulse_count=str2double(CellEditData.NewData);
                         %AAJ: idher add kero k Stimulation Mode bhi nill ho jaye units bhi Nill ho
                         %jaye intensity bhi khtam ho jaye matlab jese he pulse 0 zero ho to sirf vo
@@ -5725,7 +5725,7 @@ classdef BEST < handle
                                 obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).si_pckt{1,3}=NaN;
                         end
                         
-                    case 6 %# of Pulses
+                    case 6 % # of Pulses
                         obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).pulse_count=str2double(CellEditData.NewData);
                         %AAJ: idher add kero k Stimulation Mode bhi nill ho jaye units bhi Nill ho
                         %jaye intensity bhi khtam ho jaye matlab jese he pulse 0 zero ho to sirf vo
@@ -7115,7 +7115,7 @@ classdef BEST < handle
                                 obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).si_pckt{1,3}=NaN;
                         end
                         
-                    case ColNoOfPulses %# of Pulses
+                    case ColNoOfPulses % # of Pulses
                         obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).pulse_count=str2double(CellEditData.NewData);
                         %AAJ: idher add kero k Stimulation Mode bhi nill ho jaye units bhi Nill ho
                         %jaye intensity bhi khtam ho jaye matlab jese he pulse 0 zero ho to sirf vo
@@ -8550,7 +8550,7 @@ classdef BEST < handle
                                 obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).si_pckt{1,3}=NaN;
                         end
                         
-                    case ColNoOfPulses %# of Pulses
+                    case ColNoOfPulses % # of Pulses
                         obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).pulse_count=str2double(CellEditData.NewData);
                         %AAJ: idher add kero k Stimulation Mode bhi nill ho jaye units bhi Nill ho
                         %jaye intensity bhi khtam ho jaye matlab jese he pulse 0 zero ho to sirf vo
@@ -9921,7 +9921,7 @@ classdef BEST < handle
                                 obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).si_pckt{1,3}=NaN;
                         end
                         
-                    case ColNoOfPulses %# of Pulses
+                    case ColNoOfPulses % # of Pulses
                         obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).pulse_count=str2double(CellEditData.NewData);
                         %AAJ: idher add kero k Stimulation Mode bhi nill ho jaye units bhi Nill ho
                         %jaye intensity bhi khtam ho jaye matlab jese he pulse 0 zero ho to sirf vo
@@ -11066,7 +11066,169 @@ classdef BEST < handle
                 end
             end
         end
+        %% TEP Hotspot Search
+        function pi_tephs(obj)
+            obj.fig.main.Widths([1 2 3])=[-1.15 -3.35 -0];
+            Panel=uix.Panel( 'Parent', obj.pi.empty_panel,'FontSize',14 ,'Units','normalized','Title','TEP Hotspot Search' ,'FontWeight','Bold','TitlePosition','centertop');
+            vb = uix.VBox( 'Parent', Panel, 'Spacing', 5, 'Padding', 5  );
+            
+            mep_panel_row2 = uix.HBox( 'Parent', vb, 'Spacing', 5, 'Padding', 5  );
+            uicontrol( 'Style','text','Parent', mep_panel_row2,'String','EEG Electrodes Layout:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+            CapLayouts={'M1-EASYCAP','64-Chanel actiCAP','r6055 NeuroScan','r6915 NeuroScan','M15-EASYCAP','M11-EASYCAP','M22-EASYCAP','M23-EASYCAP','M24-EASYCAP','M25-EASYCAP','M3-EASYCAP','M7-EASYCAP','M10-EASYCAP','M16-EASYCAP','M14-EASYCAP','M20-EASYCAP','M17-EASYCAP','M19-EASYCAP'};
+            obj.pi.tephs.EEGElectrodesLayout=uicontrol( 'Style','popupmenu','Parent', mep_panel_row2 ,'FontSize',11,'String',CapLayouts,'Tag','EEGElectrodesLayout','callback',@cb_par_saving); %,'Callback',@obj.cb_hotspot_target_muscle
+            set( mep_panel_row2, 'Widths', [150 -2]);
+            
+            mep_panel_row2 = uix.HBox( 'Parent', vb, 'Spacing', 5, 'Padding', 5  );
+            uicontrol( 'Style','text','Parent', mep_panel_row2,'String','Input Device:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+            str_in_device(1)= (cellstr('Select'));
+            str_in_device(2:numel(obj.hw.device_added1_listbox.string)+1)=obj.hw.device_added1_listbox.string;
+            obj.pi.tephs.InputDevice=uicontrol( 'Style','popupmenu','Parent', mep_panel_row2 ,'FontSize',11,'String',str_in_device,'Tag','InputDevice','callback',@cb_par_saving); %,'Callback',@obj.cb_hotspot_target_muscle
+            set( mep_panel_row2, 'Widths', [150 -2]);
+            
+            % row 2f
+            mep_panel_row2f = uix.HBox( 'Parent', vb, 'Spacing', 5, 'Padding', 5  );
+            uicontrol( 'Style','text','Parent', mep_panel_row2f,'String','Output Device:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+            str_out_device(1)= (cellstr('Select'));
+            str_out_device(2:numel(obj.hw.device_added2_listbox.string)+1)=obj.hw.device_added2_listbox.string;
+            obj.pi.tephs.OutputDevice=uicontrol( 'Style','popupmenu','Parent', mep_panel_row2f ,'String',str_out_device,'FontSize',11,'Tag','OutputDevice','callback',@cb_par_saving); %,'Callback',@obj.cb_hotspot_target_muscle
+            set( mep_panel_row2f, 'Widths', [150 -2]);
+            
+            % row 2f
+            Value=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).ProtocolMode;
+            mep_panel_row_ProtocolMode_1 = uix.HBox( 'Parent', vb, 'Spacing', 5, 'Padding', 5  );
+            uicontrol( 'Style','text','Parent', mep_panel_row_ProtocolMode_1,'String','Protocol Mode:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+            obj.pi.tephs.ProtocolMode=uicontrol( 'Style','popupmenu','Parent', mep_panel_row_ProtocolMode_1 ,'String',{'Automatated','Manual'},'FontSize',11,'Tag','ProtocolMode','callback',@cb_par_saving,'Value',Value); %,'Callback',@obj.cb_hotspot_target_muscle
+            set( mep_panel_row_ProtocolMode_1, 'Widths', [150 -2]);
+            
+            % row 2
+            mep_panel_row2 = uix.HBox( 'Parent', vb, 'Spacing', 5, 'Padding', 5  );
+            uicontrol( 'Style','text','Parent', mep_panel_row2,'String','Target Channel:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+            obj.pi.tephs.TargetChannels=uicontrol( 'Style','edit','Parent', mep_panel_row2 ,'FontSize',11,'Tag','TargetChannels','callback',@cb_par_saving); %,'Callback',@obj.cb_hotspot_target_muscle
+            set( mep_panel_row2, 'Widths', [150 -2]);
+            
+            % row 2
+            mep_panel_row2 = uix.HBox( 'Parent', vb, 'Spacing', 5, 'Padding', 5  );
+            uicontrol( 'Style','text','Parent', mep_panel_row2,'String','Display Channels:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+            obj.pi.tephs.DisplayChannels=uicontrol( 'Style','edit','Parent', mep_panel_row2 ,'FontSize',11,'Tag','DisplayChannels','callback',@cb_par_saving); %,'Callback',@obj.cb_hotspot_target_muscle
+            set( mep_panel_row2, 'Widths', [150 -2]);
+            
+            % row 2
+            mep_panel_row2 = uix.HBox( 'Parent', vb, 'Spacing', 5, 'Padding', 5  );
+            uicontrol( 'Style','text','Parent', mep_panel_row2,'String','Recording Reference:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+            obj.pi.tephs.RecordingReference=uicontrol( 'Style','edit','Parent', mep_panel_row2 ,'FontSize',11,'Tag','RecordingReference','callback',@cb_par_saving); %,'Callback',@obj.cb_hotspot_target_muscle
+            set( mep_panel_row2, 'Widths', [150 -2]);
+            
+            % row 2
+            mep_panel_row2 = uix.HBox( 'Parent', vb, 'Spacing', 5, 'Padding', 5  );
+            uicontrol( 'Style','text','Parent', mep_panel_row2,'String','Reference Channels:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+            obj.pi.tephs.ReferenceChannels=uicontrol( 'Style','edit','Parent', mep_panel_row2 ,'FontSize',11,'Tag','ReferenceChannels','callback',@cb_par_saving); %,'Callback',@obj.cb_hotspot_target_muscle
+            set( mep_panel_row2, 'Widths', [150 -2]);
+            
+            % row 2
+            mep_panel_row2 = uix.HBox( 'Parent', vb, 'Spacing', 5, 'Padding', 5  );
+            uicontrol( 'Style','text','Parent', mep_panel_row2,'String','EEG Display Period (ms):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+            obj.pi.tephs.EEGDisplayPeriod=uicontrol( 'Style','edit','Parent', mep_panel_row2 ,'FontSize',11,'Tag','EEGDisplayPeriod','callback',@cb_par_saving); %,'Callback',@obj.cb_hotspot_target_muscle
+            set( mep_panel_row2, 'Widths', [150 -2]);
+            
+            mep_panel_row4 = uix.HBox( 'Parent', vb, 'Spacing', 5, 'Padding', 5  );
+            uicontrol( 'Style','text','Parent', mep_panel_row4,'String','No. of Trials:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+            obj.pi.tephs.TrialsPerCondition=uicontrol( 'Style','edit','Parent', mep_panel_row4 ,'FontSize',11,'Tag','TrialsPerCondition','callback',@cb_par_saving);
+            set( mep_panel_row4, 'Widths', [150 -2]);
+            
+            %row 5
+            mep_panel_row5 = uix.HBox( 'Parent', vb, 'Spacing', 5, 'Padding', 5  );
+            uicontrol( 'Style','text','Parent', mep_panel_row5,'String','Inter Trial Interval (s):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+            obj.pi.tephs.ITI=uicontrol( 'Style','edit','Parent', mep_panel_row5 ,'FontSize',11,'Tag','ITI','callback',@cb_par_saving);
+            set( mep_panel_row5, 'Widths', [150 -2]);
+            %
+            uiextras.HBox( 'Parent', vb);
+            obj.pi.tephs.ProtocolMode.Value
+            if obj.pi.tephs.ProtocolMode.Value==2
+                mep_panel_row4.Visible='off';
+                mep_panel_row5.Visible='off';
+            end
+            set(vb,'Heights',[45 45 45 45 45 42 45 45 45 45 45 -1])
+            Interactivity;
+            function cb_run_hotspot
+                switch obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).ProtocolMode
+                    case 1 %Automated
+                        obj.bst.best_hotspot
+                    case 2 %Manual
+                        obj.bst.best_hotspot_manual
+                end
+            end  
+            function cb_par_saving(source,~)
+                if strcmp(source.Tag,'InputDevice') || strcmp(source.Tag,'OutputDevice') || strcmp(source.Tag,'ProtocolMode') || strcmp(source.Tag,'EEGElectrodesLayout')
+                    obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(source.Tag)=source.Value;
+                    if strcmp(source.Tag,'ProtocolMode')
+                        switch source.Value
+                            case 1 % Automated
+                                mep_panel_row4.Visible='on';
+                                mep_panel_row5.Visible='on';
+                            case 2 % Manual
+                                mep_panel_row4.Visible='off';
+                                mep_panel_row5.Visible='off';
+                        end
+                    end
+                else
+                    obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(source.Tag)=source.String;
+                end
+                
+            end
+            function Interactivity
+                ParametersFieldNames=fieldnames(obj.pi.tephs);
+                for iLoadingParameters=1:numel(ParametersFieldNames)
+                    obj.pi.tephs.(ParametersFieldNames{iLoadingParameters}).Enable=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).Enable{1,1};
+                end
+            end
 
+        end
+        function default_par_tephs(obj)
+            % Editing Rule: Values should be Integers, Strings should
+            % Strings , cells are the defaults values that do not have any
+            % uicontroller
+            obj.info.defaults=[];
+            obj.info.defaults.BrainState=1;
+            obj.info.defaults.EEGElectrodesLayout=1;
+            obj.info.defaults.TrialsPerCondition='50';
+            obj.info.defaults.InputDevice=1;
+            obj.info.defaults.OutputDevice=1;
+            obj.info.defaults.ProtocolMode=1;
+            obj.info.defaults.ITI='4';
+            obj.info.defaults.TargetChannels='';
+            obj.info.defaults.DisplayChannels='';
+            obj.info.defaults.RecordingReference='';
+            obj.info.defaults.ReferenceChannels='';
+            obj.info.defaults.EEGDisplayPeriod='[-50 200]';
+            obj.info.defaults.EEGDisplayYLim={NaN,NaN};
+            obj.info.defaults.Protocol={'TEP Hotspot Search Protocol'};
+            obj.info.defaults.Handles.UserData='Reserved for Future Use';
+            obj.info.defaults.Enable={'on'};
+            si=NaN;
+            for idefaults=1:numel(si)
+                cond=['cond' num2str(idefaults)];
+                obj.info.defaults.condsAll.(cond).targetChannel=cellstr('NaN');
+                obj.info.defaults.condsAll.(cond).st1.pulse_count=1;
+                obj.info.defaults.condsAll.(cond).st1.stim_device={'Select'};
+                obj.info.defaults.condsAll.(cond).st1.stim_mode='single_pulse';
+                obj.info.defaults.condsAll.(cond).st1.stim_timing=num2cell(0);
+                obj.info.defaults.condsAll.(cond).st1.si=si(idefaults);
+                obj.info.defaults.condsAll.(cond).st1.si_units=1;
+                obj.info.defaults.condsAll.(cond).st1.threshold='';
+                obj.info.defaults.condsAll.(cond).st1.si_pckt={si(idefaults)};
+            end
+            obj.par.(obj.info.event.current_session).(obj.info.event.measure_being_added)=obj.info.defaults;
+        end
+        function func_load_tephs_par(obj)
+            ParametersFieldNames=fieldnames(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr));
+            for iLoadingParameters=1:numel(ParametersFieldNames)
+                if (isa(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(ParametersFieldNames{iLoadingParameters}),'char'))
+                    obj.pi.tephs.(ParametersFieldNames{iLoadingParameters}).String=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(ParametersFieldNames{iLoadingParameters});
+                elseif(isa(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(ParametersFieldNames{iLoadingParameters}),'double'))
+                    obj.pi.tephs.(ParametersFieldNames{iLoadingParameters}).Value=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(ParametersFieldNames{iLoadingParameters});
+                end
+            end
+        end
         %% Delete: ioc section
         function pi_ioc(obj)
             main
@@ -14254,6 +14416,9 @@ classdef BEST < handle
                 case 'rsEEG Measurement'
                     obj.pi_rseeg; 
                     obj.func_load_rseeg_par;
+                case 'TEP Hotspot Search'
+                    obj.pi_tephs; 
+                    obj.func_load_tephs_par;
             end
             obj.pmd.RunStopButton.Enable=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).Enable{1,1};
             % obj.info.event.current_measure(obj.info.event.current_measure == ' ') = '_';
@@ -14295,6 +14460,8 @@ classdef BEST < handle
                     obj.default_par_rtms;
                 case 'rsEEG Measurement'
                     obj.default_par_rseeg;
+                case 'TEP Hotspot Search'
+                    obj.default_par_tephs;
             end
         end
         
