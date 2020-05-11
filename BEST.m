@@ -10962,6 +10962,7 @@ classdef BEST < handle
             
         end
         %% rsEEG Measurement
+        %Back up
         function pi_rseeg(obj)
             obj.fig.main.Widths([1 2 3])=[-1.15 -3.35 -0];
             Panel=uix.Panel( 'Parent', obj.pi.empty_panel,'FontSize',14 ,'Units','normalized','Title','resting-state EEG Measurement' ,'FontWeight','Bold','TitlePosition','centertop');
