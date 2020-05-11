@@ -2860,7 +2860,7 @@ classdef best_toolbox < handle
                     switch obj.inputs.BrainState
                         case 1
                             obj.bossbox.multiPulse(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.tpm});
-                            obj.bossbox.EEGScopeTrigger;
+%                             obj.bossbox.EEGScopeTrigger;
                             tic;
                         case 2
                             obj.bossbox.armPulse;

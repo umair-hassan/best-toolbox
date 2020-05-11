@@ -140,7 +140,7 @@ classdef BEST < handle
             % drop-down select measure: fourth horizontal row on first panel
             pmd_hbox_slct_mes = uix.HBox( 'Parent', pmd_vbox, 'Spacing', 5, 'Padding', 5  );
             uicontrol( 'Style','text','Parent', pmd_hbox_slct_mes,'String','Select Protocol:','FontSize',11,'HorizontalAlignment','left' ,'Units','normalized');
-            obj.pmd.select_measure.string={'TEP Hotspot Search','rsEEG Measurement','Psychometric Threshold Hunting','MEP Dose Response Curve','MEP Measurement','MEP IOC_new','Multimodal Experiment','MEP Hotspot Search','MEP Motor Threshold Hunting','EEG triggered Stimulation','TMS fMRI','TEP Measurement','ERP Measurement','rTMS Intervention'};
+            obj.pmd.select_measure.string={'TEP Hotspot Search','rsEEG Measurement','TEP Measurement','Psychometric Threshold Hunting','MEP Dose Response Curve','MEP Measurement','MEP IOC_new','Multimodal Experiment','MEP Hotspot Search','MEP Motor Threshold Hunting','EEG triggered Stimulation','TMS fMRI','TEP Measurement','ERP Measurement','rTMS Intervention'};
             obj.pmd.select_measure.popupmenu=uicontrol( 'Style','popupmenu','Parent', pmd_hbox_slct_mes ,'FontSize',11,'String',obj.pmd.select_measure.string);
             obj.pmd.select_measure.btn=uicontrol( 'Parent', pmd_hbox_slct_mes ,'Style','PushButton','String','+','FontWeight','Bold','Callback',@(~,~)obj.cb_measure_add);
             set( pmd_hbox_slct_mes, 'Widths', [120 -0.7 -0.09]);
@@ -11401,7 +11401,7 @@ classdef BEST < handle
                     case 1
                         expModvBox=uix.VBox( 'Parent', DisplayParametersPanel, 'Spacing', 0, 'Padding', 0  );
                         expModr2=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
-                        uicontrol( 'Style','text','Parent', expModr2,'String','EMG Display Channels:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                        uicontrol( 'Style','text','Parent', expModr2,'String','Display Channels:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
                         obj.pi.tep.EMGDisplayChannels=uicontrol( 'Style','edit','Parent', expModr2 ,'FontSize',11,'Tag','EMGDisplayChannels','callback',@cb_par_saving);
                         expModr2.Widths=[150 -2];
                         
@@ -11412,7 +11412,7 @@ classdef BEST < handle
                         expModr3.Widths=[150 -2 -2];
                         
                         expModr4=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
-                        uicontrol( 'Style','text','Parent', expModr4,'String','EMG Display Period (ms):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                        uicontrol( 'Style','text','Parent', expModr4,'String','Display Period (ms):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
                         obj.pi.tep.EMGDisplayPeriodPre=uicontrol( 'Style','edit','Parent', expModr4 ,'FontSize',11,'Tag','EMGDisplayPeriodPre','callback',@cb_par_saving);
                         obj.pi.tep.EMGDisplayPeriodPost=uicontrol( 'Style','edit','Parent', expModr4 ,'FontSize',11,'Tag','EMGDisplayPeriodPost','callback',@cb_par_saving);
                         expModr4.Widths=[150 -2 -2];
@@ -11422,12 +11422,12 @@ classdef BEST < handle
                     case 2
                         expModvBox=uix.VBox( 'Parent', DisplayParametersPanel, 'Spacing', 0, 'Padding', 0  );
                         expModr2=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
-                        uicontrol( 'Style','text','Parent', expModr2,'String','EMG Display Channels:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                        uicontrol( 'Style','text','Parent', expModr2,'String','Display Channels:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
                         obj.pi.tep.EMGDisplayChannels=uicontrol( 'Style','edit','Parent', expModr2 ,'FontSize',11,'Tag','EMGDisplayChannels','callback',@cb_par_saving);
                         expModr2.Widths=[150 -2];
                         
                         expModr3=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
-                        uicontrol( 'Style','text','Parent', expModr3,'String','tep Onset (ms):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                        uicontrol( 'Style','text','Parent', expModr3,'String','Target Channels:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
                         obj.pi.tep.tepOnset=uicontrol( 'Style','edit','Parent', expModr3 ,'FontSize',11,'Tag','tepOnset','callback',@cb_par_saving);
                         obj.pi.tep.tepOffset=uicontrol( 'Style','edit','Parent', expModr3 ,'FontSize',11,'Tag','tepOffset','callback',@cb_par_saving);
                         expModr3.Widths=[150 -2 -2];
@@ -15653,9 +15653,6 @@ classdef BEST < handle
                     obj.pi_eegtms
                     obj.pr_eegtms
                     obj.func_load_eegtms_par;
-                case 'TEP Measurement'
-                    obj.pi_tep
-                    %                     obj.func_load_mep_par;
                 case 'ERP Measurement'
                     obj.pi_erp
                     %                     obj.func_load_mep_par;
@@ -15682,6 +15679,9 @@ classdef BEST < handle
                 case 'TEP Hotspot Search'
                     obj.pi_tephs; 
                     obj.func_load_tephs_par;
+                case 'TEP Measurement'
+                    obj.pi_tep; 
+                    obj.func_load_tep_par;
             end
             obj.pmd.RunStopButton.Enable=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).Enable{1,1};
             % obj.info.event.current_measure(obj.info.event.current_measure == ' ') = '_';
@@ -15725,6 +15725,8 @@ classdef BEST < handle
                     obj.default_par_rseeg;
                 case 'TEP Hotspot Search'
                     obj.default_par_tephs;
+                case 'TEP Measurement'
+                    obj.default_par_tep;
             end
         end
         
