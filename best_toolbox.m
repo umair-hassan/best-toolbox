@@ -1712,9 +1712,9 @@ classdef best_toolbox < handle
                 case 'rs EEG Measurement Protocol'
                     switch obj.inputs.SpectralAnalysis
                         case 1 %IRASA
-                            obj.app.pr.ax_measures=repmat({'rsEEGMeasurement'},1,4*(numel(obj.inputs.TargetChannels)+size(obj.inputs.MontageChannels,1)));
+                            obj.app.pr.ax_measures=repmat({'rsEEGMeasurement'},1,4*(numel(obj.inputs.MontageChannels)));
                             obj.app.pr.axesno=numel(obj.app.pr.ax_measures);
-                            for i=1:numel(obj.inputs.TargetChannels)
+                            for i=1:numel(obj.inputs.MontageChannels)
                                 FractalOriginalChannelLabel=['Fractal & Original Power Spectrum - '];
                                 OscillationChannelLabel=['Oscillation Power Spectrum - ' ];
                                 PercentageChangeChannelLabel=['Oscillation/Fractal Change - ' ];
@@ -1723,26 +1723,10 @@ classdef best_toolbox < handle
                                 obj.app.pr.ax_ChannelLabels_0(4*i-2)={OscillationChannelLabel};
                                 obj.app.pr.ax_ChannelLabels_0(4*i-1)={PercentageChangeChannelLabel};
                                 obj.app.pr.ax_ChannelLabels_0(4*i)={dBChannelLabel};
-                                obj.app.pr.ax_ChannelLabels(4*i-3)= obj.inputs.TargetChannels(i);
-                                obj.app.pr.ax_ChannelLabels(4*i-2)=obj.inputs.TargetChannels(i);
-                                obj.app.pr.ax_ChannelLabels(4*i-1)=obj.inputs.TargetChannels(i);
-                                obj.app.pr.ax_ChannelLabels(4*i)=obj.inputs.TargetChannels(i);
-                            end
-                            if ~isempty(obj.inputs.MontageChannels)
-                                for j=1:size(obj.inputs.MontageChannels,1)
-                                    FractalOriginalChannelLabel=['Fractal & Original Power Spectrum - '];
-                                    OscillationChannelLabel=['Oscillation Power Spectrum - '];
-                                    PercentageChangeChannelLabel=['Oscillation/Fractal Change - ' ];
-                                    dBChannelLabel=['Oscillation/Fractal dB - '];
-                                    obj.app.pr.ax_ChannelLabels_0(i+4*j-3)={FractalOriginalChannelLabel};
-                                    obj.app.pr.ax_ChannelLabels_0(i+4*j-2)={OscillationChannelLabel};
-                                    obj.app.pr.ax_ChannelLabels_0(i+4*j-1)={PercentageChangeChannelLabel};
-                                    obj.app.pr.ax_ChannelLabels_0(i+4*j)={dBChannelLabel};
-                                    obj.app.pr.ax_ChannelLabels(i+4*j-3)= {['Montage' num2str(j)]};
-                                    obj.app.pr.ax_ChannelLabels(i+4*j-2)={['Montage' num2str(j)]};
-                                    obj.app.pr.ax_ChannelLabels(i+4*j-1)={['Montage' num2str(j)]};
-                                    obj.app.pr.ax_ChannelLabels(i+4*j)={['Montage' num2str(j)]};
-                                end
+                                obj.app.pr.ax_ChannelLabels(4*i-3)= {char(join(obj.inputs.MontageChannels{i}))};
+                                obj.app.pr.ax_ChannelLabels(4*i-2)={char(join(obj.inputs.MontageChannels{i}))};
+                                obj.app.pr.ax_ChannelLabels(4*i-1)={char(join(obj.inputs.MontageChannels{i}))};
+                                obj.app.pr.ax_ChannelLabels(4*i)={char(join(obj.inputs.MontageChannels{i}))};
                             end
                             obj.inputs.ChannelsTypeUnique={'EEG'};
                             obj.inputs.input_device=char(obj.app.pi.rseeg.InputDevice.String(obj.inputs.InputDevice));
@@ -1751,19 +1735,12 @@ classdef best_toolbox < handle
                             obj.inputs.condMat{1,obj.inputs.colLabel.inputDevices}=char(obj.app.pi.rseeg.InputDevice.String(obj.inputs.InputDevice));
                             obj.inputs.condMat{1,obj.inputs.colLabel.iti}=NaN;
                         case 2 %FFT
-                            obj.app.pr.ax_measures=repmat({'rsEEGMeasurement'},1,(numel(obj.inputs.TargetChannels)+size(obj.inputs.MontageChannels,1)));
+                            obj.app.pr.ax_measures=repmat({'rsEEGMeasurement'},1,(numel(obj.inputs.MontageChannels)));
                             obj.app.pr.axesno=numel(obj.app.pr.ax_measures);
-                            for i=1:numel(obj.inputs.TargetChannels)
+                            for i=1:numel(obj.inputs.MontageChannels)
                                 ChannelLabel=['Power Spectrum - '];
                                 obj.app.pr.ax_ChannelLabels_0(i)={ChannelLabel};
-                                obj.app.pr.ax_ChannelLabels(i)=obj.inputs.TargetChannels(i);
-                            end
-                            if ~isempty(obj.inputs.MontageChannels)
-                                 for j=1:size(obj.inputs.MontageChannels,1)
-                                    ChannelLabel=['Power Spectrum - '];
-                                    obj.app.pr.ax_ChannelLabels_0(i+1*j)={ChannelLabel};
-                                    obj.app.pr.ax_ChannelLabels(i+1*j)={['Montage' num2str(j)]};
-                                end
+                                obj.app.pr.ax_ChannelLabels(i)={char(join(obj.inputs.MontageChannels{i}))};
                             end
                             obj.inputs.ChannelsTypeUnique={'EEG'};
                             obj.inputs.input_device=char(obj.app.pi.rseeg.InputDevice.String(obj.inputs.InputDevice));
@@ -2661,7 +2638,8 @@ classdef best_toolbox < handle
                 InputsFieldNames=fieldnames(obj.inputs);
                 for iInputs=1:numel(InputsFieldNames)
                     if (isa(obj.inputs.(InputsFieldNames{iInputs}),'char')) 
-                        if (strcmp(InputsFieldNames{iInputs},'ReferenceChannels')) || (strcmp(InputsFieldNames{iInputs},'ITI')) || (strcmp(InputsFieldNames{iInputs},'EMGDisplayChannels')) || (strcmp(InputsFieldNames{iInputs},'EMGTargetChannels')) || (strcmp(InputsFieldNames{iInputs},'Phase')) || (strcmp(InputsFieldNames{iInputs},'PhaseTolerance')) || (strcmp(InputsFieldNames{iInputs},'MontageChannels')) || (strcmp(InputsFieldNames{iInputs},'AmplitudeThreshold'))|| (strcmp(InputsFieldNames{iInputs},'TargetChannels')) || (strcmp(InputsFieldNames{iInputs},'EEGDisplayPeriod'))
+                        if (strcmp(InputsFieldNames{iInputs},'ReferenceChannels')) || (strcmp(InputsFieldNames{iInputs},'ITI')) || (strcmp(InputsFieldNames{iInputs},'EMGDisplayChannels')) || (strcmp(InputsFieldNames{iInputs},'EMGTargetChannels')) || (strcmp(InputsFieldNames{iInputs},'Phase')) || (strcmp(InputsFieldNames{iInputs},'PhaseTolerance')) || (strcmp(InputsFieldNames{iInputs},'MontageChannels')) || (strcmp(InputsFieldNames{iInputs},'AmplitudeThreshold'))|| (strcmp(InputsFieldNames{iInputs},'TargetChannels')) || (strcmp(InputsFieldNames{iInputs},'EEGDisplayPeriod')) ...
+                               || (strcmp(InputsFieldNames{iInputs},'MontageChannels')) || (strcmp(InputsFieldNames{iInputs},'MontageWeights')) || (strcmp(InputsFieldNames{iInputs},'RecordingReference'))
                             if (isempty(obj.inputs.(InputsFieldNames{iInputs})))
                                 disp donothing
                             else
@@ -2671,7 +2649,8 @@ classdef best_toolbox < handle
                                     obj.inputs.(InputsFieldNames{iInputs})=str2num(obj.inputs.(InputsFieldNames{iInputs}));
                                 end
                             end
-                        elseif strcmp(InputsFieldNames{iInputs},'MontageWeights') || strcmp(InputsFieldNames{iInputs},'ResponseFunctionNumerator') || strcmp(InputsFieldNames{iInputs},'ResponseFunctionDenominator')
+                        elseif strcmp(InputsFieldNames{iInputs},'RealTimeChannelWeights') || strcmp(InputsFieldNames{iInputs},'ResponseFunctionNumerator') || strcmp(InputsFieldNames{iInputs},'ResponseFunctionDenominator') ...
+                                || strcmp(InputsFieldNames{iInputs},'TargetFrequencyRange')  || strcmp(InputsFieldNames{iInputs},'BandStopFrequency') 
                             obj.inputs.(InputsFieldNames{iInputs})=str2num(obj.inputs.(InputsFieldNames{iInputs}));
                         else
                             obj.inputs.(InputsFieldNames{iInputs})=str2double(obj.inputs.(InputsFieldNames{iInputs}));
@@ -3185,10 +3164,13 @@ classdef best_toolbox < handle
             obj.app.pmd.RunStopButton.String='Stop';
             obj.app.RunStopButton
         end
-        function rseegInProcess(obj)
-            %% create a simple figure and show the message on it
-            obj.inputs.Handles.InProcessFigure=figure('Name','BEST Toolbox','numbertitle', 'off','ToolBar', 'none','MenuBar', 'none','WindowStyle', 'normal','Units', 'normal', 'Position', [0.5 0.5 .4 .05]);
-            uicontrol( 'Style','text','Parent', obj.inputs.Handles.InProcessFigure,'String','BEST Toolbox is processing EEG Data, please observe MATLAB command line for further details.','FontSize',11,'HorizontalAlignment','center','Units','normalized','Position',[0.05 0.5 1 0.4]);
+        function rseegInProcess(obj,Action)
+            if strcmpi(Action,'open')
+                obj.inputs.Handles.InProcessFigure=figure('Name','BEST Toolbox','numbertitle', 'off','ToolBar', 'none','MenuBar', 'none','WindowStyle', 'normal','Units', 'normal', 'Position', [0.5 0.5 .4 .05]);
+                uicontrol( 'Style','text','Parent', obj.inputs.Handles.InProcessFigure,'String','BEST Toolbox is processing EEG Data, please observe MATLAB command line for further details.','FontSize',11,'HorizontalAlignment','center','Units','normalized','Position',[0.05 0.5 1 0.4]);
+            elseif strcmpi (Action,'close')
+                close (obj.inputs.Handles.InProcessFigure)
+            end
         end
         
         function best_mep(obj)
@@ -3265,72 +3247,23 @@ classdef best_toolbox < handle
             obj.save;
             obj.factorizeConditions;
             obj.app.resultsPanel;
-            obj.rseegInProcess;
+            obj.rseegInProcess('open');
             obj.boot_bossbox;
             obj.boot_fieldtrip;
             obj.bossbox.EEGScopeBoot(0,obj.inputs.EEGAcquisitionPeriod*60*1000);
             obj.bossbox.EEGScopeStart; obj.bossbox.EEGScopeTrigger;
-            [obj.inputs.rawData.EEG.Time , obj.inputs.rawData.EEG.Data]=obj.bossbox.EEGScopeRead; %now 1:64 channels will be added
-            %             obj.fieldtrip.best2ftdata(obj.inputs.rawData.EEG,obj.inputs.input_device); %not this will have 65 channels
+            [obj.inputs.rawData.EEG.Time , obj.inputs.rawData.EEG.Data]=obj.bossbox.EEGScopeRead; 
             switch obj.inputs.SpectralAnalysis
                 case 1 %IRASA
                     obj.fieldtrip.irasa(obj.inputs.rawData.EEG,obj.inputs.input_device);
                 case 2 %FFT
                     obj.fieldtrip.fft(obj.inputs.rawData.EEG,obj.inputs.input_device);
             end
+            obj.rseegInProcess('close');
             obj.prepSaving;
             obj.save;
             obj.saveFigures;
             obj.completed;
-            %obj.inputs.results.step1_ReReferencing 
-            %obj.inputs.results.step1_Filtering 
-            %obj.inputs.results.step2_Segmentation
-            %obj.inputs.results.step3_Overlapping
-            %obj.inputs.results.step4_RawSpectralAnalysis
-            %obj.inputs.results.step5_FractalSpectralAnalysis
-            %obj.inputs.results.step6_OscillatorySpectralAnalysis
-            %obj.inputs.results.step7_PercentageDifference
-            %obj.inputs.results.step8_DBScaling
-
-            
-
-
-
-
-
-            %1 preprocessing of only eeg data
-            %create data of eeg
-            %create data of montage
-            %preprocess data of eeg
-            %append data of eeg and montage together , process to step 3 of segmentation
-            %2 discard the channels required only i.e. Target Channels + Montage channels use SelectChannels function here
-            
-            %3 segment the data
-            %4 overlap the data
-            %6 find originial
-            %5 if irasa,
-%             find fractal
-            
-            %7 if irasa, find oscillation
-            %8 if irasa, find percentage diff
-            %9 find the db scale
-            %10 plot one by one for all available channels %here for loop will first count the powspectrum rows, from there its evident that what plot and what ax it will be
-            
-            
-            %-------tests to conduct
-            %see if specifying ch will keep other channels or remove them in resultant preprocessed on, otherwise have to merge them -->Failed!
-            %test2: http://www.fieldtriptoolbox.org/reference/ft_appenddata/ now see if the data can be appended easily , then use this to append data, and also store them differently in best2ftdata ,
-            %... matlab vo unko eik data bnana ka koi faida nahi jab bad me he usko alag ker na aur phir merge kerna he to isil ye sary EEG ko alag convert kero , sary montage ko alag combine kero
-            
-
-            %% delete the rseegInProcess dialogue box which was opened before
-            
-            % %             % #TODO: ye decide kero k ab target channels aur montage channels ko kese treat kerna he, montage channels ko prepare bhi kerna hoga fieldtrip.data matlab
-            % % % aur pehle to one by one sary Target channels ko set kero , usky lye idea ye he k eik eik for loop lagao
-            % % % % for i=1:allTargetChannels
-            % % % %     channel=TargetChannel(i)
-            % % % %     obj.fieldtrip.irasa(channel,axes,type(montage or simple)), udhor irasa k andar switch lagao k agr to montage he to dosri tarha behave kere, agr simple channel he to dosri tarha bhv ekere
-            % % % % end
         end
         function best_rtms(obj)
             obj.save;

@@ -1,3 +1,4 @@
+
 classdef BEST < handle
     properties
         par
@@ -10962,7 +10963,6 @@ classdef BEST < handle
             
         end
         %% rsEEG Measurement
-        %Back up
         function pi_rseeg(obj)
             obj.fig.main.Widths([1 2 3])=[-1.15 -3.35 -0];
             Panel=uix.Panel( 'Parent', obj.pi.empty_panel,'FontSize',14 ,'Units','normalized','Title','resting-state EEG Measurement' ,'FontWeight','Bold','TitlePosition','centertop');
@@ -10997,24 +10997,7 @@ classdef BEST < handle
             uicontrol( 'Style','text','Parent', mep_panel_row2,'String','Target Frequency Range (Hz):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
             obj.pi.rseeg.TargetFrequencyRange=uicontrol( 'Style','edit','Parent', mep_panel_row2 ,'FontSize',11,'Tag','TargetFrequencyRange','callback',@cb_par_saving); %,'Callback',@obj.cb_hotspot_target_muscle
             set( mep_panel_row2, 'Widths', [150 -2]);
-
-            % row 2
-            mep_panel_row2 = uix.HBox( 'Parent', vb, 'Spacing', 5, 'Padding', 5  );
-            uicontrol( 'Style','text','Parent', mep_panel_row2,'String','Target Channels:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            obj.pi.rseeg.TargetChannels=uicontrol( 'Style','edit','Parent', mep_panel_row2 ,'FontSize',11,'Tag','TargetChannels','callback',@cb_par_saving); %,'Callback',@obj.cb_hotspot_target_muscle
-            set( mep_panel_row2, 'Widths', [150 -2]);
             
-            % row 2
-            mep_panel_row2 = uix.HBox( 'Parent', vb, 'Spacing', 5, 'Padding', 5  );
-            uicontrol( 'Style','text','Parent', mep_panel_row2,'String','Reference Channels:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            obj.pi.rseeg.ReferenceChannels=uicontrol( 'Style','edit','Parent', mep_panel_row2 ,'FontSize',11,'Tag','ReferenceChannels','callback',@cb_par_saving); %,'Callback',@obj.cb_hotspot_target_muscle
-            set( mep_panel_row2, 'Widths', [150 -2]);
-            
-            % row 2
-            mep_panel_row2 = uix.HBox( 'Parent', vb, 'Spacing', 5, 'Padding', 5  );
-            uicontrol( 'Style','text','Parent', mep_panel_row2,'String','Recording Reference:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            obj.pi.rseeg.RecordingReference=uicontrol( 'Style','edit','Parent', mep_panel_row2 ,'FontSize',11,'Tag','RecordingReference','callback',@cb_par_saving); %,'Callback',@obj.cb_hotspot_target_muscle
-            set( mep_panel_row2, 'Widths', [150 -2]);
             
             % row 2
             mep_panel_row2 = uix.HBox( 'Parent', vb, 'Spacing', 5, 'Padding', 5  );
@@ -11030,6 +11013,18 @@ classdef BEST < handle
             
             % row 2
             mep_panel_row2 = uix.HBox( 'Parent', vb, 'Spacing', 5, 'Padding', 5  );
+            uicontrol( 'Style','text','Parent', mep_panel_row2,'String','Reference Channels:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+            obj.pi.rseeg.ReferenceChannels=uicontrol( 'Style','edit','Parent', mep_panel_row2 ,'FontSize',11,'Tag','ReferenceChannels','callback',@cb_par_saving); %,'Callback',@obj.cb_hotspot_target_muscle
+            set( mep_panel_row2, 'Widths', [150 -2]);
+            
+            % row 2
+            mep_panel_row2 = uix.HBox( 'Parent', vb, 'Spacing', 5, 'Padding', 5  );
+            uicontrol( 'Style','text','Parent', mep_panel_row2,'String','Recording Reference:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+            obj.pi.rseeg.RecordingReference=uicontrol( 'Style','edit','Parent', mep_panel_row2 ,'FontSize',11,'Tag','RecordingReference','callback',@cb_par_saving); %,'Callback',@obj.cb_hotspot_target_muscle
+            set( mep_panel_row2, 'Widths', [150 -2]);
+
+            % row 2
+            mep_panel_row2 = uix.HBox( 'Parent', vb, 'Spacing', 5, 'Padding', 5  );
             uicontrol( 'Style','text','Parent', mep_panel_row2,'String','High Pass Frequency (Hz):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
             obj.pi.rseeg.HighPassFrequency=uicontrol( 'Style','edit','Parent', mep_panel_row2 ,'FontSize',11,'Tag','HighPassFrequency','callback',@cb_par_saving); %,'Callback',@obj.cb_hotspot_target_muscle
             set( mep_panel_row2, 'Widths', [150 -2]);
@@ -11037,13 +11032,13 @@ classdef BEST < handle
             % row 2
             mep_panel_row2 = uix.HBox( 'Parent', vb, 'Spacing', 5, 'Padding', 5  );
             uicontrol( 'Style','text','Parent', mep_panel_row2,'String','Band Stop Frequency (Hz):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            obj.pi.rseeg.BandPassFrequency=uicontrol( 'Style','edit','Parent', mep_panel_row2 ,'FontSize',11,'Tag','BandPassFrequency','callback',@cb_par_saving); %,'Callback',@obj.cb_hotspot_target_muscle
+            obj.pi.rseeg.BandStopFrequency=uicontrol( 'Style','edit','Parent', mep_panel_row2 ,'FontSize',11,'Tag','BandStopFrequency','callback',@cb_par_saving); %,'Callback',@obj.cb_hotspot_target_muscle
             set( mep_panel_row2, 'Widths', [150 -2]);
 
             %
             uiextras.HBox( 'Parent', vb);
             
-            set(vb,'Heights',[35 35 45 45 45 45 45 45 45 45 45 45 -1])
+            set(vb,'Heights',[35 35 45 45 45 45 45 45 45 45 45 -1])
             
             function cb_par_saving(source,~)
                 if strcmp(source.Tag,'InputDevice') || strcmp(source.Tag,'OutputDevice') || strcmp(source.Tag,'SpectralAnalysis')
@@ -11065,7 +11060,6 @@ classdef BEST < handle
             obj.info.defaults.EEGAcquisitionPeriod='2'; 
             obj.info.defaults.EEGEpochPeriod='4';
             obj.info.defaults.TargetFrequencyRange='10 12';
-            obj.info.defaults.TargetChannels='';
             obj.info.defaults.ReferenceChannels='all';
             obj.info.defaults.RecordingReference='';
             obj.info.defaults.ReferenceChannels='all';
@@ -11075,7 +11069,7 @@ classdef BEST < handle
             obj.info.defaults.HighPassFilterOrder='3';
             obj.info.defaults.HighPassFrequency='1';
             obj.info.defaults.BandPassFilterOrder='3';
-            obj.info.defaults.BandPassFrequency='49 51';
+            obj.info.defaults.BandStopFrequency='49 51';
             obj.info.defaults.Protocol={'rs EEG Measurement Protocol'};
             obj.info.defaults.Handles.UserData='Reserved for Future Use';
             obj.info.defaults.Enable={'on'};
