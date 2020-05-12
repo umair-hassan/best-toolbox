@@ -10,7 +10,7 @@ classdef best_fieldtrip <handle
         end
         
         function irasa(obj,EEGData,InputDevice)
-            %% Rename obj.inputs to obj.best_toolbox.inputs
+            %% Modifying IRASA
             EEGChannelsIndex=find(strcmp(obj.best_toolbox.app.par.hardware_settings.(InputDevice).NeurOneProtocolChannelSignalTypes,'EEG'));
             EEGChanelsLabels=obj.best_toolbox.app.par.hardware_settings.(InputDevice).NeurOneProtocolChannelLabels(EEGChannelsIndex);
             %% Creating RawEEGData
