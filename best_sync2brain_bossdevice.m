@@ -450,6 +450,12 @@ classdef best_sync2brain_bossdevice <handle
             trigger(obj.EEGScope);
         end
         
+        function stop(obj)
+            obj.bb.stop;
+            allscopes = getscope(obj.bb.tg);
+            stop(allscopes)
+        end
+        
     end
 end
 
