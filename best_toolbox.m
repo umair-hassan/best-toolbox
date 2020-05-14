@@ -1723,10 +1723,10 @@ classdef best_toolbox < handle
                                 obj.app.pr.ax_ChannelLabels_0(4*i-2)={OscillationChannelLabel};
                                 obj.app.pr.ax_ChannelLabels_0(4*i-1)={PercentageChangeChannelLabel};
                                 obj.app.pr.ax_ChannelLabels_0(4*i)={dBChannelLabel};
-                                obj.app.pr.ax_ChannelLabels(4*i-3)= {char(join(obj.inputs.MontageChannels{i}))};
-                                obj.app.pr.ax_ChannelLabels(4*i-2)={char(join(obj.inputs.MontageChannels{i}))};
-                                obj.app.pr.ax_ChannelLabels(4*i-1)={char(join(obj.inputs.MontageChannels{i}))};
-                                obj.app.pr.ax_ChannelLabels(4*i)={char(join(obj.inputs.MontageChannels{i}))};
+                                obj.app.pr.ax_ChannelLabels(4*i-3)= {erase(char(join(obj.inputs.MontageChannels{i})),' ')};
+                                obj.app.pr.ax_ChannelLabels(4*i-2)={erase(char(join(obj.inputs.MontageChannels{i})),' ')};
+                                obj.app.pr.ax_ChannelLabels(4*i-1)={erase(char(join(obj.inputs.MontageChannels{i})),' ')};
+                                obj.app.pr.ax_ChannelLabels(4*i)={erase(char(join(obj.inputs.MontageChannels{i})),' ')};
                             end
                             obj.inputs.ChannelsTypeUnique={'EEG'};
                             obj.inputs.input_device=char(obj.app.pi.rseeg.InputDevice.String(obj.inputs.InputDevice));
@@ -1734,13 +1734,15 @@ classdef best_toolbox < handle
                             obj.inputs.colLabel.iti=2;
                             obj.inputs.condMat{1,obj.inputs.colLabel.inputDevices}=char(obj.app.pi.rseeg.InputDevice.String(obj.inputs.InputDevice));
                             obj.inputs.condMat{1,obj.inputs.colLabel.iti}=NaN;
+                            obj.inputs.trialMat={};
+                            obj.inputs.Figures={};
                         case 2 %FFT
                             obj.app.pr.ax_measures=repmat({'rsEEGMeasurement'},1,(numel(obj.inputs.MontageChannels)));
                             obj.app.pr.axesno=numel(obj.app.pr.ax_measures);
                             for i=1:numel(obj.inputs.MontageChannels)
                                 ChannelLabel=['Power Spectrum - '];
                                 obj.app.pr.ax_ChannelLabels_0(i)={ChannelLabel};
-                                obj.app.pr.ax_ChannelLabels(i)={char(join(obj.inputs.MontageChannels{i}))};
+                                obj.app.pr.ax_ChannelLabels(i)={erase(char(join(obj.inputs.MontageChannels{i})),' ')};
                             end
                             obj.inputs.ChannelsTypeUnique={'EEG'};
                             obj.inputs.input_device=char(obj.app.pi.rseeg.InputDevice.String(obj.inputs.InputDevice));
@@ -1748,6 +1750,8 @@ classdef best_toolbox < handle
                             obj.inputs.colLabel.iti=2;
                             obj.inputs.condMat{1,obj.inputs.colLabel.inputDevices}=char(obj.app.pi.rseeg.InputDevice.String(obj.inputs.InputDevice));
                             obj.inputs.condMat{1,obj.inputs.colLabel.iti}=NaN;
+                            obj.inputs.trialMat={};
+                            obj.inputs.Figures={};
                     end
                 case 'TEP Hotspot Search Protocol'
                     %% Adjusting New Arhictecture to Old Architecture
@@ -3135,9 +3139,26 @@ classdef best_toolbox < handle
             obj.app.cb_menu_save;
         end
         function saveRuntime(obj)
-            BESTToolboxAutosave=obj.inputs;
-            save(obj.info.save_str_runtime,'BESTToolboxAutosave');
+            t=timer;
+            t.BusyMode='queue';
+            t.TimerFcn=@(~,~)obj.TmrFcn;
+            start(t)
+           
         end
+         function TmrFcn(obj)
+             pause(0.1)
+             tic
+                disp entered___________________TimerFCN__________
+            BESTToolboxAutosave=obj.inputs;
+            BESTToolboxAutosave.Test=rand(1e4,1e4);
+             BESTToolboxAutosave.TestB= BESTToolboxAutosave.Test;
+             BESTToolboxAutosave.TestC= BESTToolboxAutosave.Test;
+             BESTToolboxAutosave.TestD= BESTToolboxAutosave.Test;
+             BESTToolboxAutosave.TestE= BESTToolboxAutosave.Test;
+            save(obj.info.save_str_runtime,'BESTToolboxAutosave','-v7.3');
+            disp [[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[DONWWITHTIMER
+            toc
+         end
         function prepSaving(obj)
             obj.sessions.(obj.app.info.event.current_session).(obj.app.info.event.current_measure_fullstr).ConditionsMatrix=obj.inputs.condMat;
             obj.sessions.(obj.app.info.event.current_session).(obj.app.info.event.current_measure_fullstr).TrialsMatrix=obj.inputs.trialMat;
@@ -3243,27 +3264,58 @@ classdef best_toolbox < handle
             obj.saveFigures;
             obj.completed;
         end
+        function h5(obj)
+            tic;
+            saved=struct;
+            saved.par=obj.app.par;
+            saved.inputs=obj.inputs;
+%           saveh5(saved,'saved.best_toolbox'); %% Complete but slow on cells
+%           struct2h5('savedNWE.h5', '/savedNWE', saved); %Not much useful as required new name of file everytime and loading is alse a bit problemtic 
+            
+        end
         function best_rseeg(obj)
-            obj.save;
-            obj.factorizeConditions;
-            obj.app.resultsPanel;
-            obj.rseegInProcess('open');
-            obj.boot_bossbox;
-            obj.boot_fieldtrip;
-            obj.bossbox.EEGScopeBoot(0,obj.inputs.EEGAcquisitionPeriod*60*1000);
-            obj.bossbox.EEGScopeStart; obj.bossbox.EEGScopeTrigger;
-            [obj.inputs.rawData.EEG.Time , obj.inputs.rawData.EEG.Data]=obj.bossbox.EEGScopeRead; 
-            switch obj.inputs.SpectralAnalysis
-                case 1 %IRASA
-                    obj.fieldtrip.irasa(obj.inputs.rawData.EEG,obj.inputs.input_device);
-                case 2 %FFT
-                    obj.fieldtrip.fft(obj.inputs.rawData.EEG,obj.inputs.input_device);
-            end
-            obj.rseegInProcess('close');
-            obj.prepSaving;
-            obj.save;
-            obj.saveFigures;
-            obj.completed;
+%             try
+
+%                 obj.save;
+
+                obj.h5;
+                obj.factorizeConditions;
+                obj.app.resultsPanel;
+                obj.rseegInProcess('open');
+                obj.boot_bossbox;
+                obj.boot_fieldtrip;
+                obj.bossbox.EEGScopeBoot(0,obj.inputs.EEGAcquisitionPeriod*60*1000);
+                obj.bossbox.EEGScopeStart; obj.bossbox.EEGScopeTrigger;
+                [obj.inputs.rawData.EEG.Time , obj.inputs.rawData.EEG.Data]=obj.bossbox.EEGScopeRead;
+                switch obj.inputs.SpectralAnalysis
+                    case 1 %IRASA
+                        obj.fieldtrip.irasa(obj.inputs.rawData.EEG,obj.inputs.input_device);
+                    case 2 %FFT
+                        obj.fieldtrip.fft(obj.inputs.rawData.EEG,obj.inputs.input_device);
+                end
+                obj.rseegInProcess('close');
+%                 obj.prepSaving;
+
+                obj.h5;
+%                 obj.saveRuntime
+                tic
+                                disp entered___________________Exit__________
+
+%                 obj.save;
+                toc, 
+                tic
+                obj.saveFigures;
+                toc,
+                tic
+                obj.completed;
+                toc
+%             catch ME
+%             errorMessage = sprintf('BEST Toolbox | resting-state EEG Measureent.\n\nError Message:\n%s', ME.message);
+%             % Print to command window.
+%             fprintf(1, '%s\n', errorMessage);
+%             % Display pop up message and wait for user to click OK
+%             uiwait(warndlg(errorMessage));
+%         end
         end
         function best_rtms(obj)
             obj.save;

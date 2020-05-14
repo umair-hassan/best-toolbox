@@ -2,7 +2,7 @@
 classdef BEST < handle
     properties
         par
-        bst
+%         bst
         info
         data
         save_buffer
@@ -24,6 +24,7 @@ classdef BEST < handle
         menu
         icons
         Date
+        bst
         %         save_buffer
     end
     
@@ -11068,7 +11069,7 @@ classdef BEST < handle
             obj.info.defaults.MontageWeights='';
             obj.info.defaults.HighPassFilterOrder='3';
             obj.info.defaults.HighPassFrequency='1';
-            obj.info.defaults.BandPassFilterOrder='3';
+            obj.info.defaults.BandStopFilterOrder='3';
             obj.info.defaults.BandStopFrequency='49 51';
             obj.info.defaults.Protocol={'rs EEG Measurement Protocol'};
             obj.info.defaults.Handles.UserData='Reserved for Future Use';
@@ -16186,6 +16187,32 @@ classdef BEST < handle
         %                     obj.par.axesno_word=
         %         end
         %
+    end
+    methods (Access = protected)
+        function s = saveObjectImpl(obj)
+            disp entered
+            s = saveObjectImpl@matlab.System(obj);
+            s.child = matlab.System.saveObject(obj.child);
+            s.protectedprop = obj.protectedprop;
+            s.pdependentprop = obj.pdependentprop;
+            if isLocked(obj)
+                s.state = obj.state;
+            end
+        end
+    end
+    methods (Access = protected)
+        function loadObjectImpl(obj,s,isInUse)
+            obj.child = matlab.System.loadObject(s.child);
+            
+            obj.protectedprop = s.protectedprop;
+            obj.pdependentprop = s.pdependentprop;
+            
+            if isInUse
+                obj.state = s.state;
+            end
+            
+            loadObjectImpl@matlab.System(obj,s,isInUse);
+        end
     end
     
 end

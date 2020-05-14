@@ -10,56 +10,26 @@ classdef best_fieldtrip <handle
         end
         
         function irasa(obj,EEGData,InputDevice)
+            %% Just for testing purposes
+            load S5_raw_segmented.mat
+            EEGData=data;
+            cfg=[];
+            cfg.channel =data.label(1:64);
+            EEGData=ft_selectdata(cfg,EEGData);
             %% Modifying IRASA
             EEGChannelsIndex=find(strcmp(obj.best_toolbox.app.par.hardware_settings.(InputDevice).NeurOneProtocolChannelSignalTypes,'EEG'));
             EEGChanelsLabels=obj.best_toolbox.app.par.hardware_settings.(InputDevice).NeurOneProtocolChannelLabels(EEGChannelsIndex);
             %% Creating RawEEGData
+            obj.best_toolbox.inputs.results.RawEEGData=EEGData;
             obj.best_toolbox.inputs.results.RawEEGData.label=EEGChanelsLabels';
-            obj.best_toolbox.inputs.results.RawEEGData.fsample=5000;
-            obj.best_toolbox.inputs.results.RawEEGData.trial={EEGData.Data};
-            obj.best_toolbox.inputs.results.RawEEGData.time={EEGData.Time};
-            %% Referencing RawEEGData
-            if ~isempty(obj.best_toolbox.inputs.TargetChannels)
-                if ~isempty(obj.best_toolbox.inputs.ReferenceChannels)
-                    cfg=[];
-                    cfg.reref         = 'yes';
-                    cfg.refchannel    = obj.best_toolbox.inputs.ReferenceChannels;
-                    if ~isempty(obj.best_toolbox.inputs.RecordingReference)
-                        cfg.implicitref   =obj.best_toolbox.inputs.RecordingReference;
-                    end
-                    obj.best_toolbox.inputs.results.ReReferencedData = ft_preprocessing(cfg, obj.best_toolbox.inputs.results.RawEEGData);
-                end
-            end
-            %% Montage Creation
-            if ~isempty(obj.best_toolbox.inputs.MontageChannels)
-                montage=[];
-                montage.tra = obj.best_toolbox.inputs.MontageWeights;
-                montage.labelold = obj.best_toolbox.inputs.MontageChannels;
-                montage.labelnew = {'Montage1'};
-                obj.best_toolbox.inputs.results.MontageData = ft_apply_montage(obj.best_toolbox.inputs.results.RawEEGData,montage);
-            end
-            %% Selected Data
-            if ~isempty(obj.best_toolbox.inputs.TargetChannels)
-                cfg=[];
-                cfg.channel = obj.best_toolbox.inputs.TargetChannels;
-                if ~isempty(obj.best_toolbox.inputs.ReferenceChannels)
-                    SelectedEEGData=ft_selectdata(cfg,obj.best_toolbox.inputs.results.ReReferenced);
-                else
-                    SelectedEEGData=ft_selectdata(cfg,obj.best_toolbox.inputs.results.RawEEGData) ;
-                end
-            end
-            
-            if ~isempty(obj.best_toolbox.inputs.TargetChannels) && ~isempty(obj.best_toolbox.inputs.MontageChannels)
-                cfg=[];
-                cfg.keepsampleinfo ='no';
-                obj.best_toolbox.inputs.results.SelectedData=ft_appenddata(cfg , SelectedEEGData , obj.best_toolbox.inputs.results.MontageData); %% Check if this works properly
-            elseif ~isempty(obj.best_toolbox.inputs.TargetChannels) && isempty(obj.best_toolbox.inputs.MontageChannels)
-                obj.best_toolbox.inputs.results.SelectedChannels=SelectedEEGData;
-            elseif isempty(obj.best_toolbox.inputs.TargetChannels)>0 && ~isempty(obj.best_toolbox.inputs.MontageChannels)
-                obj.best_toolbox.inputs.results.SelectedData=obj.best_toolbox.inputs.results.MontageData;
-            end
-            %% Filtered Data
+% % % % % % %             obj.best_toolbox.inputs.results.RawEEGData.label=EEGChanelsLabels';
+% % % % % % %             obj.best_toolbox.inputs.results.RawEEGData.fsample=5000;
+% % % % % % %             obj.best_toolbox.inputs.results.RawEEGData.trial={EEGData.Data};
+% % % % % % %             obj.best_toolbox.inputs.results.RawEEGData.time={EEGData.Time};
+            %% PreProcessing RawEEGData
             cfg=[];
+            cfg.demean=[];
+            cfg.detrend=[];
             if ~isempty(obj.best_toolbox.inputs.HighPassFrequency)
                 cfg.hpfilter      = 'yes'; % high-pass in order to get rid of low-freq trends
                 cfg.hpfiltord     = obj.best_toolbox.inputs.HighPassFilterOrder;
@@ -67,27 +37,48 @@ classdef best_fieldtrip <handle
             end
             if ~isempty(obj.best_toolbox.inputs.BandStopFrequency)
                 cfg.bsfilter      = 'yes'; % band-stop filter, to take out 50 Hz and its harmonics
-                cfg.bsfiltord     = obj.best_toolbox.inputs.BandPassFilterOrder;
-                cfg.bsfreq        = obj.best_toolbox.inputs.BandPassFrequency;
+                cfg.bsfiltord     = obj.best_toolbox.inputs.BandStopFilterOrder;
+                cfg.bsfreq        = obj.best_toolbox.inputs.BandStopFrequency;
             end
-            if ~isempty(cfg)
-                obj.best_toolbox.inputs.results.FilteredData = ft_preprocessing(cfg, obj.best_toolbox.inputs.results.SelectedData); %%
+            if ~isempty(obj.best_toolbox.inputs.ReferenceChannels)
+                cfg.reref         = 'yes'; % band-stop filter, to take out 50 Hz and its harmonics
+                cfg.refchannel    = obj.best_toolbox.inputs.ReferenceChannels;
             end
+            if ~isempty(obj.best_toolbox.inputs.ReferenceChannels)
+                cfg.reref         = 'yes'; 
+                cfg.refchannel    = obj.best_toolbox.inputs.ReferenceChannels;
+                cfg.implicitref   = obj.best_toolbox.inputs.RecordingReference;
+            end
+            Data = ft_preprocessing(cfg,obj.best_toolbox.inputs.results.RawEEGData);
+            %% Applying Montage on Preprocessed Data, Creating Montage Channels
+            SelectedData={};
+            for channel=1:numel(obj.best_toolbox.inputs.MontageChannels)
+                SelectedData{channel}=obj.best_toolbox.inputs.MontageChannels{channel};
+                if iscell(obj.best_toolbox.inputs.MontageChannels{channel})
+                    cfg=[];
+                    cfg.labelold  =obj.best_toolbox.inputs.MontageChannels{channel};
+                    cfg.labelnew  ={erase(char(join(obj.best_toolbox.inputs.MontageChannels{channel})),' ')};
+                    cfg.tra       =cell2mat(obj.best_toolbox.inputs.MontageWeights{channel});
+                    Montage=ft_apply_montage(Data,cfg);
+                    Data=ft_appenddata([], Data, Montage);
+                    SelectedData{channel}=char(cfg.labelnew);
+                end
+            end
+            %% Selected Data
+            cfg=[];
+            cfg.channel =SelectedData;
+            Data=ft_selectdata(cfg,Data);
             %% Segmented Data
             cfg               = [];
             cfg.length        = obj.best_toolbox.inputs.EEGEpochPeriod;
             cfg.overlap       = 0;
-            if isfield(obj.best_toolbox.inputs.results,'FilteredData')
-                obj.best_toolbox.inputs.results.SegmentedData = ft_redefinetrial(cfg, obj.best_toolbox.inputs.results.FilteredData);
-            else
-                obj.best_toolbox.inputs.results.SegmentedData = ft_redefinetrial(cfg, obj.best_toolbox.inputs.results.SelectedData);
-            end
+            Data = ft_redefinetrial(cfg, Data);
             %% Overlapped Data etc
-            w = obj.best_toolbox.inputs.results.SegmentedData.time{1}(end)-obj.best_toolbox.inputs.results.SegmentedData.time{1}(1); % window length
+            w = Data.time{1}(end)-Data.time{1}(1); % window length
             cfg               = [];
             cfg.length        = w*.9;
             cfg.overlap       = 1-(((w-cfg.length)/cfg.length)/(10-1));
-            obj.best_toolbox.inputs.results.OverlappedData = ft_redefinetrial(cfg, obj.best_toolbox.inputs.results.SegmentedData);
+            Data = ft_redefinetrial(cfg, Data);
             %% Orignial, Fractal and Oscillation Components Spectral Analysis
             cfg               = [];
             cfg.foi        = [1:1/obj.best_toolbox.inputs.EEGEpochPeriod:45];
@@ -95,9 +86,9 @@ classdef best_fieldtrip <handle
             cfg.pad           = 'nextpow2';
             cfg.keeptrials    = 'yes';
             cfg.method        = 'irasa';
-            frac_r = ft_freqanalysis(cfg, obj.best_toolbox.inputs.results.OverlappedData); % Frac
+            frac_r = ft_freqanalysis(cfg,Data); % Frac
             cfg.method        = 'mtmfft';
-            orig_r = ft_freqanalysis(cfg, obj.best_toolbox.inputs.results.OverlappedData); %Raw
+            orig_r = ft_freqanalysis(cfg, Data); %Raw
             
             % average across the sub-segments
             frac_s = {};
@@ -135,30 +126,38 @@ classdef best_fieldtrip <handle
             for channel=1:numel(obj.best_toolbox.inputs.results.OriginalComponents.label)
                 ax1=['ax' num2str(channel*4-3)];
                 axes(obj.best_toolbox.app.pr.ax.(ax1))
-                plot(obj.best_toolbox.inputs.results.FractalComponents.freq, obj.best_toolbox.inputs.results.FractalComponents.powspctrm(chanel,:),'linewidth', 3, 'color', [0 0 0],'DisplayName','Fractal'); hold on; legend;
-                plot(obj.best_toolbox.inputs.results.OriginalComponents.freq, obj.best_toolbox.inputs.results.OriginalComponents.powspctrm(chanel,:),'linewidth', 3, 'color', [0.6 0.6 0.6],'DisplayName','Original')
-                gridxy((obj.best_toolbox.inputs.TargetFrequencyRange(1)):0.25:(obj.best_toolbox.inputs.TargetFrequencyRange(2)),'Color',[219/255 246/255 255/255],'linewidth',4) ;
+                plot(obj.best_toolbox.inputs.results.FractalComponents.freq, obj.best_toolbox.inputs.results.FractalComponents.powspctrm(channel,:),'linewidth', 3, 'color', [0 0 0],'DisplayName','Fractal'); hold on; legend;
+                plot(obj.best_toolbox.inputs.results.OriginalComponents.freq, obj.best_toolbox.inputs.results.OriginalComponents.powspctrm(channel,:),'linewidth', 3, 'color', [0.6 0.6 0.6],'DisplayName','Original')
+                grid=gridxy((obj.best_toolbox.inputs.TargetFrequencyRange(1)):0.25:(obj.best_toolbox.inputs.TargetFrequencyRange(2)),'Color',[219/255 246/255 255/255],'linewidth',4) ;
+                grid.Annotation.LegendInformation.IconDisplayStyle = 'off';
+                xlabel('Frequency (Hz)'), ylabel('Power'); xticks(unique((sort([obj.best_toolbox.app.pr.ax.(ax1).XTick obj.best_toolbox.inputs.TargetFrequencyRange(1) obj.best_toolbox.inputs.TargetFrequencyRange(2)]))));
                 
                 ax2=['ax' num2str(channel*4-2)];
                 axes(obj.best_toolbox.app.pr.ax.(ax2))
-                plot(obj.best_toolbox.inputs.results.OscillationComponents.freq, obj.best_toolbox.inputs.results.OscillationComponents.powspctrm(chanel,:),'linewidth', 3, 'color', [0 0 0]); hold on;
+                plot(obj.best_toolbox.inputs.results.OscillationComponents.freq, obj.best_toolbox.inputs.results.OscillationComponents.powspctrm(channel,:),'linewidth', 3, 'color', [0 0 0]); hold on;
                 gridxy((obj.best_toolbox.inputs.TargetFrequencyRange(1)):0.25:(obj.best_toolbox.inputs.TargetFrequencyRange(2)),'Color',[219/255 246/255 255/255],'linewidth',4) ;
                 %Find Peak Frequency, store it and annotate it
-                [~,PeakPowerIndex] = find(obj.best_toolbox.inputs.results.OscillationComponents.powspctrm(channel,TargetFrequencyRange)==max(obj.best_toolbox.inputs.results.OscillationComponents.powspctrm(channel,TargetFrequencyRange)));
-                obj.best_toolbox.inputs.results.PeakFrequency.(obj.best_toolbox.inputs.results.OscillationComponents.label(channel))=obj.best_toolbox.inputs.results.OscillationComponents.freq(1,PeakPowerIndex);
-                obj.best_toolbox.app.pr.ax.(ax2).UserData.TextAnnotationPeakFrequency=text(obj.app.pr.ax.(ax),1,1,{['Peak Freq (Hz):' num2str(obj.best_toolbox.inputs.results.PeakFrequency.(obj.best_toolbox.inputs.results.OscillationComponents.label(channel)))]},'units','normalized','HorizontalAlignment','right','VerticalAlignment','cap','color',[0.45 0.45 0.45]);
-                
+                [~,PeakPowerIndex] = find(obj.best_toolbox.inputs.results.OscillationComponents.powspctrm(channel,:)==max(obj.best_toolbox.inputs.results.OscillationComponents.powspctrm(channel,TargetFrequencyRange)));
+                obj.best_toolbox.inputs.results.PeakFrequency.(obj.best_toolbox.inputs.results.OscillationComponents.label{channel})=obj.best_toolbox.inputs.results.OscillationComponents.freq(1,PeakPowerIndex);
+                obj.best_toolbox.app.pr.ax.(ax2).UserData.TextAnnotationPeakFrequency=text(obj.best_toolbox.app.pr.ax.(ax2),1,1,{['Peak Freq (Hz):' num2str(obj.best_toolbox.inputs.results.PeakFrequency.(obj.best_toolbox.inputs.results.OscillationComponents.label{channel}))]},'units','normalized','HorizontalAlignment','right','VerticalAlignment','cap','color',[0.45 0.45 0.45]);
+                grid.Annotation.LegendInformation.IconDisplayStyle = 'off';
+                xlabel('Frequency (Hz)'), ylabel('Power');
                 
                 ax3=['ax' num2str(channel*4-1)];
                 axes(obj.best_toolbox.app.pr.ax.(ax3))
-                plot(obj.best_toolbox.inputs.results.percentageOscillationOverFractalComponent.freq, obj.best_toolbox.inputs.results.percentageOscillationOverFractalComponent.powspctrm(chanel,:),'linewidth', 3, 'color', [0 0 0]); hold on;
+                plot(obj.best_toolbox.inputs.results.percentageOscillationOverFractalComponent.freq, obj.best_toolbox.inputs.results.percentageOscillationOverFractalComponent.powspctrm(channel,:),'linewidth', 3, 'color', [0 0 0]); hold on;
                 gridxy((obj.best_toolbox.inputs.TargetFrequencyRange(1)):0.25:(obj.best_toolbox.inputs.TargetFrequencyRange(2)),'Color',[219/255 246/255 255/255],'linewidth',4) ;
+                grid.Annotation.LegendInformation.IconDisplayStyle = 'off';
+                xlabel('Frequency (Hz)'), ylabel('Power');
                 
                 ax4=['ax' num2str(channel*4)];
                 axes(obj.best_toolbox.app.pr.ax.(ax4))
-                plot(obj.best_toolbox.inputs.results.dbOscillationOverFractalComponent.freq, obj.best_toolbox.inputs.results.dbOscillationOverFractalComponent.powspctrm(chanel,:),'linewidth', 3, 'color', [0 0 0]); hold on;
+                plot(obj.best_toolbox.inputs.results.dbOscillationOverFractalComponent.freq, obj.best_toolbox.inputs.results.dbOscillationOverFractalComponent.powspctrm(channel,:),'linewidth', 3, 'color', [0 0 0]); hold on;
                 gridxy((obj.best_toolbox.inputs.TargetFrequencyRange(1)):0.25:(obj.best_toolbox.inputs.TargetFrequencyRange(2)),'Color',[219/255 246/255 255/255],'linewidth',4) ;
+                grid.Annotation.LegendInformation.IconDisplayStyle = 'off';
+                xlabel('Frequency (Hz)'), ylabel('Power');
             end
+            %% Showing Results on Table
         end
         
         function fft(obj,EEGData,InputDevice)
@@ -248,9 +247,9 @@ classdef best_fieldtrip <handle
                 axes(obj.best_toolbox.app.pr.ax.(ax1))
                 plot(obj.best_toolbox.inputs.results.OriginalComponents.freq, obj.best_toolbox.inputs.results.OriginalComponents.powspctrm(chanel,:),'linewidth', 3, 'color', [0 0 0]); hold on;
                 gridxy((obj.best_toolbox.inputs.TargetFrequencyRange(1)):0.25:(obj.best_toolbox.inputs.TargetFrequencyRange(2)),'Color',[219/255 246/255 255/255],'linewidth',4) ;
-                [~,PeakPowerIndex] = find(obj.best_toolbox.inputs.results.OriginalComponents.powspctrm(channel,TargetFrequencyRange)==max(obj.best_toolbox.inputs.results.OriginalComponents.powspctrm(channel,TargetFrequencyRange)));%.*[8:0.5:14]);
+                [~,PeakPowerIndex] = find(obj.best_toolbox.inputs.results.OriginalComponents.powspctrm(channel,:)==max(obj.best_toolbox.inputs.results.OriginalComponents.powspctrm(channel,TargetFrequencyRange)));%.*[8:0.5:14]);
                 obj.best_toolbox.inputs.results.PeakFrequency.(obj.best_toolbox.inputs.results.OriginalComponents.label(channel))=obj.best_toolbox.inputs.results.OriginalComponents.freq(1,PeakPowerIndex);
-                obj.best_toolbox.app.pr.ax.(ax1).UserData.TextAnnotationPeakFrequency=text(obj.app.pr.ax.(ax),1,1,{['Peak Freq (Hz):' num2str(obj.best_toolbox.inputs.results.PeakFrequency.(obj.best_toolbox.inputs.results.OriginalComponents.label(channel)))]},'units','normalized','HorizontalAlignment','right','VerticalAlignment','cap','color',[0.45 0.45 0.45]);
+                obj.best_toolbox.app.pr.ax.(ax1).UserData.TextAnnotationPeakFrequency=text(obj.best_toolbox.app.pr.ax.(ax),1,1,{['Peak Freq (Hz):' num2str(obj.best_toolbox.inputs.results.PeakFrequency.(obj.best_toolbox.inputs.results.OriginalComponents.label(channel)))]},'units','normalized','HorizontalAlignment','right','VerticalAlignment','cap','color',[0.45 0.45 0.45]);
             end
         end
         
