@@ -3145,7 +3145,7 @@ classdef best_toolbox < handle
             start(t)
            
         end
-         function TmrFcn(obj)
+        function TmrFcn(obj)
              pause(0.1)
              tic
                 disp entered___________________TimerFCN__________
@@ -3274,11 +3274,6 @@ classdef best_toolbox < handle
             
         end
         function best_rseeg(obj)
-%             try
-
-%                 obj.save;
-
-                obj.h5;
                 obj.factorizeConditions;
                 obj.app.resultsPanel;
                 obj.rseegInProcess('open');
@@ -3296,7 +3291,7 @@ classdef best_toolbox < handle
                 obj.rseegInProcess('close');
 %                 obj.prepSaving;
 
-                obj.h5;
+%                 obj.h5;
 %                 obj.saveRuntime
                 tic
                                 disp entered___________________Exit__________
