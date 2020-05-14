@@ -196,9 +196,11 @@ classdef BEST < handle
            
             
         end
+        %% Run Stop Controllers
         function RunStopButton(obj,~,~)
              if strcmp(obj.pmd.RunStopButton.String,'Stop')
                  uiresume;
+                 if ~isempty(obj.bossbox), obj.bossbox.stop; end
                  obj.bst.inputs.stop_event=1;
                  obj.pmd.RunStopButton.Enable='off';
                  obj.pmd.PauseUnpauseButton.Enable='off';
@@ -258,7 +260,7 @@ classdef BEST < handle
         function PauseUnpauseButton(obj,~,~)
              obj.pmd.RunStopButton.String='Stop';
              obj.pmd.PauseUnpauseButton.Enable='on';
-             if strcmp(obj.pmd.PauseUnpauseButton.String,'Pause')
+             if strcmp(obj.pmd.PauseUnpauseButton.String,'Pause') && ~strcmp(obj.info.event.current_measure,'rsEEG Measurement')
                  obj.pmd.PauseUnpauseButton.String='Unpause';
                  uiwait;
              elseif strcmp(obj.pmd.PauseUnpauseButton.String,'Unpause')
