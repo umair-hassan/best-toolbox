@@ -1,4 +1,5 @@
 function BEST
-%% changed
+%% Introduction
+%% Creating Application
 evalin( 'base', 'BEST=best_application;' )
 end
