@@ -1,5 +1,4 @@
-
-classdef best_application < handle
+classdef BEST < handle
     properties
         par
 %         bst
@@ -30,7 +29,7 @@ classdef best_application < handle
     
     methods
         %% BEST
-        function obj=best_application()
+        function obj=BEST()
             %             close all
             obj.close_previous;
             obj.create_gui;
@@ -16233,32 +16232,6 @@ classdef best_application < handle
         %                     obj.par.axesno_word=
         %         end
         %
-    end
-    methods (Access = protected)
-        function s = saveObjectImpl(obj)
-            disp entered
-            s = saveObjectImpl@matlab.System(obj);
-            s.child = matlab.System.saveObject(obj.child);
-            s.protectedprop = obj.protectedprop;
-            s.pdependentprop = obj.pdependentprop;
-            if isLocked(obj)
-                s.state = obj.state;
-            end
-        end
-    end
-    methods (Access = protected)
-        function loadObjectImpl(obj,s,isInUse)
-            obj.child = matlab.System.loadObject(s.child);
-            
-            obj.protectedprop = s.protectedprop;
-            obj.pdependentprop = s.pdependentprop;
-            
-            if isInUse
-                obj.state = s.state;
-            end
-            
-            loadObjectImpl@matlab.System(obj,s,isInUse);
-        end
     end
     
 end
