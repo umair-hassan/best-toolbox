@@ -32,6 +32,7 @@ classdef BEST < handle
         %% BEST
         function obj=BEST()
             %             close all
+            obj.close_previous;
             obj.create_gui;
             function CreateHardwareConfigurationDefaults
                 obj.par.hardware_settings.neurone1.device_type=1;
@@ -39,6 +40,18 @@ classdef BEST < handle
                 obj.par.hardware_settings.neurone1.device_name='neurone1';
                 
             end
+        end
+        function close_previous(obj)
+            close all;
+            ClassExist=exist('BEST','class');
+             if ClassExist==8
+                baseVariables = evalin('base' , 'whos');
+                for i = 1:length(baseVariables)
+                    if (strcmpi(baseVariables(i).class , 'BEST'))
+                        evalin( 'base', ['clear(''' baseVariables(i).name ''')'] )
+                    end
+                end
+             end
         end
         function create_gui(obj)
             obj.create_best_obj;
@@ -188,6 +201,7 @@ classdef BEST < handle
             m=uicontextmenu(obj.fig.handle);
             
             LastRow = uix.HBox( 'Parent', pmd_vbox, 'Spacing', 5, 'Padding', 5  );
+            obj.pmd.CompileButton=uicontrol( 'Parent', LastRow ,'Style','PushButton','String','Compile','Enable','off','FontWeight','Bold','Callback',@obj.CompileButton);
             obj.pmd.RunStopButton=uicontrol( 'Parent', LastRow ,'Style','PushButton','String','Run','Enable','off','FontWeight','Bold','Callback',@obj.RunStopButton);
             obj.pmd.PauseUnpauseButton=uicontrol( 'Parent', LastRow ,'Style','PushButton','String','Pause','Enable','off','FontWeight','Bold','Callback',@obj.PauseUnpauseButton);
 
@@ -197,6 +211,8 @@ classdef BEST < handle
             
         end
         %% Run Stop Controllers
+        function CompileButton(obj)
+        end
         function RunStopButton(obj,~,~)
              if strcmp(obj.pmd.RunStopButton.String,'Stop')
                  uiresume;
@@ -12658,7 +12674,9 @@ classdef BEST < handle
                     % Adjusted Here: First one should be lower, second one should be higher
             end
         end
-        
+        %% Compile 
+        function Compile(obj)
+        end
         
         
         
