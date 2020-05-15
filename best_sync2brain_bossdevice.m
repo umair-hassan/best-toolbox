@@ -414,7 +414,7 @@ classdef best_sync2brain_bossdevice <handle
         
         function EEGScopeStart(obj)
              start(obj.EEGScope);
-             while ~strcmpi(obj.EEGScope.Status,'Ready for being Triggered'), end
+             while ~strcmpi(obj.EEGScope.Status,'Ready for being Triggered'), disp yuio , drawnow, end
         end
         
         function IAScopeStart(obj)
@@ -437,7 +437,7 @@ classdef best_sync2brain_bossdevice <handle
         end
         function [Time, Data]=EEGScopeRead(obj)
             obj.EEGScope.Status,  trigger(obj.EEGScope); obj.EEGScope.Status, 
-            while ~strcmpi(obj.EEGScope.Status,'finished'), end
+            while ~strcmpi(obj.EEGScope.Status,'finished'), if obj.best_toolbox.inputs.stop_event==1, disp codebroke, break, end,drawnow ,end
             Data=obj.EEGScope.Data';
             Time=(obj.EEGScope.Time-obj.EEGScope.Time(1)+(obj.EEGScope.Time(2)-obj.EEGScope.Time(1)))';
             if ~strcmpi(obj.best_toolbox.inputs.Protocol,'rs EEG Measurement Protocol')
@@ -452,8 +452,7 @@ classdef best_sync2brain_bossdevice <handle
         
         function stop(obj)
             obj.bb.stop;
-            allscopes = getscope(obj.bb.tg);
-            stop(allscopes)
+            stop([obj.EMGScope obj.IEEGScope obj.IAScope obj.IPScope obj. EEGScope])
         end
         
     end
