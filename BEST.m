@@ -200,14 +200,13 @@ classdef BEST < handle
         function RunStopButton(obj,~,~)
              if strcmp(obj.pmd.RunStopButton.String,'Stop')
                  uiresume;
-                 if ~isempty(obj.bst.bossbox), obj.bst.bossbox.stop; end
                  obj.bst.inputs.stop_event=1;
                  obj.pmd.RunStopButton.Enable='off';
                  obj.pmd.PauseUnpauseButton.Enable='off';
                  obj.pmd.RunStopButton.String='Run';
                  obj.pmd.PauseUnpauseButton.String='Pause';
                  obj.enable_listboxes;
-                 if strcmp(obj.info.event.current_measure,'rsEEG Measurement'), try error('BEST Toolbox)'), catch, obj.bst.completed, end; end
+                 if ~isempty(obj.bst.bossbox), obj.bst.bossbox.stop; end
                  
              elseif strcmp(obj.pmd.RunStopButton.String,'Run') % && strcmp(obj.pmd.RunStopButton.Enable,'On')
                  obj.fig.main.Widths(1)=-1.15;
@@ -1361,8 +1360,8 @@ classdef BEST < handle
             obj.pr.ax_no=['ax' num2str(obj.pr.axesno)];
             AxesTitle=[ obj.pr.ax_ChannelLabels_0{obj.pr.axesno} obj.pr.ax_ChannelLabels{obj.pr.axesno}];
             ui_menu=uicontextmenu(obj.fig.handle);
-            uimenu(ui_menu,'label','Overwrite Peak Frequency of this Channel','Callback',@obj.pr_OverWirtePeakFrequency,'Tag',obj.pr.ax_ChannelLabels{obj.pr.axesno});
-            uimenu(ui_menu,'label','set Font size','Callback',@cbFontSize,'Tag',obj.pr.ax_no);
+            uimenu(ui_menu,'label','Overwrite Peak Frequency of this Channel','Callback',@obj.pr_OverWirtePeakFrequency,'Tag',obj.pr.ax_ChannelLabels{obj.pr.axesno},'UserData',obj.pr.ax_no);
+            uimenu(ui_menu,'label','set Font size','Callback',@obj.pr_FontSize,'Tag',obj.pr.ax_no);
             uimenu(ui_menu,'label','export as MATLAB Figure','Callback',@obj.pr_FigureExport,'Tag',obj.pr.ax_no);
             obj.pr.clab.(obj.pr.ax_no)=uix.Panel( 'Parent', obj.pr.grid, 'Padding', 5 ,'Units','normalized','Title',AxesTitle,'FontWeight','bold','FontSize',12,'TitlePosition','centertop' );
             obj.pr.ax.(obj.pr.ax_no)=axes( uicontainer('Parent',   obj.pr.clab.(obj.pr.ax_no)),'Units','normalized','uicontextmenu',ui_menu);
@@ -11045,6 +11044,7 @@ classdef BEST < handle
             set(vb,'Heights',[35 35 45 45 45 45 45 45 45 45 45 -1])
             
             function cb_par_saving(source,~)
+                source = obj.ExceptionHandling(source);
                 if strcmp(source.Tag,'InputDevice') || strcmp(source.Tag,'OutputDevice') || strcmp(source.Tag,'SpectralAnalysis')
                     obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(source.Tag)=source.Value;
                 else
@@ -12632,7 +12632,32 @@ classdef BEST < handle
             
             
         end
-        
+        %% Exception Handling
+        function Source= ExceptionHandling(obj,source)
+            Source=source;
+            Title='Guide - BEST Toolbox';
+            switch source.Tag
+                case 'EEGAcquisitionPeriod'
+                    % Handeled Here: should be a positive number
+                    % Handeled Here: should not be empty
+                    % Handeled Here: should not be more than 4 minutes
+                    if isempty(str2num(source.String)), Source.String=''; errordlg([Source.Tag ' shold be a positive number'],Title); end
+                    if ~(str2num(source.String)>0), Source.String=''; errordlg([Source.Tag ' shold be a positive number'],Title); end
+                    if str2num(source.String)>4, Source.String=''; errordlg([Source.Tag ' shold not be higher than 4 minutes due to MATLAB Samples Buffer Restrictions'],Title); end
+                case 'EEGEpochPeriod'
+                    % Handeled Here: should be a positive number
+                    % Handeled Here: should not be empty
+                    % Handeled At Run: should not be more than Acquisition Period 
+                    if isempty(str2num(source.String)), Source.String=''; errordlg([Source.Tag ' shold be a positive number'],Title); end
+                    if ~(str2num(source.String)>0), Source.String=''; errordlg([Source.Tag ' shold be a positive number'],Title); end
+                case 'TargetFrequencyRange'
+                    % Handeled Here: hould be 2 positive numbers
+                    % Handeled Here: Should not be more than 2
+                    % Handeled Here: Should not be empty
+                    % Adjusted Here: Should not contain square brackets around
+                    % Adjusted Here: First one should be lower, second one should be higher
+            end
+        end
         
         
         
