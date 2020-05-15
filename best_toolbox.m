@@ -3293,17 +3293,12 @@ classdef best_toolbox < handle
 
 %                 obj.h5;
 %                 obj.saveRuntime
-                tic
-                                disp entered___________________Exit__________
 
 %                 obj.save;
-                toc, 
-                tic
-                obj.saveFigures;
-                toc,
-                tic
+
+% %                 obj.saveFigures;
+
                 obj.completed;
-                toc
 %             catch ME
 %             errorMessage = sprintf('BEST Toolbox | resting-state EEG Measureent.\n\nError Message:\n%s', ME.message);
 %             % Print to command window.
