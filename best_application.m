@@ -1,5 +1,5 @@
 
-classdef BEST < handle
+classdef best_application < handle
     properties
         par
 %         bst
@@ -30,7 +30,7 @@ classdef BEST < handle
     
     methods
         %% BEST
-        function obj=BEST()
+        function obj=best_application()
             %             close all
             obj.close_previous;
             obj.create_gui;
