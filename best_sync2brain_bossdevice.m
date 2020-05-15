@@ -205,8 +205,8 @@ classdef best_sync2brain_bossdevice <handle
         
         function EMGScopeBoot(obj,EMGDisplayPeriodPre,EMGDisplayPeriodPost)
             disp enteredEMGScopeboot
-            NumSamples=(EMGDisplayPeriodPost+EMGDisplayPeriodPre)*5;
-            NumPrePostSamples=EMGDisplayPeriodPre*5;
+            NumSamples=round((EMGDisplayPeriodPost+EMGDisplayPeriodPre)*5);
+            NumPrePostSamples=round(EMGDisplayPeriodPre*5);
             obj.EMGScope = addscope(obj.bb.tg, 'host', 90);
             AuxSignalID = getsignalid(obj.bb.tg, 'UDP/raw_aux') + int32(0:8);
             MrkSignalID = getsignalid(obj.bb.tg, 'UDP/raw_mrk') + int32([0 1 2]);
@@ -227,8 +227,8 @@ classdef best_sync2brain_bossdevice <handle
         function IEEGScopeBoot(obj)
             MrkSignalID = getsignalid(obj.bb.tg, 'MRK/mrk_masked');
             IPSignalID = getsignalid(obj.bb.tg, 'SPF/Matrix Multiply');
-            NumSamples=(obj.best_toolbox.inputs.EEGDisplayPeriodPost+obj.best_toolbox.inputs.EEGDisplayPeriodPre)*5;
-            NumPrePostSamples=obj.best_toolbox.inputs.EEGDisplayPeriodPre*5;
+            NumSamples=round((obj.best_toolbox.inputs.EEGDisplayPeriodPost+obj.best_toolbox.inputs.EEGDisplayPeriodPre)*5);
+            NumPrePostSamples=round(obj.best_toolbox.inputs.EEGDisplayPeriodPre*5);
             Decimation=1;
             %             MrkSignalID = getsignalid(obj.bb.tg, 'MRK/mrk_raw') + int32([0 1 2]);
             obj.IEEGScope = addscope(obj.bb.tg, 'host', 92);
@@ -257,8 +257,7 @@ classdef best_sync2brain_bossdevice <handle
                 case 3 % Beta
                     IPSignalID = getsignalid(obj.bb.tg, 'OSC/beta/IP') + int32(0);
             end
-                                    MrkSignalID = getsignalid(obj.bb.tg, 'MRK/mrk_masked') + int32([0]);
-
+            MrkSignalID = getsignalid(obj.bb.tg, 'MRK/mrk_masked') + int32([0]);
 %             MrkSignalID = getsignalid(obj.bb.tg, 'MRK/mrk_raw') + int32([0 1 2]);
             obj.IPScope = addscope(obj.bb.tg, 'host', 91);
             addsignal(obj.IPScope, IPSignalID);
@@ -377,8 +376,8 @@ classdef best_sync2brain_bossdevice <handle
         function EEGScopeBoot(obj,EEGDisplayPeriodPre,EEGDisplayPeriodPost)
             % ArgIn EEGDisplayPeriodPre is ms
             % ArgIn EEGDisplayPeriodPost is ms
-            NumSamples=(EEGDisplayPeriodPost+EEGDisplayPeriodPre*(-1))*5; %Maximum Limit is of 1020000 Samples imposed by Simulink Real Time
-            NumPrePostSamples=EEGDisplayPeriodPre*5;
+            NumSamples=round((EEGDisplayPeriodPost+EEGDisplayPeriodPre*(-1))*5); %Maximum Limit is of 1020000 Samples imposed by Simulink Real Time
+            NumPrePostSamples=round(EEGDisplayPeriodPre*5);
             obj.EEGScope = addscope(obj.bb.tg, 'host', 95);
             AuxSignalID = getsignalid(obj.bb.tg, 'UDP/raw_eeg') + int32(0:obj.bb.eeg_channels-1);
             MrkSignalID = getsignalid(obj.bb.tg, 'UDP/raw_mrk') + int32([0 1 2]);
