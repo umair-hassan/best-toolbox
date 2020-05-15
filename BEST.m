@@ -200,13 +200,14 @@ classdef BEST < handle
         function RunStopButton(obj,~,~)
              if strcmp(obj.pmd.RunStopButton.String,'Stop')
                  uiresume;
-                 if ~isempty(obj.bossbox), obj.bossbox.stop; end
+                 if ~isempty(obj.bst.bossbox), obj.bst.bossbox.stop; end
                  obj.bst.inputs.stop_event=1;
                  obj.pmd.RunStopButton.Enable='off';
                  obj.pmd.PauseUnpauseButton.Enable='off';
                  obj.pmd.RunStopButton.String='Run';
                  obj.pmd.PauseUnpauseButton.String='Pause';
                  obj.enable_listboxes;
+                 if strcmp(obj.info.event.current_measure,'rsEEG Measurement'), try error('BEST Toolbox)'), catch, obj.bst.completed, end; end
                  
              elseif strcmp(obj.pmd.RunStopButton.String,'Run') % && strcmp(obj.pmd.RunStopButton.Enable,'On')
                  obj.fig.main.Widths(1)=-1.15;
@@ -218,7 +219,7 @@ classdef BEST < handle
                  obj.disable_listboxes;
                  %search for all the handles and make their enable off uicontrols, table and the interactive axes  %https://www.mathworks.com/help/matlab/ref/disabledefaultinteractivity.html
                  %make enable off in the listboxes and all pmd fields
-                 pause(0.02); %Time Buffer Necessary for Rendering 
+                 pause(0.02); %Test it by replacing it with drawnow
                  switch obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).Protocol{1,1}
                      case 'MEP Hotspot Search Protocol'
                          switch obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).ProtocolMode
