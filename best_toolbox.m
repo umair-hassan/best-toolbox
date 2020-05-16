@@ -146,6 +146,7 @@ classdef best_toolbox < handle
                     obj.app.pr.ax_measures=DisplayChannelsMeasures;
                     obj.app.pr.axesno=numel(obj.inputs.EMGDisplayChannels);
                     obj.app.pr.ax_ChannelLabels=obj.inputs.EMGDisplayChannels;
+                    obj.inputs.Figures=cell(1,obj.app.pr.axesno);
                     %% Creating Stimulation Conditions
                     for c=1:numel(fieldnames(obj.inputs.condsAll))
                         obj.inputs.condMat{c,obj.inputs.colLabel.trials}=obj.inputs.TrialsPerCondition;
@@ -2990,9 +2991,9 @@ classdef best_toolbox < handle
                 end
                 AxesNum=obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.axesno}{1,obj.inputs.chLab_idx};
                 AxesField=['ax' num2str(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.axesno}{1,obj.inputs.chLab_idx})];
-%                 CopiedAxes=copy(obj.app.pr.ax.(AxesField)); 
-%                 CopiedAxes.Parent=[]; pause(0.1)
-%                 obj.inputs.Figures{AxesNum}=CopiedAxes;
+                CopiedAxes=copy(obj.app.pr.ax.(AxesField)); 
+                CopiedAxes.Parent=[]; pause(0.1)
+                obj.inputs.Figures{AxesNum}=CopiedAxes;
             end
         end
         function prepTrial(obj)
