@@ -30,9 +30,9 @@ classdef best_application < handle
     methods
         %% BEST
         function obj=best_application()
-            %             close all
             obj.close_previous;
             obj.create_gui;
+
             function CreateHardwareConfigurationDefaults
                 obj.par.hardware_settings.neurone1.device_type=1;
                 obj.par.hardware_settings.neurone1.slct_device=1;
