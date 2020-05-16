@@ -2896,7 +2896,7 @@ classdef best_toolbox < handle
                                 % %                                 obj.inputs.rawData.(unique_chLab{1,i}).data(obj.inputs.trial,:)=obj.best_VisualizationFilter([obj.sim_mep(1,700:1000), obj.sim_mep(1,1:699)]*1000*obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,1}{1,1}*(randi([1 3])*0.10));
                                 obj.inputs.rawData.(unique_chLab{1,i}).data(obj.inputs.trial,:)=obj.best_VisualizationFilter([obj.sim_mep(1,700:1000), obj.sim_mep(1,1:699)]*1000*(randi([1 3])*0.10));
                                 obj.bossbox.EMGScope;
-                                check=obj.bossbox.EMGScope.Data(:,1)';
+%                                 check=obj.bossbox.EMGScope.Data(:,1)';
                                 %                         obj.inputs.rawData.(unique_chLab{1,i}).data(obj.inputs.trial,:)=[obj.bossbox.EMGScope.Data(:,1)]';
                                 %                                 obj.inputs.rawData.(unique_chLab{1,i}).data(obj.inputs.trial,:)=obj.best_VisualizationFilter([obj.bossbox.EMGScope.Data(:,1)]');
                                 % NewUseThis obj.inputs.rawData.(unique_chLab{1,i}).data(obj.inputs.trial,:)=obj.best_VisualizationFilter(obj.bossbox.EMGScopeRead(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chID}{1,i}))   %%[obj.bossbox.EMGScope.Data(:,1)]');
@@ -2946,7 +2946,7 @@ classdef best_toolbox < handle
                 (obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.measures}{1,i})
                 switch (obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.measures}{1,i})
                     case 'MEP_Measurement'
-                        if obj.inputs.Protocol=='MEP Dose Response Curve Protocol'
+                        if strcmpi(obj.inputs.Protocol,'MEP Dose Response Curve Protocol')
                             obj.mep_plot_conditionwise;
                         else
                             obj.mep_plot
@@ -3139,10 +3139,10 @@ classdef best_toolbox < handle
             obj.app.cb_menu_save;
         end
         function saveRuntime(obj)
-            t=timer;
-            t.BusyMode='queue';
-            t.TimerFcn=@(~,~)obj.TmrFcn;
-            start(t)
+%             t=timer;
+%             t.BusyMode='queue';
+%             t.TimerFcn=@(~,~)obj.TmrFcn;
+%             start(t)
            
         end
         function TmrFcn(obj)
@@ -3542,7 +3542,7 @@ classdef best_toolbox < handle
             % the purpose of below line is a mere simulation
             %             obj.inputs.results.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).MEPAmplitude(obj.inputs.trial,1)=obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.stimcdMrk};
             %% Calculating Ratios NEW METHOD
-            if obj.inputs.Protocol=='MEP Dose Response Curve Protocol'
+            if strcmpi(obj.inputs.Protocol,'MEP Dose Response Curve Protocol')
                 if obj.inputs.ResponseFunctionNumerator~=obj.inputs.ResponseFunctionDenominator
                     obj.inputs.results.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).MEPAmplitudeRatios(obj.inputs.trial,1)=obj.inputs.results.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).MEPAmplitude(obj.inputs.trial,1);
                     obj.inputs.results.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).MEPAmplitudeRatios(obj.inputs.trial,2)=obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,1}{1,1};
@@ -4682,7 +4682,7 @@ classdef best_toolbox < handle
                     end
                     
                     %onset, offset samples conversion to sampling rate
-                    if isfield(obj.inputs,'mep_onset_samples') && isfield(obj.inputs,'mep_offset_samples')
+                    if isfield(obj.inputs,'mep_onset') && isfield(obj.inputs,'mep_offset')
                         obj.inputs.mep_onset_samples=obj.inputs.mep_onset*5;
                         obj.inputs.mep_offset_samples=obj.inputs.mep_offset*5;
                     end
