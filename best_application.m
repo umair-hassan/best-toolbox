@@ -3718,10 +3718,8 @@ classdef best_application < handle
                     if strcmp(source.Tag,'ProtocolMode')
                         switch source.Value
                             case 1 % Automated
-                                mep_panel_row4.Visible='on';
                                 mep_panel_row5.Visible='on';
                             case 2 % Manual
-                                mep_panel_row4.Visible='off';
                                 mep_panel_row5.Visible='off';
                         end
                     end
@@ -3751,8 +3749,10 @@ classdef best_application < handle
             obj.info.defaults.EMGDisplayChannels='';
             obj.info.defaults.MEPOnset='15';
             obj.info.defaults.MEPOffset='50';
+            obj.info.defaults.MEPSearchWindow='15 50';
             obj.info.defaults.EMGDisplayPeriodPre='50';
             obj.info.defaults.EMGDisplayPeriodPost='150';
+            obj.info.defaults.EMGExtractionPeriod='-50 150';
             obj.info.defaults.EMGXLimit='-50 150';
             obj.info.defaults.EMGDisplayYLimMax={3000};
             obj.info.defaults.EMGDisplayYLimMin={-3000};
