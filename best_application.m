@@ -1210,8 +1210,12 @@ classdef best_application < handle
             end
         end
         function pr_ResetMEPMeanPlot(obj,source,~)
-            if(obj.bst.inputs.trial>2)
-            obj.bst.info.plt.(source.Tag).mean.UserData.TrialNoForMean=obj.bst.inputs.trial;
+            try
+                if(obj.bst.inputs.trial>2)
+                    obj.bst.info.plt.(source.Tag).mean.UserData.TrialNoForMean=obj.bst.inputs.trial;
+                end
+            catch
+                disp('BEST Toolbox: Calling Reset function in this case have no effect because the data does not exist in this file for this result');
             end
         end
         function pr_FigureExport(obj,source,~)
@@ -12779,12 +12783,7 @@ classdef best_application < handle
         function Compile(obj)
         end
         
-        
-        
-        
-        
-        
-        
+
         
         %% Delete: ioc section
         function pi_ioc(obj)
@@ -16128,11 +16127,13 @@ classdef best_application < handle
         end
         %% Load Parameters Using Menu
         function cb_menu_load(obj)
-            file = uigetfile('*.mat', 'BEST Toolbox: Select a mat file');
-            varname=file;
-            varname=erase(varname,'.mat');
-            varname = replaceBetween(varname,1,26,'');
-            saved_struct=load(file,varname);
+            FileName = uigetfile('*.mat', 'BEST Toolbox: Select a mat file');
+            File=whos('-file',FileName);
+            varname=File.name;
+            % varname=file;
+            % varname=erase(varname,'.mat');
+            % varname = replaceBetween(varname,1,26,'');
+            saved_struct=load(FileName,varname);
             obj.par=saved_struct.(varname).Parameters;
             obj.info=saved_struct.(varname).Utilities.Info;
             obj.data=saved_struct.(varname).Utilities.Data;
