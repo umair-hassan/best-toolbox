@@ -133,14 +133,14 @@ classdef best_application < handle
             % experiment title: first horizontal row in measurement designer panel
             pmd_hbox_exp_title = uix.HBox( 'Parent', pmd_vbox, 'Spacing', 5, 'Padding', 5  );
             uicontrol( 'Style','text','Parent', pmd_hbox_exp_title,'String','Experiment Title:','FontSize',11,'HorizontalAlignment','left','Units','normalized' );
-            obj.pmd.exp_title.editfield=uicontrol( 'Style','edit','Parent', pmd_hbox_exp_title ,'FontSize',11,'Callback',@(~,~)obj.cb_pmd_exp_title_editfield);
+            obj.pmd.exp_title.editfield=uicontrol( 'Style','edit','Parent', pmd_hbox_exp_title ,'String','Experiment1','FontSize',11,'Callback',@(~,~)obj.cb_pmd_exp_title_editfield);
             obj.pmd.exp_title.btn=uicontrol( 'Parent', pmd_hbox_exp_title ,'Style','PushButton','String','...','FontWeight','Bold','Callback',@obj.opendir );
             set( pmd_hbox_exp_title, 'Widths', [120 -0.7 -0.09]);
             
             % subject code: second horizontal row on first panel
             pmd_hbox_sub_code = uix.HBox( 'Parent', pmd_vbox, 'Spacing', 5, 'Padding', 5  );
             uicontrol( 'Style','text','Parent', pmd_hbox_sub_code,'String','Subject Code:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            obj.pmd.sub_code.editfield=uicontrol( 'Style','edit','Parent', pmd_hbox_sub_code ,'FontSize',11,'Callback',@(~,~)obj.cb_pmd_sub_code_editfield);
+            obj.pmd.sub_code.editfield=uicontrol( 'Style','edit','Parent', pmd_hbox_sub_code ,'String','Subject1','FontSize',11,'Callback',@(~,~)obj.cb_pmd_sub_code_editfield);
             obj.pmd.sub_code.btn=uicontrol( 'Parent', pmd_hbox_sub_code ,'Style','PushButton','String','...','FontWeight','Bold','Callback',@obj.opendir );
             set( pmd_hbox_sub_code, 'Widths', [120 -0.7 -0.09]);
             
@@ -1215,8 +1215,15 @@ classdef best_application < handle
             end
         end
         function pr_FigureExport(obj,source,~)
-            FigureFileName1=erase(obj.bst.info.matfilstr,'.mat');
-            % if this doesnt exit creates matfilstr
+            try
+                FigureFileName1=erase(obj.bst.info.matfilstr,'.mat');
+            catch
+                date=datestr(now); date(date == ' ') = '_'; date(date == '-') = '_'; date(date == ':') = '_';
+                exp_name=obj.pmd.exp_title.editfield.String; exp_name(exp_name == ' ') = '_';
+                subj_code=obj.pmd.sub_code.editfield.String; subj_code(subj_code == ' ') = '_';
+                save_str=[exp_name '_' subj_code];
+                FigureFileName1=['BEST_' date '_' save_str];
+            end
             iaxes=str2double(erase(source.Tag,'ax'));
             if isfield(obj.pr,'ax_ChannelLabels_0')
                 FigureFileName=[FigureFileName1 '_' obj.pr.ax_measures{1,iaxes} '_' obj.pr.ax_ChannelLabels_0{1,iaxes} '_' obj.pr.ax_ChannelLabels{1,iaxes}];
@@ -16065,16 +16072,7 @@ classdef best_application < handle
             variable_saved.(save_str).Utilities.Session=obj.pmd.lb_sessions.string;
             variable_saved.(save_str).Utilities.HardwareConfiguration.OutputDevices=obj.hw.device_added2_listbox.string;
             variable_saved.(save_str).Utilities.HardwareConfiguration.InputDevices=obj.hw.device_added1_listbox.string;
-            
-            %                 variable_saved.(save_str).Data.Private.Inputs=obj.bst.inputs;
-            %                 variable_saved.(save_str).Data.Private.Info=obj.bst.info;
-            %                 variable_saved.(save_str).Data.Private.Info.axes=[];
-            % %             varsav=variable_saved.(save_str)
-            % %             save(save_str,'varsav')
-            % %                 Date=datestr(now);
-            % %                 Date(Date == ' ') = '_';
-            % %                 Date(Date == '-') = '_';
-            % %                 Date(Date == ':') = '_';
+
             pause(1);
             if ~isempty(obj.Date)
                 obj.bst.info.matfilstr=['BEST_' obj.Date '_' save_str '.mat'];
@@ -16144,6 +16142,7 @@ classdef best_application < handle
             obj.pmd.exp_title.editfield.String=saved_struct.(varname).ExperimentName;
             obj.pmd.sub_code.editfield.String=saved_struct.(varname).SubjectCode;
             obj.pmd.lb_sessions.listbox.String=saved_struct.(varname).Utilities.Session;
+            obj.pmd.lb_sessions.string=saved_struct.(varname).Utilities.Session;
 %             obj.hw=Utilities.HardwareConfiguration;
             obj.hw.device_added2_listbox.string=saved_struct.(varname).Utilities.HardwareConfiguration.OutputDevices;
             obj.hw.device_added1_listbox.string=saved_struct.(varname).Utilities.HardwareConfiguration.InputDevices;
