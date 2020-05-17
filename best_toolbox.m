@@ -115,6 +115,10 @@ classdef best_toolbox < handle
                     obj.inputs.ylimMax=+3000;
                     obj.inputs.TrialNoForMean=1;
                     obj.inputs.BrainState=1;
+                    obj.inputs.MEPOnset=obj.inputs.MEPSearchWindow(1);
+                    obj.inputs.MEPOffset=obj.inputs.MEPSearchWindow(2);
+                    obj.inputs.EMGDisplayPeriodPre=obj.inputs.EMGExtractionPeriod(1)*(-1);
+                    obj.inputs.EMGDisplayPeriodPost=obj.inputs.EMGExtractionPeriod(2);
                     %% Creating Column Labels
                     obj.inputs.colLabel.inputDevices=1;
                     obj.inputs.colLabel.outputDevices=2;
@@ -2654,7 +2658,7 @@ classdef best_toolbox < handle
                                 end
                             end
                         elseif strcmp(InputsFieldNames{iInputs},'RealTimeChannelWeights') || strcmp(InputsFieldNames{iInputs},'ResponseFunctionNumerator') || strcmp(InputsFieldNames{iInputs},'ResponseFunctionDenominator') ...
-                                || strcmp(InputsFieldNames{iInputs},'TargetFrequencyRange')  || strcmp(InputsFieldNames{iInputs},'BandStopFrequency') || strcmp(InputsFieldNames{iInputs},'EMGXLimit') 
+                                || strcmp(InputsFieldNames{iInputs},'TargetFrequencyRange')  || strcmp(InputsFieldNames{iInputs},'BandStopFrequency') || strcmp(InputsFieldNames{iInputs},'EMGXLimit') || strcmp(InputsFieldNames{iInputs},'MEPSearchWindow') || strcmp(InputsFieldNames{iInputs},'EMGExtractionPeriod') 
                             obj.inputs.(InputsFieldNames{iInputs})=str2num(obj.inputs.(InputsFieldNames{iInputs}));
                         else
                             obj.inputs.(InputsFieldNames{iInputs})=str2double(obj.inputs.(InputsFieldNames{iInputs}));
@@ -3246,6 +3250,11 @@ classdef best_toolbox < handle
                         obj.plotTrial;
                         obj.prepTrial;
                         obj.saveRuntime;
+                    end
+                    if(obj.inputs.stop_event==1) || obj.inputs.trial==obj.inputs.totalTrials
+                        disp('BEST Toolbox Manual Hotspot Search has been stopped')
+                        obj.inputs.stop_event=0;
+                        break;
                     end
                     drawnow
                 end

@@ -829,7 +829,7 @@ classdef best_application < handle
                 errordlg('No results exist for this measurement, Please collect the data if you wish to see the results for this particular measure.','BEST Toolbox');
                 return
             end
-            
+            obj.fig.main.Widths([1 2 3])=[-1.15 -0 -3.35];
             obj.bst.factorizeConditions
             obj.resultsPanel;
             obj.bst.inputs.Figures=obj.bst.sessions.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).Figures;
@@ -1012,7 +1012,8 @@ classdef best_application < handle
             %             set( obj.fig.main, 'Widths', [-1.15 -1.35 -2] );
         end
         
-
+        
+        
         function pr_mep(obj)
             obj.pr.ax_no=['ax' num2str(obj.pr.axesno)];
             ui_menu=uicontextmenu(obj.fig.handle);
@@ -3669,17 +3670,15 @@ classdef best_application < handle
             
             %row 8
             mep_panel_row8 = uix.HBox( 'Parent', vb, 'Spacing', 5, 'Padding', 5  );
-            uicontrol( 'Style','text','Parent', mep_panel_row8,'String','MEP onset (ms):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            obj.pi.hotspot.MEPOnset=uicontrol( 'Style','edit','Parent', mep_panel_row8 ,'FontSize',11,'String','15','Tag','MEPOnset','callback',@cb_par_saving);
-            obj.pi.hotspot.MEPOffset=uicontrol( 'Style','edit','Parent', mep_panel_row8 ,'FontSize',11,'String','50','Tag','MEPOffset','callback',@cb_par_saving);
-            set( mep_panel_row8, 'Widths', [150 -2 -2]);
+            uicontrol( 'Style','text','Parent', mep_panel_row8,'String','MEP Search Window (ms):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+            obj.pi.hotspot.MEPSearchWindow=uicontrol( 'Style','edit','Parent', mep_panel_row8 ,'FontSize',11,'String','15','Tag','MEPSearchWindow','callback',@cb_par_saving);
+            set( mep_panel_row8, 'Widths', [150 -2]);
             
             %row 11
             mep_panel_row11 = uix.HBox( 'Parent', vb, 'Spacing', 5, 'Padding', 5  );
             uicontrol( 'Style','text','Parent', mep_panel_row11,'String','EMG Extraction Period (ms):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            obj.pi.hotspot.EMGDisplayPeriodPre=uicontrol( 'Style','edit','Parent', mep_panel_row11 ,'FontSize',11,'String','150','Tag','EMGDisplayPeriodPre','callback',@cb_par_saving);
-            obj.pi.hotspot.EMGDisplayPeriodPost=uicontrol( 'Style','edit','Parent', mep_panel_row11 ,'FontSize',11,'String','150','Tag','EMGDisplayPeriodPost','callback',@cb_par_saving);
-            set( mep_panel_row11, 'Widths', [150 -2 -2]);
+            obj.pi.hotspot.EMGExtractionPeriod=uicontrol( 'Style','edit','Parent', mep_panel_row11 ,'FontSize',11,'String','150','Tag','EMGExtractionPeriod','callback',@cb_par_saving);
+            set( mep_panel_row11, 'Widths', [150 -2]);
             
             
              %row 11
@@ -3702,7 +3701,7 @@ classdef best_application < handle
             uiextras.HBox( 'Parent', vb);
             
             
-            set(vb,'Heights',[30 30 30 42 35 42 42 42 35 -1])
+            set(vb,'Heights',[30 30 30 42 42 42 42 42 35 -1])
             Interactivity;
             function cb_run_hotspot
                 switch obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).ProtocolMode
