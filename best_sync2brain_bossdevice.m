@@ -208,15 +208,15 @@ classdef best_sync2brain_bossdevice <handle
             NumSamples=round((EMGDisplayPeriodPost+EMGDisplayPeriodPre)*5);
             NumPrePostSamples=round(EMGDisplayPeriodPre*5);
             obj.EMGScope = addscope(obj.bb.tg, 'host', 90);
-            AuxSignalID = getsignalid(obj.bb.tg, 'UDP/raw_aux') + int32(0:8);
-            MrkSignalID = getsignalid(obj.bb.tg, 'UDP/raw_mrk') + int32([0 1 2]);
+            AuxSignalID = getsignalid(obj.bb.tg, 'UDP/raw_aux') + int32(0:7);  
+            MrkSignalID = getsignalid(obj.bb.tg, 'MRK/mrk_masked');
             addsignal(obj.EMGScope, AuxSignalID);
             obj.EMGScope.NumSamples = NumSamples;
             obj.EMGScope.NumPrePostSamples = -NumPrePostSamples;
             obj.EMGScope.Decimation = 1;
             obj.EMGScope.TriggerMode = 'Signal';
-            obj.EMGScope.TriggerSignal = getsignalid(obj.bb.tg, 'gen_running'); %Remove it in Official Usee
-%             obj.EMGScope.TriggerSignal = MrkSignalID(3); %in Tuebingen setup the 2nd coloumn of signal was giving the return values, however in Mainz setup it was the third coloumn
+            obj.EMGScope.TriggerSignal = getsignalid(obj.bb.tg, 'gen_running'); %Remove it in Official Use
+            obj.EMGScope.TriggerSignal = MrkSignalID; 
             obj.EMGScope.TriggerLevel = 0.5;
             obj.EMGScope.TriggerSlope = 'Rising';
             obj.best_toolbox.FilterCoefficients.HumNoiseNotchFilter=designfilt('bandstopiir','FilterOrder',2,'HalfPowerFrequency1',39,'HalfPowerFrequency2',61,'DesignMethod','butter','SampleRate',NumSamples);
@@ -230,7 +230,6 @@ classdef best_sync2brain_bossdevice <handle
             NumSamples=round((obj.best_toolbox.inputs.EEGDisplayPeriodPost+obj.best_toolbox.inputs.EEGDisplayPeriodPre)*5);
             NumPrePostSamples=round(obj.best_toolbox.inputs.EEGDisplayPeriodPre*5);
             Decimation=1;
-            %             MrkSignalID = getsignalid(obj.bb.tg, 'MRK/mrk_raw') + int32([0 1 2]);
             obj.IEEGScope = addscope(obj.bb.tg, 'host', 92);
             addsignal(obj.IEEGScope, IPSignalID);
             % If 100 samples are extracted there will be a data of 400ms for Theta, 200ms for Alpha and 100ms for Beta
@@ -238,8 +237,8 @@ classdef best_sync2brain_bossdevice <handle
             obj.IEEGScope.NumPrePostSamples = NumPrePostSamples;
             obj.IEEGScope.Decimation = Decimation;
             obj.IEEGScope.TriggerMode = 'Signal';
-            obj.IEEGScope.TriggerSignal = getsignalid(obj.bb.tg, 'gen_running'); %Remove it in Official Usee
-%             obj.IEEGScope.TriggerSignal = MrkSignalID; %in Tuebingen setup the 2nd coloumn of signal was giving the return values, however in Mainz setup it was the third coloumn
+            obj.IEEGScope.TriggerSignal = getsignalid(obj.bb.tg, 'gen_running'); %Remove it in Official Use
+            obj.IEEGScope.TriggerSignal = MrkSignalID;
             obj.IEEGScope.TriggerLevel = 0.5;
             obj.IEEGScope.TriggerSlope = 'Rising';
             obj.best_toolbox.inputs.rawData.IEEG.time=linspace(-1*(obj.best_toolbox.inputs.EEGDisplayPeriodPre),obj.best_toolbox.inputs.EEGDisplayPeriodPost,NumSamples);
@@ -257,8 +256,7 @@ classdef best_sync2brain_bossdevice <handle
                 case 3 % Beta
                     IPSignalID = getsignalid(obj.bb.tg, 'OSC/beta/IP') + int32(0);
             end
-            MrkSignalID = getsignalid(obj.bb.tg, 'MRK/mrk_masked') + int32([0]);
-%             MrkSignalID = getsignalid(obj.bb.tg, 'MRK/mrk_raw') + int32([0 1 2]);
+            MrkSignalID = getsignalid(obj.bb.tg, 'MRK/mrk_masked');
             obj.IPScope = addscope(obj.bb.tg, 'host', 91);
             addsignal(obj.IPScope, IPSignalID);
             % If 100 samples are extracted there will be a data of 400ms for Theta, 200ms for Alpha and 100ms for Beta
@@ -266,8 +264,8 @@ classdef best_sync2brain_bossdevice <handle
             obj.IPScope.NumPrePostSamples = -99;
             obj.IPScope.Decimation = 1;
             obj.IPScope.TriggerMode = 'Signal';
-            obj.IPScope.TriggerSignal = getsignalid(obj.bb.tg, 'gen_running'); %Remove it in Official Usee
-%             obj.IPScope.TriggerSignal = MrkSignalID; %in Tuebingen setup the 2nd coloumn of signal was giving the return values, however in Mainz setup it was the third coloumn
+            obj.IPScope.TriggerSignal = getsignalid(obj.bb.tg, 'gen_running'); %Remove it in Official Use
+            obj.IPScope.TriggerSignal = MrkSignalID; 
             obj.IPScope.TriggerLevel = 0.5;
             obj.IPScope.TriggerSlope = 'Rising';
             %% Starting Scope
@@ -380,14 +378,14 @@ classdef best_sync2brain_bossdevice <handle
             NumPrePostSamples=round(EEGDisplayPeriodPre*5);
             obj.EEGScope = addscope(obj.bb.tg, 'host', 95);
             AuxSignalID = getsignalid(obj.bb.tg, 'UDP/raw_eeg') + int32(0:obj.bb.eeg_channels-1);
-            MrkSignalID = getsignalid(obj.bb.tg, 'UDP/raw_mrk') + int32([0 1 2]);
+            MrkSignalID = getsignalid(obj.bb.tg, 'MRK/mrk_masked');
             addsignal(obj.EEGScope, AuxSignalID);
             obj.EEGScope.NumSamples = NumSamples;
             obj.EEGScope.NumPrePostSamples = NumPrePostSamples;
             obj.EEGScope.Decimation = 1;
             obj.EEGScope.TriggerMode = 'Signal';
             obj.EEGScope.TriggerSignal = getsignalid(obj.bb.tg, 'gen_running'); %Remove it in Official Usee
-%             obj.EEGScope.TriggerSignal = MrkSignalID(3); %in Tuebingen setup the 2nd coloumn of signal was giving the return values, however in Mainz setup it was the third coloumn
+            obj.EEGScope.TriggerSignal = MrkSignalID;
             obj.EEGScope.TriggerLevel = 0.5;
             obj.EEGScope.TriggerSlope = 'Rising';
             %% Starting Scope
@@ -419,10 +417,24 @@ classdef best_sync2brain_bossdevice <handle
         function IAScopeStart(obj)
             %This has to be done inside armed loop therefore empty but just required as a Place holder for consistency of Architecture and may be used in future
         end
-        function Data = EMGScopeRead(obj,Channel)
+        function [Time, Data] = EMGScopeRead(obj,Channel)
             while ~strcmpi(obj.EMGScope.Status,'finished'), end
-            Data=[obj.EMGScope.Data(:,Channel)]';
-            obj.EMGScopeStart;
+            Data=obj.EMGScope.Data(:,Channel)';
+            Time=(obj.EMGScope.Time-obj.EMGScope.Time(1)+(obj.EMGScope.Time(2)-obj.EMGScope.Time(1)))';
+            Time=(Time*1000)+obj.best_toolbox.inputs.EMGDisplayPeriodPre*(-1);
+            if(obj.best_toolbox.inputs.EMGDisplayPeriodPre>0)
+                cfg=[];
+                ftdata.label={'ch1'};
+                ftdata.fsample=5000;
+                ftdata.trial{1}=Data;
+                ftdata.time{1}=Time;
+                cfg.demean='yes';
+                cfg.detrend='yes';
+                cfg.baselinewindow=[obj.best_toolbox.inputs.EMGDisplayPeriodPre*(-1)/1000 0];
+                ProcessedData=ft_preprocessing(cfg, ftdata);
+                Data=ProcessedData.trial{1};
+                Time=ProcessedData.time{1};
+            end
         end
         function Data = IPScopeRead(obj)
             while ~strcmpi(obj.IPScope.Status,'finished'), end
