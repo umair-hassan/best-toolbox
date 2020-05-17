@@ -16130,7 +16130,7 @@ classdef best_application < handle
         end
         %% Load Parameters Using Menu
         function cb_menu_load(obj)
-            file = uigetfile;
+            file = uigetfile('*.mat', 'BEST Toolbox: Select a mat file');
             varname=file;
             varname=erase(varname,'.mat');
             varname = replaceBetween(varname,1,26,'');
@@ -16150,10 +16150,10 @@ classdef best_application < handle
             
             obj.hw.device_added2.listbox.String=obj.hw.device_added2_listbox.string;
             obj.hw.device_added1.listbox.String=obj.hw.device_added1_listbox.string;
-            
+            drawnow
             pause(1);
             obj.cb_session_listbox;
-
+            drawnow;    
 
             
             
