@@ -1,5 +1,5 @@
 function BEST
 %% Introduction
 %% Creating Application
-evalin( 'base', 'BEST=best_application;' )
+evalin( 'base', 'best_toolbox=best_application;' )
 end
