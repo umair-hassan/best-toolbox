@@ -430,7 +430,7 @@ classdef best_sync2brain_bossdevice <handle
                 ftdata.time{1}=Time;
                 cfg.demean='yes';
                 cfg.detrend='yes';
-                cfg.baselinewindow=[obj.best_toolbox.inputs.EMGDisplayPeriodPre*(-1)/1000 0];
+                cfg.baselinewindow=[obj.best_toolbox.inputs.EMGDisplayPeriodPre*(-1)/1000 -10]; %[EMGDisplayPeriodPre_ms to -10ms]
                 ProcessedData=ft_preprocessing(cfg, ftdata);
                 Data=ProcessedData.trial{1};
                 Time=ProcessedData.time{1};
