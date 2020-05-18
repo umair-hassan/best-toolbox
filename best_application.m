@@ -6982,13 +6982,13 @@ classdef best_application < handle
                         
                         % row 2
                         mep_panel_row2 = uix.HBox( 'Parent', expModvBox, 'Spacing', 5, 'Padding', 5  );
-                        uicontrol( 'Style','text','Parent', mep_panel_row2,'String','Montage Channels:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-                        obj.pi.mth.MontageChannels=uicontrol( 'Style','edit','Parent', mep_panel_row2 ,'FontSize',11,'Tag','MontageChannels','Callback',@cb_par_saving); %,'Callback',@obj.cb_eegtms_target_muscle
+                        uicontrol( 'Style','text','Parent', mep_panel_row2,'String','Real-Time Channels Montage:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                        obj.pi.mth.RealTimeChannelsMontage=uicontrol( 'Style','edit','Parent', mep_panel_row2 ,'FontSize',11,'Tag','RealTimeChannelsMontage','Callback',@cb_par_saving); %,'Callback',@obj.cb_eegtms_target_muscle
                         set( mep_panel_row2, 'Widths', [150 -2]);
                         
                         mep_panel_row2 = uix.HBox( 'Parent', expModvBox, 'Spacing', 5, 'Padding', 5  );
-                        uicontrol( 'Style','text','Parent', mep_panel_row2,'String','Montage Weights:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-                        obj.pi.mth.MontageWeights=uicontrol( 'Style','edit','Parent', mep_panel_row2 ,'FontSize',11,'Tag','MontageWeights','Callback',@cb_par_saving); %,'Callback',@obj.cb_eegtms_target_muscle
+                        uicontrol( 'Style','text','Parent', mep_panel_row2,'String','Real-Time Channels Weights:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                        obj.pi.mth.RealTimeChannelsWeights=uicontrol( 'Style','edit','Parent', mep_panel_row2 ,'FontSize',11,'Tag','RealTimeChannelsWeights','Callback',@cb_par_saving); %,'Callback',@obj.cb_eegtms_target_muscle
                         set( mep_panel_row2, 'Widths', [150 -2]);
                         
                         mep_panel_row8 = uix.HBox( 'Parent', expModvBox, 'Spacing', 5, 'Padding', 5  );
@@ -8318,8 +8318,8 @@ classdef best_application < handle
             obj.info.defaults.TrialsPerCondition='10';
             obj.info.defaults.InputDevice=1;
             obj.info.defaults.ITI='4';
-            obj.info.defaults.MontageChannels=['{' ' ''C3'',' ' ''FC1'',' ' ''FC5'',' ' ''CP1'',' ' ''CP5''}'];
-            obj.info.defaults.MontageWeights='1 -0.25 -0.25 -0.25 -0.25';
+            obj.info.defaults.RealTimeChannelsMontage=['{' ' ''C3'',' ' ''FC1'',' ' ''FC5'',' ' ''CP1'',' ' ''CP5''}'];
+            obj.info.defaults.RealTimeChannelsWeights='1 -0.25 -0.25 -0.25 -0.25';
             obj.info.defaults.FrequencyBand=1;
             obj.info.defaults.PeakFrequency='11';
             obj.info.defaults.BandPassFilterOrder='80';

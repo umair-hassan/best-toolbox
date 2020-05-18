@@ -1066,6 +1066,8 @@ classdef best_toolbox < handle
                             obj.inputs.EMGDisplayPeriodPost=obj.inputs.EMGExtractionPeriod(2);
                             obj.inputs.EEGDisplayPeriodPre=obj.inputs.EEGExtractionPeriod(1)*(-1);
                             obj.inputs.EEGDisplayPeriodPost=obj.inputs.EEGExtractionPeriod(2);
+                            obj.inputs.MontageChannels=obj.inputs.RealTimeChannelsMontage;
+                            obj.inputs.MontageWeights=obj.inputs.RealTimeChannelsWeights;
                             %% Creating Column Labels
                             obj.inputs.colLabel.inputDevices=1;
                             obj.inputs.colLabel.outputDevices=2;
@@ -2659,7 +2661,7 @@ classdef best_toolbox < handle
                 for iInputs=1:numel(InputsFieldNames)
                     if (isa(obj.inputs.(InputsFieldNames{iInputs}),'char')) 
                         if (strcmp(InputsFieldNames{iInputs},'ReferenceChannels')) || (strcmp(InputsFieldNames{iInputs},'ITI')) || (strcmp(InputsFieldNames{iInputs},'EMGDisplayChannels')) || (strcmp(InputsFieldNames{iInputs},'EMGTargetChannels')) || (strcmp(InputsFieldNames{iInputs},'Phase')) || (strcmp(InputsFieldNames{iInputs},'PhaseTolerance')) || (strcmp(InputsFieldNames{iInputs},'MontageChannels')) || (strcmp(InputsFieldNames{iInputs},'AmplitudeThreshold'))|| (strcmp(InputsFieldNames{iInputs},'TargetChannels')) || (strcmp(InputsFieldNames{iInputs},'EEGDisplayPeriod')) ...
-                               || (strcmp(InputsFieldNames{iInputs},'MontageChannels')) || (strcmp(InputsFieldNames{iInputs},'MontageWeights')) || (strcmp(InputsFieldNames{iInputs},'RecordingReference'))
+                               || (strcmp(InputsFieldNames{iInputs},'RealTimeChannelsMontage')) || (strcmp(InputsFieldNames{iInputs},'MontageWeights')) || (strcmp(InputsFieldNames{iInputs},'RecordingReference'))
                             if (isempty(obj.inputs.(InputsFieldNames{iInputs})))
                                 disp donothing
                             else
@@ -2669,7 +2671,7 @@ classdef best_toolbox < handle
                                     obj.inputs.(InputsFieldNames{iInputs})=str2num(obj.inputs.(InputsFieldNames{iInputs}));
                                 end
                             end
-                        elseif strcmp(InputsFieldNames{iInputs},'RealTimeChannelWeights') || strcmp(InputsFieldNames{iInputs},'ResponseFunctionNumerator') || strcmp(InputsFieldNames{iInputs},'ResponseFunctionDenominator') ...
+                        elseif strcmp(InputsFieldNames{iInputs},'RealTimeChannelWeights') || strcmp(InputsFieldNames{iInputs},'RealTimeChannelsWeights') || strcmp(InputsFieldNames{iInputs},'ResponseFunctionNumerator') || strcmp(InputsFieldNames{iInputs},'ResponseFunctionDenominator') ...
                                 || strcmp(InputsFieldNames{iInputs},'TargetFrequencyRange')  || strcmp(InputsFieldNames{iInputs},'BandStopFrequency') || strcmp(InputsFieldNames{iInputs},'EMGXLimit') || strcmp(InputsFieldNames{iInputs},'EEGXLimit') ... 
                                 || strcmp(InputsFieldNames{iInputs},'MEPSearchWindow') || strcmp(InputsFieldNames{iInputs},'EMGExtractionPeriod')  || strcmp(InputsFieldNames{iInputs},'EEGExtractionPeriod') 
                             obj.inputs.(InputsFieldNames{iInputs})=str2num(obj.inputs.(InputsFieldNames{iInputs}));
