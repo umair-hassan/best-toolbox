@@ -6996,10 +6996,16 @@ classdef best_application < handle
                         obj.pi.mth.FrequencyBand=uicontrol( 'Style','popupmenu','Parent', mep_panel_row8 ,'FontSize',11,'String',{'Alpha (8-14 Hz)','Theta (4-7 Hz)','Beta  (15-30 Hz)'},'Tag','FrequencyBand','callback',@cb_par_saving);
                         set( mep_panel_row8, 'Widths', [150 -2]);
                         
+                        [PeakFrequencyProtocols,PeakFrequencyMontages]=getPeakFrequencyProtocolsAndMontages;
                         mep_panel_row8z = uix.HBox( 'Parent', expModvBox, 'Spacing', 5, 'Padding', 5  );
                         uicontrol( 'Style','text','Parent', mep_panel_row8z,'String','Peak Frequency (Hz):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
                         obj.pi.mth.PeakFrequency=uicontrol( 'Style','edit','Parent', mep_panel_row8z ,'FontSize',11,'Tag','PeakFrequency','Callback',@cb_par_saving);
-                        set( mep_panel_row8z, 'Widths', [150 -2]);
+                        obj.pi.mth.ImportPeakFrequencyFromProtocol=uicontrol( 'Style','popupmenu','Parent', mep_panel_row8z ,'FontSize',11,'Tag','ImportPeakFrequencyFromProtocol','Callback',@set_PeakFrequency);
+                        obj.pi.mth.ImportPeakFrequencyFromProtocol.String=getPeakFrequencyProtocols;
+                        obj.pi.mth.ImportPeakFrequencyFromMontage=uicontrol( 'Style','popupmenu','Parent', mep_panel_row8z ,'FontSize',11,'Tag','ImportPeakFrequencyFromMontage','Callback',@cb_par_saving);
+                        obj.pi.mth.ImportPeakFrequencyFromMontage=getPeakFrequencyMontages;
+
+                        set( mep_panel_row8z, 'Widths', [150 -2 -2 -2]);
                         
                         % row 2
                         mep_panel_row2 = uix.HBox( 'Parent', expModvBox, 'Spacing', 5, 'Padding', 5  );
@@ -7028,7 +7034,8 @@ classdef best_application < handle
                         uicontrol( 'Style','text','Parent', expModr2c,'String','Minimum ITI (s):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
                         obj.pi.mth.ITI=uicontrol( 'Style','edit','Parent', expModr2c ,'FontSize',11,'Tag','ITI','callback',@cb_par_saving);
                         expModr2c.Widths=[150 -2];
-                        expModvBox.Heights=[30 35 35 35 35 35 35 35 42 35];
+                        expModvBox.Heights=[30 42 42 35 35 35 35 35 42 35];
+                        
                 end
                 
             end
@@ -7129,7 +7136,7 @@ classdef best_application < handle
                     case 1
                         set(obj.pi.mth.r0v1,'Heights',[40 90 320 -1 55])
                     case 2
-                        set(obj.pi.mth.r0v1,'Heights',[40 390 420 -1 55])
+                        set(obj.pi.mth.r0v1,'Heights',[40 390 390 -1 55])
                 end
             end
             
@@ -7141,7 +7148,28 @@ classdef best_application < handle
                     obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(source.Tag)=source.String;
                 end
             end
+            function [PeakFrequencyProtocols,PeakFrequencyMontages]=getPeakFrequencyProtocolsAndMontages
+            end
+            function PeakFrequencyProtocols=getPeakFrequencyProtocols
+                indexPeakFrequencyProtocols= find(strcmp(obj.data.(obj.info.event.current_session).info.measurement_str_original,'rsEEG Measurement'));
+                PeakFrequencyProtocols=obj.data.(obj.info.event.current_session).info.measurement_str_to_listbox(indexPeakFrequencyProtocols);
+            end
             
+            function ImportPeakFrequencyFromMontage=getPeakFrequencyMontages
+            end
+            function set_PeakFrequency(source,~)
+                obj.par.(obj.info.event.current_session).(obj.info.event.measure_being_added).ImportPeakFrequencyFromProtocol=source.String{source.Value};
+                if numel(obj.par.(obj.info.event.current_session).(source.String{source.Value}).MontageChannels)>1
+                    
+                    AllMontages
+                    [indx,tf] = listdlg('PromptString',{'Multiple Montages were found in your selection','Select one Montage.',''},...
+                        'SelectionMode','single','ListString',AllMontages);
+                else
+                    ImportPeakFrequencyFromMontage=erase(char(join(obj.par.(obj.info.event.current_session).(source.String{source.Value}).MontageChannels{1})),' ');
+                    obj.par.(obj.info.event.current_session).(obj.info.event.measure_being_added).ImportPeakFrequencyFromMontage=ImportPeakFrequencyFromMontage;
+                end
+                
+            end
             
         end %% END obj.pr_mth
         function cb_pr_mth_StimulationParametersTable(obj)
