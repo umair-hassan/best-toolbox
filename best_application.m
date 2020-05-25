@@ -15586,6 +15586,7 @@ classdef best_application < handle
             obj.par.hardware_settings.(obj.hw.vbox_rp.device_name.String).device_type=obj.hw.device_type.listbox.Value;
             obj.par.hardware_settings.(obj.hw.vbox_rp.device_name.String).slct_device=obj.hw.vbox_rp.slct_device.Value;
             obj.par.hardware_settings.(obj.hw.vbox_rp.device_name.String).device_name=obj.hw.vbox_rp.device_name.String;
+            obj.par.hardware_settings.(obj.hw.vbox_rp.device_name.String).prtcl_name=obj.hw.vbox_rp.prtcl_name.String;
             obj.par.hardware_settings.(obj.hw.vbox_rp.device_name.String).NeurOneProtocolChannelLabels=obj.hw.vbox_rp.NeurOneProtocolChannelLabels;
             obj.par.hardware_settings.(obj.hw.vbox_rp.device_name.String).NeurOneProtocolChannelSignalTypes=obj.hw.vbox_rp.NeurOneProtocolChannelSignalTypes;
         end
