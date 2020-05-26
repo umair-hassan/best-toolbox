@@ -7150,30 +7150,33 @@ classdef best_application < handle
                     PeakFrequencyProtocols={'Select'};
                 end
             end
-            function set_PeakFrequency(source,~) 
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).ImportPeakFrequencyFromProtocol=source.String{source.Value};
-                % #TODO: what if the source.string is select , then ignore this overall action)
-                montages=numel(eval(obj.par.(obj.info.event.current_session).(regexprep((source.String{source.Value}),' ','_')).MontageChannels));
-                if numel(obj.par.(obj.info.event.current_session).(source.String{source.Value}).MontageChannels)>1
-                    for montage=1:montages
-                        AllMontages{montage}=erase(char(join(obj.par.(obj.info.event.current_session).(source.String{source.Value}).MontageChannels{montage})),' ');
+            function set_PeakFrequency(source,~)
+                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).ImportPeakFrequencyFromProtocol=regexprep((source.String{source.Value}),' ','_');
+                if ~strcmpi(source.String,'Select') % #TODO: what if the source.string is select , then ignore this overall action)
+                    montages=numel(eval(obj.par.(obj.info.event.current_session).(regexprep((source.String{source.Value}),' ','_')).MontageChannels));
+                    if montages>1
+                        for montage=1:montages
+                            montagechannels=eval(obj.par.(obj.info.event.current_session).(regexprep((source.String{source.Value}),' ','_')).MontageChannels);
+                            AllMontages{montage}=erase(char(join(montagechannels{montage})),' ');
+                        end
+                        [indx,tf] = listdlg('PromptString',{'Multiple Montages were found in your selection','Select one Montage.',''},'SelectionMode','single','ListString',AllMontages);
+                        if tf==1
+                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).ImportPeakFrequencyFromMontage=AllMontages{indx};
+                            ImportPeakFrequencyFromMontage=AllMontages{indx};
+                        elseif tf==0
+                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).ImportPeakFrequencyFromMontage=AllMontages{1};
+                            ImportPeakFrequencyFromMontage=AllMontages{1};
+                        end
+                    else
+                        ImportPeakFrequencyFromMontage=erase(char(join(obj.par.(obj.info.event.current_session).(source.String{source.Value}).MontageChannels{1})),' ');
+                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).ImportPeakFrequencyFromMontage=ImportPeakFrequencyFromMontage;
                     end
-                    [indx,tf] = listdlg('PromptString',{'Multiple Montages were found in your selection','Select one Montage.',''},'SelectionMode','single','ListString',AllMontages);
-                    if tf==1
-                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).ImportPeakFrequencyFromMontage=AllMontages{indx};
-                        ImportPeakFrequencyFromMontage=AllMontages{indx};
-                    elseif tf==0
-                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).ImportPeakFrequencyFromMontage=AllMontages{1};
-                        ImportPeakFrequencyFromMontage=AllMontages{1};
+                    try
+                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).PeakFrequency=obj.bst.sessions.(obj.info.event.current_session).(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).ImportPeakFrequencyFromProtocol).results.PeakFrequency.(ImportPeakFrequencyFromMontage);
+                    catch
+                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).PeakFrequency='Not Found';
                     end
-                else
-                    ImportPeakFrequencyFromMontage=erase(char(join(obj.par.(obj.info.event.current_session).(source.String{source.Value}).MontageChannels{1})),' ');
-                    obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).ImportPeakFrequencyFromMontage=ImportPeakFrequencyFromMontage;
-                end
-                try
-                    obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).PeakFrequency=obj.bst.sessions.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).results.PeakFrequency.ImportPeakFrequencyFromMontage;
-                catch
-                    obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).PeakFrequency='Not Found';
+                    obj.pi.mth.PeakFrequency.String=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).PeakFrequency;
                 end
             end
             
