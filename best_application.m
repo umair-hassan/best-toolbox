@@ -7152,6 +7152,7 @@ classdef best_application < handle
             end
             function set_PeakFrequency(source,~)
                 obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).ImportPeakFrequencyFromProtocol=regexprep((source.String{source.Value}),' ','_');
+                ImportPeakFrequencyFromProtocol=regexprep((source.String{source.Value}),' ','_');
                 if ~strcmpi(source.String,'Select') % #TODO: what if the source.string is select , then ignore this overall action)
                     montages=numel(eval(obj.par.(obj.info.event.current_session).(regexprep((source.String{source.Value}),' ','_')).MontageChannels));
                     if montages>1
@@ -7168,7 +7169,7 @@ classdef best_application < handle
                             ImportPeakFrequencyFromMontage=AllMontages{1};
                         end
                     else
-                        ImportPeakFrequencyFromMontage=erase(char(join(obj.par.(obj.info.event.current_session).(source.String{source.Value}).MontageChannels{1})),' ');
+                        ImportPeakFrequencyFromMontage=erase(char(join(obj.par.(obj.info.event.current_session).(ImportPeakFrequencyFromProtocol).MontageChannels{1})),' ');
                         obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).ImportPeakFrequencyFromMontage=ImportPeakFrequencyFromMontage;
                     end
                     try
@@ -8052,12 +8053,10 @@ classdef best_application < handle
                 
                 r3=uix.HBox('parent',c1);
                 uicontrol( 'Style','text','Parent', r3,'String','Motor Threshold (%MSO):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-                threshold=uicontrol( 'Style','edit','Parent', r3 ,'FontSize',11);
-                mt_btn_listbox_str_id= find(strcmp(obj.data.(obj.info.event.current_session).info.measurement_str_original,'MEP Motor Threshold Hunting'));
-                mt_btn_listbox_str=obj.data.(obj.info.event.current_session).info.measurement_str_to_listbox(mt_btn_listbox_str_id);
-                mt_btn_listbox_str=['Select' mt_btn_listbox_str];
+                MotorThreshold=uicontrol( 'Style','edit','Parent', r3 ,'FontSize',11);
                 uiextras.HBox('Parent',r3)
-                th_dropdown=uicontrol( 'Style','popupmenu','Parent', r3 ,'FontSize',11,'String',mt_btn_listbox_str);     % 11-Mar-2020 14:48:46                                                                  % 1297
+                ImportMotorThresholdFromProtocols=uicontrol( 'Style','popupmenu','Parent', r3 ,'FontSize',11,'String',{'Select'},'Callback',@setMotorThreshold);     % 11-Mar-2020 14:48:46                                                                  % 1297
+                ImportMotorThresholdFromProtocols.String=getMotorThresholdProtocols;
                 set( r3, 'Widths', [210 80 20 100]);
                 
                 
@@ -8066,8 +8065,6 @@ classdef best_application < handle
                 set(c1, 'Heights', [25 25 25 25])
                 f.Position(3)=430;
                 f.Position(4)=150;
-                
-                
             end
             function cb_ok
                 source.String=['TS:' si.String ' %MSO']; % 11-Mar-2020 14:48:28
@@ -8075,7 +8072,7 @@ classdef best_application < handle
                 st=['st' num2str(source.UserData(2))];
                 obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).si=si.String; %only 1 SI is allowed as a standard model of generalization
                 obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).si_units=1; %if 1 then its mso if 0 then its threshold
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).threshold='';
+                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).threshold=MotorThreshold.String;
                 obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).stim_mode='single_pulse';
                 obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).si_pckt={str2double(si.String)};
                 if (source.UserData(2)==1)
@@ -8083,17 +8080,6 @@ classdef best_application < handle
                 end
                 obj.cb_pr_mth_StimulationParametersTable;
                 close(f)
-                %                              source.String=['TS:' si.String ' %MSO']; % 11-Mar-2020 14:48:28
-                %                 cd=['cond' num2str(obj.pi.mm.tab.SelectedChild)];
-                %                 st=['st' num2str(source.UserData(2))];
-                %                 obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).si=si.String; %only 1 SI is allowed as a standard model of generalization
-                %                 obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).si_units=units_mso.Value; %if 1 then its mso if 0 then its threshold
-                %                 obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).threshold=threshold.String;
-                %                 obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).stim_mode='single_pulse';
-                %                 obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).si_pckt={str2double(si.String)};
-                %                 obj.cb_pi_drc_StimulationParametersTable;
-                %
-                %                 close(f)
             end
             function cb_units_mso
                 if(units_mso.Value==1)
@@ -8105,7 +8091,46 @@ classdef best_application < handle
                     units_mso.Value=0;
                 end
             end
-            
+            function MotorThresholdProtocols=getMotorThresholdProtocols
+                mt_btn_listbox_str_id= find(strcmp(obj.data.(obj.info.event.current_session).info.measurement_str_original,'MEP Motor Threshold Hunting'));
+                MotorThresholdProtocols=obj.data.(obj.info.event.current_session).info.measurement_str_to_listbox(mt_btn_listbox_str_id);
+                if isempty(MotorThresholdProtocols)
+                    MotorThresholdProtocols={'Select'};
+                end
+            end
+            function setMotorThreshold(Thissource,~)
+                cd=['cond' num2str(obj.pi.mm.tab.SelectedChild)];
+                st=['st' num2str(source.UserData(2))];
+                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).ImportMotorThresholdFromProtocol=regexprep((Thissource.String{Thissource.Value}),' ','_');
+                ImportMotorThresholdFromProtocol=regexprep((Thissource.String{Thissource.Value}),' ','_');
+                if ~strcmpi(Thissource.String,'Select')
+                    TargetConditions=numel(fieldnames(obj.par.(obj.info.event.current_session).(ImportMotorThresholdFromProtocol).condsAll));
+                    if TargetConditions>1
+                        for condtn=1:TargetConditions
+                            cdd=['cond' num2str(condtn)];
+                            TargetChannelforThreshold=obj.par.(obj.info.event.current_session).(ImportMotorThresholdFromProtocol).condsAll.(cdd).targetChannel{1};
+                            AllConditions{condtn}=TargetChannelforThreshold;
+                        end
+                        [indx,tf] = listdlg('PromptString',{'Multiple Target Channels were found in your selection','Select one Target Channel.',''},'SelectionMode','single','ListString',AllConditions);
+                        if tf==1
+                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).ImportMotorThresholdFromChannel=AllConditions{indx};
+                            ImportMotorThresholdFromChannel=AllConditions{indx};
+                        elseif tf==0
+                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).ImportMotorThresholdFromChannel=AllConditions{1};
+                            ImportMotorThresholdFromChannel=AllConditions{1};
+                        end
+                    else
+                        ImportMotorThresholdFromChannel=obj.par.(obj.info.event.current_session).(ImportMotorThresholdFromProtocol).condsAll.cond1.targetChannel{1};
+                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).ImportMotorThresholdFromChannel=ImportMotorThresholdFromChannel;
+                    end
+                    try
+                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).threshold=obj.bst.sessions.(obj.info.event.current_session).(ImportMotorThresholdFromProtocol).results.(ImportMotorThresholdFromChannel).MotorThreshold;
+                    catch
+                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).threshold='Not Found';
+                    end
+                    MotorThreshold.String=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).threshold;
+                end
+            end
         end
         function cb_pr_mth_pp_inputfig(obj,source,~)
             if (source.UserData(2)==1)
