@@ -216,8 +216,6 @@ classdef best_application < handle
         %% Run Stop Controllers
         function CompileButton(obj,~,~)
             try
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).ProtocolStatus={'compiled'};
-                obj.cb_measure_listbox;
                 obj.bst.best_compile;
                 obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).ProtocolStatus={'compiled'};
                 obj.cb_measure_listbox;
