@@ -3389,7 +3389,14 @@ classdef best_toolbox < handle
             obj.saveFigures;
             obj.completed;
         end
-        
+        function best_compile(obj)
+            obj.save;
+            obj.factorizeConditions;
+            obj.planTrials;
+            obj.app.resultsPanel;
+            obj.boot_outputdevice;
+            obj.boot_inputdevice;
+        end
         function best_multimodal(obj)
             obj.factorizeConditions
             obj.planTrials

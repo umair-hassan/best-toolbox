@@ -173,8 +173,8 @@ classdef best_application < handle
             obj.pmd.lb_sessions.string={};
             m_sessions=uicontextmenu(obj.fig.handle);
             mus1 = uimenu(m_sessions,'label','Copy','Callback',@(~,~)obj.cb_pmd_lb_sessions_copy);
-            mus2 = uimenu(m_sessions,'label','Paste Above','Callback',@(~,~)obj.cb_pmd_lb_sessions_pasteup);
-            mus3 = uimenu(m_sessions,'label','Paste Below','Callback',@(~,~)obj.cb_pmd_lb_sessions_pastedown);
+%             mus2 = uimenu(m_sessions,'label','Paste Above','Callback',@(~,~)obj.cb_pmd_lb_sessions_pasteup);
+            mus3 = uimenu(m_sessions,'label','Paste','Callback',@(~,~)obj.cb_pmd_lb_sessions_pastedown);
             mus4 = uimenu(m_sessions,'label','Delete','Callback',@(~,~)obj.cb_pmd_lb_sessions_del);
             mus5 = uimenu(m_sessions,'label','Move Up','Callback',@(~,~)obj.cb_pmd_lb_sessions_moveup);
             mus5 = uimenu(m_sessions,'label','Move Down','Callback',@(~,~)obj.cb_pmd_lb_sessions_movedown);
@@ -185,18 +185,22 @@ classdef best_application < handle
             uicontrol( 'Style','text','Parent', pmd_vbox,'String','Protocols','FontSize',12,'HorizontalAlignment','center' ,'Units','normalized','FontWeight','bold');
             
             %measurement listbox: 9th horizontal row on first panel
+            ProtocolListBox = uix.HBox( 'Parent', pmd_vbox, 'Spacing', 0, 'Padding', 0  );  
+            ProtocolListBox = uiextras.GridFlex( 'Parent', ProtocolListBox, 'Spacing', 5, 'Padding', 5  );
             %             measure_lb2={'MEP Measurement','MEP Hotspot Search','MEP Motor Threshold Hunting','Dose-Response Curve (MEP-sp)','Dose-Response Curve (MEP-pp)','EEG triggered TMS','MR triggered TMS','TEP Measurement'};
             obj.pmd.lb_measures.string={};
             m=uicontextmenu(obj.fig.handle);
             mu1 = uimenu(m,'label','Copy','Callback',@(~,~)obj.cb_pmd_lb_measures_copy);
-            mu2 = uimenu(m,'label','Paste Above','Callback',@(~,~)obj.cb_pmd_lb_measures_pasteup);
-            mu3 = uimenu(m,'label','Paste Below','Callback',@(~,~)obj.cb_pmd_lb_measures_pastedown);
+%             mu2 = uimenu(m,'label','Paste Above','Callback',@(~,~)obj.cb_pmd_lb_measures_pasteup);
+            mu3 = uimenu(m,'label','Paste','Callback',@(~,~)obj.cb_pmd_lb_measures_pastedown);
             mu4 = uimenu(m,'label','Delete','Callback',@(~,~)obj.cb_pmd_lb_measures_del);
             mu5 = uimenu(m,'label','Move Up','Callback',@(~,~)obj.cb_pmd_lb_measures_moveup);
             mu6 = uimenu(m,'label','Move Down','Callback',@(~,~)obj.cb_pmd_lb_measures_movedown);
             obj.pmd.lb_measure_menu_loadresults=uimenu(m,'label','Load Results','Callback',@(~,~)obj.cb_pmd_lb_measure_menu_loadresult);
             
-            obj.pmd.lb_measures.listbox=uicontrol( 'Style','listbox','Parent', pmd_vbox ,'KeyPressFcn',@(~,~)obj.cb_pmd_lb_measure_keypressfcn,'FontSize',11,'String',obj.pmd.lb_measures.string,'uicontextmenu',m,'Callback',@(~,~)obj.cb_measure_listbox);
+            obj.pmd.lb_measures.listbox=uicontrol( 'Style','listbox','Parent', ProtocolListBox ,'KeyPressFcn',@(~,~)obj.cb_pmd_lb_measure_keypressfcn,'FontSize',11,'String',obj.pmd.lb_measures.string,'uicontextmenu',m,'Callback',@(~,~)obj.cb_measure_listbox);
+            obj.pmd.ProtocolStatus.listbox=uicontrol( 'Style','listbox','Parent', ProtocolListBox ,'FontAngle','italic','KeyPressFcn',@(~,~)obj.cb_pmd_lb_measure_keypressfcn,'FontSize',11,'String',obj.pmd.lb_measures.string,'uicontextmenu',m,'Callback',@(~,~)obj.cb_measure_listbox);
+            ProtocolListBox.ColumnSizes=[-2 -1];
             m=uicontextmenu(obj.fig.handle);
             
             LastRow = uix.HBox( 'Parent', pmd_vbox, 'Spacing', 5, 'Padding', 5  );
@@ -210,7 +214,17 @@ classdef best_application < handle
             
         end
         %% Run Stop Controllers
-        function CompileButton(obj)
+        function CompileButton(obj,~,~)
+            try
+                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).ProtocolStatus={'compiled'};
+                obj.cb_measure_listbox;
+                obj.bst.best_compile;
+                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).ProtocolStatus={'compiled'};
+                obj.cb_measure_listbox;
+            catch e
+               fprintf(1,'The identifier was:\n%s',e.identifier);
+        fprintf(1,'\nThere was an error! The message was:\n%s',e.message);
+            end
         end
         function RunStopButton(obj,~,~)
              if strcmp(obj.pmd.RunStopButton.String,'Stop')
@@ -755,6 +769,12 @@ classdef best_application < handle
                 obj.info.event.current_measure=obj.info.event.current_measure{1};
                 obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).Enable{1,1}='on';
                 obj.cb_measure_listbox;
+                %% Updating Status as Created
+                ProtocolNumber=find(strcmp([obj.pmd.lb_measures.listbox.String],new_session));
+                ProtocolStatusFirstHalf=obj.pmd.ProtocolStatus.listbox.String(1:ProtocolNumber-1);
+                ProtocolStatusSecondHalf=obj.pmd.ProtocolStatus.listbox.String(ProtocolNumber:end);
+                obj.pmd.ProtocolStatus.listbox.String=[ProtocolStatusFirstHalf;{'created'};ProtocolStatusSecondHalf];
+                obj.pmd.ProtocolStatus.listbox.Value=ProtocolNumber;
             end
         end
         function cb_pmd_lb_measures_moveup(obj)
@@ -3769,6 +3789,7 @@ classdef best_application < handle
             obj.info.defaults.Protocol={'MEP Hotspot Search Protocol'};
             obj.info.defaults.Handles.UserData='Reserved for Future Use';
             obj.info.defaults.Enable={'on'};
+            obj.info.defaults.ProtocolStatus={'created'};
             si=NaN;
             for idefaults=1:numel(si)
                 cond=['cond' num2str(idefaults)];
@@ -15815,19 +15836,14 @@ classdef best_application < handle
             obj.pmd.lb_measures.listbox.String=obj.data.(obj.info.event.current_session).info.measurement_str_to_listbox;
             measure_name=measure_name{1};
             measure_name(measure_name == ' ') = '_';
-            %   obj.data.(obj.info.event.current_session).(measure_name).mep.target_muscle={};
-            
-            
-            obj.info.event.measure_being_added=measure_name
+            obj.info.event.measure_being_added=measure_name;
             obj.func_create_defaults
             obj.cb_session_listbox
             obj.cb_measure_listbox
             
             measure_name=[];
-            
-            
-            
-            
+            %% Add Status as Created
+%             obj.pmd.ProtocolStatus.listbox.String{obj.data.(obj.info.event.current_session).info.measurement_no}='created';
             
         end
         function cb_session_listbox(obj)
@@ -15914,6 +15930,14 @@ classdef best_application < handle
                     obj.func_load_tep_par;
             end
             obj.pmd.RunStopButton.Enable=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).Enable{1,1};
+            obj.pmd.CompileButton.Enable=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).Enable{1,1};
+            %% Load Protocol Status
+            obj.pmd.ProtocolStatus.listbox.String={''};
+            for Prtcl=1:numel(obj.pmd.lb_measures.listbox.String) 
+                obj.pmd.ProtocolStatus.listbox.String(Prtcl)=obj.par.(obj.info.event.current_session).(regexprep((obj.pmd.lb_measures.listbox.String{1}),' ','_')).ProtocolStatus;
+            end
+            obj.pmd.ProtocolStatus.listbox.Value=obj.pmd.lb_measures.listbox.Value;
+            
             % obj.info.event.current_measure(obj.info.event.current_measure == ' ') = '_';
             
             
