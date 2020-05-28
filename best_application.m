@@ -3688,7 +3688,7 @@ classdef best_application < handle
             % row 2f
             mep_panel_row2f = uix.HBox( 'Parent', vb, 'Spacing', 5, 'Padding', 5  );
             uicontrol( 'Style','text','Parent', mep_panel_row2f,'String','Protocol Mode:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            obj.pi.hotspot.ProtocolMode=uicontrol( 'Style','popupmenu','Parent', mep_panel_row2f ,'String',{'Automatated','Manual'},'FontSize',11,'Tag','ProtocolMode','callback',@cb_par_saving); %,'Callback',@obj.cb_hotspot_target_muscle
+            obj.pi.hotspot.ProtocolMode=uicontrol( 'Style','popupmenu','Parent', mep_panel_row2f ,'String',{'Automated','Manual'},'FontSize',11,'Tag','ProtocolMode','callback',@cb_par_saving); %,'Callback',@obj.cb_hotspot_target_muscle
             set( mep_panel_row2f, 'Widths', [150 -2]);
             
             % row 2
@@ -11347,7 +11347,7 @@ classdef best_application < handle
             Value=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).ProtocolMode;
             mep_panel_row_ProtocolMode_1 = uix.HBox( 'Parent', vb, 'Spacing', 5, 'Padding', 5  );
             uicontrol( 'Style','text','Parent', mep_panel_row_ProtocolMode_1,'String','Protocol Mode:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            obj.pi.tephs.ProtocolMode=uicontrol( 'Style','popupmenu','Parent', mep_panel_row_ProtocolMode_1 ,'String',{'Automatated','Manual'},'FontSize',11,'Tag','ProtocolMode','callback',@cb_par_saving,'Value',Value); %,'Callback',@obj.cb_hotspot_target_muscle
+            obj.pi.tephs.ProtocolMode=uicontrol( 'Style','popupmenu','Parent', mep_panel_row_ProtocolMode_1 ,'String',{'Automated','Manual'},'FontSize',11,'Tag','ProtocolMode','callback',@cb_par_saving,'Value',Value); %,'Callback',@obj.cb_hotspot_target_muscle
             set( mep_panel_row_ProtocolMode_1, 'Widths', [150 -2]);
             
             % row 2
