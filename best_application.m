@@ -12863,6 +12863,593 @@ classdef best_application < handle
             
             
         end
+        %% TMS fMRI
+        function pi_tmsfmri(obj)
+            obj.pi.tmsfmri.panel=uix.Panel( 'Parent', obj.pi.empty_panel,'FontSize',14 ,'Units','normalized','Title','TMS-fMRI' ,'FontWeight','Bold','TitlePosition','centertop');
+            obj.pi.tmsfmri.vb = uix.VBox( 'Parent', obj.pi.tmsfmri.panel, 'Spacing', 5, 'Padding', 5  );
+            
+            % row 1
+            uiextras.HBox( 'Parent', obj.pi.tmsfmri.vb,'Spacing', 5, 'Padding', 5 )
+            
+            
+            % row 2
+            mep_panel_row2 = uix.HBox( 'Parent', obj.pi.tmsfmri.vb, 'Spacing', 5, 'Padding', 5  );
+            uicontrol( 'Style','text','Parent', mep_panel_row2,'String','Time of Acquistion - TA (ms):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+            obj.pi.tmsfmri.ta=uicontrol( 'Style','edit','Parent', mep_panel_row2 ,'FontSize',11,'Callback',@(~,~)obj.cb_pi_tmsfmri_ta); %,'Callback',@obj.cb_tmsfmri_target_muscle
+            set( mep_panel_row2, 'Widths', [150 -2]);
+            
+            % row 3
+            mep_panel_row3 = uix.HBox( 'Parent', obj.pi.tmsfmri.vb, 'Spacing', 5, 'Padding', 5  );
+            uicontrol( 'Style','text','Parent', mep_panel_row3,'String','Trigger Delay (ms):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+            obj.pi.tmsfmri.trigdelay=uicontrol( 'Style','edit','Parent', mep_panel_row3 ,'FontSize',11,'Callback',@(~,~)obj.cb_pi_tmsfmri_trigdelay);
+            set( mep_panel_row3, 'Widths', [150 -2]);
+            
+            % row 4
+            mep_panel_row4 = uix.HBox( 'Parent', obj.pi.tmsfmri.vb, 'Spacing', 5, 'Padding', 5  );
+            uicontrol( 'Style','text','Parent', mep_panel_row4,'String','Total Volumes:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+            obj.pi.tmsfmri.totalvolumes=uicontrol( 'Style','edit','Parent', mep_panel_row4,'FontSize',11,'Callback',@(~,~)obj.cb_pi_tmsfmri_totalvolumes);
+            set( mep_panel_row4, 'Widths', [150 -2]);
+            
+            %row 5
+            mep_panel_row5 = uix.HBox( 'Parent', obj.pi.tmsfmri.vb, 'Spacing', 5, 'Padding', 5  );
+            uicontrol( 'Style','text','Parent', mep_panel_row5,'String','Inter Trial Interval (volumes):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+            obj.pi.tmsfmri.volumes_cond=uicontrol( 'Style','edit','Parent', mep_panel_row5 ,'FontSize',11,'Callback',@(~,~)obj.cb_pi_tmsfmri_volumes_cond,'Enable','off');
+            set( mep_panel_row5, 'Widths', [150 -2]);
+            
+            
+            % row 3
+            mep_panel_rowtf = uix.HBox( 'Parent', obj.pi.tmsfmri.vb, 'Spacing', 5, 'Padding', 5  );
+            uicontrol( 'Style','text','Parent', mep_panel_rowtf,'String','Stimulation Intensities:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+            obj.pi.tmsfmri.stimulation_intensities=uicontrol( 'Style','edit','Parent', mep_panel_rowtf ,'FontSize',11,'Callback',@(~,~)obj.cb_pi_tmsfmri_stimulation_intensities);
+            set( mep_panel_rowtf, 'Widths', [150 -2]);
+            
+            % row 6
+            uiextras.HBox( 'Parent', obj.pi.tmsfmri.vb)
+            
+            % row 7
+            uicontrol( 'Style','text','Parent',  obj.pi.tmsfmri.vb,'String','Advanced Settings','FontSize',10,'HorizontalAlignment','center','Units','normalized','ForegroundColor',[0.5 0.5 0.5]);
+            
+            % row 12
+            mep_panel_row12a = uix.HBox( 'Parent', obj.pi.tmsfmri.vb, 'Spacing', 5, 'Padding', 5  );
+            uicontrol( 'Style','text','Parent', mep_panel_row12a,'String','Ignore Automated Updating of Stim. Itensity:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+            
+            obj.pi.tmsfmri.manual_stim_inten=uicontrol( 'Style','checkbox','Parent', mep_panel_row12a ,'FontSize',11,'Value',1,'Callback',@(~,~)obj.cb_pi_tmsfmri_manual_stim_inten);
+            
+            set( mep_panel_row12a, 'Widths', [-4 -2]);
+            
+            % row 12
+            mep_panel_row12 = uix.HBox( 'Parent', obj.pi.tmsfmri.vb, 'Spacing', 5, 'Padding', 5  );
+            uicontrol( 'Style','text','Parent', mep_panel_row12,'String','Intensity Units:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+            obj.pi.tmsfmri.units_mso=uicontrol( 'Style','radiobutton','Parent', mep_panel_row12 ,'FontSize',11,'String','%MSO','Value',1,'Callback',@(~,~)obj.cb_pi_tmsfmri_units_mso);
+            obj.pi.tmsfmri.units_mt=uicontrol( 'Style','radiobutton','Parent', mep_panel_row12 ,'FontSize',11,'String','%MT','Callback',@(~,~)obj.cb_pi_tmsfmri_units_mt);
+            set( mep_panel_row12, 'Widths', [200 -2 -2]);
+            
+            % row 13
+            mep_panel_13 = uix.HBox( 'Parent', obj.pi.tmsfmri.vb, 'Spacing', 5, 'Padding', 5  );
+            uicontrol( 'Style','text','Parent', mep_panel_13,'String','Motor Threshold (%MSO):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+            obj.pi.tmsfmri.mt=uicontrol( 'Style','edit','Parent', mep_panel_13 ,'Enable','off','FontSize',11,'Callback',@(~,~)obj.cb_pi_tmsfmri_mt);
+%             obj.pi.tmsfmri.mt_btn=uicontrol( 'Style','pushbutton','Parent', mep_panel_13 ,'FontSize',11,'String','Measure','Enable','off','Callback',@(~,~)obj.cb_pi_tmsfmri_mt_btn);
+            set( mep_panel_13, 'Widths', [175 -2]);
+            uiextras.HBox( 'Parent', obj.pi.tmsfmri.vb)
+            
+            
+            % row 13a
+            uiextras.HBox( 'Parent', obj.pi.tmsfmri.vb)
+            
+            % row 13b
+            uicontrol( 'Style','text','Parent',  obj.pi.tmsfmri.vb,'String','Block Design','FontSize',10,'HorizontalAlignment','center','Units','normalized','ForegroundColor',[0.5 0.5 0.5]);
+            
+            % row 13c
+            mep_panel_row12a = uix.HBox( 'Parent', obj.pi.tmsfmri.vb, 'Spacing', 5, 'Padding', 5  );
+            uicontrol( 'Style','text','Parent', mep_panel_row12a,'String','Enable Block Design:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+            
+            obj.pi.tmsfmri.block_design=uicontrol( 'Style','checkbox','Parent', mep_panel_row12a ,'FontSize',11,'Value',0,'Callback',@(~,~)obj.cb_pi_tmsfmri_block_design);
+            
+            set( mep_panel_row12a, 'Widths', [-4 -2]);
+            
+            
+            %row 13d
+            mep_panel_row5 = uix.HBox( 'Parent', obj.pi.tmsfmri.vb, 'Spacing', 5, 'Padding', 5  );
+            uicontrol( 'Style','text','Parent', mep_panel_row5,'String','Volume Vector:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+            obj.pi.tmsfmri.volumes_vector_full=uicontrol( 'Style','edit','Parent', mep_panel_row5 ,'FontSize',11,'Callback',@(~,~)obj.cb_pi_tmsfmri_volumes_vector_full);
+            set( mep_panel_row5, 'Widths', [150 -2]);
+            
+            % row 13e
+            uiextras.HBox( 'Parent', obj.pi.tmsfmri.vb)
+            
+            % row 14
+            mep_panel_14 = uix.HBox( 'Parent', obj.pi.tmsfmri.vb, 'Spacing', 5, 'Padding', 5  );
+            obj.pi.tmsfmri.status_text=uicontrol( 'Style','text','Parent', mep_panel_14,'String','Status:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+            obj.pi.tmsfmri.status=uicontrol( 'Style','edit','Enable','off','Parent', mep_panel_14 ,'FontSize',11);
+            set( mep_panel_14, 'Widths', [150 -2]);
+            
+            
+            
+            
+            mep_panel_17 = uix.HBox( 'Parent', obj.pi.tmsfmri.vb, 'Spacing', 5, 'Padding', 5  );
+            obj.pi.tmsfmri.run=uicontrol( 'Parent', mep_panel_17 ,'Style','PushButton','String','Run','FontWeight','Bold','Callback',@(~,~)obj.tmsfmri_run)
+            obj.pi.tmsfmri.stop=uicontrol( 'Parent', mep_panel_17 ,'Style','PushButton','String','Stop','FontWeight','Bold','Callback',@(~,~)obj.tmsfmri_stop,'Enable','on')
+            set( mep_panel_17, 'Widths', [-2 -2]);
+            
+            set(obj.pi.tmsfmri.vb,'Heights',[-0.1 -0.4 -0.4 -0.4 -0.4 -0.4 -0.2 -0.2 -0.4 -0.4 -0.4 -0.01 -0.2 -0.4 -0.4 -0.4 -1 -0.4 -0.5])
+            
+            obj.cb_pi_tmsfmri_block_design
+        end
+        function tmsfmri_run(obj)
+            
+            
+            obj.pi.tmsfmri.ta.Enable='off';
+            obj.pi.tmsfmri.trigdelay.Enable='off';
+            obj.pi.tmsfmri.totalvolumes.Enable='off';
+            obj.pi.tmsfmri.volumes_cond.Enable='off';
+            obj.pi.tmsfmri.stimulation_intensities.Enable='off';
+            obj.pi.tmsfmri.manual_stim_inten.Enable='off';
+            obj.pi.tmsfmri.units_mso.Enable='off';
+            obj.pi.tmsfmri.units_mt.Enable='off';
+            obj.pi.tmsfmri.mt.Enable='off';
+            obj.pi.tmsfmri.mt_btn.Enable='off';
+            obj.pi.tmsfmri.run.Enable='off';
+            obj.pi.tmsfmri.block_design.Enable='off';
+            obj.pi.tmsfmri.volumes_vector_full.Enable='off';
+            
+            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).taEnable=obj.pi.tmsfmri.ta.Enable;
+            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).trigdelayEnable=obj.pi.tmsfmri.trigdelay.Enable;
+            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).totalvolumesEnable=obj.pi.tmsfmri.totalvolumes.Enable;
+            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).volumes_condEnable=obj.pi.tmsfmri.volumes_cond.Enable;
+            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).stimulation_intensitiesEnable=obj.pi.tmsfmri.stimulation_intensities.Enable;
+            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).manual_stim_intenEnable=obj.pi.tmsfmri.manual_stim_inten.Enable;
+            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).units_msoEnable=obj.pi.tmsfmri.units_mso.Enable;
+            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).units_mtEnable=obj.pi.tmsfmri.units_mt.Enable;
+            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).mtEnable=obj.pi.tmsfmri.mt.Enable;
+            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).mt_btnEnable=obj.pi.tmsfmri.mt_btn.Enable;
+            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).runEnable=obj.pi.tmsfmri.run.Enable;
+            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).block_designEnable=obj.pi.tmsfmri.block_design.Enable;
+            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).volumes_vector_fullEnable=obj.pi.tmsfmri.volumes_vector_full.Enable;
+            obj.pi.tmsfmri.block_design.Value
+            
+            
+            if(obj.pi.tmsfmri.block_design.Value==1)
+                delete(instrfindall);
+                magventureObject = magventure('COM8'); %0808a
+                magventureObject.connect;
+                magventureObject.arm
+                a=[];
+                
+                a=arduino;
+                
+                
+                exp=obj.pmd.exp_title.editfield.String; exp(exp == ' ') = '_';
+                sub=obj.pmd.sub_code.editfield.String; sub(sub == ' ') = '_';
+                sess=obj.info.event.current_session;
+                meas=obj.info.event.current_measure_fullstr;
+                timestr=clock; times1=timestr(4);times2=timestr(5); time=[times1 times2]; time=num2str(time); time(time == ' ') = '_';
+                file_name=[exp '_' sub '_' sess '_' meas '_' time];
+                
+                TA=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).ta; %ms old 902
+                trig_delay=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).trigdelay; %ms
+                
+                TA=TA/1000;
+                trig_delay=trig_delay/1000;
+                vol_delay=TA+trig_delay-(37/1000)-0.30000
+                
+                total_volumes=obj.pi.tmsfmri.vol_vect(1,end);
+                
+                
+                trial_vector=obj.pi.tmsfmri.vol_vect;
+                vol_vector= obj.pi.tmsfmri.vol_vect;
+                
+                
+                intensity_cond = obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).stimulation_intensities;
+                intensity_cond_rep=numel(obj.pi.tmsfmri.vol_vect);
+                
+                intensity_vector = [];
+                for i = 1:intensity_cond_rep
+                    intensity_vector = [intensity_vector, intensity_cond(randperm(numel(intensity_cond)))];
+                end
+                intensity_vector=intensity_vector(1,1:intensity_cond_rep);
+                
+                trial_vector(2,:)=intensity_vector;
+                save([file_name '_trial_vector.mat'], 'trial_vector');
+                
+                
+                
+            else
+                
+                delete(instrfindall);
+                magventureObject = magventure('COM8'); %0808a
+                magventureObject.connect;
+                magventureObject.arm
+                
+                
+                
+                a=[];
+                
+                a=arduino;
+                
+                
+                exp=obj.pmd.exp_title.editfield.String; exp(exp == ' ') = '_';
+                sub=obj.pmd.sub_code.editfield.String; sub(sub == ' ') = '_';
+                sess=obj.info.event.current_session;
+                meas=obj.info.event.current_measure_fullstr;
+                timestr=clock; times1=timestr(4);times2=timestr(5); time=[times1 times2]; time=num2str(time); time(time == ' ') = '_';
+                file_name=[exp '_' sub '_' sess '_' meas '_' time];
+                
+                TA=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).ta; %ms old 902
+                trig_delay=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).trigdelay; %ms
+                
+                TA=TA/1000;
+                trig_delay=trig_delay/1000;
+                vol_delay=TA+trig_delay-(37/1000)
+                
+                total_volumes=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).totalvolumes;
+                
+                vol_cond = obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).volumes_cond;
+                vol_cond_rep = total_volumes /  sum(vol_cond);
+                vol_cond_rep=ceil(vol_cond_rep);
+                
+                
+                vol_vector = [];
+                for i = 1:vol_cond_rep
+                    vol_vector = [vol_vector, vol_cond(randperm(numel(vol_cond)))];
+                end
+                vol_vector = cumsum(vol_vector);
+                indexx=find(vol_vector>total_volumes);
+                if (numel(indexx)==0)
+                    indexx=numel(vol_vector);
+                    trial_vector=vol_vector;
+                else
+                    indexx=indexx(1)-1;
+                    trial_vector=vol_vector(1,1:indexx);
+                    
+                end
+                
+                intensity_cond = obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).stimulation_intensities;
+                intensity_cond_rep = indexx /  numel(intensity_cond);
+                intensity_cond_rep=ceil(intensity_cond_rep);
+                
+                intensity_vector = [];
+                for i = 1:intensity_cond_rep
+                    intensity_vector = [intensity_vector, intensity_cond(randperm(numel(intensity_cond)))];
+                end
+                intensity_vector=intensity_vector(1,1:indexx);
+                
+                trial_vector(2,:)=intensity_vector;
+                save([file_name '_trial_vector.mat'], 'trial_vector');
+                
+            end
+            intensitzcheck=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).manual_stim_inten
+            if(obj.pi.tmsfmri.block_design.Value==1)
+                %Indicies initilization
+                set(obj.pi.tmsfmri.status,'String','Ready!');
+                i=1;
+                t=0;
+                v=NaN(1,1000000000);
+                N=0;
+                %% Triggering Condition Code Burnt to Arduino
+                
+                while(1)
+                    
+                    
+                    
+                    t=t+1;
+                    v(t)=readVoltage(a,'A5');
+                    if(v(t)>3)
+                        N=N+1
+                        tic
+                        while(1)
+                            if(toc>0.30000)
+                                
+                                break
+                            end
+                        end
+                        if(N==vol_vector(i))
+                            i=i+1;
+                            
+                            tic
+                            while(1)
+                                if(toc>vol_delay)
+                                    toc
+                                    break
+                                end
+                            end
+                            writeDigitalPin(a,'D7',1)
+                            writeDigitalPin(a,'D7',0)
+                            disp('triggered')
+                        end
+                        
+                        
+                        
+                    end
+                    if(N>=total_volumes)
+                        break
+                    end
+                end
+                
+                set(obj.pi.tmsfmri.status,'String','Completed!');
+            else
+                if(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).manual_stim_inten==1)
+                    
+                    %Indicies initilization
+                    set(obj.pi.tmsfmri.status,'String','Ready!');
+                    i=1;
+                    t=0;
+                    v=NaN(1,1000000000);
+                    N=0;
+                    %% Triggering Condition Code Burnt to Arduino
+                    
+                    while(1)
+                        
+                        
+                        
+                        t=t+1;
+                        v(t)=readVoltage(a,'A5');
+                        if(v(t)>3)
+                            N=N+1
+                            if(N==vol_vector(i))
+                                i=i+1;
+                                
+                                tic
+                                while(1)
+                                    if(toc>vol_delay)
+                                        toc
+                                        break
+                                    end
+                                end
+                                
+                                writeDigitalPin(a,'D7',1)
+                                writeDigitalPin(a,'D7',0)
+                                
+                                disp('triggered')
+                                
+                                tic
+                                while(1)
+                                    if(toc>0.30000)
+                                        N=N+1
+                                        break
+                                    end
+                                end
+                                
+                            end
+                            
+                            tic
+                            while(1)
+                                if(toc>0.30000)
+                                    
+                                    break
+                                end
+                            end
+                            
+                        end
+                        if(N>=total_volumes)
+                            break
+                        end
+                    end
+                    
+                    set(obj.pi.tmsfmri.status,'String','Completed!');
+                    
+                else
+                    %Indicies initilization
+                    
+                    i=1;
+                    t=0;
+                    v=NaN(1,1000000000);
+                    N=0;
+                    
+                    
+                    %% MAGVENTURE COMMANDS - uncomment to make the active, change the port number manualy
+                    
+                    
+                    magventureObject.setAmplitude(intensity_vector(1));
+                    set(obj.pi.tmsfmri.status,'String','Ready!');
+                    
+                    
+                    
+                    %% Triggering Condition Code Burnt to Arduino
+                    
+                    while(1)
+                        
+                        
+                        t=t+1;
+                        v(t)=readVoltage(a,'A5');
+                        if(v(t)>3)
+                            N=N+1
+                            if(N==vol_vector(i))
+                                i=i+1;
+                                
+                                tic
+                                while(1)
+                                    if(toc>vol_delay)
+                                        toc
+                                        break
+                                    end
+                                end
+                                
+                                writeDigitalPin(a,'D7',1)
+                                writeDigitalPin(a,'D7',0)
+                                
+                                disp('triggered')
+                                
+                                tic
+                                while(1)
+                                    if(toc>0.30000)
+                                        N=N+1
+                                        %                                     intensity_vector(i)
+                                        if(N<total_volumes)
+                                        magventureObject.setAmplitude(intensity_vector(i));
+                                        break;
+                                        end
+                                        break
+                                    end
+                                end
+                                
+                            end
+                            
+                            tic
+                            while(1)
+                                if(toc>0.30000)
+                                    
+                                    break
+                                end
+                            end
+                            
+                        end
+                        if(N>=total_volumes)
+                            break
+                        end
+                    end
+                    
+                    set(obj.pi.tmsfmri.status,'String','Completed!');
+                end % (manual stim intensity if flag end)
+            end
+            
+            
+            set(obj.pi.tmsfmri.status,'String','Completed!');
+        end % (manual stim intensity if flag end)
+        function cb_pi_tmsfmri_manual_stim_inten(obj)
+            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).manual_stim_inten=(obj.pi.tmsfmri.manual_stim_inten.Value);
+        end
+        function cb_pi_tmsfmri_block_design (obj)
+            if(obj.pi.tmsfmri.block_design.Value==1)
+                obj.pi.tmsfmri.totalvolumes.Enable='off';
+                obj.pi.tmsfmri.volumes_cond.Enable='off';
+                obj.pi.tmsfmri.volumes_vector_full.Enable='on';
+            else
+                obj.pi.tmsfmri.volumes_vector_full.Enable='off';
+                obj.pi.tmsfmri.totalvolumes.Enable='on';
+                obj.pi.tmsfmri.volumes_cond.Enable='on';
+            end
+        end
+        function cb_pi_tmsfmri_volumes_vector_full(obj)
+            obj.pi.tmsfmri.vol_vect=evalin('base',obj.pi.tmsfmri.volumes_vector_full.String);
+        end
+        function func_load_tmsfmri_par(obj)
+            obj.pi.tmsfmri.ta.String=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).ta);
+            obj.pi.tmsfmri.stimulation_intensities.String=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).stimulation_intensities);
+            obj.pi.tmsfmri.trigdelay.String=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).trigdelay;
+            obj.pi.tmsfmri.volumes_cond.String=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).volumes_cond);
+            obj.pi.tmsfmri.totalvolumes.String=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).totalvolumes;
+            obj.pi.tmsfmri.units_mso.Value=(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).units_mso);
+            obj.pi.tmsfmri.units_mt.Value=(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).units_mt);
+            obj.pi.tmsfmri.mt.String=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).mt);
+            %             obj.pi.tmsfmri.mt_btn.String=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).mt_btn);
+            obj.pi.tmsfmri.ta.Enable=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).taEnable;
+            obj.pi.tmsfmri.trigdelay.Enable=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).trigdelayEnable;
+            obj.pi.tmsfmri.totalvolumes.Enable=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).totalvolumesEnable;
+            obj.pi.tmsfmri.volumes_cond.Enable=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).volumes_condEnable;
+            obj.pi.tmsfmri.stimulation_intensities.Enable=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).stimulation_intensitiesEnable;
+            obj.pi.tmsfmri.manual_stim_inten.Enable=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).manual_stim_intenEnable;
+            obj.pi.tmsfmri.units_mso.Enable=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).units_msoEnable;
+            obj.pi.tmsfmri.units_mt.Enable=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).units_mtEnable;
+            obj.pi.tmsfmri.mt.Enable=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).mtEnable;
+            obj.pi.tmsfmri.mt_btn.Enable=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).mt_btnEnable;
+            obj.pi.tmsfmri.run.Enable=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).runEnable;
+        end
+        function cb_pi_tmsfmri_ta(obj)
+            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).ta=str2num(obj.pi.tmsfmri.ta.String);
+        end
+        function cb_pi_tmsfmri_stimulation_intensities(obj)
+            try
+                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).stimulation_intensities=eval(obj.pi.tmsfmri.stimulation_intensities.String);
+                obj.pi.tmsfmri.run.Enable='on';
+            catch
+                errordlg('Warning: Wrong Input for Stim. Intensities. Make sure you are writing matrix as if you would do on MATLAB command line i.e. [20 30 40 50] not 20 30 40 50. You would not be allowed to proceed until this is fixed','BEST Toolbox');
+                obj.pi.tmsfmri.run.Enable='off';
+            end
+        end
+        function cb_pi_tmsfmri_trigdelay(obj)
+            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).trigdelay=str2num(obj.pi.tmsfmri.trigdelay.String);
+        end
+        function cb_pi_tmsfmri_volumes_cond(obj)
+            try
+                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).volumes_cond=eval(obj.pi.tmsfmri.volumes_cond.String);
+                obj.pi.tmsfmri.run.Enable='on';
+                
+            catch
+                errordlg('Warning: Wrong Input for Inter Trial Interval. Make sure you are writing matrix as if you would do on MATLAB command line i.e. [20 30 40 50] not 20 30 40 50. You wouldnot be allowed to proceed until this is fixed.','BEST Toolbox');
+                obj.pi.tmsfmri.run.Enable='off';
+            end
+        end
+        function cb_pi_tmsfmri_totalvolumes(obj)
+            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).totalvolumes=str2num(obj.pi.tmsfmri.totalvolumes.String);
+        end
+        function cb_pi_tmsfmri_units_mso(obj)
+            if(obj.pi.tmsfmri.units_mso.Value==1)
+                obj.pi.tmsfmri.units_mt.Value=0;
+                obj.pi.tmsfmri.mt.Enable='off';
+            end
+            
+            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).units_mso=(obj.pi.tmsfmri.units_mso.Value);
+        end
+        function cb_pi_tmsfmri_units_mt(obj)
+            if(obj.pi.tmsfmri.units_mt.Value==1)
+                obj.pi.tmsfmri.units_mso.Value=0;
+                obj.pi.tmsfmri.mt.Enable='on';
+                
+            end
+            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).units_mt=(obj.pi.tmsfmri.units_mt.Value);
+        end
+        function cb_pi_tmsfmri_mt(obj)
+            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).mt=str2num(obj.pi.tmsfmri.mt.String);
+        end
+        function cb_pi_tmsfmri_mt_btn(obj)
+            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).mt_btn=str2num(obj.pi.tmsfmri.mt_btn.String);
+        end
+        function default_par_tmsfmri(obj)
+            obj.info.defaults.target_muscle='APBr';
+            obj.info.defaults.stimulation_intensities=[30 40 50 60 70 80];
+            obj.info.defaults.trials_per_condition=[15];
+            obj.info.defaults.iti=[4 6];
+            obj.info.defaults.mep_onset=15;
+            obj.info.defaults.mep_offset=50;
+            obj.info.defaults.prestim_scope_ext=50;
+            obj.info.defaults.poststim_scope_ext=150;
+            obj.info.defaults.prestim_scope_plt=20;
+            obj.info.defaults.poststim_scope_plt=100;
+            obj.info.defaults.units_mso=1;
+            obj.info.defaults.units_mt=0;
+            obj.info.defaults.mt=[];
+            %             obj.info.defaults.mt_btn
+            obj.info.defaults.ylim_max=+5000;
+            obj.info.defaults.ylim_min=-5000;
+            obj.info.defaults.FontSize=14;
+            obj.info.defaults.mt_mv=0.05;
+            obj.info.defaults.thresholding_method=2;
+            obj.info.defaults.trials_to_avg=15;
+            %specifically for tms-fmri
+            obj.info.defaults.ta=916;
+            obj.info.defaults.trigdelay=14;
+            obj.info.defaults.volumes_cond=[18 19 20 21 22];
+            obj.info.defaults.totalvolumes=900;
+            obj.info.defaults.trials_for_mean_annotation=5;
+            obj.info.defaults.reset_pressed=0;
+            obj.info.defaults.plot_reset_pressed=0;
+            obj.info.defaults.manual_stim_inten=1;
+            obj.info.defaults.save_plt=0;
+            obj.info.defaults.result_mt=11;
+            obj.info.defaults.mt_starting_stim_inten=25;
+            obj.info.defaults.target_muscleEnable='on';
+            obj.info.defaults.runEnable='on';
+            obj.info.defaults.units_msoEnable='on';
+            obj.info.defaults.units_mtEnable='on';
+            obj.info.defaults.mtEnable='on';
+            obj.info.defaults.mt_btnEnable='on';
+            obj.info.defaults.prestim_scope_extEnable='on';
+            obj.info.defaults.poststim_scope_extEnable='on';
+            obj.info.defaults.trials_per_conditionEnable='on';
+            obj.info.defaults.mt_mvEnable='on';
+            obj.info.defaults.thresholding_methodEnable='on';
+            obj.info.defaults.stimulation_intensitiesEnable='on';
+            obj.info.defaults.taEnable='on';
+            obj.info.defaults.trigdelayEnable='on';
+            obj.info.defaults.totalvolumesEnable='on';
+            obj.info.defaults.volumes_condEnable='on';
+            obj.info.defaults.manual_stim_intenEnable='on';
+            obj.info.defaults.units_msoEnable='on';
+            obj.info.defaults.units_mtEnable='on';
+            obj.info.defaults.mt_mvEnable='on';
+            obj.info.defaults.mt_starting_stim_intenEnable='on';
+            obj.par.(obj.info.event.current_session).(obj.info.event.measure_being_added)=obj.info.defaults;
+        end
         %% Exception Handling
         function Source= ExceptionHandling(obj,source)
             Source=source;
@@ -13831,90 +14418,7 @@ classdef best_application < handle
         
         
         
-        function pi_tmsfmri(obj)
-            obj.pi.tmsfmri.panel=uix.Panel( 'Parent', obj.pi.empty_panel,'FontSize',14 ,'Units','normalized','Title','TMS-fMRI' ,'FontWeight','Bold','TitlePosition','centertop');
-            obj.pi.tmsfmri.vb = uix.VBox( 'Parent', obj.pi.tmsfmri.panel, 'Spacing', 5, 'Padding', 5  );
-            
-            % row 1
-            uiextras.HBox( 'Parent', obj.pi.tmsfmri.vb,'Spacing', 5, 'Padding', 5 )
-            
-            
-            % row 2
-            mep_panel_row2 = uix.HBox( 'Parent', obj.pi.tmsfmri.vb, 'Spacing', 5, 'Padding', 5  );
-            uicontrol( 'Style','text','Parent', mep_panel_row2,'String','Time of Acquistion - TA (ms):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            obj.pi.tmsfmri.ta=uicontrol( 'Style','edit','Parent', mep_panel_row2 ,'FontSize',11,'Callback',@(~,~)obj.cb_pi_tmsfmri_ta); %,'Callback',@obj.cb_tmsfmri_target_muscle
-            set( mep_panel_row2, 'Widths', [150 -2]);
-            
-            % row 3
-            mep_panel_row3 = uix.HBox( 'Parent', obj.pi.tmsfmri.vb, 'Spacing', 5, 'Padding', 5  );
-            uicontrol( 'Style','text','Parent', mep_panel_row3,'String','Trigger Delay (ms):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            obj.pi.tmsfmri.trigdelay=uicontrol( 'Style','edit','Parent', mep_panel_row3 ,'FontSize',11,'Callback',@(~,~)obj.cb_pi_tmsfmri_trigdelay);
-            set( mep_panel_row3, 'Widths', [150 -2]);
-            
-            % row 4
-            mep_panel_row4 = uix.HBox( 'Parent', obj.pi.tmsfmri.vb, 'Spacing', 5, 'Padding', 5  );
-            uicontrol( 'Style','text','Parent', mep_panel_row4,'String','Total Volumes:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            obj.pi.tmsfmri.totalvolumes=uicontrol( 'Style','edit','Parent', mep_panel_row4 ,'FontSize',11,'Callback',@(~,~)obj.cb_pi_tmsfmri_totalvolumes);
-            set( mep_panel_row4, 'Widths', [150 -2]);
-            
-            %row 5
-            mep_panel_row5 = uix.HBox( 'Parent', obj.pi.tmsfmri.vb, 'Spacing', 5, 'Padding', 5  );
-            uicontrol( 'Style','text','Parent', mep_panel_row5,'String','Inter Trial Interval (volumes):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            obj.pi.tmsfmri.volumes_cond=uicontrol( 'Style','edit','Parent', mep_panel_row5 ,'FontSize',11,'Callback',@(~,~)obj.cb_pi_tmsfmri_volumes_cond);
-            set( mep_panel_row5, 'Widths', [150 -2]);
-            
-            % row 3
-            mep_panel_rowtf = uix.HBox( 'Parent', obj.pi.tmsfmri.vb, 'Spacing', 5, 'Padding', 5  );
-            uicontrol( 'Style','text','Parent', mep_panel_rowtf,'String','Stimulation Intensities:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            obj.pi.tmsfmri.stimulation_intensities=uicontrol( 'Style','edit','Parent', mep_panel_rowtf ,'FontSize',11,'Callback',@(~,~)obj.cb_pi_tmsfmri_stimulation_intensities);
-            set( mep_panel_rowtf, 'Widths', [150 -2]);
-            
-            % row 6
-            uiextras.HBox( 'Parent', obj.pi.tmsfmri.vb)
-            
-            % row 7
-            uicontrol( 'Style','text','Parent',  obj.pi.tmsfmri.vb,'String','Advanced Settings','FontSize',10,'HorizontalAlignment','center','Units','normalized','ForegroundColor',[0.5 0.5 0.5]);
-            
-            % row 12
-            mep_panel_row12a = uix.HBox( 'Parent', obj.pi.tmsfmri.vb, 'Spacing', 5, 'Padding', 5  );
-            uicontrol( 'Style','text','Parent', mep_panel_row12a,'String','Ignore Automated Updating of Stim. Itensity:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            
-            obj.pi.tmsfmri.manual_stim_inten=uicontrol( 'Style','checkbox','Parent', mep_panel_row12a ,'FontSize',11,'Value',1,'Callback',@(~,~)obj.cb_pi_tmsfmri_manual_stim_inten);
-            
-            set( mep_panel_row12a, 'Widths', [-4 -2]);
-            
-            % row 12
-            mep_panel_row12 = uix.HBox( 'Parent', obj.pi.tmsfmri.vb, 'Spacing', 5, 'Padding', 5  );
-            uicontrol( 'Style','text','Parent', mep_panel_row12,'String','Intensity Units:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            obj.pi.tmsfmri.units_mso=uicontrol( 'Style','radiobutton','Parent', mep_panel_row12 ,'FontSize',11,'String','%MSO','Value',1,'Callback',@(~,~)obj.cb_pi_tmsfmri_units_mso);
-            obj.pi.tmsfmri.units_mt=uicontrol( 'Style','radiobutton','Parent', mep_panel_row12 ,'FontSize',11,'String','%MT','Callback',@(~,~)obj.cb_pi_tmsfmri_units_mt);
-            set( mep_panel_row12, 'Widths', [200 -2 -2]);
-            
-            % row 13
-            mep_panel_13 = uix.HBox( 'Parent', obj.pi.tmsfmri.vb, 'Spacing', 5, 'Padding', 5  );
-            uicontrol( 'Style','text','Parent', mep_panel_13,'String','Motor Threshold (%MSO):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            obj.pi.tmsfmri.mt=uicontrol( 'Style','edit','Parent', mep_panel_13 ,'Enable','off','FontSize',11,'Callback',@(~,~)obj.cb_pi_tmsfmri_mt);
-            obj.pi.tmsfmri.mt_btn=uicontrol( 'Style','pushbutton','Parent', mep_panel_13 ,'FontSize',11,'String','Measure','Enable','off','Callback',@(~,~)obj.cb_pi_tmsfmri_mt_btn);
-            set( mep_panel_13, 'Widths', [175 -2 -2]);
-            uiextras.HBox( 'Parent', obj.pi.tmsfmri.vb)
-            % row 14
-            mep_panel_14 = uix.HBox( 'Parent', obj.pi.tmsfmri.vb, 'Spacing', 5, 'Padding', 5  );
-            obj.pi.tmsfmri.status_text=uicontrol( 'Style','text','Parent', mep_panel_14,'String','Status:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            obj.pi.tmsfmri.status=uicontrol( 'Style','edit','Enable','off','Parent', mep_panel_14 ,'FontSize',11);
-            set( mep_panel_14, 'Widths', [150 -2]);
-            
-            
-            
-            
-            mep_panel_17 = uix.HBox( 'Parent', obj.pi.tmsfmri.vb, 'Spacing', 5, 'Padding', 5  );
-            obj.pi.tmsfmri.run=uicontrol( 'Parent', mep_panel_17 ,'Style','PushButton','String','Run','FontWeight','Bold','Callback',@(~,~)obj.tmsfmri_run)
-            obj.pi.tmsfmri.stop=uicontrol( 'Parent', mep_panel_17 ,'Style','PushButton','String','Stop','FontWeight','Bold','Callback',@(~,~)obj.tmsfmri_stop,'Enable','on')
-            set( mep_panel_17, 'Widths', [-2 -2]);
-            
-            set(obj.pi.tmsfmri.vb,'Heights',[-0.1 -0.4 -0.4 -0.4 -0.4 -0.4 -0.2 -0.2 -0.4 -0.4 -0.4 -1.5 -0.4 -0.5])
-            
-            
-        end
+       
         function pi_eegtms(obj)
             obj.pi.eegtms.panel=uix.Panel( 'Parent', obj.pi.empty_panel,'FontSize',14 ,'Units','normalized','Title','EEG triggered Stimulation' ,'FontWeight','Bold','TitlePosition','centertop');
             obj.pi.eegtms.vb = uix.VBox( 'Parent', obj.pi.eegtms.panel, 'Spacing', 5, 'Padding', 5  );
@@ -14441,225 +14945,7 @@ classdef best_application < handle
             obj.pr.eegtms.axes2=axes( 'Parent',obj.pr.mt.panel_mtplot,'Units','normalized','Tag','rmt','uicontextmenu',m_mt);
             set(obj.pr.mt.hbox,'Widths',[-1 -1])
         end
-        function tmsfmri_stop(obj)
-            clear obj.info.a;
-        end
-        function tmsfmri_run(obj)
-            
-            obj.pi.tmsfmri.ta.Enable='off';
-            obj.pi.tmsfmri.trigdelay.Enable='off';
-            obj.pi.tmsfmri.totalvolumes.Enable='off';
-            obj.pi.tmsfmri.volumes_cond.Enable='off';
-            obj.pi.tmsfmri.stimulation_intensities.Enable='off';
-            obj.pi.tmsfmri.manual_stim_inten.Enable='off';
-            obj.pi.tmsfmri.units_mso.Enable='off';
-            obj.pi.tmsfmri.units_mt.Enable='off';
-            obj.pi.tmsfmri.mt.Enable='off';
-            obj.pi.tmsfmri.mt_btn.Enable='off';
-            obj.pi.tmsfmri.run.Enable='off';
-            
-            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).taEnable=obj.pi.tmsfmri.ta.Enable;
-            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).trigdelayEnable=obj.pi.tmsfmri.trigdelay.Enable;
-            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).totalvolumesEnable=obj.pi.tmsfmri.totalvolumes.Enable;
-            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).volumes_condEnable=obj.pi.tmsfmri.volumes_cond.Enable;
-            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).stimulation_intensitiesEnable=obj.pi.tmsfmri.stimulation_intensities.Enable;
-            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).manual_stim_intenEnable=obj.pi.tmsfmri.manual_stim_inten.Enable;
-            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).units_msoEnable=obj.pi.tmsfmri.units_mso.Enable;
-            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).units_mtEnable=obj.pi.tmsfmri.units_mt.Enable;
-            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).mtEnable=obj.pi.tmsfmri.mt.Enable;
-            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).mt_btnEnable=obj.pi.tmsfmri.mt_btn.Enable;
-            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).runEnable=obj.pi.tmsfmri.run.Enable;
-            
-            
-            a=[];
-            
-            % %             a=arduino;
-            
-            
-            exp=obj.pmd.exp_title.editfield.String; exp(exp == ' ') = '_';
-            sub=obj.pmd.sub_code.editfield.String; sub(sub == ' ') = '_';
-            sess=obj.info.event.current_session;
-            meas=obj.info.event.current_measure_fullstr;
-            timestr=clock; times1=timestr(4);times2=timestr(5); time=[times1 times2]; time=num2str(time); time(time == ' ') = '_';
-            file_name=[exp '_' sub '_' sess '_' meas '_' time];
-            
-            TA=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).ta; %ms old 902
-            trig_delay=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).trigdelay; %ms
-            
-            TA=TA/1000;
-            trig_delay=trig_delay/1000;
-            vol_delay=TA+trig_delay-(37/1000)
-            
-            total_volumes=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).totalvolumes;
-            
-            vol_cond = obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).volumes_cond;
-            vol_cond_rep = total_volumes /  sum(vol_cond);
-            vol_cond_rep=ceil(vol_cond_rep);
-            
-            
-            vol_vector = [];
-            for i = 1:vol_cond_rep
-                vol_vector = [vol_vector, vol_cond(randperm(numel(vol_cond)))];
-            end
-            vol_vector = cumsum(vol_vector);
-            indexx=find(vol_vector>total_volumes);
-            if (numel(indexx)==0)
-                indexx=numel(vol_vector);
-                trial_vector=vol_vector;
-            else
-                indexx=indexx(1)-1;
-                trial_vector=vol_vector(1,1:indexx);
-                
-            end
-            
-            intensity_cond = obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).stimulation_intensities;
-            intensity_cond_rep = indexx /  numel(intensity_cond);
-            intensity_cond_rep=ceil(intensity_cond_rep);
-            
-            intensity_vector = [];
-            for i = 1:intensity_cond_rep
-                intensity_vector = [intensity_vector, intensity_cond(randperm(numel(intensity_cond)))];
-            end
-            intensity_vector=intensity_vector(1,1:indexx);
-            
-            trial_vector(2,:)=intensity_vector;
-            save([file_name '_trial_vector.mat'], 'trial_vector');
-            if(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).manual_stim_inten==1)
-                
-                %Indicies initilization
-                set(obj.pi.tmsfmri.status,'String','Ready!');
-                i=1;
-                t=0;
-                v=NaN(1,1000000000);
-                N=0;
-                %% Triggering Condition Code Burnt to Arduino
-                
-                while(1)
-                    
-                    
-                    
-                    t=t+1;
-                    v(t)=readVoltage(a,'A5');
-                    if(v(t)>3)
-                        N=N+1
-                        if(N==vol_vector(i))
-                            i=i+1;
-                            
-                            tic
-                            while(1)
-                                if(toc>vol_delay)
-                                    toc
-                                    break
-                                end
-                            end
-                            
-                            writeDigitalPin(a,'D7',1)
-                            writeDigitalPin(a,'D7',0)
-                            
-                            disp('triggered')
-                            
-                            tic
-                            while(1)
-                                if(toc>0.30000)
-                                    N=N+1
-                                    break
-                                end
-                            end
-                            
-                        end
-                        
-                        tic
-                        while(1)
-                            if(toc>0.30000)
-                                
-                                break
-                            end
-                        end
-                        
-                    end
-                    if(N>=total_volumes)
-                        break
-                    end
-                end
-                
-                set(obj.pi.tmsfmri.status,'String','Completed!');
-                
-            else
-                %Indicies initilization
-                
-                i=1;
-                t=0;
-                v=NaN(1,1000000000);
-                N=0;
-                
-                
-                %% MAGVENTURE COMMANDS - uncomment to make the active, change the port number manualy
-                delete(instrfindall);
-                magventureObject = magventure('COM7'); %0808a
-                magventureObject.connect;
-                magventureObject.arm
-                
-                magventureObject.setAmplitude(intensity_vector(1));
-                set(obj.pi.tmsfmri.status,'String','Ready!');
-                
-                
-                
-                %% Triggering Condition Code Burnt to Arduino
-                
-                while(1)
-                    
-                    
-                    t=t+1;
-                    v(t)=readVoltage(a,'A5');
-                    if(v(t)>3)
-                        N=N+1
-                        if(N==vol_vector(i))
-                            i=i+1;
-                            
-                            tic
-                            while(1)
-                                if(toc>vol_delay)
-                                    toc
-                                    break
-                                end
-                            end
-                            
-                            writeDigitalPin(a,'D7',1)
-                            writeDigitalPin(a,'D7',0)
-                            
-                            disp('triggered')
-                            
-                            tic
-                            while(1)
-                                if(toc>0.30000)
-                                    N=N+1
-                                    magventureObject.setAmplitude(intensity_vector(i));
-                                    break
-                                end
-                            end
-                            
-                        end
-                        
-                        tic
-                        while(1)
-                            if(toc>0.30000)
-                                
-                                break
-                            end
-                        end
-                        
-                    end
-                    if(N==total_volumes)
-                        break
-                    end
-                end
-                
-                set(obj.pi.tmsfmri.status,'String','Completed!');
-            end % (manual stim intensity if flag end)
-        end
-        function cb_pi_tmsfmri_manual_stim_inten(obj)
-            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).manual_stim_inten=(obj.pi.tmsfmri.manual_stim_inten.Value);
-        end
+
         %% hardware configuration panel
         function create_hwcfg_panel(obj)
             obj.hw.empty_panel=uix.Panel( 'Parent', obj.fig.main, 'Padding', 5 ,'Units','normalized','BorderType','none' );
@@ -15989,62 +16275,6 @@ classdef best_application < handle
         
         
         
-        function default_par_tmsfmri(obj)
-            obj.info.defaults.target_muscle='APBr';
-            obj.info.defaults.stimulation_intensities=[30 40 50 60 70 80];
-            obj.info.defaults.trials_per_condition=[15];
-            obj.info.defaults.iti=[4 6];
-            obj.info.defaults.mep_onset=15;
-            obj.info.defaults.mep_offset=50;
-            obj.info.defaults.prestim_scope_ext=50;
-            obj.info.defaults.poststim_scope_ext=150;
-            obj.info.defaults.prestim_scope_plt=20;
-            obj.info.defaults.poststim_scope_plt=100;
-            obj.info.defaults.units_mso=1;
-            obj.info.defaults.units_mt=0;
-            obj.info.defaults.mt=[];
-            %             obj.info.defaults.mt_btn
-            obj.info.defaults.ylim_max=+5000;
-            obj.info.defaults.ylim_min=-5000;
-            obj.info.defaults.FontSize=14;
-            obj.info.defaults.mt_mv=0.05;
-            obj.info.defaults.thresholding_method=2;
-            obj.info.defaults.trials_to_avg=15;
-            %specifically for tms-fmri
-            obj.info.defaults.ta=916;
-            obj.info.defaults.trigdelay=14;
-            obj.info.defaults.volumes_cond=[18 19 20 21 22];
-            obj.info.defaults.totalvolumes=900;
-            obj.info.defaults.trials_for_mean_annotation=5;
-            obj.info.defaults.reset_pressed=0;
-            obj.info.defaults.plot_reset_pressed=0;
-            obj.info.defaults.manual_stim_inten=1;
-            obj.info.defaults.save_plt=0;
-            obj.info.defaults.result_mt=11;
-            obj.info.defaults.mt_starting_stim_inten=25;
-            obj.info.defaults.target_muscleEnable='on';
-            obj.info.defaults.runEnable='on';
-            obj.info.defaults.units_msoEnable='on';
-            obj.info.defaults.units_mtEnable='on';
-            obj.info.defaults.mtEnable='on';
-            obj.info.defaults.mt_btnEnable='on';
-            obj.info.defaults.prestim_scope_extEnable='on';
-            obj.info.defaults.poststim_scope_extEnable='on';
-            obj.info.defaults.trials_per_conditionEnable='on';
-            obj.info.defaults.mt_mvEnable='on';
-            obj.info.defaults.thresholding_methodEnable='on';
-            obj.info.defaults.stimulation_intensitiesEnable='on';
-            obj.info.defaults.taEnable='on';
-            obj.info.defaults.trigdelayEnable='on';
-            obj.info.defaults.totalvolumesEnable='on';
-            obj.info.defaults.volumes_condEnable='on';
-            obj.info.defaults.manual_stim_intenEnable='on';
-            obj.info.defaults.units_msoEnable='on';
-            obj.info.defaults.units_mtEnable='on';
-            obj.info.defaults.mt_mvEnable='on';
-            obj.info.defaults.mt_starting_stim_intenEnable='on';
-            obj.par.(obj.info.event.current_session).(obj.info.event.measure_being_added)=obj.info.defaults;
-        end
         function default_par_eegtms(obj)
             obj.info.defaults.output_device='BOSSBox-MagVen'
             obj.info.defaults.input_device='BOSSBox-NeurOne'
@@ -16070,29 +16300,6 @@ classdef best_application < handle
         
         
         
-        function func_load_tmsfmri_par(obj)
-            obj.pi.tmsfmri.ta.String=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).ta);
-            obj.pi.tmsfmri.stimulation_intensities.String=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).stimulation_intensities);
-            obj.pi.tmsfmri.trigdelay.String=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).trigdelay;
-            obj.pi.tmsfmri.volumes_cond.String=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).volumes_cond);
-            obj.pi.tmsfmri.totalvolumes.String=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).totalvolumes;
-            obj.pi.tmsfmri.units_mso.Value=(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).units_mso);
-            obj.pi.tmsfmri.units_mt.Value=(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).units_mt);
-            obj.pi.tmsfmri.mt.String=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).mt);
-            %             obj.pi.tmsfmri.mt_btn.String=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).mt_btn);
-            obj.pi.tmsfmri.ta.Enable=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).taEnable;
-            obj.pi.tmsfmri.trigdelay.Enable=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).trigdelayEnable;
-            obj.pi.tmsfmri.totalvolumes.Enable=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).totalvolumesEnable;
-            obj.pi.tmsfmri.volumes_cond.Enable=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).volumes_condEnable;
-            obj.pi.tmsfmri.stimulation_intensities.Enable=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).stimulation_intensitiesEnable;
-            obj.pi.tmsfmri.manual_stim_inten.Enable=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).manual_stim_intenEnable;
-            obj.pi.tmsfmri.units_mso.Enable=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).units_msoEnable;
-            obj.pi.tmsfmri.units_mt.Enable=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).units_mtEnable;
-            obj.pi.tmsfmri.mt.Enable=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).mtEnable;
-            obj.pi.tmsfmri.mt_btn.Enable=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).mt_btnEnable;
-            obj.pi.tmsfmri.run.Enable=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).runEnable;
-            
-        end
         
         function func_load_eegtms_par(obj)
             obj.pi.eegtms.output_device.String	=	obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).output_device;
@@ -16113,57 +16320,7 @@ classdef best_application < handle
             obj.pi.eegtms.phase_tolerance.String	=	num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).phase_tolerance);
             
         end
-        %% tms fmri callbacks
-        function cb_pi_tmsfmri_ta(obj)
-            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).ta=str2num(obj.pi.tmsfmri.ta.String);
-        end
-        function cb_pi_tmsfmri_stimulation_intensities(obj)
-            try
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).stimulation_intensities=eval(obj.pi.tmsfmri.stimulation_intensities.String);
-                obj.pi.tmsfmri.run.Enable='on';
-            catch
-                errordlg('Warning: Wrong Input for Stim. Intensities. Make sure you are writing matrix as if you would do on MATLAB command line i.e. [20 30 40 50] not 20 30 40 50. You would not be allowed to proceed until this is fixed','BEST Toolbox');
-                obj.pi.tmsfmri.run.Enable='off';
-            end
-        end
-        function cb_pi_tmsfmri_trigdelay(obj)
-            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).trigdelay=str2num(obj.pi.tmsfmri.trigdelay.String);
-        end
-        function cb_pi_tmsfmri_volumes_cond(obj)
-            try
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).volumes_cond=eval(obj.pi.tmsfmri.volumes_cond.String);
-                obj.pi.tmsfmri.run.Enable='on';
-                
-            catch
-                errordlg('Warning: Wrong Input for Inter Trial Interval. Make sure you are writing matrix as if you would do on MATLAB command line i.e. [20 30 40 50] not 20 30 40 50. You wouldnot be allowed to proceed until this is fixed.','BEST Toolbox');
-                obj.pi.tmsfmri.run.Enable='off';
-            end
-        end
-        function cb_pi_tmsfmri_totalvolumes(obj)
-            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).totalvolumes=str2num(obj.pi.tmsfmri.totalvolumes.String);
-        end
-        function cb_pi_tmsfmri_units_mso(obj)
-            if(obj.pi.tmsfmri.units_mso.Value==1)
-                obj.pi.tmsfmri.units_mt.Value=0;
-                obj.pi.tmsfmri.mt.Enable='off';
-            end
-            
-            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).units_mso=(obj.pi.tmsfmri.units_mso.Value);
-        end
-        function cb_pi_tmsfmri_units_mt(obj)
-            if(obj.pi.tmsfmri.units_mt.Value==1)
-                obj.pi.tmsfmri.units_mso.Value=0;
-                obj.pi.tmsfmri.mt.Enable='on';
-                
-            end
-            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).units_mt=(obj.pi.tmsfmri.units_mt.Value);
-        end
-        function cb_pi_tmsfmri_mt(obj)
-            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).mt=str2num(obj.pi.tmsfmri.mt.String);
-        end
-        function cb_pi_tmsfmri_mt_btn(obj)
-            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).mt_btn=str2num(obj.pi.tmsfmri.mt_btn.String);
-        end
+
         %% Save Parameters Using Menu
         function cb_menu_save(obj)
             tic
