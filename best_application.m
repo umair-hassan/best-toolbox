@@ -220,8 +220,9 @@ classdef best_application < handle
                 obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).ProtocolStatus={'compiled'};
                 obj.cb_measure_listbox;
             catch e
-               fprintf(1,'The identifier was:\n%s',e.identifier);
-        fprintf(1,'\nThere was an error! The message was:\n%s',e.message);
+                errordlg('Build unsuccessful, the device is not conencted. Try againa fer connecting devices.','BEST Toolbox');
+                fprintf(1,'The identifier was:\n%s',e.identifier);
+                fprintf(1,'\nThere was an error! The message was:\n%s',e.message);
             end
         end
         function RunStopButton(obj,~,~)
@@ -948,7 +949,6 @@ classdef best_application < handle
                     case 'MEP_Measurement'
                         obj.pr_mep;
                     case 'MEP Scatter Plot'
-                        disp enteredSCATTTTTTTTPLOT
                         obj.pr_scat_plot;
                     case 'MEP IOC Fit'
                         obj.pr_fit_plot;
@@ -2089,7 +2089,7 @@ classdef best_application < handle
                             case 'Single Pulse'
                                 obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).stim_mode='single_pulse';
                             case 'Paired Pulse'
-                                disp ????????????????????????????????????????????????????
+                                
                                 obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).stim_mode='paired_pulse';
                                 obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).si_pckt{1,2}=NaN;
                                 obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).si_pckt{1,3}=NaN;
@@ -2209,9 +2209,8 @@ classdef best_application < handle
                         yticklab=flip(horzcat(yticklab{1,:}));
                         obj.pi.mm.cond.(cd).ax.YTickLabel={'',char(yticklab),'MEP Search Channel',''};
                         text(0,-1*obj.pi.mm.stim.(cd).no,char(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).stim_device),'VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',9,'FontAngle','italic','Tag',num2str(obj.pi.mm.stim.(cd).no),'ButtonDownFcn',@obj.cb_pi_mep_output_device)
-                        sprintf('here it is %d ----------------------------------------------------',obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).pulse_count)
                         for ipulses=1:obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).pulse_count
-                            disp NOTENTERED=============================================================
+                            
                             % 11-Mar-2020 18:13:21
                             obj.pi.mm.stim.(cd).slctd=istimulators;
                             obj.pi.mm.stim.(cd).(st).pulse_count=ipulses;
@@ -2223,7 +2222,6 @@ classdef best_application < handle
                                     %make the string here
                                     SinglePulseAnnotation=[];
                                     if (obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_units==1)
-                                        disp HEHEHEHEHEHEHEHEHEHHEHEHEHEHEEEH
                                         
                                         SinglePulseAnnotation=['TS: [' num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt{1,1}) '] %MSO'];
                                     else
@@ -2269,15 +2267,15 @@ classdef best_application < handle
                             for i=1:obj.pi.mm.stim.(cd).(st).pulse_count
                                 switch char(obj.pi.mm.stim.(cd).(st).pulse_types{1,i})
                                     case 'single_pulse'
-                                        disp sp
+                                        
                                         x{i}=([i i i+0.15 i+0.15]);
                                         y{i}=[-obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd+0.4 -obj.pi.mm.stim.(cd).slctd+0.4 -obj.pi.mm.stim.(cd).slctd];
                                     case 'paired_pulse'
-                                        disp pp
+                                        
                                         x{i}=[i i i+0.15 i+0.15 i+0.25 i+0.25 i+0.40 i+0.40];
                                         y{i}=[-obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd+0.20 -obj.pi.mm.stim.(cd).slctd+0.20 -obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd+0.4 -obj.pi.mm.stim.(cd).slctd+0.4 -obj.pi.mm.stim.(cd).slctd];
                                     case 'train'
-                                        disp train
+                                        
                                         %                         x(i)=[i i i+0.20 i+0.20 i+0.30 i+0.30 i+0.50 i+0.50 i+0.60 i+0.60 i+0.80 i+0.80];
                                         x{i}=[i i i+0.15 i+0.15 i+0.25 i+0.25 i+0.40 i+0.40 i+0.50 i+0.50 i+0.65 i+0.65];
                                         %                         y{i}={[-obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd+0.5 -obj.pi.mm.stim.(cd).slctd+0.5 -obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd+0.5 -obj.pi.mm.stim.(cd).slctd+0.5 -obj.pi.mm.stim.(cd).slctd]};
@@ -2317,7 +2315,7 @@ classdef best_application < handle
                         obj.pi.mm.stimulatorSelector=source;
                     end
                     function cb_pr_mm_duplicateCondition(~,~)
-                        disp PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP
+                        
                         conditionIndex=length(fieldnames(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll));
                         cond_duplicated_from=['cond' num2str(obj.pi.mm.tab.SelectedChild)];
                         cond_duplicated_to=['cond' num2str(conditionIndex+1)];
@@ -2326,7 +2324,7 @@ classdef best_application < handle
                         obj.func_load_mep_par;
                     end
                     function cb_pr_mm_deleteCondition(~,~)
-                        disp PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP
+                        
                         
                         condsAll_fieldnames=fieldnames(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll);
                         obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll=rmfield(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll,char(condsAll_fieldnames(obj.pi.mm.tab.SelectedChild)));
@@ -2396,9 +2394,8 @@ classdef best_application < handle
                     yticklab=flip(horzcat(yticklab{1,:}));
                     obj.pi.mm.cond.(cd).ax.YTickLabel={'',char(yticklab),'MEP Search Window',''};
                     text(0,-1*obj.pi.mm.stim.(cd).no,char(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).stim_device),'VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',9,'FontAngle','italic','Tag',num2str(obj.pi.mm.stim.(cd).no),'ButtonDownFcn',@obj.cb_pi_mep_output_device)
-                    sprintf('here it is %d ----------------------------------------------------',obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).pulse_count)
                     for ipulses=1:obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).pulse_count
-                        disp NOTENTERED=============================================================
+                        
                         % 11-Mar-2020 18:13:21
                         obj.pi.mm.stim.(cd).slctd=istimulators;
                         obj.pi.mm.stim.(cd).(st).pulse_count=ipulses;
@@ -2410,7 +2407,6 @@ classdef best_application < handle
                                 %make the string here
                                 SinglePulseAnnotation=[];
                                 if (obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_units==1)
-                                    disp HEHEHEHEHEHEHEHEHEHHEHEHEHEHEEEH
                                     
                                     SinglePulseAnnotation=['TS: [' num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt{1,1}) '] %MSO'];
                                 else
@@ -2456,15 +2452,12 @@ classdef best_application < handle
                         for i=1:obj.pi.mm.stim.(cd).(st).pulse_count
                             switch char(obj.pi.mm.stim.(cd).(st).pulse_types{1,i})
                                 case 'single_pulse'
-                                    disp sp
                                     x{i}=([i i i+0.15 i+0.15]);
                                     y{i}=[-obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd+0.4 -obj.pi.mm.stim.(cd).slctd+0.4 -obj.pi.mm.stim.(cd).slctd];
                                 case 'paired_pulse'
-                                    disp pp
                                     x{i}=[i i i+0.15 i+0.15 i+0.25 i+0.25 i+0.40 i+0.40];
                                     y{i}=[-obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd+0.20 -obj.pi.mm.stim.(cd).slctd+0.20 -obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd+0.4 -obj.pi.mm.stim.(cd).slctd+0.4 -obj.pi.mm.stim.(cd).slctd];
                                 case 'train'
-                                    disp train
                                     %                         x(i)=[i i i+0.20 i+0.20 i+0.30 i+0.30 i+0.50 i+0.50 i+0.60 i+0.60 i+0.80 i+0.80];
                                     x{i}=[i i i+0.15 i+0.15 i+0.25 i+0.25 i+0.40 i+0.40 i+0.50 i+0.50 i+0.65 i+0.65];
                                     %                         y{i}={[-obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd+0.5 -obj.pi.mm.stim.(cd).slctd+0.5 -obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd+0.5 -obj.pi.mm.stim.(cd).slctd+0.5 -obj.pi.mm.stim.(cd).slctd]};
@@ -2509,7 +2502,6 @@ classdef best_application < handle
                 obj.pi.mm.stimulatorSelector=source;
             end
             function cb_pr_mm_duplicateCondition(~,~)
-                disp PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP
                 conditionIndex=length(fieldnames(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll));
                 cond_duplicated_from=['cond' num2str(obj.pi.mm.tab.SelectedChild)];
                 cond_duplicated_to=['cond' num2str(conditionIndex+1)];
@@ -2518,7 +2510,6 @@ classdef best_application < handle
                 obj.func_load_mep_par;
             end
             function cb_pr_mm_deleteCondition(~,~)
-                disp PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP
                 
                 condsAll_fieldnames=fieldnames(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll);
                 obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll=rmfield(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll,char(condsAll_fieldnames(obj.pi.mm.tab.SelectedChild)));
@@ -2720,15 +2711,12 @@ classdef best_application < handle
             for i=1:obj.pi.mm.stim.(cd).(st).pulse_count
                 switch char(obj.pi.mm.stim.(cd).(st).pulse_types{1,i})
                     case 'single_pulse'
-                        disp sp
                         x{i}=([i i i+0.15 i+0.15]);
                         y{i}=[-obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd+0.4 -obj.pi.mm.stim.(cd).slctd+0.4 -obj.pi.mm.stim.(cd).slctd];
                     case 'paired_pulse'
-                        disp pp
                         x{i}=[i i i+0.15 i+0.15 i+0.25 i+0.25 i+0.40 i+0.40];
                         y{i}=[-obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd+0.20 -obj.pi.mm.stim.(cd).slctd+0.20 -obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd+0.4 -obj.pi.mm.stim.(cd).slctd+0.4 -obj.pi.mm.stim.(cd).slctd];
                     case 'train'
-                        disp train
                         %                         x(i)=[i i i+0.20 i+0.20 i+0.30 i+0.30 i+0.50 i+0.50 i+0.60 i+0.60 i+0.80 i+0.80];
                         x{i}=[i i i+0.15 i+0.15 i+0.25 i+0.25 i+0.40 i+0.40 i+0.50 i+0.50 i+0.65 i+0.65];
                         %                         y{i}={[-obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd+0.5 -obj.pi.mm.stim.(cd).slctd+0.5 -obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd+0.5 -obj.pi.mm.stim.(cd).slctd+0.5 -obj.pi.mm.stim.(cd).slctd]};
@@ -2994,37 +2982,13 @@ classdef best_application < handle
         function cb_pi_mep_targetChannel(obj,source,~)
             f=figure('ToolBar','none','MenuBar','none','Name','Insert Parameters | BEST Toolbox','NumberTitle','off');
             c1=uix.VBox('parent',f,'Padding',10,'Spacing',10);
-            
-            %             r0=uix.HBox('parent',c1);
-            %             uicontrol( 'Style','text','Parent', r0,'String','Input Device:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            %             str_in_device(1)= (cellstr('Select'));
-            %             str_in_device(2:numel(obj.hw.device_added1_listbox.string)+1)=obj.hw.device_added1_listbox.string;
-            %             inputDevice=uicontrol( 'Style','popupmenu','Parent', r0 ,'FontSize',11,'String',str_in_device);
-            %             set( r0, 'Widths', [250 200]);
+
             
             r1=uix.HBox('parent',c1);
             uicontrol( 'Style','text','Parent', r1,'String','Target Channels:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
             targetChannels=uicontrol( 'Style','edit','Parent', r1 ,'FontSize',11);
             set( r1, 'Widths', [250 200]);
-            
-            %             r2a=uix.HBox('parent',c1);
-            %             uicontrol( 'Style','text','Parent', r2a,'String','Display Channels:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            %             displayChannels=uicontrol( 'Style','edit','Parent', r2a ,'FontSize',11);
-            %             set( r2a, 'Widths', [250 200]);
-            %
-            %             r2b=uix.HBox('parent',c1);
-            %             uicontrol( 'Style','text','Parent', r2b,'String','MEP onset/offset (ms):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            %             mepOnset=uicontrol( 'Style','edit','Parent', r2b ,'FontSize',11);
-            %             uiextras.HBox('Parent',r2b)
-            %             mepOffset=uicontrol( 'Style','edit','Parent', r2b ,'FontSize',11);
-            %             set( r2b, 'Widths', [250 90 20 90]);
-            %
-            %             r2=uix.HBox('parent',c1);
-            %             uicontrol( 'Style','text','Parent', r2,'String','MEP Pre/Post Display Period (ms)','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            %             prestim_scope_plt=uicontrol( 'Style','edit','Parent', r2 ,'FontSize',11);
-            %             uiextras.HBox('Parent',r2)
-            %             poststim_scope_plt=uicontrol( 'Style','edit','Parent', r2 ,'FontSize',11);
-            %             set( r2, 'Widths', [250 90 20 90]);
+
             
             uicontrol( 'Parent', c1 ,'Style','PushButton','String','OK','FontWeight','Bold','Callback',@(~,~)cb_ok);
             
@@ -3182,12 +3146,10 @@ classdef best_application < handle
             
             if(numel(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).iti)==1 || numel(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).iti)>2)
                 obj.bst.inputs.iti=num2cell(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).iti);
-                disp 1stcommand
             else
                 %                 obj.bst.inputs.iti=cellstr(num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).iti));
                 obj.bst.inputs.iti={num2cell(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).iti)};
                 
-                disp 2ndcommand
             end
             
             
@@ -3334,28 +3296,6 @@ classdef best_application < handle
         end
         function cb_pi_mep_display_scopes(obj)
             obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).display_scopes=obj.pi.mep.display_scopes.String;
-            % %             %first evalute
-            % %             if(ischar(obj.pi.mep.display_scopes.String) || (iscell(eval(obj.pi.mep.display_scopes.String))))
-            % %                 if(iscell(eval(obj.pi.mep.display_scopes.String)))
-            % %                     cellarraysize=size(eval(obj.pi.mep.display_scopes.String))
-            % %                     if(cellarraysize(1)>1)
-            % %                         %error dialogue
-            % %                         disp BEST Toolbox: The Display Scopes input field must be a 1 x n dimension cell array
-            % %                     end
-            % %                 end
-            % %                 try
-            % %                     obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).display_scopes=eval(obj.pi.mep.display_scopes.String);
-            % %                     obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).display_scopes
-            % %                 catch
-            % %                     disp BEST Toolbox: The Display Scopes field input can only be a Character or Cell array OR no such variable exists with this name in the MATLAB workspace
-            % %                 end
-            % %                 %             elseif (iscell(eval(obj.pi.mep.display_scopes.String)))
-            % %                 %             obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).display_scopes=eval(obj.pi.mep.display_scopes.String);
-            % %                 %             obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).display_scopes
-            % %             else
-            % %                 % display error dialogue
-            % %                 disp BEST Toolbox: The Display Scopes field input can only be a Character or Cell array
-            % %             end
         end
         function cb_pi_mep_target_muscle(obj)
             obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).target_muscle=obj.pi.mep.target_muscle.String;
@@ -3857,7 +3797,7 @@ classdef best_application < handle
                             case 'Single Pulse'
                                 obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).stim_mode='single_pulse';
                             case 'Paired Pulse'
-                                disp ????????????????????????????????????????????????????
+                                
                                 obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).stim_mode='paired_pulse';
                                 obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).si_pckt{1,2}=NaN;
                                 obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).si_pckt{1,3}=NaN;
@@ -3977,9 +3917,8 @@ classdef best_application < handle
                         yticklab=flip(horzcat(yticklab{1,:}));
                         obj.pi.mm.cond.(cd).ax.YTickLabel={'',char(yticklab),'MEP Search Channel',''};
                         text(0,-1*obj.pi.mm.stim.(cd).no,char(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).stim_device),'VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',9,'FontAngle','italic','Tag',num2str(obj.pi.mm.stim.(cd).no),'ButtonDownFcn',@obj.cb_pi_drc_output_device)
-                        sprintf('here it is %d ----------------------------------------------------',obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).pulse_count)
                         for ipulses=1:obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).pulse_count
-                            disp NOTENTERED=============================================================
+                            
                             % 11-Mar-2020 18:13:21
                             obj.pi.mm.stim.(cd).slctd=istimulators;
                             obj.pi.mm.stim.(cd).(st).pulse_count=ipulses;
@@ -3991,7 +3930,6 @@ classdef best_application < handle
                                     %make the string here
                                     SinglePulseAnnotation=[];
                                     if (obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_units==1)
-                                        disp HEHEHEHEHEHEHEHEHEHHEHEHEHEHEEEH
                                         
                                         SinglePulseAnnotation=['TS: [' num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt{1,1}) '] %MSO'];
                                     else
@@ -4037,15 +3975,15 @@ classdef best_application < handle
                             for i=1:obj.pi.mm.stim.(cd).(st).pulse_count
                                 switch char(obj.pi.mm.stim.(cd).(st).pulse_types{1,i})
                                     case 'single_pulse'
-                                        disp sp
+                                        
                                         x{i}=([i i i+0.15 i+0.15]);
                                         y{i}=[-obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd+0.4 -obj.pi.mm.stim.(cd).slctd+0.4 -obj.pi.mm.stim.(cd).slctd];
                                     case 'paired_pulse'
-                                        disp pp
+                                        
                                         x{i}=[i i i+0.15 i+0.15 i+0.25 i+0.25 i+0.40 i+0.40];
                                         y{i}=[-obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd+0.20 -obj.pi.mm.stim.(cd).slctd+0.20 -obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd+0.4 -obj.pi.mm.stim.(cd).slctd+0.4 -obj.pi.mm.stim.(cd).slctd];
                                     case 'train'
-                                        disp train
+                                        
                                         %                         x(i)=[i i i+0.20 i+0.20 i+0.30 i+0.30 i+0.50 i+0.50 i+0.60 i+0.60 i+0.80 i+0.80];
                                         x{i}=[i i i+0.15 i+0.15 i+0.25 i+0.25 i+0.40 i+0.40 i+0.50 i+0.50 i+0.65 i+0.65];
                                         %                         y{i}={[-obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd+0.5 -obj.pi.mm.stim.(cd).slctd+0.5 -obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd+0.5 -obj.pi.mm.stim.(cd).slctd+0.5 -obj.pi.mm.stim.(cd).slctd]};
@@ -4085,7 +4023,7 @@ classdef best_application < handle
                         obj.pi.mm.stimulatorSelector=source;
                     end
                     function cb_pr_mm_duplicateCondition(~,~)
-                        disp PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP
+                        
                         conditionIndex=length(fieldnames(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll));
                         cond_duplicated_from=['cond' num2str(obj.pi.mm.tab.SelectedChild)];
                         cond_duplicated_to=['cond' num2str(conditionIndex+1)];
@@ -4094,7 +4032,7 @@ classdef best_application < handle
                         obj.func_load_mep_par;
                     end
                     function cb_pr_mm_deleteCondition(~,~)
-                        disp PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP
+                        
                         
                         condsAll_fieldnames=fieldnames(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll);
                         obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll=rmfield(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll,char(condsAll_fieldnames(obj.pi.mm.tab.SelectedChild)));
@@ -4164,9 +4102,8 @@ classdef best_application < handle
                     yticklab=flip(horzcat(yticklab{1,:}));
                     obj.pi.mm.cond.(cd).ax.YTickLabel={'',char(yticklab),'MEP Search Window',''};
                     text(0,-1*obj.pi.mm.stim.(cd).no,char(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).stim_device),'VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',9,'FontAngle','italic','Tag',num2str(obj.pi.mm.stim.(cd).no),'ButtonDownFcn',@obj.cb_pi_drc_output_device)
-                    sprintf('here it is %d ----------------------------------------------------',obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).pulse_count)
                     for ipulses=1:obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).pulse_count
-                        disp NOTENTERED=============================================================
+                        
                         % 11-Mar-2020 18:13:21
                         obj.pi.mm.stim.(cd).slctd=istimulators;
                         obj.pi.mm.stim.(cd).(st).pulse_count=ipulses;
@@ -4178,7 +4115,7 @@ classdef best_application < handle
                                 %make the string here
                                 SinglePulseAnnotation=[];
                                 if (obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_units==1)
-                                    disp HEHEHEHEHEHEHEHEHEHHEHEHEHEHEEEH
+                                    
                                     
                                     SinglePulseAnnotation=['TS: [' num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt{1,1}) '] %MSO'];
                                 else
@@ -4224,15 +4161,15 @@ classdef best_application < handle
                         for i=1:obj.pi.mm.stim.(cd).(st).pulse_count
                             switch char(obj.pi.mm.stim.(cd).(st).pulse_types{1,i})
                                 case 'single_pulse'
-                                    disp sp
+                                    
                                     x{i}=([i i i+0.15 i+0.15]);
                                     y{i}=[-obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd+0.4 -obj.pi.mm.stim.(cd).slctd+0.4 -obj.pi.mm.stim.(cd).slctd];
                                 case 'paired_pulse'
-                                    disp pp
+                                    
                                     x{i}=[i i i+0.15 i+0.15 i+0.25 i+0.25 i+0.40 i+0.40];
                                     y{i}=[-obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd+0.20 -obj.pi.mm.stim.(cd).slctd+0.20 -obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd+0.4 -obj.pi.mm.stim.(cd).slctd+0.4 -obj.pi.mm.stim.(cd).slctd];
                                 case 'train'
-                                    disp train
+                                    
                                     %                         x(i)=[i i i+0.20 i+0.20 i+0.30 i+0.30 i+0.50 i+0.50 i+0.60 i+0.60 i+0.80 i+0.80];
                                     x{i}=[i i i+0.15 i+0.15 i+0.25 i+0.25 i+0.40 i+0.40 i+0.50 i+0.50 i+0.65 i+0.65];
                                     %                         y{i}={[-obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd+0.5 -obj.pi.mm.stim.(cd).slctd+0.5 -obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd+0.5 -obj.pi.mm.stim.(cd).slctd+0.5 -obj.pi.mm.stim.(cd).slctd]};
@@ -4277,7 +4214,6 @@ classdef best_application < handle
                 obj.pi.mm.stimulatorSelector=source;
             end
             function cb_pr_mm_duplicateCondition(~,~)
-                disp PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP
                 conditionIndex=length(fieldnames(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll));
                 cond_duplicated_from=['cond' num2str(obj.pi.mm.tab.SelectedChild)];
                 cond_duplicated_to=['cond' num2str(conditionIndex+1)];
@@ -4286,7 +4222,6 @@ classdef best_application < handle
                 obj.func_load_mep_par;
             end
             function cb_pr_mm_deleteCondition(~,~)
-                disp PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP
                 
                 condsAll_fieldnames=fieldnames(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll);
                 obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll=rmfield(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll,char(condsAll_fieldnames(obj.pi.mm.tab.SelectedChild)));
@@ -4488,15 +4423,12 @@ classdef best_application < handle
             for i=1:obj.pi.mm.stim.(cd).(st).pulse_count
                 switch char(obj.pi.mm.stim.(cd).(st).pulse_types{1,i})
                     case 'single_pulse'
-                        disp sp
                         x{i}=([i i i+0.15 i+0.15]);
                         y{i}=[-obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd+0.4 -obj.pi.mm.stim.(cd).slctd+0.4 -obj.pi.mm.stim.(cd).slctd];
                     case 'paired_pulse'
-                        disp pp
                         x{i}=[i i i+0.15 i+0.15 i+0.25 i+0.25 i+0.40 i+0.40];
                         y{i}=[-obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd+0.20 -obj.pi.mm.stim.(cd).slctd+0.20 -obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd+0.4 -obj.pi.mm.stim.(cd).slctd+0.4 -obj.pi.mm.stim.(cd).slctd];
                     case 'train'
-                        disp train
                         %                         x(i)=[i i i+0.20 i+0.20 i+0.30 i+0.30 i+0.50 i+0.50 i+0.60 i+0.60 i+0.80 i+0.80];
                         x{i}=[i i i+0.15 i+0.15 i+0.25 i+0.25 i+0.40 i+0.40 i+0.50 i+0.50 i+0.65 i+0.65];
                         %                         y{i}={[-obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd+0.5 -obj.pi.mm.stim.(cd).slctd+0.5 -obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd+0.5 -obj.pi.mm.stim.(cd).slctd+0.5 -obj.pi.mm.stim.(cd).slctd]};
@@ -4762,37 +4694,13 @@ classdef best_application < handle
         function cb_pi_drc_targetChannel(obj,source,~)
             f=figure('ToolBar','none','MenuBar','none','Name','Insert Parameters | BEST Toolbox','NumberTitle','off');
             c1=uix.VBox('parent',f,'Padding',10,'Spacing',10);
-            
-            %             r0=uix.HBox('parent',c1);
-            %             uicontrol( 'Style','text','Parent', r0,'String','Input Device:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            %             str_in_device(1)= (cellstr('Select'));
-            %             str_in_device(2:numel(obj.hw.device_added1_listbox.string)+1)=obj.hw.device_added1_listbox.string;
-            %             inputDevice=uicontrol( 'Style','popupmenu','Parent', r0 ,'FontSize',11,'String',str_in_device);
-            %             set( r0, 'Widths', [250 200]);
+
             
             r1=uix.HBox('parent',c1);
             uicontrol( 'Style','text','Parent', r1,'String','Target Channels:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
             targetChannels=uicontrol( 'Style','edit','Parent', r1 ,'FontSize',11);
             set( r1, 'Widths', [250 200]);
-            
-            %             r2a=uix.HBox('parent',c1);
-            %             uicontrol( 'Style','text','Parent', r2a,'String','Display Channels:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            %             displayChannels=uicontrol( 'Style','edit','Parent', r2a ,'FontSize',11);
-            %             set( r2a, 'Widths', [250 200]);
-            %
-            %             r2b=uix.HBox('parent',c1);
-            %             uicontrol( 'Style','text','Parent', r2b,'String','MEP onset/offset (ms):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            %             mepOnset=uicontrol( 'Style','edit','Parent', r2b ,'FontSize',11);
-            %             uiextras.HBox('Parent',r2b)
-            %             mepOffset=uicontrol( 'Style','edit','Parent', r2b ,'FontSize',11);
-            %             set( r2b, 'Widths', [250 90 20 90]);
-            %
-            %             r2=uix.HBox('parent',c1);
-            %             uicontrol( 'Style','text','Parent', r2,'String','MEP Pre/Post Display Period (ms)','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            %             prestim_scope_plt=uicontrol( 'Style','edit','Parent', r2 ,'FontSize',11);
-            %             uiextras.HBox('Parent',r2)
-            %             poststim_scope_plt=uicontrol( 'Style','edit','Parent', r2 ,'FontSize',11);
-            %             set( r2, 'Widths', [250 90 20 90]);
+
             
             uicontrol( 'Parent', c1 ,'Style','PushButton','String','OK','FontWeight','Bold','Callback',@(~,~)cb_ok);
             
@@ -5311,7 +5219,7 @@ classdef best_application < handle
                             case 'Single Pulse'
                                 obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).stim_mode='single_pulse';
                             case 'Paired Pulse'
-                                disp ????????????????????????????????????????????????????
+                                
                                 obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).stim_mode='paired_pulse';
                                 obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).si_pckt{1,2}=NaN;
                                 obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).si_pckt{1,3}=NaN;
@@ -5431,9 +5339,8 @@ classdef best_application < handle
                         yticklab=flip(horzcat(yticklab{1,:}));
                         obj.pi.mm.cond.(cd).ax.YTickLabel={'',char(yticklab),'MEP Search Window',''};
                         text(0,-1*obj.pi.mm.stim.(cd).no,char(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).stim_device),'VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',9,'FontAngle','italic','Tag',num2str(obj.pi.mm.stim.(cd).no),'ButtonDownFcn',@obj.cb_pr_mth_output_device)
-                        sprintf('here it is %d ----------------------------------------------------',obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).pulse_count)
                         for ipulses=1:obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).pulse_count
-                            disp NOTENTERED=============================================================
+                            
                             % 11-Mar-2020 18:13:21
                             obj.pi.mm.stim.(cd).slctd=istimulators;
                             obj.pi.mm.stim.(cd).(st).pulse_count=ipulses;
@@ -5445,7 +5352,7 @@ classdef best_application < handle
                                     %make the string here
                                     SinglePulseAnnotation=[];
                                     if (obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_units==1)
-                                        disp HEHEHEHEHEHEHEHEHEHHEHEHEHEHEEEH
+                                        
                                         
                                         SinglePulseAnnotation=['TS: [' num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt{1,1}) '] %MSO'];
                                     else
@@ -5491,15 +5398,15 @@ classdef best_application < handle
                             for i=1:obj.pi.mm.stim.(cd).(st).pulse_count
                                 switch char(obj.pi.mm.stim.(cd).(st).pulse_types{1,i})
                                     case 'single_pulse'
-                                        disp sp
+                                        
                                         x{i}=([i i i+0.15 i+0.15]);
                                         y{i}=[-obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd+0.4 -obj.pi.mm.stim.(cd).slctd+0.4 -obj.pi.mm.stim.(cd).slctd];
                                     case 'paired_pulse'
-                                        disp pp
+                                       
                                         x{i}=[i i i+0.15 i+0.15 i+0.25 i+0.25 i+0.40 i+0.40];
                                         y{i}=[-obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd+0.20 -obj.pi.mm.stim.(cd).slctd+0.20 -obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd+0.4 -obj.pi.mm.stim.(cd).slctd+0.4 -obj.pi.mm.stim.(cd).slctd];
                                     case 'train'
-                                        disp train
+                                        
                                         %                         x(i)=[i i i+0.20 i+0.20 i+0.30 i+0.30 i+0.50 i+0.50 i+0.60 i+0.60 i+0.80 i+0.80];
                                         x{i}=[i i i+0.15 i+0.15 i+0.25 i+0.25 i+0.40 i+0.40 i+0.50 i+0.50 i+0.65 i+0.65];
                                         %                         y{i}={[-obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd+0.5 -obj.pi.mm.stim.(cd).slctd+0.5 -obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd+0.5 -obj.pi.mm.stim.(cd).slctd+0.5 -obj.pi.mm.stim.(cd).slctd]};
@@ -5539,7 +5446,7 @@ classdef best_application < handle
                         obj.pi.mm.stimulatorSelector=source;
                     end
                     function cb_pr_mm_duplicateCondition(~,~)
-                        disp PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP
+                        
                         conditionIndex=length(fieldnames(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll));
                         cond_duplicated_from=['cond' num2str(obj.pi.mm.tab.SelectedChild)];
                         cond_duplicated_to=['cond' num2str(conditionIndex+1)];
@@ -5548,7 +5455,7 @@ classdef best_application < handle
                         obj.func_load_mep_par;
                     end
                     function cb_pr_mm_deleteCondition(~,~)
-                        disp PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP
+                        
                         
                         condsAll_fieldnames=fieldnames(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll);
                         obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll=rmfield(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll,char(condsAll_fieldnames(obj.pi.mm.tab.SelectedChild)));
@@ -5617,9 +5524,8 @@ classdef best_application < handle
                     yticklab=flip(horzcat(yticklab{1,:}));
                     obj.pi.mm.cond.(cd).ax.YTickLabel={'',char(yticklab),'MEP Search Window',''};
                     text(0,-1*obj.pi.mm.stim.(cd).no,char(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).stim_device),'VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',9,'FontAngle','italic','Tag',num2str(obj.pi.mm.stim.(cd).no),'ButtonDownFcn',@obj.cb_pr_mth_output_device)
-                    sprintf('here it is %d ----------------------------------------------------',obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).pulse_count)
                     for ipulses=1:obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).pulse_count
-                        disp NOTENTERED=============================================================
+                       
 %                         11-Mar-2020 18:13:21
                         obj.pi.mm.stim.(cd).slctd=istimulators;
                         obj.pi.mm.stim.(cd).(st).pulse_count=ipulses;
@@ -5630,7 +5536,7 @@ classdef best_application < handle
 %                                 make the string here
                                 SinglePulseAnnotation=[];
                                 if (obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_units==1)
-                                    disp HEHEHEHEHEHEHEHEHEHHEHEHEHEHEEEH
+                                    
                                     
                                     SinglePulseAnnotation=['TS: [' num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt{1,1}) '] %MSO'];
                                 else
@@ -5676,15 +5582,12 @@ classdef best_application < handle
                         for i=1:obj.pi.mm.stim.(cd).(st).pulse_count
                             switch char(obj.pi.mm.stim.(cd).(st).pulse_types{1,i})
                                 case 'single_pulse'
-                                    disp sp
                                     x{i}=([i i i+0.15 i+0.15]);
                                     y{i}=[-obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd+0.4 -obj.pi.mm.stim.(cd).slctd+0.4 -obj.pi.mm.stim.(cd).slctd];
                                 case 'paired_pulse'
-                                    disp pp
                                     x{i}=[i i i+0.15 i+0.15 i+0.25 i+0.25 i+0.40 i+0.40];
                                     y{i}=[-obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd+0.20 -obj.pi.mm.stim.(cd).slctd+0.20 -obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd+0.4 -obj.pi.mm.stim.(cd).slctd+0.4 -obj.pi.mm.stim.(cd).slctd];
                                 case 'train'
-                                    disp train
                                                             x(i)=[i i i+0.20 i+0.20 i+0.30 i+0.30 i+0.50 i+0.50 i+0.60 i+0.60 i+0.80 i+0.80];
                                     x{i}=[i i i+0.15 i+0.15 i+0.25 i+0.25 i+0.40 i+0.40 i+0.50 i+0.50 i+0.65 i+0.65];
                                                             y{i}={[-obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd+0.5 -obj.pi.mm.stim.(cd).slctd+0.5 -obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd+0.5 -obj.pi.mm.stim.(cd).slctd+0.5 -obj.pi.mm.stim.(cd).slctd]};
@@ -5729,7 +5632,6 @@ classdef best_application < handle
                 obj.pi.mm.stimulatorSelector=source;
             end
             function cb_pr_mm_duplicateCondition(~,~)
-                disp PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP
                 conditionIndex=length(fieldnames(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll));
                 cond_duplicated_from=['cond' num2str(obj.pi.mm.tab.SelectedChild)];
                 cond_duplicated_to=['cond' num2str(conditionIndex+1)];
@@ -5738,7 +5640,6 @@ classdef best_application < handle
                 obj.func_load_mep_par;
             end
             function cb_pr_mm_deleteCondition(~,~)
-                disp PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP
                 
                 condsAll_fieldnames=fieldnames(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll);
                 obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll=rmfield(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll,char(condsAll_fieldnames(obj.pi.mm.tab.SelectedChild)));
@@ -5940,15 +5841,12 @@ classdef best_application < handle
             for i=1:obj.pi.mm.stim.(cd).(st).pulse_count
                 switch char(obj.pi.mm.stim.(cd).(st).pulse_types{1,i})
                     case 'single_pulse'
-                        disp sp
                         x{i}=([i i i+0.15 i+0.15]);
                         y{i}=[-obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd+0.4 -obj.pi.mm.stim.(cd).slctd+0.4 -obj.pi.mm.stim.(cd).slctd];
                     case 'paired_pulse'
-                        disp pp
                         x{i}=[i i i+0.15 i+0.15 i+0.25 i+0.25 i+0.40 i+0.40];
                         y{i}=[-obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd+0.20 -obj.pi.mm.stim.(cd).slctd+0.20 -obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd+0.4 -obj.pi.mm.stim.(cd).slctd+0.4 -obj.pi.mm.stim.(cd).slctd];
                     case 'train'
-                        disp train
                         %                         x(i)=[i i i+0.20 i+0.20 i+0.30 i+0.30 i+0.50 i+0.50 i+0.60 i+0.60 i+0.80 i+0.80];
                         x{i}=[i i i+0.15 i+0.15 i+0.25 i+0.25 i+0.40 i+0.40 i+0.50 i+0.50 i+0.65 i+0.65];
                         %                         y{i}={[-obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd+0.5 -obj.pi.mm.stim.(cd).slctd+0.5 -obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd+0.5 -obj.pi.mm.stim.(cd).slctd+0.5 -obj.pi.mm.stim.(cd).slctd]};
@@ -6321,36 +6219,13 @@ classdef best_application < handle
             f=figure('ToolBar','none','MenuBar','none','Name','Insert Parameters | BEST Toolbox','NumberTitle','off');
             c1=uix.VBox('parent',f,'Padding',10,'Spacing',10);
             
-            %             r0=uix.HBox('parent',c1);
-            %             uicontrol( 'Style','text','Parent', r0,'String','Input Device:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            %             str_in_device(1)= (cellstr('Select'));
-            %             str_in_device(2:numel(obj.hw.device_added1_listbox.string)+1)=obj.hw.device_added1_listbox.string;
-            %             inputDevice=uicontrol( 'Style','popupmenu','Parent', r0 ,'FontSize',11,'String',str_in_device);
-            %             set( r0, 'Widths', [250 200]);
+
             
             r1=uix.HBox('parent',c1);
             uicontrol( 'Style','text','Parent', r1,'String','Target Channels:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
             targetChannels=uicontrol( 'Style','edit','Parent', r1 ,'FontSize',11);
             set( r1, 'Widths', [250 200]);
             
-            %             r2a=uix.HBox('parent',c1);
-            %             uicontrol( 'Style','text','Parent', r2a,'String','Display Channels:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            %             displayChannels=uicontrol( 'Style','edit','Parent', r2a ,'FontSize',11);
-            %             set( r2a, 'Widths', [250 200]);
-            %
-            %             r2b=uix.HBox('parent',c1);
-            %             uicontrol( 'Style','text','Parent', r2b,'String','MEP onset/offset (ms):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            %             mepOnset=uicontrol( 'Style','edit','Parent', r2b ,'FontSize',11);
-            %             uiextras.HBox('Parent',r2b)
-            %             mepOffset=uicontrol( 'Style','edit','Parent', r2b ,'FontSize',11);
-            %             set( r2b, 'Widths', [250 90 20 90]);
-            %
-            %             r2=uix.HBox('parent',c1);
-            %             uicontrol( 'Style','text','Parent', r2,'String','MEP Pre/Post Display Period (ms)','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            %             prestim_scope_plt=uicontrol( 'Style','edit','Parent', r2 ,'FontSize',11);
-            %             uiextras.HBox('Parent',r2)
-            %             poststim_scope_plt=uicontrol( 'Style','edit','Parent', r2 ,'FontSize',11);
-            %             set( r2, 'Widths', [250 90 20 90]);
             
             uicontrol( 'Parent', c1 ,'Style','PushButton','String','OK','FontWeight','Bold','Callback',@(~,~)cb_ok);
             
@@ -6819,7 +6694,7 @@ classdef best_application < handle
                             case 'Single Pulse'
                                 obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).stim_mode='single_pulse';
                             case 'Paired Pulse'
-                                disp ????????????????????????????????????????????????????
+                                
                                 obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).stim_mode='paired_pulse';
                                 obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).si_pckt{1,2}=NaN;
                                 obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).si_pckt{1,3}=NaN;
@@ -6932,9 +6807,8 @@ classdef best_application < handle
                         yticklab=flip(horzcat(yticklab{1,:}));
                         obj.pi.mm.cond.(cd).ax.YTickLabel={'',char(yticklab),'Search Channel',''};
                         text(0,-1*obj.pi.mm.stim.(cd).no,char(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).stim_device),'VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',9,'FontAngle','italic','Tag',num2str(obj.pi.mm.stim.(cd).no),'ButtonDownFcn',@obj.cb_pr_psychmth_output_device)
-                        sprintf('here it is %d ----------------------------------------------------',obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).pulse_count)
                         for ipulses=1:obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).pulse_count
-                            disp NOTENTERED=============================================================
+                           
                             % 11-Mar-2020 18:13:21
                             obj.pi.mm.stim.(cd).slctd=istimulators;
                             obj.pi.mm.stim.(cd).(st).pulse_count=ipulses;
@@ -6946,7 +6820,7 @@ classdef best_application < handle
                                     %make the string here
                                     SinglePulseAnnotation=[];
                                     if (obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_units==1)
-                                        disp HEHEHEHEHEHEHEHEHEHHEHEHEHEHEEEH
+                                     
                                         
                                         SinglePulseAnnotation=['TS: [' num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt{1,1}) '] mA'];
                                     else
@@ -6992,15 +6866,12 @@ classdef best_application < handle
                             for i=1:obj.pi.mm.stim.(cd).(st).pulse_count
                                 switch char(obj.pi.mm.stim.(cd).(st).pulse_types{1,i})
                                     case 'single_pulse'
-                                        disp sp
                                         x{i}=([i i i+0.15 i+0.15]);
                                         y{i}=[-obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd+0.4 -obj.pi.mm.stim.(cd).slctd+0.4 -obj.pi.mm.stim.(cd).slctd];
                                     case 'paired_pulse'
-                                        disp pp
                                         x{i}=[i i i+0.15 i+0.15 i+0.25 i+0.25 i+0.40 i+0.40];
                                         y{i}=[-obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd+0.20 -obj.pi.mm.stim.(cd).slctd+0.20 -obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd+0.4 -obj.pi.mm.stim.(cd).slctd+0.4 -obj.pi.mm.stim.(cd).slctd];
                                     case 'train'
-                                        disp train
                                         %                         x(i)=[i i i+0.20 i+0.20 i+0.30 i+0.30 i+0.50 i+0.50 i+0.60 i+0.60 i+0.80 i+0.80];
                                         x{i}=[i i i+0.15 i+0.15 i+0.25 i+0.25 i+0.40 i+0.40 i+0.50 i+0.50 i+0.65 i+0.65];
                                         %                         y{i}={[-obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd+0.5 -obj.pi.mm.stim.(cd).slctd+0.5 -obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd+0.5 -obj.pi.mm.stim.(cd).slctd+0.5 -obj.pi.mm.stim.(cd).slctd]};
@@ -7040,7 +6911,6 @@ classdef best_application < handle
                         obj.pi.mm.stimulatorSelector=source;
                     end
                     function cb_pr_mm_duplicateCondition(~,~)
-                        disp PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP
                         conditionIndex=length(fieldnames(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll));
                         cond_duplicated_from=['cond' num2str(obj.pi.mm.tab.SelectedChild)];
                         cond_duplicated_to=['cond' num2str(conditionIndex+1)];
@@ -7049,7 +6919,6 @@ classdef best_application < handle
                         obj.func_load_psychmth_par;
                     end
                     function cb_pr_mm_deleteCondition(~,~)
-                        disp PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP
                         
                         condsAll_fieldnames=fieldnames(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll);
                         obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll=rmfield(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll,char(condsAll_fieldnames(obj.pi.mm.tab.SelectedChild)));
@@ -7118,9 +6987,7 @@ classdef best_application < handle
                     yticklab=flip(horzcat(yticklab{1,:}));
                     obj.pi.mm.cond.(cd).ax.YTickLabel={'',char(yticklab),'Search Channel',''};
                     text(0,-1*obj.pi.mm.stim.(cd).no,char(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).stim_device),'VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',9,'FontAngle','italic','Tag',num2str(obj.pi.mm.stim.(cd).no),'ButtonDownFcn',@obj.cb_pr_psychmth_output_device)
-                    sprintf('here it is %d ----------------------------------------------------',obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).pulse_count)
                     for ipulses=1:obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).pulse_count
-                        disp NOTENTERED=============================================================
 %                         11-Mar-2020 18:13:21
                         obj.pi.mm.stim.(cd).slctd=istimulators;
                         obj.pi.mm.stim.(cd).(st).pulse_count=ipulses;
@@ -7177,15 +7044,12 @@ classdef best_application < handle
                         for i=1:obj.pi.mm.stim.(cd).(st).pulse_count
                             switch char(obj.pi.mm.stim.(cd).(st).pulse_types{1,i})
                                 case 'single_pulse'
-                                    disp sp
                                     x{i}=([i i i+0.15 i+0.15]);
                                     y{i}=[-obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd+0.4 -obj.pi.mm.stim.(cd).slctd+0.4 -obj.pi.mm.stim.(cd).slctd];
                                 case 'paired_pulse'
-                                    disp pp
                                     x{i}=[i i i+0.15 i+0.15 i+0.25 i+0.25 i+0.40 i+0.40];
                                     y{i}=[-obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd+0.20 -obj.pi.mm.stim.(cd).slctd+0.20 -obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd+0.4 -obj.pi.mm.stim.(cd).slctd+0.4 -obj.pi.mm.stim.(cd).slctd];
                                 case 'train'
-                                    disp train
                                                             x(i)=[i i i+0.20 i+0.20 i+0.30 i+0.30 i+0.50 i+0.50 i+0.60 i+0.60 i+0.80 i+0.80];
                                     x{i}=[i i i+0.15 i+0.15 i+0.25 i+0.25 i+0.40 i+0.40 i+0.50 i+0.50 i+0.65 i+0.65];
                                                             y{i}={[-obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd+0.5 -obj.pi.mm.stim.(cd).slctd+0.5 -obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd+0.5 -obj.pi.mm.stim.(cd).slctd+0.5 -obj.pi.mm.stim.(cd).slctd]};
@@ -7230,7 +7094,6 @@ classdef best_application < handle
                 obj.pi.mm.stimulatorSelector=source;
             end
             function cb_pr_mm_duplicateCondition(~,~)
-                disp PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP
                 conditionIndex=length(fieldnames(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll));
                 cond_duplicated_from=['cond' num2str(obj.pi.mm.tab.SelectedChild)];
                 cond_duplicated_to=['cond' num2str(conditionIndex+1)];
@@ -7239,7 +7102,6 @@ classdef best_application < handle
                 obj.func_load_psychmth_par;
             end
             function cb_pr_mm_deleteCondition(~,~)
-                disp PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP
                 
                 condsAll_fieldnames=fieldnames(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll);
                 obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll=rmfield(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll,char(condsAll_fieldnames(obj.pi.mm.tab.SelectedChild)));
@@ -7441,15 +7303,12 @@ classdef best_application < handle
             for i=1:obj.pi.mm.stim.(cd).(st).pulse_count
                 switch char(obj.pi.mm.stim.(cd).(st).pulse_types{1,i})
                     case 'single_pulse'
-                        disp sp
                         x{i}=([i i i+0.15 i+0.15]);
                         y{i}=[-obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd+0.4 -obj.pi.mm.stim.(cd).slctd+0.4 -obj.pi.mm.stim.(cd).slctd];
                     case 'paired_pulse'
-                        disp pp
                         x{i}=[i i i+0.15 i+0.15 i+0.25 i+0.25 i+0.40 i+0.40];
                         y{i}=[-obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd+0.20 -obj.pi.mm.stim.(cd).slctd+0.20 -obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd+0.4 -obj.pi.mm.stim.(cd).slctd+0.4 -obj.pi.mm.stim.(cd).slctd];
                     case 'train'
-                        disp train
                         %                         x(i)=[i i i+0.20 i+0.20 i+0.30 i+0.30 i+0.50 i+0.50 i+0.60 i+0.60 i+0.80 i+0.80];
                         x{i}=[i i i+0.15 i+0.15 i+0.25 i+0.25 i+0.40 i+0.40 i+0.50 i+0.50 i+0.65 i+0.65];
                         %                         y{i}={[-obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd+0.5 -obj.pi.mm.stim.(cd).slctd+0.5 -obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd+0.5 -obj.pi.mm.stim.(cd).slctd+0.5 -obj.pi.mm.stim.(cd).slctd]};
@@ -12801,7 +12660,7 @@ classdef best_application < handle
         end
         %% load defaults and pars
         function func_create_defaults(obj)
-            disp('defaults entered ------------------------------------------------------------------------')
+            
             switch obj.info.event.measure_being_added_original
                 case 'MEP Measurement'
                     obj.default_par_mep;
