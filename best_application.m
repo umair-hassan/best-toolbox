@@ -81,8 +81,8 @@ classdef best_application < handle
             obj.info.event.current_measure={};
             obj.info.session_matrix={};
             
-            % set(fig, 'Position', get(0, 'Screensize'));
-            set(obj.fig.handle,'Units','normalized', 'Position', [0 0 0.8 0.8]);
+%             set(obj.fig.handle, 'Position', get(0, 'Screensize'));
+            set(obj.fig.handle,'Units','normalized', 'Position', [0 0 1 0.97]);
  
             obj.info.pause=0;
             obj.info.session_copy_id=0;
@@ -110,10 +110,10 @@ classdef best_application < handle
             obj.menu.ip.btn=uicontrol( 'Parent', menu_hbox ,'Style','PushButton','String','Close Designer','FontWeight','Bold','Callback', @(~,~)obj.cb_menu_ip );
             obj.menu.rp.btn=uicontrol( 'Parent', menu_hbox ,'Style','PushButton','String','Close Results','FontWeight','Bold','Callback', @(~,~)obj.cb_menu_rp );
             obj.menu.hwcfg.btn=uicontrol( 'Parent', menu_hbox ,'Style','PushButton','String','Open Hardware Config','FontWeight','Bold','Callback', @(~,~)obj.cb_menu_hwcfg ); %TODO1
-            obj.menu.settings.btn=uicontrol( 'Parent', menu_hbox ,'Style','PushButton','String','Open Settings','FontWeight','Bold','Callback', @(~,~)obj.cb_menu_rp ); %TODO1
+%             obj.menu.settings.btn=uicontrol( 'Parent', menu_hbox ,'Style','PushButton','String','Open Settings','FontWeight','Bold','Callback', @(~,~)obj.cb_menu_rp ); %TODO1
             
             uiextras.HBox( 'Parent', menu_hbox,'Spacing', 5, 'Padding', 5 );
-            set(menu_hbox,'Widths',[-0.4 -0.4 -0.9 -0.9 -0.9 -1.2 -1.1 -12]);
+            set(menu_hbox,'Widths',[-0.4 -0.4 -0.9 -0.9 -0.9 -1.2 -12]);
             
             
             obj.info.menu.md=0;
@@ -16150,7 +16150,7 @@ classdef best_application < handle
             else
                 % show the empty box over here against input panel
             end
-            
+            obj.cb_menu_save;
             
         end
         function cb_measure_listbox(obj)
@@ -16225,7 +16225,7 @@ classdef best_application < handle
                 obj.pmd.ProtocolStatus.listbox.String(Prtcl)=obj.par.(obj.info.event.current_session).(regexprep((obj.pmd.lb_measures.listbox.String{1}),' ','_')).ProtocolStatus;
             end
             obj.pmd.ProtocolStatus.listbox.Value=obj.pmd.lb_measures.listbox.Value;
-            
+            obj.cb_menu_save;
             % obj.info.event.current_measure(obj.info.event.current_measure == ' ') = '_';
             
             
@@ -16368,7 +16368,7 @@ classdef best_application < handle
             obj.Date(obj.Date == ' ') = '_';
             obj.Date(obj.Date == '-') = '_';
             obj.Date(obj.Date == ':') = '_';
-            obj.bst.info.matfilstr=['BEST_' obj.Date '_' save_str '.mat'];
+            obj.bst.info.matfilstr=['BEST_' save_str '.mat'];
             obj.bst.info.save_str_runtime=['BEST_' obj.Date '_' save_str '_Autosave.mat'];
             obj.bst.info.save_buffer = matfile(obj.bst.info.matfilstr,'Writable',true);
             obj.bst.info.save_buffer.(save_str)=variable_saved.(save_str);
