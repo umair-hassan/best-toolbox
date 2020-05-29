@@ -154,7 +154,7 @@ classdef best_application < handle
             % drop-down select measure: fourth horizontal row on first panel
             pmd_hbox_slct_mes = uix.HBox( 'Parent', pmd_vbox, 'Spacing', 5, 'Padding', 5  );
             uicontrol( 'Style','text','Parent', pmd_hbox_slct_mes,'String','Select Protocol:','FontSize',11,'HorizontalAlignment','left' ,'Units','normalized');
-            obj.pmd.select_measure.string={'TEP Hotspot Search','rsEEG Measurement','TEP Measurement','Psychometric Threshold Hunting','MEP Dose Response Curve','MEP Measurement','MEP IOC_new','Multimodal Experiment','MEP Hotspot Search','MEP Motor Threshold Hunting','EEG triggered Stimulation','TMS fMRI','TEP Measurement','ERP Measurement','rTMS Intervention'};
+            obj.pmd.select_measure.string={'MEP Hotspot Search','MEP Motor Threshold Hunting','MEP Dose Response Curve','MEP Measurement','rsEEG Measurement','Psychometric Threshold Hunting','rTMS Intervention','TEP Hotspot Search','TEP Measurement','TMS fMRI'};
             obj.pmd.select_measure.popupmenu=uicontrol( 'Style','popupmenu','Parent', pmd_hbox_slct_mes ,'FontSize',11,'String',obj.pmd.select_measure.string);
             obj.pmd.select_measure.btn=uicontrol( 'Parent', pmd_hbox_slct_mes ,'Style','PushButton','String','+','FontWeight','Bold','Callback',@(~,~)obj.cb_measure_add);
             set( pmd_hbox_slct_mes, 'Widths', [120 -0.7 -0.09]);
@@ -3639,7 +3639,7 @@ classdef best_application < handle
                         obj.pi.drc.ResponseFunctionDenominator=uicontrol( 'Style','edit','Parent', expModr4 ,'FontSize',11,'Tag','ResponseFunctionDenominator','callback',@cb_par_saving);
                         expModr4.Widths=[150 -2 30 -2];
                         
-                        expModvBox.Heights=[35 45 35 35 45 35 45 30 35];
+                        expModvBox.Heights=[35 45 45 35 45 30 35];
                         %                         cb_SetHeights
                     case 2
                         expModvBox=uix.VBox( 'Parent', DisplayParametersPanel, 'Spacing', 0, 'Padding', 0  );
@@ -12589,7 +12589,7 @@ classdef best_application < handle
         end
         %% sessions measures listboxes
         function cb_session_add(obj)
-            obj.info.session_no
+            obj.info.session_no;
             obj.info.session_no=obj.info.session_no+1;
             
             session_name_registering=obj.pmd.sess_title.editfield.String;
@@ -12617,7 +12617,7 @@ classdef best_application < handle
             %                             end
             
             
-            session_name=session_name_registering
+            session_name=session_name_registering;
             
             if ~any(strcmp(obj.info.session_matrix,session_name))
                 obj.info.session_matrix(obj.info.session_no)={session_name};
@@ -12665,7 +12665,7 @@ classdef best_application < handle
             measure_name=obj.pmd.select_measure.string(obj.pmd.select_measure.popupmenu.Value);
             obj.data.(obj.info.event.current_session).info.measurement_str_original(1,obj.data.(obj.info.event.current_session).info.measurement_no)=measure_name;
             obj.info.event.measure_being_added_original=measure_name;
-            obj.info.event.measure_being_added_original=obj.info.event.measure_being_added_original{1}
+            obj.info.event.measure_being_added_original=obj.info.event.measure_being_added_original{1};
             measure_EXIST=1;
             
             if  obj.data.(obj.info.event.current_session).info.measurement_no>1
@@ -12693,8 +12693,7 @@ classdef best_application < handle
             obj.cb_measure_listbox
             
             measure_name=[];
-            %% Add Status as Created
-%             obj.pmd.ProtocolStatus.listbox.String{obj.data.(obj.info.event.current_session).info.measurement_no}='created';
+
             
         end
         function cb_session_listbox(obj)
