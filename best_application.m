@@ -3831,10 +3831,7 @@ classdef best_application < handle
             cb_BrainStateParametersPanel
             DisplayParametersPanel=uix.Panel( 'Parent', obj.pi.mep.r0v1,'Padding',5,'Units','normalized','FontSize',8 ,'Units','normalized','Title','Display Parameters' ,'FontWeight','normal','TitlePosition','centertop');
             cb_DisplayParametersPanel
-            expModr2=uiextras.HBox( 'Parent', obj.pi.mep.r0v1,'Spacing', 5, 'Padding', 5 );
-            uicontrol( 'Style','text','Parent', expModr2,'String','Trials Per Condition:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            obj.pi.mep.TrialsPerCondition=uicontrol( 'Style','edit','Parent', expModr2 ,'FontSize',11,'Tag','TrialsPerCondition','callback',@cb_par_saving);
-            expModr2.Widths=[150 -2];
+
             
             %row3
             uicontrol( 'Style','text','Parent', obj.pi.mep.r0v1,'String','','FontSize',11,'HorizontalAlignment','center','Units','normalized');
@@ -3899,13 +3896,13 @@ classdef best_application < handle
                         
                         % row 2
                         mep_panel_row2 = uix.HBox( 'Parent', expModvBox, 'Spacing', 5, 'Padding', 5  );
-                        uicontrol( 'Style','text','Parent', mep_panel_row2,'String','Montage Channels:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-                        obj.pi.mep.MontageChannels=uicontrol( 'Style','edit','Parent', mep_panel_row2 ,'FontSize',11,'Tag','MontageChannels','Callback',@cb_par_saving); %,'Callback',@obj.cb_eegtms_target_muscle
+                        uicontrol( 'Style','text','Parent', mep_panel_row2,'String','Real-Time Channels Montage:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                        obj.pi.mep.RealTimeChannelsMontage=uicontrol( 'Style','edit','Parent', mep_panel_row2 ,'FontSize',11,'Tag','RealTimeChannelsMontage','Callback',@cb_par_saving); %,'Callback',@obj.cb_eegtms_target_muscle
                         set( mep_panel_row2, 'Widths', [150 -2]);
                         
                         mep_panel_row2 = uix.HBox( 'Parent', expModvBox, 'Spacing', 5, 'Padding', 5  );
-                        uicontrol( 'Style','text','Parent', mep_panel_row2,'String','Montage Weights:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-                        obj.pi.mep.MontageWeights=uicontrol( 'Style','edit','Parent', mep_panel_row2 ,'FontSize',11,'Tag','MontageWeights','Callback',@cb_par_saving); %,'Callback',@obj.cb_eegtms_target_muscle
+                        uicontrol( 'Style','text','Parent', mep_panel_row2,'String','Real-Time Channels Weights:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                        obj.pi.mep.RealTimeChannelsWeights=uicontrol( 'Style','edit','Parent', mep_panel_row2 ,'FontSize',11,'Tag','RealTimeChannelsWeights','Callback',@cb_par_saving); %,'Callback',@obj.cb_eegtms_target_muscle
                         set( mep_panel_row2, 'Widths', [150 -2]);
                         
                         mep_panel_row8 = uix.HBox( 'Parent', expModvBox, 'Spacing', 5, 'Padding', 5  );
@@ -3916,7 +3913,9 @@ classdef best_application < handle
                         mep_panel_row8z = uix.HBox( 'Parent', expModvBox, 'Spacing', 5, 'Padding', 5  );
                         uicontrol( 'Style','text','Parent', mep_panel_row8z,'String','Peak Frequency (Hz):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
                         obj.pi.mep.PeakFrequency=uicontrol( 'Style','edit','Parent', mep_panel_row8z ,'FontSize',11,'Tag','PeakFrequency','Callback',@cb_par_saving);
-                        set( mep_panel_row8z, 'Widths', [150 -2]);
+                        obj.pi.mep.ImportPeakFrequencyFromProtocols=uicontrol( 'Style','popupmenu','Parent', mep_panel_row8z ,'String',{'Select'},'FontSize',11,'Tag','Bin','Callback',@set_PeakFrequency);
+                        obj.pi.mep.ImportPeakFrequencyFromProtocols.String=getPeakFrequencyProtocols;
+                        set( mep_panel_row8z, 'Widths', [150 -2 -2]);
                         
                         % row 2
                         mep_panel_row2 = uix.HBox( 'Parent', expModvBox, 'Spacing', 5, 'Padding', 5  );
@@ -3930,12 +3929,7 @@ classdef best_application < handle
                         obj.pi.mep.PhaseTolerance=uicontrol( 'Style','edit','Parent', mep_panel_row2 ,'FontSize',11,'Tag','PhaseTolerance','Callback',@cb_par_saving);
                         set( mep_panel_row2, 'Widths', [150 -2]);
                         
-% %                         mep_panel_13 = uix.HBox( 'Parent', expModvBox, 'Spacing', 5, 'Padding', 5  );
-% %                         uicontrol( 'Style','text','Parent', mep_panel_13,'String','Amp Distribution:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-% %                         obj.pi.mep.AmplitudeLowBound=uicontrol( 'Style','edit','Parent', mep_panel_13 ,'FontSize',11,'Tag','AmplitudeLowBound','Callback',@cb_par_saving);
-% %                         obj.pi.mep.AmplitudeHighBound=uicontrol( 'Style','edit','Parent', mep_panel_13 ,'FontSize',11,'Tag','AmplitudeHighBound','Callback',@cb_par_saving);
-% %                         obj.pi.mep.AmplitudeUnits=uicontrol( 'Style','popupmenu','Parent', mep_panel_13 ,'FontSize',11,'String',{'Percentile','Absolute (micro Volts)'},'Tag','AmplitudeUnits','Callback',@cb_par_saving);
-% %                         set( mep_panel_13, 'Widths', [150 -2 -2 -2]);
+
                         mep_panel_13 = uix.HBox( 'Parent', expModvBox, 'Spacing', 5, 'Padding', 5  );
                         uicontrol( 'Style','text','Parent', mep_panel_13,'String','Amplitude Threshold:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
                         obj.pi.mep.AmplitudeThreshold=uicontrol( 'Style','edit','Parent', mep_panel_13 ,'FontSize',11,'Tag','AmplitudeThreshold','Callback',@cb_par_saving);
@@ -3960,60 +3954,80 @@ classdef best_application < handle
                 switch obj.pi.mep.BrainState.Value
                     case 1
                         expModvBox=uix.VBox( 'Parent', DisplayParametersPanel, 'Spacing', 0, 'Padding', 0  );
+                        
+                        expModr2=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
+                        uicontrol( 'Style','text','Parent', expModr2,'String','Trials Per Condition:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                        obj.pi.mep.TrialsPerCondition=uicontrol( 'Style','edit','Parent', expModr2 ,'FontSize',11,'Tag','TrialsPerCondition','callback',@cb_par_saving);
+                        expModr2.Widths=[150 -2];
+
                         expModr2=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
                         uicontrol( 'Style','text','Parent', expModr2,'String','EMG Display Channels:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
                         obj.pi.mep.EMGDisplayChannels=uicontrol( 'Style','edit','Parent', expModr2 ,'FontSize',11,'Tag','EMGDisplayChannels','callback',@cb_par_saving);
                         expModr2.Widths=[150 -2];
                         
-                        expModr3=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
-                        uicontrol( 'Style','text','Parent', expModr3,'String','MEP Onset (ms):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-                        obj.pi.mep.MEPOnset=uicontrol( 'Style','edit','Parent', expModr3 ,'FontSize',11,'Tag','MEPOnset','callback',@cb_par_saving);
-                        obj.pi.mep.MEPOffset=uicontrol( 'Style','edit','Parent', expModr3 ,'FontSize',11,'Tag','MEPOffset','callback',@cb_par_saving);
-                        expModr3.Widths=[150 -2 -2];
+                        expModr2=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
+                        uicontrol( 'Style','text','Parent', expModr2,'String','MEP Search Window (ms):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                        obj.pi.mep.MEPSearchWindow=uicontrol( 'Style','edit','Parent', expModr2 ,'FontSize',11,'Tag','MEPSearchWindow','callback',@cb_par_saving);
+                        expModr2.Widths=[150 -2];
                         
-                        expModr4=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
-                        uicontrol( 'Style','text','Parent', expModr4,'String','EMG Display Period (ms):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-                        obj.pi.mep.EMGDisplayPeriodPre=uicontrol( 'Style','edit','Parent', expModr4 ,'FontSize',11,'Tag','EMGDisplayPeriodPre','callback',@cb_par_saving);
-                        obj.pi.mep.EMGDisplayPeriodPost=uicontrol( 'Style','edit','Parent', expModr4 ,'FontSize',11,'Tag','EMGDisplayPeriodPost','callback',@cb_par_saving);
-                        expModr4.Widths=[150 -2 -2];
+                        expModr2=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
+                        uicontrol( 'Style','text','Parent', expModr2,'String','EMG Extraction Period (ms):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                        obj.pi.mep.EMGExtractionPeriod=uicontrol( 'Style','edit','Parent', expModr2 ,'FontSize',11,'Tag','EMGExtractionPeriod','callback',@cb_par_saving);
+                        expModr2.Widths=[150 -2];
                         
-                        expModvBox.Heights=[45 45 45];
-                        %                         cb_SetHeights
+                        expModr2=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
+                        uicontrol( 'Style','text','Parent', expModr2,'String','EMG Display Period (ms):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                        obj.pi.mep.EMGXLimit=uicontrol( 'Style','edit','Parent', expModr2 ,'FontSize',11,'Tag','EMGXLimit','callback',@cb_par_saving);
+                        expModr2.Widths=[150 -2];
+                        
+                        expModvBox.Heights=[ 35 45 45 45 45];
                     case 2
                         expModvBox=uix.VBox( 'Parent', DisplayParametersPanel, 'Spacing', 0, 'Padding', 0  );
+                        
+                        expModr2=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
+                        uicontrol( 'Style','text','Parent', expModr2,'String','Trials Per Condition:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                        obj.pi.mep.TrialsPerCondition=uicontrol( 'Style','edit','Parent', expModr2 ,'FontSize',11,'Tag','TrialsPerCondition','callback',@cb_par_saving);
+                        expModr2.Widths=[150 -2];
+
                         expModr2=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
                         uicontrol( 'Style','text','Parent', expModr2,'String','EMG Display Channels:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
                         obj.pi.mep.EMGDisplayChannels=uicontrol( 'Style','edit','Parent', expModr2 ,'FontSize',11,'Tag','EMGDisplayChannels','callback',@cb_par_saving);
                         expModr2.Widths=[150 -2];
                         
-                        expModr3=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
-                        uicontrol( 'Style','text','Parent', expModr3,'String','MEP Onset (ms):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-                        obj.pi.mep.MEPOnset=uicontrol( 'Style','edit','Parent', expModr3 ,'FontSize',11,'Tag','MEPOnset','callback',@cb_par_saving);
-                        obj.pi.mep.MEPOffset=uicontrol( 'Style','edit','Parent', expModr3 ,'FontSize',11,'Tag','MEPOffset','callback',@cb_par_saving);
-                        expModr3.Widths=[150 -2 -2];
+                        expModr2=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
+                        uicontrol( 'Style','text','Parent', expModr2,'String','MEP Search Window (ms):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                        obj.pi.mep.MEPSearchWindow=uicontrol( 'Style','edit','Parent', expModr2 ,'FontSize',11,'Tag','MEPSearchWindow','callback',@cb_par_saving);
+                        expModr2.Widths=[150 -2];
                         
-                        expModr4=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
-                        uicontrol( 'Style','text','Parent', expModr4,'String','EMG Display Period (ms):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-                        obj.pi.mep.EMGDisplayPeriodPre=uicontrol( 'Style','edit','Parent', expModr4 ,'FontSize',11,'Tag','EMGDisplayPeriodPre','callback',@cb_par_saving);
-                        obj.pi.mep.EMGDisplayPeriodPost=uicontrol( 'Style','edit','Parent', expModr4 ,'FontSize',11,'Tag','EMGDisplayPeriodPost','callback',@cb_par_saving);
-                        expModr4.Widths=[150 -2 -2];
+                        expModr2=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
+                        uicontrol( 'Style','text','Parent', expModr2,'String','EMG Extraction Period (ms):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                        obj.pi.mep.EMGExtractionPeriod=uicontrol( 'Style','edit','Parent', expModr2 ,'FontSize',11,'Tag','EMGExtractionPeriod','callback',@cb_par_saving);
+                        expModr2.Widths=[150 -2];
                         
-                        expModr4=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
-                        uicontrol( 'Style','text','Parent', expModr4,'String','EEG Display Period (ms):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-                        obj.pi.mep.EEGDisplayPeriodPre=uicontrol( 'Style','edit','Parent', expModr4 ,'FontSize',11,'Tag','EEGDisplayPeriodPre','callback',@cb_par_saving);
-                        obj.pi.mep.EEGDisplayPeriodPost=uicontrol( 'Style','edit','Parent', expModr4 ,'FontSize',11,'Tag','EEGDisplayPeriodPost','callback',@cb_par_saving);
-                        expModr4.Widths=[150 -2 -2];
+                        expModr2=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
+                        uicontrol( 'Style','text','Parent', expModr2,'String','EMG Display Period (ms):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                        obj.pi.mep.EMGXLimit=uicontrol( 'Style','edit','Parent', expModr2 ,'FontSize',11,'Tag','EMGXLimit','callback',@cb_par_saving);
+                        expModr2.Widths=[150 -2];
                         
-                        expModvBox.Heights=[45 45 45 45];
-                        %                         cb_SetHeights
+                        expModr2=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
+                        uicontrol( 'Style','text','Parent', expModr2,'String','EEG Extraction Period (ms):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                        obj.pi.mep.EEGExtractionPeriod=uicontrol( 'Style','edit','Parent', expModr2 ,'FontSize',11,'Tag','EMGExtractionPeriod','callback',@cb_par_saving);
+                        expModr2.Widths=[150 -2];
+                        
+                        expModr2=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
+                        uicontrol( 'Style','text','Parent', expModr2,'String','EEG Display Period (ms):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                        obj.pi.mep.EEGXLimit=uicontrol( 'Style','edit','Parent', expModr2 ,'FontSize',11,'Tag','EMGXLimit','callback',@cb_par_saving);
+                        expModr2.Widths=[150 -2];                        
+                        
+                        expModvBox.Heights=[35 42 42 42 42 42 42];
                 end
             end
             function cb_SetHeights
                 switch obj.pi.mep.BrainState.Value
                     case 1
-                        set(obj.pi.mep.r0v1,'Heights',[40 90 170 40 -3 55])
+                        set(obj.pi.mep.r0v1,'Heights',[40 90 250 -1 55])
                     case 2
-                        set(obj.pi.mep.r0v1,'Heights',[40 390 220 40 -3 55])
+                        set(obj.pi.mep.r0v1,'Heights',[40 390 310 -1 55])
                 end
             end
             
@@ -4036,6 +4050,43 @@ classdef best_application < handle
                 end
                 table.Enable=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).Enable{1,1};
                 obj.pi.mm.tab.Enable=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).Enable{1,1};
+            end
+            function PeakFrequencyProtocols=getPeakFrequencyProtocols
+                indexPeakFrequencyProtocols= find(strcmp(obj.data.(obj.info.event.current_session).info.measurement_str_original,'rsEEG Measurement'));
+                PeakFrequencyProtocols=obj.data.(obj.info.event.current_session).info.measurement_str_to_listbox(indexPeakFrequencyProtocols);
+                if isempty(PeakFrequencyProtocols)
+                    PeakFrequencyProtocols={'Select'};
+                end
+            end
+            function set_PeakFrequency(source,~)
+                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).ImportPeakFrequencyFromProtocol=regexprep((source.String{source.Value}),' ','_');
+                ImportPeakFrequencyFromProtocol=regexprep((source.String{source.Value}),' ','_');
+                if ~strcmpi(source.String,'Select') % #TODO: what if the source.string is select , then ignore this overall action)
+                    montages=numel(eval(obj.par.(obj.info.event.current_session).(regexprep((source.String{source.Value}),' ','_')).MontageChannels));
+                    if montages>1
+                        for montage=1:montages
+                            montagechannels=eval(obj.par.(obj.info.event.current_session).(regexprep((source.String{source.Value}),' ','_')).MontageChannels);
+                            AllMontages{montage}=erase(char(join(montagechannels{montage})),' ');
+                        end
+                        [indx,tf] = listdlg('PromptString',{'Multiple Montages were found in your selection','Select one Montage.',''},'SelectionMode','single','ListString',AllMontages);
+                        if tf==1
+                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).ImportPeakFrequencyFromMontage=AllMontages{indx};
+                            ImportPeakFrequencyFromMontage=AllMontages{indx};
+                        elseif tf==0
+                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).ImportPeakFrequencyFromMontage=AllMontages{1};
+                            ImportPeakFrequencyFromMontage=AllMontages{1};
+                        end
+                    else
+                        ImportPeakFrequencyFromMontage=erase(char(join(obj.par.(obj.info.event.current_session).(ImportPeakFrequencyFromProtocol).MontageChannels{1})),' ');
+                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).ImportPeakFrequencyFromMontage=ImportPeakFrequencyFromMontage;
+                    end
+                    try
+                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).PeakFrequency=obj.bst.sessions.(obj.info.event.current_session).(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).ImportPeakFrequencyFromProtocol).results.PeakFrequency.(ImportPeakFrequencyFromMontage);
+                    catch
+                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).PeakFrequency='Not Found';
+                    end
+                    obj.pi.mep.PeakFrequency.String=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).PeakFrequency;
+                end
             end
             
         end
@@ -5117,10 +5168,12 @@ classdef best_application < handle
             obj.info.defaults.TrialsPerCondition='10';
             obj.info.defaults.InputDevice=1;
             obj.info.defaults.ITI='4';
-            obj.info.defaults.MontageChannels=['{' ' ''C3'',' ' ''FC1'',' ' ''FC5'',' ' ''CP1'',' ' ''CP5''}'];
-            obj.info.defaults.MontageWeights='1 -0.25 -0.25 -0.25 -0.25';
+            obj.info.defaults.RealTimeChannelsMontage=['{' ' ''C3'',' ' ''FC1'',' ' ''FC5'',' ' ''CP1'',' ' ''CP5''}'];
+            obj.info.defaults.RealTimeChannelsWeights='1 -0.25 -0.25 -0.25 -0.25';
             obj.info.defaults.FrequencyBand=1;
-            obj.info.defaults.PeakFrequency='11';
+            obj.info.defaults.PeakFrequency='';
+            obj.info.defaults.ImportPeakFrequencyFromProtocol='';
+            obj.info.defaults.ImportPeakFrequencyFromMontage='';
             obj.info.defaults.BandPassFilterOrder='80';
             obj.info.defaults.Phase='0';
             obj.info.defaults.PhaseTolerance='pi/40';
@@ -5134,23 +5187,17 @@ classdef best_application < handle
             obj.info.defaults.EMGDisplayPeriodPost='150';
             obj.info.defaults.EEGDisplayPeriodPre='100';
             obj.info.defaults.EEGDisplayPeriodPost='100';
+            obj.info.defaults.MEPSearchWindow='15 50';
+            obj.info.defaults.EMGExtractionPeriod='-50 150';
+            obj.info.defaults.EMGXLimit='-50 150';
+            obj.info.defaults.EEGExtractionPeriod='-100 100';
+            obj.info.defaults.EEGXLimit='-100 100';
             obj.info.defaults.EMGDisplayYLimMax={3000};
             obj.info.defaults.EMGDisplayYLimMin={-3000};
             obj.info.defaults.Protocol={'MEP Measurement Protocol'};
             obj.info.defaults.Handles.UserData='Reserved for Future Use';
             obj.info.defaults.Enable={'on'};
-            
-            %             obj.info.defaults.expMode	=	1	;
-            %             obj.info.defaults.inputDevice	=	1	;
-            %             %             obj.info.defaults.displayChannels	=	eval('{''APBr''}')	;
-            %             obj.info.defaults.trials	=	10	;
-            %             obj.info.defaults.iti	=	4	;
-            %             obj.info.defaults.mepOnset	=	15	;
-            %             obj.info.defaults.mepOffset	=	50	;
-            %             obj.info.defaults.prestim_scope_plt	=	50	;
-            %             obj.info.defaults.poststim_scope_plt	=	150	;
-            %             obj.info.defaults.sub_measure_str	=	'MEP Measurement'	;
-            %             obj.info.defaults.measure_str   =	'Multimodal Experiment'	;
+            obj.info.defaults.ProtocolStatus={'created'};
             si=[30 40 50 60 70 80];
             for idefaults=1:6
                 cond=['cond' num2str(idefaults)];
@@ -5607,13 +5654,13 @@ classdef best_application < handle
                         
                         % row 2
                         mep_panel_row2 = uix.HBox( 'Parent', expModvBox, 'Spacing', 5, 'Padding', 5  );
-                        uicontrol( 'Style','text','Parent', mep_panel_row2,'String','Montage Channels:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-                        obj.pi.drc.MontageChannels=uicontrol( 'Style','edit','Parent', mep_panel_row2 ,'FontSize',11,'Tag','MontageChannels','Callback',@cb_par_saving); %,'Callback',@obj.cb_eegtms_target_muscle
+                        uicontrol( 'Style','text','Parent', mep_panel_row2,'String','Real-Time Channels Montage:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                        obj.pi.drc.RealTimeChannelsMontage=uicontrol( 'Style','edit','Parent', mep_panel_row2 ,'FontSize',11,'Tag','RealTimeChannelsMontage','Callback',@cb_par_saving); %,'Callback',@obj.cb_eegtms_target_muscle
                         set( mep_panel_row2, 'Widths', [150 -2]);
                         
                         mep_panel_row2 = uix.HBox( 'Parent', expModvBox, 'Spacing', 5, 'Padding', 5  );
-                        uicontrol( 'Style','text','Parent', mep_panel_row2,'String','Montage Weights:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-                        obj.pi.drc.MontageWeights=uicontrol( 'Style','edit','Parent', mep_panel_row2 ,'FontSize',11,'Tag','MontageWeights','Callback',@cb_par_saving); %,'Callback',@obj.cb_eegtms_target_muscle
+                        uicontrol( 'Style','text','Parent', mep_panel_row2,'String','Real-Time Channels Weights:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                        obj.pi.drc.RealTimeChannelsWeights=uicontrol( 'Style','edit','Parent', mep_panel_row2 ,'FontSize',11,'Tag','RealTimeChannelsWeights','Callback',@cb_par_saving); %,'Callback',@obj.cb_eegtms_target_muscle
                         set( mep_panel_row2, 'Widths', [150 -2]);
                         
                         mep_panel_row8 = uix.HBox( 'Parent', expModvBox, 'Spacing', 5, 'Padding', 5  );
@@ -5621,10 +5668,12 @@ classdef best_application < handle
                         obj.pi.drc.FrequencyBand=uicontrol( 'Style','popupmenu','Parent', mep_panel_row8 ,'FontSize',11,'String',{'Alpha (8-14 Hz)','Theta (4-7 Hz)','Beta  (15-30 Hz)'},'Tag','FrequencyBand','callback',@cb_par_saving);
                         set( mep_panel_row8, 'Widths', [150 -2]);
                         
-                        mep_panel_row8z = uix.HBox( 'Parent', expModvBox, 'Spacing', 5, 'Padding', 5  );
+                       mep_panel_row8z = uix.HBox( 'Parent', expModvBox, 'Spacing', 5, 'Padding', 5  );
                         uicontrol( 'Style','text','Parent', mep_panel_row8z,'String','Peak Frequency (Hz):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
                         obj.pi.drc.PeakFrequency=uicontrol( 'Style','edit','Parent', mep_panel_row8z ,'FontSize',11,'Tag','PeakFrequency','Callback',@cb_par_saving);
-                        set( mep_panel_row8z, 'Widths', [150 -2]);
+                        obj.pi.drc.ImportPeakFrequencyFromProtocols=uicontrol( 'Style','popupmenu','Parent', mep_panel_row8z ,'String',{'Select'},'FontSize',11,'Tag','Bin','Callback',@set_PeakFrequency);
+                        obj.pi.drc.ImportPeakFrequencyFromProtocols.String=getPeakFrequencyProtocols;
+                        set( mep_panel_row8z, 'Widths', [150 -2 -2]);
                         
                         % row 2
                         mep_panel_row2 = uix.HBox( 'Parent', expModvBox, 'Spacing', 5, 'Padding', 5  );
@@ -5666,28 +5715,26 @@ classdef best_application < handle
                         uicontrol( 'Style','text','Parent', expModr2,'String','Trials Per Condition:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
                         obj.pi.drc.TrialsPerCondition=uicontrol( 'Style','edit','Parent', expModr2 ,'FontSize',11,'Tag','TrialsPerCondition','callback',@cb_par_saving);
                         expModr2.Widths=[150 -2];
-                        
-                        expModr2=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
-                        uicontrol( 'Style','text','Parent', expModr2,'String','EMG Target  Channels:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-                        obj.pi.drc.EMGTargetChannels=uicontrol( 'Style','edit','Parent', expModr2 ,'FontSize',11,'Tag','EMGTargetChannels','callback',@cb_par_saving);
-                        expModr2.Widths=[150 -2];
-                        
+
                         expModr2=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
                         uicontrol( 'Style','text','Parent', expModr2,'String','EMG Display Channels:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
                         obj.pi.drc.EMGDisplayChannels=uicontrol( 'Style','edit','Parent', expModr2 ,'FontSize',11,'Tag','EMGDisplayChannels','callback',@cb_par_saving);
                         expModr2.Widths=[150 -2];
                         
-                        expModr3=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
-                        uicontrol( 'Style','text','Parent', expModr3,'String','MEP Onset (ms):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-                        obj.pi.drc.MEPOnset=uicontrol( 'Style','edit','Parent', expModr3 ,'FontSize',11,'Tag','MEPOnset','callback',@cb_par_saving);
-                        obj.pi.drc.MEPOffset=uicontrol( 'Style','edit','Parent', expModr3 ,'FontSize',11,'Tag','MEPOffset','callback',@cb_par_saving);
-                        expModr3.Widths=[150 -2 -2];
+                        expModr2=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
+                        uicontrol( 'Style','text','Parent', expModr2,'String','MEP Search Window (ms):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                        obj.pi.drc.MEPSearchWindow=uicontrol( 'Style','edit','Parent', expModr2 ,'FontSize',11,'Tag','MEPSearchWindow','callback',@cb_par_saving);
+                        expModr2.Widths=[150 -2];
                         
-                        expModr4=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
-                        uicontrol( 'Style','text','Parent', expModr4,'String','EMG Display Period (ms):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-                        obj.pi.drc.EMGDisplayPeriodPre=uicontrol( 'Style','edit','Parent', expModr4 ,'FontSize',11,'Tag','EMGDisplayPeriodPre','callback',@cb_par_saving);
-                        obj.pi.drc.EMGDisplayPeriodPost=uicontrol( 'Style','edit','Parent', expModr4 ,'FontSize',11,'Tag','EMGDisplayPeriodPost','callback',@cb_par_saving);
-                        expModr4.Widths=[150 -2 -2];
+                        expModr2=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
+                        uicontrol( 'Style','text','Parent', expModr2,'String','EMG Extraction Period (ms):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                        obj.pi.drc.EMGExtractionPeriod=uicontrol( 'Style','edit','Parent', expModr2 ,'FontSize',11,'Tag','EMGExtractionPeriod','callback',@cb_par_saving);
+                        expModr2.Widths=[150 -2];
+                        
+                        expModr2=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
+                        uicontrol( 'Style','text','Parent', expModr2,'String','EMG Display Period (ms):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                        obj.pi.drc.EMGXLimit=uicontrol( 'Style','edit','Parent', expModr2 ,'FontSize',11,'Tag','EMGXLimit','callback',@cb_par_saving);
+                        expModr2.Widths=[150 -2];
                         
                         expModr1=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
                         uicontrol( 'Style','text','Parent', expModr1,'String','Dose Function:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
@@ -5701,7 +5748,7 @@ classdef best_application < handle
                         obj.pi.drc.ResponseFunctionDenominator=uicontrol( 'Style','edit','Parent', expModr4 ,'FontSize',11,'Tag','ResponseFunctionDenominator','callback',@cb_par_saving);
                         expModr4.Widths=[150 -2 30 -2];
                         
-                        expModvBox.Heights=[35 45 45 35 45 30 35];
+                        expModvBox.Heights=[35 45 35 35 45 35 45 30 35];
                         %                         cb_SetHeights
                     case 2
                         expModvBox=uix.VBox( 'Parent', DisplayParametersPanel, 'Spacing', 0, 'Padding', 0  );
@@ -5710,34 +5757,36 @@ classdef best_application < handle
                         uicontrol( 'Style','text','Parent', expModr2,'String','Trials Per Condition:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
                         obj.pi.drc.TrialsPerCondition=uicontrol( 'Style','edit','Parent', expModr2 ,'FontSize',11,'Tag','TrialsPerCondition','callback',@cb_par_saving);
                         expModr2.Widths=[150 -2];
-                        
-                        expModr2=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
-                        uicontrol( 'Style','text','Parent', expModr2,'String','EMG Target  Channels:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-                        obj.pi.drc.EMGTargetChannels=uicontrol( 'Style','edit','Parent', expModr2 ,'FontSize',11,'Tag','EMGTargetChannels','callback',@cb_par_saving);
-                        expModr2.Widths=[150 -2];
-                        
+
                         expModr2=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
                         uicontrol( 'Style','text','Parent', expModr2,'String','EMG Display Channels:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
                         obj.pi.drc.EMGDisplayChannels=uicontrol( 'Style','edit','Parent', expModr2 ,'FontSize',11,'Tag','EMGDisplayChannels','callback',@cb_par_saving);
                         expModr2.Widths=[150 -2];
                         
-                        expModr3=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
-                        uicontrol( 'Style','text','Parent', expModr3,'String','MEP Onset (ms):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-                        obj.pi.drc.MEPOnset=uicontrol( 'Style','edit','Parent', expModr3 ,'FontSize',11,'Tag','MEPOnset','callback',@cb_par_saving);
-                        obj.pi.drc.MEPOffset=uicontrol( 'Style','edit','Parent', expModr3 ,'FontSize',11,'Tag','MEPOffset','callback',@cb_par_saving);
-                        expModr3.Widths=[150 -2 -2];
+                        expModr2=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
+                        uicontrol( 'Style','text','Parent', expModr2,'String','MEP Search Window (ms):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                        obj.pi.drc.MEPSearchWindow=uicontrol( 'Style','edit','Parent', expModr2 ,'FontSize',11,'Tag','MEPSearchWindow','callback',@cb_par_saving);
+                        expModr2.Widths=[150 -2];
                         
-                        expModr4=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
-                        uicontrol( 'Style','text','Parent', expModr4,'String','EMG Display Period (ms):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-                        obj.pi.drc.EMGDisplayPeriodPre=uicontrol( 'Style','edit','Parent', expModr4 ,'FontSize',11,'Tag','EMGDisplayPeriodPre','callback',@cb_par_saving);
-                        obj.pi.drc.EMGDisplayPeriodPost=uicontrol( 'Style','edit','Parent', expModr4 ,'FontSize',11,'Tag','EMGDisplayPeriodPost','callback',@cb_par_saving);
-                        expModr4.Widths=[150 -2 -2];
+                        expModr2=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
+                        uicontrol( 'Style','text','Parent', expModr2,'String','EMG Extraction Period (ms):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                        obj.pi.drc.EMGExtractionPeriod=uicontrol( 'Style','edit','Parent', expModr2 ,'FontSize',11,'Tag','EMGExtractionPeriod','callback',@cb_par_saving);
+                        expModr2.Widths=[150 -2];
                         
-                        expModr4=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
-                        uicontrol( 'Style','text','Parent', expModr4,'String','EEG Display Period (ms):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-                        obj.pi.drc.EEGDisplayPeriodPre=uicontrol( 'Style','edit','Parent', expModr4 ,'FontSize',11,'Tag','EEGDisplayPeriodPre','callback',@cb_par_saving);
-                        obj.pi.drc.EEGDisplayPeriodPost=uicontrol( 'Style','edit','Parent', expModr4 ,'FontSize',11,'Tag','EEGDisplayPeriodPost','callback',@cb_par_saving);
-                        expModr4.Widths=[150 -2 -2];
+                        expModr2=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
+                        uicontrol( 'Style','text','Parent', expModr2,'String','EMG Display Period (ms):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                        obj.pi.drc.EMGXLimit=uicontrol( 'Style','edit','Parent', expModr2 ,'FontSize',11,'Tag','EMGXLimit','callback',@cb_par_saving);
+                        expModr2.Widths=[150 -2];
+                        
+                        expModr2=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
+                        uicontrol( 'Style','text','Parent', expModr2,'String','EEG Extraction Period (ms):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                        obj.pi.drc.EEGExtractionPeriod=uicontrol( 'Style','edit','Parent', expModr2 ,'FontSize',11,'Tag','EMGExtractionPeriod','callback',@cb_par_saving);
+                        expModr2.Widths=[150 -2];
+                        
+                        expModr2=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
+                        uicontrol( 'Style','text','Parent', expModr2,'String','EEG Display Period (ms):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                        obj.pi.drc.EEGXLimit=uicontrol( 'Style','edit','Parent', expModr2 ,'FontSize',11,'Tag','EMGXLimit','callback',@cb_par_saving);
+                        expModr2.Widths=[150 -2];                      
                         
                         expModr1=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
                         uicontrol( 'Style','text','Parent', expModr1,'String','Dose Function:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
@@ -5751,8 +5800,7 @@ classdef best_application < handle
                         obj.pi.drc.ResponseFunctionDenominator=uicontrol( 'Style','edit','Parent', expModr4 ,'FontSize',11,'Tag','ResponseFunctionDenominator','callback',@cb_par_saving);
                         expModr4.Widths=[150 -2 30 -2];
                         
-                        expModvBox.Heights=[35 45 45 35 45 45 30 35];
-                        %                         cb_SetHeights
+                        expModvBox.Heights=[35 35 35 45 45 35 45 45 30 35];
                 end
             end
             function cb_SetHeights
@@ -5772,7 +5820,43 @@ classdef best_application < handle
                     obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(source.Tag)=source.String;
                 end
             end
-            
+            function PeakFrequencyProtocols=getPeakFrequencyProtocols
+                indexPeakFrequencyProtocols= find(strcmp(obj.data.(obj.info.event.current_session).info.measurement_str_original,'rsEEG Measurement'));
+                PeakFrequencyProtocols=obj.data.(obj.info.event.current_session).info.measurement_str_to_listbox(indexPeakFrequencyProtocols);
+                if isempty(PeakFrequencyProtocols)
+                    PeakFrequencyProtocols={'Select'};
+                end
+            end
+            function set_PeakFrequency(source,~)
+                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).ImportPeakFrequencyFromProtocol=regexprep((source.String{source.Value}),' ','_');
+                ImportPeakFrequencyFromProtocol=regexprep((source.String{source.Value}),' ','_');
+                if ~strcmpi(source.String,'Select') % #TODO: what if the source.string is select , then ignore this overall action)
+                    montages=numel(eval(obj.par.(obj.info.event.current_session).(regexprep((source.String{source.Value}),' ','_')).MontageChannels));
+                    if montages>1
+                        for montage=1:montages
+                            montagechannels=eval(obj.par.(obj.info.event.current_session).(regexprep((source.String{source.Value}),' ','_')).MontageChannels);
+                            AllMontages{montage}=erase(char(join(montagechannels{montage})),' ');
+                        end
+                        [indx,tf] = listdlg('PromptString',{'Multiple Montages were found in your selection','Select one Montage.',''},'SelectionMode','single','ListString',AllMontages);
+                        if tf==1
+                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).ImportPeakFrequencyFromMontage=AllMontages{indx};
+                            ImportPeakFrequencyFromMontage=AllMontages{indx};
+                        elseif tf==0
+                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).ImportPeakFrequencyFromMontage=AllMontages{1};
+                            ImportPeakFrequencyFromMontage=AllMontages{1};
+                        end
+                    else
+                        ImportPeakFrequencyFromMontage=erase(char(join(obj.par.(obj.info.event.current_session).(ImportPeakFrequencyFromProtocol).MontageChannels{1})),' ');
+                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).ImportPeakFrequencyFromMontage=ImportPeakFrequencyFromMontage;
+                    end
+                    try
+                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).PeakFrequency=obj.bst.sessions.(obj.info.event.current_session).(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).ImportPeakFrequencyFromProtocol).results.PeakFrequency.(ImportPeakFrequencyFromMontage);
+                    catch
+                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).PeakFrequency='Not Found';
+                    end
+                    obj.pi.drc.PeakFrequency.String=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).PeakFrequency;
+                end
+            end
             
         end %% END obj.pi_drc
         function cb_pi_drc_StimulationParametersTable(obj)
@@ -6853,10 +6937,12 @@ classdef best_application < handle
             obj.info.defaults.TrialsPerCondition='10';
             obj.info.defaults.InputDevice=1;
             obj.info.defaults.ITI='4';
-            obj.info.defaults.MontageChannels=['{' ' ''C3'',' ' ''FC1'',' ' ''FC5'',' ' ''CP1'',' ' ''CP5''}'];
-            obj.info.defaults.MontageWeights='1 -0.25 -0.25 -0.25 -0.25';
+            obj.info.defaults.RealTimeChannelsMontage=['{' ' ''C3'',' ' ''FC1'',' ' ''FC5'',' ' ''CP1'',' ' ''CP5''}'];
+            obj.info.defaults.RealTimeChannelsWeights='1 -0.25 -0.25 -0.25 -0.25';
             obj.info.defaults.FrequencyBand=1;
-            obj.info.defaults.PeakFrequency='11';
+            obj.info.defaults.PeakFrequency='';
+            obj.info.defaults.ImportPeakFrequencyFromProtocol='';
+            obj.info.defaults.ImportPeakFrequencyFromMontage='';
             obj.info.defaults.BandPassFilterOrder='80';
             obj.info.defaults.Phase='0';
             obj.info.defaults.PhaseTolerance='pi/40';
@@ -6871,6 +6957,11 @@ classdef best_application < handle
             obj.info.defaults.EMGDisplayPeriodPost='150';
             obj.info.defaults.EEGDisplayPeriodPre='100';
             obj.info.defaults.EEGDisplayPeriodPost='100';
+            obj.info.defaults.MEPSearchWindow='15 50';
+            obj.info.defaults.EMGExtractionPeriod='-50 150';
+            obj.info.defaults.EMGXLimit='-50 150';
+            obj.info.defaults.EEGExtractionPeriod='-100 100';
+            obj.info.defaults.EEGXLimit='-100 100';
             obj.info.defaults.DoseFunction=1;
             obj.info.defaults.ResponseFunctionNumerator='1';
             obj.info.defaults.ResponseFunctionDenominator='1';
@@ -6879,6 +6970,7 @@ classdef best_application < handle
             obj.info.defaults.Protocol={'MEP Dose Response Curve Protocol'};
             obj.info.defaults.Handles.UserData='Reserved for Future Use';
             obj.info.defaults.Enable={'on'};
+            obj.info.defaults.ProtocolStatus={'created'};
             si=[30 40 50 60 70 80];
             for idefaults=1:6
                 cond=['cond' num2str(idefaults)];
@@ -8435,6 +8527,7 @@ classdef best_application < handle
             obj.info.defaults.NoOfTrialsToAverage='10';
             obj.info.defaults.MotorThreshold='NaN';
             obj.info.defaults.ThresholdMethod=1;
+            obj.info.defaults.ProtocolStatus={'created'};
             si=[30];
             for idefaults=1:numel(si)
                 cond=['cond' num2str(idefaults)];
@@ -8559,15 +8652,15 @@ classdef best_application < handle
                         obj.pi.psychmth.InputDevice=uicontrol( 'Style','popupmenu','Parent', expModr1 ,'FontSize',11,'String',str_in_device,'Tag','InputDevice','callback',@cb_par_saving);
                         expModr1.Widths=[150 -2];
                         
-                        % row 2
+                         % row 2
                         mep_panel_row2 = uix.HBox( 'Parent', expModvBox, 'Spacing', 5, 'Padding', 5  );
-                        uicontrol( 'Style','text','Parent', mep_panel_row2,'String','Montage Channels:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-                        obj.pi.psychmth.MontageChannels=uicontrol( 'Style','edit','Parent', mep_panel_row2 ,'FontSize',11,'Tag','MontageChannels','Callback',@cb_par_saving); %,'Callback',@obj.cb_eegtms_target_muscle
+                        uicontrol( 'Style','text','Parent', mep_panel_row2,'String','Real-Time Channels Montage:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                        obj.pi.psychmth.RealTimeChannelsMontage=uicontrol( 'Style','edit','Parent', mep_panel_row2 ,'FontSize',11,'Tag','RealTimeChannelsMontage','Callback',@cb_par_saving); %,'Callback',@obj.cb_eegtms_target_muscle
                         set( mep_panel_row2, 'Widths', [150 -2]);
                         
                         mep_panel_row2 = uix.HBox( 'Parent', expModvBox, 'Spacing', 5, 'Padding', 5  );
-                        uicontrol( 'Style','text','Parent', mep_panel_row2,'String','Montage Weights:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-                        obj.pi.psychmth.MontageWeights=uicontrol( 'Style','edit','Parent', mep_panel_row2 ,'FontSize',11,'Tag','MontageWeights','Callback',@cb_par_saving); %,'Callback',@obj.cb_eegtms_target_muscle
+                        uicontrol( 'Style','text','Parent', mep_panel_row2,'String','Real-Time Channels Weights:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                        obj.pi.psychmth.RealTimeChannelsWeights=uicontrol( 'Style','edit','Parent', mep_panel_row2 ,'FontSize',11,'Tag','RealTimeChannelsWeights','Callback',@cb_par_saving); %,'Callback',@obj.cb_eegtms_target_muscle
                         set( mep_panel_row2, 'Widths', [150 -2]);
                         
                         mep_panel_row8 = uix.HBox( 'Parent', expModvBox, 'Spacing', 5, 'Padding', 5  );
@@ -8575,10 +8668,12 @@ classdef best_application < handle
                         obj.pi.psychmth.FrequencyBand=uicontrol( 'Style','popupmenu','Parent', mep_panel_row8 ,'FontSize',11,'String',{'Alpha (8-14 Hz)','Theta (4-7 Hz)','Beta  (15-30 Hz)'},'Tag','FrequencyBand','callback',@cb_par_saving);
                         set( mep_panel_row8, 'Widths', [150 -2]);
                         
-                        mep_panel_row8z = uix.HBox( 'Parent', expModvBox, 'Spacing', 5, 'Padding', 5  );
+                       mep_panel_row8z = uix.HBox( 'Parent', expModvBox, 'Spacing', 5, 'Padding', 5  );
                         uicontrol( 'Style','text','Parent', mep_panel_row8z,'String','Peak Frequency (Hz):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
                         obj.pi.psychmth.PeakFrequency=uicontrol( 'Style','edit','Parent', mep_panel_row8z ,'FontSize',11,'Tag','PeakFrequency','Callback',@cb_par_saving);
-                        set( mep_panel_row8z, 'Widths', [150 -2]);
+                        obj.pi.psychmth.ImportPeakFrequencyFromProtocols=uicontrol( 'Style','popupmenu','Parent', mep_panel_row8z ,'String',{'Select'},'FontSize',11,'Tag','Bin','Callback',@set_PeakFrequency);
+                        obj.pi.psychmth.ImportPeakFrequencyFromProtocols.String=getPeakFrequencyProtocols;
+                        set( mep_panel_row8z, 'Widths', [150 -2 -2]);
                         
                         % row 2
                         mep_panel_row2 = uix.HBox( 'Parent', expModvBox, 'Spacing', 5, 'Padding', 5  );
@@ -8591,13 +8686,7 @@ classdef best_application < handle
                         uicontrol( 'Style','text','Parent', mep_panel_row2,'String','Phase Tolerance:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
                         obj.pi.psychmth.PhaseTolerance=uicontrol( 'Style','edit','Parent', mep_panel_row2 ,'FontSize',11,'Tag','PhaseTolerance','Callback',@cb_par_saving);
                         set( mep_panel_row2, 'Widths', [150 -2]);
-                        
-% %                         mep_panel_13 = uix.HBox( 'Parent', expModvBox, 'Spacing', 5, 'Padding', 5  );
-% %                         uicontrol( 'Style','text','Parent', mep_panel_13,'String','Amp Distribution:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-% %                         obj.pi.psychmth.AmplitudeLowBound=uicontrol( 'Style','edit','Parent', mep_panel_13 ,'FontSize',11,'Tag','AmplitudeLowBound','Callback',@cb_par_saving);
-% %                         obj.pi.psychmth.AmplitudeHighBound=uicontrol( 'Style','edit','Parent', mep_panel_13 ,'FontSize',11,'Tag','AmplitudeHighBound','Callback',@cb_par_saving);
-% %                         obj.pi.psychmth.AmplitudeUnits=uicontrol( 'Style','popupmenu','Parent', mep_panel_13 ,'FontSize',11,'String',{'Percentile','Absolute (micro Volts)'},'Tag','AmplitudeUnits','Callback',@cb_par_saving);
-% %                         set( mep_panel_13, 'Widths', [150 -2 -2 -2]);
+
                         mep_panel_13 = uix.HBox( 'Parent', expModvBox, 'Spacing', 5, 'Padding', 5  );
                         uicontrol( 'Style','text','Parent', mep_panel_13,'String','Amplitude Threshold:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
                         obj.pi.psychmth.AmplitudeThreshold=uicontrol( 'Style','edit','Parent', mep_panel_13 ,'FontSize',11,'Tag','AmplitudeThreshold','Callback',@cb_par_saving);
@@ -8646,14 +8735,18 @@ classdef best_application < handle
                         obj.pi.psychmth.TrialsPerCondition=uicontrol( 'Style','edit','Parent', expModr2 ,'FontSize',11,'Tag','TrialsPerCondition','callback',@cb_par_saving);
                         expModr2.Widths=[150 -2];
                         
-                        expModr4=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
-                        uicontrol( 'Style','text','Parent', expModr4,'String','EEG Display Period (ms):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-                        obj.pi.psychmth.EEGDisplayPeriodPre=uicontrol( 'Style','edit','Parent', expModr4 ,'FontSize',11,'Tag','EEGDisplayPeriodPre','callback',@cb_par_saving);
-                        obj.pi.psychmth.EEGDisplayPeriodPost=uicontrol( 'Style','edit','Parent', expModr4 ,'FontSize',11,'Tag','EEGDisplayPeriodPost','callback',@cb_par_saving);
-                        expModr4.Widths=[150 -2 -2];
+                        expModr2=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
+                        uicontrol( 'Style','text','Parent', expModr2,'String','EEG Extraction Period (ms):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                        obj.pi.psychmth.EEGExtractionPeriod=uicontrol( 'Style','edit','Parent', expModr2 ,'FontSize',11,'Tag','EMGExtractionPeriod','callback',@cb_par_saving);
+                        expModr2.Widths=[150 -2];
+                        
+                        expModr2=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
+                        uicontrol( 'Style','text','Parent', expModr2,'String','EEG Display Period (ms):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                        obj.pi.psychmth.EEGXLimit=uicontrol( 'Style','edit','Parent', expModr2 ,'FontSize',11,'Tag','EMGXLimit','callback',@cb_par_saving);
+                        expModr2.Widths=[150 -2];                 
                         
                         
-                        expModvBox.Heights=[30 35 45];
+                        expModvBox.Heights=[30 35 45 45];
                 end
             end
             function cb_SetHeights
@@ -8673,7 +8766,43 @@ classdef best_application < handle
                     obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(source.Tag)=source.String;
                 end
             end
-            
+            function PeakFrequencyProtocols=getPeakFrequencyProtocols
+                indexPeakFrequencyProtocols= find(strcmp(obj.data.(obj.info.event.current_session).info.measurement_str_original,'rsEEG Measurement'));
+                PeakFrequencyProtocols=obj.data.(obj.info.event.current_session).info.measurement_str_to_listbox(indexPeakFrequencyProtocols);
+                if isempty(PeakFrequencyProtocols)
+                    PeakFrequencyProtocols={'Select'};
+                end
+            end
+            function set_PeakFrequency(source,~)
+                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).ImportPeakFrequencyFromProtocol=regexprep((source.String{source.Value}),' ','_');
+                ImportPeakFrequencyFromProtocol=regexprep((source.String{source.Value}),' ','_');
+                if ~strcmpi(source.String,'Select') % #TODO: what if the source.string is select , then ignore this overall action)
+                    montages=numel(eval(obj.par.(obj.info.event.current_session).(regexprep((source.String{source.Value}),' ','_')).MontageChannels));
+                    if montages>1
+                        for montage=1:montages
+                            montagechannels=eval(obj.par.(obj.info.event.current_session).(regexprep((source.String{source.Value}),' ','_')).MontageChannels);
+                            AllMontages{montage}=erase(char(join(montagechannels{montage})),' ');
+                        end
+                        [indx,tf] = listdlg('PromptString',{'Multiple Montages were found in your selection','Select one Montage.',''},'SelectionMode','single','ListString',AllMontages);
+                        if tf==1
+                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).ImportPeakFrequencyFromMontage=AllMontages{indx};
+                            ImportPeakFrequencyFromMontage=AllMontages{indx};
+                        elseif tf==0
+                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).ImportPeakFrequencyFromMontage=AllMontages{1};
+                            ImportPeakFrequencyFromMontage=AllMontages{1};
+                        end
+                    else
+                        ImportPeakFrequencyFromMontage=erase(char(join(obj.par.(obj.info.event.current_session).(ImportPeakFrequencyFromProtocol).MontageChannels{1})),' ');
+                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).ImportPeakFrequencyFromMontage=ImportPeakFrequencyFromMontage;
+                    end
+                    try
+                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).PeakFrequency=obj.bst.sessions.(obj.info.event.current_session).(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).ImportPeakFrequencyFromProtocol).results.PeakFrequency.(ImportPeakFrequencyFromMontage);
+                    catch
+                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).PeakFrequency='Not Found';
+                    end
+                    obj.pi.psychmth.PeakFrequency.String=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).PeakFrequency;
+                end
+            end
             
         end 
         function cb_pr_psychmth_StimulationParametersTable(obj)
@@ -9838,10 +9967,12 @@ classdef best_application < handle
             obj.info.defaults.TrialsPerCondition='40';
             obj.info.defaults.InputDevice=1;
             obj.info.defaults.ITI='4';
-            obj.info.defaults.MontageChannels=['{' ' ''C3'',' ' ''FC1'',' ' ''FC5'',' ' ''CP1'',' ' ''CP5''}'];
-            obj.info.defaults.MontageWeights='1 -0.25 -0.25 -0.25 -0.25';
+            obj.info.defaults.RealTimeChannelsMontage=['{' ' ''C3'',' ' ''FC1'',' ' ''FC5'',' ' ''CP1'',' ' ''CP5''}'];
+            obj.info.defaults.RealTimeChannelsWeights='1 -0.25 -0.25 -0.25 -0.25';
             obj.info.defaults.FrequencyBand=1;
-            obj.info.defaults.PeakFrequency='11';
+            obj.info.defaults.PeakFrequency='';
+            obj.info.defaults.ImportPeakFrequencyFromProtocol='';
+            obj.info.defaults.ImportPeakFrequencyFromMontage='';
             obj.info.defaults.BandPassFilterOrder='80';
             obj.info.defaults.Phase='0';
             obj.info.defaults.PhaseTolerance='pi/40';
@@ -9850,12 +9981,15 @@ classdef best_application < handle
             obj.info.defaults.AmplitudeAssignmentPeriod='4';
             obj.info.defaults.EEGDisplayPeriodPre='100';
             obj.info.defaults.EEGDisplayPeriodPost='100';
+            obj.info.defaults.EEGExtractionPeriod='-100 100';
+            obj.info.defaults.EEGXLimit='-100 100';
             obj.info.defaults.Protocol={'Psychometric Threshold Hunting Protocol'};
             obj.info.defaults.Handles.UserData='Reserved for Future Use';
             obj.info.defaults.Enable={'on'};
             obj.info.defaults.NoOfTrialsToAverage='10';
             obj.info.defaults.PsychometricThreshold='NaN';
             obj.info.defaults.ThresholdMethod=1;
+            obj.info.defaults.ProtocolStatus={'created'};
             si=[1];
             for idefaults=1:numel(si)
                 cond=['cond' num2str(idefaults)];
@@ -11150,6 +11284,7 @@ classdef best_application < handle
             obj.info.defaults.Protocol={'rTMS Intervention Protocol'};
             obj.info.defaults.Handles.UserData='Reserved for Future Use';
             obj.info.defaults.Enable={'on'};
+            obj.info.defaults.ProtocolStatus={'created'};
             si=70;
             for idefaults=1:numel(si)
                 cond=['cond' num2str(idefaults)];
@@ -11308,6 +11443,7 @@ classdef best_application < handle
             obj.info.defaults.Protocol={'rs EEG Measurement Protocol'};
             obj.info.defaults.Handles.UserData='Reserved for Future Use';
             obj.info.defaults.Enable={'on'};
+            obj.info.defaults.ProtocolStatus={'created'};
             obj.par.(obj.info.event.current_session).(obj.info.event.measure_being_added)=obj.info.defaults;
         end
         function func_load_rseeg_par(obj)
@@ -11458,6 +11594,7 @@ classdef best_application < handle
             obj.info.defaults.Protocol={'TEP Hotspot Search Protocol'};
             obj.info.defaults.Handles.UserData='Reserved for Future Use';
             obj.info.defaults.Enable={'on'};
+            obj.info.defaults.ProtocolStatus={'created'};
             si=NaN;
             for idefaults=1:numel(si)
                 cond=['cond' num2str(idefaults)];
@@ -12809,6 +12946,7 @@ classdef best_application < handle
             obj.info.defaults.Protocol={'tep Measurement Protocol'};
             obj.info.defaults.Handles.UserData='Reserved for Future Use';
             obj.info.defaults.Enable={'on'};
+            obj.info.defaults.ProtocolStatus={'created'};
             
             %             obj.info.defaults.expMode	=	1	;
             %             obj.info.defaults.inputDevice	=	1	;
@@ -13448,6 +13586,7 @@ classdef best_application < handle
             obj.info.defaults.units_mtEnable='on';
             obj.info.defaults.mt_mvEnable='on';
             obj.info.defaults.mt_starting_stim_intenEnable='on';
+            obj.info.defaults.ProtocolStatus={'created'};
             obj.par.(obj.info.event.current_session).(obj.info.event.measure_being_added)=obj.info.defaults;
         end
         %% Exception Handling
