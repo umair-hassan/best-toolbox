@@ -3503,7 +3503,7 @@ classdef best_application < handle
             
             obj.pi.mm.tab = uiextras.TabPanel( 'Parent', obj.pi.drc.r0v2, 'Padding', 5 );
             obj.pi.drc.r0v2.Heights=[200 -1];
-            set(obj.pi.drc.r0,'Widths',[-1.45 -3]);
+            set(obj.pi.drc.r0,'Widths',[-1.75 -3]);
             obj.pi.drc.cond.no=0;
             obj.cb_pi_drc_Nconditions;
             
@@ -3639,8 +3639,7 @@ classdef best_application < handle
                         obj.pi.drc.ResponseFunctionDenominator=uicontrol( 'Style','edit','Parent', expModr4 ,'FontSize',11,'Tag','ResponseFunctionDenominator','callback',@cb_par_saving);
                         expModr4.Widths=[150 -2 30 -2];
                         
-                        expModvBox.Heights=[35 45 45 35 45 30 35];
-                        %                         cb_SetHeights
+                        expModvBox.Heights=[35 45 45 45 45 30 35];
                     case 2
                         expModvBox=uix.VBox( 'Parent', DisplayParametersPanel, 'Spacing', 0, 'Padding', 0  );
                         
@@ -3691,7 +3690,7 @@ classdef best_application < handle
                         obj.pi.drc.ResponseFunctionDenominator=uicontrol( 'Style','edit','Parent', expModr4 ,'FontSize',11,'Tag','ResponseFunctionDenominator','callback',@cb_par_saving);
                         expModr4.Widths=[150 -2 30 -2];
                         
-                        expModvBox.Heights=[35 35 35 45 45 35 45 45 30 35];
+                        expModvBox.Heights=[35 35 45 45 45 45 45 30 35];
                 end
             end
             function cb_SetHeights
@@ -4975,7 +4974,7 @@ classdef best_application < handle
                     case 2
                         expModvBox=uix.VBox( 'Parent', BrainStateParametersPanel, 'Spacing', 0, 'Padding', 0  );
                         %row1
-                        expModr1=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
+                        expModr1=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 2 );
                         uicontrol( 'Style','text','Parent', expModr1,'String','Input Device:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
                         str_in_device(1)= (cellstr('Select'));
                         str_in_device(2:numel(obj.hw.device_added1_listbox.string)+1)=obj.hw.device_added1_listbox.string;
@@ -4983,57 +4982,56 @@ classdef best_application < handle
                         expModr1.Widths=[150 -2];
                         
                         % row 2
-                        mep_panel_row2 = uix.HBox( 'Parent', expModvBox, 'Spacing', 5, 'Padding', 5  );
+                        mep_panel_row2 = uix.HBox( 'Parent', expModvBox, 'Spacing', 5, 'Padding', 2  );
                         uicontrol( 'Style','text','Parent', mep_panel_row2,'String','Real-Time Channels Montage:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
                         obj.pi.mth.RealTimeChannelsMontage=uicontrol( 'Style','edit','Parent', mep_panel_row2 ,'FontSize',11,'Tag','RealTimeChannelsMontage','Callback',@cb_par_saving); %,'Callback',@obj.cb_eegtms_target_muscle
                         set( mep_panel_row2, 'Widths', [150 -2]);
                         
-                        mep_panel_row2 = uix.HBox( 'Parent', expModvBox, 'Spacing', 5, 'Padding', 5  );
+                        mep_panel_row2 = uix.HBox( 'Parent', expModvBox, 'Spacing', 5, 'Padding', 2  );
                         uicontrol( 'Style','text','Parent', mep_panel_row2,'String','Real-Time Channels Weights:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
                         obj.pi.mth.RealTimeChannelsWeights=uicontrol( 'Style','edit','Parent', mep_panel_row2 ,'FontSize',11,'Tag','RealTimeChannelsWeights','Callback',@cb_par_saving); %,'Callback',@obj.cb_eegtms_target_muscle
                         set( mep_panel_row2, 'Widths', [150 -2]);
                         
-                        mep_panel_row8 = uix.HBox( 'Parent', expModvBox, 'Spacing', 5, 'Padding', 5  );
+                        mep_panel_row8 = uix.HBox( 'Parent', expModvBox, 'Spacing', 5, 'Padding', 2  );
                         uicontrol( 'Style','text','Parent', mep_panel_row8,'String','Frequency Band:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
                         obj.pi.mth.FrequencyBand=uicontrol( 'Style','popupmenu','Parent', mep_panel_row8 ,'FontSize',11,'String',{'Alpha (8-14 Hz)','Theta (4-7 Hz)','Beta  (15-30 Hz)'},'Tag','FrequencyBand','callback',@cb_par_saving);
                         set( mep_panel_row8, 'Widths', [150 -2]);
                         
-                        mep_panel_row8z = uix.HBox( 'Parent', expModvBox, 'Spacing', 5, 'Padding', 5  );
+                        mep_panel_row8z = uix.HBox( 'Parent', expModvBox, 'Spacing', 5, 'Padding', 2  );
                         uicontrol( 'Style','text','Parent', mep_panel_row8z,'String','Peak Frequency (Hz):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
                         obj.pi.mth.PeakFrequency=uicontrol( 'Style','edit','Parent', mep_panel_row8z ,'FontSize',11,'Tag','PeakFrequency','Callback',@cb_par_saving);
-%                         PeakFrequencyProtocolsString=getPeakFrequencyProtocols;
                         obj.pi.mth.ImportPeakFrequencyFromProtocols=uicontrol( 'Style','popupmenu','Parent', mep_panel_row8z ,'String',{'Select'},'FontSize',11,'Tag','Bin','Callback',@set_PeakFrequency);
                         obj.pi.mth.ImportPeakFrequencyFromProtocols.String=getPeakFrequencyProtocols;
                         set( mep_panel_row8z, 'Widths', [150 -2 -2]);
                         
                         % row 2
-                        mep_panel_row2 = uix.HBox( 'Parent', expModvBox, 'Spacing', 5, 'Padding', 5  );
+                        mep_panel_row2 = uix.HBox( 'Parent', expModvBox, 'Spacing', 5, 'Padding', 2  );
                         uicontrol( 'Style','text','Parent', mep_panel_row2,'String','Target Phase:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
                         obj.pi.mth.Phase=uicontrol( 'Style','edit','Parent', mep_panel_row2 ,'FontSize',11,'Tag','Phase','Callback',@cb_par_saving);
                         set( mep_panel_row2, 'Widths', [150 -2]);
                         
                         % row 2
-                        mep_panel_row2 = uix.HBox( 'Parent', expModvBox, 'Spacing', 5, 'Padding', 5  );
+                        mep_panel_row2 = uix.HBox( 'Parent', expModvBox, 'Spacing', 5, 'Padding', 2  );
                         uicontrol( 'Style','text','Parent', mep_panel_row2,'String','Phase Tolerance:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
                         obj.pi.mth.PhaseTolerance=uicontrol( 'Style','edit','Parent', mep_panel_row2 ,'FontSize',11,'Tag','PhaseTolerance','Callback',@cb_par_saving);
                         set( mep_panel_row2, 'Widths', [150 -2]);
 
-                        mep_panel_13 = uix.HBox( 'Parent', expModvBox, 'Spacing', 5, 'Padding', 5  );
+                        mep_panel_13 = uix.HBox( 'Parent', expModvBox, 'Spacing', 5, 'Padding', 2  );
                         uicontrol( 'Style','text','Parent', mep_panel_13,'String','Amplitude Threshold:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
                         obj.pi.mth.AmplitudeThreshold=uicontrol( 'Style','edit','Parent', mep_panel_13 ,'FontSize',11,'Tag','AmplitudeThreshold','Callback',@cb_par_saving);
                         obj.pi.mth.AmplitudeUnits=uicontrol( 'Style','popupmenu','Parent', mep_panel_13 ,'FontSize',11,'String',{'Percentile','Absolute (micro Volts)'},'Tag','AmplitudeUnits','Callback',@cb_par_saving);
                         set( mep_panel_13, 'Widths', [150 -3 -1]);
                         
-                        mep_panel_row2z = uix.HBox( 'Parent', expModvBox, 'Spacing', 5, 'Padding', 5  );
+                        mep_panel_row2z = uix.HBox( 'Parent', expModvBox, 'Spacing', 5, 'Padding', 2  );
                         uicontrol( 'Style','text','Parent', mep_panel_row2z,'String','Amp Assignment Period (s):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
                         obj.pi.mth.AmplitudeAssignmentPeriod=uicontrol( 'Style','edit','Parent', mep_panel_row2z ,'FontSize',11,'Tag','AmplitudeAssignmentPeriod','Callback',@cb_par_saving);
-                        set( mep_panel_row2z, 'Widths', [150 -2]);
+                        set( mep_panel_row2z, 'Widths', [200 -2]);
                         
-                        expModr2c=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
+                        expModr2c=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 2 );
                         uicontrol( 'Style','text','Parent', expModr2c,'String','Minimum ITI (s):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
                         obj.pi.mth.ITI=uicontrol( 'Style','edit','Parent', expModr2c ,'FontSize',11,'Tag','ITI','callback',@cb_par_saving);
                         expModr2c.Widths=[150 -2];
-                        expModvBox.Heights=[30 42 42 35 35 35 35 35 42 35];
+                        expModvBox.Heights=[-1 -1 -1 -1 -1 -1 -1 -1 -1 -1];%[30 42 42 35 35 35 35 35 42 35];
                 end
             end
             function cb_DisplayParametersPanel
@@ -5080,60 +5078,62 @@ classdef best_application < handle
                     case 2
                         expModvBox=uix.VBox( 'Parent', DisplayParametersPanel, 'Spacing', 0, 'Padding', 0  );
                         
-                        expModr2=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
+                        expModr2=uiextras.HBox( 'Parent', expModvBox,'Spacing', 0, 'Padding', 2 );
                         uicontrol( 'Style','text','Parent', expModr2,'String','Threshold Method:','FontSize',11,'HorizontalAlignment','left','Units','normalized'); % Inter Trial Inteval (s)
                         obj.pi.mth.ThresholdMethod=uicontrol( 'Style','popupmenu','Parent', expModr2 ,'FontSize',11,'Tag','ThresholdMethod','String',{'Adaptive Staircase Estimation', 'Maximum Likelihood Estimation'},'Callback',@cb_par_saving);
                         expModr2.Widths=[150 -2];
                         
-                        expModr2=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
+                        expModr2=uiextras.HBox( 'Parent', expModvBox,'Spacing', 0, 'Padding', 2 );
                         uicontrol( 'Style','text','Parent', expModr2,'String','Trials Per Condition:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
                         obj.pi.mth.TrialsPerCondition=uicontrol( 'Style','edit','Parent', expModr2 ,'FontSize',11,'Tag','TrialsPerCondition','callback',@cb_par_saving);
                         expModr2.Widths=[150 -2];
 
-                        expModr2=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
+                        expModr2=uiextras.HBox( 'Parent', expModvBox,'Spacing', 0, 'Padding', 2 );
                         uicontrol( 'Style','text','Parent', expModr2,'String','EMG Display Channels:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
                         obj.pi.mth.EMGDisplayChannels=uicontrol( 'Style','edit','Parent', expModr2 ,'FontSize',11,'Tag','EMGDisplayChannels','callback',@cb_par_saving);
-                        expModr2.Widths=[150 -2];
+                        expModr2.Widths=[200 -2];
                         
-                        expModr2=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
+                        expModr2=uiextras.HBox( 'Parent', expModvBox,'Spacing', 0, 'Padding', 2 );
                         uicontrol( 'Style','text','Parent', expModr2,'String','MEP Search Window (ms):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
                         obj.pi.mth.MEPSearchWindow=uicontrol( 'Style','edit','Parent', expModr2 ,'FontSize',11,'Tag','MEPSearchWindow','callback',@cb_par_saving);
-                        expModr2.Widths=[150 -2];
+                        expModr2.Widths=[200 -2];
                         
-                        expModr2=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
+                        expModr2=uiextras.HBox( 'Parent', expModvBox,'Spacing', 0, 'Padding', 2 );
                         uicontrol( 'Style','text','Parent', expModr2,'String','EMG Extraction Period (ms):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
                         obj.pi.mth.EMGExtractionPeriod=uicontrol( 'Style','edit','Parent', expModr2 ,'FontSize',11,'Tag','EMGExtractionPeriod','callback',@cb_par_saving);
-                        expModr2.Widths=[150 -2];
+                        expModr2.Widths=[200 -2];
                         
-                        expModr2=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
+                        expModr2=uiextras.HBox( 'Parent', expModvBox,'Spacing', 0, 'Padding', 2 );
                         uicontrol( 'Style','text','Parent', expModr2,'String','EMG Display Period (ms):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
                         obj.pi.mth.EMGXLimit=uicontrol( 'Style','edit','Parent', expModr2 ,'FontSize',11,'Tag','EMGXLimit','callback',@cb_par_saving);
-                        expModr2.Widths=[150 -2];
+                        expModr2.Widths=[200 -2];
                         
-                        expModr2=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
+                        expModr2=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 2 );
                         uicontrol( 'Style','text','Parent', expModr2,'String','EEG Extraction Period (ms):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
                         obj.pi.mth.EEGExtractionPeriod=uicontrol( 'Style','edit','Parent', expModr2 ,'FontSize',11,'Tag','EMGExtractionPeriod','callback',@cb_par_saving);
-                        expModr2.Widths=[150 -2];
+                        expModr2.Widths=[200 -2];
                         
-                        expModr2=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
+                        expModr2=uiextras.HBox( 'Parent', expModvBox,'Spacing', 0, 'Padding', 2 );
                         uicontrol( 'Style','text','Parent', expModr2,'String','EEG Display Period (ms):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
                         obj.pi.mth.EEGXLimit=uicontrol( 'Style','edit','Parent', expModr2 ,'FontSize',11,'Tag','EMGXLimit','callback',@cb_par_saving);
-                        expModr2.Widths=[150 -2];                        
+                        expModr2.Widths=[200 -2];                        
 
-                        expModr4=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
+                        expModr4=uiextras.HBox( 'Parent', expModvBox,'Spacing', 0, 'Padding', 2 );
                         uicontrol( 'Style','text','Parent', expModr4,'String','Trials to Average:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
                         obj.pi.mth.NoOfTrialsToAverage=uicontrol( 'Style','edit','Parent', expModr4 ,'FontSize',11,'Tag','NoOfTrialsToAverage','callback',@cb_par_saving);
-                        expModr4.Widths=[150 -2];
+                        expModr4.Widths=[200 -2];
                         
-                        expModvBox.Heights=[30 35 42 42 42 42 42 42 42];
+                        expModvBox.Heights=[-1 -1 -1 -1 -1 -1 -1 -1 -1];%[30 35 42 42 42 42 42 42 42];
                 end
             end
             function cb_SetHeights
                 switch obj.pi.mth.BrainState.Value
                     case 1
-                        set(obj.pi.mth.r0v1,'Heights',[40 90 320 -1 55])
+                        set(obj.pi.mth.r0v1,'Heights',[40 90 320 -1 55]);
+                        set(obj.pi.mth.r0,'Widths',[-1.45 -3]);
                     case 2
-                        set(obj.pi.mth.r0v1,'Heights',[40 390 390 -1 55])
+                        set(obj.pi.mth.r0v1,'Heights',[-0.7 -8 -6 -0 -1.2])%[40 390 390 -1 55])
+                        set(obj.pi.mth.r0,'Widths',[-2 -3]);
                 end
             end
             
@@ -11000,7 +11000,7 @@ classdef best_application < handle
             obj.pi.tmsfmri.stop=uicontrol( 'Parent', mep_panel_17 ,'Style','PushButton','String','Stop','FontWeight','Bold','Callback',@(~,~)obj.tmsfmri_stop,'Enable','on')
             set( mep_panel_17, 'Widths', [-2 -2]);
             
-            set(obj.pi.tmsfmri.vb,'Heights',[-0.1 -0.4 -0.4 -0.4 -0.4 -0.4 -0.2 -0.2 -0.4 -0.4 -0.4 -0.01 -0.2 -0.4 -0.4 -0.4 -1 -0.4 -0.5])
+            set(obj.pi.tmsfmri.vb,'Heights',[-0.1 -0.6 -0.4 -0.4 -0.6 -0.4 -0.2 -0.2 -0.4 -0.4 -0.4 -0.01 -0.2 -0.4 -0.4 -0.4 -1 -0.4 -0.5])
             
             obj.cb_pi_tmsfmri_block_design
         end
