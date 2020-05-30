@@ -265,7 +265,7 @@ classdef best_sync2brain_bossdevice <handle
             obj.IPScope.Decimation = 1;
             obj.IPScope.TriggerMode = 'Signal';
             obj.IPScope.TriggerSignal = getsignalid(obj.bb.tg, 'gen_running'); %Remove it in Official Use
-            obj.IPScope.TriggerSignal = MrkSignalID; 
+%             obj.IPScope.TriggerSignal = MrkSignalID; 
             obj.IPScope.TriggerLevel = 0.5;
             obj.IPScope.TriggerSlope = 'Rising';
             %% Starting Scope
