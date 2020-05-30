@@ -2913,9 +2913,6 @@ classdef best_toolbox < handle
                                 EMGChannelIndex=find(strcmp(obj.app.par.hardware_settings.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.inputDevices}).NeurOneProtocolChannelLabels,unique_chLab{1,i}));
                                 EMGChannelIndex=EMGChannelIndex-obj.bossbox.bb.eeg_channels;
                                 [obj.inputs.rawData.(unique_chLab{1,i}).time(obj.inputs.trial,:), obj.inputs.rawData.(unique_chLab{1,i}).data(obj.inputs.trial,:)]=obj.bossbox.EMGScopeRead(EMGChannelIndex);
-                                if i==numel(unique_chLab)
-                                    obj.bossbox.EMGScopeStart;
-                                end
                                 %obj.inputs.rawData.(unique_chLab{1,i}).data(obj.inputs.trial,:)=obj.best_VisualizationFilter([obj.sim_mep(1,700:1000), obj.sim_mep(1,1:699)]*1000*obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,1}{1,1}*(randi([1 3])*0.10));
                                 %obj.inputs.rawData.(unique_chLab{1,i}).data(obj.inputs.trial,:)=obj.best_VisualizationFilter([obj.sim_mep(1,700:1000), obj.sim_mep(1,1:699)]*1000*(randi([1 3])*0.10));
                                 %obj.bossbox.EMGScope;
@@ -2955,6 +2952,40 @@ classdef best_toolbox < handle
                             case 'EEG'
                             case 'Psyhcometric'
                                 obj.inputs.rawData.(unique_chLab{1,i}).data(obj.inputs.trial,1)=obj.responseKeyboardAndMouse;
+                        end
+                    end
+            end
+            %% Start Scopes If needed
+            switch obj.app.par.hardware_settings.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.inputDevices}).slct_device
+                case 1 % boss box
+                    unique_chLab=obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab};
+                    for i=1:numel(unique_chLab)
+                        switch obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chType}{1,i}
+                            case 'IP'
+                                
+                            case 'IEEG'
+                                
+                            case 'EMG'
+                                obj.bossbox.EMGScopeStart;
+                            case 'EEG'
+                        end
+                    end
+                case 2 % fieldtrip
+                    % http://www.fieldtriptoolbox.org/faq/how_should_i_get_started_with_the_fieldtrip_realtime_buffer/
+                case 3 %Future: input box
+                case 4  % simulated data
+                case 5 % Keyboard and Mouse
+                case 6 % NeurOne Keyboard and Mouse
+                    unique_chLab=obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab};
+                    for i=1:numel(unique_chLab)
+                        switch obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chType}{1,i}
+                            case 'IP'
+                                
+                            case 'IEEG'
+                                
+                            case 'EMG'
+                                obj.bossbox.EMGScopeStart;
+                            case 'EEG'
                         end
                     end
             end

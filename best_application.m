@@ -1,7 +1,7 @@
 classdef best_application < handle
     properties
         par
-%         bst
+        bst
         info
         data
         save_buffer
@@ -23,7 +23,7 @@ classdef best_application < handle
         menu
         icons
         Date
-        bst
+%         bst
         %         save_buffer
     end
     
@@ -3547,6 +3547,11 @@ classdef best_application < handle
                         uicontrol( 'Style','text','Parent', expModr2,'String','Trials Per Condition:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
                         obj.pi.drc.TrialsPerCondition=uicontrol( 'Style','edit','Parent', expModr2 ,'FontSize',11,'Tag','TrialsPerCondition','callback',@cb_par_saving);
                         expModr2.Widths=[150 -2];
+                        
+                        expModr2=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
+                        uicontrol( 'Style','text','Parent', expModr2,'String','EMG Target  Channels:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                        obj.pi.drc.EMGTargetChannels=uicontrol( 'Style','edit','Parent', expModr2 ,'FontSize',11,'Tag','EMGTargetChannels','callback',@cb_par_saving);
+                        expModr2.Widths=[150 -2];
 
                         expModr2=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
                         uicontrol( 'Style','text','Parent', expModr2,'String','EMG Display Channels:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
@@ -3580,13 +3585,18 @@ classdef best_application < handle
                         obj.pi.drc.ResponseFunctionDenominator=uicontrol( 'Style','edit','Parent', expModr4 ,'FontSize',11,'Tag','ResponseFunctionDenominator','callback',@cb_par_saving);
                         expModr4.Widths=[150 -2 30 -2];
                         
-                        expModvBox.Heights=[35 45 45 45 45 30 35];
+                        expModvBox.Heights=[35 45 45 45 45 45 30 35];
                     case 2
                         expModvBox=uix.VBox( 'Parent', DisplayParametersPanel, 'Spacing', 0, 'Padding', 0  );
                         
                         expModr2=uiextras.HBox( 'Parent', expModvBox,'Spacing', 0, 'Padding', 2 );
                         uicontrol( 'Style','text','Parent', expModr2,'String','Trials Per Condition:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
                         obj.pi.drc.TrialsPerCondition=uicontrol( 'Style','edit','Parent', expModr2 ,'FontSize',11,'Tag','TrialsPerCondition','callback',@cb_par_saving);
+                        expModr2.Widths=[150 -2];
+                        
+                        expModr2=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
+                        uicontrol( 'Style','text','Parent', expModr2,'String','EMG Target  Channels:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                        obj.pi.drc.EMGTargetChannels=uicontrol( 'Style','edit','Parent', expModr2 ,'FontSize',11,'Tag','EMGTargetChannels','callback',@cb_par_saving);
                         expModr2.Widths=[150 -2];
 
                         expModr2=uiextras.HBox( 'Parent', expModvBox,'Spacing', 0, 'Padding', 2 );
@@ -3631,13 +3641,13 @@ classdef best_application < handle
                         obj.pi.drc.ResponseFunctionDenominator=uicontrol( 'Style','edit','Parent', expModr4 ,'FontSize',11,'Tag','ResponseFunctionDenominator','callback',@cb_par_saving);
                         expModr4.Widths=[150 -2 30 -2];
                         
-                        expModvBox.Heights=[-1 -1 -1 -1 -1 -1 -1 -1 -1];%[35 35 45 45 45 45 45 30 35];
+                        expModvBox.Heights=[-1 -1 -1 -1 -1 -1 -1 -1 -1 -1];%[35 35 45 45 45 45 45 30 35];
                 end
             end
             function cb_SetHeights
                 switch obj.pi.drc.BrainState.Value
                     case 1
-                        set(obj.pi.drc.r0v1,'Heights',[40 90 300 -1 55])
+                        set(obj.pi.drc.r0v1,'Heights',[40 90 370 -1 55])
                     case 2
                         set(obj.pi.drc.r0v1,'Heights',[-0.6 -9 -7 0 -1]);
                 end
