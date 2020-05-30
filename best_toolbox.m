@@ -259,6 +259,10 @@ classdef best_toolbox < handle
                             obj.inputs.ylimMax=+3000;
                             obj.inputs.TrialNoForMean=1;
                             obj.inputs.mt_starting_stim_inten=obj.inputs.condsAll.cond1.st1.si_pckt{1,1};
+                            obj.inputs.MEPOnset=obj.inputs.MEPSearchWindow(1);
+                            obj.inputs.MEPOffset=obj.inputs.MEPSearchWindow(2);
+                            obj.inputs.EMGDisplayPeriodPre=obj.inputs.EMGExtractionPeriod(1)*(-1);
+                            obj.inputs.EMGDisplayPeriodPost=obj.inputs.EMGExtractionPeriod(2);
                             %% Creating Column Labels
                             obj.inputs.colLabel.inputDevices=1;
                             obj.inputs.colLabel.outputDevices=2;
@@ -397,6 +401,14 @@ classdef best_toolbox < handle
                             obj.inputs.ylimMax=+3000;
                             obj.inputs.TrialNoForMean=1;
                             obj.inputs.mt_starting_stim_inten=obj.inputs.condsAll.cond1.st1.si_pckt{1,1};
+                            obj.inputs.MEPOnset=obj.inputs.MEPSearchWindow(1);
+                            obj.inputs.MEPOffset=obj.inputs.MEPSearchWindow(2);
+                            obj.inputs.EMGDisplayPeriodPre=obj.inputs.EMGExtractionPeriod(1)*(-1);
+                            obj.inputs.EMGDisplayPeriodPost=obj.inputs.EMGExtractionPeriod(2);
+                            obj.inputs.EEGDisplayPeriodPre=obj.inputs.EEGExtractionPeriod(1)*(-1);
+                            obj.inputs.EEGDisplayPeriodPost=obj.inputs.EEGExtractionPeriod(2);
+                            obj.inputs.MontageChannels=obj.inputs.RealTimeChannelsMontage;
+                            obj.inputs.MontageWeights=obj.inputs.RealTimeChannelsWeights;
                             %% Creating Column Labels
                             obj.inputs.colLabel.inputDevices=1;
                             obj.inputs.colLabel.outputDevices=2;
@@ -611,6 +623,10 @@ classdef best_toolbox < handle
                             obj.inputs.TrialNoForMean=1;
                             obj.inputs.mt_starting_stim_inten=obj.inputs.condsAll.cond1.st1.si_pckt{1,1};
                             obj.inputs.TSOnlyMean=NaN;
+                            obj.inputs.MEPOnset=obj.inputs.MEPSearchWindow(1);
+                            obj.inputs.MEPOffset=obj.inputs.MEPSearchWindow(2);
+                            obj.inputs.EMGDisplayPeriodPre=obj.inputs.EMGExtractionPeriod(1)*(-1);
+                            obj.inputs.EMGDisplayPeriodPost=obj.inputs.EMGExtractionPeriod(2);
                             %% Creating Column Labels
                             obj.inputs.colLabel.inputDevices=1;
                             obj.inputs.colLabel.outputDevices=2;
@@ -749,6 +765,14 @@ classdef best_toolbox < handle
                             obj.inputs.TrialNoForMean=1;
                             obj.inputs.mt_starting_stim_inten=obj.inputs.condsAll.cond1.st1.si_pckt{1,1};
                             obj.inputs.TSOnlyMean=NaN;
+                            obj.inputs.MEPOnset=obj.inputs.MEPSearchWindow(1);
+                            obj.inputs.MEPOffset=obj.inputs.MEPSearchWindow(2);
+                            obj.inputs.EMGDisplayPeriodPre=obj.inputs.EMGExtractionPeriod(1)*(-1);
+                            obj.inputs.EMGDisplayPeriodPost=obj.inputs.EMGExtractionPeriod(2);
+                            obj.inputs.EEGDisplayPeriodPre=obj.inputs.EEGExtractionPeriod(1)*(-1);
+                            obj.inputs.EEGDisplayPeriodPost=obj.inputs.EEGExtractionPeriod(2);
+                            obj.inputs.MontageChannels=obj.inputs.RealTimeChannelsMontage;
+                            obj.inputs.MontageWeights=obj.inputs.RealTimeChannelsWeights;
                             %% Creating Column Labels
                             obj.inputs.colLabel.inputDevices=1;
                             obj.inputs.colLabel.outputDevices=2;
@@ -1348,6 +1372,10 @@ classdef best_toolbox < handle
                             obj.inputs.stop_event=0;
                             obj.inputs.mt_starting_stim_inten=obj.inputs.condsAll.cond1.st1.si_pckt{1,1};
                             obj.inputs.Handles.ThresholdData=struct;
+                            obj.inputs.EEGDisplayPeriodPre=obj.inputs.EEGExtractionPeriod(1)*(-1);
+                            obj.inputs.EEGDisplayPeriodPost=obj.inputs.EEGExtractionPeriod(2);
+                            obj.inputs.MontageChannels=obj.inputs.RealTimeChannelsMontage;
+                            obj.inputs.MontageWeights=obj.inputs.RealTimeChannelsWeights;
                             %% Creating Column Labels
                             obj.inputs.colLabel.inputDevices=1;
                             obj.inputs.colLabel.outputDevices=2;
