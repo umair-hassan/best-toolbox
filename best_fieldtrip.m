@@ -11,11 +11,11 @@ classdef best_fieldtrip <handle
         
         function irasa(obj,EEGData,InputDevice)
             %% Just for testing purposes
-            load S5_raw_segmented.mat
-            EEGData=data;
-            cfg=[];
-            cfg.channel =data.label(1:64);
-            EEGData=ft_selectdata(cfg,EEGData);
+            % %             load S5_raw_segmented.mat
+            % %             EEGData=data;
+            % %             cfg=[];
+            % %             cfg.channel =data.label(1:64);
+            % %             EEGData=ft_selectdata(cfg,EEGData);
             %% Stop Check Point
             if obj.best_toolbox.inputs.stop_event==1, return, end
             %% Modifying IRASA
@@ -24,10 +24,10 @@ classdef best_fieldtrip <handle
             %% Creating RawEEGData
             obj.best_toolbox.inputs.results.RawEEGData=EEGData;
             obj.best_toolbox.inputs.results.RawEEGData.label=EEGChanelsLabels';
-% % % % % % %             obj.best_toolbox.inputs.results.RawEEGData.label=EEGChanelsLabels';
-% % % % % % %             obj.best_toolbox.inputs.results.RawEEGData.fsample=5000;
-% % % % % % %             obj.best_toolbox.inputs.results.RawEEGData.trial={EEGData.Data};
-% % % % % % %             obj.best_toolbox.inputs.results.RawEEGData.time={EEGData.Time};
+            obj.best_toolbox.inputs.results.RawEEGData.label=EEGChanelsLabels';
+            obj.best_toolbox.inputs.results.RawEEGData.fsample=5000;
+            obj.best_toolbox.inputs.results.RawEEGData.trial={EEGData.Data};
+            obj.best_toolbox.inputs.results.RawEEGData.time={EEGData.Time};
             %% PreProcessing RawEEGData
             cfg=[];
             cfg.demean=[];

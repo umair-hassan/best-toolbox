@@ -220,71 +220,88 @@ classdef best_application < handle
                 obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).ProtocolStatus={'compiled'};
                 obj.cb_measure_listbox;
             catch e
-                errordlg('Build unsuccessful, the device is not conencted. Try againa fer connecting devices.','BEST Toolbox');
+                errordlg('This Protcol has been stopped due to an error. Check your input parameters and MATLAB command line.','BEST Toolbox');
                 fprintf(1,'The identifier was:\n%s',e.identifier);
                 fprintf(1,'\nThere was an error! The message was:\n%s',e.message);
+                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).ProtocolStatus={'Error'};
+                obj.pmd.ProtocolStatus.listbox.String(obj.pmd.ProtocolStatus.listbox.Value)={'Error'};
+                obj.enable_listboxes;
             end
         end
         function RunStopButton(obj,~,~)
-             if strcmp(obj.pmd.RunStopButton.String,'Stop')
-                 uiresume;
-                 obj.bst.inputs.stop_event=1;
-                 obj.pmd.RunStopButton.Enable='off';
-                 obj.pmd.PauseUnpauseButton.Enable='off';
-                 obj.pmd.RunStopButton.String='Run';
-                 obj.pmd.PauseUnpauseButton.String='Pause';
-                 obj.enable_listboxes;
-                 if ~isempty(obj.bst.bossbox), obj.bst.bossbox.stop; end
-                 
-             elseif strcmp(obj.pmd.RunStopButton.String,'Run') % && strcmp(obj.pmd.RunStopButton.Enable,'On')
-                 obj.fig.main.Widths(1)=-1.15;
-                 obj.fig.main.Widths(2)=0;
-                 obj.fig.main.Widths(3)=-3.35;
-                 obj.pmd.RunStopButton.String='Stop';
-                 obj.pmd.PauseUnpauseButton.Enable='on';
-                 obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).Enable{1,1}='off';
-                 obj.disable_listboxes;
-                 %search for all the handles and make their enable off uicontrols, table and the interactive axes  %https://www.mathworks.com/help/matlab/ref/disabledefaultinteractivity.html
-                 %make enable off in the listboxes and all pmd fields
-                 pause(0.02); %Test it by replacing it with drawnow
-                 switch obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).Protocol{1,1}
-                     case 'MEP Hotspot Search Protocol'
-                         switch obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).ProtocolMode
-                             case 1 %Automated
-                                 ParametersFieldNames=fieldnames(obj.pi.hotspot);
-                                 for iLoadingParameters=1:numel(ParametersFieldNames)
-                                     obj.pi.hotspot.(ParametersFieldNames{iLoadingParameters}).Enable=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).Enable{1,1};
-                                 end
-                                 obj.bst.best_hotspot
-                             case 2 %Manual
-                                 obj.bst.best_hotspot_manual
-                         end
-                     case 'MEP Measurement Protocol'
-                         obj.bst.best_mep;
-                     case 'MEP Dose Response Curve Protocol'
-                         obj.bst.best_drc;
-                     case 'Motor Threshold Hunting Protocol'
-                         obj.bst.best_mth;
-                     case 'Psychometric Threshold Hunting Protocol'
-                         obj.bst.best_psychmth;
-                     case 'rTMS Intervention Protocol'
-                         obj.bst.best_rtms;
-                     case 'rs EEG Measurement Protocol'
-                         obj.bst.best_rseeg;
-                     case 'TEP Hotspot Search Protocol'
-                         switch obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).ProtocolMode
-                             case 1 %Automated
-                                 ParametersFieldNames=fieldnames(obj.pi.tephs);
-                                 for iLoadingParameters=1:numel(ParametersFieldNames)
-                                     obj.pi.tephs.(ParametersFieldNames{iLoadingParameters}).Enable=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).Enable{1,1};
-                                 end
-                                 obj.bst.best_tephs
-                             case 2 %Manual
-                                 obj.bst.best_tephs_manual
-                         end
-                 end
-             end
-         end
+            try
+                if strcmp(obj.pmd.RunStopButton.String,'Stop')
+                    uiresume;
+                    obj.bst.inputs.stop_event=1;
+                    obj.pmd.RunStopButton.Enable='off';
+                    obj.pmd.PauseUnpauseButton.Enable='off';
+                    obj.pmd.RunStopButton.String='Run';
+                    obj.pmd.PauseUnpauseButton.String='Pause';
+                    obj.enable_listboxes;
+                    if ~isempty(obj.bst.bossbox), obj.bst.bossbox.stop; end
+                    obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).ProtocolStatus={'Stopped'};
+                    obj.pmd.ProtocolStatus.listbox.String(obj.pmd.ProtocolStatus.listbox.Value)={'Stopped'};
+                elseif strcmp(obj.pmd.RunStopButton.String,'Run') % && strcmp(obj.pmd.RunStopButton.Enable,'On')
+                    obj.fig.main.Widths(1)=-1.15;
+                    obj.fig.main.Widths(2)=0;
+                    obj.fig.main.Widths(3)=-3.35;
+                    obj.pmd.RunStopButton.String='Stop';
+                    obj.pmd.PauseUnpauseButton.Enable='on';
+                    obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).ProtocolStatus={'Executing'};
+                    obj.pmd.ProtocolStatus.listbox.String(obj.pmd.ProtocolStatus.listbox.Value)={'Executing'};
+                    obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).Enable{1,1}='off';
+                    obj.disable_listboxes;
+                    %search for all the handles and make their enable off uicontrols, table and the interactive axes  %https://www.mathworks.com/help/matlab/ref/disabledefaultinteractivity.html
+                    %make enable off in the listboxes and all pmd fields
+                    pause(0.02); %Test it by replacing it with drawnow
+                    switch obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).Protocol{1,1}
+                        case 'MEP Hotspot Search Protocol'
+                            switch obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).ProtocolMode
+                                case 1 %Automated
+                                    ParametersFieldNames=fieldnames(obj.pi.hotspot);
+                                    for iLoadingParameters=1:numel(ParametersFieldNames)
+                                        obj.pi.hotspot.(ParametersFieldNames{iLoadingParameters}).Enable=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).Enable{1,1};
+                                    end
+                                    obj.bst.best_hotspot
+                                case 2 %Manual
+                                    obj.bst.best_hotspot_manual
+                            end
+                        case 'MEP Measurement Protocol'
+                            obj.bst.best_mep;
+                        case 'MEP Dose Response Curve Protocol'
+                            obj.bst.best_drc;
+                        case 'Motor Threshold Hunting Protocol'
+                            obj.bst.best_mth;
+                        case 'Psychometric Threshold Hunting Protocol'
+                            obj.bst.best_psychmth;
+                        case 'rTMS Intervention Protocol'
+                            obj.bst.best_rtms;
+                        case 'rs EEG Measurement Protocol'
+                            obj.bst.best_rseeg;
+                        case 'TEP Hotspot Search Protocol'
+                            switch obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).ProtocolMode
+                                case 1 %Automated
+                                    ParametersFieldNames=fieldnames(obj.pi.tephs);
+                                    for iLoadingParameters=1:numel(ParametersFieldNames)
+                                        obj.pi.tephs.(ParametersFieldNames{iLoadingParameters}).Enable=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).Enable{1,1};
+                                    end
+                                    obj.bst.best_tephs
+                                case 2 %Manual
+                                    obj.bst.best_tephs_manual
+                            end
+                    end
+                    obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).ProtocolStatus={'Successful'};
+                    obj.pmd.ProtocolStatus.listbox.String(obj.pmd.ProtocolStatus.listbox.Value)={'Successful'};
+                end
+            catch e
+                errordlg('This Protcol has been stopped due to an error. Check your input parameters and MATLAB command line.','BEST Toolbox');
+                fprintf(1,'The identifier was:\n%s',e.identifier);
+                fprintf(1,'\nThere was an error! The message was:\n%s',e.message);
+                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).ProtocolStatus={'Error'};
+                obj.pmd.ProtocolStatus.listbox.String(obj.pmd.ProtocolStatus.listbox.Value)={'Error'};  
+                obj.enable_listboxes;
+            end
+        end
         function PauseUnpauseButton(obj,~,~)
              obj.pmd.RunStopButton.String='Stop';
              obj.pmd.PauseUnpauseButton.Enable='on';
@@ -316,10 +333,12 @@ classdef best_application < handle
         function disable_listboxes(obj)
             obj.pmd.lb_measures.listbox.Enable='off';
             obj.pmd.lb_sessions.listbox.Enable='off';
+            obj.pmd.ProtocolStatus.listbox.Enable='off';
         end
         function enable_listboxes(obj)
             obj.pmd.lb_measures.listbox.Enable='on';
             obj.pmd.lb_sessions.listbox.Enable='on';
+            obj.pmd.ProtocolStatus.listbox.Enable='on';
         end
          
         function cb_pmd_lb_session_keypressfcn(obj)
@@ -768,12 +787,6 @@ classdef best_application < handle
                 obj.info.event.current_measure=obj.info.event.current_measure{1};
                 obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).Enable{1,1}='on';
                 obj.cb_measure_listbox;
-                %% Updating Status as Created
-                ProtocolNumber=find(strcmp([obj.pmd.lb_measures.listbox.String],new_session));
-                ProtocolStatusFirstHalf=obj.pmd.ProtocolStatus.listbox.String(1:ProtocolNumber-1);
-                ProtocolStatusSecondHalf=obj.pmd.ProtocolStatus.listbox.String(ProtocolNumber:end);
-                obj.pmd.ProtocolStatus.listbox.String=[ProtocolStatusFirstHalf;{'created'};ProtocolStatusSecondHalf];
-                obj.pmd.ProtocolStatus.listbox.Value=ProtocolNumber;
             end
         end
         function cb_pmd_lb_measures_moveup(obj)
@@ -1296,6 +1309,133 @@ classdef best_application < handle
                 end
             end
         end
+        function pr_EEGYLimZoomIn(obj,source,~)
+            selectedAxes=source.Tag;
+            current_ylimMax=obj.pr.ax.(selectedAxes).YLim(2);
+            current_ylimMin=obj.pr.ax.(selectedAxes).YLim(1);
+            obj.pr.ax.(selectedAxes).YLim(1)=current_ylimMin*0.50; %50 percent normalized decrement
+            obj.pr.ax.(selectedAxes).YLim(2)=current_ylimMax*0.50; %50 prcent normalized measure
+            mat3=linspace(obj.pr.ax.(selectedAxes).YLim(1),obj.pr.ax.(selectedAxes).YLim(2),10);
+            mat4=unique(sort([0 mat3]));
+            yticks(obj.pr.ax.(selectedAxes),(mat4));
+            ytickformat('%.2f');
+            delete(findobj('Tag','TriggerLockedEEGZeroLine'))
+            ZeroLine=gridxy(0,'Color','k','linewidth',2,'Parent',obj.pr.ax.(selectedAxes),'Tag','TriggerLockedEEGZeroLine');hold on; ZeroLine.Annotation.LegendInformation.IconDisplayStyle = 'off';
+            drawnow;
+        end
+        function pr_EEGYLimZoomOut(obj,source,~)
+            selectedAxes=source.Tag;
+            current_ylimMax=obj.pr.ax.(selectedAxes).YLim(2);
+            current_ylimMin=obj.pr.ax.(selectedAxes).YLim(1);
+            obj.pr.ax.(selectedAxes).YLim(1)=current_ylimMin*1.50; %15 percent normalized decrement
+            obj.pr.ax.(selectedAxes).YLim(2)=current_ylimMax*1.50; %15% normalized measure
+            mat3=linspace(obj.pr.ax.(selectedAxes).YLim(1),obj.pr.ax.(selectedAxes).YLim(2),10);
+            mat4=unique(sort([0 mat3]));
+            yticks(obj.pr.ax.(selectedAxes),(mat4));
+            ytickformat('%.2f');
+            delete(findobj('Tag','TriggerLockedEEGZeroLine'))
+            ZeroLine=gridxy(0,'Color','k','linewidth',2,'Parent',obj.pr.ax.(selectedAxes),'Tag','TriggerLockedEEGZeroLine');hold on; ZeroLine.Annotation.LegendInformation.IconDisplayStyle = 'off';
+            drawnow;
+        end
+        function pr_EEGXLimZoomIn(obj,source,~)
+            selectedAxes=source.Tag;
+            current_ylimMax=obj.pr.ax.(selectedAxes).XLim(2);
+            current_ylimMin=obj.pr.ax.(selectedAxes).XLim(1);
+            obj.pr.ax.(selectedAxes).XLim(1)=current_ylimMin*0.50; %50 percent normalized decrement
+            obj.pr.ax.(selectedAxes).XLim(2)=current_ylimMax*0.50; %50 prcent normalized measure
+            mat3=linspace(obj.pr.ax.(selectedAxes).XLim(1),obj.pr.ax.(selectedAxes).XLim(2),10);
+            mat2=[0 obj.bst.inputs.mep_onset*1000 obj.bst.inputs.mep_offset*1000 obj.bst.inputs.EMGXLimit(2)];
+            mat4=unique(sort([0 mat3 mat2]));
+            xticks(obj.pr.ax.(selectedAxes),(mat4));
+            xtickformat('%.0f');
+            delete(findobj('Tag','TriggerLockedEEGZeroLine'))
+            ZeroLine=gridxy(0,'Color','k','linewidth',2,'Parent',obj.pr.ax.(selectedAxes),'Tag','TriggerLockedEEGZeroLine');hold on; ZeroLine.Annotation.LegendInformation.IconDisplayStyle = 'off';
+            drawnow;
+        end
+        function pr_EEGXLimZoomOut(obj,source,~)
+            selectedAxes=source.Tag;
+            current_ylimMax=obj.pr.ax.(selectedAxes).XLim(2);
+            current_ylimMin=obj.pr.ax.(selectedAxes).XLim(1);
+            obj.pr.ax.(selectedAxes).XLim(1)=current_ylimMin*1.50; %15 percent normalized decrement
+            obj.pr.ax.(selectedAxes).XLim(2)=current_ylimMax*1.50; %15% normalized measure
+            mat3=linspace(obj.pr.ax.(selectedAxes).XLim(1),obj.pr.ax.(selectedAxes).XLim(2),10);
+            mat2=[0 obj.bst.inputs.mep_onset*1000 obj.bst.inputs.mep_offset*1000 obj.bst.inputs.EMGXLimit(2)];
+            mat4=unique(sort([0 mat3 mat2]));
+            xticks(obj.pr.ax.(selectedAxes),(mat4));
+            xtickformat('%.0f');
+            delete(findobj('Tag','TriggerLockedEEGZeroLine'))
+            ZeroLine=gridxy(0,'Color','k','linewidth',2,'Parent',obj.pr.ax.(selectedAxes),'Tag','TriggerLockedEEGZeroLine');hold on; ZeroLine.Annotation.LegendInformation.IconDisplayStyle = 'off';
+            drawnow;
+        end
+        function pr_EEGYAutoFit(obj,source,~)
+            selectedAxes=source.Tag;
+            obj.pr.ax.(selectedAxes).YLim=[-Inf Inf];
+            yticks('auto');
+            obj.pr.ax.(selectedAxes).YLim=[min(yticks(obj.pr.ax.(selectedAxes))) max(yticks(obj.pr.ax.(selectedAxes)))];
+            ZeroLine=gridxy(0,'Color','k','linewidth',2,'Parent',obj.pr.ax.(selectedAxes));hold on; ZeroLine.Annotation.LegendInformation.IconDisplayStyle = 'off';
+            drawnow;
+        end
+        function pr_EEGXAutoFit(obj,source,~)
+            selectedAxes=source.Tag;
+            obj.pr.ax.(selectedAxes).XLim=[obj.bst.inputs.prestim_scope_plt*(-1) obj.bst.inputs.poststim_scope_plt];
+            mat1=linspace(obj.bst.inputs.prestim_scope_plt*(-1),obj.bst.inputs.poststim_scope_plt,10);
+            mat2=[0 obj.bst.inputs.mep_onset*1000 obj.bst.inputs.mep_offset*1000 obj.bst.inputs.poststim_scope_plt];
+            mat=unique(sort([mat1 mat2]));
+            xticks(mat);
+            xtickformat('%.0f');
+            delete(findobj('Tag','TriggerLockedEEGZeroLine'))
+            ZeroLine=gridxy(0,'Color','k','linewidth',2,'Parent',obj.pr.ax.(selectedAxes),'Tag','TriggerLockedEEGZeroLine');hold on; ZeroLine.Annotation.LegendInformation.IconDisplayStyle = 'off';
+            drawnow;
+        end
+        function pr_SetEEGYAxisLimits(obj,source,~)
+            %Rule: Limits input syntax [LowLimit HighLimit]
+            selectedAxes=source.Tag;
+            f=figure('Name','Y Axis Limits | BEST Toolbox','numbertitle', 'off','ToolBar', 'none','MenuBar', 'none','WindowStyle', 'modal','Units', 'normal', 'Position', [0.5 0.5 .35 .05]);
+            uicontrol( 'Style','text','Parent', f,'String','Enter Y Axis Limits [min max](microV):','FontSize',11,'HorizontalAlignment','center','Units','normalized','Position',[0.05 0.5 0.5 0.4]);
+            limmin=uicontrol( 'Style','edit','Parent', f,'String','-50','FontSize',11,'HorizontalAlignment','center','Units','normalized','Position',[0.5 0.5 0.2 0.4]);
+            limmax=uicontrol( 'Style','edit','Parent', f,'String','50','FontSize',11,'HorizontalAlignment','center','Units','normalized','Position',[0.75 0.5 0.2 0.4]);
+            uicontrol( 'Style','pushbutton','Parent', f,'String','Set','FontSize',11,'HorizontalAlignment','center','Units','normalized','Position',[0.1 0.05 0.8 0.4],'Callback',@setLimits);
+            function setLimits(~,~)
+                try
+                    obj.pr.ax.(selectedAxes).YLim=[str2double(limmin.String) str2double(limmax.String)];
+                    close(f);
+                    mat3=linspace(obj.pr.ax.(selectedAxes).YLim(1),obj.pr.ax.(selectedAxes).YLim(2),10);
+                    mat4=unique(sort([0 mat3]));
+                    yticks(obj.pr.ax.(selectedAxes),(mat4));
+                    ytickformat('%.2f');
+                    delete(findobj('Tag','TriggerLockedEEGZeroLine'))
+                    ZeroLine=gridxy(0,'Color','k','linewidth',2,'Parent',obj.pr.ax.(selectedAxes),'Tag','TriggerLockedEEGZeroLine');hold on; ZeroLine.Annotation.LegendInformation.IconDisplayStyle = 'off';
+                    drawnow;
+                catch
+                    close(f)
+                end
+            end
+        end
+        function pr_SetEEGXAxisLimits(obj,source,~)
+            %Rule: Limits input syntax [LowLimit HighLimit]
+            selectedAxes=source.Tag;
+            f=figure('Name','X Axis Limits | BEST Toolbox','numbertitle', 'off','ToolBar', 'none','MenuBar', 'none','WindowStyle', 'modal','Units', 'normal', 'Position', [0.5 0.5 .35 .05]);
+            uicontrol( 'Style','text','Parent', f,'String','Enter X Axis Limits [min max](ms):','FontSize',11,'HorizontalAlignment','center','Units','normalized','Position',[0.05 0.5 0.5 0.4]);
+            limmin=uicontrol( 'Style','edit','Parent', f,'String','-50','FontSize',11,'HorizontalAlignment','center','Units','normalized','Position',[0.5 0.5 0.2 0.4]);
+            limmax=uicontrol( 'Style','edit','Parent', f,'String','50','FontSize',11,'HorizontalAlignment','center','Units','normalized','Position',[0.75 0.5 0.2 0.4]);
+            uicontrol( 'Style','pushbutton','Parent', f,'String','Set','FontSize',11,'HorizontalAlignment','center','Units','normalized','Position',[0.1 0.05 0.8 0.4],'Callback',@setLimits);
+            function setLimits(~,~)
+                try
+                    obj.pr.ax.(selectedAxes).XLim=[str2double(limmin.String) str2double(limmax.String)];
+                    close(f);
+                    mat3=linspace(obj.pr.ax.(selectedAxes).XLim(1),obj.pr.ax.(selectedAxes).XLim(2),10);
+                    mat2=[0 obj.bst.inputs.mep_onset*1000 obj.bst.inputs.mep_offset*1000 obj.bst.inputs.EMGXLimit(2)];
+                    mat4=unique(sort([0 mat3 mat2]));
+                    xticks(obj.pr.ax.(selectedAxes),(mat4));
+                    xtickformat('%.0f'); 
+                    delete(findobj('Tag','TriggerLockedEEGZeroLine'))
+                    ZeroLine=gridxy(0,'Color','k','linewidth',2,'Parent',obj.pr.ax.(selectedAxes),'Tag','TriggerLockedEEGZeroLine');hold on; ZeroLine.Annotation.LegendInformation.IconDisplayStyle = 'off';
+                    drawnow;
+                catch
+                    close(f)
+                end
+            end
+        end
         function pr_scat_plot(obj)
             obj.pr.ax_no=['ax' num2str(obj.pr.axesno)];
             ui_menu=uicontextmenu(obj.fig.handle);
@@ -1435,13 +1575,19 @@ classdef best_application < handle
         function pr_TriggerLockedEEG(obj)
             obj.pr.ax_no=['ax' num2str(obj.pr.axesno)];
             ui_menu=uicontextmenu(obj.fig.handle);
+            uimenu(ui_menu,'label','set Y-axis limits','Callback',@obj.pr_SetEEGYAxisLimits,'Tag',obj.pr.ax_no);
+            uimenu(ui_menu,'label','set X-axis limits','Callback',@obj.pr_SetEEGXAxisLimits,'Tag',obj.pr.ax_no);
             uimenu(ui_menu,'label','set Font size','Callback',@obj.pr_FontSize,'Tag',obj.pr.ax_no);
+            uimenu(ui_menu,'label','Y auto-fit','Callback',@obj.pr_EEGYAutoFit,'Tag',obj.pr.ax_no);
+            uimenu(ui_menu,'label','X auto-fit','Callback',@obj.pr_EEGXAutoFit,'Tag',obj.pr.ax_no);
             uimenu(ui_menu,'label','export as MATLAB Figure','Callback',@obj.pr_FigureExport,'Tag',obj.pr.ax_no);
             obj.pr.clab.(obj.pr.ax_no)=uix.Panel( 'Parent', obj.pr.grid, 'Padding', 5 ,'Units','normalized','Title', 'Trigger Locked EEG','FontWeight','bold','FontSize',12,'TitlePosition','centertop' );
             obj.pr.ax.(obj.pr.ax_no)=axes( uicontainer('Parent',   obj.pr.clab.(obj.pr.ax_no)),'Units','normalized','uicontextmenu',ui_menu);
-            xlabel('Time (ms)')
-            ylabel('EEG Potential (\mu V)');
-            
+            xlabel('Time (ms)'); ylabel('EEG Potential (\mu V)');
+            text(obj.pr.ax.(obj.pr.ax_no),1,1,'YLim-','units','normalized','HorizontalAlignment','right','VerticalAlignment','bottom','ButtonDownFcn',@obj.pr_EEGYLimZoomIn,'Tag',obj.pr.ax_no,'color',[0.55 0.55 0.55]);
+            text(obj.pr.ax.(obj.pr.ax_no),0.1,1,'YLim+','units','normalized','HorizontalAlignment','left','VerticalAlignment','bottom','ButtonDownFcn',@obj.pr_EEGYLimZoomOut,'Tag',obj.pr.ax_no,'color',[0.55 0.55 0.55]);
+            text(obj.pr.ax.(obj.pr.ax_no),0.7,1,'XLim-','units','normalized','HorizontalAlignment','right','VerticalAlignment','bottom','ButtonDownFcn',@obj.pr_EEGXLimZoomIn,'Tag',obj.pr.ax_no,'color',[0.55 0.55 0.55]);
+            text(obj.pr.ax.(obj.pr.ax_no),0.4,1,'XLim+','units','normalized','HorizontalAlignment','left','VerticalAlignment','bottom','ButtonDownFcn',@obj.pr_EEGXLimZoomOut,'Tag',obj.pr.ax_no,'color',[0.55 0.55 0.55]);
         end
         function pr_RunningAmplitude(obj)
            obj.pr.ax_no=['ax' num2str(obj.pr.axesno)];
@@ -1908,12 +2054,12 @@ classdef best_application < handle
                         
                         expModr2=uiextras.HBox( 'Parent', expModvBox,'Spacing',  0, 'Padding', 2 );
                         uicontrol( 'Style','text','Parent', expModr2,'String','EEG Extraction Period (ms):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-                        obj.pi.mep.EEGExtractionPeriod=uicontrol( 'Style','edit','Parent', expModr2 ,'FontSize',11,'Tag','EMGExtractionPeriod','callback',@cb_par_saving);
+                        obj.pi.mep.EEGExtractionPeriod=uicontrol( 'Style','edit','Parent', expModr2 ,'FontSize',11,'Tag','EEGExtractionPeriod','callback',@cb_par_saving);
                         expModr2.Widths=[200 -2];
                         
                         expModr2=uiextras.HBox( 'Parent', expModvBox,'Spacing',  0, 'Padding', 2 );
                         uicontrol( 'Style','text','Parent', expModr2,'String','EEG Display Period (ms):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-                        obj.pi.mep.EEGXLimit=uicontrol( 'Style','edit','Parent', expModr2 ,'FontSize',11,'Tag','EMGXLimit','callback',@cb_par_saving);
+                        obj.pi.mep.EEGXLimit=uicontrol( 'Style','edit','Parent', expModr2 ,'FontSize',11,'Tag','EEGXLimit','callback',@cb_par_saving);
                         expModr2.Widths=[200 -2];                        
                         
                         expModvBox.Heights=[-1 -1 -1 -1 -1 -1 -1];%[35 42 42 42 42 42 42];
@@ -3054,6 +3200,7 @@ classdef best_application < handle
             obj.info.defaults.EMGXLimit='-50 150';
             obj.info.defaults.EEGExtractionPeriod='-100 100';
             obj.info.defaults.EEGXLimit='-100 100';
+            obj.info.defaults.EEGYLimit='-100 100';
             obj.info.defaults.EMGDisplayYLimMax={3000};
             obj.info.defaults.EMGDisplayYLimMin={-3000};
             obj.info.defaults.Protocol={'MEP Measurement Protocol'};
@@ -3319,12 +3466,12 @@ classdef best_application < handle
                         
                         expModr2=uiextras.HBox( 'Parent', expModvBox,'Spacing', 0, 'Padding', 2 );
                         uicontrol( 'Style','text','Parent', expModr2,'String','EEG Extraction Period (ms):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-                        obj.pi.drc.EEGExtractionPeriod=uicontrol( 'Style','edit','Parent', expModr2 ,'FontSize',11,'Tag','EMGExtractionPeriod','callback',@cb_par_saving);
+                        obj.pi.drc.EEGExtractionPeriod=uicontrol( 'Style','edit','Parent', expModr2 ,'FontSize',11,'Tag','EEGExtractionPeriod','callback',@cb_par_saving);
                         expModr2.Widths=[200 -2];
                         
                         expModr2=uiextras.HBox( 'Parent', expModvBox,'Spacing', 0, 'Padding', 2 );
                         uicontrol( 'Style','text','Parent', expModr2,'String','EEG Display Period (ms):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-                        obj.pi.drc.EEGXLimit=uicontrol( 'Style','edit','Parent', expModr2 ,'FontSize',11,'Tag','EMGXLimit','callback',@cb_par_saving);
+                        obj.pi.drc.EEGXLimit=uicontrol( 'Style','edit','Parent', expModr2 ,'FontSize',11,'Tag','EEGXLimit','callback',@cb_par_saving);
                         expModr2.Widths=[200 -2];                      
                         
                         expModr1=uiextras.HBox( 'Parent', expModvBox,'Spacing', 0, 'Padding', 2 );
@@ -4470,6 +4617,7 @@ classdef best_application < handle
             obj.info.defaults.EMGXLimit='-50 150';
             obj.info.defaults.EEGExtractionPeriod='-100 100';
             obj.info.defaults.EEGXLimit='-100 100';
+            obj.info.defaults.EEGYLimit='-100 100';
             obj.info.defaults.DoseFunction=1;
             obj.info.defaults.ResponseFunctionNumerator='1';
             obj.info.defaults.ResponseFunctionDenominator='1';
@@ -4728,12 +4876,12 @@ classdef best_application < handle
                         
                         expModr2=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 2 );
                         uicontrol( 'Style','text','Parent', expModr2,'String','EEG Extraction Period (ms):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-                        obj.pi.mth.EEGExtractionPeriod=uicontrol( 'Style','edit','Parent', expModr2 ,'FontSize',11,'Tag','EMGExtractionPeriod','callback',@cb_par_saving);
+                        obj.pi.mth.EEGExtractionPeriod=uicontrol( 'Style','edit','Parent', expModr2 ,'FontSize',11,'Tag','EEGExtractionPeriod','callback',@cb_par_saving);
                         expModr2.Widths=[200 -2];
                         
                         expModr2=uiextras.HBox( 'Parent', expModvBox,'Spacing', 0, 'Padding', 2 );
                         uicontrol( 'Style','text','Parent', expModr2,'String','EEG Display Period (ms):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-                        obj.pi.mth.EEGXLimit=uicontrol( 'Style','edit','Parent', expModr2 ,'FontSize',11,'Tag','EMGXLimit','callback',@cb_par_saving);
+                        obj.pi.mth.EEGXLimit=uicontrol( 'Style','edit','Parent', expModr2 ,'FontSize',11,'Tag','EEGXLimit','callback',@cb_par_saving);
                         expModr2.Widths=[200 -2];                        
 
                         expModr4=uiextras.HBox( 'Parent', expModvBox,'Spacing', 0, 'Padding', 2 );
@@ -5994,6 +6142,7 @@ classdef best_application < handle
             obj.info.defaults.EMGXLimit='-50 150';
             obj.info.defaults.EEGExtractionPeriod='-100 100';
             obj.info.defaults.EEGXLimit='-100 100';
+            obj.info.defaults.EEGYLimit='-100 100';
             obj.info.defaults.EMGDisplayYLimMax={60};
             obj.info.defaults.EMGDisplayYLimMin={-60};
             obj.info.defaults.Protocol={'Motor Threshold Hunting Protocol'};
@@ -6212,12 +6361,12 @@ classdef best_application < handle
                         
                         expModr2=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
                         uicontrol( 'Style','text','Parent', expModr2,'String','EEG Extraction Period (ms):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-                        obj.pi.psychmth.EEGExtractionPeriod=uicontrol( 'Style','edit','Parent', expModr2 ,'FontSize',11,'Tag','EMGExtractionPeriod','callback',@cb_par_saving);
+                        obj.pi.psychmth.EEGExtractionPeriod=uicontrol( 'Style','edit','Parent', expModr2 ,'FontSize',11,'Tag','EEGExtractionPeriod','callback',@cb_par_saving);
                         expModr2.Widths=[150 -2];
                         
                         expModr2=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
                         uicontrol( 'Style','text','Parent', expModr2,'String','EEG Display Period (ms):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-                        obj.pi.psychmth.EEGXLimit=uicontrol( 'Style','edit','Parent', expModr2 ,'FontSize',11,'Tag','EMGXLimit','callback',@cb_par_saving);
+                        obj.pi.psychmth.EEGXLimit=uicontrol( 'Style','edit','Parent', expModr2 ,'FontSize',11,'Tag','EEGXLimit','callback',@cb_par_saving);
                         expModr2.Widths=[150 -2];                 
                         
                         
@@ -7443,6 +7592,7 @@ classdef best_application < handle
             obj.info.defaults.EEGDisplayPeriodPost='100';
             obj.info.defaults.EEGExtractionPeriod='-100 100';
             obj.info.defaults.EEGXLimit='-100 100';
+            obj.info.defaults.EEGYLimit='-100 100';
             obj.info.defaults.Protocol={'Psychometric Threshold Hunting Protocol'};
             obj.info.defaults.Handles.UserData='Reserved for Future Use';
             obj.info.defaults.Enable={'on'};
@@ -12282,7 +12432,12 @@ classdef best_application < handle
                 % show the empty box over here against input panel
             end
             obj.cb_menu_save;
-            
+            %% Load Protocol Status
+            obj.pmd.ProtocolStatus.listbox.String={''};
+            for Prtcl=1:numel(obj.pmd.lb_measures.listbox.String) 
+                obj.pmd.ProtocolStatus.listbox.String(Prtcl)=obj.par.(obj.info.event.current_session).(regexprep((obj.pmd.lb_measures.listbox.String{Prtcl}),' ','_')).ProtocolStatus;
+            end
+            obj.pmd.ProtocolStatus.listbox.Value=obj.pmd.lb_measures.listbox.Value;
         end
         function cb_measure_listbox(obj)
             if(((numel(obj.pmd.lb_measures.listbox.String))==0) || strcmp(obj.info.event.current_session,''))
@@ -12353,7 +12508,7 @@ classdef best_application < handle
             %% Load Protocol Status
             obj.pmd.ProtocolStatus.listbox.String={''};
             for Prtcl=1:numel(obj.pmd.lb_measures.listbox.String) 
-                obj.pmd.ProtocolStatus.listbox.String(Prtcl)=obj.par.(obj.info.event.current_session).(regexprep((obj.pmd.lb_measures.listbox.String{1}),' ','_')).ProtocolStatus;
+                obj.pmd.ProtocolStatus.listbox.String(Prtcl)=obj.par.(obj.info.event.current_session).(regexprep((obj.pmd.lb_measures.listbox.String{Prtcl}),' ','_')).ProtocolStatus;
             end
             obj.pmd.ProtocolStatus.listbox.Value=obj.pmd.lb_measures.listbox.Value;
             obj.cb_menu_save;
