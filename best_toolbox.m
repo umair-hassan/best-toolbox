@@ -4039,12 +4039,10 @@ classdef best_toolbox < handle
                     plot([obj.info.th,min(xlim)],[0.05,0.05],'--','Color' , [0.75 0.75 0.75]);
                     plot([obj.info.th,obj.info.th],[0.05,ylim_ioc],'--','Color' , [0.75 0.75 0.75]);
                     legend_th=plot(obj.info.th, 0.05,'r*','MarkerSize',15);
-                    
                     %% Creating legends
                     h_legend=[h(1); legend_ip;legend_pt;legend_th];
                     l=legend(h_legend, 'Dose-Response Curve', 'Inflection Point','Plateau','Threshold');
                     set(l,'Orientation','horizontal','Location', 'southoutside','FontSize',12);
-                    
                     %% Creating Properties annotation box
                     
                     str_ip=['Inflection Point: ',num2str(obj.info.ip_x),' (%MSO)',' , ',num2str(ip_y),' (\muV)'];
@@ -4054,7 +4052,6 @@ classdef best_toolbox < handle
                     dim = [0 0 0.5 0.5];
                     str = {str_ip,[],str_th,[],str_pt};
                     ylim([-500 Inf])
-                    
                     %% Test String of IP, PT and TH
                     obj.app.pr.ip_mso.(ax).String=obj.info.ip_x;
                     obj.app.pr.ip_muv.(ax).String=ip_y;
@@ -4062,6 +4059,8 @@ classdef best_toolbox < handle
                     obj.app.pr.pt_muv.(ax).String=pt_y;
                     obj.app.pr.th_mso.(ax).String=obj.info.th;
                     obj.app.pr.th_muv.(ax).String=0.05;
+                    ResultsAnnotation={['Inflection Point(mV):' num2str(ip_y*1000)],['Inflection Point(intensity):' num2str(obj.info.ip_x)],['Plateau (mV):' num2str(pt_y*1000)],['Plateau (intensity):' num2str(obj.info.pt_x)],['Thershold (intensity):' num2str(obj.info.th)]};
+                    obj.app.pr.ax.(ax).UserData.status=text(obj.app.pr.ax.(ax),1,1,ResultsAnnotation,'units','normalized','HorizontalAlignment','right','VerticalAlignment','cap','color',[0.45 0.45 0.45]);
                     box off; drawnow;
                 elseif numel(obj.inputs.ResponseFunctionNumerator)>1
                     %%  Complicated Response Function case
