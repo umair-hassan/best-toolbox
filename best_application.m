@@ -1298,14 +1298,20 @@ classdef best_application < handle
         end
         function pr_scat_plot(obj)
             obj.pr.ax_no=['ax' num2str(obj.pr.axesno)];
+            ui_menu=uicontextmenu(obj.fig.handle);
+            uimenu(ui_menu,'label','set Font size','Callback',@obj.pr_FontSize,'Tag',obj.pr.ax_no);
+            uimenu(ui_menu,'label','export as MATLAB Figure','Callback',@obj.pr_FigureExport,'Tag',obj.pr.ax_no);
             obj.pr.clab.(obj.pr.ax_no)=uix.Panel( 'Parent', obj.pr.grid, 'Padding', 5 ,'Units','normalized','Title', 'MEP Scatter Plot','FontWeight','bold','FontSize',12,'TitlePosition','centertop' );
-            obj.pr.ax.(obj.pr.ax_no)=axes( uicontainer( 'Parent',  obj.pr.clab.(obj.pr.ax_no)),'Units','normalized');
+            obj.pr.ax.(obj.pr.ax_no)=axes( uicontainer( 'Parent',  obj.pr.clab.(obj.pr.ax_no)),'Units','normalized','uicontextmenu',ui_menu);
         end
         function pr_fit_plot(obj)
             obj.pr.ax_no=['ax' num2str(obj.pr.axesno)];
+            ui_menu=uicontextmenu(obj.fig.handle);
+            uimenu(ui_menu,'label','set Font size','Callback',@obj.pr_FontSize,'Tag',obj.pr.ax_no);
+            uimenu(ui_menu,'label','export as MATLAB Figure','Callback',@obj.pr_FigureExport,'Tag',obj.pr.ax_no);
             AxesTitle=['MEP Dose-Response Curve ' obj.pr.ax_ChannelLabels{1,obj.pr.axesno}];
             obj.pr.clab.(obj.pr.ax_no)=uix.Panel( 'Parent', obj.pr.grid, 'Padding', 5 ,'Units','normalized','Title', AxesTitle,'FontWeight','bold','FontSize',12,'TitlePosition','centertop' );
-            obj.pr.ax.(obj.pr.ax_no)=axes( uicontainer('Parent',  obj.pr.clab.(obj.pr.ax_no)),'Units','normalized');
+            obj.pr.ax.(obj.pr.ax_no)=axes( uicontainer('Parent',  obj.pr.clab.(obj.pr.ax_no)),'Units','normalized','uicontextmenu',ui_menu);
         end
         function pr_threshold_trace_plot(obj)
             obj.pr.ax_no=['ax' num2str(obj.pr.axesno)];
@@ -1419,15 +1425,20 @@ classdef best_application < handle
         end
         function pr_PhaseHistogram(obj)
             obj.pr.ax_no=['ax' num2str(obj.pr.axesno)];
+            ui_menu=uicontextmenu(obj.fig.handle);
+            uimenu(ui_menu,'label','set Font size','Callback',@obj.pr_FontSize,'Tag',obj.pr.ax_no);
+            uimenu(ui_menu,'label','export as MATLAB Figure','Callback',@obj.pr_FigureExport,'Tag',obj.pr.ax_no);
             obj.pr.clab.(obj.pr.ax_no)=uix.Panel( 'Parent', obj.pr.grid, 'Padding', 5 ,'Units','normalized','Title', 'Phase Histogram','FontWeight','bold','FontSize',12,'TitlePosition','centertop' );
-            obj.pr.ax.(obj.pr.ax_no)=polaraxes( uicontainer('Parent',  obj.pr.clab.(obj.pr.ax_no)),'Units','normalized');
+            obj.pr.ax.(obj.pr.ax_no)=polaraxes( uicontainer('Parent',  obj.pr.clab.(obj.pr.ax_no)),'Units','normalized','uicontextmenu',ui_menu);
         end
         
         function pr_TriggerLockedEEG(obj)
             obj.pr.ax_no=['ax' num2str(obj.pr.axesno)];
-            
+            ui_menu=uicontextmenu(obj.fig.handle);
+            uimenu(ui_menu,'label','set Font size','Callback',@obj.pr_FontSize,'Tag',obj.pr.ax_no);
+            uimenu(ui_menu,'label','export as MATLAB Figure','Callback',@obj.pr_FigureExport,'Tag',obj.pr.ax_no);
             obj.pr.clab.(obj.pr.ax_no)=uix.Panel( 'Parent', obj.pr.grid, 'Padding', 5 ,'Units','normalized','Title', 'Trigger Locked EEG','FontWeight','bold','FontSize',12,'TitlePosition','centertop' );
-            obj.pr.ax.(obj.pr.ax_no)=axes( uicontainer('Parent',   obj.pr.clab.(obj.pr.ax_no)),'Units','normalized');
+            obj.pr.ax.(obj.pr.ax_no)=axes( uicontainer('Parent',   obj.pr.clab.(obj.pr.ax_no)),'Units','normalized','uicontextmenu',ui_menu);
             xlabel('Time (ms)')
             ylabel('EEG Potential (\mu V)');
             
@@ -1470,11 +1481,6 @@ classdef best_application < handle
         end
         function pr_MotorThresholdHunting(obj)
             obj.pr.ax_no=['ax' num2str(obj.pr.axesno)];
-%             aa=obj.pr.ax_no
-%             tag=['{' obj.pr.ax_no ',' obj.pr.ax_ChannelLabels{obj.pr.axesno} '}']
-%             tag=['{' ''' a '','' b ''}']
-%             ['{' ' ''C3'',' ' ''FC1'',' ' ''FC5'',' ' ''CP1'',' ' ''CP5''}'];
-%             obj.pr.ax_ChannelLabels{obj.pr.axesno}
             ui_menu=uicontextmenu(obj.fig.handle);
             uimenu(ui_menu,'label','set Last No. of Trials to Calculate Average for Threshold','Callback',@obj.pr_NoOfTrialsToAverage,'Tag',obj.pr.ax_ChannelLabels{obj.pr.axesno},'UserData',obj.pr.ax_no);
             uimenu(ui_menu,'label','set Font size','Callback',@obj.pr_FontSize,'Tag',obj.pr.ax_no);
