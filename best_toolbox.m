@@ -4075,7 +4075,7 @@ classdef best_toolbox < handle
                     obj.inputs.rawData.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).mep_stats(:,2)=M(:,2); %Sampled Response Function
                     obj.inputs.DoseFunctionValues=obj.inputs.rawData.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).mep_stats(:,1);
                     obj.inputs.ResponseFunctionValues=obj.inputs.rawData.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).mep_stats(:,2);
-                    plot(obj.inputs.DoseFunctionValues,obj.inputs.ResponseFunctionValues);
+                    plot(obj.inputs.DoseFunctionValues,obj.inputs.ResponseFunctionValues,'DisplayName','Dose Response Curve','color','g','LineWidth',2);
                     %% Preparing Graphical Legend Enteries
                     switch obj.inputs.DoseFunction
                         case 1 % TS
@@ -4092,7 +4092,6 @@ classdef best_toolbox < handle
                             xlimvalue=unique(xlimvalue,'stable');
                             xlimvector=[min(xlimvalue)-(min(xlimvalue)*.10) max(xlimvalue)+(max(xlimvalue)*.10)];
                             xtickvector=unique(sort([xlimvalue']));
-                            
                         case 2 % CS
                             xlabelstring='CS Intensity';
                             ylabelstring='MEP Amp. ( % Control )';
@@ -4136,6 +4135,24 @@ classdef best_toolbox < handle
                             xtickvector=unique(sort([xlimvalue']));
                     end
                     xlabel(xlabelstring); ylabel(ylabelstring); xlim(xlimvector); xticks(xtickvector);
+                    %% Computing Inhibition & Facilitation 
+                    Inhibition=min(obj.inputs.ResponseFunctionValues)/2;
+                    Facilitation=max(obj.inputs.ResponseFunctionValues)/2;
+                    for i=1:numel(obj.inputs.ResponseFunctionValues)-1
+                        ResponseFunctionValues{i}=linspace(obj.inputs.ResponseFunctionValues(i),obj.inputs.ResponseFunctionValues(i+1),1e3);
+                        DoseFunctionValues{i}=linspace(obj.inputs.DoseFunctionValues(i),obj.inputs.DoseFunctionValues(i+1),1e3);
+                    end
+                    ResponseFunctionValues = [ResponseFunctionValues{:}]; DoseFunctionValues = [DoseFunctionValues{:}];
+                    [~,idx]=min(abs(ResponseFunctionValues-Inhibition));
+                    Inhibition_Intensity=round(DoseFunctionValues(idx));
+                    [~,idx]=min(abs(ResponseFunctionValues-Facilitation));
+                    Facilitation_Intensity=round(DoseFunctionValues(idx));
+                    %% Annotating Inhibition and Facilitation
+                    ResultsAnnotation={['Inhibition (50%):' num2str(Inhibition)],['Inhibition(intensity):' num2str(Inhibition_Intensity)],['Facilitation (50%):' num2str(Facilitation)],['Facilitation (intensity):' num2str(Facilitation_Intensity)]};
+                    obj.app.pr.ax.(ax).UserData.status=text(obj.app.pr.ax.(ax),1,1,ResultsAnnotation,'units','normalized','HorizontalAlignment','right','VerticalAlignment','cap','color',[0.45 0.45 0.45]);
+                    gridxy(Inhibition_Intensity,Inhibition,'DisplayName','Inhibition','color','b'), hold on
+                    gridxy(Facilitation_Intensity,Facilitation,'DisplayName','Facilitation','color','r')
+                    legend('Location','southoutside','Orientation','horizontal')
                 end
             end
         end
