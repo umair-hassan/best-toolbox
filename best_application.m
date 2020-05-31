@@ -3581,7 +3581,8 @@ classdef best_application < handle
                         
                         expModr1=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
                         uicontrol( 'Style','text','Parent', expModr1,'String','Dose Function:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-                        obj.pi.drc.DoseFunction=uicontrol( 'Style','popupmenu','Parent', expModr1 ,'FontSize',11,'String',{'Test Stimulus (TS)','Condtion Stimulus (CS)','Inter Stimulus Interval (ISI)','Inter Trial Interval (ITI)'},'Tag','DoseFunction','callback',@cb_par_saving);
+                        DoseFunctionString={'Test Stimulus (TS)','Condtion Stimulus (CS)','Inter Stimulus Interval (ISI)'}; % ,'Inter Trial Interval (ITI)'} % 31-May-2020 20:14:09
+                        obj.pi.drc.DoseFunction=uicontrol( 'Style','popupmenu','Parent', expModr1 ,'FontSize',11,'String',DoseFunctionString,'Tag','DoseFunction','callback',@cb_par_saving);
                         expModr1.Widths=[150 -2];
                         
                         expModr4=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
@@ -3637,7 +3638,8 @@ classdef best_application < handle
                         
                         expModr1=uiextras.HBox( 'Parent', expModvBox,'Spacing', 0, 'Padding', 2 );
                         uicontrol( 'Style','text','Parent', expModr1,'String','Dose Function:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-                        obj.pi.drc.DoseFunction=uicontrol( 'Style','popupmenu','Parent', expModr1 ,'FontSize',11,'String',{'Test Stimulus (TS)','Condtion Stimulus (CS)','Inter Stimulus Interval (ISI)','Inter Trial Interval (ITI)'},'Tag','DoseFunction','callback',@cb_par_saving);
+                        DoseFunctionString={'Test Stimulus (TS)','Condtion Stimulus (CS)','Inter Stimulus Interval (ISI)'}; % ,'Inter Trial Interval (ITI)'} % 31-May-2020 20:14:09
+                        obj.pi.drc.DoseFunction=uicontrol( 'Style','popupmenu','Parent', expModr1 ,'FontSize',11,'String',DoseFunctionString,'Tag','DoseFunction','callback',@cb_par_saving);
                         expModr1.Widths=[150 -2];
                         
                         expModr4=uiextras.HBox( 'Parent', expModvBox,'Spacing', 0, 'Padding', 2 );
