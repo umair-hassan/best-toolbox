@@ -6295,8 +6295,8 @@ classdef best_application < handle
             obj.info.defaults.EMGXLimit='-50 150';
             obj.info.defaults.EEGExtractionPeriod='-100 100';
             obj.info.defaults.EEGXLimit='-100 100';
-            obj.info.defaults.EMGDisplayYLimMax={100};
-            obj.info.defaults.EMGDisplayYLimMin={-100};
+            obj.info.defaults.EMGDisplayYLimMax={60};
+            obj.info.defaults.EMGDisplayYLimMin={-60};
             obj.info.defaults.Protocol={'Motor Threshold Hunting Protocol'};
             obj.info.defaults.Handles.UserData='Reserved for Future Use';
             obj.info.defaults.Enable={'on'};

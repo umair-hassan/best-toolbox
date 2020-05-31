@@ -938,8 +938,8 @@ classdef best_toolbox < handle
                             obj.inputs.ylimMin=obj.inputs.EMGDisplayYLimMin;
                             obj.inputs.ylimMax=obj.inputs.EMGDisplayYLimMax;
                             obj.inputs.stop_event=0;
-                            obj.inputs.ylimMin=-3000;
-                            obj.inputs.ylimMax=+3000;
+                            obj.inputs.ylimMin=-60;
+                            obj.inputs.ylimMax=+60;
                             obj.inputs.TrialNoForMean=1;
                             obj.inputs.mt_starting_stim_inten=obj.inputs.condsAll.cond1.st1.si_pckt{1,1};
                             obj.inputs.Handles.ThresholdData=struct;
@@ -1102,8 +1102,8 @@ classdef best_toolbox < handle
                             obj.inputs.ylimMin=obj.inputs.EMGDisplayYLimMin;
                             obj.inputs.ylimMax=obj.inputs.EMGDisplayYLimMax;
                             obj.inputs.stop_event=0;
-                            obj.inputs.ylimMin=-3000;
-                            obj.inputs.ylimMax=+3000;
+                            obj.inputs.ylimMin=-60;
+                            obj.inputs.ylimMax=+60;
                             obj.inputs.TrialNoForMean=1;
                             obj.inputs.mt_starting_stim_inten=obj.inputs.condsAll.cond1.st1.si_pckt{1,1};
                             obj.inputs.Handles.ThresholdData=struct;
