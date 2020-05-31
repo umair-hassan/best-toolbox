@@ -100,6 +100,10 @@ classdef best_toolbox < handle
             switch obj.inputs.Protocol
                 case 'MEP Hotspot Search Protocol'
                     %% Adjusting New Arhictecture to Old Architecture
+                     obj.inputs.MEPOnset=obj.inputs.MEPSearchWindow(1);
+                    obj.inputs.MEPOffset=obj.inputs.MEPSearchWindow(2);
+                    obj.inputs.EMGDisplayPeriodPre=obj.inputs.EMGExtractionPeriod(1)*(-1);
+                    obj.inputs.EMGDisplayPeriodPost=obj.inputs.EMGExtractionPeriod(2);
                     obj.inputs.prestim_scope_plt=obj.inputs.EMGDisplayPeriodPre;
                     obj.inputs.poststim_scope_plt=obj.inputs.EMGDisplayPeriodPost;
                     obj.inputs.mep_onset=obj.inputs.MEPOnset;
@@ -115,10 +119,6 @@ classdef best_toolbox < handle
                     obj.inputs.ylimMax=+3000;
                     obj.inputs.TrialNoForMean=1;
                     obj.inputs.BrainState=1;
-                    obj.inputs.MEPOnset=obj.inputs.MEPSearchWindow(1);
-                    obj.inputs.MEPOffset=obj.inputs.MEPSearchWindow(2);
-                    obj.inputs.EMGDisplayPeriodPre=obj.inputs.EMGExtractionPeriod(1)*(-1);
-                    obj.inputs.EMGDisplayPeriodPost=obj.inputs.EMGExtractionPeriod(2);
                     %% Creating Column Labels
                     obj.inputs.colLabel.inputDevices=1;
                     obj.inputs.colLabel.outputDevices=2;
@@ -244,6 +244,10 @@ classdef best_toolbox < handle
                     switch obj.inputs.BrainState
                         case 1 %Independent
                             %% Adjusting New Arhictecture to Old Architecture
+                            obj.inputs.MEPOnset=obj.inputs.MEPSearchWindow(1);
+                            obj.inputs.MEPOffset=obj.inputs.MEPSearchWindow(2);
+                            obj.inputs.EMGDisplayPeriodPre=obj.inputs.EMGExtractionPeriod(1)*(-1);
+                            obj.inputs.EMGDisplayPeriodPost=obj.inputs.EMGExtractionPeriod(2);
                             obj.inputs.prestim_scope_plt=obj.inputs.EMGDisplayPeriodPre;
                             obj.inputs.poststim_scope_plt=obj.inputs.EMGDisplayPeriodPost;
                             obj.inputs.mep_onset=obj.inputs.MEPOnset;
@@ -259,10 +263,6 @@ classdef best_toolbox < handle
                             obj.inputs.ylimMax=+3000;
                             obj.inputs.TrialNoForMean=1;
                             obj.inputs.mt_starting_stim_inten=obj.inputs.condsAll.cond1.st1.si_pckt{1,1};
-                            obj.inputs.MEPOnset=obj.inputs.MEPSearchWindow(1);
-                            obj.inputs.MEPOffset=obj.inputs.MEPSearchWindow(2);
-                            obj.inputs.EMGDisplayPeriodPre=obj.inputs.EMGExtractionPeriod(1)*(-1);
-                            obj.inputs.EMGDisplayPeriodPost=obj.inputs.EMGExtractionPeriod(2);
                             %% Creating Column Labels
                             obj.inputs.colLabel.inputDevices=1;
                             obj.inputs.colLabel.outputDevices=2;
@@ -278,27 +278,30 @@ classdef best_toolbox < handle
                             obj.inputs.colLabel.chId=12;
                             switch obj.app.par.hardware_settings.(char(obj.inputs.input_device)).slct_device
                                 case 1 %boss box
-                                    
-                                    DisplayChannelType=cell(1,numel(obj.inputs.EMGDisplayChannels));
-                                    DisplayChannelType(:)=cellstr('EMG');
-                                    DisplayChannelID=num2cell(1:numel(obj.inputs.EMGDisplayChannels));
+                                    ChannelType=[repmat({'EMG'},1,numel(obj.inputs.EMGDisplayChannels)),{'StatusTable'}]; %dirctly inside the loop
+                                    ChannelID=num2cell(1:numel(ChannelType)); %TODO: make this more systematic and extract from channel labels of neurone or acs protocol
+                                    obj.inputs.ChannelsTypeUnique=ChannelType;
+                                    for ChannelType2=1:numel(obj.inputs.EMGDisplayChannels)
+                                        ChannelID{ChannelType2}=find(strcmp(obj.app.par.hardware_settings.(char(obj.inputs.input_device)).NeurOneProtocolChannelLabels,obj.inputs.EMGDisplayChannels{ChannelType2}));
+                                    end
+                                    DisplayChannelType=ChannelType;
+                                    DisplayChannelID=ChannelID;
                                     obj.inputs.ChannelsTypeUnique=DisplayChannelType;
-                                    
                                 case 2 % fieldtrip real time buffer
                             end
                             
                             DisplayChannelsMeasures=cell(1,numel(obj.inputs.EMGDisplayChannels));
-                            DisplayChannelsMeasures(:)=cellstr('MEP_Measurement');
-                            DisplayChannelsAxesNo=num2cell(1:numel(obj.inputs.EMGDisplayChannels));
+                            DisplayChannelsMeasures(:)=cellstr('MEP_Measurement'); DisplayChannelsMeasures(numel(DisplayChannelsMeasures)+1)={'StatusTable'};
+                            DisplayChannelsAxesNo=num2cell(1:numel(obj.inputs.EMGDisplayChannels)+1);
                             obj.app.pr.ax_measures=DisplayChannelsMeasures;
-                            obj.app.pr.axesno=numel(obj.inputs.EMGDisplayChannels);
-                            obj.app.pr.ax_ChannelLabels=obj.inputs.EMGDisplayChannels;
+                            obj.app.pr.axesno=numel(obj.inputs.EMGDisplayChannels)+1;
+                            obj.app.pr.ax_ChannelLabels=[obj.inputs.EMGDisplayChannels {'StatusTable'}] ;
                             %% Creating Stimulation Conditions
                             for c=1:numel(fieldnames(obj.inputs.condsAll))
                                 obj.inputs.condMat{c,obj.inputs.colLabel.trials}=obj.inputs.TrialsPerCondition;
                                 obj.inputs.condMat{c,obj.inputs.colLabel.iti}=obj.inputs.ITI;
                                 obj.inputs.condMat{c,obj.inputs.colLabel.inputDevices}=char(obj.app.pi.mep.InputDevice.String(obj.inputs.InputDevice));
-                                obj.inputs.condMat{c,obj.inputs.colLabel.chLab}=obj.inputs.EMGDisplayChannels;
+                                obj.inputs.condMat{c,obj.inputs.colLabel.chLab}=[obj.inputs.EMGDisplayChannels,{'StatusTable'}];
                                 obj.inputs.condMat{c,obj.inputs.colLabel.measures}=DisplayChannelsMeasures;
                                 obj.inputs.condMat{c,obj.inputs.colLabel.axesno}=DisplayChannelsAxesNo;
                                 obj.inputs.condMat{c,obj.inputs.colLabel.chType}=DisplayChannelType;
@@ -386,6 +389,14 @@ classdef best_toolbox < handle
                             end
                         case 2 %Dependent
                             %% Adjusting New Arhictecture to Old Architecture
+                            obj.inputs.MEPOnset=obj.inputs.MEPSearchWindow(1);
+                            obj.inputs.MEPOffset=obj.inputs.MEPSearchWindow(2);
+                            obj.inputs.EMGDisplayPeriodPre=obj.inputs.EMGExtractionPeriod(1)*(-1);
+                            obj.inputs.EMGDisplayPeriodPost=obj.inputs.EMGExtractionPeriod(2);
+                            obj.inputs.EEGDisplayPeriodPre=obj.inputs.EEGExtractionPeriod(1)*(-1);
+                            obj.inputs.EEGDisplayPeriodPost=obj.inputs.EEGExtractionPeriod(2);
+                            obj.inputs.MontageChannels=obj.inputs.RealTimeChannelsMontage;
+                            obj.inputs.MontageWeights=obj.inputs.RealTimeChannelsWeights;
                             obj.inputs.prestim_scope_plt=obj.inputs.EMGDisplayPeriodPre;
                             obj.inputs.poststim_scope_plt=obj.inputs.EMGDisplayPeriodPost;
                             obj.inputs.mep_onset=obj.inputs.MEPOnset;
@@ -401,14 +412,6 @@ classdef best_toolbox < handle
                             obj.inputs.ylimMax=+3000;
                             obj.inputs.TrialNoForMean=1;
                             obj.inputs.mt_starting_stim_inten=obj.inputs.condsAll.cond1.st1.si_pckt{1,1};
-                            obj.inputs.MEPOnset=obj.inputs.MEPSearchWindow(1);
-                            obj.inputs.MEPOffset=obj.inputs.MEPSearchWindow(2);
-                            obj.inputs.EMGDisplayPeriodPre=obj.inputs.EMGExtractionPeriod(1)*(-1);
-                            obj.inputs.EMGDisplayPeriodPost=obj.inputs.EMGExtractionPeriod(2);
-                            obj.inputs.EEGDisplayPeriodPre=obj.inputs.EEGExtractionPeriod(1)*(-1);
-                            obj.inputs.EEGDisplayPeriodPost=obj.inputs.EEGExtractionPeriod(2);
-                            obj.inputs.MontageChannels=obj.inputs.RealTimeChannelsMontage;
-                            obj.inputs.MontageWeights=obj.inputs.RealTimeChannelsWeights;
                             %% Creating Column Labels
                             obj.inputs.colLabel.inputDevices=1;
                             obj.inputs.colLabel.outputDevices=2;
@@ -430,13 +433,14 @@ classdef best_toolbox < handle
                             %% Creating ChannelType and ChannelID
                             switch obj.app.par.hardware_settings.(char(obj.inputs.input_device)).slct_device
                                 case 1 %boss box
-                                    EMGDisplayChannelType=cell(1,numel(obj.inputs.EMGDisplayChannels));
-                                    EMGDisplayChannelType(:)=cellstr('EMG');
-                                    EMGDisplayChannelID=num2cell(1:numel(obj.inputs.EMGDisplayChannels));
-                                    DisplayChannelType={'IP','IEEG',EMGDisplayChannelType{1,:},'IA','IADistribution'};
-                                    DisplayChannelID={1,1,EMGDisplayChannelID{1,:},1,1};
-                                    obj.inputs.ChannelsTypeUnique=DisplayChannelType;
-                                    
+                                    ChannelType=[{'IP'},{'IEEG'},repmat({'EMG'},1,numel(obj.inputs.EMGDisplayChannels)),{'IA'},{'IADistribution'},{'StatusTable'}]; 
+                                    ChannelID=num2cell(1:numel(ChannelType));
+                                    for ChannelType2=1:numel(obj.inputs.EMGDisplayChannels)
+                                        ChannelID{2+ChannelType2}=find(strcmp(obj.app.par.hardware_settings.(char(obj.inputs.input_device)).NeurOneProtocolChannelLabels,obj.inputs.EMGDisplayChannels{ChannelType2}));
+                                    end
+                                    DisplayChannelType=ChannelType;
+                                    DisplayChannelID=ChannelID;
+                                    obj.inputs.ChannelsTypeUnique=ChannelType;
                                 case 2 % fieldtrip real time buffer
                                     errordlg('Brain State Dependent Protocol are only supported with sync2brain BOSS Device.','BEST Toolbox');
                             end
@@ -444,8 +448,8 @@ classdef best_toolbox < handle
                             DisplayChannelsMeasures=cell(1,numel(obj.inputs.EMGDisplayChannels));
                             DisplayChannelsMeasures(:)=cellstr('MEP_Measurement');
                             
-                            ChannelLabels={'OsscillationPhase','OsscillationEEG',obj.inputs.EMGDisplayChannels{1,:},'OsscillationAmplitude','AmplitudeDistribution'};
-                            ChannelMeasures={'PhaseHistogram','TriggerLockedEEG',DisplayChannelsMeasures{1,:},'RunningAmplitude','AmplitudeDistribution'};
+                            ChannelLabels={'OsscillationPhase','OsscillationEEG',obj.inputs.EMGDisplayChannels{1,:},'OsscillationAmplitude','AmplitudeDistribution','StatusTable'};
+                            ChannelMeasures={'PhaseHistogram','TriggerLockedEEG',DisplayChannelsMeasures{1,:},'RunningAmplitude','AmplitudeDistribution','StatusTable'};
                             
                             DisplayChannelsAxesNo=num2cell(1:numel(ChannelMeasures));
                             obj.app.pr.ax_measures=ChannelMeasures;
@@ -607,6 +611,10 @@ classdef best_toolbox < handle
                     switch obj.inputs.BrainState
                         case 1 %Independent
                             %% Adjusting New Arhictecture to Old Architecture
+                            obj.inputs.MEPOnset=obj.inputs.MEPSearchWindow(1);
+                            obj.inputs.MEPOffset=obj.inputs.MEPSearchWindow(2);
+                            obj.inputs.EMGDisplayPeriodPre=obj.inputs.EMGExtractionPeriod(1)*(-1);
+                            obj.inputs.EMGDisplayPeriodPost=obj.inputs.EMGExtractionPeriod(2);
                             obj.inputs.prestim_scope_plt=obj.inputs.EMGDisplayPeriodPre;
                             obj.inputs.poststim_scope_plt=obj.inputs.EMGDisplayPeriodPost;
                             obj.inputs.mep_onset=obj.inputs.MEPOnset;
@@ -623,10 +631,6 @@ classdef best_toolbox < handle
                             obj.inputs.TrialNoForMean=1;
                             obj.inputs.mt_starting_stim_inten=obj.inputs.condsAll.cond1.st1.si_pckt{1,1};
                             obj.inputs.TSOnlyMean=NaN;
-                            obj.inputs.MEPOnset=obj.inputs.MEPSearchWindow(1);
-                            obj.inputs.MEPOffset=obj.inputs.MEPSearchWindow(2);
-                            obj.inputs.EMGDisplayPeriodPre=obj.inputs.EMGExtractionPeriod(1)*(-1);
-                            obj.inputs.EMGDisplayPeriodPost=obj.inputs.EMGExtractionPeriod(2);
                             %% Creating Column Labels
                             obj.inputs.colLabel.inputDevices=1;
                             obj.inputs.colLabel.outputDevices=2;
@@ -643,8 +647,8 @@ classdef best_toolbox < handle
                             obj.inputs.colLabel.stimcdMrk=13;
                             obj.inputs.colLabel.cdMrk=14;
                             %% Creating Channel Measures, AxesNo, Labels
-                            ChannelLabels=[repelem(obj.inputs.EMGTargetChannels,3),obj.inputs.EMGDisplayChannels]; %this can go directly inside the cond object in the loop
-                            ChannelMeasures=[repmat({'MEP_Measurement','MEP Scatter Plot','MEP IOC Fit'},1,numel(obj.inputs.EMGTargetChannels)),repmat({'MEP_Measurement'},1,numel(obj.inputs.EMGDisplayChannels))]; %dirctly inside the loop
+                            ChannelLabels=[repelem(obj.inputs.EMGTargetChannels,3),obj.inputs.EMGDisplayChannels,{'StatusTable'}]; %this can go directly inside the cond object in the loop
+                            ChannelMeasures=[repmat({'MEP_Measurement','MEP Scatter Plot','MEP IOC Fit'},1,numel(obj.inputs.EMGTargetChannels)),repmat({'MEP_Measurement'},1,numel(obj.inputs.EMGDisplayChannels)),{'StatusTable'}]; %dirctly inside the loop
                             ChannelAxesNo=num2cell(1:numel(ChannelLabels));
                             obj.app.pr.ax_measures=ChannelMeasures;
                             obj.app.pr.axesno=numel(ChannelAxesNo);
@@ -652,8 +656,14 @@ classdef best_toolbox < handle
                             %% Creating Channel Type, Channel Index
                             switch obj.app.par.hardware_settings.(char(obj.inputs.input_device)).slct_device
                                 case 1 %boss box
-                                    ChannelType=repmat({'EMG'},1,numel(ChannelLabels));
-                                    ChannelID=num2cell(1:numel(ChannelLabels)); %TODO: make this more systematic and extract from channel labels of neurone or acs protocol
+                                    ChannelType=[repmat({'EMG','None','None'},1,numel(obj.inputs.EMGTargetChannels)),repmat({'EMG'},1,numel(obj.inputs.EMGDisplayChannels)),{'StatusTable'}]; %dirctly inside the loop
+                                    ChannelID=num2cell(1:numel(ChannelType)); %TODO: make this more systematic and extract from channel labels of neurone or acs protocol
+                                    for ChannelType1=1:numel(obj.inputs.EMGTargetChannels)
+                                        ChannelID{3*ChannelType1-2}=find(strcmp(obj.app.par.hardware_settings.(char(obj.inputs.input_device)).NeurOneProtocolChannelLabels,obj.inputs.EMGTargetChannels{ChannelType1}));
+                                    end
+                                    for ChannelType2=1:numel(obj.inputs.EMGDisplayChannels)
+                                        ChannelID{numel(obj.inputs.EMGTargetChannels)+ChannelType2}=find(strcmp(obj.app.par.hardware_settings.(char(obj.inputs.input_device)).NeurOneProtocolChannelLabels,obj.inputs.EMGDisplayChannels{ChannelType2}));
+                                    end
                                     obj.inputs.ChannelsTypeUnique=ChannelType;
                                 case 2 % fieldtrip real time buffer
                             end
@@ -749,6 +759,14 @@ classdef best_toolbox < handle
                             end
                         case 2 %Dependent
                             %% Adjusting New Arhictecture to Old Architecture
+                            obj.inputs.MEPOnset=obj.inputs.MEPSearchWindow(1);
+                            obj.inputs.MEPOffset=obj.inputs.MEPSearchWindow(2);
+                            obj.inputs.EMGDisplayPeriodPre=obj.inputs.EMGExtractionPeriod(1)*(-1);
+                            obj.inputs.EMGDisplayPeriodPost=obj.inputs.EMGExtractionPeriod(2);
+                            obj.inputs.EEGDisplayPeriodPre=obj.inputs.EEGExtractionPeriod(1)*(-1);
+                            obj.inputs.EEGDisplayPeriodPost=obj.inputs.EEGExtractionPeriod(2);
+                            obj.inputs.MontageChannels=obj.inputs.RealTimeChannelsMontage;
+                            obj.inputs.MontageWeights=obj.inputs.RealTimeChannelsWeights;
                             obj.inputs.prestim_scope_plt=obj.inputs.EMGDisplayPeriodPre;
                             obj.inputs.poststim_scope_plt=obj.inputs.EMGDisplayPeriodPost;
                             obj.inputs.mep_onset=obj.inputs.MEPOnset;
@@ -765,14 +783,6 @@ classdef best_toolbox < handle
                             obj.inputs.TrialNoForMean=1;
                             obj.inputs.mt_starting_stim_inten=obj.inputs.condsAll.cond1.st1.si_pckt{1,1};
                             obj.inputs.TSOnlyMean=NaN;
-                            obj.inputs.MEPOnset=obj.inputs.MEPSearchWindow(1);
-                            obj.inputs.MEPOffset=obj.inputs.MEPSearchWindow(2);
-                            obj.inputs.EMGDisplayPeriodPre=obj.inputs.EMGExtractionPeriod(1)*(-1);
-                            obj.inputs.EMGDisplayPeriodPost=obj.inputs.EMGExtractionPeriod(2);
-                            obj.inputs.EEGDisplayPeriodPre=obj.inputs.EEGExtractionPeriod(1)*(-1);
-                            obj.inputs.EEGDisplayPeriodPost=obj.inputs.EEGExtractionPeriod(2);
-                            obj.inputs.MontageChannels=obj.inputs.RealTimeChannelsMontage;
-                            obj.inputs.MontageWeights=obj.inputs.RealTimeChannelsWeights;
                             %% Creating Column Labels
                             obj.inputs.colLabel.inputDevices=1;
                             obj.inputs.colLabel.outputDevices=2;
@@ -794,8 +804,8 @@ classdef best_toolbox < handle
                                 obj.inputs.colLabel.IAPercentile=17;
                             end
                             %% Creating Channel Measures, AxesNo, Labels
-                            ChannelLabels=[{'OsscillationPhase'},{'OsscillationEEG'},repelem(obj.inputs.EMGTargetChannels,3),obj.inputs.EMGDisplayChannels,{'OsscillationAmplitude'},{'AmplitudeDistribution'}]; %[repelem(obj.inputs.EMGTargetChannels,3),obj.inputs.EMGDisplayChannels]; %this can go directly inside the cond object in the loop
-                            ChannelMeasures=[{'PhaseHistogram'},{'TriggerLockedEEG'},repmat({'MEP_Measurement','MEP Scatter Plot','MEP IOC Fit'},1,numel(obj.inputs.EMGTargetChannels)),repmat({'MEP_Measurement'},1,numel(obj.inputs.EMGDisplayChannels)),{'RunningAmplitude'},{'AmplitudeDistribution'}]; %dirctly inside the loop
+                            ChannelLabels=[{'OsscillationPhase'},{'OsscillationEEG'},repelem(obj.inputs.EMGTargetChannels,3),obj.inputs.EMGDisplayChannels,{'OsscillationAmplitude'},{'AmplitudeDistribution'},{'StatusTable'}]; %[repelem(obj.inputs.EMGTargetChannels,3),obj.inputs.EMGDisplayChannels]; 
+                            ChannelMeasures=[{'PhaseHistogram'},{'TriggerLockedEEG'},repmat({'MEP_Measurement','MEP Scatter Plot','MEP IOC Fit'},1,numel(obj.inputs.EMGTargetChannels)),repmat({'MEP_Measurement'},1,numel(obj.inputs.EMGDisplayChannels)),{'RunningAmplitude'},{'AmplitudeDistribution'},{'StatusTable'}]; 
                             ChannelAxesNo=num2cell(1:numel(ChannelLabels));
                             obj.app.pr.ax_measures=ChannelMeasures;
                             obj.app.pr.axesno=numel(ChannelAxesNo);
@@ -803,8 +813,14 @@ classdef best_toolbox < handle
                             %% Creating Channel Type, Channel Index
                             switch obj.app.par.hardware_settings.(char(obj.inputs.input_device)).slct_device
                                 case 1 %boss box
-                                    ChannelType=[{'IP'},{'IEEG'},repmat({'EMG'},1,3*numel(obj.inputs.EMGTargetChannels)),repmat({'EMG'},1,numel(obj.inputs.EMGDisplayChannels)),{'IA'},{'IADistribution'}];
-                                    ChannelID=[{1},{1},num2cell(1:numel(ChannelLabels)-3),{1},{1}]; %TODO: make this more systematic and extract from channel labels of neurone or acs protocol
+                                    ChannelType=[{'IP'},{'IEEG'},repmat({'EMG','None','None'},1,numel(obj.inputs.EMGTargetChannels)),repmat({'EMG'},1,numel(obj.inputs.EMGDisplayChannels)),{'IA'},{'IADistribution'},{'StatusTable'}];
+                                    ChannelID=num2cell(1:numel(ChannelType));
+                                    for ChannelType1=1:numel(obj.inputs.EMGTargetChannels)
+                                        ChannelID{2+(3*ChannelType1-2)}=find(strcmp(obj.app.par.hardware_settings.(char(obj.inputs.input_device)).NeurOneProtocolChannelLabels,obj.inputs.EMGTargetChannels{ChannelType1}));
+                                    end
+                                    for ChannelType2=1:numel(obj.inputs.EMGDisplayChannels)
+                                        ChannelID{2+(3*numel(obj.inputs.EMGTargetChannels))+ChannelType2}=find(strcmp(obj.app.par.hardware_settings.(char(obj.inputs.input_device)).NeurOneProtocolChannelLabels,obj.inputs.EMGDisplayChannels{ChannelType2}));
+                                    end
                                     obj.inputs.ChannelsTypeUnique=ChannelType;
                                 case 2 % fieldtrip real time buffer
                             end
@@ -907,6 +923,10 @@ classdef best_toolbox < handle
                     switch obj.inputs.BrainState
                         case 1 %Independent
                             %% Adjusting New Arhictecture to Old Architecture
+                            obj.inputs.MEPOnset=obj.inputs.MEPSearchWindow(1);
+                            obj.inputs.MEPOffset=obj.inputs.MEPSearchWindow(2);
+                            obj.inputs.EMGDisplayPeriodPre=obj.inputs.EMGExtractionPeriod(1)*(-1);
+                            obj.inputs.EMGDisplayPeriodPost=obj.inputs.EMGExtractionPeriod(2);
                             obj.inputs.prestim_scope_plt=obj.inputs.EMGDisplayPeriodPre;
                             obj.inputs.poststim_scope_plt=obj.inputs.EMGDisplayPeriodPost;
                             obj.inputs.mep_onset=obj.inputs.MEPOnset;
@@ -923,10 +943,6 @@ classdef best_toolbox < handle
                             obj.inputs.TrialNoForMean=1;
                             obj.inputs.mt_starting_stim_inten=obj.inputs.condsAll.cond1.st1.si_pckt{1,1};
                             obj.inputs.Handles.ThresholdData=struct;
-                            obj.inputs.MEPOnset=obj.inputs.MEPSearchWindow(1);
-                            obj.inputs.MEPOffset=obj.inputs.MEPSearchWindow(2);
-                            obj.inputs.EMGDisplayPeriodPre=obj.inputs.EMGExtractionPeriod(1)*(-1);
-                            obj.inputs.EMGDisplayPeriodPost=obj.inputs.EMGExtractionPeriod(2);
                             %% Creating Column Labels
                             obj.inputs.colLabel.inputDevices=1;
                             obj.inputs.colLabel.outputDevices=2;
@@ -967,7 +983,6 @@ classdef best_toolbox < handle
                                         obj.inputs.condsAll.(conds{ChannelType2,1}).targetChannel;
                                         ChannelID{2*numel(conds)+ChannelType2}=find(strcmp(obj.app.par.hardware_settings.(char(obj.inputs.input_device)).NeurOneProtocolChannelLabels,obj.inputs.EMGDisplayChannels{ChannelType2}));
                                     end
-                                    
                                 case 2 % fieldtrip real time buffer
                             end
                             %% Creating Stimulation Conditions
@@ -1068,6 +1083,14 @@ classdef best_toolbox < handle
                             end
                         case 2 %Dependent
                             %% Adjusting New Arhictecture to Old Architecture
+                            obj.inputs.MEPOnset=obj.inputs.MEPSearchWindow(1);
+                            obj.inputs.MEPOffset=obj.inputs.MEPSearchWindow(2);
+                            obj.inputs.EMGDisplayPeriodPre=obj.inputs.EMGExtractionPeriod(1)*(-1);
+                            obj.inputs.EMGDisplayPeriodPost=obj.inputs.EMGExtractionPeriod(2);
+                            obj.inputs.EEGDisplayPeriodPre=obj.inputs.EEGExtractionPeriod(1)*(-1);
+                            obj.inputs.EEGDisplayPeriodPost=obj.inputs.EEGExtractionPeriod(2);
+                            obj.inputs.MontageChannels=obj.inputs.RealTimeChannelsMontage;
+                            obj.inputs.MontageWeights=obj.inputs.RealTimeChannelsWeights;
                             obj.inputs.prestim_scope_plt=obj.inputs.EMGDisplayPeriodPre;
                             obj.inputs.poststim_scope_plt=obj.inputs.EMGDisplayPeriodPost;
                             obj.inputs.mep_onset=obj.inputs.MEPOnset;
@@ -1084,14 +1107,6 @@ classdef best_toolbox < handle
                             obj.inputs.TrialNoForMean=1;
                             obj.inputs.mt_starting_stim_inten=obj.inputs.condsAll.cond1.st1.si_pckt{1,1};
                             obj.inputs.Handles.ThresholdData=struct;
-                            obj.inputs.MEPOnset=obj.inputs.MEPSearchWindow(1);
-                            obj.inputs.MEPOffset=obj.inputs.MEPSearchWindow(2);
-                            obj.inputs.EMGDisplayPeriodPre=obj.inputs.EMGExtractionPeriod(1)*(-1);
-                            obj.inputs.EMGDisplayPeriodPost=obj.inputs.EMGExtractionPeriod(2);
-                            obj.inputs.EEGDisplayPeriodPre=obj.inputs.EEGExtractionPeriod(1)*(-1);
-                            obj.inputs.EEGDisplayPeriodPost=obj.inputs.EEGExtractionPeriod(2);
-                            obj.inputs.MontageChannels=obj.inputs.RealTimeChannelsMontage;
-                            obj.inputs.MontageWeights=obj.inputs.RealTimeChannelsWeights;
                             %% Creating Column Labels
                             obj.inputs.colLabel.inputDevices=1;
                             obj.inputs.colLabel.outputDevices=2;
@@ -1365,17 +1380,17 @@ classdef best_toolbox < handle
                             end
                         case 2 %Dependent
                             %% Adjusting New Arhictecture to Old Architecture
-                            obj.inputs.input_device=obj.app.pi.psychmth.InputDevice.String(obj.inputs.InputDevice); %TODO: the drc or mep on the 4th structure is not a good solution!
+                            obj.inputs.EEGDisplayPeriodPre=obj.inputs.EEGExtractionPeriod(1)*(-1);
+                            obj.inputs.EEGDisplayPeriodPost=obj.inputs.EEGExtractionPeriod(2);
+                            obj.inputs.MontageChannels=obj.inputs.RealTimeChannelsMontage;
+                            obj.inputs.MontageWeights=obj.inputs.RealTimeChannelsWeights;
+                            obj.inputs.input_device=obj.app.pi.psychmth.InputDevice.String(obj.inputs.InputDevice); 
                             obj.inputs.output_device=obj.inputs.condsAll.cond1.st1.stim_device;
                             obj.inputs.stim_mode='MSO';
                             obj.inputs.measure_str='Psychometric Threshold Hunting Protocol';
                             obj.inputs.stop_event=0;
                             obj.inputs.mt_starting_stim_inten=obj.inputs.condsAll.cond1.st1.si_pckt{1,1};
                             obj.inputs.Handles.ThresholdData=struct;
-                            obj.inputs.EEGDisplayPeriodPre=obj.inputs.EEGExtractionPeriod(1)*(-1);
-                            obj.inputs.EEGDisplayPeriodPost=obj.inputs.EEGExtractionPeriod(2);
-                            obj.inputs.MontageChannels=obj.inputs.RealTimeChannelsMontage;
-                            obj.inputs.MontageWeights=obj.inputs.RealTimeChannelsWeights;
                             %% Creating Column Labels
                             obj.inputs.colLabel.inputDevices=1;
                             obj.inputs.colLabel.outputDevices=2;
