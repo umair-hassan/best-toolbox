@@ -238,7 +238,7 @@ classdef best_sync2brain_bossdevice <handle
             obj.IEEGScope.Decimation = Decimation;
             obj.IEEGScope.TriggerMode = 'Signal';
             obj.IEEGScope.TriggerSignal = getsignalid(obj.bb.tg, 'gen_running'); %Remove it in Official Use
-            obj.IEEGScope.TriggerSignal = MrkSignalID; % 31-May-2020 11:05:43
+%             obj.IEEGScope.TriggerSignal = MrkSignalID; % 31-May-2020 11:05:43
             obj.IEEGScope.TriggerLevel = 0.5;
             obj.IEEGScope.TriggerSlope = 'Rising';
             obj.best_toolbox.inputs.rawData.IEEG.time=linspace(-1*(obj.best_toolbox.inputs.EEGDisplayPeriodPre),obj.best_toolbox.inputs.EEGDisplayPeriodPost,NumSamples);
@@ -418,7 +418,7 @@ classdef best_sync2brain_bossdevice <handle
             %This has to be done inside armed loop therefore empty but just required as a Place holder for consistency of Architecture and may be used in future
         end
         function [Time, Data] = EMGScopeRead(obj,Channel)
-            while ~strcmpi(obj.EMGScope.Status,'finished'), end
+            while ~strcmpi(obj.EMGScope.Status,'finished'), drawnow, if obj.best_toolbox.inputs.stop_event==1, break, end ,end
             Data=obj.EMGScope.Data(:,Channel)';
             Time=(obj.EMGScope.Time-obj.EMGScope.Time(1)+(obj.EMGScope.Time(2)-obj.EMGScope.Time(1)))';
             Time=(Time*1000)+obj.best_toolbox.inputs.EMGDisplayPeriodPre*(-1);
@@ -437,12 +437,12 @@ classdef best_sync2brain_bossdevice <handle
             end
         end
         function Data = IPScopeRead(obj)
-            while ~strcmpi(obj.IPScope.Status,'finished'), end
+            while ~strcmpi(obj.IPScope.Status,'finished'), drawnow, if obj.best_toolbox.inputs.stop_event==1, break, end ,end
             Data=obj.IPScope.Data(end,1);
             obj.IPScopeStart;
         end
         function Data = IEEGScopeRead(obj)
-            while ~strcmpi(obj.IEEGScope.Status,'finished'), end
+            while ~strcmpi(obj.IEEGScope.Status,'finished'), drawnow, if obj.best_toolbox.inputs.stop_event==1, break, end ,end
             Data=obj.IEEGScope.Data(:,1)';
             obj.IEEGScopeStart;
         end
