@@ -3358,14 +3358,7 @@ classdef best_toolbox < handle
                         case 2 %Dependent
                     end
                 case 'rs EEG Measurement Protocol'
-
             end
-            
-%             obj.sessions.(obj.app.info.event.current_session).(obj.app.info.event.current_measure_fullstr).ConditionsMatrix=obj.inputs.condMat;
-%             obj.sessions.(obj.app.info.event.current_session).(obj.app.info.event.current_measure_fullstr).TrialsMatrix=obj.inputs.trialMat;
-%             obj.sessions.(obj.app.info.event.current_session).(obj.app.info.event.current_measure_fullstr).Figures=obj.inputs.Figures;
-%             try obj.sessions.(obj.app.info.event.current_session).(obj.app.info.event.current_measure_fullstr).RawData=obj.inputs.rawData; catch, end %Known Error when run on rTMS
-%             try obj.sessions.(obj.app.info.event.current_session).(obj.app.info.event.current_measure_fullstr).Results=obj.inputs.results; catch, end %Known Error when run on PsychMTH
         end
         function saveFigures(obj)
             FigureFileName1=erase(obj.info.matfilstr,'.mat');
