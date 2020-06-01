@@ -660,7 +660,7 @@ classdef best_toolbox < handle
                             %% Creating Channel Type, Channel Index
                             switch obj.app.par.hardware_settings.(char(obj.inputs.input_device)).slct_device
                                 case 1 %boss box
-                                    ChannelType=[repmat({'EMG','None','None'},1,numel(obj.inputs.EMGTargetChannels)),repmat({'EMG'},1,numel(obj.inputs.EMGDisplayChannels)),{'StatusTable'}]; %dirctly inside the loop
+                                    ChannelType=[repmat({'EMG'},1,3*numel(obj.inputs.EMGTargetChannels)),repmat({'EMG'},1,numel(obj.inputs.EMGDisplayChannels)),{'StatusTable'}]; %dirctly inside the loop
                                     ChannelID=num2cell(1:numel(ChannelType)); %TODO: make this more systematic and extract from channel labels of neurone or acs protocol
                                     for ChannelType1=1:numel(obj.inputs.EMGTargetChannels)
                                         ChannelID{3*ChannelType1-2}=find(strcmp(obj.app.par.hardware_settings.(char(obj.inputs.input_device)).NeurOneProtocolChannelLabels,obj.inputs.EMGTargetChannels{ChannelType1}));
@@ -817,7 +817,7 @@ classdef best_toolbox < handle
                             %% Creating Channel Type, Channel Index
                             switch obj.app.par.hardware_settings.(char(obj.inputs.input_device)).slct_device
                                 case 1 %boss box
-                                    ChannelType=[{'IP'},{'IEEG'},repmat({'EMG','None','None'},1,numel(obj.inputs.EMGTargetChannels)),repmat({'EMG'},1,numel(obj.inputs.EMGDisplayChannels)),{'IA'},{'IADistribution'},{'StatusTable'}];
+                                    ChannelType=[{'IP'},{'IEEG'},repmat({'EMG'},1,3*numel(obj.inputs.EMGTargetChannels)),repmat({'EMG'},1,numel(obj.inputs.EMGDisplayChannels)),{'IA'},{'IADistribution'},{'StatusTable'}];
                                     ChannelID=num2cell(1:numel(ChannelType));
                                     for ChannelType1=1:numel(obj.inputs.EMGTargetChannels)
                                         ChannelID{2+(3*ChannelType1-2)}=find(strcmp(obj.app.par.hardware_settings.(char(obj.inputs.input_device)).NeurOneProtocolChannelLabels,obj.inputs.EMGTargetChannels{ChannelType1}));
@@ -3065,7 +3065,7 @@ classdef best_toolbox < handle
                     case 'MEP Scatter Plot'
                         obj.mep_scat_plot;
                     case 'MEP IOC Fit'
-                        obj.ioc_fit_plot;
+                        obj.ioc_fit_plot;   
                     case 'PhaseHistogram'
                         obj.PlotPhaseHistogram;
                     case 'TriggerLockedEEG'
@@ -3265,16 +3265,72 @@ classdef best_toolbox < handle
                             obj.BESTData.results=obj.inputs.results;
                             % Write MEP Amplitude in trialinfo
                         case 2 %Dependent
+                            label=obj.BESTData.label;
+                            EEGDataSize=1:size(obj.inputs.rawData.OsscillationEEG.data,2);
+                            trial(1,EEGDataSize)=single(obj.inputs.rawData.OsscillationEEG.data(obj.inputs.trial,:));
+                            time(1,EEGDataSize)=obj.inputs.rawData.IEEG.time;
+                            for i=2:size(label,1)
+                                EMGDataSize=1:size(obj.inputs.rawData.(label{i}).data,2);
+                                trial(i,EMGDataSize)=single(obj.inputs.rawData.(label{i}).data(obj.inputs.trial,:));
+                                time(i,EMGDataSize)=obj.inputs.rawData.(label{i}).time(obj.inputs.trial,:);
+                            end
+                            obj.BESTData.trial(1,obj.inputs.trial)={trial};
+                            obj.BESTData.time(1,obj.inputs.trial)={time};
+                            obj.BESTData.results=obj.inputs.results;
+                            % Write MEP Amplitude in trialinfo
                     end
                 case 'MEP Dose Response Curve Protocol'
                     switch obj.inputs.BrainState
                         case 1 %Independent
+                            label=obj.BESTData.label;
+                            for i=1:size(label,1)
+                                trial(i,:)=single(obj.inputs.rawData.(label{i}).data(obj.inputs.trial,:));
+                                time(i,:)=obj.inputs.rawData.(label{i}).time(obj.inputs.trial,:);
+                            end
+                            obj.BESTData.trial(1,obj.inputs.trial)={trial};
+                            obj.BESTData.time(1,obj.inputs.trial)={time};
+                            obj.BESTData.results=obj.inputs.results;
+                            % Write MEP Amplitude in trialinfo
                         case 2 %Dependent
+                            label=obj.BESTData.label;
+                            EEGDataSize=1:size(obj.inputs.rawData.OsscillationEEG.data,2);
+                            trial(1,EEGDataSize)=single(obj.inputs.rawData.OsscillationEEG.data(obj.inputs.trial,:));
+                            time(1,EEGDataSize)=obj.inputs.rawData.IEEG.time;
+                            for i=2:size(label,1)
+                                EMGDataSize=1:size(obj.inputs.rawData.(label{i}).data,2);
+                                trial(i,EMGDataSize)=single(obj.inputs.rawData.(label{i}).data(obj.inputs.trial,:));
+                                time(i,EMGDataSize)=obj.inputs.rawData.(label{i}).time(obj.inputs.trial,:);
+                            end
+                            obj.BESTData.trial(1,obj.inputs.trial)={trial};
+                            obj.BESTData.time(1,obj.inputs.trial)={time};
+                            obj.BESTData.results=obj.inputs.results;
+                            % Write MEP Amplitude in trialinfo
                     end
                 case 'Motor Threshold Hunting Protocol'
                     switch obj.inputs.BrainState
                         case 1 %Independent
+                            label=obj.BESTData.label;
+                            for i=1:size(label,1)
+                                trial(i,:)=single(obj.inputs.rawData.(label{i}).data(obj.inputs.trial,:));
+                                time(i,:)=obj.inputs.rawData.(label{i}).time(obj.inputs.trial,:);
+                            end
+                            obj.BESTData.trial(1,obj.inputs.trial)={trial};
+                            obj.BESTData.time(1,obj.inputs.trial)={time};
+                            obj.BESTData.results=obj.inputs.results;
                         case 2 %Dependent
+                            label=obj.BESTData.label;
+                            EEGDataSize=1:size(obj.inputs.rawData.OsscillationEEG.data,2);
+                            trial(1,EEGDataSize)=single(obj.inputs.rawData.OsscillationEEG.data(obj.inputs.trial,:));
+                            time(1,EEGDataSize)=obj.inputs.rawData.IEEG.time;
+                            for i=2:size(label,1)
+                                EMGDataSize=1:size(obj.inputs.rawData.(label{i}).data,2);
+                                trial(i,EMGDataSize)=single(obj.inputs.rawData.(label{i}).data(obj.inputs.trial,:));
+                                time(i,EMGDataSize)=obj.inputs.rawData.(label{i}).time(obj.inputs.trial,:);
+                            end
+                            obj.BESTData.trial(1,obj.inputs.trial)={trial};
+                            obj.BESTData.time(1,obj.inputs.trial)={time};
+                            obj.BESTData.results=obj.inputs.results;
+                            % Write MEP Amplitude in trialinfo
                     end
                 case 'Psychometric Threshold Hunting Protocol'
                     switch obj.inputs.BrainState
@@ -3317,40 +3373,137 @@ classdef best_toolbox < handle
             obj.BESTData.subject_name=subj_code;
             obj.BESTData.session_name=session;
             obj.BESTData.protocol_name=measure;
-            obj.BESTData.condition_matrix=obj.inputs.condMat;
-            obj.BESTData.trial_matrix=obj.inputs.trialMat;
             %% Writing Protocol Specific Initial Variables
             switch obj.inputs.Protocol
                 case 'MEP Hotspot Search Protocol'
-                        %labels, fsample, chantype, chanunits, trialinfo collabels,
-                        obj.BESTData.fsample=5000;
-                        obj.BESTData.label=obj.inputs.EMGDisplayChannels';
-                        obj.BESTData.chantype=repmat({'emg'},numel(obj.inputs.EMGDisplayChannels),1);
-                        obj.BESTData.chanunits=repmat({'uV'},numel(obj.inputs.EMGDisplayChannels),1);
-                        obj.BESTData.trilainfo_label={'TSIntensity (%MSO)','ITI(s)'};
-                        switch obj.inputs.ProtocolMode
-                            case 1 %Automatic
-                                TS=vertcat(obj.inputs.trialMat{:,3}); TS=vertcat(TS{:,1}); TS=vertcat(TS{:,1});
-                                obj.BESTData.trialinfo(1:numel(TS),1)=TS;
-                                obj.BESTData.trialinfo(1:numel(vertcat(obj.inputs.trialMat{:,4})),2)=vertcat(obj.inputs.trialMat{:,4});
-                            case 2 %Manual
-                                obj.BESTData.trialinfo(:,1)=NaN;
-                                obj.BESTData.trialinfo(:,2)=NaN;
-                        end
+                    %labels, fsample, chantype, chanunits, trialinfo collabels,
+                    obj.BESTData.condition_matrix=obj.inputs.condMat;
+                    obj.BESTData.trial_matrix=obj.inputs.trialMat;
+                    obj.BESTData.fsample=5000;
+                    obj.BESTData.label=obj.inputs.EMGDisplayChannels';
+                    obj.BESTData.chantype=repmat({'emg'},numel(obj.inputs.EMGDisplayChannels),1);
+                    obj.BESTData.chanunits=repmat({'uV'},numel(obj.inputs.EMGDisplayChannels),1);
+                    obj.BESTData.timeunits='ms';
+                    obj.BESTData.trilainfo_label={'TSIntensity (%MSO)','ITI(s)'};
+                    switch obj.inputs.ProtocolMode
+                        case 1 %Automatic
+                            TS=vertcat(obj.inputs.trialMat{:,3}); TS=vertcat(TS{:,1}); TS=vertcat(TS{:,1});
+                            obj.BESTData.trialinfo(1:numel(TS),1)=TS;
+                            obj.BESTData.trialinfo(1:numel(vertcat(obj.inputs.trialMat{:,4})),2)=vertcat(obj.inputs.trialMat{:,4});
+                        case 2 %Manual
+                            obj.BESTData.trialinfo(:,1)=NaN;
+                            obj.BESTData.trialinfo(:,2)=NaN;
+                    end
                 case 'MEP Measurement Protocol'
                     switch obj.inputs.BrainState
                         case 1 %Independent
+                            obj.BESTData.condition_matrix=obj.inputs.condMat;
+                            obj.BESTData.trial_matrix=obj.inputs.trialMat;
+                            obj.BESTData.fsample=5000;
+                            obj.BESTData.label=obj.inputs.EMGDisplayChannels';
+                            obj.BESTData.timeunits='ms';
+                            obj.BESTData.chantype=repmat({'emg'},numel(obj.inputs.EMGDisplayChannels),1);
+                            obj.BESTData.chanunits=repmat({'uV'},numel(obj.inputs.EMGDisplayChannels),1);
+                            obj.BESTData.trilainfo_label={'TSIntensity (%MSO)','ITI(s)'};
+                            TS=vertcat(obj.inputs.trialMat{:,3}); TS=vertcat(TS{:,1}); TS=vertcat(TS{:,1});
+                            obj.BESTData.trialinfo(1:numel(TS),1)=TS;
+                            obj.BESTData.trialinfo(1:numel(vertcat(obj.inputs.trialMat{:,4})),2)=vertcat(obj.inputs.trialMat{:,4});
                         case 2 %Dependent
+                            obj.BESTData.condition_matrix=obj.inputs.condMat;
+                            obj.BESTData.trial_matrix=obj.inputs.trialMat;
+                            obj.BESTData.fsample=5000;
+                            obj.BESTData.timeunits='ms';
+                            label{1}=erase(char(join(obj.inputs.RealTimeChannelsMontage)),' ');
+                            obj.BESTData.label=[label{1}; obj.inputs.EMGDisplayChannels'];
+                            obj.BESTData.chantype=[{'eeg'}; repmat({'emg'},numel(obj.inputs.EMGDisplayChannels),1)];
+                            obj.BESTData.chanunits=repmat({'uV'},numel(obj.inputs.EMGDisplayChannels)+1,1);
+                            obj.BESTData.trilainfo_label={'TSIntensity (%MSO)','ITI(s)','Target Phase(radians)','Phase Tolerance (radians)','Target Min Amplitude (uV)','Target Max Amplitude (uV)'};
+                            TS=vertcat(obj.inputs.trialMat{:,3}); TS=vertcat(TS{:,1}); TS=vertcat(TS{:,1});
+                            obj.BESTData.trialinfo(1:obj.inputs.totalTrials,1)=TS;
+                            obj.BESTData.trialinfo(1:obj.inputs.totalTrials,2)=vertcat(obj.inputs.trialMat{:,4});
+                            Phase=cell2mat(vertcat(obj.inputs.trialMat{:,obj.inputs.colLabel.phase}));
+                            Amplitude=cell2mat(vertcat(obj.inputs.trialMat{:,obj.inputs.colLabel.IA}));
+                            obj.BESTData.trialinfo(1:obj.inputs.totalTrials,3)=Phase(:,1);
+                            obj.BESTData.trialinfo(1:obj.inputs.totalTrials,4)=Phase(:,2);
+                            obj.BESTData.trialinfo(1:obj.inputs.totalTrials,5)=Amplitude(:,1);
+                            obj.BESTData.trialinfo(1:obj.inputs.totalTrials,6)=Amplitude(:,2);
                     end
                 case 'MEP Dose Response Curve Protocol'
                     switch obj.inputs.BrainState
                         case 1 %Independent
+                            obj.BESTData.condition_matrix=obj.inputs.condMat;
+                            obj.BESTData.trial_matrix=obj.inputs.trialMat;
+                            obj.BESTData.fsample=5000;
+                            obj.BESTData.label=[obj.inputs.EMGTargetChannels'; obj.inputs.EMGDisplayChannels'];
+                            obj.BESTData.timeunits='ms';
+                            obj.BESTData.chantype=repmat({'emg'},numel(obj.inputs.EMGTargetChannels)+numel(obj.inputs.EMGDisplayChannels),1);
+                            obj.BESTData.chanunits=repmat({'uV'},numel(obj.inputs.EMGTargetChannels)+numel(obj.inputs.EMGDisplayChannels),1);
+                            obj.BESTData.trilainfo_label={'TSIntensity (%MSO)','ITI(s)'};
+                            TS=vertcat(obj.inputs.trialMat{:,3}); TS=vertcat(TS{:,1}); TS=vertcat(TS{:,1});
+                            obj.BESTData.trialinfo(1:numel(TS),1)=TS;
+                            obj.BESTData.trialinfo(1:numel(vertcat(obj.inputs.trialMat{:,4})),2)=vertcat(obj.inputs.trialMat{:,4});
                         case 2 %Dependent
+                            obj.BESTData.condition_matrix=obj.inputs.condMat;
+                            obj.BESTData.trial_matrix=obj.inputs.trialMat;
+                            obj.BESTData.fsample=5000;
+                            obj.BESTData.timeunits='ms';
+                            label{1}=erase(char(join(obj.inputs.RealTimeChannelsMontage)),' ');
+                            obj.BESTData.label=[obj.inputs.EMGTargetChannels'; obj.inputs.EMGDisplayChannels'];
+                            obj.BESTData.chantype=[{'eeg'}; repmat({'emg'},numel(obj.inputs.EMGTargetChannels)+numel(obj.inputs.EMGDisplayChannels),1)];
+                            obj.BESTData.chanunits=repmat({'uV'},numel(obj.inputs.EMGTargetChannels)+numel(obj.inputs.EMGDisplayChannels)+1,1);
+                            obj.BESTData.trilainfo_label={'TSIntensity (%MSO)','ITI(s)','Target Phase(radians)','Phase Tolerance (radians)','Target Min Amplitude (uV)','Target Max Amplitude (uV)'};
+                            TS=vertcat(obj.inputs.trialMat{:,3}); TS=vertcat(TS{:,1}); TS=vertcat(TS{:,1});
+                            obj.BESTData.trialinfo(1:obj.inputs.totalTrials,1)=TS;
+                            obj.BESTData.trialinfo(1:obj.inputs.totalTrials,2)=vertcat(obj.inputs.trialMat{:,4});
+                            Phase=cell2mat(vertcat(obj.inputs.trialMat{:,obj.inputs.colLabel.phase}));
+                            Amplitude=cell2mat(vertcat(obj.inputs.trialMat{:,obj.inputs.colLabel.IA}));
+                            obj.BESTData.trialinfo(1:obj.inputs.totalTrials,3)=Phase(:,1);
+                            obj.BESTData.trialinfo(1:obj.inputs.totalTrials,4)=Phase(:,2);
+                            obj.BESTData.trialinfo(1:obj.inputs.totalTrials,5)=Amplitude(:,1);
+                            obj.BESTData.trialinfo(1:obj.inputs.totalTrials,6)=Amplitude(:,2);
                     end
                 case 'Motor Threshold Hunting Protocol'
                     switch obj.inputs.BrainState
                         case 1 %Independent
+                            conds=fieldnames(obj.inputs.condsAll);
+                            for icdts=1:numel(conds)
+                                EMGTargetChannels(icdts)=obj.inputs.condsAll.(conds{icdts,1}).targetChannel;
+                            end
+                            obj.BESTData.condition_matrix=obj.inputs.condMat;
+                            obj.BESTData.trial_matrix=obj.inputs.trialMat;
+                            obj.BESTData.fsample=5000;
+                            obj.BESTData.label=[EMGTargetChannels'; obj.inputs.EMGDisplayChannels'];
+                            obj.BESTData.timeunits='ms';
+                            obj.BESTData.chantype=repmat({'emg'},numel(EMGTargetChannels)+numel(obj.inputs.EMGDisplayChannels),1);
+                            obj.BESTData.chanunits=repmat({'uV'},numel(EMGTargetChannels)+numel(obj.inputs.EMGDisplayChannels),1);
+                            obj.BESTData.trilainfo_label={'TSIntensity (%MSO)','ITI(s)'};
+                            TS=vertcat(obj.inputs.trialMat{:,3}); TS=vertcat(TS{:,1}); TS=vertcat(TS{:,1});
+                            obj.BESTData.trialinfo(1:numel(TS),1)=TS;
+                            obj.BESTData.trialinfo(1:numel(vertcat(obj.inputs.trialMat{:,4})),2)=vertcat(obj.inputs.trialMat{:,4});
                         case 2 %Dependent
+                            conds=fieldnames(obj.inputs.condsAll);
+                            for icdts=1:numel(conds)
+                                EMGTargetChannels(icdts)=obj.inputs.condsAll.(conds{icdts,1}).targetChannel;
+                            end
+                             obj.inputs.EMGTargetChannels=EMGTargetChannels;
+                            obj.BESTData.condition_matrix=obj.inputs.condMat;
+                            obj.BESTData.trial_matrix=obj.inputs.trialMat;
+                            obj.BESTData.fsample=5000;
+                            obj.BESTData.timeunits='ms';
+                            label{1}=erase(char(join(obj.inputs.RealTimeChannelsMontage)),' ');
+                            obj.BESTData.label=[obj.inputs.EMGTargetChannels'; obj.inputs.EMGDisplayChannels'];
+                            obj.BESTData.chantype=[{'eeg'}; repmat({'emg'},numel(obj.inputs.EMGTargetChannels)+numel(obj.inputs.EMGDisplayChannels),1)];
+                            obj.BESTData.chanunits=repmat({'uV'},numel(obj.inputs.EMGTargetChannels)+numel(obj.inputs.EMGDisplayChannels)+1,1);
+                            obj.BESTData.trilainfo_label={'TSIntensity (%MSO)','ITI(s)','Target Phase(radians)','Phase Tolerance (radians)','Target Min Amplitude (uV)','Target Max Amplitude (uV)'};
+                            TS=vertcat(obj.inputs.trialMat{:,3}); TS=vertcat(TS{:,1}); TS=vertcat(TS{:,1});
+                            obj.BESTData.trialinfo(1:obj.inputs.totalTrials,1)=TS;
+                            obj.BESTData.trialinfo(1:obj.inputs.totalTrials,2)=vertcat(obj.inputs.trialMat{:,4});
+                            Phase=cell2mat(vertcat(obj.inputs.trialMat{:,obj.inputs.colLabel.phase}));
+                            Amplitude=cell2mat(vertcat(obj.inputs.trialMat{:,obj.inputs.colLabel.IA}));
+                            obj.BESTData.trialinfo(1:obj.inputs.totalTrials,3)=Phase(:,1);
+                            obj.BESTData.trialinfo(1:obj.inputs.totalTrials,4)=Phase(:,2);
+                            obj.BESTData.trialinfo(1:obj.inputs.totalTrials,5)=Amplitude(:,1);
+                            obj.BESTData.trialinfo(1:obj.inputs.totalTrials,6)=Amplitude(:,2);
                     end
                 case 'Psychometric Threshold Hunting Protocol'
                     switch obj.inputs.BrainState
@@ -3358,6 +3511,15 @@ classdef best_toolbox < handle
                         case 2 %Dependent
                     end
                 case 'rs EEG Measurement Protocol'
+                    obj.BESTData.fsample=5000;
+                    obj.BESTData.label=obj.inputs.results.RawEEGData.label;
+                    obj.BESTData.chantype=repmat({'eeg'},numel(obj.inputs.results.RawEEGData.label),1);
+                    obj.BESTData.chanunits=repmat({'uV'},numel(obj.inputs.results.RawEEGData.label),1);
+                    obj.BESTData.timeunits='ms';
+                    obj.BESTData.trial=obj.inputs.results.RawEEGData.trial;
+                    obj.BESTData.time=obj.inputs.results.RawEEGData.time;
+                    results=rmfield(obj.inputs.results,'RawEEGData');
+                    obj.BESTData.results=results;
             end
         end
         function saveFigures(obj)
@@ -3395,9 +3557,9 @@ classdef best_toolbox < handle
             obj.app.resultsPanel;
             obj.boot_outputdevice;
             obj.boot_inputdevice;
+            obj.prepSaving;
             obj.bootTrial;
             obj.stimLoop;
-            obj.prepSaving;
             obj.save;
             obj.saveFigures;
             obj.completed;
@@ -3455,9 +3617,9 @@ classdef best_toolbox < handle
             obj.app.resultsPanel;
             obj.boot_outputdevice;
             obj.boot_inputdevice;
+            obj.prepSaving;
             obj.bootTrial;
             obj.stimLoop;
-            obj.prepSaving;
             obj.save;
             obj.saveFigures;
             obj.completed;
@@ -3469,9 +3631,9 @@ classdef best_toolbox < handle
             obj.app.resultsPanel;
             obj.boot_outputdevice;
             obj.boot_inputdevice;
+            obj.prepSaving;
             obj.bootTrial;
             obj.stimLoop;
-            obj.prepSaving;
             obj.save;
             obj.saveFigures;
             obj.completed;
@@ -3483,9 +3645,9 @@ classdef best_toolbox < handle
             obj.app.resultsPanel;
             obj.boot_outputdevice;
             obj.boot_inputdevice;
+            obj.prepSaving;
             obj.bootTrial;
             obj.stimLoop;
-            obj.prepSaving;
             obj.save;
             obj.saveFigures;
             obj.completed;
@@ -3500,38 +3662,25 @@ classdef best_toolbox < handle
             
         end
         function best_rseeg(obj)
-                obj.factorizeConditions;
-                obj.app.resultsPanel;
-                obj.rseegInProcess('open');
-                obj.boot_bossbox;
-                obj.boot_fieldtrip;
-                obj.bossbox.EEGScopeBoot(0,obj.inputs.EEGAcquisitionPeriod*60*1000);
-                obj.bossbox.EEGScopeStart; obj.bossbox.EEGScopeTrigger;
-                [obj.inputs.rawData.EEG.Time , obj.inputs.rawData.EEG.Data]=obj.bossbox.EEGScopeRead;
-                switch obj.inputs.SpectralAnalysis
-                    case 1 %IRASA
-                        obj.fieldtrip.irasa(obj.inputs.rawData.EEG,obj.inputs.input_device);
-                    case 2 %FFT
-                        obj.fieldtrip.fft(obj.inputs.rawData.EEG,obj.inputs.input_device);
-                end
-                obj.rseegInProcess('close');
-%                 obj.prepSaving;
-
-%                 obj.h5;
-%                 obj.saveRuntime
-
-%                 obj.save;
-
-% %                 obj.saveFigures;
-
-                obj.completed;
-%             catch ME
-%             errorMessage = sprintf('BEST Toolbox | resting-state EEG Measureent.\n\nError Message:\n%s', ME.message);
-%             % Print to command window.
-%             fprintf(1, '%s\n', errorMessage);
-%             % Display pop up message and wait for user to click OK
-%             uiwait(warndlg(errorMessage));
-%         end
+            obj.factorizeConditions;
+            obj.app.resultsPanel;
+            obj.rseegInProcess('open');
+            obj.boot_bossbox;
+            obj.boot_fieldtrip;
+            obj.save;
+            obj.bossbox.EEGScopeBoot(0,obj.inputs.EEGAcquisitionPeriod*60*1000);
+            obj.bossbox.EEGScopeStart; obj.bossbox.EEGScopeTrigger;
+            [obj.inputs.rawData.EEG.Time , obj.inputs.rawData.EEG.Data]=obj.bossbox.EEGScopeRead;
+            switch obj.inputs.SpectralAnalysis
+                case 1 %IRASA
+                    obj.fieldtrip.irasa(obj.inputs.rawData.EEG,obj.inputs.input_device);
+                case 2 %FFT
+                    obj.fieldtrip.fft(obj.inputs.rawData.EEG,obj.inputs.input_device);
+            end
+            obj.rseegInProcess('close');
+            obj.prepSaving;
+            obj.saveFigures;
+            obj.completed;
         end
         function best_rtms(obj)
             obj.save;
