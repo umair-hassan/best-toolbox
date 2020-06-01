@@ -34,6 +34,7 @@ classdef best_toolbox < handle
         best_timer;
         FilterCoefficients;
         handles;
+        BESTData
     end
     
     methods
@@ -135,12 +136,15 @@ classdef best_toolbox < handle
                     %% Creating Channel Type and Channel ID
                     switch obj.app.par.hardware_settings.(char(obj.inputs.input_device)).slct_device
                         case 1 %boss box
-                            
-                            DisplayChannelType=cell(1,numel(obj.inputs.EMGDisplayChannels));
-                            DisplayChannelType(:)=cellstr('EMG');
-                            DisplayChannelID=num2cell(1:numel(obj.inputs.EMGDisplayChannels));
+                            ChannelType=[repmat({'EMG'},1,numel(obj.inputs.EMGDisplayChannels))]; 
+                            ChannelID=num2cell(1:numel(ChannelType)); 
+                            obj.inputs.ChannelsTypeUnique=ChannelType;
+                            for ChannelType2=1:numel(obj.inputs.EMGDisplayChannels)
+                                ChannelID{ChannelType2}=find(strcmp(obj.app.par.hardware_settings.(char(obj.inputs.input_device)).NeurOneProtocolChannelLabels,obj.inputs.EMGDisplayChannels{ChannelType2}));
+                            end
+                            DisplayChannelType=ChannelType;
+                            DisplayChannelID=ChannelID;
                             obj.inputs.ChannelsTypeUnique=DisplayChannelType;
-                            
                         case 2 % fieldtrip real time buffer
                     end
                     %% Creating Channel Measures, Axes No
@@ -3236,11 +3240,51 @@ classdef best_toolbox < handle
             obj.app.cb_menu_save;
         end
         function saveRuntime(obj)
-%             t=timer;
-%             t.BusyMode='queue';
-%             t.TimerFcn=@(~,~)obj.TmrFcn;
-%             start(t)
-           
+            tic
+           switch obj.inputs.Protocol
+                case 'MEP Hotspot Search Protocol'
+                    label=obj.BESTData.label;
+                    for i=1:size(label,1)
+                        trial(i,:)=single(obj.inputs.rawData.(label{i}).data(obj.inputs.trial,:));
+                        time(i,:)=obj.inputs.rawData.(label{i}).time(obj.inputs.trial,:);
+                    end
+                    obj.BESTData.trial(1,obj.inputs.trial)={trial};
+                    obj.BESTData.time(1,obj.inputs.trial)={time};
+                    obj.BESTData.results=obj.inputs.results;
+                    % Write MEP Amplitude in trialinfo
+                case 'MEP Measurement Protocol'
+                    switch obj.inputs.BrainState
+                        case 1 %Independent
+                            label=obj.BESTData.label;
+                            for i=1:size(label,1)
+                                trial(i,:)=single(obj.inputs.rawData.(label{i}).data(obj.inputs.trial,:));
+                                time(i,:)=obj.inputs.rawData.(label{i}).time(obj.inputs.trial,:);
+                            end
+                            obj.BESTData.trial(1,obj.inputs.trial)={trial};
+                            obj.BESTData.time(1,obj.inputs.trial)={time};
+                            obj.BESTData.results=obj.inputs.results;
+                            % Write MEP Amplitude in trialinfo
+                        case 2 %Dependent
+                    end
+                case 'MEP Dose Response Curve Protocol'
+                    switch obj.inputs.BrainState
+                        case 1 %Independent
+                        case 2 %Dependent
+                    end
+                case 'Motor Threshold Hunting Protocol'
+                    switch obj.inputs.BrainState
+                        case 1 %Independent
+                        case 2 %Dependent
+                    end
+                case 'Psychometric Threshold Hunting Protocol'
+                    switch obj.inputs.BrainState
+                        case 1 %Independent
+                        case 2 %Dependent
+                    end
+                case 'rs EEG Measurement Protocol'
+           end
+            disp [[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[DONWWITHTIMER
+            toc
         end
         function TmrFcn(obj)
              pause(0.1)
@@ -3257,11 +3301,71 @@ classdef best_toolbox < handle
             toc
          end
         function prepSaving(obj)
-            obj.sessions.(obj.app.info.event.current_session).(obj.app.info.event.current_measure_fullstr).ConditionsMatrix=obj.inputs.condMat;
-            obj.sessions.(obj.app.info.event.current_session).(obj.app.info.event.current_measure_fullstr).TrialsMatrix=obj.inputs.trialMat;
-            obj.sessions.(obj.app.info.event.current_session).(obj.app.info.event.current_measure_fullstr).Figures=obj.inputs.Figures;
-            try obj.sessions.(obj.app.info.event.current_session).(obj.app.info.event.current_measure_fullstr).RawData=obj.inputs.rawData; catch, end %Known Error when run on rTMS
-            try obj.sessions.(obj.app.info.event.current_session).(obj.app.info.event.current_measure_fullstr).Results=obj.inputs.results; catch, end %Known Error when run on PsychMTH
+            %% Creating MatFile Name and File on a directory
+            exp_name=obj.app.pmd.exp_title.editfield.String; exp_name(exp_name == ' ') = '_';
+            subj_code=obj.app.pmd.sub_code.editfield.String; subj_code(subj_code == ' ') = '_';
+            session=obj.app.info.event.current_session; session(session == '_') = '';
+            measure=obj.app.info.event.current_measure_fullstr; measure(measure == '_') = '';
+            Date=datestr(now,'yyyy-mm-dd HH:MM:SS'); Date(Date == ' ') = '_'; Date(Date == '-') = ''; Date(Date == ':') = '';
+            FileName=['BESTData_' exp_name '_' subj_code '_' session '_' measure '_' Date '.mat'];
+            FilePath=cd;
+            FullFileName=fullfile(FilePath,FileName);
+            obj.BESTData=matfile(FullFileName,'Writable',true);
+            %% Writing General Variables
+            obj.BESTData.pars=obj.app.par.(obj.app.info.event.current_session).(obj.app.info.event.current_measure_fullstr); 
+            obj.BESTData.experiment_name=exp_name; 
+            obj.BESTData.subject_name=subj_code;
+            obj.BESTData.session_name=session;
+            obj.BESTData.protocol_name=measure;
+            obj.BESTData.condition_matrix=obj.inputs.condMat;
+            obj.BESTData.trial_matrix=obj.inputs.trialMat;
+            %% Writing Protocol Specific Initial Variables
+            switch obj.inputs.Protocol
+                case 'MEP Hotspot Search Protocol'
+                        %labels, fsample, chantype, chanunits, trialinfo collabels,
+                        obj.BESTData.fsample=5000;
+                        obj.BESTData.label=obj.inputs.EMGDisplayChannels';
+                        obj.BESTData.chantype=repmat({'emg'},numel(obj.inputs.EMGDisplayChannels),1);
+                        obj.BESTData.chanunits=repmat({'uV'},numel(obj.inputs.EMGDisplayChannels),1);
+                        obj.BESTData.trilainfo_label={'TSIntensity (%MSO)','ITI(s)'};
+                        switch obj.inputs.ProtocolMode
+                            case 1 %Automatic
+                                TS=vertcat(obj.inputs.trialMat{:,3}); TS=vertcat(TS{:,1}); TS=vertcat(TS{:,1});
+                                obj.BESTData.trialinfo(1:numel(TS),1)=TS;
+                                obj.BESTData.trialinfo(1:numel(vertcat(obj.inputs.trialMat{:,4})),2)=vertcat(obj.inputs.trialMat{:,4});
+                            case 2 %Manual
+                                obj.BESTData.trialinfo(:,1)=NaN;
+                                obj.BESTData.trialinfo(:,2)=NaN;
+                        end
+                case 'MEP Measurement Protocol'
+                    switch obj.inputs.BrainState
+                        case 1 %Independent
+                        case 2 %Dependent
+                    end
+                case 'MEP Dose Response Curve Protocol'
+                    switch obj.inputs.BrainState
+                        case 1 %Independent
+                        case 2 %Dependent
+                    end
+                case 'Motor Threshold Hunting Protocol'
+                    switch obj.inputs.BrainState
+                        case 1 %Independent
+                        case 2 %Dependent
+                    end
+                case 'Psychometric Threshold Hunting Protocol'
+                    switch obj.inputs.BrainState
+                        case 1 %Independent
+                        case 2 %Dependent
+                    end
+                case 'rs EEG Measurement Protocol'
+
+            end
+            
+%             obj.sessions.(obj.app.info.event.current_session).(obj.app.info.event.current_measure_fullstr).ConditionsMatrix=obj.inputs.condMat;
+%             obj.sessions.(obj.app.info.event.current_session).(obj.app.info.event.current_measure_fullstr).TrialsMatrix=obj.inputs.trialMat;
+%             obj.sessions.(obj.app.info.event.current_session).(obj.app.info.event.current_measure_fullstr).Figures=obj.inputs.Figures;
+%             try obj.sessions.(obj.app.info.event.current_session).(obj.app.info.event.current_measure_fullstr).RawData=obj.inputs.rawData; catch, end %Known Error when run on rTMS
+%             try obj.sessions.(obj.app.info.event.current_session).(obj.app.info.event.current_measure_fullstr).Results=obj.inputs.results; catch, end %Known Error when run on PsychMTH
         end
         function saveFigures(obj)
             FigureFileName1=erase(obj.info.matfilstr,'.mat');
@@ -3312,9 +3416,10 @@ classdef best_toolbox < handle
             obj.app.resultsPanel;
             obj.boot_outputdevice;
             obj.boot_inputdevice;
+            obj.prepSaving;
             obj.bootTrial;
             obj.stimLoop;
-            obj.prepSaving;
+%             obj.prepSaving;
             obj.save;
             obj.saveFigures;
             obj.completed;
@@ -3326,9 +3431,10 @@ classdef best_toolbox < handle
             obj.app.resultsPanel;
             obj.boot_outputdevice;
             obj.boot_inputdevice;
+            obj.prepSaving;
             obj.bootTrial;
             stimLoop;
-            obj.prepSaving;
+%             obj.prepSaving;
             obj.save;
             obj.saveFigures;
             obj.completed;

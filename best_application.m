@@ -300,6 +300,7 @@ classdef best_application < handle
                 obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).ProtocolStatus={'Error'};
                 obj.pmd.ProtocolStatus.listbox.String(obj.pmd.ProtocolStatus.listbox.Value)={'Error'};  
                 obj.enable_listboxes;
+                  rethrow(e)
             end
         end
         function PauseUnpauseButton(obj,~,~)
@@ -786,6 +787,7 @@ classdef best_application < handle
                 obj.info.event.current_measure=obj.data.meas_copied_orignial;
                 obj.info.event.current_measure=obj.info.event.current_measure{1};
                 obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).Enable{1,1}='on';
+                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).ProtocolStatus={'created'};
                 obj.cb_measure_listbox;
             end
         end
