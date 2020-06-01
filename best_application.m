@@ -1022,7 +1022,8 @@ classdef best_application < handle
                     obj.pr.grid.ColumnSizes=[-1 -1 -1 -1];
                     obj.pr.grid.RowSizes=[-1 -1];
                 case 9
-                    obj.pr.grid.ColumnSizes=[-1 -1 -1 -1];
+%                     uiextras.HBox( 'Parent', obj.pr.grid), uiextras.HBox( 'Parent', obj.pr.grid), uiextras.HBox( 'Parent', obj.pr.grid)
+                    obj.pr.grid.ColumnSizes=[-1 -1 -1];
                     obj.pr.grid.RowSizes=[-1 -1 -1];
                 case 10
                     obj.pr.grid.ColumnSizes=[-1 -1 -1 -1];
