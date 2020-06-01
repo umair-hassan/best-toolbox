@@ -12695,6 +12695,7 @@ classdef best_application < handle
         end
         %% Load Parameters Using Menu
         function cb_menu_load(obj)
+            try
             FileName = uigetfile('*.mat', 'BEST Toolbox: Select a mat file');
             File=whos('-file',FileName);
             varname=File.name;
@@ -12721,7 +12722,10 @@ classdef best_application < handle
             drawnow
             pause(1);
             obj.cb_session_listbox;
-            drawnow;    
+            drawnow;  
+            catch
+                errordlg('You have tried to load a wrong or corrupt file. Try again with correct file.','BEST Toolbox');
+            end
 
             
             
