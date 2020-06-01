@@ -168,6 +168,15 @@ classdef best_toolbox < handle
                         conds=fieldnames(obj.inputs.condsAll);
                         for stno=1:(max(size(fieldnames(obj.inputs.condsAll.(conds{c,1}))))-1)
                             st=['st' num2str(stno)];
+                            if(obj.inputs.condsAll.(conds{c,1}).(st).stim_mode=='single_pulse')
+                                obj.inputs.condsAll.(conds{c,1}).(st).si_pckt{1,2}=0;
+                                obj.inputs.condsAll.(conds{c,1}).(st).si_pckt{1,3}=0;
+                            end
+                            if obj.inputs.condsAll.(conds{c,1}).(st).si_units==1
+                                obj.inputs.condsAll.(conds{c,1}).(st).si_pckt{1,4}=obj.inputs.condsAll.(conds{c,1}).(st).si_pckt{1,1};
+                            elseif obj.inputs.condsAll.(conds{c,1}).(st).si_units==0 && ~isempty(str2num(obj.inputs.condsAll.(conds{c,1}).(st).threshold)) && str2num(obj.inputs.condsAll.(conds{c,1}).(st).threshold)>0
+                                obj.inputs.condsAll.(conds{c,1}).(st).si_pckt{1,4}=round((obj.inputs.condsAll.(conds{c,1}).(st).si_pckt{1,1}*(str2num(obj.inputs.condsAll.(conds{c,1}).(st).threshold)))/100);
+                            end
                             condSi{1,stno}=obj.inputs.condsAll.(conds{c,1}).(st).si_pckt;
                             condstimMode{1,stno}= obj.inputs.condsAll.(conds{c,1}).(st).stim_mode;
                             obj.inputs.condsAll.(conds{c,1}).(st).stim_device
@@ -315,6 +324,15 @@ classdef best_toolbox < handle
                                 conds=fieldnames(obj.inputs.condsAll);
                                 for stno=1:(max(size(fieldnames(obj.inputs.condsAll.(conds{c,1}))))-1)
                                     st=['st' num2str(stno)];
+                                    if(obj.inputs.condsAll.(conds{c,1}).(st).stim_mode=='single_pulse')
+                                        obj.inputs.condsAll.(conds{c,1}).(st).si_pckt{1,2}=0;
+                                        obj.inputs.condsAll.(conds{c,1}).(st).si_pckt{1,3}=0;
+                                    end
+                                    if obj.inputs.condsAll.(conds{c,1}).(st).si_units==1
+                                        obj.inputs.condsAll.(conds{c,1}).(st).si_pckt{1,4}=obj.inputs.condsAll.(conds{c,1}).(st).si_pckt{1,1};
+                                    elseif obj.inputs.condsAll.(conds{c,1}).(st).si_units==0 && ~isempty(str2num(obj.inputs.condsAll.(conds{c,1}).(st).threshold)) && str2num(obj.inputs.condsAll.(conds{c,1}).(st).threshold)>0
+                                        obj.inputs.condsAll.(conds{c,1}).(st).si_pckt{1,4}=round((obj.inputs.condsAll.(conds{c,1}).(st).si_pckt{1,1}*(str2num(obj.inputs.condsAll.(conds{c,1}).(st).threshold)))/100);
+                                    end
                                     condSi{1,stno}=obj.inputs.condsAll.(conds{c,1}).(st).si_pckt;
                                     condstimMode{1,stno}= obj.inputs.condsAll.(conds{c,1}).(st).stim_mode;
                                     obj.inputs.condsAll.(conds{c,1}).(st).stim_device
@@ -474,6 +492,15 @@ classdef best_toolbox < handle
                                 conds=fieldnames(obj.inputs.condsAll);
                                 for stno=1:(max(size(fieldnames(obj.inputs.condsAll.(conds{c,1}))))-1)
                                     st=['st' num2str(stno)];
+                                    if(obj.inputs.condsAll.(conds{c,1}).(st).stim_mode=='single_pulse')
+                                        obj.inputs.condsAll.(conds{c,1}).(st).si_pckt{1,2}=0;
+                                        obj.inputs.condsAll.(conds{c,1}).(st).si_pckt{1,3}=0;
+                                    end
+                                    if obj.inputs.condsAll.(conds{c,1}).(st).si_units==1
+                                        obj.inputs.condsAll.(conds{c,1}).(st).si_pckt{1,4}=obj.inputs.condsAll.(conds{c,1}).(st).si_pckt{1,1};
+                                    elseif obj.inputs.condsAll.(conds{c,1}).(st).si_units==0 && ~isempty(str2num(obj.inputs.condsAll.(conds{c,1}).(st).threshold)) && str2num(obj.inputs.condsAll.(conds{c,1}).(st).threshold)>0
+                                        obj.inputs.condsAll.(conds{c,1}).(st).si_pckt{1,4}=round((obj.inputs.condsAll.(conds{c,1}).(st).si_pckt{1,1}*(str2num(obj.inputs.condsAll.(conds{c,1}).(st).threshold)))/100);
+                                    end
                                     condSi{1,stno}=obj.inputs.condsAll.(conds{c,1}).(st).si_pckt;
                                     condstimMode{1,stno}= obj.inputs.condsAll.(conds{c,1}).(st).stim_mode;
                                     obj.inputs.condsAll.(conds{c,1}).(st).stim_device
@@ -685,6 +712,15 @@ classdef best_toolbox < handle
                                 conds=fieldnames(obj.inputs.condsAll);
                                 for stno=1:(max(size(fieldnames(obj.inputs.condsAll.(conds{c,1}))))-1)
                                     st=['st' num2str(stno)];
+                                    if(obj.inputs.condsAll.(conds{c,1}).(st).stim_mode=='single_pulse')
+                                        obj.inputs.condsAll.(conds{c,1}).(st).si_pckt{1,2}=0;
+                                        obj.inputs.condsAll.(conds{c,1}).(st).si_pckt{1,3}=0;
+                                    end
+                                    if obj.inputs.condsAll.(conds{c,1}).(st).si_units==1
+                                        obj.inputs.condsAll.(conds{c,1}).(st).si_pckt{1,4}=obj.inputs.condsAll.(conds{c,1}).(st).si_pckt{1,1};
+                                    elseif obj.inputs.condsAll.(conds{c,1}).(st).si_units==0 && ~isempty(str2num(obj.inputs.condsAll.(conds{c,1}).(st).threshold)) && str2num(obj.inputs.condsAll.(conds{c,1}).(st).threshold)>0
+                                        obj.inputs.condsAll.(conds{c,1}).(st).si_pckt{1,4}=round((obj.inputs.condsAll.(conds{c,1}).(st).si_pckt{1,1}*(str2num(obj.inputs.condsAll.(conds{c,1}).(st).threshold)))/100);
+                                    end
                                     condSi{1,stno}=obj.inputs.condsAll.(conds{c,1}).(st).si_pckt;
                                     condstimMode{1,stno}= obj.inputs.condsAll.(conds{c,1}).(st).stim_mode;
                                     obj.inputs.condsAll.(conds{c,1}).(st).stim_device
@@ -845,6 +881,11 @@ classdef best_toolbox < handle
                                     if(obj.inputs.condsAll.(conds{c,1}).(st).stim_mode=='single_pulse')
                                         obj.inputs.condsAll.(conds{c,1}).(st).si_pckt{1,2}=0;
                                         obj.inputs.condsAll.(conds{c,1}).(st).si_pckt{1,3}=0;
+                                    end
+                                    if obj.inputs.condsAll.(conds{c,1}).(st).si_units==1
+                                        obj.inputs.condsAll.(conds{c,1}).(st).si_pckt{1,4}=obj.inputs.condsAll.(conds{c,1}).(st).si_pckt{1,1};
+                                    elseif obj.inputs.condsAll.(conds{c,1}).(st).si_units==0 && ~isempty(str2num(obj.inputs.condsAll.(conds{c,1}).(st).threshold)) && str2num(obj.inputs.condsAll.(conds{c,1}).(st).threshold)>0
+                                        obj.inputs.condsAll.(conds{c,1}).(st).si_pckt{1,4}=round((obj.inputs.condsAll.(conds{c,1}).(st).si_pckt{1,1}*(str2num(obj.inputs.condsAll.(conds{c,1}).(st).threshold)))/100);
                                     end
                                     condSi{1,stno}=obj.inputs.condsAll.(conds{c,1}).(st).si_pckt;
                                     condstimMode{1,stno}= obj.inputs.condsAll.(conds{c,1}).(st).stim_mode;
@@ -1008,6 +1049,15 @@ classdef best_toolbox < handle
                                 obj.inputs.condMat{c,obj.inputs.colLabel.threshold}=obj.inputs.condsAll.(conds{c,1}).st1.threshold_level;
                                 for stno=1:(max(size(fieldnames(obj.inputs.condsAll.(conds{c,1}))))-1)
                                     st=['st' num2str(stno)];
+                                    if(obj.inputs.condsAll.(conds{c,1}).(st).stim_mode=='single_pulse')
+                                        obj.inputs.condsAll.(conds{c,1}).(st).si_pckt{1,2}=0;
+                                        obj.inputs.condsAll.(conds{c,1}).(st).si_pckt{1,3}=0;
+                                    end
+                                    if obj.inputs.condsAll.(conds{c,1}).(st).si_units==1
+                                        obj.inputs.condsAll.(conds{c,1}).(st).si_pckt{1,4}=obj.inputs.condsAll.(conds{c,1}).(st).si_pckt{1,1};
+                                    elseif obj.inputs.condsAll.(conds{c,1}).(st).si_units==0 && ~isempty(str2num(obj.inputs.condsAll.(conds{c,1}).(st).threshold)) && str2num(obj.inputs.condsAll.(conds{c,1}).(st).threshold)>0
+                                        obj.inputs.condsAll.(conds{c,1}).(st).si_pckt{1,4}=round((obj.inputs.condsAll.(conds{c,1}).(st).si_pckt{1,1}*(str2num(obj.inputs.condsAll.(conds{c,1}).(st).threshold)))/100);
+                                    end
                                     condSi{1,stno}=obj.inputs.condsAll.(conds{c,1}).(st).si_pckt;
                                     condstimMode{1,stno}= obj.inputs.condsAll.(conds{c,1}).(st).stim_mode;
                                     obj.inputs.condsAll.(conds{c,1}).(st).stim_device
@@ -1176,6 +1226,15 @@ classdef best_toolbox < handle
                                 obj.inputs.condMat{c,obj.inputs.colLabel.threshold}=obj.inputs.condsAll.(conds{c,1}).st1.threshold_level;
                                 for stno=1:(max(size(fieldnames(obj.inputs.condsAll.(conds{c,1}))))-1)
                                     st=['st' num2str(stno)];
+                                    if(obj.inputs.condsAll.(conds{c,1}).(st).stim_mode=='single_pulse')
+                                        obj.inputs.condsAll.(conds{c,1}).(st).si_pckt{1,2}=0;
+                                        obj.inputs.condsAll.(conds{c,1}).(st).si_pckt{1,3}=0;
+                                    end
+                                    if obj.inputs.condsAll.(conds{c,1}).(st).si_units==1
+                                        obj.inputs.condsAll.(conds{c,1}).(st).si_pckt{1,4}=obj.inputs.condsAll.(conds{c,1}).(st).si_pckt{1,1};
+                                    elseif obj.inputs.condsAll.(conds{c,1}).(st).si_units==0 && ~isempty(str2num(obj.inputs.condsAll.(conds{c,1}).(st).threshold)) && str2num(obj.inputs.condsAll.(conds{c,1}).(st).threshold)>0
+                                        obj.inputs.condsAll.(conds{c,1}).(st).si_pckt{1,4}=round((obj.inputs.condsAll.(conds{c,1}).(st).si_pckt{1,1}*(str2num(obj.inputs.condsAll.(conds{c,1}).(st).threshold)))/100);
+                                    end
                                     condSi{1,stno}=obj.inputs.condsAll.(conds{c,1}).(st).si_pckt;
                                     condstimMode{1,stno}= obj.inputs.condsAll.(conds{c,1}).(st).stim_mode;
                                     obj.inputs.condsAll.(conds{c,1}).(st).stim_device
@@ -1306,6 +1365,15 @@ classdef best_toolbox < handle
                                 obj.inputs.condMat{c,obj.inputs.colLabel.threshold}=1;
                                 for stno=1:(max(size(fieldnames(obj.inputs.condsAll.(conds{c,1}))))-1)
                                     st=['st' num2str(stno)];
+                                    if(obj.inputs.condsAll.(conds{c,1}).(st).stim_mode=='single_pulse')
+                                        obj.inputs.condsAll.(conds{c,1}).(st).si_pckt{1,2}=0;
+                                        obj.inputs.condsAll.(conds{c,1}).(st).si_pckt{1,3}=0;
+                                    end
+                                    if obj.inputs.condsAll.(conds{c,1}).(st).si_units==1
+                                        obj.inputs.condsAll.(conds{c,1}).(st).si_pckt{1,4}=obj.inputs.condsAll.(conds{c,1}).(st).si_pckt{1,1};
+                                    elseif obj.inputs.condsAll.(conds{c,1}).(st).si_units==0 && ~isempty(str2num(obj.inputs.condsAll.(conds{c,1}).(st).threshold)) && str2num(obj.inputs.condsAll.(conds{c,1}).(st).threshold)>0
+                                        obj.inputs.condsAll.(conds{c,1}).(st).si_pckt{1,4}=round((obj.inputs.condsAll.(conds{c,1}).(st).si_pckt{1,1}*(str2num(obj.inputs.condsAll.(conds{c,1}).(st).threshold)))/100);
+                                    end
                                     condSi{1,stno}=obj.inputs.condsAll.(conds{c,1}).(st).si_pckt;
                                     condstimMode{1,stno}= obj.inputs.condsAll.(conds{c,1}).(st).stim_mode;
                                     obj.inputs.condsAll.(conds{c,1}).(st).stim_device
@@ -1454,6 +1522,11 @@ classdef best_toolbox < handle
                                     if(obj.inputs.condsAll.(conds{c,1}).(st).stim_mode=='single_pulse')
                                         obj.inputs.condsAll.(conds{c,1}).(st).si_pckt{1,2}=0;
                                         obj.inputs.condsAll.(conds{c,1}).(st).si_pckt{1,3}=0;
+                                    end
+                                    if obj.inputs.condsAll.(conds{c,1}).(st).si_units==1
+                                        obj.inputs.condsAll.(conds{c,1}).(st).si_pckt{1,4}=obj.inputs.condsAll.(conds{c,1}).(st).si_pckt{1,1};
+                                    elseif obj.inputs.condsAll.(conds{c,1}).(st).si_units==0 && ~isempty(str2num(obj.inputs.condsAll.(conds{c,1}).(st).threshold)) && str2num(obj.inputs.condsAll.(conds{c,1}).(st).threshold)>0
+                                        obj.inputs.condsAll.(conds{c,1}).(st).si_pckt{1,4}=round((obj.inputs.condsAll.(conds{c,1}).(st).si_pckt{1,1}*(str2num(obj.inputs.condsAll.(conds{c,1}).(st).threshold)))/100);
                                     end
                                     condSi{1,stno}=obj.inputs.condsAll.(conds{c,1}).(st).si_pckt;
                                     condstimMode{1,stno}= obj.inputs.condsAll.(conds{c,1}).(st).stim_mode;
@@ -3152,15 +3225,15 @@ classdef best_toolbox < handle
                                         case 'single_pulse'
                                             obj.magven.arm;
                                             obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,i}
-                                            obj.magven.setAmplitude(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,i}{1,1});
+                                            obj.magven.setAmplitude(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,i}{1,4});
                                         case 'paired_pulse'
                                             obj.magven.arm;
-                                            obj.magven.setAmplitude(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,i}{1,1});
-                                            obj.magven.setMode('Twin','Normal', 2, obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,i}{1,3}, obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,i}{1,1}/obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,i}{1,2});
+                                            obj.magven.setAmplitude(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,i}{1,4});
+                                            obj.magven.setMode('Twin','Normal', 2, obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,i}{1,3}, obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,i}{1,4}/obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,i}{1,2});
                                             disp PAIREDpulseENTERED
                                         case 'train'
                                             obj.magven.arm;
-                                            obj.magven.setAmplitude(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,i}{1,1});
+                                            obj.magven.setAmplitude(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,i}{1,4});
                                             obj.magven.setTrain(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,i}{1,2},obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,i}{1,3},1,0.1);
                                             disp trainENTERED
                                     end
@@ -3189,10 +3262,10 @@ classdef best_toolbox < handle
                                     switch obj.app.par.hardware_settings.(char(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.outputDevices}{1,i})).IntensityControl
                                         case 1 % Manual
                                             OutputDevice=char(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.outputDevices}{1,i});
-                                            obj.digitimer.(OutputDevice).setManualAmplitude(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,i}{1,1},OutputDevice);
+                                            obj.digitimer.(OutputDevice).setManualAmplitude(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,i}{1,4},OutputDevice);
                                         case 2 % Arduino
                                             OutputDevice=char(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.outputDevices}{1,i});
-                                            obj.digitimer.(OutputDevice).setAutomaticAmplitude(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,i}{1,1});
+                                            obj.digitimer.(OutputDevice).setAutomaticAmplitude(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,i}{1,4});
                                     end
                                 case 10 %simulation
                                     switch char(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.stimMode}{1,i})
@@ -4421,7 +4494,7 @@ classdef best_toolbox < handle
                 experimental_condition{1}.marker = 3;
                 experimental_condition{1}.random_delay_range = 0.1;
                 experimental_condition{1}.port = 1;
-                obj.tc.(mrk).stimvalue = [obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,1}{1,1} 1.0 1.00];
+                obj.tc.(mrk).stimvalue = [obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,1}{1,4} 1.0 1.00];
                 obj.tc.(mrk).stepsize = [1 1 1];
                 obj.tc.(mrk).minstep =  1;
                 obj.tc.(mrk).maxstep =  8;
@@ -4527,13 +4600,14 @@ classdef best_toolbox < handle
             if ~isempty(TrialToUpdate)
                 TrialToUpdate=TrialsNoForThisMarker(TrialToUpdate(1));
                 obj.inputs.trialMat{TrialToUpdate,obj.inputs.colLabel.si}{1,1}{1,1}=obj.tc.(mrk).stimvalue(StimDevice);
+                obj.inputs.trialMat{TrialToUpdate,obj.inputs.colLabel.si}{1,1}{1,4}=obj.tc.(mrk).stimvalue(StimDevice);
             end
         end
         function mep_threshold_MLE(obj)
             mrk=['mrk' num2str(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.marker})];
             
             if ~isfield(obj.inputs.Handles.ThresholdData,mrk)
-                [~,obj.inputs.Handles.ThresholdData.(mrk).L]=MT_initialize_likelihood_mth(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,1}{1,1});
+                [~,obj.inputs.Handles.ThresholdData.(mrk).L]=MT_initialize_likelihood_mth(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,1}{1,4});
             end
             MEPP2PAmpNonZeroIndex=find(obj.inputs.results.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).MEPAmplitude,1,'last');
             MEPP2PAmp=obj.inputs.results.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).MEPAmplitude(MEPP2PAmpNonZeroIndex);
@@ -4545,6 +4619,7 @@ classdef best_toolbox < handle
             if ~isempty(TrialToUpdate)
                 TrialToUpdate=TrialsNoForThisMarker(TrialToUpdate(1));
                 obj.inputs.trialMat{TrialToUpdate,obj.inputs.colLabel.si}{1,1}{1,1}=nextInt;
+                obj.inputs.trialMat{TrialToUpdate,obj.inputs.colLabel.si}{1,1}{1,4}=nextInt;
             end
             function [nextInt, L] = MT_initialize_likelihood_mth(startInt)
                 
@@ -4650,7 +4725,7 @@ classdef best_toolbox < handle
                 experimental_condition{1}.marker = 3;
                 experimental_condition{1}.random_delay_range = 0.1;
                 experimental_condition{1}.port = 1;
-                obj.tc.(mrk).stimvalue = [obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,1}{1,1} 1.0 1.00];
+                obj.tc.(mrk).stimvalue = [obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,1}{1,4} 1.0 1.00];
                 obj.tc.(mrk).stepsize = [0.4 0.4 0.4];
                 obj.tc.(mrk).minstep =  0.01;
                 obj.tc.(mrk).maxstep =  1.00;
@@ -4758,13 +4833,14 @@ classdef best_toolbox < handle
             if ~isempty(TrialToUpdate)
                 TrialToUpdate=TrialsNoForThisMarker(TrialToUpdate(1));
                 obj.inputs.trialMat{TrialToUpdate,obj.inputs.colLabel.si}{1,1}{1,1}=obj.tc.(mrk).stimvalue(StimDevice);
+                obj.inputs.trialMat{TrialToUpdate,obj.inputs.colLabel.si}{1,1}{1,4}=obj.tc.(mrk).stimvalue(StimDevice);
             end
         end
         function psych_threshold_MLE(obj)
             mrk=['mrk' num2str(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.marker})];
             
             if ~isfield(obj.inputs.Handles.ThresholdData,mrk)
-                [~,obj.inputs.Handles.ThresholdData.(mrk).L]=MT_initialize_likelihood_psychmth(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,1}{1,1});
+                [~,obj.inputs.Handles.ThresholdData.(mrk).L]=MT_initialize_likelihood_psychmth(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,1}{1,4});
             end
             MEPP2PAmpNonZeroIndex=find(obj.inputs.rawData.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).data,1,'last');
             MEPP2PAmp=obj.inputs.rawData.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).data(MEPP2PAmpNonZeroIndex);
@@ -4775,6 +4851,7 @@ classdef best_toolbox < handle
             if ~isempty(TrialToUpdate)
                 TrialToUpdate=TrialsNoForThisMarker(TrialToUpdate(1));
                 obj.inputs.trialMat{TrialToUpdate,obj.inputs.colLabel.si}{1,1}{1,1}=nextInt;
+                obj.inputs.trialMat{TrialToUpdate,obj.inputs.colLabel.si}{1,1}{1,4}=nextInt;
             end
             function [nextInt, L] = MT_initialize_likelihood_psychmth(startInt)
                 
@@ -5067,14 +5144,14 @@ classdef best_toolbox < handle
                 obj.app.pr.ax.(ax).Data(1,2)={[num2str(obj.inputs.trial+1) '/' num2str(obj.inputs.totalTrials)]};
                 obj.app.pr.ax.(ax).Data(2,1)={num2str(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.iti})};
                 obj.app.pr.ax.(ax).Data(2,2)={num2str(obj.inputs.trialMat{obj.inputs.trial+1,obj.inputs.colLabel.iti})};
-                obj.app.pr.ax.(ax).Data(3,1)={num2str(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,1}{1,1})};
-                obj.app.pr.ax.(ax).Data(3,2)={num2str(obj.inputs.trialMat{obj.inputs.trial+1,obj.inputs.colLabel.si}{1,1}{1,1})};
+                obj.app.pr.ax.(ax).Data(3,1)={num2str(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,1}{1,4})};
+                obj.app.pr.ax.(ax).Data(3,2)={num2str(obj.inputs.trialMat{obj.inputs.trial+1,obj.inputs.colLabel.si}{1,1}{1,4})};
             else
                 obj.app.pr.ax.(ax).Data(1,1)={[num2str(obj.inputs.trial) '/' num2str(obj.inputs.totalTrials)]};
                 obj.app.pr.ax.(ax).Data(1,2)={''};
                 obj.app.pr.ax.(ax).Data(2,1)={num2str(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.iti})};
                 obj.app.pr.ax.(ax).Data(2,2)={''};
-                obj.app.pr.ax.(ax).Data(3,1)={num2str(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,1}{1,1})};
+                obj.app.pr.ax.(ax).Data(3,1)={num2str(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,1}{1,4})};
                 obj.app.pr.ax.(ax).Data(3,2)={''};
             end
         end
