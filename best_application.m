@@ -73,7 +73,7 @@ classdef best_application < handle
             %              obj.bst= best_toolbox_gui_version_inprogress_testinlab_2910_sim (obj);
         end
         function create_figure(obj)
-            obj.fig.handle = figure('Tag','umi1','ToolBar','none','MenuBar','none','Name','BEST Toolbox','NumberTitle','off');
+            obj.fig.handle = figure('Tag','BESTToolboxApplication','ToolBar','none','MenuBar','none','Name','BEST Toolbox','NumberTitle','off','CloseRequestFcn',@obj.close_figure_ioio);
             
             obj.info.session_no=0;
             obj.info.measurement_no=0;
@@ -97,6 +97,16 @@ classdef best_application < handle
             obj.icons.paired_pulse=imread('best_icon_paired_pulse.png');
             obj.icons.train=imread('best_icon_train_pulse.png');
             
+        end
+        function close_figure_ioio(obj,~,~)
+            obj.cb_menu_save;
+            answer = questdlg('Do you want to Close BEST Toolbox Application current Session?','BEST Toolbox','No','Yes Close','No');
+                switch answer
+                    case 'Yes Close'
+                        delete (findobj('Tag','BESTToolboxApplication'));
+                    case 'No'
+                        return
+                end
         end
         function create_menu(obj)
             
