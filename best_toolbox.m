@@ -2819,6 +2819,8 @@ classdef best_toolbox < handle
                 
                 
             end
+            %% Common Settings for All Functions
+            obj.inputs.NoiseFilter50Hz=obj.app.par.GlobalSettings.NoiseFilter50Hz;
         end
         
         
