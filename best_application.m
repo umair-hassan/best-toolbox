@@ -12630,38 +12630,38 @@ classdef best_application < handle
             save_str=[exp_name '_' subj_code];
             obj.bst.info.save_str=save_str;
             
-            variable_saved.(save_str).ExperimentName=exp_name;
-            variable_saved.(save_str).SubjectCode=subj_code;
-            variable_saved.(save_str).Parameters=obj.par;
-            variable_saved.(save_str).Data=obj.bst.sessions; % 31-May-2020 00:58:42
-            
-            variable_saved.(save_str).Utilities.Info=obj.info;
-            variable_saved.(save_str).Utilities.Data=obj.data;
-            variable_saved.(save_str).Utilities.Session=obj.pmd.lb_sessions.string;
-            variable_saved.(save_str).Utilities.HardwareConfiguration.OutputDevices=obj.hw.device_added2_listbox.string;
-            variable_saved.(save_str).Utilities.HardwareConfiguration.InputDevices=obj.hw.device_added1_listbox.string;
-%             BEST.(save_str).ExperimentName=exp_name;
-%             BEST.(save_str).SubjectCode=subj_code;
-%             BEST.(save_str).Parameters=obj.par;
-%             BEST.(save_str).Data= obj.bst.sessions; % 31-May-2020 00:58:42
+%             variable_saved.(save_str).ExperimentName=exp_name;
+%             variable_saved.(save_str).SubjectCode=subj_code;
+%             variable_saved.(save_str).Parameters=obj.par;
+%             variable_saved.(save_str).Data=obj.bst.sessions; % 31-May-2020 00:58:42
 %             
-%             BEST.(save_str).Utilities.Info=obj.info;
-%             BEST.(save_str).Utilities.Data=obj.data;
-%             BEST.(save_str).Utilities.Session=obj.pmd.lb_sessions.string;
-%             BEST.(save_str).Utilities.HardwareConfiguration.OutputDevices=obj.hw.device_added2_listbox.string;
-%             BEST.(save_str).Utilities.HardwareConfiguration.InputDevices=obj.hw.device_added1_listbox.string;
+%             variable_saved.(save_str).Utilities.Info=obj.info;
+%             variable_saved.(save_str).Utilities.Data=obj.data;
+%             variable_saved.(save_str).Utilities.Session=obj.pmd.lb_sessions.string;
+%             variable_saved.(save_str).Utilities.HardwareConfiguration.OutputDevices=obj.hw.device_added2_listbox.string;
+%             variable_saved.(save_str).Utilities.HardwareConfiguration.InputDevices=obj.hw.device_added1_listbox.string;
+            BESTToolboxParameters.(save_str).ExperimentName=exp_name;
+            BESTToolboxParameters.(save_str).SubjectCode=subj_code;
+            BESTToolboxParameters.(save_str).Parameters=obj.par;
+            BESTToolboxParameters.(save_str).Data= obj.bst.sessions; % 31-May-2020 00:58:42
             
-            drawnow
-            if ~isempty(obj.Date)
-                obj.bst.info.matfilstr=['BEST_' obj.Date '_' save_str '.mat'];
-                obj.bst.info.save_str_runtime=['BEST_' obj.Date '_' save_str '_Autosave.mat'];
-                if isfile(obj.bst.info.matfilstr)
-                    delete(obj.bst.info.matfilstr)
-                end
-                if isfile(obj.bst.info.save_str_runtime)
-                    delete(obj.bst.info.save_str_runtime)
-                end
-            end
+            BESTToolboxParameters.(save_str).Utilities.Info=obj.info;
+            BESTToolboxParameters.(save_str).Utilities.Data=obj.data;
+            BESTToolboxParameters.(save_str).Utilities.Session=obj.pmd.lb_sessions.string;
+            BESTToolboxParameters.(save_str).Utilities.HardwareConfiguration.OutputDevices=obj.hw.device_added2_listbox.string;
+            BESTToolboxParameters.(save_str).Utilities.HardwareConfiguration.InputDevices=obj.hw.device_added1_listbox.string;
+            
+% % % % %             drawnow
+% % % % %             if ~isempty(obj.Date)
+% % % % %                 obj.bst.info.matfilstr=['BEST_' obj.Date '_' save_str '.mat'];
+% % % % %                 obj.bst.info.save_str_runtime=['BEST_' obj.Date '_' save_str '_Autosave.mat'];
+% % % % %                 if isfile(obj.bst.info.matfilstr)
+% % % % %                     delete(obj.bst.info.matfilstr)
+% % % % %                 end
+% % % % %                 if isfile(obj.bst.info.save_str_runtime)
+% % % % %                     delete(obj.bst.info.save_str_runtime)
+% % % % %                 end
+% % % % %             end
 % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %             if isfield(obj.bst.info,'matfilstr')
 % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                 if isfile(obj.bst.info.matfilstr)
 % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                     delete(obj.bst.info.matfilstr)
@@ -12672,15 +12672,15 @@ classdef best_application < handle
 % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                     delete(obj.bst.info.save_str_runtime)
 % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                 end
 % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %             end
-            obj.Date=datestr(now);
-            obj.Date(obj.Date == ' ') = '_';
-            obj.Date(obj.Date == '-') = '_';
-            obj.Date(obj.Date == ':') = '_';
+% % % % % %             obj.Date=datestr(now);
+% % % % % %             obj.Date(obj.Date == ' ') = '_';
+% % % % % %             obj.Date(obj.Date == '-') = '_';
+% % % % % %             obj.Date(obj.Date == ':') = '_';
             obj.bst.info.matfilstr=['BEST_' save_str '.mat'];
-            obj.bst.info.save_str_runtime=['BEST_' obj.Date '_' save_str '_Autosave.mat'];
-            obj.bst.info.save_buffer = matfile(obj.bst.info.matfilstr,'Writable',true);
-%             save(obj.bst.info.matfilstr,'BEST','-v7.3','-nocompression');
-            obj.bst.info.save_buffer.(save_str)=variable_saved.(save_str);
+% % %             obj.bst.info.save_str_runtime=['BEST_' obj.Date '_' save_str '_Autosave.mat'];
+%             obj.bst.info.save_buffer = matfile(obj.bst.info.matfilstr,'Writable',true);
+            save(obj.bst.info.matfilstr,'BESTToolboxParameters','-v7.3','-nocompression');
+%             obj.bst.info.save_buffer.(save_str)=variable_saved.(save_str);
             % % %
             % %
             % %             varr.info=obj.info
@@ -12711,24 +12711,25 @@ classdef best_application < handle
             try
             FileName = uigetfile('*.mat', 'BEST Toolbox: Select a mat file');
             File=whos('-file',FileName);
-            varname=File.name;
+            Filevarname=File.name;
             % varname=file;
             % varname=erase(varname,'.mat');
             % varname = replaceBetween(varname,1,26,'');
-            saved_struct=load(FileName,varname);
-            obj.par=saved_struct.(varname).Parameters;
-            obj.info=saved_struct.(varname).Utilities.Info;
-            obj.data=saved_struct.(varname).Utilities.Data;
-            obj.bst.sessions=saved_struct.(varname).Data;
-%             obj.bst.inputs=saved_struct.(varname).data.global_info.inputs;
-%             obj.bst.info=saved_struct.(varname).data.global_info.info;
-            obj.pmd.exp_title.editfield.String=saved_struct.(varname).ExperimentName;
-            obj.pmd.sub_code.editfield.String=saved_struct.(varname).SubjectCode;
-            obj.pmd.lb_sessions.listbox.String=saved_struct.(varname).Utilities.Session;
-            obj.pmd.lb_sessions.string=saved_struct.(varname).Utilities.Session;
+            saved_struct=load(FileName,Filevarname);
+            varname=char(fieldnames(saved_struct.BESTToolboxParameters(1)));
+            obj.par=saved_struct.BESTToolboxParameters.(varname).Parameters;
+            obj.info=saved_struct.BESTToolboxParameters.(varname).Utilities.Info;
+            obj.data=saved_struct.BESTToolboxParameters.(varname).Utilities.Data;
+            obj.bst.sessions=saved_struct.BESTToolboxParameters.(varname).Data;
+%             obj.bst.inputs=saved_struct.BESTToolboxParameters.(varname).data.global_info.inputs;
+%             obj.bst.info=saved_struct.BESTToolboxParameters.(varname).data.global_info.info;
+            obj.pmd.exp_title.editfield.String=saved_struct.BESTToolboxParameters.(varname).ExperimentName;
+            obj.pmd.sub_code.editfield.String=saved_struct.BESTToolboxParameters.(varname).SubjectCode;
+            obj.pmd.lb_sessions.listbox.String=saved_struct.BESTToolboxParameters.(varname).Utilities.Session;
+            obj.pmd.lb_sessions.string=saved_struct.BESTToolboxParameters.(varname).Utilities.Session;
 %             obj.hw=Utilities.HardwareConfiguration;
-            obj.hw.device_added2_listbox.string=saved_struct.(varname).Utilities.HardwareConfiguration.OutputDevices;
-            obj.hw.device_added1_listbox.string=saved_struct.(varname).Utilities.HardwareConfiguration.InputDevices;
+            obj.hw.device_added2_listbox.string=saved_struct.BESTToolboxParameters.(varname).Utilities.HardwareConfiguration.OutputDevices;
+            obj.hw.device_added1_listbox.string=saved_struct.BESTToolboxParameters.(varname).Utilities.HardwareConfiguration.InputDevices;
             
             obj.hw.device_added2.listbox.String=obj.hw.device_added2_listbox.string;
             obj.hw.device_added1.listbox.String=obj.hw.device_added1_listbox.string;
@@ -12736,6 +12737,29 @@ classdef best_application < handle
             pause(1);
             obj.cb_session_listbox;
             drawnow;  
+            %% Below Code Works for When Saved is Performed using AMAT File, but it is recommended to depricate that in Future Release because it is too slow
+%             saved_struct=load(FileName,varname);
+%             obj.par=saved_struct.(varname).Parameters;
+%             obj.info=saved_struct.(varname).Utilities.Info;
+%             obj.data=saved_struct.(varname).Utilities.Data;
+%             obj.bst.sessions=saved_struct.(varname).Data;
+% %             obj.bst.inputs=saved_struct.(varname).data.global_info.inputs;
+% %             obj.bst.info=saved_struct.(varname).data.global_info.info;
+%             obj.pmd.exp_title.editfield.String=saved_struct.(varname).ExperimentName;
+%             obj.pmd.sub_code.editfield.String=saved_struct.(varname).SubjectCode;
+%             obj.pmd.lb_sessions.listbox.String=saved_struct.(varname).Utilities.Session;
+%             obj.pmd.lb_sessions.string=saved_struct.(varname).Utilities.Session;
+% %             obj.hw=Utilities.HardwareConfiguration;
+%             obj.hw.device_added2_listbox.string=saved_struct.(varname).Utilities.HardwareConfiguration.OutputDevices;
+%             obj.hw.device_added1_listbox.string=saved_struct.(varname).Utilities.HardwareConfiguration.InputDevices;
+%             
+%             obj.hw.device_added2.listbox.String=obj.hw.device_added2_listbox.string;
+%             obj.hw.device_added1.listbox.String=obj.hw.device_added1_listbox.string;
+%             drawnow
+%             pause(1);
+%             obj.cb_session_listbox;
+%             drawnow;  
+            
             catch e
                 errordlg('You have tried to load a wrong or corrupt file. Try again with correct file.','BEST Toolbox');
                  rethrow(e)
