@@ -12630,26 +12630,26 @@ classdef best_application < handle
             save_str=[exp_name '_' subj_code];
             obj.bst.info.save_str=save_str;
             
-%             variable_saved.(save_str).ExperimentName=exp_name;
-%             variable_saved.(save_str).SubjectCode=subj_code;
-%             variable_saved.(save_str).Parameters=obj.par;
-%             variable_saved.(save_str).Data=[] ;% obj.bst.sessions; % 31-May-2020 00:58:42
-%             
-%             variable_saved.(save_str).Utilities.Info=obj.info;
-%             variable_saved.(save_str).Utilities.Data=obj.data;
-%             variable_saved.(save_str).Utilities.Session=obj.pmd.lb_sessions.string;
-%             variable_saved.(save_str).Utilities.HardwareConfiguration.OutputDevices=obj.hw.device_added2_listbox.string;
-%             variable_saved.(save_str).Utilities.HardwareConfiguration.InputDevices=obj.hw.device_added1_listbox.string;
-            BEST.(save_str).ExperimentName=exp_name;
-            BEST.(save_str).SubjectCode=subj_code;
-            BEST.(save_str).Parameters=obj.par;
-            BEST.(save_str).Data=[] ;% obj.bst.sessions; % 31-May-2020 00:58:42
+            variable_saved.(save_str).ExperimentName=exp_name;
+            variable_saved.(save_str).SubjectCode=subj_code;
+            variable_saved.(save_str).Parameters=obj.par;
+            variable_saved.(save_str).Data=obj.bst.sessions; % 31-May-2020 00:58:42
             
-            BEST.(save_str).Utilities.Info=obj.info;
-            BEST.(save_str).Utilities.Data=obj.data;
-            BEST.(save_str).Utilities.Session=obj.pmd.lb_sessions.string;
-            BEST.(save_str).Utilities.HardwareConfiguration.OutputDevices=obj.hw.device_added2_listbox.string;
-            BEST.(save_str).Utilities.HardwareConfiguration.InputDevices=obj.hw.device_added1_listbox.string;
+            variable_saved.(save_str).Utilities.Info=obj.info;
+            variable_saved.(save_str).Utilities.Data=obj.data;
+            variable_saved.(save_str).Utilities.Session=obj.pmd.lb_sessions.string;
+            variable_saved.(save_str).Utilities.HardwareConfiguration.OutputDevices=obj.hw.device_added2_listbox.string;
+            variable_saved.(save_str).Utilities.HardwareConfiguration.InputDevices=obj.hw.device_added1_listbox.string;
+%             BEST.(save_str).ExperimentName=exp_name;
+%             BEST.(save_str).SubjectCode=subj_code;
+%             BEST.(save_str).Parameters=obj.par;
+%             BEST.(save_str).Data= obj.bst.sessions; % 31-May-2020 00:58:42
+%             
+%             BEST.(save_str).Utilities.Info=obj.info;
+%             BEST.(save_str).Utilities.Data=obj.data;
+%             BEST.(save_str).Utilities.Session=obj.pmd.lb_sessions.string;
+%             BEST.(save_str).Utilities.HardwareConfiguration.OutputDevices=obj.hw.device_added2_listbox.string;
+%             BEST.(save_str).Utilities.HardwareConfiguration.InputDevices=obj.hw.device_added1_listbox.string;
             
             drawnow
             if ~isempty(obj.Date)
@@ -12678,9 +12678,9 @@ classdef best_application < handle
             obj.Date(obj.Date == ':') = '_';
             obj.bst.info.matfilstr=['BEST_' save_str '.mat'];
             obj.bst.info.save_str_runtime=['BEST_' obj.Date '_' save_str '_Autosave.mat'];
-%             obj.bst.info.save_buffer = matfile(obj.bst.info.matfilstr,'Writable',true);
-            save(obj.bst.info.matfilstr,'BEST','-v7.3','-nocompression');
-%             obj.bst.info.save_buffer.(save_str)=variable_saved.(save_str);
+            obj.bst.info.save_buffer = matfile(obj.bst.info.matfilstr,'Writable',true);
+%             save(obj.bst.info.matfilstr,'BEST','-v7.3','-nocompression');
+            obj.bst.info.save_buffer.(save_str)=variable_saved.(save_str);
             % % %
             % %
             % %             varr.info=obj.info
@@ -12736,8 +12736,9 @@ classdef best_application < handle
             pause(1);
             obj.cb_session_listbox;
             drawnow;  
-            catch
+            catch e
                 errordlg('You have tried to load a wrong or corrupt file. Try again with correct file.','BEST Toolbox');
+                 rethrow(e)
             end
 
             

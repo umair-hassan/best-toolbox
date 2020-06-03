@@ -1025,7 +1025,6 @@ classdef best_toolbox < handle
                                         ChannelID{2*ChannelType1-1}=find(strcmp(obj.app.par.hardware_settings.(char(obj.inputs.input_device)).NeurOneProtocolChannelLabels,obj.inputs.condsAll.(conds{ChannelType1,1}).targetChannel));
                                     end
                                     for ChannelType2=1:numel(obj.inputs.EMGDisplayChannels)
-                                        obj.inputs.condsAll.(conds{ChannelType2,1}).targetChannel;
                                         ChannelID{2*numel(conds)+ChannelType2}=find(strcmp(obj.app.par.hardware_settings.(char(obj.inputs.input_device)).NeurOneProtocolChannelLabels,obj.inputs.EMGDisplayChannels{ChannelType2}));
                                     end
                                 case 2 % fieldtrip real time buffer
@@ -3412,7 +3411,10 @@ classdef best_toolbox < handle
                     end
                 case 'rs EEG Measurement Protocol'
            end
-            disp [[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[DONWWITHTIMER
+           obj.sessions.(obj.app.info.event.current_session).(obj.app.info.event.current_measure_fullstr).ConditionsMatrix=obj.inputs.condMat;
+           obj.sessions.(obj.app.info.event.current_session).(obj.app.info.event.current_measure_fullstr).TrialsMatrix=obj.inputs.trialMat;
+           obj.sessions.(obj.app.info.event.current_session).(obj.app.info.event.current_measure_fullstr).Figures=obj.inputs.Figures;
+           try obj.sessions.(obj.app.info.event.current_session).(obj.app.info.event.current_measure_fullstr).Results=obj.inputs.results; catch, end %Known Error when run on PsychMTH
             toc
         end
         function TmrFcn(obj)
@@ -3464,8 +3466,8 @@ classdef best_toolbox < handle
                             obj.BESTData.trialinfo(1:numel(TS),1)=TS;
                             obj.BESTData.trialinfo(1:numel(vertcat(obj.inputs.trialMat{:,4})),2)=vertcat(obj.inputs.trialMat{:,4});
                         case 2 %Manual
-                            obj.BESTData.trialinfo(:,1)=NaN;
-                            obj.BESTData.trialinfo(:,2)=NaN;
+                            obj.BESTData.trialinfo(1,1)=NaN;
+                            obj.BESTData.trialinfo(1,2)=NaN;
                     end
                 case 'MEP Measurement Protocol'
                     switch obj.inputs.BrainState
@@ -3671,8 +3673,8 @@ classdef best_toolbox < handle
                     while strcmpi(obj.bossbox.EMGScope.Status,'finished')
                         obj.readTrial;
                         obj.plotTrial;
-                        obj.prepTrial;
                         obj.saveRuntime;
+                        obj.prepTrial;
                     end
                     if(obj.inputs.stop_event==1) || obj.inputs.trial==obj.inputs.totalTrials
                         disp('BEST Toolbox Manual Hotspot Search has been stopped')
