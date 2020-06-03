@@ -429,11 +429,26 @@ classdef best_sync2brain_bossdevice <handle
                 ftdata.trial{1}=Data;
                 ftdata.time{1}=Time;
                 cfg.demean='yes';
-                cfg.detrend='yes';
+                % cfg.detrend='yes'; It does not help in improving, however introduces weired drifts therefore deprication is recommended in Future Release
                 cfg.baselinewindow=[obj.best_toolbox.inputs.EMGDisplayPeriodPre*(-1)/1000 -10]; %[EMGDisplayPeriodPre_ms to -10ms]
                 ProcessedData=ft_preprocessing(cfg, ftdata);
-                Data=ProcessedData.trial{1};
-                Time=ProcessedData.time{1};
+                obj.best_toolbox.inputs.NoiseFilter50Hz=1
+                %% Here the Line Noise Filtering is Performed Using a Template
+                if obj.best_toolbox.inputs.NoiseFilter50Hz==1
+                    ats.Trial=ProcessedData.trial{1};
+                    ats.Time=ProcessedData.time{1};
+                    ats.Trial_1_20=ats.Trial(1,1:100); %Extracting 1st 50 Hz Cycle
+                    ats.Trial_21_40=ats.Trial(1,101:200); %Extracting 2nd 50 Hz Cycle
+                    ats.Trial_mean=(ats.Trial_1_20+ats.Trial_21_40)/2; %Averaging Both Cycle to Generalize Tempalte
+                    ats.Trial_Template=repmat(ats.Trial_mean,1,2*ceil(size(ats.Trial,2)/20)); 
+                    ats.Trial_Tempalte=ats.Trial_Template(1,1:size(ats.Trial,2)); %Making the dimensions of Template Compatible with Trial
+                    ats.Trial_corrected=ats.Trial-ats.Trial_Tempalte; %Subtracting Tempalte
+                    Data=ats.Trial_corrected;
+                    Time=ProcessedData.time{1};
+                elseif obj.best_tolbox.inputs.NoiseFilter50Hz==0
+                    Data=ProcessedData.trial{1};
+                    Time=ProcessedData.time{1};
+                end
             end
         end
         function Data = IPScopeRead(obj)
