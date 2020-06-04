@@ -2879,9 +2879,9 @@ classdef best_toolbox < handle
             %% Only for testing purpose #324324
             a=1;
             trial=load('trialMat_test.mat');
-            trial_data=load('trial_test.mat');
+            trial_data=load('r.mat');
             obj.inputs.trialMat=trial.trialMat;
-            obj.inputs.umair=trial_data.trial_test;
+            obj.inputs.umair=trial_data.r;
             
         end
         function boot_inputdevice(obj)
@@ -4354,7 +4354,7 @@ obj.inputs.rawData.(unique_chLab{1,i}).time(obj.inputs.trial,:)=obj.inputs.umair
                     end
                     %% Creating plot
                     xlabel('Stimulation Intensity');
-                    ylabel('MEP Amplitude (mV)');
+                    ylabel('MEP Amplitude ( \mu V)');
                     
                     set(gcf, 'color', 'w')
                     
@@ -4391,13 +4391,13 @@ obj.inputs.rawData.(unique_chLab{1,i}).time(obj.inputs.trial,:)=obj.inputs.umair
                     str = {str_ip,[],str_th,[],str_pt};
                     ylim([-500 Inf])
                     %% Test String of IP, PT and TH
-                    obj.app.pr.ip_mso.(ax).String=obj.info.ip_x; %Divided by 1000 to covnert it into mV
-                    obj.app.pr.ip_muv.(ax).String=ip_y;
-                    obj.app.pr.pt_mso.(ax).String=obj.info.pt_x;      %Divided by 1000 to convert it into mV
-                    obj.app.pr.pt_muv.(ax).String=pt_y;
+                    obj.app.pr.ip_mso.(ax).String=obj.info.ip_x; 
+                    obj.app.pr.ip_muv.(ax).String=ip_y;  % here it is in uV
+                    obj.app.pr.pt_mso.(ax).String=obj.info.pt_x;     
+                    obj.app.pr.pt_muv.(ax).String=pt_y;  % here ti is in uV
                     obj.app.pr.th_mso.(ax).String=obj.info.th;
                     obj.app.pr.th_muv.(ax).String=0.05;
-                    ResultsAnnotation={['Inflection Point(mV):' num2str(ip_y*1000)],['Inflection Point(intensity):' num2str(obj.info.ip_x)],['Plateau (mV):' num2str(pt_y*1000)],['Plateau (intensity):' num2str(obj.info.pt_x)],['Thershold (intensity):' num2str(obj.info.th)]};
+                    ResultsAnnotation={['Inflection Point(mV):' num2str(ip_y/1000)],['Inflection Point(intensity):' num2str(obj.info.ip_x)],['Plateau (mV):' num2str(pt_y/1000)],['Plateau (intensity):' num2str(obj.info.pt_x)],['Thershold (intensity):' num2str(obj.info.th)]};
                     obj.app.pr.ax.(ax).UserData.status=text(obj.app.pr.ax.(ax),1,1,ResultsAnnotation,'units','normalized','HorizontalAlignment','right','VerticalAlignment','cap','color',[0.45 0.45 0.45]);
                     box off; drawnow;
                 elseif numel(obj.inputs.ResponseFunctionNumerator)>1
