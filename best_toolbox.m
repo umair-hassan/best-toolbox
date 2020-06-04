@@ -2876,6 +2876,13 @@ classdef best_toolbox < handle
             %
             %                 otherwise
             %             end
+            %% Only for testing purpose #324324
+            a=1;
+            trial=load('trialMat_test.mat');
+            trial_data=load('trial_test.mat');
+            obj.inputs.trialMat=trial.trialMat;
+            obj.inputs.umair=trial_data.trial_test;
+            
         end
         function boot_inputdevice(obj)
             % 18-Mar-2020 11:01:08
@@ -3034,8 +3041,14 @@ classdef best_toolbox < handle
                                 EMGChannelIndex=find(strcmp(obj.app.par.hardware_settings.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.inputDevices}).NeurOneProtocolChannelLabels,unique_chLab{1,i}));
                                 EMGChannelIndex=EMGChannelIndex-obj.bossbox.bb.eeg_channels;
                                 [obj.inputs.rawData.(unique_chLab{1,i}).time(obj.inputs.trial,:), obj.inputs.rawData.(unique_chLab{1,i}).data(obj.inputs.trial,:)]=obj.bossbox.EMGScopeRead(EMGChannelIndex);
-                                %obj.inputs.rawData.(unique_chLab{1,i}).data(obj.inputs.trial,:)=obj.best_VisualizationFilter([obj.sim_mep(1,700:1000), obj.sim_mep(1,1:699)]*1000*obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,1}{1,1}*(randi([1 3])*0.10));
-                                %obj.inputs.rawData.(unique_chLab{1,i}).data(obj.inputs.trial,:)=obj.best_VisualizationFilter([obj.sim_mep(1,700:1000), obj.sim_mep(1,1:699)]*1000*(randi([1 3])*0.10));
+                                % 04-Jun-2020 19:58:28 Comment below two lines
+%                                 obj.inputs.rawData.(unique_chLab{1,i}).data(obj.inputs.trial,:)=obj.best_VisualizationFilter([obj.sim_mep(1,700:1000), obj.sim_mep(1,1:699)]*1000*obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,1}{1,1}*(randi([1 3])*0.10));
+%                                 obj.inputs.rawData.(unique_chLab{1,i}).time(obj.inputs.trial,:)=obj.best_VisualizationFilter([obj.sim_mep(1,700:1000), obj.sim_mep(1,1:699)]*1000*obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,1}{1,1}*(randi([1 3])*0.10));
+%                                 obj.inputs.rawData.(unique_chLab{1,i}).data(obj.inputs.trial,:)=obj.best_VisualizationFilter([obj.sim_mep(1,700:1000), obj.sim_mep(1,1:699)]*1000*(randi([1 3])*0.10));
+%                                 obj.inputs.rawData.(unique_chLab{1,i}).time(obj.inputs.trial,:)=obj.best_VisualizationFilter([obj.sim_mep(1,700:1000), obj.sim_mep(1,1:699)]*1000*(randi([1 3])*0.10));
+obj.inputs.rawData.(unique_chLab{1,i}).data(obj.inputs.trial,:)=obj.inputs.umair(obj.inputs.trial,:); % 04-Jun-2020 21:12:26
+obj.inputs.rawData.(unique_chLab{1,i}).time(obj.inputs.trial,:)=obj.inputs.umair(obj.inputs.trial,:);
+% obj.inputs.rawData.(unique_chLab{1,i}).time(obj.inputs.trial,:)=obj.best_VisualizationFilter([obj.sim_mep(1,700:1000), obj.sim_mep(1,1:699)]*1000*(randi([1 3])*0.10));
                                 %obj.bossbox.EMGScope;
                                 %check=obj.bossbox.EMGScope.Data(:,1)';
                                 %obj.inputs.rawData.(unique_chLab{1,i}).data(obj.inputs.trial,:)=[obj.bossbox.EMGScope.Data(:,1)]';
@@ -3414,7 +3427,7 @@ classdef best_toolbox < handle
                 case 'rs EEG Measurement Protocol'
            end
            obj.sessions.(obj.app.info.event.current_session).(obj.app.info.event.current_measure_fullstr).ConditionsMatrix=obj.inputs.condMat;
-           obj.sessions.(obj.app.info.event.current_session).(obj.app.info.event.current_measure_fullstr).TrialsMatrix=obj.inputs.trialMat;
+           % obj.sessions.(obj.app.info.event.current_session).(obj.app.info.event.current_measure_fullstr).TrialsMatrix=obj.inputs.trialMat; % 04-Jun-2020 20:35:39
            obj.sessions.(obj.app.info.event.current_session).(obj.app.info.event.current_measure_fullstr).Figures=obj.inputs.Figures;
            try obj.sessions.(obj.app.info.event.current_session).(obj.app.info.event.current_measure_fullstr).Results=obj.inputs.results; catch, end %Known Error when run on PsychMTH
             toc
@@ -4010,7 +4023,7 @@ classdef best_toolbox < handle
         function mep_amp(obj)
             maxx=max(obj.inputs.rawData.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).data(obj.inputs.trial,obj.inputs.mep_onset_samples:obj.inputs.mep_offset_samples));
             minn=min(obj.inputs.rawData.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).data(obj.inputs.trial,obj.inputs.mep_onset_samples:obj.inputs.mep_offset_samples));
-            obj.inputs.results.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).MEPAmplitude(obj.inputs.trial,1)=(maxx-minn);
+            obj.inputs.results.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).MEPAmplitude(obj.inputs.trial,1)=abs(maxx)+abs(minn);
             % the purpose of below line is a mere simulation
             %             obj.inputs.results.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).MEPAmplitude(obj.inputs.trial,1)=obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.stimcdMrk};
             %% Calculating Ratios NEW METHOD
@@ -4340,8 +4353,8 @@ classdef best_toolbox < handle
                         xlim([min(SIfit)-5 max(SIfit)+5]);
                     end
                     %% Creating plot
-                    xlabel(' Stimulation Intensity');
-                    ylabel('MEP Amplitude ( \mu V)');
+                    xlabel('Stimulation Intensity');
+                    ylabel('MEP Amplitude (mV)');
                     
                     set(gcf, 'color', 'w')
                     
@@ -4378,9 +4391,9 @@ classdef best_toolbox < handle
                     str = {str_ip,[],str_th,[],str_pt};
                     ylim([-500 Inf])
                     %% Test String of IP, PT and TH
-                    obj.app.pr.ip_mso.(ax).String=obj.info.ip_x;
+                    obj.app.pr.ip_mso.(ax).String=obj.info.ip_x; %Divided by 1000 to covnert it into mV
                     obj.app.pr.ip_muv.(ax).String=ip_y;
-                    obj.app.pr.pt_mso.(ax).String=obj.info.pt_x;
+                    obj.app.pr.pt_mso.(ax).String=obj.info.pt_x;      %Divided by 1000 to convert it into mV
                     obj.app.pr.pt_muv.(ax).String=pt_y;
                     obj.app.pr.th_mso.(ax).String=obj.info.th;
                     obj.app.pr.th_muv.(ax).String=0.05;
@@ -5175,8 +5188,8 @@ classdef best_toolbox < handle
                     
                     %onset, offset samples conversion to sampling rate
                     if isfield(obj.inputs,'mep_onset') && isfield(obj.inputs,'mep_offset')
-                        obj.inputs.mep_onset_samples=obj.inputs.mep_onset*5;
-                        obj.inputs.mep_offset_samples=obj.inputs.mep_offset*5;
+                        obj.inputs.mep_onset_samples=(obj.inputs.prestim_scope_plt+obj.inputs.mep_onset)*5;
+                        obj.inputs.mep_offset_samples=(obj.inputs.mep_offset+obj.inputs.prestim_scope_plt)*5;
                     end
                     disp enteredtimevect-------------
                     % 18-Mar-2020 18:11:00
@@ -5433,11 +5446,6 @@ classdef best_toolbox < handle
             end
         end
 
-        
-        
-        
-        
-        
         function DeMeanedEEGData =best_DeMeanEEG(obj,RawData)
             DeMeanedEEGData=RawData-mean(RawData);
             
