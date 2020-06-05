@@ -2879,9 +2879,9 @@ classdef best_toolbox < handle
             %% Only for testing purpose #324324
             a=1;
             trial=load('trialMat_test.mat');
-            trial_data=load('r.mat');
+            trial_data=load('trial_test.mat');
             obj.inputs.trialMat=trial.trialMat;
-            obj.inputs.umair=trial_data.r;
+            obj.inputs.umair=trial_data.trial_test;
             
         end
         function boot_inputdevice(obj)

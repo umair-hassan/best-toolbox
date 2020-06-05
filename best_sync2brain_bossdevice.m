@@ -429,10 +429,19 @@ classdef best_sync2brain_bossdevice <handle
                 ftdata.trial{1}=Data;
                 ftdata.time{1}=Time;
                 cfg.demean='yes';
-                % cfg.detrend='yes'; It does not help in improving, however introduces weired drifts therefore deprication is recommended in Future Release
+%                 cfg.hpfilter      = 'yes'; % high-pass in order to get rid of low-freq trends
+%                 cfg.hpfiltord     = 5;
+%                 cfg.hpfreq        = 1;
+%                 cfg.lpfilter      = 'yes'; % low-pass in order to get rid of high-freq noise
+%                 cfg.lpfiltord     = 3;
+%                 cfg.lpfreq        = 249; % 249 when combining with a linenoise bandstop filter
+%                 cfg.bsfilter      = 'yes'; % band-stop filter, to take out 50 Hz and its harmonics
+%                 cfg.bsfiltord     = 3;
+%                 cfg.bsfreq        = [49 51; 99 101; 149 151; 199 201]; % EU line noise
+                cfg.detrend='yes'; % It does not help in improving, however introduces weired drifts therefore deprication is recommended in Future Release
                 cfg.baselinewindow=[obj.best_toolbox.inputs.EMGDisplayPeriodPre*(-1)/1000 -10]; %[EMGDisplayPeriodPre_ms to -10ms]
                 ProcessedData=ft_preprocessing(cfg, ftdata);
-                obj.best_toolbox.inputs.NoiseFilter50Hz=1
+                
                 %% Here the Line Noise Filtering is Performed Using a Template
                 if obj.best_toolbox.inputs.NoiseFilter50Hz==1
                     ats.Trial=ProcessedData.trial{1};
@@ -445,7 +454,7 @@ classdef best_sync2brain_bossdevice <handle
                     ats.Trial_corrected=ats.Trial-ats.Trial_Tempalte; %Subtracting Tempalte
                     Data=ats.Trial_corrected;
                     Time=ProcessedData.time{1};
-                elseif obj.best_tolbox.inputs.NoiseFilter50Hz==0
+                elseif obj.best_toolbox.inputs.NoiseFilter50Hz==0
                     Data=ProcessedData.trial{1};
                     Time=ProcessedData.time{1};
                 end
