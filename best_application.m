@@ -12358,6 +12358,7 @@ classdef best_application < handle
                 obj.info.session_matrix(obj.info.session_no)={session_name};
                 obj.pmd.lb_sessions.string(obj.info.session_no)={session_name};
                 obj.pmd.lb_sessions.listbox.String=obj.pmd.lb_sessions.string;
+                obj.pmd.lb_sessions.listbox.Value=obj.info.session_no;
                 
                 
                 obj.pmd.sess_title.editfield.String='';
@@ -12423,9 +12424,9 @@ classdef best_application < handle
             measure_name=measure_name{1};
             measure_name(measure_name == ' ') = '_';
             obj.info.event.measure_being_added=measure_name;
-            obj.func_create_defaults
-            obj.cb_session_listbox
-            obj.cb_measure_listbox
+            obj.func_create_defaults;
+            obj.cb_session_listbox;
+            obj.cb_measure_listbox(obj.data.(obj.info.event.current_session).info.measurement_no);
             
             measure_name=[];
             
