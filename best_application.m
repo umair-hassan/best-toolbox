@@ -188,6 +188,7 @@ classdef best_application < handle
             mus4 = uimenu(m_sessions,'label','Delete','Callback',@(~,~)obj.cb_pmd_lb_sessions_del);
             mus5 = uimenu(m_sessions,'label','Move Up','Callback',@(~,~)obj.cb_pmd_lb_sessions_moveup);
             mus5 = uimenu(m_sessions,'label','Move Down','Callback',@(~,~)obj.cb_pmd_lb_sessions_movedown);
+            mus7 = uimenu(m_sessions,'label','Rename Sesion','Callback',@(~,~)obj.cb_session_rename);
             
             obj.pmd.lb_sessions.listbox=uicontrol( 'Style','listbox','Parent', pmd_vbox ,'KeyPressFcn',@(~,~)obj.cb_pmd_lb_session_keypressfcn,'FontSize',11,'String',obj.pmd.lb_sessions.string,'uicontextmenu',m_sessions,'Callback',@(~,~)obj.cb_session_listbox);
             
@@ -204,9 +205,11 @@ classdef best_application < handle
             %             mu2 = uimenu(m,'label','Paste Above','Callback',@(~,~)obj.cb_pmd_lb_measures_pasteup);
             mu3 = uimenu(m,'label','Paste','Callback',@(~,~)obj.cb_pmd_lb_measures_pastedown);
             mu4 = uimenu(m,'label','Delete','Callback',@(~,~)obj.cb_pmd_lb_measures_del);
+            mu7 = uimenu(m,'label','Add Suffix','Callback',@(~,~)obj.cb_measure_suffix);
             mu5 = uimenu(m,'label','Move Up','Callback',@(~,~)obj.cb_pmd_lb_measures_moveup);
             mu6 = uimenu(m,'label','Move Down','Callback',@(~,~)obj.cb_pmd_lb_measures_movedown);
             obj.pmd.lb_measure_menu_loadresults=uimenu(m,'label','Load Results','Callback',@(~,~)obj.cb_pmd_lb_measure_menu_loadresult);
+            mu8 = uimenu(m,'label','Rename Protocol','Callback',@(~,~)obj.cb_measure_rename);
             
             obj.pmd.lb_measures.listbox=uicontrol( 'Style','listbox','Parent', ProtocolListBox ,'KeyPressFcn',@(~,~)obj.cb_pmd_lb_measure_keypressfcn,'FontSize',11,'String',obj.pmd.lb_measures.string,'uicontextmenu',m,'Callback',@(~,~)obj.cb_measure_listbox);
             obj.pmd.ProtocolStatus.listbox=uicontrol( 'Style','listbox','Parent', ProtocolListBox ,'FontAngle','italic','KeyPressFcn',@(~,~)obj.cb_pmd_lb_measure_keypressfcn,'FontSize',11,'String',obj.pmd.lb_measures.string,'uicontextmenu',m,'Callback',@(~,~)obj.cb_measure_listbox);
@@ -12452,7 +12455,10 @@ classdef best_application < handle
             end
             obj.pmd.ProtocolStatus.listbox.Value=obj.pmd.lb_measures.listbox.Value;
         end
-        function cb_measure_listbox(obj)
+        function cb_measure_listbox(obj,Value)
+            if nargin==2
+                obj.pmd.lb_measures.listbox.Value=Value;
+            end
             if(((numel(obj.pmd.lb_measures.listbox.String))==0) || strcmp(obj.info.event.current_session,''))
                 return
             end
@@ -12914,6 +12920,136 @@ classdef best_application < handle
                     
             end
         end
+        %% Suffix at Measure
+        function cb_measure_suffix(obj)
+            if isempty(obj.pmd.lb_measures.listbox.String), return, end 
+            prompt = {'Suffix:'};
+            dlgtitle = 'Protocol Suffix | BEST Toolbox';
+            dims = [1 70];
+            definput = {''};
+            answer = inputdlg(prompt,dlgtitle,dims,definput);
+            answer=char(answer);
+            if isempty(answer), response=0; else, response=1; end 
+            switch response
+                case 0
+                    return
+                case 1
+                    str=answer;
+                    CurrentMeasuresValue=obj.pmd.lb_measures.listbox.Value;
+                    MeasurementStringOriginal=obj.data.(obj.info.event.current_session).info.measurement_str_original{1,CurrentMeasuresValue};
+                    MeasurementStringNew=[MeasurementStringOriginal ' ' str];
+                    MeasurementStringNewVar=MeasurementStringNew;
+                    MeasurementStringNewVar(MeasurementStringNewVar == ' ') = '_';
+                    if(isvarname(MeasurementStringNewVar)==0)
+                        errordlg('Protocol suffix is an invalid string. It cannot be an empty sring or start with a space or numeric character, please use a meaningful string to add the intended suffix and try again.','BEST Toolbox');
+                        return
+                    end
+                    ExistanceCheck=find(strcmp(obj.data.(obj.info.event.current_session).info.measurement_str_to_listbox, MeasurementStringNew));
+                    if isempty(ExistanceCheck)
+                        obj.data.(obj.info.event.current_session).info.measurement_str_to_listbox{1,CurrentMeasuresValue}=MeasurementStringNew;
+                        obj.par.(obj.info.event.current_session).(MeasurementStringNewVar)=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr);
+                        obj.par.(obj.info.event.current_session)=rmfield(obj.par.(obj.info.event.current_session),obj.info.event.current_measure_fullstr);
+                        try
+                            obj.bst.sessions.(obj.info.event.current_session).(MeasurementStringNewVar)=obj.bst.sessions.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr);
+                            obj.bst.sessions.(obj.info.event.current_session)=rmfield(obj.bst.sessions.(obj.info.event.current_session),obj.info.event.current_measure_fullstr);
+                        catch
+                        end
+                        obj.cb_session_listbox
+                        obj.cb_measure_listbox(CurrentMeasuresValue);
+                    else
+                        errordlg('Protocol exist already with this name. Please choose a different suffix to create a unique name for this protocol and try again.','BEST Toolbox');
+                        return
+                    end
+            end
+        end
+        %% Rename Session
+        function cb_session_rename(obj)
+            if isempty(obj.pmd.lb_sessions.listbox.String), return, end 
+            prompt = {'New Name:'};
+            dlgtitle = 'Rename Session | BEST Toolbox';
+            dims = [1 70];
+            definput = {''};
+            answer = inputdlg(prompt,dlgtitle,dims,definput);
+            answer=char(answer);
+            if isempty(answer), response=0; else, response=1; end 
+            switch response
+                case 0
+                    return
+                case 1
+                    CurrentSessionValue=obj.pmd.lb_sessions.listbox.Value;
+                    session_name_registering=answer;
+                    session_name_registering(session_name_registering == ' ') = '_';
+                    if(isvarname(session_name_registering)==0)
+                        errordlg('Session Title is an invalid string. It cannot be an empty sring or start with a space or numeric character, please use a meaningful string to add the intended session again.','BEST Toolbox');
+                        obj.info.session_no=obj.info.session_no-1;
+                        return
+                    end
+                    session_name=session_name_registering;
+                    if ~any(strcmp(obj.info.session_matrix,session_name))
+                        obj.info.session_matrix(CurrentSessionValue)={session_name};
+                        obj.pmd.lb_sessions.string(CurrentSessionValue)={session_name};
+                        obj.pmd.lb_sessions.listbox.String=obj.pmd.lb_sessions.string;
+                        try 
+                        obj.par.(session_name)=obj.par.(obj.info.event.current_session);
+                        obj.par=rmfield(obj.par,obj.info.event.current_session);
+                        catch
+                        end
+                        try
+                            obj.bst.sessions.(session_name)=obj.bst.sessions.(obj.info.event.current_session);
+                            obj.bst.sessions=rmfield(obj.bst.sessions,obj.info.event.current_session);
+                        catch
+                        end
+                        obj.data.(session_name)=obj.data.(obj.info.event.current_session);
+                        obj.data=rmfield(obj.data,obj.info.event.current_session);
+                        obj.cb_session_listbox
+                    else
+                        errordlg('Session exists already with this name, please choose another name if you wish to enter a session','BEST Toolbox');
+                    end
+            end
+        end
+        %% Rename Measure
+        function cb_measure_rename(obj)
+            if isempty(obj.pmd.lb_measures.listbox.String), return, end 
+            prompt = {'New Name:'};
+            dlgtitle = 'Rename Protocol | BEST Toolbox';
+            dims = [1 70];
+            definput = {''};
+            answer = inputdlg(prompt,dlgtitle,dims,definput);
+            answer=char(answer);
+            if isempty(answer), response=0; else, response=1; end 
+            switch response
+                case 0
+                    return
+                case 1
+                    str=answer;
+                    CurrentMeasuresValue=obj.pmd.lb_measures.listbox.Value;
+                    MeasurementStringOriginal=obj.data.(obj.info.event.current_session).info.measurement_str_original{1,CurrentMeasuresValue};
+                    MeasurementStringNew=str;
+                    MeasurementStringNewVar=MeasurementStringNew;
+                    MeasurementStringNewVar(MeasurementStringNewVar == ' ') = '_';
+                    if(isvarname(MeasurementStringNewVar)==0)
+                        errordlg('Protocol Name is an invalid string. It cannot be an empty sring or start with a space or numeric character, please use a meaningful string to add the intended suffix and try again.','BEST Toolbox');
+                        return
+                    end
+                    ExistanceCheck=find(strcmp(obj.data.(obj.info.event.current_session).info.measurement_str_to_listbox, MeasurementStringNew));
+                    if isempty(ExistanceCheck)
+                        obj.data.(obj.info.event.current_session).info.measurement_str_to_listbox{1,CurrentMeasuresValue}=MeasurementStringNew;
+                        obj.par.(obj.info.event.current_session).(MeasurementStringNewVar)=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr);
+                        obj.par.(obj.info.event.current_session)=rmfield(obj.par.(obj.info.event.current_session),obj.info.event.current_measure_fullstr);
+                        try
+                            obj.bst.sessions.(obj.info.event.current_session).(MeasurementStringNewVar)=obj.bst.sessions.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr);
+                            obj.bst.sessions.(obj.info.event.current_session)=rmfield(obj.bst.sessions.(obj.info.event.current_session),obj.info.event.current_measure_fullstr);
+                        catch
+                        end
+                        obj.cb_session_listbox
+                        obj.cb_measure_listbox(CurrentMeasuresValue);
+                    else
+                        errordlg('Protocol exist already with this name. Please choose a different suffix to create a unique name for this protocol and try again.','BEST Toolbox');
+                        return
+                    end
+            end
+        end
+        
         %% Toolbox Settings
         function cb_menu_settings(obj)
             obj.info.menu.hwcfg=obj.info.menu.hwcfg+1;
