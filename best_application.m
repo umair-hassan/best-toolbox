@@ -12478,25 +12478,6 @@ classdef best_application < handle
                 case 'TMS fMRI'
                     obj.pi_tmsfmri;
                     obj.func_load_tmsfmri_par;
-                case 'MEP Dose Response Curve_sp'
-                    obj.pi_ioc;
-                    obj.func_load_ioc_par;
-                    
-                case 'EEG triggered Stimulation'
-                    obj.pi_eegtms
-                    obj.pr_eegtms
-                    obj.func_load_eegtms_par;
-                case 'ERP Measurement'
-                    obj.pi_erp
-                    %                     obj.func_load_mep_par;
-                case 'rTMS Interventions'
-                    obj.pi_rtms_train
-                case 'Multimodal Experiment'
-                    %                     obj.pi_multimodal;
-                    %                     obj.func_load_multimodal_par;
-                case 'MEP IOC_new'
-                    obj.pi_multimodal_ioc;
-                    obj.func_load_multimodal_par;
                 case 'MEP Dose Response Curve'
                     obj.pi_drc;
                     obj.func_load_mepdrc_par;
