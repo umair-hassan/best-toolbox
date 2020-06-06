@@ -2215,7 +2215,7 @@ classdef best_application < handle
             table.Data=TableData;%cell(6,12); % the row number comes from above
             table.FontSize=10;
             table.ColumnName = {'Condition #','TS Intensity','Intensity Units','Stimulator','Pulse Mode','# of Pulses','Timing Onset (ms)','CS Intensity','ISI (ms)','Train Freq','# of Trains','Motor Threshold (%MSO)'};
-            table.ColumnFormat={[],[],{'%MSO','%MT'},obj.hw.device_added2_listbox.string,{'Single Pulse','Paired Pulse', 'Train'},[],[],[],[],[],[],[]};
+            table.ColumnFormat={[],[],{'%MSO','%MT','mA','%ST','%MSO coupled','%MT coupled','mA coupled','%ST coupled'},obj.hw.device_added2_listbox.string,{'Single Pulse','Paired Pulse', 'Train'},[],[],[],[],[],[],[]};
             table.ColumnWidth = {100,100,100,100,100,100,100,100,90,90,90,120};
             table.ColumnEditable =true(1,numel(table.ColumnName));
             table.RowStriping='on';
@@ -2246,7 +2246,21 @@ classdef best_application < handle
                             case '%MT'
                                 obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).si_units=0;
                                 obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).threshold='NaN';
+                            case 'mA'
+                                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).si_units='mA';
+                            case '%ST'
+                                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).si_units='%ST';
+                            case '%MSO coupled'
                                 
+                                % open the selector
+                                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).si_units='%MSO coupled';
+                                
+                            case '%MT coupled'
+                                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).si_units='%MT coupled';
+                            case 'mA coupled'
+                                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).si_units='mA coupled';
+                            case '%ST coupled'
+                                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).si_units='%ST coupled';
                         end
                         
                     case 4 %Stimulator
