@@ -12863,11 +12863,13 @@ classdef best_application < handle
                 obj.fig.main.Widths(2)=0;
                 obj.fig.main.Widths(3)=0;
                 obj.fig.main.Widths(4)=-1;
+                obj.menu.hwcfg.btn.String='Close Hardware Config';
             else %even
                 obj.fig.main.Widths(1)=-1.15;
                 obj.fig.main.Widths(2)=-1.35;
                 obj.fig.main.Widths(3)=-2;
                 obj.fig.main.Widths(4)=0;
+                obj.menu.hwcfg.btn.String='Open Hardware Config';
             end
         end
         
@@ -13121,10 +13123,12 @@ classdef best_application < handle
             obj.info.menu.hwcfg=obj.info.menu.hwcfg+1;
             if bitget(obj.info.menu.hwcfg,1) %odd
                 obj.fig.main.Widths([1 2 3])=[0 -3.35 -0];
+                obj.menu.settings.btn.String='Close Settings';
                 obj.pi_ToolboxSetings;
                 obj.func_load_ToolboxSetings;
             else %even
                 obj.fig.main.Widths([1 2 3])=[-1 -3.35 -0];
+                obj.menu.settings.btn.String='Open Settings';
                 obj.pi.no_measure_slctd_panel.handle=uix.Panel( 'Parent', obj.pi.empty_panel,'FontSize',14 ,'Units','normalized','Title','Protocol Designer','FontWeight','Bold','TitlePosition','centertop' );
             obj.pi.no_measure_slctd_panel.vbox = uix.VBox( 'Parent', obj.pi.no_measure_slctd_panel.handle, 'Spacing', 5, 'Padding', 5  );
             uiextras.HBox( 'Parent', obj.pi.no_measure_slctd_panel.vbox)
