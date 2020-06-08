@@ -216,7 +216,7 @@ classdef best_sync2brain_bossdevice <handle
             obj.EMGScope.Decimation = 1;
             obj.EMGScope.TriggerMode = 'Signal';
             obj.EMGScope.TriggerSignal = getsignalid(obj.bb.tg, 'gen_running'); %Remove it in Official Use
-            % obj.EMGScope.TriggerSignal = MrkSignalID; % 04-Jun-2020 20:00:50
+            obj.EMGScope.TriggerSignal = MrkSignalID; % 04-Jun-2020 20:00:50
             obj.EMGScope.TriggerLevel = 0.5;
             obj.EMGScope.TriggerSlope = 'Rising';
             obj.best_toolbox.FilterCoefficients.HumNoiseNotchFilter=designfilt('bandstopiir','FilterOrder',2,'HalfPowerFrequency1',39,'HalfPowerFrequency2',61,'DesignMethod','butter','SampleRate',NumSamples);

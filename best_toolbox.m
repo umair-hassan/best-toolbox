@@ -2877,11 +2877,11 @@ classdef best_toolbox < handle
             %                 otherwise
             %             end
             %% Only for testing purpose #324324
-            a=1;
-            trial=load('trialMat_test.mat');
-            trial_data=load('trial_test.mat');
-            obj.inputs.trialMat=trial.trialMat;
-            obj.inputs.umair=trial_data.trial_test;
+%             a=1;
+%             trial=load('trialMat_test.mat');
+%             trial_data=load('trial_test.mat');
+%             obj.inputs.trialMat=trial.trialMat;
+%             obj.inputs.umair=trial_data.trial_test;
             
         end
         function boot_inputdevice(obj)
@@ -3046,8 +3046,8 @@ classdef best_toolbox < handle
 %                                 obj.inputs.rawData.(unique_chLab{1,i}).time(obj.inputs.trial,:)=obj.best_VisualizationFilter([obj.sim_mep(1,700:1000), obj.sim_mep(1,1:699)]*1000*obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,1}{1,1}*(randi([1 3])*0.10));
 %                                 obj.inputs.rawData.(unique_chLab{1,i}).data(obj.inputs.trial,:)=obj.best_VisualizationFilter([obj.sim_mep(1,700:1000), obj.sim_mep(1,1:699)]*1000*(randi([1 3])*0.10));
 %                                 obj.inputs.rawData.(unique_chLab{1,i}).time(obj.inputs.trial,:)=obj.best_VisualizationFilter([obj.sim_mep(1,700:1000), obj.sim_mep(1,1:699)]*1000*(randi([1 3])*0.10));
-obj.inputs.rawData.(unique_chLab{1,i}).data(obj.inputs.trial,:)=obj.inputs.umair(obj.inputs.trial,:); % 04-Jun-2020 21:12:26
-obj.inputs.rawData.(unique_chLab{1,i}).time(obj.inputs.trial,:)=obj.inputs.umair(obj.inputs.trial,:);
+% obj.inputs.rawData.(unique_chLab{1,i}).data(obj.inputs.trial,:)=obj.inputs.umair(obj.inputs.trial,:); % 04-Jun-2020 21:12:26
+% obj.inputs.rawData.(unique_chLab{1,i}).time(obj.inputs.trial,:)=obj.inputs.umair(obj.inputs.trial,:);
 % obj.inputs.rawData.(unique_chLab{1,i}).time(obj.inputs.trial,:)=obj.best_VisualizationFilter([obj.sim_mep(1,700:1000), obj.sim_mep(1,1:699)]*1000*(randi([1 3])*0.10));
                                 %obj.bossbox.EMGScope;
                                 %check=obj.bossbox.EMGScope.Data(:,1)';
