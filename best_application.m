@@ -12736,7 +12736,12 @@ classdef best_application < handle
             obj.bst.info.matfilstr=['BEST_' save_str '.mat'];
             % % %             obj.bst.info.save_str_runtime=['BEST_' obj.Date '_' save_str '_Autosave.mat'];
             %             obj.bst.info.save_buffer = matfile(obj.bst.info.matfilstr,'Writable',true);
-            save(obj.bst.info.matfilstr,'BESTToolboxParameters','-v7.3','-nocompression');
+            try
+                save(fullfile(obj.par.GlobalSettings.DataBaseDirectory,exp_name,obj.bst.info.matfilstr),'BESTToolboxParameters','-v7.3','-nocompression');
+            catch
+                mkdir(obj.par.GlobalSettings.DataBaseDirectory,exp_name);
+                save(fullfile(obj.par.GlobalSettings.DataBaseDirectory,exp_name,obj.bst.info.matfilstr),'BESTToolboxParameters','-v7.3','-nocompression');
+            end
             %             obj.bst.info.save_buffer.(save_str)=variable_saved.(save_str);
             % % %
             % %

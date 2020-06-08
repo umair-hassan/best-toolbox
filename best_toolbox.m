@@ -3454,8 +3454,11 @@ classdef best_toolbox < handle
             measure=obj.app.info.event.current_measure_fullstr; measure(measure == '_') = '';
             Date=datestr(now,'yyyy-mm-dd HH:MM:SS'); Date(Date == ' ') = '_'; Date(Date == '-') = ''; Date(Date == ':') = '';
             FileName=['BESTData_' exp_name '_' subj_code '_' session '_' measure '_' Date '.mat'];
-            FilePath=cd;
-            FullFileName=fullfile(FilePath,FileName);
+            % FilePath=cd;
+            FullFileName=fullfile(obj.app.par.GlobalSettings.DataBaseDirectory,exp_name,subj_code,session,FileName);
+            if ~exist(fullfile(obj.app.par.GlobalSettings.DataBaseDirectory,exp_name,subj_code,session), 'dir')
+                mkdir(fullfile(obj.app.par.GlobalSettings.DataBaseDirectory,exp_name,subj_code,session));
+            end
             obj.BESTData=matfile(FullFileName,'Writable',true);
             %% Writing General Variables
             obj.BESTData.pars=obj.app.par.(obj.app.info.event.current_session).(obj.app.info.event.current_measure_fullstr); 
@@ -3613,15 +3616,23 @@ classdef best_toolbox < handle
             end
         end
         function saveFigures(obj)
+            exp_name=obj.app.pmd.exp_title.editfield.String; exp_name(exp_name == ' ') = '_';
+            subj_code=obj.app.pmd.sub_code.editfield.String; subj_code(subj_code == ' ') = '_';
+            session=obj.app.info.event.current_session; session(session == '_') = '';
+            measure=obj.app.info.event.current_measure_fullstr; measure(measure == '_') = '';
             FigureFileName1=erase(obj.info.matfilstr,'.mat');
             for iaxes=1:obj.app.pr.axesno
                 if ~strcmp(obj.app.pr.ax_ChannelLabels{1,iaxes},'StatusTable')
                     FigureFileName=[FigureFileName1 '_' obj.app.pr.ax_measures{1,iaxes} '_' obj.app.pr.ax_ChannelLabels{1,iaxes}];
+                    FullFileName=fullfile(obj.app.par.GlobalSettings.DataBaseDirectory,exp_name,subj_code,session,measure,FigureFileName);
+                    if ~exist(fullfile(obj.app.par.GlobalSettings.DataBaseDirectory,exp_name,subj_code,session,measure), 'dir')
+                        mkdir(fullfile(obj.app.par.GlobalSettings.DataBaseDirectory,exp_name,subj_code,session,measure));
+                    end
                     ax=['ax' num2str(iaxes)];
                     Figure=figure('Visible','off','CreateFcn','set(gcf,''Visible'',''on'')','Name',FigureFileName,'NumberTitle','off');
                     copyobj(obj.app.pr.ax.(ax),Figure)
                     set( gca, 'Units', 'normalized', 'Position', [0.2 0.2 0.7 0.7] );
-                    saveas(Figure,FigureFileName,'fig');
+                    saveas(Figure,FullFileName,'fig');
                     close(Figure)
                 end
             end
