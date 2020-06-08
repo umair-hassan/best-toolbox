@@ -3197,6 +3197,51 @@ classdef best_application < handle
             end
             
         end
+        function cb_CoupleIntensityUnits(obj,source,~)
+            %% To be started
+            f=figure('ToolBar','none','MenuBar','none','Name','Intensity Units | BEST Toolbox','NumberTitle','off');
+            c1=uix.VBox('parent',f,'Padding',10,'Spacing',10);
+            %% Select Session
+            SelectedSession={'none'};
+            r3=uix.HBox('parent',c1);
+            uicontrol( 'Style','text','Parent', r3,'String','Select Session:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+            uicontrol( 'Style','popupmenu','Parent', r3 ,'FontSize',11,'String',SelectedSession,'callback',@SessionSelected);
+            
+            
+            
+            threshold=uicontrol( 'Style','edit','Parent', r3 ,'FontSize',11);
+            mt_btn_listbox_str_id= find(strcmp(obj.data.(obj.info.event.current_session).info.measurement_str_original,'MEP Motor Threshold Hunting'));
+            mt_btn_listbox_str=obj.data.(obj.info.event.current_session).info.measurement_str_to_listbox(mt_btn_listbox_str_id);
+            mt_btn_listbox_str=['Select' mt_btn_listbox_str];
+            uiextras.HBox('Parent',r3)
+            th_dropdown=uicontrol( 'Style','popupmenu','Parent', r3 ,'FontSize',11,'String',mt_btn_listbox_str);     % 11-Mar-2020 14:48:46                                                                  % 1297
+            set( r3, 'Widths', [210 80 20 100]);
+            %% Select Protocol
+            r3=uix.HBox('parent',c1);
+            uicontrol( 'Style','text','Parent', r3,'String','Motor Threshold (%MSO):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+            threshold=uicontrol( 'Style','edit','Parent', r3 ,'FontSize',11);
+            mt_btn_listbox_str_id= find(strcmp(obj.data.(obj.info.event.current_session).info.measurement_str_original,'MEP Motor Threshold Hunting'));
+            mt_btn_listbox_str=obj.data.(obj.info.event.current_session).info.measurement_str_to_listbox(mt_btn_listbox_str_id);
+            mt_btn_listbox_str=['Select' mt_btn_listbox_str];
+            uiextras.HBox('Parent',r3)
+            th_dropdown=uicontrol( 'Style','popupmenu','Parent', r3 ,'FontSize',11,'String',mt_btn_listbox_str);     % 11-Mar-2020 14:48:46                                                                  % 1297
+            set( r3, 'Widths', [210 80 20 100]);
+            %% Select Parameter/Channel
+            uicontrol( 'Parent', c1 ,'Style','PushButton','String','OK','FontWeight','Bold','Callback',@(~,~)cb_ok);
+            %% Annotate the Coupled Value If exist
+            
+            %% Figure Heights and Positioning
+            set(c1, 'Heights', [25 25 25 25])
+            f.Position(3)=430;
+            f.Position(4)=150;
+            
+            function SessionSelected
+                ProtocolsInThisSession
+            end
+            
+            
+            obj.pmd.lb_sessions.listbox.String
+        end
         function default_par_mep(obj)
             % Editing Rule: Values should be Integers, Strings should
             % Strings , cells are the defaults values that do not have any
@@ -3249,6 +3294,13 @@ classdef best_application < handle
                 obj.info.defaults.condsAll.(cond).st1.si_units=1;
                 obj.info.defaults.condsAll.(cond).st1.threshold='';
                 obj.info.defaults.condsAll.(cond).st1.si_pckt={si(idefaults)};
+                obj.info.defaults.condsAll.(cond).st1.IntensityUnit='%MSO';
+                obj.info.defaults.condsAll.(cond).st1.IntensityUnitValue=NaN;
+                obj.info.defaults.condsAll.(cond).st1.IntensityUnitValueUnit=NaN;
+                obj.info.defaults.condsAll.(cond).st1.SessionToCouple='none';
+                obj.info.defaults.condsAll.(cond).st1.ProtocolToCouple='none';
+                obj.info.defaults.condsAll.(cond).st1.ParameterToCouple='none';
+                obj.info.defaults.condsAll.(cond).st1.IntensityToCouple='none';
             end
             obj.par.(obj.info.event.current_session).(obj.info.event.measure_being_added)=obj.info.defaults;
         end
@@ -13064,7 +13116,6 @@ classdef best_application < handle
                     end
             end
         end
-        
         %% Toolbox Settings
         function cb_menu_settings(obj)
             obj.info.menu.hwcfg=obj.info.menu.hwcfg+1;
