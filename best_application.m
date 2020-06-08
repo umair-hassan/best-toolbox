@@ -13142,26 +13142,34 @@ classdef best_application < handle
             obj.fig.main.Widths([1 2 3])=[0 -3.35 -0];
             Panel=uix.Panel( 'Parent', obj.pi.empty_panel,'FontSize',14 ,'Units','normalized','Title','Toolbox Global Settings' ,'FontWeight','Bold','TitlePosition','centertop');
             vb = uix.VBox( 'Parent', Panel, 'Spacing', 5, 'Padding', 5  );
-            obj.pi.settings.Apply50HZLineNoiseFilter=uicontrol( 'Style','checkbox','Parent', vb ,'FontSize',11,'String','Apply 50HZ Line Noise Filter to EMG Data:','Tag','NoiseFilter50Hz','callback',@cb_par_saving); %,'Callback',@obj.cb_hotspot_target_muscle
-            obj.pi.settings.Apply60HZLineNoiseFilter=uicontrol( 'Style','checkbox','Parent', vb ,'FontSize',11,'String','Apply 60HZ Line Noise Filter to EMG Data:','Tag','NoiseFilter60Hz','callback',@cb_par_saving); %,'Callback',@obj.cb_hotspot_target_muscle
-            obj.pi.settings.SaveFiguresofeachProtocol=uicontrol( 'Style','checkbox','Parent', vb ,'FontSize',11,'String','Save Figures of each Protocol:','Tag','SaveFiguresofeachProtocol','callback',@cb_par_saving); %,'Callback',@obj.cb_hotspot_target_muscle
+            obj.pi.settings.Apply50HZLineNoiseFilter=uicontrol( 'Style','checkbox','Parent', vb ,'FontSize',11,'String','Apply 50HZ Line Noise Filter to EMG Data:','Tag','NoiseFilter50Hz','callback',@cb_par_saving); 
+            obj.pi.settings.Apply60HZLineNoiseFilter=uicontrol( 'Style','checkbox','Parent', vb ,'FontSize',11,'String','Apply 60HZ Line Noise Filter to EMG Data:','Tag','NoiseFilter60Hz','callback',@cb_par_saving); 
+            obj.pi.settings.SaveFiguresofeachProtocol=uicontrol( 'Style','checkbox','Parent', vb ,'FontSize',11,'String','Save Figures of each Protocol:','Tag','SaveFiguresofeachProtocol','callback',@cb_par_saving);
+            HBox=uix.HBox('Parent',vb,'Spacing', 5  );
+            uicontrol( 'Style','text','Parent', HBox,'String','Database Directory:','FontSize',11,'HorizontalAlignment','left','Units','normalized' );
+            obj.pi.settings.DataBaseDirectory=uicontrol( 'Style','edit','Parent', HBox ,'String','cd','Tag','DataBaseDirectory','FontSize',11,'Callback',@cb_par_saving);
+            HBox.Widths=[-0.3 -1];
             uiextras.HBox( 'Parent', vb);
-            set( vb, 'Heights', [100 100 100 -1]);
+            set( vb, 'Heights', [100 100 100 30 -1]);
             CreateDefaultsIfRequired;
             function cb_par_saving(source,~)
-                obj.par.GlobalSettings.(source.Tag)=source.Value;
+                if strcmp(source.Tag,'DataBaseDirectory')
+                    if exist(source.String, 'dir')==7
+                        obj.par.GlobalSettings.DataBaseDirectory=source.String;
+                    else
+                        obj.par.GlobalSettings.DataBaseDirectory=eval('cd');
+                        obj.pi.settings.DataBaseDirectory.String=obj.par.GlobalSettings.DataBaseDirectory;
+                    end
+                else
+                    obj.par.GlobalSettings.(source.Tag)=source.Value;
+                end
             end
             function CreateDefaultsIfRequired
-                try
-                if isempty(obj.par.GlobalSettings) || isempty(obj.par)
+                if ~isfield(obj.par,'GlobalSettings') || isempty(obj.par)
                     obj.par.GlobalSettings.NoiseFilter50Hz=0;
                     obj.par.GlobalSettings.NoiseFilter60Hz=0;
                     obj.par.GlobalSettings.SaveFigures=1;
-                end
-                catch
-                    obj.par.GlobalSettings.NoiseFilter50Hz=0;
-                    obj.par.GlobalSettings.NoiseFilter60Hz=0;
-                    obj.par.GlobalSettings.SaveFigures=1;
+                    obj.par.GlobalSettings.DataBaseDirectory=eval('cd');
                 end
             end
         end
@@ -13175,6 +13183,8 @@ classdef best_application < handle
                         obj.pi.settings.(ParametersFieldNames{iLoadingParameters}).Value= obj.par.GlobalSettings.NoiseFilter60Hz;
                     case 'SaveFiguresofeachProtocol'
                         obj.pi.settings.(ParametersFieldNames{iLoadingParameters}).Value= obj.par.GlobalSettings.SaveFigures;
+                    case 'DataBaseDirectory'
+                        obj.pi.settings.(ParametersFieldNames{iLoadingParameters}).String=obj.par.GlobalSettings.DataBaseDirectory;
                 end
             end
         end
