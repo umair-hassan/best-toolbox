@@ -12771,12 +12771,9 @@ classdef best_application < handle
         %% Load Parameters Using Menu
         function cb_menu_load(obj)
             try
-                FileName = uigetfile('*.mat', 'BEST Toolbox: Select a mat file');
-                File=whos('-file',FileName);
+                [FileName,Path] = uigetfile('*.mat', 'BEST Toolbox: Select a mat file');
+                File=whos('-file',fullfile(Path,FileName));
                 Filevarname=File.name;
-                % varname=file;
-                % varname=erase(varname,'.mat');
-                % varname = replaceBetween(varname,1,26,'');
                 saved_struct=load(FileName,Filevarname);
                 varname=char(fieldnames(saved_struct.BESTToolboxParameters(1)));
                 obj.par=saved_struct.BESTToolboxParameters.(varname).Parameters;
