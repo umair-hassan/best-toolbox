@@ -12786,7 +12786,6 @@ classdef best_application < handle
                 obj.pmd.sub_code.editfield.String=saved_struct.BESTToolboxParameters.(varname).SubjectCode;
                 obj.pmd.lb_sessions.listbox.String=saved_struct.BESTToolboxParameters.(varname).Utilities.Session;
                 obj.pmd.lb_sessions.string=saved_struct.BESTToolboxParameters.(varname).Utilities.Session;
-                %             obj.hw=Utilities.HardwareConfiguration;
                 obj.hw.device_added2_listbox.string=saved_struct.BESTToolboxParameters.(varname).Utilities.HardwareConfiguration.OutputDevices;
                 obj.hw.device_added1_listbox.string=saved_struct.BESTToolboxParameters.(varname).Utilities.HardwareConfiguration.InputDevices;
                 

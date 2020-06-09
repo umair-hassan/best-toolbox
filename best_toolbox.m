@@ -3675,7 +3675,6 @@ classdef best_toolbox < handle
             obj.prepSaving;
             obj.bootTrial;
             obj.stimLoop;
-%             obj.prepSaving;
             obj.save;
             obj.saveFigures;
             obj.completed;
@@ -3690,7 +3689,6 @@ classdef best_toolbox < handle
             obj.prepSaving;
             obj.bootTrial;
             stimLoop;
-%             obj.prepSaving;
             obj.save;
             obj.saveFigures;
             obj.completed;
