@@ -216,7 +216,7 @@ classdef best_sync2brain_bossdevice <handle
             obj.EMGScope.Decimation = 1;
             obj.EMGScope.TriggerMode = 'Signal';
             obj.EMGScope.TriggerSignal = getsignalid(obj.bb.tg, 'gen_running'); %Remove it in Official Use
-            obj.EMGScope.TriggerSignal = MrkSignalID; 
+            obj.EMGScope.TriggerSignal = MrkSignalID; % 04-Jun-2020 20:00:50
             obj.EMGScope.TriggerLevel = 0.5;
             obj.EMGScope.TriggerSlope = 'Rising';
             obj.best_toolbox.FilterCoefficients.HumNoiseNotchFilter=designfilt('bandstopiir','FilterOrder',2,'HalfPowerFrequency1',39,'HalfPowerFrequency2',61,'DesignMethod','butter','SampleRate',NumSamples);
@@ -238,7 +238,7 @@ classdef best_sync2brain_bossdevice <handle
             obj.IEEGScope.Decimation = Decimation;
             obj.IEEGScope.TriggerMode = 'Signal';
             obj.IEEGScope.TriggerSignal = getsignalid(obj.bb.tg, 'gen_running'); %Remove it in Official Use
-            obj.IEEGScope.TriggerSignal = MrkSignalID;
+            obj.IEEGScope.TriggerSignal = MrkSignalID; % 31-May-2020 11:05:43
             obj.IEEGScope.TriggerLevel = 0.5;
             obj.IEEGScope.TriggerSlope = 'Rising';
             obj.best_toolbox.inputs.rawData.IEEG.time=linspace(-1*(obj.best_toolbox.inputs.EEGDisplayPeriodPre),obj.best_toolbox.inputs.EEGDisplayPeriodPost,NumSamples);
@@ -265,7 +265,7 @@ classdef best_sync2brain_bossdevice <handle
             obj.IPScope.Decimation = 1;
             obj.IPScope.TriggerMode = 'Signal';
             obj.IPScope.TriggerSignal = getsignalid(obj.bb.tg, 'gen_running'); %Remove it in Official Use
-            obj.IPScope.TriggerSignal = MrkSignalID; 
+%             obj.IPScope.TriggerSignal = MrkSignalID; 
             obj.IPScope.TriggerLevel = 0.5;
             obj.IPScope.TriggerSlope = 'Rising';
             %% Starting Scope
@@ -418,7 +418,7 @@ classdef best_sync2brain_bossdevice <handle
             %This has to be done inside armed loop therefore empty but just required as a Place holder for consistency of Architecture and may be used in future
         end
         function [Time, Data] = EMGScopeRead(obj,Channel)
-            while ~strcmpi(obj.EMGScope.Status,'finished'), end
+            while ~strcmpi(obj.EMGScope.Status,'finished'), drawnow, if obj.best_toolbox.inputs.stop_event==1, break, end ,end
             Data=obj.EMGScope.Data(:,Channel)';
             Time=(obj.EMGScope.Time-obj.EMGScope.Time(1)+(obj.EMGScope.Time(2)-obj.EMGScope.Time(1)))';
             Time=(Time*1000)+obj.best_toolbox.inputs.EMGDisplayPeriodPre*(-1);
@@ -429,20 +429,44 @@ classdef best_sync2brain_bossdevice <handle
                 ftdata.trial{1}=Data;
                 ftdata.time{1}=Time;
                 cfg.demean='yes';
-                cfg.detrend='yes';
+%                 cfg.hpfilter      = 'yes'; % high-pass in order to get rid of low-freq trends
+%                 cfg.hpfiltord     = 5;
+%                 cfg.hpfreq        = 1;
+%                 cfg.lpfilter      = 'yes'; % low-pass in order to get rid of high-freq noise
+%                 cfg.lpfiltord     = 3;
+%                 cfg.lpfreq        = 249; % 249 when combining with a linenoise bandstop filter
+%                 cfg.bsfilter      = 'yes'; % band-stop filter, to take out 50 Hz and its harmonics
+%                 cfg.bsfiltord     = 3;
+%                 cfg.bsfreq        = [49 51; 99 101; 149 151; 199 201]; % EU line noise
+%                 cfg.detrend='yes'; % It does not help in improving, however introduces weired drifts therefore deprication is recommended in Future Release
                 cfg.baselinewindow=[obj.best_toolbox.inputs.EMGDisplayPeriodPre*(-1)/1000 -10]; %[EMGDisplayPeriodPre_ms to -10ms]
                 ProcessedData=ft_preprocessing(cfg, ftdata);
-                Data=ProcessedData.trial{1};
-                Time=ProcessedData.time{1};
+                
+                %% Here the Line Noise Filtering is Performed Using a Template
+                if obj.best_toolbox.inputs.NoiseFilter50Hz==1
+                    ats.Trial=ProcessedData.trial{1};
+                    ats.Time=ProcessedData.time{1};
+                    ats.Trial_1_20=ats.Trial(1,1:100); %Extracting 1st 50 Hz Cycle
+                    ats.Trial_21_40=ats.Trial(1,101:200); %Extracting 2nd 50 Hz Cycle
+                    ats.Trial_mean=(ats.Trial_1_20+ats.Trial_21_40)/2; %Averaging Both Cycle to Generalize Tempalte
+                    ats.Trial_Template=repmat(ats.Trial_mean,1,2*ceil(size(ats.Trial,2)/20)); 
+                    ats.Trial_Tempalte=ats.Trial_Template(1,1:size(ats.Trial,2)); %Making the dimensions of Template Compatible with Trial
+                    ats.Trial_corrected=ats.Trial-ats.Trial_Tempalte; %Subtracting Tempalte
+                    Data=ats.Trial_corrected;
+                    Time=ProcessedData.time{1};
+                elseif obj.best_toolbox.inputs.NoiseFilter50Hz==0
+                    Data=ProcessedData.trial{1};
+                    Time=ProcessedData.time{1};
+                end
             end
         end
         function Data = IPScopeRead(obj)
-            while ~strcmpi(obj.IPScope.Status,'finished'), end
+            while ~strcmpi(obj.IPScope.Status,'finished'), drawnow, if obj.best_toolbox.inputs.stop_event==1, break, end ,end
             Data=obj.IPScope.Data(end,1);
             obj.IPScopeStart;
         end
         function Data = IEEGScopeRead(obj)
-            while ~strcmpi(obj.IEEGScope.Status,'finished'), end
+            while ~strcmpi(obj.IEEGScope.Status,'finished'), drawnow, if obj.best_toolbox.inputs.stop_event==1, break, end ,end
             Data=obj.IEEGScope.Data(:,1)';
             obj.IEEGScopeStart;
         end

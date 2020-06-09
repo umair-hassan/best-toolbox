@@ -34,6 +34,7 @@ classdef best_toolbox < handle
         best_timer;
         FilterCoefficients;
         handles;
+        BESTData
     end
     
     methods
@@ -100,6 +101,10 @@ classdef best_toolbox < handle
             switch obj.inputs.Protocol
                 case 'MEP Hotspot Search Protocol'
                     %% Adjusting New Arhictecture to Old Architecture
+                     obj.inputs.MEPOnset=obj.inputs.MEPSearchWindow(1);
+                    obj.inputs.MEPOffset=obj.inputs.MEPSearchWindow(2);
+                    obj.inputs.EMGDisplayPeriodPre=obj.inputs.EMGExtractionPeriod(1)*(-1);
+                    obj.inputs.EMGDisplayPeriodPost=obj.inputs.EMGExtractionPeriod(2);
                     obj.inputs.prestim_scope_plt=obj.inputs.EMGDisplayPeriodPre;
                     obj.inputs.poststim_scope_plt=obj.inputs.EMGDisplayPeriodPost;
                     obj.inputs.mep_onset=obj.inputs.MEPOnset;
@@ -115,10 +120,6 @@ classdef best_toolbox < handle
                     obj.inputs.ylimMax=+3000;
                     obj.inputs.TrialNoForMean=1;
                     obj.inputs.BrainState=1;
-                    obj.inputs.MEPOnset=obj.inputs.MEPSearchWindow(1);
-                    obj.inputs.MEPOffset=obj.inputs.MEPSearchWindow(2);
-                    obj.inputs.EMGDisplayPeriodPre=obj.inputs.EMGExtractionPeriod(1)*(-1);
-                    obj.inputs.EMGDisplayPeriodPost=obj.inputs.EMGExtractionPeriod(2);
                     %% Creating Column Labels
                     obj.inputs.colLabel.inputDevices=1;
                     obj.inputs.colLabel.outputDevices=2;
@@ -135,12 +136,15 @@ classdef best_toolbox < handle
                     %% Creating Channel Type and Channel ID
                     switch obj.app.par.hardware_settings.(char(obj.inputs.input_device)).slct_device
                         case 1 %boss box
-                            
-                            DisplayChannelType=cell(1,numel(obj.inputs.EMGDisplayChannels));
-                            DisplayChannelType(:)=cellstr('EMG');
-                            DisplayChannelID=num2cell(1:numel(obj.inputs.EMGDisplayChannels));
+                            ChannelType=[repmat({'EMG'},1,numel(obj.inputs.EMGDisplayChannels))]; 
+                            ChannelID=num2cell(1:numel(ChannelType)); 
+                            obj.inputs.ChannelsTypeUnique=ChannelType;
+                            for ChannelType2=1:numel(obj.inputs.EMGDisplayChannels)
+                                ChannelID{ChannelType2}=find(strcmp(obj.app.par.hardware_settings.(char(obj.inputs.input_device)).NeurOneProtocolChannelLabels,obj.inputs.EMGDisplayChannels{ChannelType2}));
+                            end
+                            DisplayChannelType=ChannelType;
+                            DisplayChannelID=ChannelID;
                             obj.inputs.ChannelsTypeUnique=DisplayChannelType;
-                            
                         case 2 % fieldtrip real time buffer
                     end
                     %% Creating Channel Measures, Axes No
@@ -164,6 +168,15 @@ classdef best_toolbox < handle
                         conds=fieldnames(obj.inputs.condsAll);
                         for stno=1:(max(size(fieldnames(obj.inputs.condsAll.(conds{c,1}))))-1)
                             st=['st' num2str(stno)];
+                            if(obj.inputs.condsAll.(conds{c,1}).(st).stim_mode=='single_pulse')
+                                obj.inputs.condsAll.(conds{c,1}).(st).si_pckt{1,2}=0;
+                                obj.inputs.condsAll.(conds{c,1}).(st).si_pckt{1,3}=0;
+                            end
+                            if obj.inputs.condsAll.(conds{c,1}).(st).si_units==1
+                                obj.inputs.condsAll.(conds{c,1}).(st).si_pckt{1,4}=obj.inputs.condsAll.(conds{c,1}).(st).si_pckt{1,1};
+                            elseif obj.inputs.condsAll.(conds{c,1}).(st).si_units==0 && ~isempty(str2num(obj.inputs.condsAll.(conds{c,1}).(st).threshold)) && str2num(obj.inputs.condsAll.(conds{c,1}).(st).threshold)>0
+                                obj.inputs.condsAll.(conds{c,1}).(st).si_pckt{1,4}=round((obj.inputs.condsAll.(conds{c,1}).(st).si_pckt{1,1}*(str2num(obj.inputs.condsAll.(conds{c,1}).(st).threshold)))/100);
+                            end
                             condSi{1,stno}=obj.inputs.condsAll.(conds{c,1}).(st).si_pckt;
                             condstimMode{1,stno}= obj.inputs.condsAll.(conds{c,1}).(st).stim_mode;
                             obj.inputs.condsAll.(conds{c,1}).(st).stim_device
@@ -244,6 +257,10 @@ classdef best_toolbox < handle
                     switch obj.inputs.BrainState
                         case 1 %Independent
                             %% Adjusting New Arhictecture to Old Architecture
+                            obj.inputs.MEPOnset=obj.inputs.MEPSearchWindow(1);
+                            obj.inputs.MEPOffset=obj.inputs.MEPSearchWindow(2);
+                            obj.inputs.EMGDisplayPeriodPre=obj.inputs.EMGExtractionPeriod(1)*(-1);
+                            obj.inputs.EMGDisplayPeriodPost=obj.inputs.EMGExtractionPeriod(2);
                             obj.inputs.prestim_scope_plt=obj.inputs.EMGDisplayPeriodPre;
                             obj.inputs.poststim_scope_plt=obj.inputs.EMGDisplayPeriodPost;
                             obj.inputs.mep_onset=obj.inputs.MEPOnset;
@@ -274,27 +291,30 @@ classdef best_toolbox < handle
                             obj.inputs.colLabel.chId=12;
                             switch obj.app.par.hardware_settings.(char(obj.inputs.input_device)).slct_device
                                 case 1 %boss box
-                                    
-                                    DisplayChannelType=cell(1,numel(obj.inputs.EMGDisplayChannels));
-                                    DisplayChannelType(:)=cellstr('EMG');
-                                    DisplayChannelID=num2cell(1:numel(obj.inputs.EMGDisplayChannels));
+                                    ChannelType=[repmat({'EMG'},1,numel(obj.inputs.EMGDisplayChannels)),{'StatusTable'}]; %dirctly inside the loop
+                                    ChannelID=num2cell(1:numel(ChannelType)); %TODO: make this more systematic and extract from channel labels of neurone or acs protocol
+                                    obj.inputs.ChannelsTypeUnique=ChannelType;
+                                    for ChannelType2=1:numel(obj.inputs.EMGDisplayChannels)
+                                        ChannelID{ChannelType2}=find(strcmp(obj.app.par.hardware_settings.(char(obj.inputs.input_device)).NeurOneProtocolChannelLabels,obj.inputs.EMGDisplayChannels{ChannelType2}));
+                                    end
+                                    DisplayChannelType=ChannelType;
+                                    DisplayChannelID=ChannelID;
                                     obj.inputs.ChannelsTypeUnique=DisplayChannelType;
-                                    
                                 case 2 % fieldtrip real time buffer
                             end
                             
                             DisplayChannelsMeasures=cell(1,numel(obj.inputs.EMGDisplayChannels));
-                            DisplayChannelsMeasures(:)=cellstr('MEP_Measurement');
-                            DisplayChannelsAxesNo=num2cell(1:numel(obj.inputs.EMGDisplayChannels));
+                            DisplayChannelsMeasures(:)=cellstr('MEP_Measurement'); DisplayChannelsMeasures(numel(DisplayChannelsMeasures)+1)={'StatusTable'};
+                            DisplayChannelsAxesNo=num2cell(1:numel(obj.inputs.EMGDisplayChannels)+1);
                             obj.app.pr.ax_measures=DisplayChannelsMeasures;
-                            obj.app.pr.axesno=numel(obj.inputs.EMGDisplayChannels);
-                            obj.app.pr.ax_ChannelLabels=obj.inputs.EMGDisplayChannels;
+                            obj.app.pr.axesno=numel(obj.inputs.EMGDisplayChannels)+1;
+                            obj.app.pr.ax_ChannelLabels=[obj.inputs.EMGDisplayChannels {'StatusTable'}] ;
                             %% Creating Stimulation Conditions
                             for c=1:numel(fieldnames(obj.inputs.condsAll))
                                 obj.inputs.condMat{c,obj.inputs.colLabel.trials}=obj.inputs.TrialsPerCondition;
                                 obj.inputs.condMat{c,obj.inputs.colLabel.iti}=obj.inputs.ITI;
                                 obj.inputs.condMat{c,obj.inputs.colLabel.inputDevices}=char(obj.app.pi.mep.InputDevice.String(obj.inputs.InputDevice));
-                                obj.inputs.condMat{c,obj.inputs.colLabel.chLab}=obj.inputs.EMGDisplayChannels;
+                                obj.inputs.condMat{c,obj.inputs.colLabel.chLab}=[obj.inputs.EMGDisplayChannels,{'StatusTable'}];
                                 obj.inputs.condMat{c,obj.inputs.colLabel.measures}=DisplayChannelsMeasures;
                                 obj.inputs.condMat{c,obj.inputs.colLabel.axesno}=DisplayChannelsAxesNo;
                                 obj.inputs.condMat{c,obj.inputs.colLabel.chType}=DisplayChannelType;
@@ -304,6 +324,15 @@ classdef best_toolbox < handle
                                 conds=fieldnames(obj.inputs.condsAll);
                                 for stno=1:(max(size(fieldnames(obj.inputs.condsAll.(conds{c,1}))))-1)
                                     st=['st' num2str(stno)];
+                                    if(obj.inputs.condsAll.(conds{c,1}).(st).stim_mode=='single_pulse')
+                                        obj.inputs.condsAll.(conds{c,1}).(st).si_pckt{1,2}=0;
+                                        obj.inputs.condsAll.(conds{c,1}).(st).si_pckt{1,3}=0;
+                                    end
+                                    if obj.inputs.condsAll.(conds{c,1}).(st).si_units==1
+                                        obj.inputs.condsAll.(conds{c,1}).(st).si_pckt{1,4}=obj.inputs.condsAll.(conds{c,1}).(st).si_pckt{1,1};
+                                    elseif obj.inputs.condsAll.(conds{c,1}).(st).si_units==0 && ~isempty(str2num(obj.inputs.condsAll.(conds{c,1}).(st).threshold)) && str2num(obj.inputs.condsAll.(conds{c,1}).(st).threshold)>0
+                                        obj.inputs.condsAll.(conds{c,1}).(st).si_pckt{1,4}=round((obj.inputs.condsAll.(conds{c,1}).(st).si_pckt{1,1}*(str2num(obj.inputs.condsAll.(conds{c,1}).(st).threshold)))/100);
+                                    end
                                     condSi{1,stno}=obj.inputs.condsAll.(conds{c,1}).(st).si_pckt;
                                     condstimMode{1,stno}= obj.inputs.condsAll.(conds{c,1}).(st).stim_mode;
                                     obj.inputs.condsAll.(conds{c,1}).(st).stim_device
@@ -382,6 +411,14 @@ classdef best_toolbox < handle
                             end
                         case 2 %Dependent
                             %% Adjusting New Arhictecture to Old Architecture
+                            obj.inputs.MEPOnset=obj.inputs.MEPSearchWindow(1);
+                            obj.inputs.MEPOffset=obj.inputs.MEPSearchWindow(2);
+                            obj.inputs.EMGDisplayPeriodPre=obj.inputs.EMGExtractionPeriod(1)*(-1);
+                            obj.inputs.EMGDisplayPeriodPost=obj.inputs.EMGExtractionPeriod(2);
+                            obj.inputs.EEGDisplayPeriodPre=obj.inputs.EEGExtractionPeriod(1)*(-1);
+                            obj.inputs.EEGDisplayPeriodPost=obj.inputs.EEGExtractionPeriod(2);
+                            obj.inputs.MontageChannels=obj.inputs.RealTimeChannelsMontage;
+                            obj.inputs.MontageWeights=obj.inputs.RealTimeChannelsWeights;
                             obj.inputs.prestim_scope_plt=obj.inputs.EMGDisplayPeriodPre;
                             obj.inputs.poststim_scope_plt=obj.inputs.EMGDisplayPeriodPost;
                             obj.inputs.mep_onset=obj.inputs.MEPOnset;
@@ -418,13 +455,14 @@ classdef best_toolbox < handle
                             %% Creating ChannelType and ChannelID
                             switch obj.app.par.hardware_settings.(char(obj.inputs.input_device)).slct_device
                                 case 1 %boss box
-                                    EMGDisplayChannelType=cell(1,numel(obj.inputs.EMGDisplayChannels));
-                                    EMGDisplayChannelType(:)=cellstr('EMG');
-                                    EMGDisplayChannelID=num2cell(1:numel(obj.inputs.EMGDisplayChannels));
-                                    DisplayChannelType={'IP','IEEG',EMGDisplayChannelType{1,:},'IA','IADistribution'};
-                                    DisplayChannelID={1,1,EMGDisplayChannelID{1,:},1,1};
-                                    obj.inputs.ChannelsTypeUnique=DisplayChannelType;
-                                    
+                                    ChannelType=[{'IP'},{'IEEG'},repmat({'EMG'},1,numel(obj.inputs.EMGDisplayChannels)),{'IA'},{'IADistribution'},{'StatusTable'}]; 
+                                    ChannelID=num2cell(1:numel(ChannelType));
+                                    for ChannelType2=1:numel(obj.inputs.EMGDisplayChannels)
+                                        ChannelID{2+ChannelType2}=find(strcmp(obj.app.par.hardware_settings.(char(obj.inputs.input_device)).NeurOneProtocolChannelLabels,obj.inputs.EMGDisplayChannels{ChannelType2}));
+                                    end
+                                    DisplayChannelType=ChannelType;
+                                    DisplayChannelID=ChannelID;
+                                    obj.inputs.ChannelsTypeUnique=ChannelType;
                                 case 2 % fieldtrip real time buffer
                                     errordlg('Brain State Dependent Protocol are only supported with sync2brain BOSS Device.','BEST Toolbox');
                             end
@@ -432,8 +470,8 @@ classdef best_toolbox < handle
                             DisplayChannelsMeasures=cell(1,numel(obj.inputs.EMGDisplayChannels));
                             DisplayChannelsMeasures(:)=cellstr('MEP_Measurement');
                             
-                            ChannelLabels={'OsscillationPhase','OsscillationEEG',obj.inputs.EMGDisplayChannels{1,:},'OsscillationAmplitude','AmplitudeDistribution'};
-                            ChannelMeasures={'PhaseHistogram','TriggerLockedEEG',DisplayChannelsMeasures{1,:},'RunningAmplitude','AmplitudeDistribution'};
+                            ChannelLabels={'OsscillationPhase','OsscillationEEG',obj.inputs.EMGDisplayChannels{1,:},'OsscillationAmplitude','AmplitudeDistribution','StatusTable'};
+                            ChannelMeasures={'PhaseHistogram','TriggerLockedEEG',DisplayChannelsMeasures{1,:},'RunningAmplitude','AmplitudeDistribution','StatusTable'};
                             
                             DisplayChannelsAxesNo=num2cell(1:numel(ChannelMeasures));
                             obj.app.pr.ax_measures=ChannelMeasures;
@@ -454,6 +492,15 @@ classdef best_toolbox < handle
                                 conds=fieldnames(obj.inputs.condsAll);
                                 for stno=1:(max(size(fieldnames(obj.inputs.condsAll.(conds{c,1}))))-1)
                                     st=['st' num2str(stno)];
+                                    if(obj.inputs.condsAll.(conds{c,1}).(st).stim_mode=='single_pulse')
+                                        obj.inputs.condsAll.(conds{c,1}).(st).si_pckt{1,2}=0;
+                                        obj.inputs.condsAll.(conds{c,1}).(st).si_pckt{1,3}=0;
+                                    end
+                                    if obj.inputs.condsAll.(conds{c,1}).(st).si_units==1
+                                        obj.inputs.condsAll.(conds{c,1}).(st).si_pckt{1,4}=obj.inputs.condsAll.(conds{c,1}).(st).si_pckt{1,1};
+                                    elseif obj.inputs.condsAll.(conds{c,1}).(st).si_units==0 && ~isempty(str2num(obj.inputs.condsAll.(conds{c,1}).(st).threshold)) && str2num(obj.inputs.condsAll.(conds{c,1}).(st).threshold)>0
+                                        obj.inputs.condsAll.(conds{c,1}).(st).si_pckt{1,4}=round((obj.inputs.condsAll.(conds{c,1}).(st).si_pckt{1,1}*(str2num(obj.inputs.condsAll.(conds{c,1}).(st).threshold)))/100);
+                                    end
                                     condSi{1,stno}=obj.inputs.condsAll.(conds{c,1}).(st).si_pckt;
                                     condstimMode{1,stno}= obj.inputs.condsAll.(conds{c,1}).(st).stim_mode;
                                     obj.inputs.condsAll.(conds{c,1}).(st).stim_device
@@ -595,6 +642,10 @@ classdef best_toolbox < handle
                     switch obj.inputs.BrainState
                         case 1 %Independent
                             %% Adjusting New Arhictecture to Old Architecture
+                            obj.inputs.MEPOnset=obj.inputs.MEPSearchWindow(1);
+                            obj.inputs.MEPOffset=obj.inputs.MEPSearchWindow(2);
+                            obj.inputs.EMGDisplayPeriodPre=obj.inputs.EMGExtractionPeriod(1)*(-1);
+                            obj.inputs.EMGDisplayPeriodPost=obj.inputs.EMGExtractionPeriod(2);
                             obj.inputs.prestim_scope_plt=obj.inputs.EMGDisplayPeriodPre;
                             obj.inputs.poststim_scope_plt=obj.inputs.EMGDisplayPeriodPost;
                             obj.inputs.mep_onset=obj.inputs.MEPOnset;
@@ -627,8 +678,8 @@ classdef best_toolbox < handle
                             obj.inputs.colLabel.stimcdMrk=13;
                             obj.inputs.colLabel.cdMrk=14;
                             %% Creating Channel Measures, AxesNo, Labels
-                            ChannelLabels=[repelem(obj.inputs.EMGTargetChannels,3),obj.inputs.EMGDisplayChannels]; %this can go directly inside the cond object in the loop
-                            ChannelMeasures=[repmat({'MEP_Measurement','MEP Scatter Plot','MEP IOC Fit'},1,numel(obj.inputs.EMGTargetChannels)),repmat({'MEP_Measurement'},1,numel(obj.inputs.EMGDisplayChannels))]; %dirctly inside the loop
+                            ChannelLabels=[repelem(obj.inputs.EMGTargetChannels,3),obj.inputs.EMGDisplayChannels,{'StatusTable'}]; %this can go directly inside the cond object in the loop
+                            ChannelMeasures=[repmat({'MEP_Measurement','MEP Scatter Plot','MEP IOC Fit'},1,numel(obj.inputs.EMGTargetChannels)),repmat({'MEP_Measurement'},1,numel(obj.inputs.EMGDisplayChannels)),{'StatusTable'}]; %dirctly inside the loop
                             ChannelAxesNo=num2cell(1:numel(ChannelLabels));
                             obj.app.pr.ax_measures=ChannelMeasures;
                             obj.app.pr.axesno=numel(ChannelAxesNo);
@@ -636,8 +687,14 @@ classdef best_toolbox < handle
                             %% Creating Channel Type, Channel Index
                             switch obj.app.par.hardware_settings.(char(obj.inputs.input_device)).slct_device
                                 case 1 %boss box
-                                    ChannelType=repmat({'EMG'},1,numel(ChannelLabels));
-                                    ChannelID=num2cell(1:numel(ChannelLabels)); %TODO: make this more systematic and extract from channel labels of neurone or acs protocol
+                                    ChannelType=[repmat({'EMG'},1,3*numel(obj.inputs.EMGTargetChannels)),repmat({'EMG'},1,numel(obj.inputs.EMGDisplayChannels)),{'StatusTable'}]; %dirctly inside the loop
+                                    ChannelID=num2cell(1:numel(ChannelType)); %TODO: make this more systematic and extract from channel labels of neurone or acs protocol
+                                    for ChannelType1=1:numel(obj.inputs.EMGTargetChannels)
+                                        ChannelID{3*ChannelType1-2}=find(strcmp(obj.app.par.hardware_settings.(char(obj.inputs.input_device)).NeurOneProtocolChannelLabels,obj.inputs.EMGTargetChannels{ChannelType1}));
+                                    end
+                                    for ChannelType2=1:numel(obj.inputs.EMGDisplayChannels)
+                                        ChannelID{numel(obj.inputs.EMGTargetChannels)+ChannelType2}=find(strcmp(obj.app.par.hardware_settings.(char(obj.inputs.input_device)).NeurOneProtocolChannelLabels,obj.inputs.EMGDisplayChannels{ChannelType2}));
+                                    end
                                     obj.inputs.ChannelsTypeUnique=ChannelType;
                                 case 2 % fieldtrip real time buffer
                             end
@@ -655,6 +712,15 @@ classdef best_toolbox < handle
                                 conds=fieldnames(obj.inputs.condsAll);
                                 for stno=1:(max(size(fieldnames(obj.inputs.condsAll.(conds{c,1}))))-1)
                                     st=['st' num2str(stno)];
+                                    if(obj.inputs.condsAll.(conds{c,1}).(st).stim_mode=='single_pulse')
+                                        obj.inputs.condsAll.(conds{c,1}).(st).si_pckt{1,2}=0;
+                                        obj.inputs.condsAll.(conds{c,1}).(st).si_pckt{1,3}=0;
+                                    end
+                                    if obj.inputs.condsAll.(conds{c,1}).(st).si_units==1
+                                        obj.inputs.condsAll.(conds{c,1}).(st).si_pckt{1,4}=obj.inputs.condsAll.(conds{c,1}).(st).si_pckt{1,1};
+                                    elseif obj.inputs.condsAll.(conds{c,1}).(st).si_units==0 && ~isempty(str2num(obj.inputs.condsAll.(conds{c,1}).(st).threshold)) && str2num(obj.inputs.condsAll.(conds{c,1}).(st).threshold)>0
+                                        obj.inputs.condsAll.(conds{c,1}).(st).si_pckt{1,4}=round((obj.inputs.condsAll.(conds{c,1}).(st).si_pckt{1,1}*(str2num(obj.inputs.condsAll.(conds{c,1}).(st).threshold)))/100);
+                                    end
                                     condSi{1,stno}=obj.inputs.condsAll.(conds{c,1}).(st).si_pckt;
                                     condstimMode{1,stno}= obj.inputs.condsAll.(conds{c,1}).(st).stim_mode;
                                     obj.inputs.condsAll.(conds{c,1}).(st).stim_device
@@ -733,6 +799,14 @@ classdef best_toolbox < handle
                             end
                         case 2 %Dependent
                             %% Adjusting New Arhictecture to Old Architecture
+                            obj.inputs.MEPOnset=obj.inputs.MEPSearchWindow(1);
+                            obj.inputs.MEPOffset=obj.inputs.MEPSearchWindow(2);
+                            obj.inputs.EMGDisplayPeriodPre=obj.inputs.EMGExtractionPeriod(1)*(-1);
+                            obj.inputs.EMGDisplayPeriodPost=obj.inputs.EMGExtractionPeriod(2);
+                            obj.inputs.EEGDisplayPeriodPre=obj.inputs.EEGExtractionPeriod(1)*(-1);
+                            obj.inputs.EEGDisplayPeriodPost=obj.inputs.EEGExtractionPeriod(2);
+                            obj.inputs.MontageChannels=obj.inputs.RealTimeChannelsMontage;
+                            obj.inputs.MontageWeights=obj.inputs.RealTimeChannelsWeights;
                             obj.inputs.prestim_scope_plt=obj.inputs.EMGDisplayPeriodPre;
                             obj.inputs.poststim_scope_plt=obj.inputs.EMGDisplayPeriodPost;
                             obj.inputs.mep_onset=obj.inputs.MEPOnset;
@@ -770,8 +844,8 @@ classdef best_toolbox < handle
                                 obj.inputs.colLabel.IAPercentile=17;
                             end
                             %% Creating Channel Measures, AxesNo, Labels
-                            ChannelLabels=[{'OsscillationPhase'},{'OsscillationEEG'},repelem(obj.inputs.EMGTargetChannels,3),obj.inputs.EMGDisplayChannels,{'OsscillationAmplitude'},{'AmplitudeDistribution'}]; %[repelem(obj.inputs.EMGTargetChannels,3),obj.inputs.EMGDisplayChannels]; %this can go directly inside the cond object in the loop
-                            ChannelMeasures=[{'PhaseHistogram'},{'TriggerLockedEEG'},repmat({'MEP_Measurement','MEP Scatter Plot','MEP IOC Fit'},1,numel(obj.inputs.EMGTargetChannels)),repmat({'MEP_Measurement'},1,numel(obj.inputs.EMGDisplayChannels)),{'RunningAmplitude'},{'AmplitudeDistribution'}]; %dirctly inside the loop
+                            ChannelLabels=[{'OsscillationPhase'},{'OsscillationEEG'},repelem(obj.inputs.EMGTargetChannels,3),obj.inputs.EMGDisplayChannels,{'OsscillationAmplitude'},{'AmplitudeDistribution'},{'StatusTable'}]; %[repelem(obj.inputs.EMGTargetChannels,3),obj.inputs.EMGDisplayChannels]; 
+                            ChannelMeasures=[{'PhaseHistogram'},{'TriggerLockedEEG'},repmat({'MEP_Measurement','MEP Scatter Plot','MEP IOC Fit'},1,numel(obj.inputs.EMGTargetChannels)),repmat({'MEP_Measurement'},1,numel(obj.inputs.EMGDisplayChannels)),{'RunningAmplitude'},{'AmplitudeDistribution'},{'StatusTable'}]; 
                             ChannelAxesNo=num2cell(1:numel(ChannelLabels));
                             obj.app.pr.ax_measures=ChannelMeasures;
                             obj.app.pr.axesno=numel(ChannelAxesNo);
@@ -779,8 +853,14 @@ classdef best_toolbox < handle
                             %% Creating Channel Type, Channel Index
                             switch obj.app.par.hardware_settings.(char(obj.inputs.input_device)).slct_device
                                 case 1 %boss box
-                                    ChannelType=[{'IP'},{'IEEG'},repmat({'EMG'},1,3*numel(obj.inputs.EMGTargetChannels)),repmat({'EMG'},1,numel(obj.inputs.EMGDisplayChannels)),{'IA'},{'IADistribution'}];
-                                    ChannelID=[{1},{1},num2cell(1:numel(ChannelLabels)-3),{1},{1}]; %TODO: make this more systematic and extract from channel labels of neurone or acs protocol
+                                    ChannelType=[{'IP'},{'IEEG'},repmat({'EMG'},1,3*numel(obj.inputs.EMGTargetChannels)),repmat({'EMG'},1,numel(obj.inputs.EMGDisplayChannels)),{'IA'},{'IADistribution'},{'StatusTable'}];
+                                    ChannelID=num2cell(1:numel(ChannelType));
+                                    for ChannelType1=1:numel(obj.inputs.EMGTargetChannels)
+                                        ChannelID{2+(3*ChannelType1-2)}=find(strcmp(obj.app.par.hardware_settings.(char(obj.inputs.input_device)).NeurOneProtocolChannelLabels,obj.inputs.EMGTargetChannels{ChannelType1}));
+                                    end
+                                    for ChannelType2=1:numel(obj.inputs.EMGDisplayChannels)
+                                        ChannelID{2+(3*numel(obj.inputs.EMGTargetChannels))+ChannelType2}=find(strcmp(obj.app.par.hardware_settings.(char(obj.inputs.input_device)).NeurOneProtocolChannelLabels,obj.inputs.EMGDisplayChannels{ChannelType2}));
+                                    end
                                     obj.inputs.ChannelsTypeUnique=ChannelType;
                                 case 2 % fieldtrip real time buffer
                             end
@@ -801,6 +881,11 @@ classdef best_toolbox < handle
                                     if(obj.inputs.condsAll.(conds{c,1}).(st).stim_mode=='single_pulse')
                                         obj.inputs.condsAll.(conds{c,1}).(st).si_pckt{1,2}=0;
                                         obj.inputs.condsAll.(conds{c,1}).(st).si_pckt{1,3}=0;
+                                    end
+                                    if obj.inputs.condsAll.(conds{c,1}).(st).si_units==1
+                                        obj.inputs.condsAll.(conds{c,1}).(st).si_pckt{1,4}=obj.inputs.condsAll.(conds{c,1}).(st).si_pckt{1,1};
+                                    elseif obj.inputs.condsAll.(conds{c,1}).(st).si_units==0 && ~isempty(str2num(obj.inputs.condsAll.(conds{c,1}).(st).threshold)) && str2num(obj.inputs.condsAll.(conds{c,1}).(st).threshold)>0
+                                        obj.inputs.condsAll.(conds{c,1}).(st).si_pckt{1,4}=round((obj.inputs.condsAll.(conds{c,1}).(st).si_pckt{1,1}*(str2num(obj.inputs.condsAll.(conds{c,1}).(st).threshold)))/100);
                                     end
                                     condSi{1,stno}=obj.inputs.condsAll.(conds{c,1}).(st).si_pckt;
                                     condstimMode{1,stno}= obj.inputs.condsAll.(conds{c,1}).(st).stim_mode;
@@ -883,6 +968,10 @@ classdef best_toolbox < handle
                     switch obj.inputs.BrainState
                         case 1 %Independent
                             %% Adjusting New Arhictecture to Old Architecture
+                            obj.inputs.MEPOnset=obj.inputs.MEPSearchWindow(1);
+                            obj.inputs.MEPOffset=obj.inputs.MEPSearchWindow(2);
+                            obj.inputs.EMGDisplayPeriodPre=obj.inputs.EMGExtractionPeriod(1)*(-1);
+                            obj.inputs.EMGDisplayPeriodPost=obj.inputs.EMGExtractionPeriod(2);
                             obj.inputs.prestim_scope_plt=obj.inputs.EMGDisplayPeriodPre;
                             obj.inputs.poststim_scope_plt=obj.inputs.EMGDisplayPeriodPost;
                             obj.inputs.mep_onset=obj.inputs.MEPOnset;
@@ -894,15 +983,11 @@ classdef best_toolbox < handle
                             obj.inputs.ylimMin=obj.inputs.EMGDisplayYLimMin;
                             obj.inputs.ylimMax=obj.inputs.EMGDisplayYLimMax;
                             obj.inputs.stop_event=0;
-                            obj.inputs.ylimMin=-3000;
-                            obj.inputs.ylimMax=+3000;
+                            obj.inputs.ylimMin=-60;
+                            obj.inputs.ylimMax=+60;
                             obj.inputs.TrialNoForMean=1;
                             obj.inputs.mt_starting_stim_inten=obj.inputs.condsAll.cond1.st1.si_pckt{1,1};
                             obj.inputs.Handles.ThresholdData=struct;
-                            obj.inputs.MEPOnset=obj.inputs.MEPSearchWindow(1);
-                            obj.inputs.MEPOffset=obj.inputs.MEPSearchWindow(2);
-                            obj.inputs.EMGDisplayPeriodPre=obj.inputs.EMGExtractionPeriod(1)*(-1);
-                            obj.inputs.EMGDisplayPeriodPost=obj.inputs.EMGExtractionPeriod(2);
                             %% Creating Column Labels
                             obj.inputs.colLabel.inputDevices=1;
                             obj.inputs.colLabel.outputDevices=2;
@@ -940,10 +1025,8 @@ classdef best_toolbox < handle
                                         ChannelID{2*ChannelType1-1}=find(strcmp(obj.app.par.hardware_settings.(char(obj.inputs.input_device)).NeurOneProtocolChannelLabels,obj.inputs.condsAll.(conds{ChannelType1,1}).targetChannel));
                                     end
                                     for ChannelType2=1:numel(obj.inputs.EMGDisplayChannels)
-                                        obj.inputs.condsAll.(conds{ChannelType2,1}).targetChannel;
                                         ChannelID{2*numel(conds)+ChannelType2}=find(strcmp(obj.app.par.hardware_settings.(char(obj.inputs.input_device)).NeurOneProtocolChannelLabels,obj.inputs.EMGDisplayChannels{ChannelType2}));
                                     end
-                                    
                                 case 2 % fieldtrip real time buffer
                             end
                             %% Creating Stimulation Conditions
@@ -965,6 +1048,15 @@ classdef best_toolbox < handle
                                 obj.inputs.condMat{c,obj.inputs.colLabel.threshold}=obj.inputs.condsAll.(conds{c,1}).st1.threshold_level;
                                 for stno=1:(max(size(fieldnames(obj.inputs.condsAll.(conds{c,1}))))-1)
                                     st=['st' num2str(stno)];
+                                    if(obj.inputs.condsAll.(conds{c,1}).(st).stim_mode=='single_pulse')
+                                        obj.inputs.condsAll.(conds{c,1}).(st).si_pckt{1,2}=0;
+                                        obj.inputs.condsAll.(conds{c,1}).(st).si_pckt{1,3}=0;
+                                    end
+                                    if obj.inputs.condsAll.(conds{c,1}).(st).si_units==1
+                                        obj.inputs.condsAll.(conds{c,1}).(st).si_pckt{1,4}=obj.inputs.condsAll.(conds{c,1}).(st).si_pckt{1,1};
+                                    elseif obj.inputs.condsAll.(conds{c,1}).(st).si_units==0 && ~isempty(str2num(obj.inputs.condsAll.(conds{c,1}).(st).threshold)) && str2num(obj.inputs.condsAll.(conds{c,1}).(st).threshold)>0
+                                        obj.inputs.condsAll.(conds{c,1}).(st).si_pckt{1,4}=round((obj.inputs.condsAll.(conds{c,1}).(st).si_pckt{1,1}*(str2num(obj.inputs.condsAll.(conds{c,1}).(st).threshold)))/100);
+                                    end
                                     condSi{1,stno}=obj.inputs.condsAll.(conds{c,1}).(st).si_pckt;
                                     condstimMode{1,stno}= obj.inputs.condsAll.(conds{c,1}).(st).stim_mode;
                                     obj.inputs.condsAll.(conds{c,1}).(st).stim_device
@@ -1044,6 +1136,14 @@ classdef best_toolbox < handle
                             end
                         case 2 %Dependent
                             %% Adjusting New Arhictecture to Old Architecture
+                            obj.inputs.MEPOnset=obj.inputs.MEPSearchWindow(1);
+                            obj.inputs.MEPOffset=obj.inputs.MEPSearchWindow(2);
+                            obj.inputs.EMGDisplayPeriodPre=obj.inputs.EMGExtractionPeriod(1)*(-1);
+                            obj.inputs.EMGDisplayPeriodPost=obj.inputs.EMGExtractionPeriod(2);
+                            obj.inputs.EEGDisplayPeriodPre=obj.inputs.EEGExtractionPeriod(1)*(-1);
+                            obj.inputs.EEGDisplayPeriodPost=obj.inputs.EEGExtractionPeriod(2);
+                            obj.inputs.MontageChannels=obj.inputs.RealTimeChannelsMontage;
+                            obj.inputs.MontageWeights=obj.inputs.RealTimeChannelsWeights;
                             obj.inputs.prestim_scope_plt=obj.inputs.EMGDisplayPeriodPre;
                             obj.inputs.poststim_scope_plt=obj.inputs.EMGDisplayPeriodPost;
                             obj.inputs.mep_onset=obj.inputs.MEPOnset;
@@ -1055,19 +1155,11 @@ classdef best_toolbox < handle
                             obj.inputs.ylimMin=obj.inputs.EMGDisplayYLimMin;
                             obj.inputs.ylimMax=obj.inputs.EMGDisplayYLimMax;
                             obj.inputs.stop_event=0;
-                            obj.inputs.ylimMin=-3000;
-                            obj.inputs.ylimMax=+3000;
+                            obj.inputs.ylimMin=-60;
+                            obj.inputs.ylimMax=+60;
                             obj.inputs.TrialNoForMean=1;
                             obj.inputs.mt_starting_stim_inten=obj.inputs.condsAll.cond1.st1.si_pckt{1,1};
                             obj.inputs.Handles.ThresholdData=struct;
-                            obj.inputs.MEPOnset=obj.inputs.MEPSearchWindow(1);
-                            obj.inputs.MEPOffset=obj.inputs.MEPSearchWindow(2);
-                            obj.inputs.EMGDisplayPeriodPre=obj.inputs.EMGExtractionPeriod(1)*(-1);
-                            obj.inputs.EMGDisplayPeriodPost=obj.inputs.EMGExtractionPeriod(2);
-                            obj.inputs.EEGDisplayPeriodPre=obj.inputs.EEGExtractionPeriod(1)*(-1);
-                            obj.inputs.EEGDisplayPeriodPost=obj.inputs.EEGExtractionPeriod(2);
-                            obj.inputs.MontageChannels=obj.inputs.RealTimeChannelsMontage;
-                            obj.inputs.MontageWeights=obj.inputs.RealTimeChannelsWeights;
                             %% Creating Column Labels
                             obj.inputs.colLabel.inputDevices=1;
                             obj.inputs.colLabel.outputDevices=2;
@@ -1133,6 +1225,15 @@ classdef best_toolbox < handle
                                 obj.inputs.condMat{c,obj.inputs.colLabel.threshold}=obj.inputs.condsAll.(conds{c,1}).st1.threshold_level;
                                 for stno=1:(max(size(fieldnames(obj.inputs.condsAll.(conds{c,1}))))-1)
                                     st=['st' num2str(stno)];
+                                    if(obj.inputs.condsAll.(conds{c,1}).(st).stim_mode=='single_pulse')
+                                        obj.inputs.condsAll.(conds{c,1}).(st).si_pckt{1,2}=0;
+                                        obj.inputs.condsAll.(conds{c,1}).(st).si_pckt{1,3}=0;
+                                    end
+                                    if obj.inputs.condsAll.(conds{c,1}).(st).si_units==1
+                                        obj.inputs.condsAll.(conds{c,1}).(st).si_pckt{1,4}=obj.inputs.condsAll.(conds{c,1}).(st).si_pckt{1,1};
+                                    elseif obj.inputs.condsAll.(conds{c,1}).(st).si_units==0 && ~isempty(str2num(obj.inputs.condsAll.(conds{c,1}).(st).threshold)) && str2num(obj.inputs.condsAll.(conds{c,1}).(st).threshold)>0
+                                        obj.inputs.condsAll.(conds{c,1}).(st).si_pckt{1,4}=round((obj.inputs.condsAll.(conds{c,1}).(st).si_pckt{1,1}*(str2num(obj.inputs.condsAll.(conds{c,1}).(st).threshold)))/100);
+                                    end
                                     condSi{1,stno}=obj.inputs.condsAll.(conds{c,1}).(st).si_pckt;
                                     condstimMode{1,stno}= obj.inputs.condsAll.(conds{c,1}).(st).stim_mode;
                                     obj.inputs.condsAll.(conds{c,1}).(st).stim_device
@@ -1263,6 +1364,15 @@ classdef best_toolbox < handle
                                 obj.inputs.condMat{c,obj.inputs.colLabel.threshold}=1;
                                 for stno=1:(max(size(fieldnames(obj.inputs.condsAll.(conds{c,1}))))-1)
                                     st=['st' num2str(stno)];
+                                    if(obj.inputs.condsAll.(conds{c,1}).(st).stim_mode=='single_pulse')
+                                        obj.inputs.condsAll.(conds{c,1}).(st).si_pckt{1,2}=0;
+                                        obj.inputs.condsAll.(conds{c,1}).(st).si_pckt{1,3}=0;
+                                    end
+                                    if obj.inputs.condsAll.(conds{c,1}).(st).si_units==1
+                                        obj.inputs.condsAll.(conds{c,1}).(st).si_pckt{1,4}=obj.inputs.condsAll.(conds{c,1}).(st).si_pckt{1,1};
+                                    elseif obj.inputs.condsAll.(conds{c,1}).(st).si_units==0 && ~isempty(str2num(obj.inputs.condsAll.(conds{c,1}).(st).threshold)) && str2num(obj.inputs.condsAll.(conds{c,1}).(st).threshold)>0
+                                        obj.inputs.condsAll.(conds{c,1}).(st).si_pckt{1,4}=round((obj.inputs.condsAll.(conds{c,1}).(st).si_pckt{1,1}*(str2num(obj.inputs.condsAll.(conds{c,1}).(st).threshold)))/100);
+                                    end
                                     condSi{1,stno}=obj.inputs.condsAll.(conds{c,1}).(st).si_pckt;
                                     condstimMode{1,stno}= obj.inputs.condsAll.(conds{c,1}).(st).stim_mode;
                                     obj.inputs.condsAll.(conds{c,1}).(st).stim_device
@@ -1341,7 +1451,11 @@ classdef best_toolbox < handle
                             end
                         case 2 %Dependent
                             %% Adjusting New Arhictecture to Old Architecture
-                            obj.inputs.input_device=obj.app.pi.psychmth.InputDevice.String(obj.inputs.InputDevice); %TODO: the drc or mep on the 4th structure is not a good solution!
+                            obj.inputs.EEGDisplayPeriodPre=obj.inputs.EEGExtractionPeriod(1)*(-1);
+                            obj.inputs.EEGDisplayPeriodPost=obj.inputs.EEGExtractionPeriod(2);
+                            obj.inputs.MontageChannels=obj.inputs.RealTimeChannelsMontage;
+                            obj.inputs.MontageWeights=obj.inputs.RealTimeChannelsWeights;
+                            obj.inputs.input_device=obj.app.pi.psychmth.InputDevice.String(obj.inputs.InputDevice); 
                             obj.inputs.output_device=obj.inputs.condsAll.cond1.st1.stim_device;
                             obj.inputs.stim_mode='MSO';
                             obj.inputs.measure_str='Psychometric Threshold Hunting Protocol';
@@ -1407,6 +1521,11 @@ classdef best_toolbox < handle
                                     if(obj.inputs.condsAll.(conds{c,1}).(st).stim_mode=='single_pulse')
                                         obj.inputs.condsAll.(conds{c,1}).(st).si_pckt{1,2}=0;
                                         obj.inputs.condsAll.(conds{c,1}).(st).si_pckt{1,3}=0;
+                                    end
+                                    if obj.inputs.condsAll.(conds{c,1}).(st).si_units==1
+                                        obj.inputs.condsAll.(conds{c,1}).(st).si_pckt{1,4}=obj.inputs.condsAll.(conds{c,1}).(st).si_pckt{1,1};
+                                    elseif obj.inputs.condsAll.(conds{c,1}).(st).si_units==0 && ~isempty(str2num(obj.inputs.condsAll.(conds{c,1}).(st).threshold)) && str2num(obj.inputs.condsAll.(conds{c,1}).(st).threshold)>0
+                                        obj.inputs.condsAll.(conds{c,1}).(st).si_pckt{1,4}=round((obj.inputs.condsAll.(conds{c,1}).(st).si_pckt{1,1}*(str2num(obj.inputs.condsAll.(conds{c,1}).(st).threshold)))/100);
                                     end
                                     condSi{1,stno}=obj.inputs.condsAll.(conds{c,1}).(st).si_pckt;
                                     condstimMode{1,stno}= obj.inputs.condsAll.(conds{c,1}).(st).stim_mode;
@@ -2673,7 +2792,7 @@ classdef best_toolbox < handle
                             end
                         elseif strcmp(InputsFieldNames{iInputs},'RealTimeChannelWeights') || strcmp(InputsFieldNames{iInputs},'RealTimeChannelsWeights') || strcmp(InputsFieldNames{iInputs},'ResponseFunctionNumerator') || strcmp(InputsFieldNames{iInputs},'ResponseFunctionDenominator') ...
                                 || strcmp(InputsFieldNames{iInputs},'TargetFrequencyRange')  || strcmp(InputsFieldNames{iInputs},'BandStopFrequency') || strcmp(InputsFieldNames{iInputs},'EMGXLimit') || strcmp(InputsFieldNames{iInputs},'EEGXLimit') ... 
-                                || strcmp(InputsFieldNames{iInputs},'MEPSearchWindow') || strcmp(InputsFieldNames{iInputs},'EMGExtractionPeriod')  || strcmp(InputsFieldNames{iInputs},'EEGExtractionPeriod') 
+                                || strcmp(InputsFieldNames{iInputs},'MEPSearchWindow') || strcmp(InputsFieldNames{iInputs},'EMGExtractionPeriod')  || strcmp(InputsFieldNames{iInputs},'EEGExtractionPeriod') || strcmp(InputsFieldNames{iInputs},'EEGYLimit')
                             obj.inputs.(InputsFieldNames{iInputs})=str2num(obj.inputs.(InputsFieldNames{iInputs}));
                         else
                             obj.inputs.(InputsFieldNames{iInputs})=str2double(obj.inputs.(InputsFieldNames{iInputs}));
@@ -2700,6 +2819,8 @@ classdef best_toolbox < handle
                 
                 
             end
+            %% Common Settings for All Functions
+            obj.inputs.NoiseFilter50Hz=obj.app.par.GlobalSettings.NoiseFilter50Hz;
         end
         
         
@@ -2755,6 +2876,13 @@ classdef best_toolbox < handle
             %
             %                 otherwise
             %             end
+            %% Only for testing purpose #324324
+%             a=1;
+%             trial=load('trialMat_test.mat');
+%             trial_data=load('trial_test.mat');
+%             obj.inputs.trialMat=trial.trialMat;
+%             obj.inputs.umair=trial_data.trial_test;
+            
         end
         function boot_inputdevice(obj)
             % 18-Mar-2020 11:01:08
@@ -2913,11 +3041,14 @@ classdef best_toolbox < handle
                                 EMGChannelIndex=find(strcmp(obj.app.par.hardware_settings.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.inputDevices}).NeurOneProtocolChannelLabels,unique_chLab{1,i}));
                                 EMGChannelIndex=EMGChannelIndex-obj.bossbox.bb.eeg_channels;
                                 [obj.inputs.rawData.(unique_chLab{1,i}).time(obj.inputs.trial,:), obj.inputs.rawData.(unique_chLab{1,i}).data(obj.inputs.trial,:)]=obj.bossbox.EMGScopeRead(EMGChannelIndex);
-                                if i==numel(unique_chLab)
-                                    obj.bossbox.EMGScopeStart;
-                                end
-                                %obj.inputs.rawData.(unique_chLab{1,i}).data(obj.inputs.trial,:)=obj.best_VisualizationFilter([obj.sim_mep(1,700:1000), obj.sim_mep(1,1:699)]*1000*obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,1}{1,1}*(randi([1 3])*0.10));
-                                %obj.inputs.rawData.(unique_chLab{1,i}).data(obj.inputs.trial,:)=obj.best_VisualizationFilter([obj.sim_mep(1,700:1000), obj.sim_mep(1,1:699)]*1000*(randi([1 3])*0.10));
+                                % 04-Jun-2020 19:58:28 Comment below two lines
+%                                 obj.inputs.rawData.(unique_chLab{1,i}).data(obj.inputs.trial,:)=obj.best_VisualizationFilter([obj.sim_mep(1,700:1000), obj.sim_mep(1,1:699)]*1000*obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,1}{1,1}*(randi([1 3])*0.10));
+%                                 obj.inputs.rawData.(unique_chLab{1,i}).time(obj.inputs.trial,:)=obj.best_VisualizationFilter([obj.sim_mep(1,700:1000), obj.sim_mep(1,1:699)]*1000*obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,1}{1,1}*(randi([1 3])*0.10));
+%                                 obj.inputs.rawData.(unique_chLab{1,i}).data(obj.inputs.trial,:)=obj.best_VisualizationFilter([obj.sim_mep(1,700:1000), obj.sim_mep(1,1:699)]*1000*(randi([1 3])*0.10));
+%                                 obj.inputs.rawData.(unique_chLab{1,i}).time(obj.inputs.trial,:)=obj.best_VisualizationFilter([obj.sim_mep(1,700:1000), obj.sim_mep(1,1:699)]*1000*(randi([1 3])*0.10));
+% obj.inputs.rawData.(unique_chLab{1,i}).data(obj.inputs.trial,:)=obj.inputs.umair(obj.inputs.trial,:); % 04-Jun-2020 21:12:26
+% obj.inputs.rawData.(unique_chLab{1,i}).time(obj.inputs.trial,:)=obj.inputs.umair(obj.inputs.trial,:);
+% obj.inputs.rawData.(unique_chLab{1,i}).time(obj.inputs.trial,:)=obj.best_VisualizationFilter([obj.sim_mep(1,700:1000), obj.sim_mep(1,1:699)]*1000*(randi([1 3])*0.10));
                                 %obj.bossbox.EMGScope;
                                 %check=obj.bossbox.EMGScope.Data(:,1)';
                                 %obj.inputs.rawData.(unique_chLab{1,i}).data(obj.inputs.trial,:)=[obj.bossbox.EMGScope.Data(:,1)]';
@@ -2958,6 +3089,40 @@ classdef best_toolbox < handle
                         end
                     end
             end
+            %% Start Scopes If needed
+            switch obj.app.par.hardware_settings.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.inputDevices}).slct_device
+                case 1 % boss box
+                    unique_chLab=obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab};
+                    for i=1:numel(unique_chLab)
+                        switch obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chType}{1,i}
+                            case 'IP'
+                                
+                            case 'IEEG'
+                                
+                            case 'EMG'
+                                obj.bossbox.EMGScopeStart;
+                            case 'EEG'
+                        end
+                    end
+                case 2 % fieldtrip
+                    % http://www.fieldtriptoolbox.org/faq/how_should_i_get_started_with_the_fieldtrip_realtime_buffer/
+                case 3 %Future: input box
+                case 4  % simulated data
+                case 5 % Keyboard and Mouse
+                case 6 % NeurOne Keyboard and Mouse
+                    unique_chLab=obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab};
+                    for i=1:numel(unique_chLab)
+                        switch obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chType}{1,i}
+                            case 'IP'
+                                
+                            case 'IEEG'
+                                
+                            case 'EMG'
+                                obj.bossbox.EMGScopeStart;
+                            case 'EEG'
+                        end
+                    end
+            end
         end
         function processTrial(obj)
         end
@@ -2987,7 +3152,7 @@ classdef best_toolbox < handle
                     case 'MEP Scatter Plot'
                         obj.mep_scat_plot;
                     case 'MEP IOC Fit'
-                        obj.ioc_fit_plot;
+                        obj.ioc_fit_plot;   
                     case 'PhaseHistogram'
                         obj.PlotPhaseHistogram;
                     case 'TriggerLockedEEG'
@@ -3074,15 +3239,15 @@ classdef best_toolbox < handle
                                         case 'single_pulse'
                                             obj.magven.arm;
                                             obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,i}
-                                            obj.magven.setAmplitude(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,i}{1,1});
+                                            obj.magven.setAmplitude(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,i}{1,4});
                                         case 'paired_pulse'
                                             obj.magven.arm;
-                                            obj.magven.setAmplitude(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,i}{1,1});
-                                            obj.magven.setMode('Twin','Normal', 2, obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,i}{1,3}, obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,i}{1,1}/obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,i}{1,2});
+                                            obj.magven.setAmplitude(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,i}{1,4});
+                                            obj.magven.setMode('Twin','Normal', 2, obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,i}{1,3}, obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,i}{1,4}/obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,i}{1,2});
                                             disp PAIREDpulseENTERED
                                         case 'train'
                                             obj.magven.arm;
-                                            obj.magven.setAmplitude(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,i}{1,1});
+                                            obj.magven.setAmplitude(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,i}{1,4});
                                             obj.magven.setTrain(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,i}{1,2},obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,i}{1,3},1,0.1);
                                             disp trainENTERED
                                     end
@@ -3111,10 +3276,10 @@ classdef best_toolbox < handle
                                     switch obj.app.par.hardware_settings.(char(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.outputDevices}{1,i})).IntensityControl
                                         case 1 % Manual
                                             OutputDevice=char(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.outputDevices}{1,i});
-                                            obj.digitimer.(OutputDevice).setManualAmplitude(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,i}{1,1},OutputDevice);
+                                            obj.digitimer.(OutputDevice).setManualAmplitude(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,i}{1,4},OutputDevice);
                                         case 2 % Arduino
                                             OutputDevice=char(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.outputDevices}{1,i});
-                                            obj.digitimer.(OutputDevice).setAutomaticAmplitude(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,i}{1,1});
+                                            obj.digitimer.(OutputDevice).setAutomaticAmplitude(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,i}{1,4});
                                     end
                                 case 10 %simulation
                                     switch char(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.stimMode}{1,i})
@@ -3162,11 +3327,110 @@ classdef best_toolbox < handle
             obj.app.cb_menu_save;
         end
         function saveRuntime(obj)
-%             t=timer;
-%             t.BusyMode='queue';
-%             t.TimerFcn=@(~,~)obj.TmrFcn;
-%             start(t)
-           
+            tic
+           switch obj.inputs.Protocol
+                case 'MEP Hotspot Search Protocol'
+                    label=obj.BESTData.label;
+                    for i=1:size(label,1)
+                        trial(i,:)=single(obj.inputs.rawData.(label{i}).data(obj.inputs.trial,:));
+                        time(i,:)=obj.inputs.rawData.(label{i}).time(obj.inputs.trial,:);
+                    end
+                    obj.BESTData.trial(1,obj.inputs.trial)={trial};
+                    obj.BESTData.time(1,obj.inputs.trial)={time};
+                    obj.BESTData.results=obj.inputs.results;
+                    % Write MEP Amplitude in trialinfo
+                case 'MEP Measurement Protocol'
+                    switch obj.inputs.BrainState
+                        case 1 %Independent
+                            label=obj.BESTData.label;
+                            for i=1:size(label,1)
+                                trial(i,:)=single(obj.inputs.rawData.(label{i}).data(obj.inputs.trial,:));
+                                time(i,:)=obj.inputs.rawData.(label{i}).time(obj.inputs.trial,:);
+                            end
+                            obj.BESTData.trial(1,obj.inputs.trial)={trial};
+                            obj.BESTData.time(1,obj.inputs.trial)={time};
+                            obj.BESTData.results=obj.inputs.results;
+                            % Write MEP Amplitude in trialinfo
+                        case 2 %Dependent
+                            label=obj.BESTData.label;
+                            EEGDataSize=1:size(obj.inputs.rawData.OsscillationEEG.data,2);
+                            trial(1,EEGDataSize)=single(obj.inputs.rawData.OsscillationEEG.data(obj.inputs.trial,:));
+                            time(1,EEGDataSize)=obj.inputs.rawData.IEEG.time;
+                            for i=2:size(label,1)
+                                EMGDataSize=1:size(obj.inputs.rawData.(label{i}).data,2);
+                                trial(i,EMGDataSize)=single(obj.inputs.rawData.(label{i}).data(obj.inputs.trial,:));
+                                time(i,EMGDataSize)=obj.inputs.rawData.(label{i}).time(obj.inputs.trial,:);
+                            end
+                            obj.BESTData.trial(1,obj.inputs.trial)={trial};
+                            obj.BESTData.time(1,obj.inputs.trial)={time};
+                            obj.BESTData.results=obj.inputs.results;
+                            % Write MEP Amplitude in trialinfo
+                    end
+                case 'MEP Dose Response Curve Protocol'
+                    switch obj.inputs.BrainState
+                        case 1 %Independent
+                            label=obj.BESTData.label;
+                            for i=1:size(label,1)
+                                trial(i,:)=single(obj.inputs.rawData.(label{i}).data(obj.inputs.trial,:));
+                                time(i,:)=obj.inputs.rawData.(label{i}).time(obj.inputs.trial,:);
+                            end
+                            obj.BESTData.trial(1,obj.inputs.trial)={trial};
+                            obj.BESTData.time(1,obj.inputs.trial)={time};
+                            obj.BESTData.results=obj.inputs.results;
+                            % Write MEP Amplitude in trialinfo
+                        case 2 %Dependent
+                            label=obj.BESTData.label;
+                            EEGDataSize=1:size(obj.inputs.rawData.OsscillationEEG.data,2);
+                            trial(1,EEGDataSize)=single(obj.inputs.rawData.OsscillationEEG.data(obj.inputs.trial,:));
+                            time(1,EEGDataSize)=obj.inputs.rawData.IEEG.time;
+                            for i=2:size(label,1)
+                                EMGDataSize=1:size(obj.inputs.rawData.(label{i}).data,2);
+                                trial(i,EMGDataSize)=single(obj.inputs.rawData.(label{i}).data(obj.inputs.trial,:));
+                                time(i,EMGDataSize)=obj.inputs.rawData.(label{i}).time(obj.inputs.trial,:);
+                            end
+                            obj.BESTData.trial(1,obj.inputs.trial)={trial};
+                            obj.BESTData.time(1,obj.inputs.trial)={time};
+                            obj.BESTData.results=obj.inputs.results;
+                            % Write MEP Amplitude in trialinfo
+                    end
+                case 'Motor Threshold Hunting Protocol'
+                    switch obj.inputs.BrainState
+                        case 1 %Independent
+                            label=obj.BESTData.label;
+                            for i=1:size(label,1)
+                                trial(i,:)=single(obj.inputs.rawData.(label{i}).data(obj.inputs.trial,:));
+                                time(i,:)=obj.inputs.rawData.(label{i}).time(obj.inputs.trial,:);
+                            end
+                            obj.BESTData.trial(1,obj.inputs.trial)={trial};
+                            obj.BESTData.time(1,obj.inputs.trial)={time};
+                            obj.BESTData.results=obj.inputs.results;
+                        case 2 %Dependent
+                            label=obj.BESTData.label;
+                            EEGDataSize=1:size(obj.inputs.rawData.OsscillationEEG.data,2);
+                            trial(1,EEGDataSize)=single(obj.inputs.rawData.OsscillationEEG.data(obj.inputs.trial,:));
+                            time(1,EEGDataSize)=obj.inputs.rawData.IEEG.time;
+                            for i=2:size(label,1)
+                                EMGDataSize=1:size(obj.inputs.rawData.(label{i}).data,2);
+                                trial(i,EMGDataSize)=single(obj.inputs.rawData.(label{i}).data(obj.inputs.trial,:));
+                                time(i,EMGDataSize)=obj.inputs.rawData.(label{i}).time(obj.inputs.trial,:);
+                            end
+                            obj.BESTData.trial(1,obj.inputs.trial)={trial};
+                            obj.BESTData.time(1,obj.inputs.trial)={time};
+                            obj.BESTData.results=obj.inputs.results;
+                            % Write MEP Amplitude in trialinfo
+                    end
+                case 'Psychometric Threshold Hunting Protocol'
+                    switch obj.inputs.BrainState
+                        case 1 %Independent
+                        case 2 %Dependent
+                    end
+                case 'rs EEG Measurement Protocol'
+           end
+           obj.sessions.(obj.app.info.event.current_session).(obj.app.info.event.current_measure_fullstr).ConditionsMatrix=obj.inputs.condMat;
+           % obj.sessions.(obj.app.info.event.current_session).(obj.app.info.event.current_measure_fullstr).TrialsMatrix=obj.inputs.trialMat; % 04-Jun-2020 20:35:39
+           obj.sessions.(obj.app.info.event.current_session).(obj.app.info.event.current_measure_fullstr).Figures=obj.inputs.Figures;
+           try obj.sessions.(obj.app.info.event.current_session).(obj.app.info.event.current_measure_fullstr).Results=obj.inputs.results; catch, end %Known Error when run on PsychMTH
+            toc
         end
         function TmrFcn(obj)
              pause(0.1)
@@ -3183,22 +3447,192 @@ classdef best_toolbox < handle
             toc
          end
         function prepSaving(obj)
-            obj.sessions.(obj.app.info.event.current_session).(obj.app.info.event.current_measure_fullstr).ConditionsMatrix=obj.inputs.condMat;
-            obj.sessions.(obj.app.info.event.current_session).(obj.app.info.event.current_measure_fullstr).TrialsMatrix=obj.inputs.trialMat;
-            obj.sessions.(obj.app.info.event.current_session).(obj.app.info.event.current_measure_fullstr).Figures=obj.inputs.Figures;
-            try obj.sessions.(obj.app.info.event.current_session).(obj.app.info.event.current_measure_fullstr).RawData=obj.inputs.rawData; catch, end %Known Error when run on rTMS
-            try obj.sessions.(obj.app.info.event.current_session).(obj.app.info.event.current_measure_fullstr).Results=obj.inputs.results; catch, end %Known Error when run on PsychMTH
+            %% Creating MatFile Name and File on a directory
+            exp_name=obj.app.pmd.exp_title.editfield.String; exp_name(exp_name == ' ') = '_';
+            subj_code=obj.app.pmd.sub_code.editfield.String; subj_code(subj_code == ' ') = '_';
+            session=obj.app.info.event.current_session; session(session == '_') = '';
+            measure=obj.app.info.event.current_measure_fullstr; measure(measure == '_') = '';
+            Date=datestr(now,'yyyy-mm-dd HH:MM:SS'); Date(Date == ' ') = '_'; Date(Date == '-') = ''; Date(Date == ':') = '';
+            FileName=['BESTData_' exp_name '_' subj_code '_' session '_' measure '_' Date '.mat'];
+            % FilePath=cd;
+            FullFileName=fullfile(obj.app.par.GlobalSettings.DataBaseDirectory,exp_name,subj_code,session,FileName);
+            if ~exist(fullfile(obj.app.par.GlobalSettings.DataBaseDirectory,exp_name,subj_code,session), 'dir')
+                mkdir(fullfile(obj.app.par.GlobalSettings.DataBaseDirectory,exp_name,subj_code,session));
+            end
+            obj.BESTData=matfile(FullFileName,'Writable',true);
+            %% Writing General Variables
+            obj.BESTData.pars=obj.app.par.(obj.app.info.event.current_session).(obj.app.info.event.current_measure_fullstr); 
+            obj.BESTData.experiment_name=exp_name; 
+            obj.BESTData.subject_name=subj_code;
+            obj.BESTData.session_name=session;
+            obj.BESTData.protocol_name=measure;
+            %% Writing Protocol Specific Initial Variables
+            switch obj.inputs.Protocol
+                case 'MEP Hotspot Search Protocol'
+                    %labels, fsample, chantype, chanunits, trialinfo collabels,
+                    obj.BESTData.condition_matrix=obj.inputs.condMat;
+                    obj.BESTData.trial_matrix=obj.inputs.trialMat;
+                    obj.BESTData.fsample=5000;
+                    obj.BESTData.label=obj.inputs.EMGDisplayChannels';
+                    obj.BESTData.chantype=repmat({'emg'},numel(obj.inputs.EMGDisplayChannels),1);
+                    obj.BESTData.chanunits=repmat({'uV'},numel(obj.inputs.EMGDisplayChannels),1);
+                    obj.BESTData.timeunits='ms';
+                    obj.BESTData.trilainfo_label={'TSIntensity (%MSO)','ITI(s)'};
+                    switch obj.inputs.ProtocolMode
+                        case 1 %Automatic
+                            TS=vertcat(obj.inputs.trialMat{:,3}); TS=vertcat(TS{:,1}); TS=vertcat(TS{:,1});
+                            obj.BESTData.trialinfo(1:numel(TS),1)=TS;
+                            obj.BESTData.trialinfo(1:numel(vertcat(obj.inputs.trialMat{:,4})),2)=vertcat(obj.inputs.trialMat{:,4});
+                        case 2 %Manual
+                            obj.BESTData.trialinfo(1,1)=NaN;
+                            obj.BESTData.trialinfo(1,2)=NaN;
+                    end
+                case 'MEP Measurement Protocol'
+                    switch obj.inputs.BrainState
+                        case 1 %Independent
+                            obj.BESTData.condition_matrix=obj.inputs.condMat;
+                            obj.BESTData.trial_matrix=obj.inputs.trialMat;
+                            obj.BESTData.fsample=5000;
+                            obj.BESTData.label=obj.inputs.EMGDisplayChannels';
+                            obj.BESTData.timeunits='ms';
+                            obj.BESTData.chantype=repmat({'emg'},numel(obj.inputs.EMGDisplayChannels),1);
+                            obj.BESTData.chanunits=repmat({'uV'},numel(obj.inputs.EMGDisplayChannels),1);
+                            obj.BESTData.trilainfo_label={'TSIntensity (%MSO)','ITI(s)'};
+                            TS=vertcat(obj.inputs.trialMat{:,3}); TS=vertcat(TS{:,1}); TS=vertcat(TS{:,1});
+                            obj.BESTData.trialinfo(1:numel(TS),1)=TS;
+                            obj.BESTData.trialinfo(1:numel(vertcat(obj.inputs.trialMat{:,4})),2)=vertcat(obj.inputs.trialMat{:,4});
+                        case 2 %Dependent
+                            obj.BESTData.condition_matrix=obj.inputs.condMat;
+                            obj.BESTData.trial_matrix=obj.inputs.trialMat;
+                            obj.BESTData.fsample=5000;
+                            obj.BESTData.timeunits='ms';
+                            label{1}=erase(char(join(obj.inputs.RealTimeChannelsMontage)),' ');
+                            obj.BESTData.label=[label{1}; obj.inputs.EMGDisplayChannels'];
+                            obj.BESTData.chantype=[{'eeg'}; repmat({'emg'},numel(obj.inputs.EMGDisplayChannels),1)];
+                            obj.BESTData.chanunits=repmat({'uV'},numel(obj.inputs.EMGDisplayChannels)+1,1);
+                            obj.BESTData.trilainfo_label={'TSIntensity (%MSO)','ITI(s)','Target Phase(radians)','Phase Tolerance (radians)','Target Min Amplitude (uV)','Target Max Amplitude (uV)'};
+                            TS=vertcat(obj.inputs.trialMat{:,3}); TS=vertcat(TS{:,1}); TS=vertcat(TS{:,1});
+                            obj.BESTData.trialinfo(1:obj.inputs.totalTrials,1)=TS;
+                            obj.BESTData.trialinfo(1:obj.inputs.totalTrials,2)=vertcat(obj.inputs.trialMat{:,4});
+                            Phase=cell2mat(vertcat(obj.inputs.trialMat{:,obj.inputs.colLabel.phase}));
+                            Amplitude=cell2mat(vertcat(obj.inputs.trialMat{:,obj.inputs.colLabel.IA}));
+                            obj.BESTData.trialinfo(1:obj.inputs.totalTrials,3)=Phase(:,1);
+                            obj.BESTData.trialinfo(1:obj.inputs.totalTrials,4)=Phase(:,2);
+                            obj.BESTData.trialinfo(1:obj.inputs.totalTrials,5)=Amplitude(:,1);
+                            obj.BESTData.trialinfo(1:obj.inputs.totalTrials,6)=Amplitude(:,2);
+                    end
+                case 'MEP Dose Response Curve Protocol'
+                    switch obj.inputs.BrainState
+                        case 1 %Independent
+                            obj.BESTData.condition_matrix=obj.inputs.condMat;
+                            obj.BESTData.trial_matrix=obj.inputs.trialMat;
+                            obj.BESTData.fsample=5000;
+                            obj.BESTData.label=[obj.inputs.EMGTargetChannels'; obj.inputs.EMGDisplayChannels'];
+                            obj.BESTData.timeunits='ms';
+                            obj.BESTData.chantype=repmat({'emg'},numel(obj.inputs.EMGTargetChannels)+numel(obj.inputs.EMGDisplayChannels),1);
+                            obj.BESTData.chanunits=repmat({'uV'},numel(obj.inputs.EMGTargetChannels)+numel(obj.inputs.EMGDisplayChannels),1);
+                            obj.BESTData.trilainfo_label={'TSIntensity (%MSO)','ITI(s)'};
+                            TS=vertcat(obj.inputs.trialMat{:,3}); TS=vertcat(TS{:,1}); TS=vertcat(TS{:,1});
+                            obj.BESTData.trialinfo(1:numel(TS),1)=TS;
+                            obj.BESTData.trialinfo(1:numel(vertcat(obj.inputs.trialMat{:,4})),2)=vertcat(obj.inputs.trialMat{:,4});
+                        case 2 %Dependent
+                            obj.BESTData.condition_matrix=obj.inputs.condMat;
+                            obj.BESTData.trial_matrix=obj.inputs.trialMat;
+                            obj.BESTData.fsample=5000;
+                            obj.BESTData.timeunits='ms';
+                            label{1}=erase(char(join(obj.inputs.RealTimeChannelsMontage)),' ');
+                            obj.BESTData.label=[obj.inputs.EMGTargetChannels'; obj.inputs.EMGDisplayChannels'];
+                            obj.BESTData.chantype=[{'eeg'}; repmat({'emg'},numel(obj.inputs.EMGTargetChannels)+numel(obj.inputs.EMGDisplayChannels),1)];
+                            obj.BESTData.chanunits=repmat({'uV'},numel(obj.inputs.EMGTargetChannels)+numel(obj.inputs.EMGDisplayChannels)+1,1);
+                            obj.BESTData.trilainfo_label={'TSIntensity (%MSO)','ITI(s)','Target Phase(radians)','Phase Tolerance (radians)','Target Min Amplitude (uV)','Target Max Amplitude (uV)'};
+                            TS=vertcat(obj.inputs.trialMat{:,3}); TS=vertcat(TS{:,1}); TS=vertcat(TS{:,1});
+                            obj.BESTData.trialinfo(1:obj.inputs.totalTrials,1)=TS;
+                            obj.BESTData.trialinfo(1:obj.inputs.totalTrials,2)=vertcat(obj.inputs.trialMat{:,4});
+                            Phase=cell2mat(vertcat(obj.inputs.trialMat{:,obj.inputs.colLabel.phase}));
+                            Amplitude=cell2mat(vertcat(obj.inputs.trialMat{:,obj.inputs.colLabel.IA}));
+                            obj.BESTData.trialinfo(1:obj.inputs.totalTrials,3)=Phase(:,1);
+                            obj.BESTData.trialinfo(1:obj.inputs.totalTrials,4)=Phase(:,2);
+                            obj.BESTData.trialinfo(1:obj.inputs.totalTrials,5)=Amplitude(:,1);
+                            obj.BESTData.trialinfo(1:obj.inputs.totalTrials,6)=Amplitude(:,2);
+                    end
+                case 'Motor Threshold Hunting Protocol'
+                    switch obj.inputs.BrainState
+                        case 1 %Independent
+                            conds=fieldnames(obj.inputs.condsAll);
+                            for icdts=1:numel(conds)
+                                EMGTargetChannels(icdts)=obj.inputs.condsAll.(conds{icdts,1}).targetChannel;
+                            end
+                            obj.BESTData.condition_matrix=obj.inputs.condMat;
+                            obj.BESTData.trial_matrix=obj.inputs.trialMat;
+                            obj.BESTData.fsample=5000;
+                            obj.BESTData.label=[EMGTargetChannels'; obj.inputs.EMGDisplayChannels'];
+                            obj.BESTData.timeunits='ms';
+                            obj.BESTData.chantype=repmat({'emg'},numel(EMGTargetChannels)+numel(obj.inputs.EMGDisplayChannels),1);
+                            obj.BESTData.chanunits=repmat({'uV'},numel(EMGTargetChannels)+numel(obj.inputs.EMGDisplayChannels),1);
+                            obj.BESTData.trilainfo_label={'TSIntensity (%MSO)','ITI(s)'};
+                            TS=vertcat(obj.inputs.trialMat{:,3}); TS=vertcat(TS{:,1}); TS=vertcat(TS{:,1});
+                            obj.BESTData.trialinfo(1:numel(TS),1)=TS;
+                            obj.BESTData.trialinfo(1:numel(vertcat(obj.inputs.trialMat{:,4})),2)=vertcat(obj.inputs.trialMat{:,4});
+                        case 2 %Dependent
+                            conds=fieldnames(obj.inputs.condsAll);
+                            for icdts=1:numel(conds)
+                                EMGTargetChannels(icdts)=obj.inputs.condsAll.(conds{icdts,1}).targetChannel;
+                            end
+                             obj.inputs.EMGTargetChannels=EMGTargetChannels;
+                            obj.BESTData.condition_matrix=obj.inputs.condMat;
+                            obj.BESTData.trial_matrix=obj.inputs.trialMat;
+                            obj.BESTData.fsample=5000;
+                            obj.BESTData.timeunits='ms';
+                            label{1}=erase(char(join(obj.inputs.RealTimeChannelsMontage)),' ');
+                            obj.BESTData.label=[obj.inputs.EMGTargetChannels'; obj.inputs.EMGDisplayChannels'];
+                            obj.BESTData.chantype=[{'eeg'}; repmat({'emg'},numel(obj.inputs.EMGTargetChannels)+numel(obj.inputs.EMGDisplayChannels),1)];
+                            obj.BESTData.chanunits=repmat({'uV'},numel(obj.inputs.EMGTargetChannels)+numel(obj.inputs.EMGDisplayChannels)+1,1);
+                            obj.BESTData.trilainfo_label={'TSIntensity (%MSO)','ITI(s)','Target Phase(radians)','Phase Tolerance (radians)','Target Min Amplitude (uV)','Target Max Amplitude (uV)'};
+                            TS=vertcat(obj.inputs.trialMat{:,3}); TS=vertcat(TS{:,1}); TS=vertcat(TS{:,1});
+                            obj.BESTData.trialinfo(1:obj.inputs.totalTrials,1)=TS;
+                            obj.BESTData.trialinfo(1:obj.inputs.totalTrials,2)=vertcat(obj.inputs.trialMat{:,4});
+                            Phase=cell2mat(vertcat(obj.inputs.trialMat{:,obj.inputs.colLabel.phase}));
+                            Amplitude=cell2mat(vertcat(obj.inputs.trialMat{:,obj.inputs.colLabel.IA}));
+                            obj.BESTData.trialinfo(1:obj.inputs.totalTrials,3)=Phase(:,1);
+                            obj.BESTData.trialinfo(1:obj.inputs.totalTrials,4)=Phase(:,2);
+                            obj.BESTData.trialinfo(1:obj.inputs.totalTrials,5)=Amplitude(:,1);
+                            obj.BESTData.trialinfo(1:obj.inputs.totalTrials,6)=Amplitude(:,2);
+                    end
+                case 'Psychometric Threshold Hunting Protocol'
+                    switch obj.inputs.BrainState
+                        case 1 %Independent
+                        case 2 %Dependent
+                    end
+                case 'rs EEG Measurement Protocol'
+                    obj.BESTData.fsample=5000;
+                    obj.BESTData.label=obj.inputs.results.RawEEGData.label;
+                    obj.BESTData.chantype=repmat({'eeg'},numel(obj.inputs.results.RawEEGData.label),1);
+                    obj.BESTData.chanunits=repmat({'uV'},numel(obj.inputs.results.RawEEGData.label),1);
+                    obj.BESTData.timeunits='ms';
+                    obj.BESTData.trial=obj.inputs.results.RawEEGData.trial;
+                    obj.BESTData.time=obj.inputs.results.RawEEGData.time;
+                    results=rmfield(obj.inputs.results,'RawEEGData');
+                    obj.BESTData.results=results;
+            end
         end
         function saveFigures(obj)
+            exp_name=obj.app.pmd.exp_title.editfield.String; exp_name(exp_name == ' ') = '_';
+            subj_code=obj.app.pmd.sub_code.editfield.String; subj_code(subj_code == ' ') = '_';
+            session=obj.app.info.event.current_session; session(session == '_') = '';
+            measure=obj.app.info.event.current_measure_fullstr; measure(measure == '_') = '';
             FigureFileName1=erase(obj.info.matfilstr,'.mat');
             for iaxes=1:obj.app.pr.axesno
                 if ~strcmp(obj.app.pr.ax_ChannelLabels{1,iaxes},'StatusTable')
                     FigureFileName=[FigureFileName1 '_' obj.app.pr.ax_measures{1,iaxes} '_' obj.app.pr.ax_ChannelLabels{1,iaxes}];
+                    FullFileName=fullfile(obj.app.par.GlobalSettings.DataBaseDirectory,exp_name,subj_code,session,measure,FigureFileName);
+                    if ~exist(fullfile(obj.app.par.GlobalSettings.DataBaseDirectory,exp_name,subj_code,session,measure), 'dir')
+                        mkdir(fullfile(obj.app.par.GlobalSettings.DataBaseDirectory,exp_name,subj_code,session,measure));
+                    end
                     ax=['ax' num2str(iaxes)];
                     Figure=figure('Visible','off','CreateFcn','set(gcf,''Visible'',''on'')','Name',FigureFileName,'NumberTitle','off');
                     copyobj(obj.app.pr.ax.(ax),Figure)
                     set( gca, 'Units', 'normalized', 'Position', [0.2 0.2 0.7 0.7] );
-                    saveas(Figure,FigureFileName,'fig');
+                    saveas(Figure,FullFileName,'fig');
                     close(Figure)
                 end
             end
@@ -3224,9 +3658,9 @@ classdef best_toolbox < handle
             obj.app.resultsPanel;
             obj.boot_outputdevice;
             obj.boot_inputdevice;
+            obj.prepSaving;
             obj.bootTrial;
             obj.stimLoop;
-            obj.prepSaving;
             obj.save;
             obj.saveFigures;
             obj.completed;
@@ -3238,9 +3672,9 @@ classdef best_toolbox < handle
             obj.app.resultsPanel;
             obj.boot_outputdevice;
             obj.boot_inputdevice;
+            obj.prepSaving;
             obj.bootTrial;
             obj.stimLoop;
-            obj.prepSaving;
             obj.save;
             obj.saveFigures;
             obj.completed;
@@ -3252,9 +3686,9 @@ classdef best_toolbox < handle
             obj.app.resultsPanel;
             obj.boot_outputdevice;
             obj.boot_inputdevice;
+            obj.prepSaving;
             obj.bootTrial;
             stimLoop;
-            obj.prepSaving;
             obj.save;
             obj.saveFigures;
             obj.completed;
@@ -3263,8 +3697,8 @@ classdef best_toolbox < handle
                     while strcmpi(obj.bossbox.EMGScope.Status,'finished')
                         obj.readTrial;
                         obj.plotTrial;
-                        obj.prepTrial;
                         obj.saveRuntime;
+                        obj.prepTrial;
                     end
                     if(obj.inputs.stop_event==1) || obj.inputs.trial==obj.inputs.totalTrials
                         disp('BEST Toolbox Manual Hotspot Search has been stopped')
@@ -3282,9 +3716,9 @@ classdef best_toolbox < handle
             obj.app.resultsPanel;
             obj.boot_outputdevice;
             obj.boot_inputdevice;
+            obj.prepSaving;
             obj.bootTrial;
             obj.stimLoop;
-            obj.prepSaving;
             obj.save;
             obj.saveFigures;
             obj.completed;
@@ -3296,9 +3730,9 @@ classdef best_toolbox < handle
             obj.app.resultsPanel;
             obj.boot_outputdevice;
             obj.boot_inputdevice;
+            obj.prepSaving;
             obj.bootTrial;
             obj.stimLoop;
-            obj.prepSaving;
             obj.save;
             obj.saveFigures;
             obj.completed;
@@ -3310,9 +3744,9 @@ classdef best_toolbox < handle
             obj.app.resultsPanel;
             obj.boot_outputdevice;
             obj.boot_inputdevice;
+            obj.prepSaving;
             obj.bootTrial;
             obj.stimLoop;
-            obj.prepSaving;
             obj.save;
             obj.saveFigures;
             obj.completed;
@@ -3327,38 +3761,25 @@ classdef best_toolbox < handle
             
         end
         function best_rseeg(obj)
-                obj.factorizeConditions;
-                obj.app.resultsPanel;
-                obj.rseegInProcess('open');
-                obj.boot_bossbox;
-                obj.boot_fieldtrip;
-                obj.bossbox.EEGScopeBoot(0,obj.inputs.EEGAcquisitionPeriod*60*1000);
-                obj.bossbox.EEGScopeStart; obj.bossbox.EEGScopeTrigger;
-                [obj.inputs.rawData.EEG.Time , obj.inputs.rawData.EEG.Data]=obj.bossbox.EEGScopeRead;
-                switch obj.inputs.SpectralAnalysis
-                    case 1 %IRASA
-                        obj.fieldtrip.irasa(obj.inputs.rawData.EEG,obj.inputs.input_device);
-                    case 2 %FFT
-                        obj.fieldtrip.fft(obj.inputs.rawData.EEG,obj.inputs.input_device);
-                end
-                obj.rseegInProcess('close');
-%                 obj.prepSaving;
-
-%                 obj.h5;
-%                 obj.saveRuntime
-
-%                 obj.save;
-
-% %                 obj.saveFigures;
-
-                obj.completed;
-%             catch ME
-%             errorMessage = sprintf('BEST Toolbox | resting-state EEG Measureent.\n\nError Message:\n%s', ME.message);
-%             % Print to command window.
-%             fprintf(1, '%s\n', errorMessage);
-%             % Display pop up message and wait for user to click OK
-%             uiwait(warndlg(errorMessage));
-%         end
+            obj.factorizeConditions;
+            obj.app.resultsPanel;
+            obj.rseegInProcess('open');
+            obj.boot_bossbox;
+            obj.boot_fieldtrip;
+            obj.save;
+            obj.bossbox.EEGScopeBoot(0,obj.inputs.EEGAcquisitionPeriod*60*1000);
+            obj.bossbox.EEGScopeStart; obj.bossbox.EEGScopeTrigger;
+            [obj.inputs.rawData.EEG.Time , obj.inputs.rawData.EEG.Data]=obj.bossbox.EEGScopeRead;
+            switch obj.inputs.SpectralAnalysis
+                case 1 %IRASA
+                    obj.fieldtrip.irasa(obj.inputs.rawData.EEG,obj.inputs.input_device);
+                case 2 %FFT
+                    obj.fieldtrip.fft(obj.inputs.rawData.EEG,obj.inputs.input_device);
+            end
+            obj.rseegInProcess('close');
+            obj.prepSaving;
+            obj.saveFigures;
+            obj.completed;
         end
         function best_rtms(obj)
             obj.save;
@@ -3571,7 +3992,7 @@ classdef best_toolbox < handle
             end
             %% Plot Latest Trial
             if ~(isfield(obj.inputs.Handles,'LatestMEP'))
-                obj.inputs.Handles.LatestMEP=plot(obj.inputs.timeVect,obj.inputs.rawData.(ThisChannelName).data(obj.inputs.trial,:),'LineStyle','-.','Color','k','LineWidth',1.5,'DisplayName','Latest');
+                obj.inputs.Handles.LatestMEP=plot(obj.inputs.timeVect,obj.inputs.rawData.(ThisChannelName).data(obj.inputs.trial,:),'LineStyle','-.','Color','k','LineWidth',1.5,'DisplayName','Latest','Parent',obj.app.pr.ax.(ax));
                 legend('Location','southoutside','Orientation','horizontal'); hold on;
             else
                 obj.inputs.Handles.LatestMEP.YData=obj.inputs.rawData.(ThisChannelName).data(obj.inputs.trial,:);
@@ -3579,7 +4000,7 @@ classdef best_toolbox < handle
             end
             %% Plot Mean respectively prepared condition
             if ~(isfield(obj.inputs.Handles,cd))
-                obj.inputs.Handles.(cd)=plot(obj.inputs.timeVect,obj.inputs.rawData.(ThisChannelName).data(obj.inputs.trial,:),'Color',obj.app.pr.ax.(ax).UserData.Colors(obj.app.pr.ax.(ax).UserData.ColorsIndex,:),'LineWidth',2,'DisplayName',DisplayName);
+                obj.inputs.Handles.(cd)=plot(obj.inputs.timeVect,obj.inputs.rawData.(ThisChannelName).data(obj.inputs.trial,:),'Color',obj.app.pr.ax.(ax).UserData.Colors(obj.app.pr.ax.(ax).UserData.ColorsIndex,:),'LineWidth',2,'DisplayName',DisplayName,'Parent',obj.app.pr.ax.(ax));
                 obj.inputs.Handles.(cd).UserData(1,1)=obj.inputs.trial;
                 legend('Location','southoutside','Orientation','horizontal'); hold on;
                 
@@ -3611,7 +4032,7 @@ classdef best_toolbox < handle
         function mep_amp(obj)
             maxx=max(obj.inputs.rawData.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).data(obj.inputs.trial,obj.inputs.mep_onset_samples:obj.inputs.mep_offset_samples));
             minn=min(obj.inputs.rawData.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).data(obj.inputs.trial,obj.inputs.mep_onset_samples:obj.inputs.mep_offset_samples));
-            obj.inputs.results.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).MEPAmplitude(obj.inputs.trial,1)=(maxx-minn);
+            obj.inputs.results.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).MEPAmplitude(obj.inputs.trial,1)=abs(maxx)+abs(minn);
             % the purpose of below line is a mere simulation
             %             obj.inputs.results.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).MEPAmplitude(obj.inputs.trial,1)=obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.stimcdMrk};
             %% Calculating Ratios NEW METHOD
@@ -3941,7 +4362,7 @@ classdef best_toolbox < handle
                         xlim([min(SIfit)-5 max(SIfit)+5]);
                     end
                     %% Creating plot
-                    xlabel(' Stimulation Intensity');
+                    xlabel('Stimulation Intensity');
                     ylabel('MEP Amplitude ( \mu V)');
                     
                     set(gcf, 'color', 'w')
@@ -3965,12 +4386,10 @@ classdef best_toolbox < handle
                     plot([obj.info.th,min(xlim)],[0.05,0.05],'--','Color' , [0.75 0.75 0.75]);
                     plot([obj.info.th,obj.info.th],[0.05,ylim_ioc],'--','Color' , [0.75 0.75 0.75]);
                     legend_th=plot(obj.info.th, 0.05,'r*','MarkerSize',15);
-                    
                     %% Creating legends
                     h_legend=[h(1); legend_ip;legend_pt;legend_th];
                     l=legend(h_legend, 'Dose-Response Curve', 'Inflection Point','Plateau','Threshold');
                     set(l,'Orientation','horizontal','Location', 'southoutside','FontSize',12);
-                    
                     %% Creating Properties annotation box
                     
                     str_ip=['Inflection Point: ',num2str(obj.info.ip_x),' (%MSO)',' , ',num2str(ip_y),' (\muV)'];
@@ -3980,14 +4399,15 @@ classdef best_toolbox < handle
                     dim = [0 0 0.5 0.5];
                     str = {str_ip,[],str_th,[],str_pt};
                     ylim([-500 Inf])
-                    
                     %% Test String of IP, PT and TH
-                    obj.app.pr.ip_mso.(ax).String=obj.info.ip_x;
-                    obj.app.pr.ip_muv.(ax).String=ip_y;
-                    obj.app.pr.pt_mso.(ax).String=obj.info.pt_x;
-                    obj.app.pr.pt_muv.(ax).String=pt_y;
+                    obj.app.pr.ip_mso.(ax).String=obj.info.ip_x; 
+                    obj.app.pr.ip_muv.(ax).String=ip_y;  % here it is in uV
+                    obj.app.pr.pt_mso.(ax).String=obj.info.pt_x;     
+                    obj.app.pr.pt_muv.(ax).String=pt_y;  % here ti is in uV
                     obj.app.pr.th_mso.(ax).String=obj.info.th;
                     obj.app.pr.th_muv.(ax).String=0.05;
+                    ResultsAnnotation={['Inflection Point(mV):' num2str(ip_y/1000)],['Inflection Point(intensity):' num2str(obj.info.ip_x)],['Plateau (mV):' num2str(pt_y/1000)],['Plateau (intensity):' num2str(obj.info.pt_x)],['Thershold (intensity):' num2str(obj.info.th)]};
+                    obj.app.pr.ax.(ax).UserData.status=text(obj.app.pr.ax.(ax),1,1,ResultsAnnotation,'units','normalized','HorizontalAlignment','right','VerticalAlignment','cap','color',[0.45 0.45 0.45]);
                     box off; drawnow;
                 elseif numel(obj.inputs.ResponseFunctionNumerator)>1
                     %%  Complicated Response Function case
@@ -4002,7 +4422,7 @@ classdef best_toolbox < handle
                     obj.inputs.rawData.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).mep_stats(:,2)=M(:,2); %Sampled Response Function
                     obj.inputs.DoseFunctionValues=obj.inputs.rawData.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).mep_stats(:,1);
                     obj.inputs.ResponseFunctionValues=obj.inputs.rawData.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).mep_stats(:,2);
-                    plot(obj.inputs.DoseFunctionValues,obj.inputs.ResponseFunctionValues);
+                    plot(obj.inputs.DoseFunctionValues,obj.inputs.ResponseFunctionValues,'DisplayName','Dose Response Curve','color','g','LineWidth',2);
                     %% Preparing Graphical Legend Enteries
                     switch obj.inputs.DoseFunction
                         case 1 % TS
@@ -4019,7 +4439,6 @@ classdef best_toolbox < handle
                             xlimvalue=unique(xlimvalue,'stable');
                             xlimvector=[min(xlimvalue)-(min(xlimvalue)*.10) max(xlimvalue)+(max(xlimvalue)*.10)];
                             xtickvector=unique(sort([xlimvalue']));
-                            
                         case 2 % CS
                             xlabelstring='CS Intensity';
                             ylabelstring='MEP Amp. ( % Control )';
@@ -4063,6 +4482,24 @@ classdef best_toolbox < handle
                             xtickvector=unique(sort([xlimvalue']));
                     end
                     xlabel(xlabelstring); ylabel(ylabelstring); xlim(xlimvector); xticks(xtickvector);
+                    %% Computing Inhibition & Facilitation 
+                    Inhibition=min(obj.inputs.ResponseFunctionValues)/2;
+                    Facilitation=max(obj.inputs.ResponseFunctionValues)/2;
+                    for i=1:numel(obj.inputs.ResponseFunctionValues)-1
+                        ResponseFunctionValues{i}=linspace(obj.inputs.ResponseFunctionValues(i),obj.inputs.ResponseFunctionValues(i+1),1e3);
+                        DoseFunctionValues{i}=linspace(obj.inputs.DoseFunctionValues(i),obj.inputs.DoseFunctionValues(i+1),1e3);
+                    end
+                    ResponseFunctionValues = [ResponseFunctionValues{:}]; DoseFunctionValues = [DoseFunctionValues{:}];
+                    [~,idx]=min(abs(ResponseFunctionValues-Inhibition));
+                    Inhibition_Intensity=round(DoseFunctionValues(idx));
+                    [~,idx]=min(abs(ResponseFunctionValues-Facilitation));
+                    Facilitation_Intensity=round(DoseFunctionValues(idx));
+                    %% Annotating Inhibition and Facilitation
+                    ResultsAnnotation={['Inhibition (50%):' num2str(Inhibition)],['Inhibition(intensity):' num2str(Inhibition_Intensity)],['Facilitation (50%):' num2str(Facilitation)],['Facilitation (intensity):' num2str(Facilitation_Intensity)]};
+                    obj.app.pr.ax.(ax).UserData.status=text(obj.app.pr.ax.(ax),1,1,ResultsAnnotation,'units','normalized','HorizontalAlignment','right','VerticalAlignment','cap','color',[0.45 0.45 0.45]);
+                    gridxy(Inhibition_Intensity,Inhibition,'DisplayName','Inhibition','color','b'), hold on
+                    gridxy(Facilitation_Intensity,Facilitation,'DisplayName','Facilitation','color','r')
+                    legend('Location','southoutside','Orientation','horizontal')
                 end
             end
         end
@@ -4083,7 +4520,7 @@ classdef best_toolbox < handle
                 experimental_condition{1}.marker = 3;
                 experimental_condition{1}.random_delay_range = 0.1;
                 experimental_condition{1}.port = 1;
-                obj.tc.(mrk).stimvalue = [obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,1}{1,1} 1.0 1.00];
+                obj.tc.(mrk).stimvalue = [obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,1}{1,4} 1.0 1.00];
                 obj.tc.(mrk).stepsize = [1 1 1];
                 obj.tc.(mrk).minstep =  1;
                 obj.tc.(mrk).maxstep =  8;
@@ -4105,7 +4542,7 @@ classdef best_toolbox < handle
             obj.tc.(mrk).stimvalues{StimDevice} = [obj.tc.(mrk).stimvalues{StimDevice}, round(obj.tc.(mrk).stimvalue(StimDevice),2)];
             obj.tc.(mrk).stepsizes{StimDevice} = [obj.tc.(mrk).stepsizes{StimDevice}, round(obj.tc.(mrk).stepsize(StimDevice),2)];
             
-            obj.inputs.results.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).MEPAmplitude(obj.inputs.trial,1)=input('enter mep amp  ');
+%             obj.inputs.results.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).MEPAmplitude(obj.inputs.trial,1)=input('enter mep amp  ');
             
             MEPP2PAmpNonZeroIndex=find(obj.inputs.results.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).MEPAmplitude,1,'last');
             MEPP2PAmp=obj.inputs.results.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).MEPAmplitude(MEPP2PAmpNonZeroIndex);
@@ -4189,17 +4626,18 @@ classdef best_toolbox < handle
             if ~isempty(TrialToUpdate)
                 TrialToUpdate=TrialsNoForThisMarker(TrialToUpdate(1));
                 obj.inputs.trialMat{TrialToUpdate,obj.inputs.colLabel.si}{1,1}{1,1}=obj.tc.(mrk).stimvalue(StimDevice);
+                obj.inputs.trialMat{TrialToUpdate,obj.inputs.colLabel.si}{1,1}{1,4}=obj.tc.(mrk).stimvalue(StimDevice);
             end
         end
         function mep_threshold_MLE(obj)
             mrk=['mrk' num2str(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.marker})];
             
             if ~isfield(obj.inputs.Handles.ThresholdData,mrk)
-                [~,obj.inputs.Handles.ThresholdData.(mrk).L]=MT_initialize_likelihood_mth(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,1}{1,1});
+                [~,obj.inputs.Handles.ThresholdData.(mrk).L]=MT_initialize_likelihood_mth(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,1}{1,4});
             end
             MEPP2PAmpNonZeroIndex=find(obj.inputs.results.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).MEPAmplitude,1,'last');
             MEPP2PAmp=obj.inputs.results.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).MEPAmplitude(MEPP2PAmpNonZeroIndex);
-            MEPP2PAmp=input('enter mep amp  ');
+            % MEPP2PAmp=input('enter mep amp  ');
             [nextInt,obj.inputs.Handles.ThresholdData.(mrk).L]=MT_update_likelihood_mth(MEPP2PAmp,obj.inputs.Handles.ThresholdData.(mrk).L);
             ConditionMarker=obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.marker};
             TrialsNoForThisMarker=find(vertcat(obj.inputs.trialMat{1:end,obj.inputs.colLabel.marker})==ConditionMarker);
@@ -4207,6 +4645,7 @@ classdef best_toolbox < handle
             if ~isempty(TrialToUpdate)
                 TrialToUpdate=TrialsNoForThisMarker(TrialToUpdate(1));
                 obj.inputs.trialMat{TrialToUpdate,obj.inputs.colLabel.si}{1,1}{1,1}=nextInt;
+                obj.inputs.trialMat{TrialToUpdate,obj.inputs.colLabel.si}{1,1}{1,4}=nextInt;
             end
             function [nextInt, L] = MT_initialize_likelihood_mth(startInt)
                 
@@ -4312,7 +4751,7 @@ classdef best_toolbox < handle
                 experimental_condition{1}.marker = 3;
                 experimental_condition{1}.random_delay_range = 0.1;
                 experimental_condition{1}.port = 1;
-                obj.tc.(mrk).stimvalue = [obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,1}{1,1} 1.0 1.00];
+                obj.tc.(mrk).stimvalue = [obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,1}{1,4} 1.0 1.00];
                 obj.tc.(mrk).stepsize = [0.4 0.4 0.4];
                 obj.tc.(mrk).minstep =  0.01;
                 obj.tc.(mrk).maxstep =  1.00;
@@ -4420,13 +4859,14 @@ classdef best_toolbox < handle
             if ~isempty(TrialToUpdate)
                 TrialToUpdate=TrialsNoForThisMarker(TrialToUpdate(1));
                 obj.inputs.trialMat{TrialToUpdate,obj.inputs.colLabel.si}{1,1}{1,1}=obj.tc.(mrk).stimvalue(StimDevice);
+                obj.inputs.trialMat{TrialToUpdate,obj.inputs.colLabel.si}{1,1}{1,4}=obj.tc.(mrk).stimvalue(StimDevice);
             end
         end
         function psych_threshold_MLE(obj)
             mrk=['mrk' num2str(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.marker})];
             
             if ~isfield(obj.inputs.Handles.ThresholdData,mrk)
-                [~,obj.inputs.Handles.ThresholdData.(mrk).L]=MT_initialize_likelihood_psychmth(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,1}{1,1});
+                [~,obj.inputs.Handles.ThresholdData.(mrk).L]=MT_initialize_likelihood_psychmth(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,1}{1,4});
             end
             MEPP2PAmpNonZeroIndex=find(obj.inputs.rawData.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).data,1,'last');
             MEPP2PAmp=obj.inputs.rawData.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).data(MEPP2PAmpNonZeroIndex);
@@ -4437,6 +4877,7 @@ classdef best_toolbox < handle
             if ~isempty(TrialToUpdate)
                 TrialToUpdate=TrialsNoForThisMarker(TrialToUpdate(1));
                 obj.inputs.trialMat{TrialToUpdate,obj.inputs.colLabel.si}{1,1}{1,1}=nextInt;
+                obj.inputs.trialMat{TrialToUpdate,obj.inputs.colLabel.si}{1,1}{1,4}=nextInt;
             end
             function [nextInt, L] = MT_initialize_likelihood_psychmth(startInt)
                 
@@ -4729,14 +5170,14 @@ classdef best_toolbox < handle
                 obj.app.pr.ax.(ax).Data(1,2)={[num2str(obj.inputs.trial+1) '/' num2str(obj.inputs.totalTrials)]};
                 obj.app.pr.ax.(ax).Data(2,1)={num2str(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.iti})};
                 obj.app.pr.ax.(ax).Data(2,2)={num2str(obj.inputs.trialMat{obj.inputs.trial+1,obj.inputs.colLabel.iti})};
-                obj.app.pr.ax.(ax).Data(3,1)={num2str(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,1}{1,1})};
-                obj.app.pr.ax.(ax).Data(3,2)={num2str(obj.inputs.trialMat{obj.inputs.trial+1,obj.inputs.colLabel.si}{1,1}{1,1})};
+                obj.app.pr.ax.(ax).Data(3,1)={num2str(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,1}{1,4})};
+                obj.app.pr.ax.(ax).Data(3,2)={num2str(obj.inputs.trialMat{obj.inputs.trial+1,obj.inputs.colLabel.si}{1,1}{1,4})};
             else
                 obj.app.pr.ax.(ax).Data(1,1)={[num2str(obj.inputs.trial) '/' num2str(obj.inputs.totalTrials)]};
                 obj.app.pr.ax.(ax).Data(1,2)={''};
                 obj.app.pr.ax.(ax).Data(2,1)={num2str(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.iti})};
                 obj.app.pr.ax.(ax).Data(2,2)={''};
-                obj.app.pr.ax.(ax).Data(3,1)={num2str(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,1}{1,1})};
+                obj.app.pr.ax.(ax).Data(3,1)={num2str(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,1}{1,4})};
                 obj.app.pr.ax.(ax).Data(3,2)={''};
             end
         end
@@ -4756,8 +5197,8 @@ classdef best_toolbox < handle
                     
                     %onset, offset samples conversion to sampling rate
                     if isfield(obj.inputs,'mep_onset') && isfield(obj.inputs,'mep_offset')
-                        obj.inputs.mep_onset_samples=obj.inputs.mep_onset*5;
-                        obj.inputs.mep_offset_samples=obj.inputs.mep_offset*5;
+                        obj.inputs.mep_onset_samples=(obj.inputs.prestim_scope_plt+obj.inputs.mep_onset)*5;
+                        obj.inputs.mep_offset_samples=(obj.inputs.mep_offset+obj.inputs.prestim_scope_plt)*5;
                     end
                     disp enteredtimevect-------------
                     % 18-Mar-2020 18:11:00
@@ -4993,8 +5434,12 @@ classdef best_toolbox < handle
                     drawnow;
                 end
             end
-            if obj.inputs.trial==1, ZeroLine=gridxy(0,'Color','k','linewidth',2,'Parent',obj.app.pr.ax.(ax));hold on; ZeroLine.Annotation.LegendInformation.IconDisplayStyle = 'off'; legend('Location','southoutside','Orientation','horizontal'); hold on; end
-            
+            if obj.inputs.trial==1
+                xlim(obj.app.pr.ax.(ax),obj.inputs.EEGXLimit), ylim(obj.app.pr.ax.(ax),obj.inputs.EEGYLimit), drawnow
+                xticks(obj.app.pr.ax.(ax),unique(sort([0 obj.inputs.EEGXLimit])))
+                ZeroLine=gridxy(0,'Color','k','linewidth',2,'Parent',obj.app.pr.ax.(ax),'Tag','TriggerLockedEEGZeroLine');hold on;
+                ZeroLine.Annotation.LegendInformation.IconDisplayStyle = 'off'; legend('Location','southoutside','Orientation','horizontal'); hold on;
+            end
         end %End obj.PlotTriggerLockedEEG
         function PlotRunnigAmplitude(obj)
             ax=['ax' num2str(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.axesno}{1,obj.inputs.chLab_idx})];
@@ -5010,11 +5455,6 @@ classdef best_toolbox < handle
             end
         end
 
-        
-        
-        
-        
-        
         function DeMeanedEEGData =best_DeMeanEEG(obj,RawData)
             DeMeanedEEGData=RawData-mean(RawData);
             

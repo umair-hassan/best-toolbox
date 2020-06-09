@@ -11,23 +11,23 @@ classdef best_fieldtrip <handle
         
         function irasa(obj,EEGData,InputDevice)
             %% Just for testing purposes
-            load S5_raw_segmented.mat
-            EEGData=data;
-            cfg=[];
-            cfg.channel =data.label(1:64);
-            EEGData=ft_selectdata(cfg,EEGData);
+%                         load S5_raw_segmented.mat
+%                         EEGData=data;
+%                         cfg=[];
+%                         cfg.channel =data.label(1:64);
+%                         EEGData=ft_selectdata(cfg,EEGData);
+%             obj.best_toolbox.inputs.results.RawEEGData=EEGData;
             %% Stop Check Point
             if obj.best_toolbox.inputs.stop_event==1, return, end
             %% Modifying IRASA
             EEGChannelsIndex=find(strcmp(obj.best_toolbox.app.par.hardware_settings.(InputDevice).NeurOneProtocolChannelSignalTypes,'EEG'));
             EEGChanelsLabels=obj.best_toolbox.app.par.hardware_settings.(InputDevice).NeurOneProtocolChannelLabels(EEGChannelsIndex);
             %% Creating RawEEGData
-            obj.best_toolbox.inputs.results.RawEEGData=EEGData;
             obj.best_toolbox.inputs.results.RawEEGData.label=EEGChanelsLabels';
-% % % % % % %             obj.best_toolbox.inputs.results.RawEEGData.label=EEGChanelsLabels';
-% % % % % % %             obj.best_toolbox.inputs.results.RawEEGData.fsample=5000;
-% % % % % % %             obj.best_toolbox.inputs.results.RawEEGData.trial={EEGData.Data};
-% % % % % % %             obj.best_toolbox.inputs.results.RawEEGData.time={EEGData.Time};
+            obj.best_toolbox.inputs.results.RawEEGData.fsample=5000;
+            obj.best_toolbox.inputs.results.RawEEGData.trial={EEGData.Data};
+            obj.best_toolbox.inputs.results.RawEEGData.time={EEGData.Time};
+            
             %% PreProcessing RawEEGData
             cfg=[];
             cfg.demean=[];
@@ -75,6 +75,9 @@ classdef best_fieldtrip <handle
             cfg.length        = obj.best_toolbox.inputs.EEGEpochPeriod;
             cfg.overlap       = 0;
             Data = ft_redefinetrial(cfg, Data);
+            for itrialinfo=1:numel(Data.trial)
+            Data.trialinfo(itrialinfo,1)=itrialinfo;
+            end
             %% Overlapped Data etc
             w = Data.time{1}(end)-Data.time{1}(1); % window length
             cfg               = [];
@@ -128,7 +131,9 @@ classdef best_fieldtrip <handle
             %% Stop Check Point
             if obj.best_toolbox.inputs.stop_event==1, return, end
             %% Plotting , Annotating and Saving Peak Frequency
-            TargetFrequencyRange=(find(obj.best_toolbox.inputs.results.OriginalComponents.freq == obj.best_toolbox.inputs.TargetFrequencyRange(1)):find(obj.best_toolbox.inputs.results.OriginalComponents.freq == obj.best_toolbox.inputs.TargetFrequencyRange(2)));
+            [~,iTargetFrequencyRange1]=min(abs(obj.best_toolbox.inputs.results.OriginalComponents.freq - obj.best_toolbox.inputs.TargetFrequencyRange(1)));
+            [~,iTargetFrequencyRange2]=min(abs(obj.best_toolbox.inputs.results.OriginalComponents.freq - obj.best_toolbox.inputs.TargetFrequencyRange(2)));
+            TargetFrequencyRange=iTargetFrequencyRange1:iTargetFrequencyRange2;
             for channel=1:numel(obj.best_toolbox.inputs.results.OriginalComponents.label)
                 ax1=['ax' num2str(channel*4-3)];
                 axes(obj.best_toolbox.app.pr.ax.(ax1))
@@ -168,19 +173,23 @@ classdef best_fieldtrip <handle
         
         function fft(obj,EEGData,InputDevice)
             %% Just for testing purposes
-            load S5_raw_segmented.mat
-            EEGData=data;
-            cfg=[];
-            cfg.channel =data.label(1:64);
-            EEGData=ft_selectdata(cfg,EEGData);
+            %             load S5_raw_segmented.mat
+            %             EEGData=data;
+            %             cfg=[];
+            %             cfg.channel =data.label(1:64);
+            %             EEGData=ft_selectdata(cfg,EEGData);
+            %             obj.best_toolbox.inputs.results.RawEEGData=EEGData;
             %% Stop Check Point
             if obj.best_toolbox.inputs.stop_event==1, return, end
             %% Getting ChannelIndex and Labels
             EEGChannelsIndex=find(strcmp(obj.best_toolbox.app.par.hardware_settings.(InputDevice).NeurOneProtocolChannelSignalTypes,'EEG'));
             EEGChanelsLabels=obj.best_toolbox.app.par.hardware_settings.(InputDevice).NeurOneProtocolChannelLabels(EEGChannelsIndex);
             %% Creating RawEEGData
-            obj.best_toolbox.inputs.results.RawEEGData=EEGData;
+            
             obj.best_toolbox.inputs.results.RawEEGData.label=EEGChanelsLabels';
+            obj.best_toolbox.inputs.results.RawEEGData.fsample=5000;
+            obj.best_toolbox.inputs.results.RawEEGData.trial={EEGData.Data};
+            obj.best_toolbox.inputs.results.RawEEGData.time={EEGData.Time};
             %% PreProcessing RawEEGData
             cfg=[];
             cfg.demean=[];
@@ -246,7 +255,9 @@ classdef best_fieldtrip <handle
             %% Stop Check Point
             if obj.best_toolbox.inputs.stop_event==1, return, end
             %% Plotting , Annotating and Saving Peak Frequency
-            TargetFrequencyRange=(find(obj.best_toolbox.inputs.results.OriginalComponents.freq == obj.best_toolbox.inputs.TargetFrequencyRange(1)):find(obj.best_toolbox.inputs.results.OriginalComponents.freq == obj.best_toolbox.inputs.TargetFrequencyRange(2)));
+            [~,iTargetFrequencyRange1]=min(abs(obj.best_toolbox.inputs.results.OriginalComponents.freq - obj.best_toolbox.inputs.TargetFrequencyRange(1)));
+            [~,iTargetFrequencyRange2]=min(abs(obj.best_toolbox.inputs.results.OriginalComponents.freq - obj.best_toolbox.inputs.TargetFrequencyRange(2)));
+            TargetFrequencyRange=iTargetFrequencyRange1:iTargetFrequencyRange2;
             for channel=1:numel(obj.best_toolbox.inputs.results.OriginalComponents.label)
                 ax2=['ax' num2str(channel)];
                 axes(obj.best_toolbox.app.pr.ax.(ax2))
