@@ -12992,14 +12992,14 @@ classdef best_application < handle
         end
         %% Suffix at Measure
         function cb_measure_suffix(obj)
-            if isempty(obj.pmd.lb_measures.listbox.String), return, end 
+            if isempty(obj.pmd.lb_measures.listbox.String), return, end
             prompt = {'Suffix:'};
             dlgtitle = 'Protocol Suffix | BEST Toolbox';
             dims = [1 70];
             definput = {''};
             answer = inputdlg(prompt,dlgtitle,dims,definput);
             answer=char(answer);
-            if isempty(answer), response=0; else, response=1; end 
+            if isempty(answer), response=0; else, response=1; end
             switch response
                 case 0
                     return
@@ -13034,14 +13034,14 @@ classdef best_application < handle
         end
         %% Rename Session
         function cb_session_rename(obj)
-            if isempty(obj.pmd.lb_sessions.listbox.String), return, end 
+            if isempty(obj.pmd.lb_sessions.listbox.String), return, end
             prompt = {'New Name:'};
             dlgtitle = 'Rename Session | BEST Toolbox';
             dims = [1 70];
             definput = {''};
             answer = inputdlg(prompt,dlgtitle,dims,definput);
             answer=char(answer);
-            if isempty(answer), response=0; else, response=1; end 
+            if isempty(answer), response=0; else, response=1; end
             switch response
                 case 0
                     return
@@ -13059,9 +13059,9 @@ classdef best_application < handle
                         obj.info.session_matrix(CurrentSessionValue)={session_name};
                         obj.pmd.lb_sessions.string(CurrentSessionValue)={session_name};
                         obj.pmd.lb_sessions.listbox.String=obj.pmd.lb_sessions.string;
-                        try 
-                        obj.par.(session_name)=obj.par.(obj.info.event.current_session);
-                        obj.par=rmfield(obj.par,obj.info.event.current_session);
+                        try
+                            obj.par.(session_name)=obj.par.(obj.info.event.current_session);
+                            obj.par=rmfield(obj.par,obj.info.event.current_session);
                         catch
                         end
                         try
@@ -13079,14 +13079,14 @@ classdef best_application < handle
         end
         %% Rename Measure
         function cb_measure_rename(obj)
-            if isempty(obj.pmd.lb_measures.listbox.String), return, end 
+            if isempty(obj.pmd.lb_measures.listbox.String), return, end
             prompt = {'New Name:'};
             dlgtitle = 'Rename Protocol | BEST Toolbox';
             dims = [1 70];
             definput = {''};
             answer = inputdlg(prompt,dlgtitle,dims,definput);
             answer=char(answer);
-            if isempty(answer), response=0; else, response=1; end 
+            if isempty(answer), response=0; else, response=1; end
             switch response
                 case 0
                     return
@@ -13131,20 +13131,20 @@ classdef best_application < handle
                 obj.fig.main.Widths([1 2 3])=[-1 -3.35 -0];
                 obj.menu.settings.btn.String='Open Settings';
                 obj.pi.no_measure_slctd_panel.handle=uix.Panel( 'Parent', obj.pi.empty_panel,'FontSize',14 ,'Units','normalized','Title','Protocol Designer','FontWeight','Bold','TitlePosition','centertop' );
-            obj.pi.no_measure_slctd_panel.vbox = uix.VBox( 'Parent', obj.pi.no_measure_slctd_panel.handle, 'Spacing', 5, 'Padding', 5  );
-            uiextras.HBox( 'Parent', obj.pi.no_measure_slctd_panel.vbox)
-            uicontrol( 'Parent', obj.pi.no_measure_slctd_panel.vbox,'Style','text','String','No Protocol is selected','FontSize',11,'HorizontalAlignment','center','Units','normalized' );
-            uiextras.HBox( 'Parent', obj.pi.no_measure_slctd_panel.vbox);
-            %           obj.panel.st=set(obj.pi.no_measure_slctd_panel.vbox,'Heights',[-2 -0.5 -2])
-            set(obj.pi.no_measure_slctd_panel.vbox,'Heights',[-2 -0.5 -2])
+                obj.pi.no_measure_slctd_panel.vbox = uix.VBox( 'Parent', obj.pi.no_measure_slctd_panel.handle, 'Spacing', 5, 'Padding', 5  );
+                uiextras.HBox( 'Parent', obj.pi.no_measure_slctd_panel.vbox)
+                uicontrol( 'Parent', obj.pi.no_measure_slctd_panel.vbox,'Style','text','String','No Protocol is selected','FontSize',11,'HorizontalAlignment','center','Units','normalized' );
+                uiextras.HBox( 'Parent', obj.pi.no_measure_slctd_panel.vbox);
+                %           obj.panel.st=set(obj.pi.no_measure_slctd_panel.vbox,'Heights',[-2 -0.5 -2])
+                set(obj.pi.no_measure_slctd_panel.vbox,'Heights',[-2 -0.5 -2])
             end
         end
         function pi_ToolboxSetings(obj)
             obj.fig.main.Widths([1 2 3])=[0 -3.35 -0];
             Panel=uix.Panel( 'Parent', obj.pi.empty_panel,'FontSize',14 ,'Units','normalized','Title','Toolbox Global Settings' ,'FontWeight','Bold','TitlePosition','centertop');
             vb = uix.VBox( 'Parent', Panel, 'Spacing', 5, 'Padding', 5  );
-            obj.pi.settings.Apply50HZLineNoiseFilter=uicontrol( 'Style','checkbox','Parent', vb ,'FontSize',11,'String','Apply 50HZ Line Noise Filter to EMG Data:','Tag','NoiseFilter50Hz','callback',@cb_par_saving); 
-            obj.pi.settings.Apply60HZLineNoiseFilter=uicontrol( 'Style','checkbox','Parent', vb ,'FontSize',11,'String','Apply 60HZ Line Noise Filter to EMG Data:','Tag','NoiseFilter60Hz','callback',@cb_par_saving); 
+            obj.pi.settings.Apply50HZLineNoiseFilter=uicontrol( 'Style','checkbox','Parent', vb ,'FontSize',11,'String','Apply 50HZ Line Noise Filter to EMG Data:','Tag','NoiseFilter50Hz','callback',@cb_par_saving);
+            obj.pi.settings.Apply60HZLineNoiseFilter=uicontrol( 'Style','checkbox','Parent', vb ,'FontSize',11,'String','Apply 60HZ Line Noise Filter to EMG Data:','Tag','NoiseFilter60Hz','callback',@cb_par_saving);
             obj.pi.settings.SaveFiguresofeachProtocol=uicontrol( 'Style','checkbox','Parent', vb ,'FontSize',11,'String','Save Figures of each Protocol:','Tag','SaveFiguresofeachProtocol','callback',@cb_par_saving);
             HBox=uix.HBox('Parent',vb,'Spacing', 5  );
             uicontrol( 'Style','text','Parent', HBox,'String','Database Directory:','FontSize',11,'HorizontalAlignment','left','Units','normalized' );
@@ -13191,9 +13191,9 @@ classdef best_application < handle
         end
     end
 end
-    
-    
-    
-    %main panel is the panel on which measurement designer, inputs panel and results panel are placed
-    % all panels have p infront of their names
-    % md- measurement designer
+
+
+
+%main panel is the panel on which measurement designer, inputs panel and results panel are placed
+% all panels have p infront of their names
+% md- measurement designer
