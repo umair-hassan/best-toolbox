@@ -12774,7 +12774,7 @@ classdef best_application < handle
                 [FileName,Path] = uigetfile('*.mat', 'BEST Toolbox: Select a mat file');
                 File=whos('-file',fullfile(Path,FileName));
                 Filevarname=File.name;
-                saved_struct=load(FileName,Filevarname);
+                saved_struct=load(fullfile(Path,FileName),Filevarname);
                 varname=char(fieldnames(saved_struct.BESTToolboxParameters(1)));
                 obj.par=saved_struct.BESTToolboxParameters.(varname).Parameters;
                 obj.info=saved_struct.BESTToolboxParameters.(varname).Utilities.Info;

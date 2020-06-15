@@ -431,14 +431,14 @@ classdef best_sync2brain_bossdevice <handle
                 cfg.demean='yes';
 %                 cfg.hpfilter      = 'yes'; % high-pass in order to get rid of low-freq trends
 %                 cfg.hpfiltord     = 5;
-%                 cfg.hpfreq        = 1;
+%                 cfg.hpfreq        = 0.1;
 %                 cfg.lpfilter      = 'yes'; % low-pass in order to get rid of high-freq noise
 %                 cfg.lpfiltord     = 3;
 %                 cfg.lpfreq        = 249; % 249 when combining with a linenoise bandstop filter
 %                 cfg.bsfilter      = 'yes'; % band-stop filter, to take out 50 Hz and its harmonics
 %                 cfg.bsfiltord     = 3;
 %                 cfg.bsfreq        = [49 51; 99 101; 149 151; 199 201]; % EU line noise
-%                 cfg.detrend='yes'; % It does not help in improving, however introduces weired drifts therefore deprication is recommended in Future Release
+                cfg.detrend='yes'; % It does not help in improving, however introduces weired drifts therefore deprication is recommended in Future Release
                 cfg.baselinewindow=[obj.best_toolbox.inputs.EMGDisplayPeriodPre*(-1)/1000 -10]; %[EMGDisplayPeriodPre_ms to -10ms]
                 ProcessedData=ft_preprocessing(cfg, ftdata);
                 
