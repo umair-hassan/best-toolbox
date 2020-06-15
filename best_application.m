@@ -28,7 +28,7 @@ classdef best_application < handle
     end
     
     methods
-        %% BEST
+    %% BEST
         function obj=best_application()
             obj.close_previous;
             obj.create_gui;
@@ -60,7 +60,7 @@ classdef best_application < handle
             obj.create_inputs_panel;
             obj.create_results_panel;
             obj.create_hwcfg_panel;
-            %               obj.pi_ioc
+            %              obj.pi_ioc
             %             obj.results_panel;
             % obj.pr.axesno=6;
             % obj.resultsPanel
@@ -226,7 +226,7 @@ classdef best_application < handle
             
             
         end
-        %% Run Stop Controllers
+    %% Run Stop Controllers
         function CompileButton(obj,~,~)
             try
                 obj.bst.best_compile;
@@ -953,7 +953,7 @@ classdef best_application < handle
             %                 end
             %             end
         end
-        %% Protocol Designer or input panels
+    %% Protocol Designer or input panels
         function create_inputs_panel(obj)
             obj.pi.empty_panel = uix.Panel( 'Parent', obj.fig.main, 'Padding', 5 ,'Units','normalized','BorderType','none' );
             obj.pi.no_measure_slctd_panel.handle=uix.Panel( 'Parent', obj.pi.empty_panel,'FontSize',14 ,'Units','normalized','Title','Protocol Designer','FontWeight','Bold','TitlePosition','centertop' );
@@ -964,7 +964,7 @@ classdef best_application < handle
             %           obj.panel.st=set(obj.pi.no_measure_slctd_panel.vbox,'Heights',[-2 -0.5 -2])
             set(obj.pi.no_measure_slctd_panel.vbox,'Heights',[-2 -0.5 -2])
         end
-        %% Results Panel
+    %% Results Panel
         function resultsPanel(obj)
             total_axesno=obj.pr.axesno;
             Title=['Results - ' obj.bst.inputs.Protocol];
@@ -1723,7 +1723,7 @@ classdef best_application < handle
             obj.pr.container.(obj.pr.ax_no)=uicontainer('Parent',   obj.pr.clab.(obj.pr.ax_no),'uicontextmenu',ui_menu);
             %             obj.pr.ax.(obj.pr.ax_no)=axes('Parent',   obj.pr.container.(obj.pr.ax_no),'Units','normalized','uicontextmenu',ui_menu);
         end
-        %% MEP Hotspot Search Section
+    %% MEP Hotspot Search Section
         function pi_hotspot(obj)
             obj.fig.main.Widths([1 2 3])=[-1.15 -3.35 -0];
             Panel=uix.Panel( 'Parent', obj.pi.empty_panel,'FontSize',14 ,'Units','normalized','Title','MEP Hotspot Search' ,'FontWeight','Bold','TitlePosition','centertop');
@@ -1872,7 +1872,7 @@ classdef best_application < handle
                 end
             end
         end
-        %% MEP Section
+    %% MEP Section
         function pi_mep(obj)
             obj.fig.main.Widths(1)=-1.15;
             obj.fig.main.Widths(2)=-3.35;
@@ -3331,7 +3331,7 @@ classdef best_application < handle
             
             
         end
-        %% MEP DRC
+    %% MEP DRC
         function pi_drc(obj)
             obj.fig.main.Widths(1)=-1.15;
             obj.fig.main.Widths(2)=-3.35;
@@ -3508,7 +3508,7 @@ classdef best_application < handle
                         expModr4=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
                         uicontrol( 'Style','text','Parent', expModr4,'String','Response Function:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
                         obj.pi.drc.ResponseFunctionNumerator=uicontrol( 'Style','edit','Parent', expModr4 ,'FontSize',11,'Tag','ResponseFunctionNumerator','callback',@cb_par_saving);
-                        uicontrol( 'Style','text','Parent', expModr4,'String','÷','FontSize',13,'HorizontalAlignment','center','Units','normalized');
+                        uicontrol( 'Style','text','Parent', expModr4,'String','ï¿½','FontSize',13,'HorizontalAlignment','center','Units','normalized');
                         obj.pi.drc.ResponseFunctionDenominator=uicontrol( 'Style','edit','Parent', expModr4 ,'FontSize',11,'Tag','ResponseFunctionDenominator','callback',@cb_par_saving);
                         expModr4.Widths=[150 -2 30 -2];
                         
@@ -3565,7 +3565,7 @@ classdef best_application < handle
                         expModr4=uiextras.HBox( 'Parent', expModvBox,'Spacing', 0, 'Padding', 2 );
                         uicontrol( 'Style','text','Parent', expModr4,'String','Response Function:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
                         obj.pi.drc.ResponseFunctionNumerator=uicontrol( 'Style','edit','Parent', expModr4 ,'FontSize',11,'Tag','ResponseFunctionNumerator','callback',@cb_par_saving);
-                        uicontrol( 'Style','text','Parent', expModr4,'String','÷','FontSize',13,'HorizontalAlignment','center','Units','normalized');
+                        uicontrol( 'Style','text','Parent', expModr4,'String','ï¿½','FontSize',13,'HorizontalAlignment','center','Units','normalized');
                         obj.pi.drc.ResponseFunctionDenominator=uicontrol( 'Style','edit','Parent', expModr4 ,'FontSize',11,'Tag','ResponseFunctionDenominator','callback',@cb_par_saving);
                         expModr4.Widths=[150 -2 30 -2];
                         
@@ -4751,7 +4751,7 @@ classdef best_application < handle
             
             
         end
-        %% MEP Threshold Hunting
+    %% MEP Threshold Hunting
         function pr_mth(obj)
             obj.fig.main.Widths(1:3)=[-1.15 -3.35 -0];
             obj.pi.mth.panel=uix.Panel( 'Parent', obj.pi.empty_panel,'FontSize',14 ,'Units','normalized','Title','Motor Threshold Hunting' ,'FontWeight','Bold','TitlePosition','centertop');
@@ -6277,7 +6277,7 @@ classdef best_application < handle
             
             
         end
-        %% Psychometric Threshold Hunting
+    %% Psychometric Threshold Hunting
         function pr_psychmth(obj)
             obj.fig.main.Widths(1)=-1.15;
             obj.fig.main.Widths(2)=-3.35;
@@ -7725,7 +7725,7 @@ classdef best_application < handle
             
             
         end
-        %% rTMS Intervention
+    %% rTMS Intervention
         function pi_rtms(obj)
             obj.fig.main.Widths(1)=-1.15;
             obj.fig.main.Widths(2)=-3.35;
@@ -9023,7 +9023,7 @@ classdef best_application < handle
             
             
         end
-        %% rsEEG Measurement
+    %% rsEEG Measurement
         function pi_rseeg(obj)
             obj.fig.main.Widths([1 2 3])=[-1.15 -3.35 -0];
             Panel=uix.Panel( 'Parent', obj.pi.empty_panel,'FontSize',14 ,'Units','normalized','Title','resting-state EEG Measurement' ,'FontWeight','Bold','TitlePosition','centertop');
@@ -9148,7 +9148,7 @@ classdef best_application < handle
                 end
             end
         end
-        %% TEP Hotspot Search
+    %% TEP Hotspot Search
         function pi_tephs(obj)
             obj.fig.main.Widths([1 2 3])=[-1.15 -3.35 -0];
             Panel=uix.Panel( 'Parent', obj.pi.empty_panel,'FontSize',14 ,'Units','normalized','Title','TEP Hotspot Search' ,'FontWeight','Bold','TitlePosition','centertop');
@@ -9312,7 +9312,7 @@ classdef best_application < handle
                 end
             end
         end
-        %% TEP Measurement
+    %% TEP Measurement
         function pi_tep(obj)
             obj.fig.main.Widths(1)=-1.15;
             obj.fig.main.Widths(2)=-3.35;
@@ -10693,7 +10693,7 @@ classdef best_application < handle
             
             
         end
-        %% TMS fMRI
+    %% TMS fMRI
         function pi_tmsfmri(obj)
             obj.pi.tmsfmri.panel=uix.Panel( 'Parent', obj.pi.empty_panel,'FontSize',14 ,'Units','normalized','Title','TMS-fMRI' ,'FontWeight','Bold','TitlePosition','centertop');
             obj.pi.tmsfmri.vb = uix.VBox( 'Parent', obj.pi.tmsfmri.panel, 'Spacing', 5, 'Padding', 5  );
@@ -11281,7 +11281,7 @@ classdef best_application < handle
             obj.info.defaults.ProtocolStatus={'created'};
             obj.par.(obj.info.event.current_session).(obj.info.event.measure_being_added)=obj.info.defaults;
         end
-        %% Exception Handling
+    %% Exception Handling
         function Source= ExceptionHandling(obj,source)
             Source=source;
             Title='Guide - BEST Toolbox';
@@ -11307,10 +11307,10 @@ classdef best_application < handle
                     % Adjusted Here: First one should be lower, second one should be higher
             end
         end
-        %% Compile
+    %% Compile
         function Compile(obj)
         end
-        %% hardware configuration panel
+    %% hardware configuration panel
         function create_hwcfg_panel(obj)
             obj.hw.empty_panel=uix.Panel( 'Parent', obj.fig.main, 'Padding', 5 ,'Units','normalized','BorderType','none' );
             set( obj.fig.main, 'Widths', [-1.15 -1.35 -2 0] );
@@ -12388,7 +12388,7 @@ classdef best_application < handle
                     obj.hw.vbox_rp.bb_inputport.String=obj.par.hardware_settings.(slctd_output).bb_inputport;
             end
         end
-        %% sessions measures listboxes
+    %% sessions measures listboxes
         function cb_session_add(obj)
             obj.info.session_no;
             obj.info.session_no=obj.info.session_no+1;
@@ -12592,7 +12592,7 @@ classdef best_application < handle
             
             
         end
-        %% load defaults and pars
+    %% load defaults and pars
         function func_create_defaults(obj)
             
             switch obj.info.event.measure_being_added_original
@@ -12676,7 +12676,7 @@ classdef best_application < handle
             obj.pi.eegtms.phase_tolerance.String	=	num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).phase_tolerance);
             
         end
-        %% Save Parameters Using Menu
+    %% Save Parameters Using Menu
         function cb_menu_save(obj)
             tic
             exp_name=obj.pmd.exp_title.editfield.String;
@@ -12768,7 +12768,7 @@ classdef best_application < handle
             %             disp thistiemistakingtoolong
             
         end
-        %% Load Parameters Using Menu
+    %% Load Parameters Using Menu
         function cb_menu_load(obj)
             try
                 [FileName,Path] = uigetfile('*.mat', 'BEST Toolbox: Select a mat file');
@@ -12990,16 +12990,16 @@ classdef best_application < handle
                     
             end
         end
-        %% Suffix at Measure
+    %% Suffix at Measure
         function cb_measure_suffix(obj)
-            if isempty(obj.pmd.lb_measures.listbox.String), return, end 
+            if isempty(obj.pmd.lb_measures.listbox.String), return, end
             prompt = {'Suffix:'};
             dlgtitle = 'Protocol Suffix | BEST Toolbox';
             dims = [1 70];
             definput = {''};
             answer = inputdlg(prompt,dlgtitle,dims,definput);
             answer=char(answer);
-            if isempty(answer), response=0; else, response=1; end 
+            if isempty(answer), response=0; else, response=1; end
             switch response
                 case 0
                     return
@@ -13030,18 +13030,19 @@ classdef best_application < handle
                         errordlg('Protocol exist already with this name. Please choose a different suffix to create a unique name for this protocol and try again.','BEST Toolbox');
                         return
                     end
+                    
             end
         end
-        %% Rename Session
+    %% Rename Session
         function cb_session_rename(obj)
-            if isempty(obj.pmd.lb_sessions.listbox.String), return, end 
+            if isempty(obj.pmd.lb_sessions.listbox.String), return, end
             prompt = {'New Name:'};
             dlgtitle = 'Rename Session | BEST Toolbox';
             dims = [1 70];
             definput = {''};
             answer = inputdlg(prompt,dlgtitle,dims,definput);
             answer=char(answer);
-            if isempty(answer), response=0; else, response=1; end 
+            if isempty(answer), response=0; else, response=1; end
             switch response
                 case 0
                     return
@@ -13059,9 +13060,9 @@ classdef best_application < handle
                         obj.info.session_matrix(CurrentSessionValue)={session_name};
                         obj.pmd.lb_sessions.string(CurrentSessionValue)={session_name};
                         obj.pmd.lb_sessions.listbox.String=obj.pmd.lb_sessions.string;
-                        try 
-                        obj.par.(session_name)=obj.par.(obj.info.event.current_session);
-                        obj.par=rmfield(obj.par,obj.info.event.current_session);
+                        try
+                            obj.par.(session_name)=obj.par.(obj.info.event.current_session);
+                            obj.par=rmfield(obj.par,obj.info.event.current_session);
                         catch
                         end
                         try
@@ -13077,16 +13078,16 @@ classdef best_application < handle
                     end
             end
         end
-        %% Rename Measure
+    %% Rename Measure
         function cb_measure_rename(obj)
-            if isempty(obj.pmd.lb_measures.listbox.String), return, end 
+            if isempty(obj.pmd.lb_measures.listbox.String), return, end
             prompt = {'New Name:'};
             dlgtitle = 'Rename Protocol | BEST Toolbox';
             dims = [1 70];
             definput = {''};
             answer = inputdlg(prompt,dlgtitle,dims,definput);
             answer=char(answer);
-            if isempty(answer), response=0; else, response=1; end 
+            if isempty(answer), response=0; else, response=1; end
             switch response
                 case 0
                     return
@@ -13119,7 +13120,7 @@ classdef best_application < handle
                     end
             end
         end
-        %% Toolbox Settings
+    %% Toolbox Settings
         function cb_menu_settings(obj)
             obj.info.menu.hwcfg=obj.info.menu.hwcfg+1;
             if bitget(obj.info.menu.hwcfg,1) %odd
@@ -13131,20 +13132,20 @@ classdef best_application < handle
                 obj.fig.main.Widths([1 2 3])=[-1 -3.35 -0];
                 obj.menu.settings.btn.String='Open Settings';
                 obj.pi.no_measure_slctd_panel.handle=uix.Panel( 'Parent', obj.pi.empty_panel,'FontSize',14 ,'Units','normalized','Title','Protocol Designer','FontWeight','Bold','TitlePosition','centertop' );
-            obj.pi.no_measure_slctd_panel.vbox = uix.VBox( 'Parent', obj.pi.no_measure_slctd_panel.handle, 'Spacing', 5, 'Padding', 5  );
-            uiextras.HBox( 'Parent', obj.pi.no_measure_slctd_panel.vbox)
-            uicontrol( 'Parent', obj.pi.no_measure_slctd_panel.vbox,'Style','text','String','No Protocol is selected','FontSize',11,'HorizontalAlignment','center','Units','normalized' );
-            uiextras.HBox( 'Parent', obj.pi.no_measure_slctd_panel.vbox);
-            %           obj.panel.st=set(obj.pi.no_measure_slctd_panel.vbox,'Heights',[-2 -0.5 -2])
-            set(obj.pi.no_measure_slctd_panel.vbox,'Heights',[-2 -0.5 -2])
+                obj.pi.no_measure_slctd_panel.vbox = uix.VBox( 'Parent', obj.pi.no_measure_slctd_panel.handle, 'Spacing', 5, 'Padding', 5  );
+                uiextras.HBox( 'Parent', obj.pi.no_measure_slctd_panel.vbox)
+                uicontrol( 'Parent', obj.pi.no_measure_slctd_panel.vbox,'Style','text','String','No Protocol is selected','FontSize',11,'HorizontalAlignment','center','Units','normalized' );
+                uiextras.HBox( 'Parent', obj.pi.no_measure_slctd_panel.vbox);
+                %           obj.panel.st=set(obj.pi.no_measure_slctd_panel.vbox,'Heights',[-2 -0.5 -2])
+                set(obj.pi.no_measure_slctd_panel.vbox,'Heights',[-2 -0.5 -2])
             end
         end
         function pi_ToolboxSetings(obj)
             obj.fig.main.Widths([1 2 3])=[0 -3.35 -0];
             Panel=uix.Panel( 'Parent', obj.pi.empty_panel,'FontSize',14 ,'Units','normalized','Title','Toolbox Global Settings' ,'FontWeight','Bold','TitlePosition','centertop');
             vb = uix.VBox( 'Parent', Panel, 'Spacing', 5, 'Padding', 5  );
-            obj.pi.settings.Apply50HZLineNoiseFilter=uicontrol( 'Style','checkbox','Parent', vb ,'FontSize',11,'String','Apply 50HZ Line Noise Filter to EMG Data:','Tag','NoiseFilter50Hz','callback',@cb_par_saving); 
-            obj.pi.settings.Apply60HZLineNoiseFilter=uicontrol( 'Style','checkbox','Parent', vb ,'FontSize',11,'String','Apply 60HZ Line Noise Filter to EMG Data:','Tag','NoiseFilter60Hz','callback',@cb_par_saving); 
+            obj.pi.settings.Apply50HZLineNoiseFilter=uicontrol( 'Style','checkbox','Parent', vb ,'FontSize',11,'String','Apply 50HZ Line Noise Filter to EMG Data:','Tag','NoiseFilter50Hz','callback',@cb_par_saving);
+            obj.pi.settings.Apply60HZLineNoiseFilter=uicontrol( 'Style','checkbox','Parent', vb ,'FontSize',11,'String','Apply 60HZ Line Noise Filter to EMG Data:','Tag','NoiseFilter60Hz','callback',@cb_par_saving);
             obj.pi.settings.SaveFiguresofeachProtocol=uicontrol( 'Style','checkbox','Parent', vb ,'FontSize',11,'String','Save Figures of each Protocol:','Tag','SaveFiguresofeachProtocol','callback',@cb_par_saving);
             HBox=uix.HBox('Parent',vb,'Spacing', 5  );
             uicontrol( 'Style','text','Parent', HBox,'String','Database Directory:','FontSize',11,'HorizontalAlignment','left','Units','normalized' );
@@ -13191,9 +13192,9 @@ classdef best_application < handle
         end
     end
 end
-    
-    
-    
-    %main panel is the panel on which measurement designer, inputs panel and results panel are placed
-    % all panels have p infront of their names
-    % md- measurement designer
+
+
+
+%main panel is the panel on which measurement designer, inputs panel and results panel are placed
+% all panels have p infront of their names
+% md- measurement designer
