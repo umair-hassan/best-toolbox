@@ -12739,8 +12739,13 @@ classdef best_application < handle
             try
                 save(fullfile(obj.par.GlobalSettings.DataBaseDirectory,exp_name,obj.bst.info.matfilstr),'BESTToolboxParameters','-v7.3','-nocompression');
             catch
-                mkdir(obj.par.GlobalSettings.DataBaseDirectory,exp_name);
-                save(fullfile(obj.par.GlobalSettings.DataBaseDirectory,exp_name,obj.bst.info.matfilstr),'BESTToolboxParameters','-v7.3','-nocompression');
+                if isempty(obj.par)
+                    mkdir(eval('cd'),exp_name);
+                    save(fullfile(eval('cd'),exp_name,obj.bst.info.matfilstr),'BESTToolboxParameters','-v7.3','-nocompression');
+                else
+                    mkdir(obj.par.GlobalSettings.DataBaseDirectory,exp_name);
+                    save(fullfile(obj.par.GlobalSettings.DataBaseDirectory,exp_name,obj.bst.info.matfilstr),'BESTToolboxParameters','-v7.3','-nocompression');
+                end
             end
             %             obj.bst.info.save_buffer.(save_str)=variable_saved.(save_str);
             % % %
