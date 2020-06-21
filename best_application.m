@@ -3198,36 +3198,26 @@ classdef best_application < handle
             
         end
         function cb_CoupleIntensityUnits(obj,source,~)
-            %% To be started
-            f=figure('ToolBar','none','MenuBar','none','Name','Intensity Units | BEST Toolbox','NumberTitle','off');
+                        f=figure('ToolBar','none','MenuBar','none','Name','Intensity Units | BEST Toolbox','NumberTitle','off');
             c1=uix.VBox('parent',f,'Padding',10,'Spacing',10);
-            %% Select Session
-            SelectedSession={'none'};
+            %% Select Session - showing all available sessions
+            r1=uix.HBox('parent',c1);
+            uicontrol( 'Style','text','Parent', r1,'String','Select Session:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+            uicontrol( 'Style','popupmenu','Parent', r1 ,'FontSize',11,'String',obj.pmd.lb_sessions.listbox.String,'callback',@SessionSelected);
+            %% Select Protocols - showing all available protocols
+            % Implications: when the protocol is renamed or suffixed, how to handle that?
+            r2=uix.HBox('parent',c1);
+            uicontrol( 'Style','text','Parent', r2,'String','Select Protocol:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+            uicontrol( 'Style','popupmenu','Parent', r2 ,'FontSize',11,'String',obj.pmd.lb_measures.listbox.String,'callback',@ProtocolSelected);
+            %% Select Parameter - protocol selection, prefill relevant Parameters
             r3=uix.HBox('parent',c1);
-            uicontrol( 'Style','text','Parent', r3,'String','Select Session:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            uicontrol( 'Style','popupmenu','Parent', r3 ,'FontSize',11,'String',SelectedSession,'callback',@SessionSelected);
-            
-            
-            
-            threshold=uicontrol( 'Style','edit','Parent', r3 ,'FontSize',11);
-            mt_btn_listbox_str_id= find(strcmp(obj.data.(obj.info.event.current_session).info.measurement_str_original,'MEP Motor Threshold Hunting'));
-            mt_btn_listbox_str=obj.data.(obj.info.event.current_session).info.measurement_str_to_listbox(mt_btn_listbox_str_id);
-            mt_btn_listbox_str=['Select' mt_btn_listbox_str];
-            uiextras.HBox('Parent',r3)
-            th_dropdown=uicontrol( 'Style','popupmenu','Parent', r3 ,'FontSize',11,'String',mt_btn_listbox_str);     % 11-Mar-2020 14:48:46                                                                  % 1297
-            set( r3, 'Widths', [210 80 20 100]);
-            %% Select Protocol
-            r3=uix.HBox('parent',c1);
-            uicontrol( 'Style','text','Parent', r3,'String','Motor Threshold (%MSO):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            threshold=uicontrol( 'Style','edit','Parent', r3 ,'FontSize',11);
-            mt_btn_listbox_str_id= find(strcmp(obj.data.(obj.info.event.current_session).info.measurement_str_original,'MEP Motor Threshold Hunting'));
-            mt_btn_listbox_str=obj.data.(obj.info.event.current_session).info.measurement_str_to_listbox(mt_btn_listbox_str_id);
-            mt_btn_listbox_str=['Select' mt_btn_listbox_str];
-            uiextras.HBox('Parent',r3)
-            th_dropdown=uicontrol( 'Style','popupmenu','Parent', r3 ,'FontSize',11,'String',mt_btn_listbox_str);     % 11-Mar-2020 14:48:46                                                                  % 1297
-            set( r3, 'Widths', [210 80 20 100]);
-            %% Select Parameter/Channel
-            uicontrol( 'Parent', c1 ,'Style','PushButton','String','OK','FontWeight','Bold','Callback',@(~,~)cb_ok);
+            uicontrol( 'Style','text','Parent', r3,'String','Select Parameter:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+            ProtocolsParameters=uicontrol( 'Parent', r3 ,'Style','PushButton','String',{''},'FontWeight','Bold','Callback',@(~,~)cb_ok);
+            %% Select Channel
+            r4=uix.HBox('parent',c1);
+            uicontrol( 'Style','text','Parent', r4,'String','Select Parameter:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+            SelectedChannel=uicontrol( 'Parent', r4 ,'Style','PushButton','String',{''},'FontWeight','Bold','Callback',@(~,~)cb_ok);
+
             %% Annotate the Coupled Value If exist
             
             %% Figure Heights and Positioning
@@ -3239,8 +3229,20 @@ classdef best_application < handle
                 ProtocolsInThisSession
             end
             
-            
-            obj.pmd.lb_sessions.listbox.String
+            function ProtocolSelected
+                % check which protocol is select from original str list of Protocols and put that checkign expression in below switch
+                switch obj.par.(obj.info.event.current_session).(obj.info.event.current_measure).Protocol{1,1}
+                    case 'Motor Threshold Hunting Protocol' %Motor Thresholds + Channels
+                        ProtocolsParameters.String={'Motor Threshold'};
+                        SelectedChannel.String={};
+                    case 'MEP Dose Response Curve Protocol' %Inflection Point, Plateau, Threshold, Inhibition, Faciliation + Channels
+                        ProtocolsParameters.String={'Inflection Point, Inhibition, Facilitation, Plateau, Threshold'};
+                        SelectedChannel.String={};
+                    case 'Psychometric Threshold Hunting Protocol' % Sensory Thresholds + Channels
+                        ProtocolsParameters.String={'Sensory Threshold'};
+                        SelectedChannel.String={};
+                end
+            end
         end
         function default_par_mep(obj)
             % Editing Rule: Values should be Integers, Strings should
