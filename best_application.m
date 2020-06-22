@@ -3198,7 +3198,7 @@ classdef best_application < handle
             
         end
         function cb_CoupleIntensityUnits(obj,source,~)
-                        f=figure('ToolBar','none','MenuBar','none','Name','Intensity Units | BEST Toolbox','NumberTitle','off');
+            f=figure('ToolBar','none','MenuBar','none','Name','Intensity Units | BEST Toolbox','NumberTitle','off');
             c1=uix.VBox('parent',f,'Padding',10,'Spacing',10);
             %% Select Session - showing all available sessions
             r1=uix.HBox('parent',c1);
@@ -3217,7 +3217,7 @@ classdef best_application < handle
             r4=uix.HBox('parent',c1);
             uicontrol( 'Style','text','Parent', r4,'String','Select Parameter:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
             SelectedChannel=uicontrol( 'Parent', r4 ,'Style','PushButton','String',{''},'FontWeight','Bold','Callback',@(~,~)cb_ok);
-
+            
             %% Annotate the Coupled Value If exist
             
             %% Figure Heights and Positioning
@@ -3234,13 +3234,19 @@ classdef best_application < handle
                 switch obj.par.(obj.info.event.current_session).(obj.info.event.current_measure).Protocol{1,1}
                     case 'Motor Threshold Hunting Protocol' %Motor Thresholds + Channels
                         ProtocolsParameters.String={'Motor Threshold'};
-                        SelectedChannel.String={};
+                        for TargetChannels=1:numel(fieldnames(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure).condsAll))
+                            cond=['cond' num2str(TargetChannels)];
+                            SelectedChannel.String{1,TargetChannels}=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure).condsAll.(cond).targetChannel{1,1};
+                        end
                     case 'MEP Dose Response Curve Protocol' %Inflection Point, Plateau, Threshold, Inhibition, Faciliation + Channels
                         ProtocolsParameters.String={'Inflection Point, Inhibition, Facilitation, Plateau, Threshold'};
-                        SelectedChannel.String={};
+                        SelectedChannel.String=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure).EMGTargetChannels;
                     case 'Psychometric Threshold Hunting Protocol' % Sensory Thresholds + Channels
                         ProtocolsParameters.String={'Sensory Threshold'};
-                        SelectedChannel.String={};
+                        for TargetChannels=1:numel(fieldnames(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure).condsAll))
+                            cond=['cond' num2str(TargetChannels)];
+                            SelectedChannel.String{1,TargetChannels}=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure).condsAll.(cond).targetChannel{1,1};
+                        end
                 end
             end
         end
