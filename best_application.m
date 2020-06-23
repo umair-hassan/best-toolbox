@@ -6435,7 +6435,13 @@ classdef best_application < handle
                         obj.pi.psychmth.TrialsPerCondition=uicontrol( 'Style','edit','Parent', expModr2 ,'FontSize',11,'Tag','TrialsPerCondition','callback',@cb_par_saving);
                         expModr2.Widths=[150 -2];
                         
-                        expModvBox.Heights=[30 35];
+                        expModr2=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
+                        uicontrol( 'Style','text','Parent', expModr2,'String','Response Period (ms):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                        obj.pi.psychmth.ResponsePeriod=uicontrol( 'Style','edit','Parent', expModr2 ,'FontSize',11,'Tag','ResponsePeriod','callback',@cb_par_saving);
+                        expModr2.Widths=[150 -2];
+                        
+                        
+                        expModvBox.Heights=[30 35 45];
                     case 2
                         expModvBox=uix.VBox( 'Parent', DisplayParametersPanel, 'Spacing', 0, 'Padding', 0  );
                         
@@ -6459,16 +6465,21 @@ classdef best_application < handle
                         obj.pi.psychmth.EEGXLimit=uicontrol( 'Style','edit','Parent', expModr2 ,'FontSize',11,'Tag','EEGXLimit','callback',@cb_par_saving);
                         expModr2.Widths=[150 -2];
                         
+                        expModr2=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
+                        uicontrol( 'Style','text','Parent', expModr2,'String','Response Period (ms):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                        obj.pi.psychmth.ResponsePeriod=uicontrol( 'Style','edit','Parent', expModr2 ,'FontSize',11,'Tag','ResponsePeriod','callback',@cb_par_saving);
+                        expModr2.Widths=[150 -2];
                         
-                        expModvBox.Heights=[30 35 45 45];
+                        
+                        expModvBox.Heights=[30 35 45 45 45];
                 end
             end
             function cb_SetHeights
                 switch obj.pi.psychmth.BrainState.Value
                     case 1
-                        set(obj.pi.psychmth.r0v1,'Heights',[40 90 100 -1 55])
+                        set(obj.pi.psychmth.r0v1,'Heights',[40 90 140 -1 55])
                     case 2
-                        set(obj.pi.psychmth.r0v1,'Heights',[-0.6 -9.4 -4.25 -0 -1.2]);
+                        set(obj.pi.psychmth.r0v1,'Heights',[-0.6 -9.4 -5.25 -0 -1.2]);
                         set(obj.pi.psychmth.r0,'Widths',[-2 -3]);
                 end
             end
@@ -7690,6 +7701,7 @@ classdef best_application < handle
             obj.info.defaults.PsychometricThreshold='NaN';
             obj.info.defaults.ThresholdMethod=1;
             obj.info.defaults.ProtocolStatus={'created'};
+            obj.info.defaults.ResponsePeriod='500';
             si=[1];
             for idefaults=1:numel(si)
                 cond=['cond' num2str(idefaults)];
