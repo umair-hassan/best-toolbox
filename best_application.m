@@ -164,7 +164,7 @@ classdef best_application < handle
             % drop-down select measure: fourth horizontal row on first panel
             pmd_hbox_slct_mes = uix.HBox( 'Parent', pmd_vbox, 'Spacing', 5, 'Padding', 5  );
             uicontrol( 'Style','text','Parent', pmd_hbox_slct_mes,'String','Select Protocol:','FontSize',11,'HorizontalAlignment','left' ,'Units','normalized');
-            obj.pmd.select_measure.string={'MEP Hotspot Search','MEP Motor Threshold Hunting','MEP Dose Response Curve','MEP Measurement','rsEEG Measurement','Psychometric Threshold Hunting','rTMS Intervention','TEP Hotspot Search','TEP Measurement','ERP Measurement','TMS fMRI'};
+            obj.pmd.select_measure.string={'MEP Hotspot Search','MEP Motor Threshold Hunting','MEP Dose Response Curve','MEP Measurement','rsEEG Measurement','Sensory Threshold Hunting','rTMS Intervention','TEP Hotspot Search','TEP Measurement','ERP Measurement','TMS fMRI'};
             obj.pmd.select_measure.popupmenu=uicontrol( 'Style','popupmenu','Parent', pmd_hbox_slct_mes ,'FontSize',11,'String',obj.pmd.select_measure.string);
             obj.pmd.select_measure.btn=uicontrol( 'Parent', pmd_hbox_slct_mes ,'Style','PushButton','String','+','FontWeight','Bold','Callback',@(~,~)obj.cb_measure_add);
             set( pmd_hbox_slct_mes, 'Widths', [120 -0.7 -0.09]);
@@ -990,7 +990,7 @@ classdef best_application < handle
                         obj.pr_RunningAmplitude;
                     case 'AmplitudeDistribution'
                         obj.pr_AmplitudeDistribution;
-                    case 'Psychometric Threshold Hunting'
+                    case 'Sensory Threshold Hunting'
                         obj.pr_PsychometricThresholdHunting;
                     case 'rsEEGMeasurement'
                         obj.pr_rsEEGMeasurement;
@@ -6285,12 +6285,12 @@ classdef best_application < handle
             
             
         end
-    %% Psychometric Threshold Hunting
+    %% Sensory Threshold Hunting
         function pr_psychmth(obj)
             obj.fig.main.Widths(1)=-1.15;
             obj.fig.main.Widths(2)=-3.35;
             obj.fig.main.Widths(3)=-0;
-            obj.pi.psychmth.panel=uix.Panel( 'Parent', obj.pi.empty_panel,'FontSize',14 ,'Units','normalized','Title','Psychometric Threshold Hunting' ,'FontWeight','Bold','TitlePosition','centertop');
+            obj.pi.psychmth.panel=uix.Panel( 'Parent', obj.pi.empty_panel,'FontSize',14 ,'Units','normalized','Title','Sensory Threshold Hunting' ,'FontWeight','Bold','TitlePosition','centertop');
             obj.pi.psychmth.r0=uix.HBox( 'Parent', obj.pi.psychmth.panel,'Spacing', 5, 'Padding', 5 );
             obj.pi.psychmth.r0p1=uix.Panel( 'Parent', obj.pi.psychmth.r0 ,'Units','normalized');
             obj.pi.psychmth.r0v1 = uix.VBox( 'Parent', obj.pi.psychmth.r0p1, 'Spacing', 5, 'Padding', 5  );
@@ -12562,7 +12562,7 @@ classdef best_application < handle
                 case 'MEP Dose Response Curve'
                     obj.pi_drc;
                     obj.func_load_mepdrc_par;
-                case 'Psychometric Threshold Hunting'
+                case 'Sensory Threshold Hunting'
                     obj.pr_psychmth;
                     obj.func_load_psychmth_par;
                 case 'rTMS Intervention'
@@ -12623,7 +12623,7 @@ classdef best_application < handle
                     obj.default_par_multimodal;
                 case 'MEP Dose Response Curve'
                     obj.default_par_mepdrc;
-                case 'Psychometric Threshold Hunting'
+                case 'Sensory Threshold Hunting'
                     obj.default_par_psychmth;
                 case 'rTMS Intervention'
                     obj.default_par_rtms;

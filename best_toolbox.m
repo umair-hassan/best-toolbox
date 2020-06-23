@@ -1341,7 +1341,7 @@ classdef best_toolbox < handle
                             obj.inputs.colLabel.marker=15;
                             %% Creating Channel Measures, AxesNo, Labels
                             conds=fieldnames(obj.inputs.condsAll);
-                            ChannelMeasures=[repmat({'Psychometric Threshold Hunting'},1,numel(conds)),{'StatusTable'}];
+                            ChannelMeasures=[repmat({'Sensory Threshold Hunting'},1,numel(conds)),{'StatusTable'}];
                             obj.app.pr.ax_measures=ChannelMeasures;
                             obj.app.pr.axesno=numel(ChannelMeasures);
                             obj.app.pr.ax_ChannelLabels(obj.app.pr.axesno)={'StatusTable'};
@@ -1485,7 +1485,7 @@ classdef best_toolbox < handle
                             %% Creating Channel Measures, AxesNo, Labels
                             conds=fieldnames(obj.inputs.condsAll);
                             %                             ChannelLabels=[{'OsscillationPhase'},{'OsscillationEEG'},repmat({'Psychometric Threshold Hunting'},1,numel(conds)),obj.inputs.EMGDisplayChannels,{'OsscillationAmplitude'},{'AmplitudeDistribution'}]; %[repelem(obj.inputs.EMGTargetChannels,3),obj.inputs.EMGDisplayChannels]; %this can go directly inside the cond object in the loop
-                            ChannelMeasures=[{'PhaseHistogram'},{'TriggerLockedEEG'},repmat({'Psychometric Threshold Hunting'},1,numel(conds)),{'RunningAmplitude'},{'AmplitudeDistribution'},{'StatusTable'}];
+                            ChannelMeasures=[{'PhaseHistogram'},{'TriggerLockedEEG'},repmat({'Sensory Threshold Hunting'},1,numel(conds)),{'RunningAmplitude'},{'AmplitudeDistribution'},{'StatusTable'}];
                             %                             ChannelAxesNo=num2cell(1:numel(ChannelLabels));
                             obj.app.pr.ax_measures=ChannelMeasures;
                             obj.app.pr.axesno=numel(ChannelMeasures);
