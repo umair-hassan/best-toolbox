@@ -489,7 +489,7 @@ classdef best_sync2brain_bossdevice <handle
         
         function stop(obj)
             obj.bb.stop;
-            stop([obj.EMGScope obj.IEEGScope obj.IAScope obj.IPScope obj. EEGScope]);
+            try stop([obj.EMGScope obj.IEEGScope obj.IAScope obj.IPScope obj. EEGScope]); catch, end
         end
         
     end

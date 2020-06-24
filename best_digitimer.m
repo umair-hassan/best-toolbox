@@ -11,10 +11,13 @@ classdef best_digitimer <handle
         end
         
         function setManualAmplitude(obj,Intensity,Stimulator)
-            String=['Set the Intensity of stimulator ''' Stimulator ''' to ''' num2str(Intensity) ''' mA, then click "Done" button.'];
-            f=figure('Name','Digitimer | BEST Toolbox','numbertitle', 'off','ToolBar', 'none','MenuBar', 'none','WindowStyle', 'modal','Units', 'normal', 'Position', [0.5 0.5 .35 .05],'Resize','off','CloseRequestFcn',@(~,~)CloseReqFcn);
-            uicontrol( 'Style','text','Parent', f,'String',String,'FontSize',12,'HorizontalAlignment','center','Units','normalized','Position',[0.05 0.5 1 0.4]);
-            uicontrol( 'Style','pushbutton','Parent', f,'String','Done','FontSize',11,'HorizontalAlignment','center','Units','normalized','Position',[0.4 0.05 0.2 0.4],'Callback',@(~,~)Done);
+            String1=['Set the Intensity of stimulator ''' Stimulator ''' to '''];
+            String2=[num2str(Intensity) ''' mA, then hit the button.'];
+            f=figure('Name','Digitimer | BEST Toolbox','numbertitle', 'off','ToolBar', 'none','MenuBar', 'none','WindowStyle', 'modal','Units', 'normal', 'Position', [0.30 0.5 .60 .20],'Resize','off','KeyPressFcn',@(~,~)Done);
+            uicontrol( 'Style','text','Parent', f,'String',String1,'FontSize',30,'HorizontalAlignment','center','Units','normalized','Position',[0.05 0.5 1 0.4]);
+            uicontrol( 'Style','text','Parent', f,'String',String2,'FontSize',30,'HorizontalAlignment','center','Units','normalized','Position',[0.05 0.25 1 0.4]);
+            drawnow;
+            tts(['Set the Intensity of stimulator ''' Stimulator ''' to ''' num2str(Intensity)]);
             waitfor(f)
             function Done
                 disp clicked!!

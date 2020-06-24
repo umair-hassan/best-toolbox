@@ -5468,7 +5468,7 @@ classdef best_toolbox < handle
             
         end
         function Response = responseKeyboardAndMouse(obj)
-                    Pressed=getkeywait(obj.inputs.ResponsePeriod);
+                    Pressed=getkeywait(obj.inputs.ResponsePeriod/1000);
                     if Pressed==-1
                         Response=-1;
                     else
