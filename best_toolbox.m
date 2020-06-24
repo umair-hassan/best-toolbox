@@ -5468,21 +5468,27 @@ classdef best_toolbox < handle
             
         end
         function Response = responseKeyboardAndMouse(obj)
-            f=figure('Name','Response Box | BEST Toolbox','numbertitle', 'off','ToolBar', 'none','MenuBar', 'none','WindowStyle', 'modal','Units', 'normal', 'Position', [0.5 0.5 .25 .05],'Resize','off','CloseRequestFcn',@(~,~)CloseReqFcn);
-            uicontrol( 'Style','text','Parent', f,'String','Did the subject experience a sensation? ' ,'FontSize',13,'HorizontalAlignment','center','Units','normalized','Position',[0.05 0.5 1 0.4]);
-            uicontrol( 'Style','pushbutton','Parent', f,'String','Yes','FontSize',12,'HorizontalAlignment','center','Units','normalized','Position',[0.3 0.05 0.2 0.4],'Callback',@cbResponse);
-            uicontrol( 'Style','pushbutton','Parent', f,'String','No','FontSize',12,'HorizontalAlignment','center','Units','normalized','Position',[0.6 0.05 0.2 0.4],'Callback',@cbResponse);
-            waitfor(f)
-            function cbResponse(source,~)
-                switch source.String
-                    case 'Yes'
-                        Response=1;
-                    case 'No'
+                    Pressed=getkeywait(obj.inputs.ResponsePeriod);
+                    if Pressed==-1
                         Response=-1;
-                end
-                delete(f)
-            end
-            function CloseReqFcn, end
+                    else
+                        Response=1;
+                    end
+%             f=figure('Name','Response Box | BEST Toolbox','numbertitle', 'off','ToolBar', 'none','MenuBar', 'none','WindowStyle', 'modal','Units', 'normal', 'Position', [0.5 0.5 .25 .05],'Resize','off','CloseRequestFcn',@(~,~)CloseReqFcn);
+%             uicontrol( 'Style','text','Parent', f,'String','Did the subject experience a sensation? ' ,'FontSize',13,'HorizontalAlignment','center','Units','normalized','Position',[0.05 0.5 1 0.4]);
+%             uicontrol( 'Style','pushbutton','Parent', f,'String','Yes','FontSize',12,'HorizontalAlignment','center','Units','normalized','Position',[0.3 0.05 0.2 0.4],'Callback',@cbResponse);
+%             uicontrol( 'Style','pushbutton','Parent', f,'String','No','FontSize',12,'HorizontalAlignment','center','Units','normalized','Position',[0.6 0.05 0.2 0.4],'Callback',@cbResponse);
+%             waitfor(f)
+%             function cbResponse(source,~)
+%                 switch source.String
+%                     case 'Yes'
+%                         Response=1;
+%                     case 'No'
+%                         Response=-1;
+%                 end
+%                 delete(f)
+%             end
+%             function CloseReqFcn, end
         end
         function help (obj)
             %% ----EMG Line Noise Removal Start
