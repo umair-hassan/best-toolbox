@@ -173,9 +173,10 @@ classdef best_sync2brain_bossdevice <handle
                         if length(obj.FileScope.amplitude_clean) > 1
                             xlim(obj.FileScope.hAmplitudeDistributionAxes, [1 length(obj.FileScope.amplitude_clean)]);
                         end
-                        if (obj.FileScope.amplitude_sorted(end) > obj.FileScope.amplitude_sorted(1))
-                            ylim(obj.FileScope.hAmplitudeDistributionAxes, [obj.FileScope.amplitude_sorted(1) obj.FileScope.amplitude_sorted(end)]);
-                        end
+                        
+%                         if (obj.FileScope.amplitude_sorted(end) > obj.FileScope.amplitude_sorted(1))
+%                             ylim(obj.FileScope.hAmplitudeDistributionAxes, [obj.FileScope.amplitude_sorted(1) obj.FileScope.amplitude_sorted(end)]);
+%                         end
                         
                         % set amplitude threshold
                         switch obj.best_toolbox.inputs.FrequencyBand
@@ -216,7 +217,7 @@ classdef best_sync2brain_bossdevice <handle
             obj.EMGScope.Decimation = 1;
             obj.EMGScope.TriggerMode = 'Signal';
             obj.EMGScope.TriggerSignal = getsignalid(obj.bb.tg, 'gen_running'); %Remove it in Official Use
-            obj.EMGScope.TriggerSignal = MrkSignalID; % 04-Jun-2020 20:00:50
+%             obj.EMGScope.TriggerSignal = MrkSignalID; % 04-Jun-2020 20:00:50
             obj.EMGScope.TriggerLevel = 0.5;
             obj.EMGScope.TriggerSlope = 'Rising';
             obj.best_toolbox.FilterCoefficients.HumNoiseNotchFilter=designfilt('bandstopiir','FilterOrder',2,'HalfPowerFrequency1',39,'HalfPowerFrequency2',61,'DesignMethod','butter','SampleRate',NumSamples);
@@ -228,7 +229,7 @@ classdef best_sync2brain_bossdevice <handle
             MrkSignalID = getsignalid(obj.bb.tg, 'MRK/mrk_masked');
             IPSignalID = getsignalid(obj.bb.tg, 'SPF/Matrix Multiply');
             NumSamples=round((obj.best_toolbox.inputs.EEGDisplayPeriodPost+obj.best_toolbox.inputs.EEGDisplayPeriodPre)*5);
-            NumPrePostSamples=round(obj.best_toolbox.inputs.EEGDisplayPeriodPre*5);
+            NumPrePostSamples=round(obj.best_toolbox.inputs.EEGDisplayPeriodPre*(-5));
             Decimation=1;
             obj.IEEGScope = addscope(obj.bb.tg, 'host', 92);
             addsignal(obj.IEEGScope, IPSignalID);
@@ -238,7 +239,7 @@ classdef best_sync2brain_bossdevice <handle
             obj.IEEGScope.Decimation = Decimation;
             obj.IEEGScope.TriggerMode = 'Signal';
             obj.IEEGScope.TriggerSignal = getsignalid(obj.bb.tg, 'gen_running'); %Remove it in Official Use
-            obj.IEEGScope.TriggerSignal = MrkSignalID; % 31-May-2020 11:05:43
+%             obj.IEEGScope.TriggerSignal = MrkSignalID; % 31-May-2020 11:05:43
             obj.IEEGScope.TriggerLevel = 0.5;
             obj.IEEGScope.TriggerSlope = 'Rising';
             obj.best_toolbox.inputs.rawData.IEEG.time=linspace(-1*(obj.best_toolbox.inputs.EEGDisplayPeriodPre),obj.best_toolbox.inputs.EEGDisplayPeriodPost,NumSamples);
@@ -467,7 +468,22 @@ classdef best_sync2brain_bossdevice <handle
         end
         function Data = IEEGScopeRead(obj)
             while ~strcmpi(obj.IEEGScope.Status,'finished'), drawnow, if obj.best_toolbox.inputs.stop_event==1, break, end ,end
-            Data=obj.IEEGScope.Data(:,1)';
+            Data=obj.IEEGScope.Data(:,1)'; 
+            Time=(obj.IEEGScope.Time-obj.IEEGScope.Time(1)+(obj.IEEGScope.Time(2)-obj.IEEGScope.Time(1)))';
+            Time=(Time*1000)+obj.best_toolbox.inputs.EEGDisplayPeriodPre*(-1);
+            if(obj.best_toolbox.inputs.EEGDisplayPeriodPre>0)
+                cfg=[];
+                ftdata.label={'ch1'};
+                ftdata.fsample=5000;
+                ftdata.trial{1}=Data;
+                ftdata.time{1}=Time;
+                cfg.demean='yes';
+%                 cfg.detrend='yes'; % It does not help in improving, however introduces weired drifts therefore deprication is recommended in Future Release
+                cfg.baselinewindow=[obj.best_toolbox.inputs.EEGDisplayPeriodPre*(-1)/1000 -10]; %obj.best_toolbox.inputs.EEGDisplayPeriodPre*(-1)/1000 -10 %[EMGDisplayPeriodPre_ms to -10ms]
+                ProcessedData=ft_preprocessing(cfg, ftdata);
+                Data=ProcessedData.trial{1};
+                obj.best_toolbox.inputs.rawData.IEEG.time=ProcessedData.time{1};
+            end
             obj.IEEGScopeStart;
         end
         function [Time, Data]=EEGScopeRead(obj)
