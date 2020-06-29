@@ -2251,15 +2251,16 @@ classdef best_application < handle
                             case '%ST'
                                 obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).si_units='%ST';
                             case '%MSO coupled'
-                                
-                                % open the selector
+                                obj.cb_CoupleIntensityUnits(AdditionInCondition,AdditionInStimulator);
                                 obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).si_units='%MSO coupled';
-                                
                             case '%MT coupled'
+                                obj.cb_CoupleIntensityUnits(AdditionInCondition,AdditionInStimulator);
                                 obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).si_units='%MT coupled';
                             case 'mA coupled'
+                                obj.cb_CoupleIntensityUnits(AdditionInCondition,AdditionInStimulator);
                                 obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).si_units='mA coupled';
                             case '%ST coupled'
+                                obj.cb_CoupleIntensityUnits(AdditionInCondition,AdditionInStimulator);
                                 obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).si_units='%ST coupled';
                         end
                         
@@ -3197,57 +3198,90 @@ classdef best_application < handle
             end
             
         end
-        function cb_CoupleIntensityUnits(obj,source,~)
-            f=figure('ToolBar','none','MenuBar','none','Name','Intensity Units | BEST Toolbox','NumberTitle','off');
+        function cb_CoupleIntensityUnits(obj,AdditionInCondition,AdditionInStimulator)
+            %% Making Buffer 
+            if ~isfield(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator),'CoupleIntensityUnits')
+            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).CoupleIntensityUnits=struct;
+            Session=obj.pmd.lb_sessions.listbox.String;
+            Protocol=obj.pmd.lb_measures.listbox.String;
+            Parameter={''};
+            Channel={''};
+            Value='Not Available';
+            else
+                Session={obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).CoupleIntensityUnits.Session};
+                Protocol={obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).CoupleIntensityUnits.Protocol};
+                Parameter={obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).CoupleIntensityUnits.Parameter};
+                Channel={obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).CoupleIntensityUnits.Channel};
+                Value=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).CoupleIntensityUnits.Value;
+            end
+            f=figure('ToolBar','none','MenuBar','none','Name','Intensity Units | BEST Toolbox','NumberTitle','off','WindowStyle','modal');
             c1=uix.VBox('parent',f,'Padding',10,'Spacing',10);
             %% Select Session - showing all available sessions
             r1=uix.HBox('parent',c1);
             uicontrol( 'Style','text','Parent', r1,'String','Select Session:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            uicontrol( 'Style','popupmenu','Parent', r1 ,'FontSize',11,'String',obj.pmd.lb_sessions.listbox.String,'callback',@SessionSelected);
+            uicontrol( 'Style','popupmenu','Parent', r1 ,'FontSize',11,'String',Session,'callback',@SessionSelected);
             %% Select Protocols - showing all available protocols
             % Implications: when the protocol is renamed or suffixed, how to handle that?
             r2=uix.HBox('parent',c1);
             uicontrol( 'Style','text','Parent', r2,'String','Select Protocol:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            uicontrol( 'Style','popupmenu','Parent', r2 ,'FontSize',11,'String',obj.pmd.lb_measures.listbox.String,'callback',@ProtocolSelected);
+            uicontrol( 'Style','popupmenu','Parent', r2 ,'FontSize',11,'String',Protocol,'callback',@ProtocolSelected);
             %% Select Parameter - protocol selection, prefill relevant Parameters
             r3=uix.HBox('parent',c1);
             uicontrol( 'Style','text','Parent', r3,'String','Select Parameter:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            ProtocolsParameters=uicontrol( 'Parent', r3 ,'Style','PushButton','String',{''},'FontWeight','Bold','Callback',@(~,~)cb_ok);
+            ProtocolsParameters=uicontrol( 'Parent', r3 ,'Style','popupmenu','String',Parameter,'FontWeight','Bold','Callback',@ParameterSelected);
             %% Select Channel
             r4=uix.HBox('parent',c1);
             uicontrol( 'Style','text','Parent', r4,'String','Select Parameter:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            SelectedChannel=uicontrol( 'Parent', r4 ,'Style','PushButton','String',{''},'FontWeight','Bold','Callback',@(~,~)cb_ok);
-            
-            %% Annotate the Coupled Value If exist
-            
+            SelectedChannel=uicontrol( 'Parent', r4 ,'Style','popupmenu','String',Channel,'FontWeight','Bold','Callback',@ChannelSelected);
+            %% Annotating Value
+            r5=uix.HBox('parent',c1);
+            uicontrol( 'Style','text','Parent', r5,'String','Selected Value:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+            Value=uicontrol( 'Parent', r5 ,'Style','text','String',Value,'FontWeight','Bold');
+            %% Reset Coupling
+            r6=uix.HBox('parent',c1);
+            uicontrol( 'Style','text','Parent', r6,'String','','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+            uicontrol( 'Parent', r6 ,'Style','pushbutton','String','Reset','FontWeight','Bold','Callback',@(~,~)ResetCoupling);
             %% Figure Heights and Positioning
-            set(c1, 'Heights', [25 25 25 25])
+            set(c1, 'Heights', [25 25 25 25 25 25])
             f.Position(3)=430;
-            f.Position(4)=150;
-            
-            function SessionSelected
-                ProtocolsInThisSession
+            f.Position(4)=225;
+            function SessionSelected(source,~)
+                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).CoupleIntensityUnits.Session=regexprep((obj.pmd.lb_sessions.listbox.String{source.Value}),' ','_');
             end
-            
-            function ProtocolSelected
-                % check which protocol is select from original str list of Protocols and put that checkign expression in below switch
-                switch obj.par.(obj.info.event.current_session).(obj.info.event.current_measure).Protocol{1,1}
+            function ProtocolSelected(source,~)
+                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).CoupleIntensityUnits.Protocol=regexprep((obj.pmd.lb_measures.listbox.String{source.Value}),' ','_');
+                sess=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).CoupleIntensityUnits.Session;
+                prtcl=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).CoupleIntensityUnits.Protocol;
+                switch obj.par.(sess).(prtcl).Protocol{1,1}
                     case 'Motor Threshold Hunting Protocol' %Motor Thresholds + Channels
                         ProtocolsParameters.String={'Motor Threshold'};
-                        for TargetChannels=1:numel(fieldnames(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure).condsAll))
+                        for TargetChannels=1:numel(fieldnames(obj.par.(sess).(prtcl).condsAll))
                             cond=['cond' num2str(TargetChannels)];
-                            SelectedChannel.String{1,TargetChannels}=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure).condsAll.(cond).targetChannel{1,1};
+                            SelectedChannel.String{1,TargetChannels}=obj.par.(sess).(prtcl).condsAll.(cond).targetChannel{1,1};
                         end
                     case 'MEP Dose Response Curve Protocol' %Inflection Point, Plateau, Threshold, Inhibition, Faciliation + Channels
                         ProtocolsParameters.String={'Inflection Point, Inhibition, Facilitation, Plateau, Threshold'};
-                        SelectedChannel.String=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure).EMGTargetChannels;
+                        SelectedChannel.String=obj.par.(sess).(prtcl).EMGTargetChannels;
                     case 'Psychometric Threshold Hunting Protocol' % Sensory Thresholds + Channels
                         ProtocolsParameters.String={'Sensory Threshold'};
-                        for TargetChannels=1:numel(fieldnames(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure).condsAll))
+                        for TargetChannels=1:numel(fieldnames(obj.par.(sess).(prtcl).condsAll))
                             cond=['cond' num2str(TargetChannels)];
-                            SelectedChannel.String{1,TargetChannels}=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure).condsAll.(cond).targetChannel{1,1};
+                            SelectedChannel.String{1,TargetChannels}=obj.par.(sess).(prtcl).condsAll.(cond).targetChannel{1,1};
                         end
                 end
+            end
+            function ParameterSelected(source,~)
+                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).CoupleIntensityUnits.Parameter=ProtocolsParameters.String{source.Value};
+            end
+            function ChannelSelected(source,~)
+                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).CoupleIntensityUnits.Channel=SelectedChannel.String{source.Value};
+            end
+            function ResetCoupling
+                close(f)
+                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator)=rmfield(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator),'CoupleIntensityUnits');
+                obj.cb_CoupleIntensityUnits(AdditionInCondition,AdditionInStimulator);
+            end
+            function ValueExtraction
             end
         end
         function default_par_mep(obj)
@@ -12759,7 +12793,7 @@ classdef best_application < handle
             try
                 save(fullfile(obj.par.GlobalSettings.DataBaseDirectory,exp_name,obj.bst.info.matfilstr),'BESTToolboxParameters','-v7.3','-nocompression');
             catch
-                if isempty(obj.par)
+                if isempty(obj.par) || ~isfield(obj.par,'GlobalSettings')
                     mkdir(eval('cd'),exp_name);
                     save(fullfile(eval('cd'),exp_name,obj.bst.info.matfilstr),'BESTToolboxParameters','-v7.3','-nocompression');
                 else
