@@ -121,9 +121,9 @@ classdef best_application < handle
             obj.menu.rp.btn=uicontrol( 'Parent', menu_hbox ,'Style','PushButton','String','Close Results','FontWeight','Bold','Callback', @(~,~)obj.cb_menu_rp );
             obj.menu.hwcfg.btn=uicontrol( 'Parent', menu_hbox ,'Style','PushButton','String','Open Hardware Config','FontWeight','Bold','Callback', @(~,~)obj.cb_menu_hwcfg ); %TODO1
             obj.menu.settings.btn=uicontrol( 'Parent', menu_hbox ,'Style','PushButton','String','Open Settings','FontWeight','Bold','Callback', @(~,~)obj.cb_menu_settings ); %TODO1
-            
+            obj.menu.notes.btn=uicontrol( 'Parent', menu_hbox ,'Style','PushButton','String','Notes','FontWeight','Bold','Callback', @(~,~)obj.cb_notes );
             uiextras.HBox( 'Parent', menu_hbox,'Spacing', 5, 'Padding', 5 );
-            set(menu_hbox,'Widths',[-0.6 -0.6 -1.5 -1.5 -1.5 -1.8 -1.8 -12]);
+            set(menu_hbox,'Widths',[-0.6 -0.6 -1.5 -1.5 -1.5 -1.8 -1.8 -1.5 -12]);
             
             
             obj.info.menu.md=0;
@@ -262,7 +262,7 @@ classdef best_application < handle
                     obj.pmd.PauseUnpauseButton.Enable='on';
                     obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).ProtocolStatus={'Executing'};
                     obj.pmd.ProtocolStatus.listbox.String(obj.pmd.ProtocolStatus.listbox.Value)={'Executing'};
-                    obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).Enable{1,1}='off';
+%                     obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).Enable{1,1}='off';
                     obj.disable_listboxes;
                     %search for all the handles and make their enable off uicontrols, table and the interactive axes  %https://www.mathworks.com/help/matlab/ref/disabledefaultinteractivity.html
                     %make enable off in the listboxes and all pmd fields
@@ -302,6 +302,8 @@ classdef best_application < handle
                                 case 2 %Manual
                                     obj.bst.best_tephs_manual
                             end
+                        case 'TMS fMRI Protocol'
+                            obj.tmsfmri_run
                     end
                     obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).ProtocolStatus={'Successful'};
                     obj.pmd.ProtocolStatus.listbox.String(obj.pmd.ProtocolStatus.listbox.Value)={'Successful'};
@@ -10894,7 +10896,7 @@ classdef best_application < handle
             
             if(obj.pi.tmsfmri.block_design.Value==1)
                 delete(instrfindall);
-                magventureObject = magventure('COM8'); %0808a
+                magventureObject = magventure('COM10'); %0808a
                 magventureObject.connect;
                 magventureObject.arm
                 a=[];
@@ -10933,14 +10935,14 @@ classdef best_application < handle
                 intensity_vector=intensity_vector(1,1:intensity_cond_rep);
                 
                 trial_vector(2,:)=intensity_vector;
-                save([file_name '_trial_vector.mat'], 'trial_vector');
-                
-                
+%                 save([file_name '_trial_vector.mat'], 'trial_vector');
+                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).TrialVector=trial_vector;
+                obj.cb_menu_save
                 
             else
                 
                 delete(instrfindall);
-                magventureObject = magventure('COM8'); %0808a
+                magventureObject = magventure('COM10'); %0808a
                 magventureObject.connect;
                 magventureObject.arm
                 
@@ -10998,7 +11000,9 @@ classdef best_application < handle
                 intensity_vector=intensity_vector(1,1:indexx);
                 
                 trial_vector(2,:)=intensity_vector;
-                save([file_name '_trial_vector.mat'], 'trial_vector');
+%                 save([file_name '_trial_vector.mat'], 'trial_vector');
+                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).TrialVector=trial_vector;
+                obj.cb_menu_save
                 
             end
             intensitzcheck=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).manual_stim_inten
@@ -11279,26 +11283,26 @@ classdef best_application < handle
             obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).mt_btn=str2num(obj.pi.tmsfmri.mt_btn.String);
         end
         function default_par_tmsfmri(obj)
-            obj.info.defaults.target_muscle='APBr';
+%             obj.info.defaults.target_muscle='APBr';
             obj.info.defaults.stimulation_intensities=[30 40 50 60 70 80];
-            obj.info.defaults.trials_per_condition=[15];
-            obj.info.defaults.iti=[4 6];
-            obj.info.defaults.mep_onset=15;
-            obj.info.defaults.mep_offset=50;
-            obj.info.defaults.prestim_scope_ext=50;
-            obj.info.defaults.poststim_scope_ext=150;
-            obj.info.defaults.prestim_scope_plt=20;
-            obj.info.defaults.poststim_scope_plt=100;
+%             obj.info.defaults.trials_per_condition=[15];
+%             obj.info.defaults.iti=[4 6];
+%             obj.info.defaults.mep_onset=15;
+%             obj.info.defaults.mep_offset=50;
+%             obj.info.defaults.prestim_scope_ext=50;
+%             obj.info.defaults.poststim_scope_ext=150;
+%             obj.info.defaults.prestim_scope_plt=20;
+%             obj.info.defaults.poststim_scope_plt=100;
             obj.info.defaults.units_mso=1;
             obj.info.defaults.units_mt=0;
             obj.info.defaults.mt=[];
-            %             obj.info.defaults.mt_btn
-            obj.info.defaults.ylim_max=+5000;
-            obj.info.defaults.ylim_min=-5000;
-            obj.info.defaults.FontSize=14;
-            obj.info.defaults.mt_mv=0.05;
-            obj.info.defaults.thresholding_method=2;
-            obj.info.defaults.trials_to_avg=15;
+%             obj.info.defaults.mt_btn
+%             obj.info.defaults.ylim_max=+5000;
+%             obj.info.defaults.ylim_min=-5000;
+%             obj.info.defaults.FontSize=14;
+%             obj.info.defaults.mt_mv=0.05;
+%             obj.info.defaults.thresholding_method=2;
+%             obj.info.defaults.trials_to_avg=15;
             %specifically for tms-fmri
             obj.info.defaults.ta=916;
             obj.info.defaults.trigdelay=14;
@@ -11333,6 +11337,8 @@ classdef best_application < handle
             obj.info.defaults.mt_mvEnable='on';
             obj.info.defaults.mt_starting_stim_intenEnable='on';
             obj.info.defaults.ProtocolStatus={'created'};
+            obj.info.defaults.Protocol={'TMS fMRI Protocol'};
+            obj.info.defaults.Enable={'on'};
             obj.par.(obj.info.event.current_session).(obj.info.event.measure_being_added)=obj.info.defaults;
         end
     %% Exception Handling
@@ -13249,6 +13255,40 @@ classdef best_application < handle
                 end
             end
         end
+    %% Notes
+    function cb_notes(obj)
+        f=figure('units','pixels','position',[40 40 530 940],'menubar','none','resize','off','numbertitle','off','name','Notes | BEST Toolbox','WindowStyle','modal');
+        Notes=uicontrol('style','edit','units','pix','position',[10 60 500 830],'backgroundcolor','w','HorizontalAlign','left','min',0,'max',10,'enable','on','CreateFcn',@CreateNotes,'KeyPressFcn',@NotesKeyPress);
+        function NotesKeyPress(src,evt)
+            if strcmp(evt.Key,'delete') || strcmp(evt.Key,'backspace')
+                src.String(end,1:end-1)=src.String(end,1:end-1);
+            % elseif strcmp(evt.Key,'control') % To be incorporated if needed
+            elseif strcmp(evt.Key,'return')
+                datetimevec=char(datetime('now')); datetimevec=[datetimevec '   -   '];
+                src.String=[src.String(end,1:end) newline datetimevec];
+            else      
+                src.String(end,1:end+1)=[src.String(end,1:end) evt.Character];
+            end
+           src.String
+
+        end
+        function CreateNotes(src,~)
+            try
+                src.String=obj.par.Notes;
+            catch
+            end
+            if isempty(src.String)
+                datetimevec=char(datetime('now'));
+                datetimevec=[datetimevec '   -   '];
+                src.String=[datetimevec src.String];
+            elseif ~isempty(src.String)
+                datetimevec=char(datetime('now'));
+                datetimevec=[datetimevec '   -   '];
+                src.String={src.String, datetimevec};
+            end
+        end
+
+    end
     end
 end
 
