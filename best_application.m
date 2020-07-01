@@ -13256,21 +13256,27 @@ classdef best_application < handle
             end
         end
     %% Notes
-    function cb_notes(obj)
-        f=figure('units','pixels','position',[40 40 530 940],'menubar','none','resize','off','numbertitle','off','name','Notes | BEST Toolbox','WindowStyle','modal');
-        Notes=uicontrol('style','edit','units','pix','position',[10 60 500 830],'backgroundcolor','w','HorizontalAlign','left','min',0,'max',10,'enable','on','CreateFcn',@CreateNotes,'KeyPressFcn',@NotesKeyPress);
+     function cb_notes(obj)
+        d=figure('units','normalized','position',[0.1 0.1 0.8 0.8],'menubar','none','resize','off','numbertitle','off','name','Notes | BEST Toolbox','WindowStyle','modal');
+        editfield=uicontrol('style','edit','units','normalized','position',[0.01 0.01 0.98 0.98],'HorizontalAlign','left','min',1,'max',4,'FontSize',13','CreateFcn',@CreateNotes,'KeyPressFcn',@NotesKeyPress);
+        uicontrol(d);
         function NotesKeyPress(src,evt)
+             uicontrol(editfield);
             if strcmp(evt.Key,'delete') || strcmp(evt.Key,'backspace')
-                src.String(end,1:end-1)=src.String(end,1:end-1);
-            % elseif strcmp(evt.Key,'control') % To be incorporated if needed
+                if isempty(src.String{end})
+                    idx=size(src.String,1)-1;
+                else
+                    idx=size(src.String,1);
+                end
+                src.String{idx}=src.String{idx}(1:end-1);
+                src.String(strcmp('',src.String)) = [];
             elseif strcmp(evt.Key,'return')
                 datetimevec=char(datetime('now')); datetimevec=[datetimevec '   -   '];
-                src.String=[src.String(end,1:end) newline datetimevec];
-            else      
-                src.String(end,1:end+1)=[src.String(end,1:end) evt.Character];
+                src.String{end+1}=datetimevec;
+            else  
+                src.String{end}=[src.String{end} evt.Character];
             end
-           src.String
-
+           obj.par.Notes=src.String;
         end
         function CreateNotes(src,~)
             try
@@ -13280,14 +13286,12 @@ classdef best_application < handle
             if isempty(src.String)
                 datetimevec=char(datetime('now'));
                 datetimevec=[datetimevec '   -   '];
-                src.String=[datetimevec src.String];
+                src.String{1}=[datetimevec src.String];
             elseif ~isempty(src.String)
-                datetimevec=char(datetime('now'));
-                datetimevec=[datetimevec '   -   '];
-                src.String={src.String, datetimevec};
+                datetimevec=char(datetime('now')); datetimevec=[datetimevec '   -   '];
+                src.String{end+1}=datetimevec;
             end
         end
-
     end
     end
 end
