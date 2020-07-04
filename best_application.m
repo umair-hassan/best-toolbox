@@ -2223,6 +2223,7 @@ classdef best_application < handle
             table.RowStriping='on';
             table.RearrangeableColumns='on';
             table.CellEditCallback =@CellEditCallback ;
+%             table.CellSelectionCallback=@DataChangedCallback;
             
             function CellEditCallback (~,CellEditData)
                 AdditionInCondition=['cond' num2str(table.Data{CellEditData.Indices(1),1})];
@@ -2532,7 +2533,10 @@ classdef best_application < handle
                 %condition, delete a stimulator
                 
             end
-            
+            function DataChangedCallback(~,DisplayDataChange)
+                disp IamHereUseMe
+                DisplayDataChange.Source
+            end
             
         end
         function cb_pi_mep_Nconditions(obj)
@@ -3206,6 +3210,10 @@ classdef best_application < handle
             obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).CoupleIntensityUnits=struct;
             Session=obj.pmd.lb_sessions.listbox.String;
             Protocol=obj.pmd.lb_measures.listbox.String;
+            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).CoupleIntensityUnits.Session=Session{1,1};
+            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).CoupleIntensityUnits.Protocol=Protocol{1,1};
+            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).CoupleIntensityUnits.Parameter='';
+            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).CoupleIntensityUnits.Channel='';
             Parameter={''};
             Channel={''};
             Value='Not Available';
@@ -3214,7 +3222,8 @@ classdef best_application < handle
                 Protocol={obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).CoupleIntensityUnits.Protocol};
                 Parameter={obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).CoupleIntensityUnits.Parameter};
                 Channel={obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).CoupleIntensityUnits.Channel};
-                Value=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).CoupleIntensityUnits.Value;
+                Value='Not Available';
+%                 Value=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).CoupleIntensityUnits.Value;
             end
             f=figure('ToolBar','none','MenuBar','none','Name','Intensity Units | BEST Toolbox','NumberTitle','off','WindowStyle','modal');
             c1=uix.VBox('parent',f,'Padding',10,'Spacing',10);
@@ -3230,15 +3239,15 @@ classdef best_application < handle
             %% Select Parameter - protocol selection, prefill relevant Parameters
             r3=uix.HBox('parent',c1);
             uicontrol( 'Style','text','Parent', r3,'String','Select Parameter:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            ProtocolsParameters=uicontrol( 'Parent', r3 ,'Style','popupmenu','String',Parameter,'FontWeight','Bold','Callback',@ParameterSelected);
+            ProtocolsParameters=uicontrol( 'Parent', r3 ,'Style','popupmenu','String',Parameter,'Callback',@ParameterSelected);
             %% Select Channel
             r4=uix.HBox('parent',c1);
-            uicontrol( 'Style','text','Parent', r4,'String','Select Parameter:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            SelectedChannel=uicontrol( 'Parent', r4 ,'Style','popupmenu','String',Channel,'FontWeight','Bold','Callback',@ChannelSelected);
+            uicontrol( 'Style','text','Parent', r4,'String','Select Channel:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+            SelectedChannel=uicontrol( 'Parent', r4 ,'Style','popupmenu','String',Channel,'Callback',@ChannelSelected);
             %% Annotating Value
             r5=uix.HBox('parent',c1);
             uicontrol( 'Style','text','Parent', r5,'String','Selected Value:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            Value=uicontrol( 'Parent', r5 ,'Style','text','String',Value,'FontWeight','Bold');
+            Value=uicontrol( 'Parent', r5 ,'Style','text','String',Value);
             %% Reset Coupling
             r6=uix.HBox('parent',c1);
             uicontrol( 'Style','text','Parent', r6,'String','','FontSize',11,'HorizontalAlignment','left','Units','normalized');
@@ -3270,6 +3279,16 @@ classdef best_application < handle
                             cond=['cond' num2str(TargetChannels)];
                             SelectedChannel.String{1,TargetChannels}=obj.par.(sess).(prtcl).condsAll.(cond).targetChannel{1,1};
                         end
+                end
+                try
+                    obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).CoupleIntensityUnits.Parameter=ProtocolsParameters.String{1,1};
+                catch
+                    obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).CoupleIntensityUnits.Parameter='';
+                end
+                try
+                    obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).CoupleIntensityUnits.Channel=SelectedChannel.String{1,1};
+                catch
+                    obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).CoupleIntensityUnits.Channel='';
                 end
             end
             function ParameterSelected(source,~)
