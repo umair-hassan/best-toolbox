@@ -14694,14 +14694,6 @@ classdef best_application < handle
                 src.String{end+1}=datetimevec;
             end
         end
-     end
-    
-     
+     end     
     end
 end
-
-
-
-%main panel is the panel on which measurement designer, inputs panel and results panel are placed
-% all panels have p infront of their names
-% md- measurement designer
