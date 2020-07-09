@@ -262,7 +262,7 @@ classdef best_application < handle
                     obj.pmd.PauseUnpauseButton.Enable='on';
                     obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).ProtocolStatus={'Executing'};
                     obj.pmd.ProtocolStatus.listbox.String(obj.pmd.ProtocolStatus.listbox.Value)={'Executing'};
-%                     obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).Enable{1,1}='off';
+                    %                     obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).Enable{1,1}='off';
                     obj.disable_listboxes;
                     %search for all the handles and make their enable off uicontrols, table and the interactive axes  %https://www.mathworks.com/help/matlab/ref/disabledefaultinteractivity.html
                     %make enable off in the listboxes and all pmd fields
@@ -2223,7 +2223,7 @@ classdef best_application < handle
             table.RowStriping='on';
             table.RearrangeableColumns='on';
             table.CellEditCallback =@CellEditCallback ;
-%             table.CellSelectionCallback=@DataChangedCallback;
+            %             table.CellSelectionCallback=@DataChangedCallback;
             
             function CellEditCallback (~,CellEditData)
                 AdditionInCondition=['cond' num2str(table.Data{CellEditData.Indices(1),1})];
@@ -3205,25 +3205,25 @@ classdef best_application < handle
             
         end
         function cb_CoupleIntensityUnits(obj,AdditionInCondition,AdditionInStimulator)
-            %% Making Buffer 
+            %% Making Buffer
             if ~isfield(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator),'CoupleIntensityUnits')
-            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).CoupleIntensityUnits=struct;
-            Session=obj.pmd.lb_sessions.listbox.String;
-            Protocol=obj.pmd.lb_measures.listbox.String;
-            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).CoupleIntensityUnits.Session=Session{1,1};
-            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).CoupleIntensityUnits.Protocol=Protocol{1,1};
-            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).CoupleIntensityUnits.Parameter='';
-            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).CoupleIntensityUnits.Channel='';
-            Parameter={''};
-            Channel={''};
-            Value='Not Available';
+                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).CoupleIntensityUnits=struct;
+                Session=obj.pmd.lb_sessions.listbox.String;
+                Protocol=obj.pmd.lb_measures.listbox.String;
+                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).CoupleIntensityUnits.Session=Session{1,1};
+                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).CoupleIntensityUnits.Protocol=Protocol{1,1};
+                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).CoupleIntensityUnits.Parameter='';
+                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).CoupleIntensityUnits.Channel='';
+                Parameter={''};
+                Channel={''};
+                Value='Not Available';
             else
                 Session={obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).CoupleIntensityUnits.Session};
                 Protocol={obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).CoupleIntensityUnits.Protocol};
                 Parameter={obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).CoupleIntensityUnits.Parameter};
                 Channel={obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).CoupleIntensityUnits.Channel};
                 Value='Not Available';
-%                 Value=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).CoupleIntensityUnits.Value;
+                %                 Value=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).CoupleIntensityUnits.Value;
             end
             f=figure('ToolBar','none','MenuBar','none','Name','Intensity Units | BEST Toolbox','NumberTitle','off','WindowStyle','modal');
             c1=uix.VBox('parent',f,'Padding',10,'Spacing',10);
@@ -10915,6 +10915,50 @@ classdef best_application < handle
                 switch obj.pi.erp.BrainState.Value
                     case 1
                         expModvBox=uix.VBox( 'Parent', DisplayParametersPanel, 'Spacing', 0, 'Padding', 0  );
+                        
+                        mep_panel_row2 = uix.HBox( 'Parent', expModvBox, 'Spacing', 5, 'Padding', 5  );
+                        uicontrol( 'Style','text','Parent', mep_panel_row2,'String','EEG Electrodes Layout:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                        CapLayouts={'M1-EASYCAP','64-Chanel actiCAP','r6055 NeuroScan','r6915 NeuroScan','M15-EASYCAP','M11-EASYCAP','M22-EASYCAP','M23-EASYCAP','M24-EASYCAP','M25-EASYCAP','M3-EASYCAP','M7-EASYCAP','M10-EASYCAP','M16-EASYCAP','M14-EASYCAP','M20-EASYCAP','M17-EASYCAP','M19-EASYCAP'};
+                        obj.pi.erp.EEGElectrodesLayout=uicontrol( 'Style','popupmenu','Parent', mep_panel_row2 ,'FontSize',11,'String',CapLayouts,'Tag','EEGElectrodesLayout','callback',@cb_par_saving); %,'Callback',@obj.cb_hotspot_target_muscle
+                        set( mep_panel_row2, 'Widths', [150 -2]);
+
+                        % row 2
+                        mep_panel_row2 = uix.HBox( 'Parent', expModvBox, 'Spacing', 5, 'Padding', 5  );
+                        uicontrol( 'Style','text','Parent', mep_panel_row2,'String','Montage Channels:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                        obj.pi.rseeg.MontageChannels=uicontrol( 'Style','edit','Parent', mep_panel_row2 ,'FontSize',11,'Tag','MontageChannels','callback',@cb_par_saving); %,'Callback',@obj.cb_hotspot_target_muscle
+                        set( mep_panel_row2, 'Widths', [150 -2]);
+            
+                            % row 2
+                        mep_panel_row2 = uix.HBox( 'Parent', expModvBox, 'Spacing', 5, 'Padding', 5  );
+                        uicontrol( 'Style','text','Parent', mep_panel_row2,'String','Montage Weights:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                        obj.pi.rseeg.MontageWeights=uicontrol( 'Style','edit','Parent', mep_panel_row2 ,'FontSize',11,'Tag','MontageWeights','callback',@cb_par_saving); %,'Callback',@obj.cb_hotspot_target_muscle
+                        set( mep_panel_row2, 'Widths', [150 -2]);
+            
+                            % row 2
+                        mep_panel_row2 = uix.HBox( 'Parent', expModvBox, 'Spacing', 5, 'Padding', 5  );
+                        uicontrol( 'Style','text','Parent', mep_panel_row2,'String','Reference Channels:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                        obj.pi.rseeg.ReferenceChannels=uicontrol( 'Style','edit','Parent', mep_panel_row2 ,'FontSize',11,'Tag','ReferenceChannels','callback',@cb_par_saving); %,'Callback',@obj.cb_hotspot_target_musc
+                        set( mep_panel_row2, 'Widths', [150 -2]);
+            
+                            % row 2
+                        mep_panel_row2 = uix.HBox( 'Parent', expModvBox, 'Spacing', 5, 'Padding', 5  );
+                        uicontrol( 'Style','text','Parent', mep_panel_row2,'String','Recording Reference:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                        obj.pi.rseeg.RecordingReference=uicontrol( 'Style','edit','Parent', mep_panel_row2 ,'FontSize',11,'Tag','RecordingReference','callback',@cb_par_saving); %,'Callback',@obj.cb_hotspot_target_mu
+                        set( mep_panel_row2, 'Widths', [150 -2]);
+            
+                            % row 2
+                        mep_panel_row2 = uix.HBox( 'Parent', expModvBox, 'Spacing', 5, 'Padding', 5  );
+                        uicontrol( 'Style','text','Parent', mep_panel_row2,'String','High Pass Frequency (Hz):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                        obj.pi.rseeg.HighPassFrequency=uicontrol( 'Style','edit','Parent', mep_panel_row2 ,'FontSize',11,'Tag','HighPassFrequency','callback',@cb_par_saving); %,'Callback',@obj.cb_hotspot_target_musc
+                        set( mep_panel_row2, 'Widths', [150 -2]);
+            
+                            % row 2
+                        mep_panel_row2 = uix.HBox( 'Parent', expModvBox, 'Spacing', 5, 'Padding', 5  );
+                        uicontrol( 'Style','text','Parent', mep_panel_row2,'String','Band Stop Frequency (Hz):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                        obj.pi.rseeg.BandStopFrequency=uicontrol( 'Style','edit','Parent', mep_panel_row2 ,'FontSize',11,'Tag','BandStopFrequency','callback',@cb_par_saving); %,'Callback',@obj.cb_hotspot_target_musc
+                        set( mep_panel_row2, 'Widths', [150 -2]);
+            
+                        
                         expModr2=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
                         uicontrol( 'Style','text','Parent', expModr2,'String','Display Channels:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
                         obj.pi.erp.EMGDisplayChannels=uicontrol( 'Style','edit','Parent', expModr2 ,'FontSize',11,'Tag','EMGDisplayChannels','callback',@cb_par_saving);
@@ -12335,7 +12379,7 @@ classdef best_application < handle
                 intensity_vector=intensity_vector(1,1:intensity_cond_rep);
                 
                 trial_vector(2,:)=intensity_vector;
-%                 save([file_name '_trial_vector.mat'], 'trial_vector');
+                %                 save([file_name '_trial_vector.mat'], 'trial_vector');
                 obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).TrialVector=trial_vector;
                 obj.cb_menu_save
                 
@@ -12400,7 +12444,7 @@ classdef best_application < handle
                 intensity_vector=intensity_vector(1,1:indexx);
                 
                 trial_vector(2,:)=intensity_vector;
-%                 save([file_name '_trial_vector.mat'], 'trial_vector');
+                %                 save([file_name '_trial_vector.mat'], 'trial_vector');
                 obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).TrialVector=trial_vector;
                 obj.cb_menu_save
                 
@@ -12683,26 +12727,26 @@ classdef best_application < handle
             obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).mt_btn=str2num(obj.pi.tmsfmri.mt_btn.String);
         end
         function default_par_tmsfmri(obj)
-%             obj.info.defaults.target_muscle='APBr';
+            %             obj.info.defaults.target_muscle='APBr';
             obj.info.defaults.stimulation_intensities=[30 40 50 60 70 80];
-%             obj.info.defaults.trials_per_condition=[15];
-%             obj.info.defaults.iti=[4 6];
-%             obj.info.defaults.mep_onset=15;
-%             obj.info.defaults.mep_offset=50;
-%             obj.info.defaults.prestim_scope_ext=50;
-%             obj.info.defaults.poststim_scope_ext=150;
-%             obj.info.defaults.prestim_scope_plt=20;
-%             obj.info.defaults.poststim_scope_plt=100;
+            %             obj.info.defaults.trials_per_condition=[15];
+            %             obj.info.defaults.iti=[4 6];
+            %             obj.info.defaults.mep_onset=15;
+            %             obj.info.defaults.mep_offset=50;
+            %             obj.info.defaults.prestim_scope_ext=50;
+            %             obj.info.defaults.poststim_scope_ext=150;
+            %             obj.info.defaults.prestim_scope_plt=20;
+            %             obj.info.defaults.poststim_scope_plt=100;
             obj.info.defaults.units_mso=1;
             obj.info.defaults.units_mt=0;
             obj.info.defaults.mt=[];
-%             obj.info.defaults.mt_btn
-%             obj.info.defaults.ylim_max=+5000;
-%             obj.info.defaults.ylim_min=-5000;
-%             obj.info.defaults.FontSize=14;
-%             obj.info.defaults.mt_mv=0.05;
-%             obj.info.defaults.thresholding_method=2;
-%             obj.info.defaults.trials_to_avg=15;
+            %             obj.info.defaults.mt_btn
+            %             obj.info.defaults.ylim_max=+5000;
+            %             obj.info.defaults.ylim_min=-5000;
+            %             obj.info.defaults.FontSize=14;
+            %             obj.info.defaults.mt_mv=0.05;
+            %             obj.info.defaults.thresholding_method=2;
+            %             obj.info.defaults.trials_to_avg=15;
             %specifically for tms-fmri
             obj.info.defaults.ta=916;
             obj.info.defaults.trigdelay=14;
@@ -14658,42 +14702,42 @@ classdef best_application < handle
             end
         end
     %% Notes
-     function cb_notes(obj)
-        d=figure('units','normalized','position',[0.1 0.1 0.8 0.8],'menubar','none','resize','off','numbertitle','off','name','Notes | BEST Toolbox','WindowStyle','modal');
-        editfield=uicontrol('style','edit','units','normalized','position',[0.01 0.01 0.98 0.98],'HorizontalAlign','left','min',1,'max',4,'FontSize',13','CreateFcn',@CreateNotes,'KeyPressFcn',@NotesKeyPress);
-        uicontrol(d);
-        function NotesKeyPress(src,evt)
-             uicontrol(editfield);
-            if strcmp(evt.Key,'delete') || strcmp(evt.Key,'backspace')
-                if isempty(src.String{end})
-                    idx=size(src.String,1)-1;
+        function cb_notes(obj)
+            d=figure('units','normalized','position',[0.1 0.1 0.8 0.8],'menubar','none','resize','off','numbertitle','off','name','Notes | BEST Toolbox','WindowStyle','modal');
+            editfield=uicontrol('style','edit','units','normalized','position',[0.01 0.01 0.98 0.98],'HorizontalAlign','left','min',1,'max',4,'FontSize',13','CreateFcn',@CreateNotes,'KeyPressFcn',@NotesKeyPress);
+            uicontrol(d);
+            function NotesKeyPress(src,evt)
+                uicontrol(editfield);
+                if strcmp(evt.Key,'delete') || strcmp(evt.Key,'backspace')
+                    if isempty(src.String{end})
+                        idx=size(src.String,1)-1;
+                    else
+                        idx=size(src.String,1);
+                    end
+                    src.String{idx}=src.String{idx}(1:end-1);
+                    src.String(strcmp('',src.String)) = [];
+                elseif strcmp(evt.Key,'return')
+                    datetimevec=char(datetime('now')); datetimevec=[datetimevec '   -   '];
+                    src.String{end+1}=datetimevec;
                 else
-                    idx=size(src.String,1);
+                    src.String{end}=[src.String{end} evt.Character];
                 end
-                src.String{idx}=src.String{idx}(1:end-1);
-                src.String(strcmp('',src.String)) = [];
-            elseif strcmp(evt.Key,'return')
-                datetimevec=char(datetime('now')); datetimevec=[datetimevec '   -   '];
-                src.String{end+1}=datetimevec;
-            else  
-                src.String{end}=[src.String{end} evt.Character];
+                obj.par.Notes=src.String;
             end
-           obj.par.Notes=src.String;
-        end
-        function CreateNotes(src,~)
-            try
-                src.String=obj.par.Notes;
-            catch
-            end
-            if isempty(src.String)
-                datetimevec=char(datetime('now'));
-                datetimevec=[datetimevec '   -   '];
-                src.String{1}=[datetimevec src.String];
-            elseif ~isempty(src.String)
-                datetimevec=char(datetime('now')); datetimevec=[datetimevec '   -   '];
-                src.String{end+1}=datetimevec;
+            function CreateNotes(src,~)
+                try
+                    src.String=obj.par.Notes;
+                catch
+                end
+                if isempty(src.String)
+                    datetimevec=char(datetime('now'));
+                    datetimevec=[datetimevec '   -   '];
+                    src.String{1}=[datetimevec src.String];
+                elseif ~isempty(src.String)
+                    datetimevec=char(datetime('now')); datetimevec=[datetimevec '   -   '];
+                    src.String{end+1}=datetimevec;
+                end
             end
         end
-     end     
     end
 end
