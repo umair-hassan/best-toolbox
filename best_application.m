@@ -10779,7 +10779,7 @@ classdef best_application < handle
             obj.pi.erp.r0v1 = uix.VBox( 'Parent', obj.pi.erp.r0p1, 'Spacing', 5, 'Padding', 5  );
             
             r0=uiextras.HBox( 'Parent', obj.pi.erp.r0v1,'Spacing', 5, 'Padding', 5 );
-            uicontrol( 'Style','text','Parent', r0,'String','Brain State:','FontSize',11,'HorizontalAlignment','left','Units','normalized'); % Inter Trial Inteval (s)
+            uicontrol( 'Style','text','Parent', r0,'String','Brain State:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
             obj.pi.erp.BrainState=uicontrol( 'Style','popupmenu','Parent', r0 ,'FontSize',11,'String',{'Independent','Dependent'},'Callback',@cb_UniversalPanelAdaptation);
             set( r0, 'Widths', [150 -2]);
             BrainStateParametersPanel=uix.Panel( 'Parent', obj.pi.erp.r0v1,'Padding',5,'Units','normalized','FontSize',8 ,'Units','normalized','Title','Brain State Parameters' ,'FontWeight','normal','TitlePosition','centertop');
