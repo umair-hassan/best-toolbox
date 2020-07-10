@@ -10786,10 +10786,6 @@ classdef best_application < handle
             cb_BrainStateParametersPanel
             DisplayParametersPanel=uix.Panel( 'Parent', obj.pi.erp.r0v1,'Padding',5,'Units','normalized','FontSize',8 ,'Units','normalized','Title','Display Parameters' ,'FontWeight','normal','TitlePosition','centertop');
             cb_DisplayParametersPanel
-            expModr2=uiextras.HBox( 'Parent', obj.pi.erp.r0v1,'Spacing', 5, 'Padding', 5 );
-            uicontrol( 'Style','text','Parent', expModr2,'String','Trials Per Condition:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            obj.pi.erp.TrialsPerCondition=uicontrol( 'Style','edit','Parent', expModr2 ,'FontSize',11,'Tag','TrialsPerCondition','callback',@cb_par_saving);
-            expModr2.Widths=[150 -2];
             
             %row3
             uicontrol( 'Style','text','Parent', obj.pi.erp.r0v1,'String','','FontSize',11,'HorizontalAlignment','center','Units','normalized');
@@ -10977,7 +10973,7 @@ classdef best_application < handle
                         obj.pi.erp.EEGXLimit=uicontrol( 'Style','edit','Parent', expModr2 ,'FontSize',11,'Tag','EEGXLimit','callback',@cb_par_saving);
                         expModr2.Widths=[150 -2];
                                                 
-                        expModvBox.Heights=[ 35 45 45 45 45 45 45 45 45 45 45];   
+                        expModvBox.Heights=[ 45 45 45 45 45 45 45 45 45 45 45];   
                         
                     case 2
                         expModvBox=uix.VBox( 'Parent', DisplayParametersPanel, 'Spacing', 0, 'Padding', 0  );
@@ -11011,7 +11007,7 @@ classdef best_application < handle
             function cb_SetHeights
                 switch obj.pi.erp.BrainState.Value
                     case 1
-                        set(obj.pi.erp.r0v1,'Heights',[40 90 170 40 -3 55])
+                        set(obj.pi.erp.r0v1,'Heights',[40 90 520 -3 55])
                     case 2
                         set(obj.pi.erp.r0v1,'Heights',[40 390 220 40 -3 55])
                 end
