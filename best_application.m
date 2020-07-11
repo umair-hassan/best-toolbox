@@ -12110,9 +12110,9 @@ classdef best_application < handle
             % uicontroller
             obj.info.defaults=[];
             obj.info.defaults.BrainState=1;
-            obj.info.defaults.TrialsPerCondition='10';
+            obj.info.defaults.TrialsPerCondition='200';
             obj.info.defaults.InputDevice=1;
-            obj.info.defaults.ITI='4';
+            obj.info.defaults.ITI='4 6';
             obj.info.defaults.ReferenceChannels='';
             obj.info.defaults.RecordingReference='';
             obj.info.defaults.MontageChannels='';
@@ -12138,13 +12138,13 @@ classdef best_application < handle
             obj.info.defaults.AmplitudeUnits=2;
             obj.info.defaults.AmplitudeAssignmentPeriod='4';
             obj.info.defaults.SEPOnset='15';
-            obj.info.defaults.SEPOffset='50';
+            obj.info.defaults.SEPOffset='25';
             obj.info.defaults.EEGDisplayPeriodPre='100';
             obj.info.defaults.EEGDisplayPeriodPost='100';
-            obj.info.defaults.SEPSearchWindow='15 50';
-            obj.info.defaults.EEGExtractionPeriod='-100 100';
-            obj.info.defaults.EEGXLimit='-100 100';
-            obj.info.defaults.EEGYLimit='-100 100';
+            obj.info.defaults.SEPSearchWindow='15 25';
+            obj.info.defaults.EEGExtractionPeriod='-20 100';
+            obj.info.defaults.EEGXLimit='-20 100';
+            obj.info.defaults.EEGYLimit='-20 100';
             si=[30];
             for idefaults=1:1
                 cond=['cond' num2str(idefaults)];
