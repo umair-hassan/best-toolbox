@@ -101,7 +101,7 @@ classdef best_toolbox < handle
             switch obj.inputs.Protocol
                 case 'MEP Hotspot Search Protocol'
                     %% Adjusting New Arhictecture to Old Architecture
-                     obj.inputs.MEPOnset=obj.inputs.MEPSearchWindow(1);
+                    obj.inputs.MEPOnset=obj.inputs.MEPSearchWindow(1);
                     obj.inputs.MEPOffset=obj.inputs.MEPSearchWindow(2);
                     obj.inputs.EMGDisplayPeriodPre=obj.inputs.EMGExtractionPeriod(1)*(-1);
                     obj.inputs.EMGDisplayPeriodPost=obj.inputs.EMGExtractionPeriod(2);
@@ -136,8 +136,8 @@ classdef best_toolbox < handle
                     %% Creating Channel Type and Channel ID
                     switch obj.app.par.hardware_settings.(char(obj.inputs.input_device)).slct_device
                         case 1 %boss box
-                            ChannelType=[repmat({'EMG'},1,numel(obj.inputs.EMGDisplayChannels))]; 
-                            ChannelID=num2cell(1:numel(ChannelType)); 
+                            ChannelType=[repmat({'EMG'},1,numel(obj.inputs.EMGDisplayChannels))];
+                            ChannelID=num2cell(1:numel(ChannelType));
                             obj.inputs.ChannelsTypeUnique=ChannelType;
                             for ChannelType2=1:numel(obj.inputs.EMGDisplayChannels)
                                 ChannelID{ChannelType2}=find(strcmp(obj.app.par.hardware_settings.(char(obj.inputs.input_device)).NeurOneProtocolChannelLabels,obj.inputs.EMGDisplayChannels{ChannelType2}));
@@ -154,7 +154,7 @@ classdef best_toolbox < handle
                     obj.app.pr.ax_measures=DisplayChannelsMeasures;
                     obj.app.pr.axesno=numel(obj.inputs.EMGDisplayChannels);
                     obj.app.pr.ax_ChannelLabels=obj.inputs.EMGDisplayChannels;
-                    obj.inputs.Figures=cell(1,obj.app.pr.axesno);   
+                    obj.inputs.Figures=cell(1,obj.app.pr.axesno);
                     %% Creating Stimulation Conditions
                     for c=1:numel(fieldnames(obj.inputs.condsAll))
                         obj.inputs.condMat{c,obj.inputs.colLabel.trials}=obj.inputs.TrialsPerCondition;
@@ -455,7 +455,7 @@ classdef best_toolbox < handle
                             %% Creating ChannelType and ChannelID
                             switch obj.app.par.hardware_settings.(char(obj.inputs.input_device)).slct_device
                                 case 1 %boss box
-                                    ChannelType=[{'IP'},{'IEEG'},repmat({'EMG'},1,numel(obj.inputs.EMGDisplayChannels)),{'IA'},{'IADistribution'},{'StatusTable'}]; 
+                                    ChannelType=[{'IP'},{'IEEG'},repmat({'EMG'},1,numel(obj.inputs.EMGDisplayChannels)),{'IA'},{'IADistribution'},{'StatusTable'}];
                                     ChannelID=num2cell(1:numel(ChannelType));
                                     for ChannelType2=1:numel(obj.inputs.EMGDisplayChannels)
                                         ChannelID{2+ChannelType2}=find(strcmp(obj.app.par.hardware_settings.(char(obj.inputs.input_device)).NeurOneProtocolChannelLabels,obj.inputs.EMGDisplayChannels{ChannelType2}));
@@ -844,8 +844,8 @@ classdef best_toolbox < handle
                                 obj.inputs.colLabel.IAPercentile=17;
                             end
                             %% Creating Channel Measures, AxesNo, Labels
-                            ChannelLabels=[{'OsscillationPhase'},{'OsscillationEEG'},repelem(obj.inputs.EMGTargetChannels,3),obj.inputs.EMGDisplayChannels,{'OsscillationAmplitude'},{'AmplitudeDistribution'},{'StatusTable'}]; %[repelem(obj.inputs.EMGTargetChannels,3),obj.inputs.EMGDisplayChannels]; 
-                            ChannelMeasures=[{'PhaseHistogram'},{'TriggerLockedEEG'},repmat({'MEP_Measurement','MEP Scatter Plot','MEP IOC Fit'},1,numel(obj.inputs.EMGTargetChannels)),repmat({'MEP_Measurement'},1,numel(obj.inputs.EMGDisplayChannels)),{'RunningAmplitude'},{'AmplitudeDistribution'},{'StatusTable'}]; 
+                            ChannelLabels=[{'OsscillationPhase'},{'OsscillationEEG'},repelem(obj.inputs.EMGTargetChannels,3),obj.inputs.EMGDisplayChannels,{'OsscillationAmplitude'},{'AmplitudeDistribution'},{'StatusTable'}]; %[repelem(obj.inputs.EMGTargetChannels,3),obj.inputs.EMGDisplayChannels];
+                            ChannelMeasures=[{'PhaseHistogram'},{'TriggerLockedEEG'},repmat({'MEP_Measurement','MEP Scatter Plot','MEP IOC Fit'},1,numel(obj.inputs.EMGTargetChannels)),repmat({'MEP_Measurement'},1,numel(obj.inputs.EMGDisplayChannels)),{'RunningAmplitude'},{'AmplitudeDistribution'},{'StatusTable'}];
                             ChannelAxesNo=num2cell(1:numel(ChannelLabels));
                             obj.app.pr.ax_measures=ChannelMeasures;
                             obj.app.pr.axesno=numel(ChannelAxesNo);
@@ -1455,7 +1455,7 @@ classdef best_toolbox < handle
                             obj.inputs.EEGDisplayPeriodPost=obj.inputs.EEGExtractionPeriod(2);
                             obj.inputs.MontageChannels=obj.inputs.RealTimeChannelsMontage;
                             obj.inputs.MontageWeights=obj.inputs.RealTimeChannelsWeights;
-                            obj.inputs.input_device=obj.app.pi.psychmth.InputDevice.String(obj.inputs.InputDevice); 
+                            obj.inputs.input_device=obj.app.pi.psychmth.InputDevice.String(obj.inputs.InputDevice);
                             obj.inputs.output_device=obj.inputs.condsAll.cond1.st1.stim_device;
                             obj.inputs.stim_mode='MSO';
                             obj.inputs.measure_str='Psychometric Threshold Hunting Protocol';
@@ -1930,7 +1930,7 @@ classdef best_toolbox < handle
                     obj.app.pr.axesno=5;
                     obj.app.pr.ax_ChannelLabels={'Vertical Plot',obj.inputs.TargetChannels,'TopoplotER','MultiplotER','StatusTable'};
                     obj.inputs.Figures=cell(1,obj.app.pr.axesno);
-                    %% Creating Configuration 
+                    %% Creating Configuration
                     if(obj.inputs.EEGDisplayPeriod(1)<0)
                         obj.inputs.Configuration.detrend='yes';
                         obj.inputs.Configuration.demean='yes';
@@ -2778,9 +2778,9 @@ classdef best_toolbox < handle
                 obj.inputs=obj.app.par.(obj.app.info.event.current_session).(obj.app.info.event.current_measure_fullstr);
                 InputsFieldNames=fieldnames(obj.inputs);
                 for iInputs=1:numel(InputsFieldNames)
-                    if (isa(obj.inputs.(InputsFieldNames{iInputs}),'char')) 
+                    if (isa(obj.inputs.(InputsFieldNames{iInputs}),'char'))
                         if (strcmp(InputsFieldNames{iInputs},'ReferenceChannels')) || (strcmp(InputsFieldNames{iInputs},'ITI')) || (strcmp(InputsFieldNames{iInputs},'EMGDisplayChannels')) || (strcmp(InputsFieldNames{iInputs},'EMGTargetChannels')) || (strcmp(InputsFieldNames{iInputs},'Phase')) || (strcmp(InputsFieldNames{iInputs},'PhaseTolerance')) || (strcmp(InputsFieldNames{iInputs},'MontageChannels')) || (strcmp(InputsFieldNames{iInputs},'AmplitudeThreshold'))|| (strcmp(InputsFieldNames{iInputs},'TargetChannels')) || (strcmp(InputsFieldNames{iInputs},'EEGDisplayPeriod')) ...
-                               || (strcmp(InputsFieldNames{iInputs},'RealTimeChannelsMontage')) || (strcmp(InputsFieldNames{iInputs},'MontageWeights')) || (strcmp(InputsFieldNames{iInputs},'RecordingReference'))
+                                || (strcmp(InputsFieldNames{iInputs},'RealTimeChannelsMontage')) || (strcmp(InputsFieldNames{iInputs},'MontageWeights')) || (strcmp(InputsFieldNames{iInputs},'RecordingReference'))
                             if (isempty(obj.inputs.(InputsFieldNames{iInputs})))
                                 disp donothing
                             else
@@ -2791,7 +2791,7 @@ classdef best_toolbox < handle
                                 end
                             end
                         elseif strcmp(InputsFieldNames{iInputs},'RealTimeChannelWeights') || strcmp(InputsFieldNames{iInputs},'RealTimeChannelsWeights') || strcmp(InputsFieldNames{iInputs},'ResponseFunctionNumerator') || strcmp(InputsFieldNames{iInputs},'ResponseFunctionDenominator') ...
-                                || strcmp(InputsFieldNames{iInputs},'TargetFrequencyRange')  || strcmp(InputsFieldNames{iInputs},'BandStopFrequency') || strcmp(InputsFieldNames{iInputs},'EMGXLimit') || strcmp(InputsFieldNames{iInputs},'EEGXLimit') ... 
+                                || strcmp(InputsFieldNames{iInputs},'TargetFrequencyRange')  || strcmp(InputsFieldNames{iInputs},'BandStopFrequency') || strcmp(InputsFieldNames{iInputs},'EMGXLimit') || strcmp(InputsFieldNames{iInputs},'EEGXLimit') ...
                                 || strcmp(InputsFieldNames{iInputs},'MEPSearchWindow') || strcmp(InputsFieldNames{iInputs},'EMGExtractionPeriod')  || strcmp(InputsFieldNames{iInputs},'EEGExtractionPeriod') || strcmp(InputsFieldNames{iInputs},'EEGYLimit')
                             obj.inputs.(InputsFieldNames{iInputs})=str2num(obj.inputs.(InputsFieldNames{iInputs}));
                         else
@@ -2821,7 +2821,7 @@ classdef best_toolbox < handle
             end
             %% Common Settings for All Functions
             try
-            obj.inputs.NoiseFilter50Hz=obj.app.par.GlobalSettings.NoiseFilter50Hz;
+                obj.inputs.NoiseFilter50Hz=obj.app.par.GlobalSettings.NoiseFilter50Hz;
             catch
                 obj.inputs.NoiseFilter50Hz=0;
             end
@@ -2881,11 +2881,11 @@ classdef best_toolbox < handle
             %                 otherwise
             %             end
             %% Only for testing purpose #324324
-%             a=1;
-%             trial=load('trialMat_test.mat');
-%             trial_data=load('trial_test.mat');
-%             obj.inputs.trialMat=trial.trialMat;
-%             obj.inputs.umair=trial_data.trial_test;
+            %             a=1;
+            %             trial=load('trialMat_test.mat');
+            %             trial_data=load('trial_test.mat');
+            %             obj.inputs.trialMat=trial.trialMat;
+            %             obj.inputs.umair=trial_data.trial_test;
             
         end
         function boot_inputdevice(obj)
@@ -2995,7 +2995,7 @@ classdef best_toolbox < handle
                     switch obj.inputs.BrainState
                         case 1
                             obj.bossbox.multiPulse(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.tpm});
-%                             obj.bossbox.EEGScopeTrigger;
+                            %                             obj.bossbox.EEGScopeTrigger;
                             tic;
                         case 2
                             obj.bossbox.armPulse;
@@ -3046,13 +3046,13 @@ classdef best_toolbox < handle
                                 EMGChannelIndex=EMGChannelIndex-obj.bossbox.bb.eeg_channels;
                                 [obj.inputs.rawData.(unique_chLab{1,i}).time(obj.inputs.trial,:), obj.inputs.rawData.(unique_chLab{1,i}).data(obj.inputs.trial,:)]=obj.bossbox.EMGScopeRead(EMGChannelIndex);
                                 % 04-Jun-2020 19:58:28 Comment below two lines
-%                                 obj.inputs.rawData.(unique_chLab{1,i}).data(obj.inputs.trial,:)=obj.best_VisualizationFilter([obj.sim_mep(1,700:1000), obj.sim_mep(1,1:699)]*1000*obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,1}{1,1}*(randi([1 3])*0.10));
-%                                 obj.inputs.rawData.(unique_chLab{1,i}).time(obj.inputs.trial,:)=obj.best_VisualizationFilter([obj.sim_mep(1,700:1000), obj.sim_mep(1,1:699)]*1000*obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,1}{1,1}*(randi([1 3])*0.10));
-%                                 obj.inputs.rawData.(unique_chLab{1,i}).data(obj.inputs.trial,:)=obj.best_VisualizationFilter([obj.sim_mep(1,700:1000), obj.sim_mep(1,1:699)]*1000*(randi([1 3])*0.10));
-%                                 obj.inputs.rawData.(unique_chLab{1,i}).time(obj.inputs.trial,:)=obj.best_VisualizationFilter([obj.sim_mep(1,700:1000), obj.sim_mep(1,1:699)]*1000*(randi([1 3])*0.10));
-% obj.inputs.rawData.(unique_chLab{1,i}).data(obj.inputs.trial,:)=obj.inputs.umair(obj.inputs.trial,:); % 04-Jun-2020 21:12:26
-% obj.inputs.rawData.(unique_chLab{1,i}).time(obj.inputs.trial,:)=obj.inputs.umair(obj.inputs.trial,:);
-% obj.inputs.rawData.(unique_chLab{1,i}).time(obj.inputs.trial,:)=obj.best_VisualizationFilter([obj.sim_mep(1,700:1000), obj.sim_mep(1,1:699)]*1000*(randi([1 3])*0.10));
+                                %                                 obj.inputs.rawData.(unique_chLab{1,i}).data(obj.inputs.trial,:)=obj.best_VisualizationFilter([obj.sim_mep(1,700:1000), obj.sim_mep(1,1:699)]*1000*obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,1}{1,1}*(randi([1 3])*0.10));
+                                %                                 obj.inputs.rawData.(unique_chLab{1,i}).time(obj.inputs.trial,:)=obj.best_VisualizationFilter([obj.sim_mep(1,700:1000), obj.sim_mep(1,1:699)]*1000*obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,1}{1,1}*(randi([1 3])*0.10));
+                                %                                 obj.inputs.rawData.(unique_chLab{1,i}).data(obj.inputs.trial,:)=obj.best_VisualizationFilter([obj.sim_mep(1,700:1000), obj.sim_mep(1,1:699)]*1000*(randi([1 3])*0.10));
+                                %                                 obj.inputs.rawData.(unique_chLab{1,i}).time(obj.inputs.trial,:)=obj.best_VisualizationFilter([obj.sim_mep(1,700:1000), obj.sim_mep(1,1:699)]*1000*(randi([1 3])*0.10));
+                                % obj.inputs.rawData.(unique_chLab{1,i}).data(obj.inputs.trial,:)=obj.inputs.umair(obj.inputs.trial,:); % 04-Jun-2020 21:12:26
+                                % obj.inputs.rawData.(unique_chLab{1,i}).time(obj.inputs.trial,:)=obj.inputs.umair(obj.inputs.trial,:);
+                                % obj.inputs.rawData.(unique_chLab{1,i}).time(obj.inputs.trial,:)=obj.best_VisualizationFilter([obj.sim_mep(1,700:1000), obj.sim_mep(1,1:699)]*1000*(randi([1 3])*0.10));
                                 %obj.bossbox.EMGScope;
                                 %check=obj.bossbox.EMGScope.Data(:,1)';
                                 %obj.inputs.rawData.(unique_chLab{1,i}).data(obj.inputs.trial,:)=[obj.bossbox.EMGScope.Data(:,1)]';
@@ -3156,7 +3156,7 @@ classdef best_toolbox < handle
                     case 'MEP Scatter Plot'
                         obj.mep_scat_plot;
                     case 'MEP IOC Fit'
-                        obj.ioc_fit_plot;   
+                        obj.ioc_fit_plot;
                     case 'PhaseHistogram'
                         obj.PlotPhaseHistogram;
                     case 'TriggerLockedEEG'
@@ -3182,7 +3182,7 @@ classdef best_toolbox < handle
                 end
                 AxesNum=obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.axesno}{1,obj.inputs.chLab_idx};
                 AxesField=['ax' num2str(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.axesno}{1,obj.inputs.chLab_idx})];
-                CopiedAxes=copy(obj.app.pr.ax.(AxesField)); 
+                CopiedAxes=copy(obj.app.pr.ax.(AxesField));
                 CopiedAxes.Parent=[]; pause(0.1)
                 obj.inputs.Figures{AxesNum}=CopiedAxes;
             end
@@ -3332,7 +3332,7 @@ classdef best_toolbox < handle
         end
         function saveRuntime(obj)
             tic
-           switch obj.inputs.Protocol
+            switch obj.inputs.Protocol
                 case 'MEP Hotspot Search Protocol'
                     label=obj.BESTData.label;
                     for i=1:size(label,1)
@@ -3429,27 +3429,27 @@ classdef best_toolbox < handle
                         case 2 %Dependent
                     end
                 case 'rs EEG Measurement Protocol'
-           end
-           obj.sessions.(obj.app.info.event.current_session).(obj.app.info.event.current_measure_fullstr).ConditionsMatrix=obj.inputs.condMat;
-           % obj.sessions.(obj.app.info.event.current_session).(obj.app.info.event.current_measure_fullstr).TrialsMatrix=obj.inputs.trialMat; % 04-Jun-2020 20:35:39
-           obj.sessions.(obj.app.info.event.current_session).(obj.app.info.event.current_measure_fullstr).Figures=obj.inputs.Figures;
-           try obj.sessions.(obj.app.info.event.current_session).(obj.app.info.event.current_measure_fullstr).Results=obj.inputs.results; catch, end %Known Error when run on PsychMTH
+            end
+            obj.sessions.(obj.app.info.event.current_session).(obj.app.info.event.current_measure_fullstr).ConditionsMatrix=obj.inputs.condMat;
+            % obj.sessions.(obj.app.info.event.current_session).(obj.app.info.event.current_measure_fullstr).TrialsMatrix=obj.inputs.trialMat; % 04-Jun-2020 20:35:39
+            obj.sessions.(obj.app.info.event.current_session).(obj.app.info.event.current_measure_fullstr).Figures=obj.inputs.Figures;
+            try obj.sessions.(obj.app.info.event.current_session).(obj.app.info.event.current_measure_fullstr).Results=obj.inputs.results; catch, end %Known Error when run on PsychMTH
             toc
         end
         function TmrFcn(obj)
-             pause(0.1)
-             tic
-                disp entered___________________TimerFCN__________
+            pause(0.1)
+            tic
+            disp entered___________________TimerFCN__________
             BESTToolboxAutosave=obj.inputs;
             BESTToolboxAutosave.Test=rand(1e4,1e4);
-             BESTToolboxAutosave.TestB= BESTToolboxAutosave.Test;
-             BESTToolboxAutosave.TestC= BESTToolboxAutosave.Test;
-             BESTToolboxAutosave.TestD= BESTToolboxAutosave.Test;
-             BESTToolboxAutosave.TestE= BESTToolboxAutosave.Test;
+            BESTToolboxAutosave.TestB= BESTToolboxAutosave.Test;
+            BESTToolboxAutosave.TestC= BESTToolboxAutosave.Test;
+            BESTToolboxAutosave.TestD= BESTToolboxAutosave.Test;
+            BESTToolboxAutosave.TestE= BESTToolboxAutosave.Test;
             save(obj.info.save_str_runtime,'BESTToolboxAutosave','-v7.3');
             disp [[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[DONWWITHTIMER
             toc
-         end
+        end
         function prepSaving(obj)
             %% Creating MatFile Name and File on a directory
             exp_name=obj.app.pmd.exp_title.editfield.String; exp_name(exp_name == ' ') = '_';
@@ -3465,8 +3465,8 @@ classdef best_toolbox < handle
             end
             obj.BESTData=matfile(FullFileName,'Writable',true);
             %% Writing General Variables
-            obj.BESTData.pars=obj.app.par.(obj.app.info.event.current_session).(obj.app.info.event.current_measure_fullstr); 
-            obj.BESTData.experiment_name=exp_name; 
+            obj.BESTData.pars=obj.app.par.(obj.app.info.event.current_session).(obj.app.info.event.current_measure_fullstr);
+            obj.BESTData.experiment_name=exp_name;
             obj.BESTData.subject_name=subj_code;
             obj.BESTData.session_name=session;
             obj.BESTData.protocol_name=measure;
@@ -3582,7 +3582,7 @@ classdef best_toolbox < handle
                             for icdts=1:numel(conds)
                                 EMGTargetChannels(icdts)=obj.inputs.condsAll.(conds{icdts,1}).targetChannel;
                             end
-                             obj.inputs.EMGTargetChannels=EMGTargetChannels;
+                            obj.inputs.EMGTargetChannels=EMGTargetChannels;
                             obj.BESTData.condition_matrix=obj.inputs.condMat;
                             obj.BESTData.trial_matrix=obj.inputs.trialMat;
                             obj.BESTData.fsample=5000;
@@ -3760,8 +3760,8 @@ classdef best_toolbox < handle
             saved=struct;
             saved.par=obj.app.par;
             saved.inputs=obj.inputs;
-%           saveh5(saved,'saved.best_toolbox'); %% Complete but slow on cells
-%           struct2h5('savedNWE.h5', '/savedNWE', saved); %Not much useful as required new name of file everytime and loading is alse a bit problemtic 
+            %           saveh5(saved,'saved.best_toolbox'); %% Complete but slow on cells
+            %           struct2h5('savedNWE.h5', '/savedNWE', saved); %Not much useful as required new name of file everytime and loading is alse a bit problemtic
             
         end
         function best_rseeg(obj)
@@ -4055,7 +4055,7 @@ classdef best_toolbox < handle
                             obj.inputs.results.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).MEPAmplitudeRatiosNew=0;
                             %                         obj.inputs.TSOnlyMean=obj.inputs.trial;
                         else
-                        obj.inputs.results.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).MEPAmplitudeRatiosNew=100*(((obj.inputs.results.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).MEPAmplitudeRatios(:,1))-(obj.inputs.TSOnlyMean))/obj.inputs.TSOnlyMean);
+                            obj.inputs.results.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).MEPAmplitudeRatiosNew=100*(((obj.inputs.results.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).MEPAmplitudeRatios(:,1))-(obj.inputs.TSOnlyMean))/obj.inputs.TSOnlyMean);
                         end
                     elseif numel(obj.inputs.ResponseFunctionDenominator)>1
                         if any(ismember(obj.inputs.ResponseFunctionDenominator,obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.stimcdMrk}))
@@ -4092,7 +4092,7 @@ classdef best_toolbox < handle
                             xlabelstring='TS Intensity';
                             ylabelstring='MEP P2P Amplitude (\muV)';
                             si(1,1)=0;
-                            for iSI=1:obj.inputs.totalTrials %Previously this was so, now changed1:numel([obj.inputs.trialMat{:,obj.inputs.colLabel.si}]') 
+                            for iSI=1:obj.inputs.totalTrials %Previously this was so, now changed1:numel([obj.inputs.trialMat{:,obj.inputs.colLabel.si}]')
                                 si(iSI,1)=obj.inputs.trialMat{iSI,obj.inputs.colLabel.si}{1,1}{1,1};
                             end
                             si=unique(si,'stable');
@@ -4415,9 +4415,9 @@ classdef best_toolbox < handle
                     str = {str_ip,[],str_th,[],str_pt};
                     ylim([-500 Inf])
                     %% Test String of IP, PT and TH
-                    obj.app.pr.ip_mso.(ax).String=obj.info.ip_x; 
+                    obj.app.pr.ip_mso.(ax).String=obj.info.ip_x;
                     obj.app.pr.ip_muv.(ax).String=ip_y;  % here it is in uV
-                    obj.app.pr.pt_mso.(ax).String=obj.info.pt_x;     
+                    obj.app.pr.pt_mso.(ax).String=obj.info.pt_x;
                     obj.app.pr.pt_muv.(ax).String=pt_y;  % here ti is in uV
                     obj.app.pr.th_mso.(ax).String=obj.info.th;
                     obj.app.pr.th_muv.(ax).String=0.05;
@@ -4501,7 +4501,7 @@ classdef best_toolbox < handle
                             xtickvector=unique(sort([xlimvalue']));
                     end
                     xlabel(xlabelstring); ylabel(ylabelstring); xlim(xlimvector); xticks(xtickvector);
-                    %% Computing Inhibition & Facilitation 
+                    %% Computing Inhibition & Facilitation
                     Inhibition=min(obj.inputs.ResponseFunctionValues)/2;
                     Facilitation=max(obj.inputs.ResponseFunctionValues)/2;
                     for i=1:numel(obj.inputs.ResponseFunctionValues)-1
@@ -4561,7 +4561,7 @@ classdef best_toolbox < handle
             obj.tc.(mrk).stimvalues{StimDevice} = [obj.tc.(mrk).stimvalues{StimDevice}, round(obj.tc.(mrk).stimvalue(StimDevice),2)];
             obj.tc.(mrk).stepsizes{StimDevice} = [obj.tc.(mrk).stepsizes{StimDevice}, round(obj.tc.(mrk).stepsize(StimDevice),2)];
             
-%             obj.inputs.results.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).MEPAmplitude(obj.inputs.trial,1)=input('enter mep amp  ');
+            %             obj.inputs.results.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).MEPAmplitude(obj.inputs.trial,1)=input('enter mep amp  ');
             
             MEPP2PAmpNonZeroIndex=find(obj.inputs.results.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).MEPAmplitude,1,'last');
             MEPP2PAmp=obj.inputs.results.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).MEPAmplitude(MEPP2PAmpNonZeroIndex);
@@ -5131,7 +5131,7 @@ classdef best_toolbox < handle
             
             cfg=[];
             cfg.layout='easycapM1.mat';
-            layout=ft_prepare_layout(cfg); 
+            layout=ft_prepare_layout(cfg);
             
             load('S5_raw_segmented.mat');
             obj.inputs.PreProcessedData=data;
@@ -5140,7 +5140,7 @@ classdef best_toolbox < handle
             cfg.channel=obj.inputs.PreProcessedData.label(1:64);
             dataB=ft_selectdata(cfg, obj.inputs.PreProcessedData);
             layout.label=dataB.label;
-
+            
             
             cfg=[];
             cfg.layout=layout;
@@ -5150,7 +5150,7 @@ classdef best_toolbox < handle
             fh=gcf; % fh.Visible='off';
             delete(allchild(obj.app.pr.container.(ax)))
             fh.Children(3).Parent=obj.app.pr.container.(ax);
-%             fh.Children(2).Parent=obj.app.pr.container.(ax);
+            %             fh.Children(2).Parent=obj.app.pr.container.(ax);
             
             delete(fh); pause(0.1);
         end
@@ -5159,7 +5159,7 @@ classdef best_toolbox < handle
             
             cfg=[];
             cfg.layout='easycapM1.mat';
-            layout=ft_prepare_layout(cfg); 
+            layout=ft_prepare_layout(cfg);
             
             load('S5_raw_segmented.mat');
             obj.inputs.PreProcessedData=data;
@@ -5168,7 +5168,7 @@ classdef best_toolbox < handle
             cfg.channel=obj.inputs.PreProcessedData.label(1:64);
             dataB=ft_selectdata(cfg, obj.inputs.PreProcessedData);
             layout.label=dataB.label;
-
+            
             
             cfg=[];
             cfg.layout=layout;
@@ -5178,7 +5178,7 @@ classdef best_toolbox < handle
             fh=gcf; % fh.Visible='off';
             delete(allchild(obj.app.pr.container.(ax)))
             fh.Children(2).Parent=obj.app.pr.container.(ax);
-%             fh.Children(2).Parent=obj.app.pr.container.(ax);
+            %             fh.Children(2).Parent=obj.app.pr.container.(ax);
             
             delete(fh); pause(0.1);
         end
@@ -5473,7 +5473,7 @@ classdef best_toolbox < handle
                     obj.inputs.Handles.RunnigAmplitude.YData=obj.inputs.rawData.(ThisChannelName).data(obj.inputs.trial,:);
             end
         end
-
+        
         function DeMeanedEEGData =best_DeMeanEEG(obj,RawData)
             DeMeanedEEGData=RawData-mean(RawData);
             
@@ -5487,27 +5487,27 @@ classdef best_toolbox < handle
             
         end
         function Response = responseKeyboardAndMouse(obj)
-                    Pressed=getkeywait(obj.inputs.ResponsePeriod/1000);
-                    if Pressed==-1
-                        Response=-1;
-                    else
-                        Response=1;
-                    end
-%             f=figure('Name','Response Box | BEST Toolbox','numbertitle', 'off','ToolBar', 'none','MenuBar', 'none','WindowStyle', 'modal','Units', 'normal', 'Position', [0.5 0.5 .25 .05],'Resize','off','CloseRequestFcn',@(~,~)CloseReqFcn);
-%             uicontrol( 'Style','text','Parent', f,'String','Did the subject experience a sensation? ' ,'FontSize',13,'HorizontalAlignment','center','Units','normalized','Position',[0.05 0.5 1 0.4]);
-%             uicontrol( 'Style','pushbutton','Parent', f,'String','Yes','FontSize',12,'HorizontalAlignment','center','Units','normalized','Position',[0.3 0.05 0.2 0.4],'Callback',@cbResponse);
-%             uicontrol( 'Style','pushbutton','Parent', f,'String','No','FontSize',12,'HorizontalAlignment','center','Units','normalized','Position',[0.6 0.05 0.2 0.4],'Callback',@cbResponse);
-%             waitfor(f)
-%             function cbResponse(source,~)
-%                 switch source.String
-%                     case 'Yes'
-%                         Response=1;
-%                     case 'No'
-%                         Response=-1;
-%                 end
-%                 delete(f)
-%             end
-%             function CloseReqFcn, end
+            Pressed=getkeywait(obj.inputs.ResponsePeriod/1000);
+            if Pressed==-1
+                Response=-1;
+            else
+                Response=1;
+            end
+            %             f=figure('Name','Response Box | BEST Toolbox','numbertitle', 'off','ToolBar', 'none','MenuBar', 'none','WindowStyle', 'modal','Units', 'normal', 'Position', [0.5 0.5 .25 .05],'Resize','off','CloseRequestFcn',@(~,~)CloseReqFcn);
+            %             uicontrol( 'Style','text','Parent', f,'String','Did the subject experience a sensation? ' ,'FontSize',13,'HorizontalAlignment','center','Units','normalized','Position',[0.05 0.5 1 0.4]);
+            %             uicontrol( 'Style','pushbutton','Parent', f,'String','Yes','FontSize',12,'HorizontalAlignment','center','Units','normalized','Position',[0.3 0.05 0.2 0.4],'Callback',@cbResponse);
+            %             uicontrol( 'Style','pushbutton','Parent', f,'String','No','FontSize',12,'HorizontalAlignment','center','Units','normalized','Position',[0.6 0.05 0.2 0.4],'Callback',@cbResponse);
+            %             waitfor(f)
+            %             function cbResponse(source,~)
+            %                 switch source.String
+            %                     case 'Yes'
+            %                         Response=1;
+            %                     case 'No'
+            %                         Response=-1;
+            %                 end
+            %                 delete(f)
+            %             end
+            %             function CloseReqFcn, end
         end
         function help (obj)
             %% ----EMG Line Noise Removal Start
