@@ -373,10 +373,10 @@ classdef best_sync2brain_bossdevice <handle
         end
         
         function EEGScopeBoot(obj,EEGDisplayPeriodPre,EEGDisplayPeriodPost)
-            % ArgIn EEGDisplayPeriodPre is ms
-            % ArgIn EEGDisplayPeriodPost is ms
-            NumSamples=round((EEGDisplayPeriodPost+EEGDisplayPeriodPre*(-1))*5); %Maximum Limit is of 1020000 Samples imposed by Simulink Real Time
-            NumPrePostSamples=round(EEGDisplayPeriodPre*5);
+            % ArgIn EEGDisplayPeriodPre is ms (positive num)
+            % ArgIn EEGDisplayPeriodPost is ms (positive num)
+            NumSamples=round((EEGDisplayPeriodPost+EEGDisplayPeriodPre)*5); %Maximum Limit is of 1020000 Samples imposed by Simulink Real Time
+            NumPrePostSamples=round(EEGDisplayPeriodPre*(-5));
             obj.EEGScope = addscope(obj.bb.tg, 'host', 95);
             AuxSignalID = getsignalid(obj.bb.tg, 'UDP/raw_eeg') + int32(0:obj.bb.eeg_channels-1);
             MrkSignalID = getsignalid(obj.bb.tg, 'MRK/mrk_masked');
@@ -487,15 +487,33 @@ classdef best_sync2brain_bossdevice <handle
             obj.IEEGScopeStart;
         end
         function [Time, Data]=EEGScopeRead(obj)
-            Time=0; Data=0;
+            Time=[]; Data=[];
             obj.EEGScope.Status,  trigger(obj.EEGScope); obj.EEGScope.Status, 
             while ~strcmpi(obj.EEGScope.Status,'finished') ,drawnow, if obj.best_toolbox.inputs.stop_event==1, break, end ,end
             if obj.best_toolbox.inputs.stop_event==1, return, end
             Data=obj.EEGScope.Data';
             Time=(obj.EEGScope.Time-obj.EEGScope.Time(1)+(obj.EEGScope.Time(2)-obj.EEGScope.Time(1)))';
             if ~strcmpi(obj.best_toolbox.inputs.Protocol,'rs EEG Measurement Protocol')
-                Time=(Time*1000)+obj.best_toolbox.inputs.EEGDisplayPeriod(1);
+                Time=(Time*1000)+obj.best_toolbox.inputs.EEGExtractionPeriod(1);
+                if(obj.best_toolbox.inputs.EEGDisplayPeriodPre>0)
+                    cfg=[];
+                    ftdata.label={'ch1';'ch2'};
+                    InputDevice=obj.best_toolbox.inputs.condMat{1,obj.best_toolbox.inputs.colLabel.inputDevices};
+                    ftdata.trial{1}=[Data(find(strcmp(obj.best_toolbox.app.par.hardware_settings.(InputDevice).NeurOneProtocolChannelLabels,obj.best_toolbox.inputs.MontageChannels{1})),:);Data(find(strcmp(obj.best_toolbox.app.par.hardware_settings.(InputDevice).NeurOneProtocolChannelLabels,obj.best_toolbox.inputs.ReferenceChannels)),:)];
+                    ftdata.time{1}=[Time];
+                    cfg.demean='yes';
+                    cfg.reref         = 'yes'; % band-stop filter, to take out 50 Hz and its harmonics
+                    cfg.refchannel    = {'ch2'};
+                    %                 cfg.detrend='yes'; % It does not help in improving, however introduces weired drifts therefore deprication is recommended in Future Release
+                    cfg.baselinewindow=[obj.best_toolbox.inputs.EEGDisplayPeriodPre*(-1)/1000 -10]; %obj.best_toolbox.inputs.EEGDisplayPeriodPre*(-1)/1000 -10 %[EMGDisplayPeriodPre_ms to -10ms]
+                    ProcessedData=ft_preprocessing(cfg, ftdata);
+                    Data=ProcessedData.trial{1};
+                    Data=Data(1,:);
+                    Time=ProcessedData.time{1};
+                    obj.best_toolbox.inputs.rawData.IEEG.time=ProcessedData.time{1};
+                end
             end
+            
             obj.EEGScopeStart;
         end
         

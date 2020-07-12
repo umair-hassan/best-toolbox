@@ -302,6 +302,8 @@
                                     case 2 %Manual
                                         obj.bst.best_tephs_manual
                                 end
+                            case 'ERP Measurement Protocol'
+                                obj.bst.best_erp;
                             case 'TMS fMRI Protocol'
                                 obj.tmsfmri_run
                         end
@@ -999,7 +1001,8 @@
                         case 'StatusTable'
                             obj.pr_StatusTable;
                         case 'TEP Measurement'
-                            obj.pr_TEPMeasurement;
+%                             obj.pr_TEPMeasurement;
+                            obj.pr_TriggerLockedEEG
                             
                     end
                 end
@@ -12144,7 +12147,7 @@
                 obj.info.defaults.SEPSearchWindow='15 25';
                 obj.info.defaults.EEGExtractionPeriod='-20 100';
                 obj.info.defaults.EEGXLimit='-20 100';
-                obj.info.defaults.EEGYLimit='-20 100';
+                obj.info.defaults.EEGYLimit='-100 100';
                 si=[30];
                 for idefaults=1:1
                     cond=['cond' num2str(idefaults)];
