@@ -3233,12 +3233,12 @@ classdef best_application < handle
             %% Select Session - showing all available sessions
             r1=uix.HBox('parent',c1);
             uicontrol( 'Style','text','Parent', r1,'String','Select Session:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            uicontrol( 'Style','popupmenu','Parent', r1 ,'FontSize',11,'String',Session,'callback',@SessionSelected);
+            SessionList=uicontrol( 'Style','popupmenu','Parent', r1 ,'FontSize',11,'String',Session,'callback',@SessionSelected);
             %% Select Protocols - showing all available protocols
             % Implications: when the protocol is renamed or suffixed, how to handle that?
             r2=uix.HBox('parent',c1);
             uicontrol( 'Style','text','Parent', r2,'String','Select Protocol:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            uicontrol( 'Style','popupmenu','Parent', r2 ,'FontSize',11,'String',Protocol,'callback',@ProtocolSelected);
+            ProtocolList=uicontrol( 'Style','popupmenu','Parent', r2 ,'FontSize',11,'String',Protocol,'callback',@ProtocolSelected);
             %% Select Parameter - protocol selection, prefill relevant Parameters
             r3=uix.HBox('parent',c1);
             uicontrol( 'Style','text','Parent', r3,'String','Select Parameter:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
@@ -3262,7 +3262,11 @@ classdef best_application < handle
             %% Callbacks
             function SessionSelected(source,~)
                 obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).CoupleIntensityUnits.Session=regexprep((obj.pmd.lb_sessions.listbox.String{source.Value}),' ','_');
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).CoupleIntensityUnits.Protocol=regexprep((obj.pmd.lb_measures.listbox.String{source.Value}),' ','_');
+                sess=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).CoupleIntensityUnits.Session;
+                % obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).CoupleIntensityUnits.Protocol=regexprep((obj.pmd.lb_measures.listbox.String{source.Value}),' ','_');
+                ProtocolList.String=obj.data.(sess).info.measurement_str_to_listbox;
+                ProtocolsParameters.String={''};
+                SelectedChannel.String={''};
             end
             function ProtocolSelected(source,~)
                 obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).CoupleIntensityUnits.Protocol=regexprep((obj.pmd.lb_measures.listbox.String{source.Value}),' ','_');
