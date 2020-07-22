@@ -386,7 +386,7 @@ classdef best_sync2brain_bossdevice <handle
             obj.EEGScope.Decimation = 1;
             obj.EEGScope.TriggerMode = 'Signal';
             obj.EEGScope.TriggerSignal = getsignalid(obj.bb.tg, 'gen_running'); %Remove it in Official Usee
-            obj.EEGScope.TriggerSignal = MrkSignalID;
+%             obj.EEGScope.TriggerSignal = MrkSignalID;
             obj.EEGScope.TriggerLevel = 0.5;
             obj.EEGScope.TriggerSlope = 'Rising';
             %% Starting Scope
@@ -497,13 +497,13 @@ classdef best_sync2brain_bossdevice <handle
                 Time=(Time*1000)+obj.best_toolbox.inputs.EEGExtractionPeriod(1);
                 if(obj.best_toolbox.inputs.EEGDisplayPeriodPre>0)
                     cfg=[];
-                    ftdata.label={'ch1';'ch2'};
+                    ftdata.label={'ch1'};
                     InputDevice=obj.best_toolbox.inputs.condMat{1,obj.best_toolbox.inputs.colLabel.inputDevices};
-                    ftdata.trial{1}=[Data(find(strcmp(obj.best_toolbox.app.par.hardware_settings.(InputDevice).NeurOneProtocolChannelLabels,obj.best_toolbox.inputs.MontageChannels{1})),:);Data(find(strcmp(obj.best_toolbox.app.par.hardware_settings.(InputDevice).NeurOneProtocolChannelLabels,obj.best_toolbox.inputs.ReferenceChannels)),:)];
+                    ftdata.trial{1}=[Data(find(strcmp(obj.best_toolbox.app.par.hardware_settings.(InputDevice).NeurOneProtocolChannelLabels,obj.best_toolbox.inputs.MontageChannels{1})),:)];
                     ftdata.time{1}=[Time];
                     cfg.demean='yes';
-                    cfg.reref         = 'yes'; % band-stop filter, to take out 50 Hz and its harmonics
-                    cfg.refchannel    = {'ch2'};
+%                     cfg.reref         = 'yes'; % band-stop filter, to take out 50 Hz and its harmonics
+%                     cfg.refchannel    = {'ch2'};
                     %                 cfg.detrend='yes'; % It does not help in improving, however introduces weired drifts therefore deprication is recommended in Future Release
                     cfg.baselinewindow=[obj.best_toolbox.inputs.EEGDisplayPeriodPre*(-1)/1000 -10]; %obj.best_toolbox.inputs.EEGDisplayPeriodPre*(-1)/1000 -10 %[EMGDisplayPeriodPre_ms to -10ms]
                     ProcessedData=ft_preprocessing(cfg, ftdata);
@@ -511,6 +511,21 @@ classdef best_sync2brain_bossdevice <handle
                     Data=Data(1,:);
                     Time=ProcessedData.time{1};
                     obj.best_toolbox.inputs.rawData.IEEG.time=ProcessedData.time{1};
+%                     cfg=[];
+%                     ftdata.label={'ch1';'ch2'};
+%                     InputDevice=obj.best_toolbox.inputs.condMat{1,obj.best_toolbox.inputs.colLabel.inputDevices};
+%                     ftdata.trial{1}=[Data(find(strcmp(obj.best_toolbox.app.par.hardware_settings.(InputDevice).NeurOneProtocolChannelLabels,obj.best_toolbox.inputs.MontageChannels{1})),:);Data(find(strcmp(obj.best_toolbox.app.par.hardware_settings.(InputDevice).NeurOneProtocolChannelLabels,obj.best_toolbox.inputs.ReferenceChannels)),:)];
+%                     ftdata.time{1}=[Time];
+%                     cfg.demean='yes';
+%                     cfg.reref         = 'yes'; % band-stop filter, to take out 50 Hz and its harmonics
+%                     cfg.refchannel    = {'ch2'};
+%                     %                 cfg.detrend='yes'; % It does not help in improving, however introduces weired drifts therefore deprication is recommended in Future Release
+%                     cfg.baselinewindow=[obj.best_toolbox.inputs.EEGDisplayPeriodPre*(-1)/1000 -10]; %obj.best_toolbox.inputs.EEGDisplayPeriodPre*(-1)/1000 -10 %[EMGDisplayPeriodPre_ms to -10ms]
+%                     ProcessedData=ft_preprocessing(cfg, ftdata);
+%                     Data=ProcessedData.trial{1};
+%                     Data=Data(1,:);
+%                     Time=ProcessedData.time{1};
+%                     obj.best_toolbox.inputs.rawData.IEEG.time=ProcessedData.time{1};
                 end
             end
             

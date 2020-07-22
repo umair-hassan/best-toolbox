@@ -2073,7 +2073,7 @@ classdef best_toolbox < handle
 %                     obj.app.pr.ax_ChannelLabels={obj.inputs.MontageChannels,'TopoplotER','MultiplotER','StatusTable'};
                     obj.app.pr.ax_measures={'TEP Measurement','StatusTable'};
                     obj.app.pr.axesno=2;
-                    obj.app.pr.ax_ChannelLabels={obj.inputs.MontageChannels,'StatusTable'};
+                    obj.app.pr.ax_ChannelLabels=[obj.inputs.MontageChannels,{'StatusTable'}];
                     obj.inputs.Figures=cell(1,obj.app.pr.axesno);
                     %% Creating Stimulation Conditions
                     for c=1:numel(fieldnames(obj.inputs.condsAll))
@@ -2550,7 +2550,11 @@ classdef best_toolbox < handle
                                 % NewUseThis obj.inputs.rawData.(unique_chLab{1,i}).data(obj.inputs.trial,:)=obj.best_VisualizationFilter(obj.bossbox.EMGScopeRead(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chID}{1,i}))   %%[obj.bossbox.EMGScope.Data(:,1)]');
                             case 'EEG'
 %                                 [obj.inputs.rawData.time{obj.inputs.trial} , obj.inputs.rawData.data{obj.inputs.trial}]=obj.bossbox.EEGScopeRead;
-                               [~, obj.inputs.rawData.(unique_chLab{1,i}).data(obj.inputs.trial,:)]=obj.bossbox.EEGScopeRead;
+try % 22-Jul-2020 07:30:33
+    [~, obj.inputs.rawData.(unique_chLab{1,i}).data(obj.inputs.trial,:)]=obj.bossbox.EEGScopeRead;
+catch
+    
+end
 %                                 obj.fieldtrip.best2ftdata(obj.inputs.rawData,obj.inputs.trial,obj.inputs.input_device);
 %                                 obj.fieldtrip.preprocess(obj.inputs.Configuration, obj.inputs.rawData.ftdata,obj.inputs.trial)
                         end
@@ -4280,7 +4284,7 @@ classdef best_toolbox < handle
                 obj.tc.(mrk).minstep =  0.01;
                 obj.tc.(mrk).maxstep =  1.00;
                 obj.tc.(mrk).minvalue = 0.20;
-                obj.tc.(mrk).maxvalue = 9;
+                obj.tc.(mrk).maxvalue = 90;
                 obj.tc.(mrk).responses = {[] [] []};
                 obj.tc.(mrk).stimvalues = {[] [] []};  %storage for post-hoc review
                 obj.tc.(mrk).stepsizes = {[] [] []};   %storage for post-hoc review
@@ -4995,7 +4999,7 @@ classdef best_toolbox < handle
             end
             if obj.inputs.trial==1
                 xlim(obj.app.pr.ax.(ax),obj.inputs.EEGXLimit), ylim(obj.app.pr.ax.(ax),obj.inputs.EEGYLimit), drawnow
-                xticks(obj.app.pr.ax.(ax),unique(sort([0 obj.inputs.EEGXLimit])))
+                xticks(obj.app.pr.ax.(ax),unique(sort([0 obj.inputs.EEGXLimit(1):10:obj.inputs.EEGXLimit(2)])))
                 ZeroLine=gridxy(0,'Color','k','linewidth',2,'Parent',obj.app.pr.ax.(ax),'Tag','TriggerLockedEEGZeroLine');hold on;
                 ZeroLine.Annotation.LegendInformation.IconDisplayStyle = 'off'; legend('Location','southoutside','Orientation','horizontal'); hold on;
             end
