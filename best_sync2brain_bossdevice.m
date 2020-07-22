@@ -217,7 +217,7 @@ classdef best_sync2brain_bossdevice <handle
             obj.EMGScope.Decimation = 1;
             obj.EMGScope.TriggerMode = 'Signal';
             obj.EMGScope.TriggerSignal = getsignalid(obj.bb.tg, 'gen_running'); %Remove it in Official Use
-            obj.EMGScope.TriggerSignal = MrkSignalID; % 04-Jun-2020 20:00:50
+%             obj.EMGScope.TriggerSignal = MrkSignalID; % 04-Jun-2020 20:00:50
             obj.EMGScope.TriggerLevel = 0.5;
             obj.EMGScope.TriggerSlope = 'Rising';
             obj.best_toolbox.FilterCoefficients.HumNoiseNotchFilter=designfilt('bandstopiir','FilterOrder',2,'HalfPowerFrequency1',39,'HalfPowerFrequency2',61,'DesignMethod','butter','SampleRate',NumSamples);
@@ -239,7 +239,7 @@ classdef best_sync2brain_bossdevice <handle
             obj.IEEGScope.Decimation = Decimation;
             obj.IEEGScope.TriggerMode = 'Signal';
             obj.IEEGScope.TriggerSignal = getsignalid(obj.bb.tg, 'gen_running'); %Remove it in Official Use
-%             obj.IEEGScope.TriggerSignal = MrkSignalID; % 31-May-2020 11:05:43
+            obj.IEEGScope.TriggerSignal = MrkSignalID; % 31-May-2020 11:05:43
             obj.IEEGScope.TriggerLevel = 0.5;
             obj.IEEGScope.TriggerSlope = 'Rising';
             obj.best_toolbox.inputs.rawData.IEEG.time=linspace(-1*(obj.best_toolbox.inputs.EEGDisplayPeriodPre),obj.best_toolbox.inputs.EEGDisplayPeriodPost,NumSamples);
@@ -266,7 +266,7 @@ classdef best_sync2brain_bossdevice <handle
             obj.IPScope.Decimation = 1;
             obj.IPScope.TriggerMode = 'Signal';
             obj.IPScope.TriggerSignal = getsignalid(obj.bb.tg, 'gen_running'); %Remove it in Official Use
-%             obj.IPScope.TriggerSignal = MrkSignalID; 
+            obj.IPScope.TriggerSignal = MrkSignalID; 
             obj.IPScope.TriggerLevel = 0.5;
             obj.IPScope.TriggerSlope = 'Rising';
             %% Starting Scope
@@ -386,7 +386,7 @@ classdef best_sync2brain_bossdevice <handle
             obj.EEGScope.Decimation = 1;
             obj.EEGScope.TriggerMode = 'Signal';
             obj.EEGScope.TriggerSignal = getsignalid(obj.bb.tg, 'gen_running'); %Remove it in Official Usee
-%             obj.EEGScope.TriggerSignal = MrkSignalID;
+            obj.EEGScope.TriggerSignal = MrkSignalID;
             obj.EEGScope.TriggerLevel = 0.5;
             obj.EEGScope.TriggerSlope = 'Rising';
             %% Starting Scope
