@@ -3876,6 +3876,9 @@ end
                         set(h(2),'LineWidth',2);
                         xlim([min(obj.inputs.SI)-5 max(obj.inputs.SI)+5]);
                     catch
+                        try
+                           ioc_fit_using_SMLToolbox
+                        catch
                         SIData=obj.inputs.rawData.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).mep_stats(:,1);
                         MEPData=obj.inputs.rawData.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).mep_stats(:,2);
                         SEMData=obj.inputs.rawData.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).mep_stats(:,8);
@@ -3900,6 +3903,7 @@ end
                         h = plot(SIfit, MEPfit,'LineWidth',2,'Color','r');
                         errorbar(SIData, MEPData ,SEMData, 'o');
                         xlim([min(SIfit)-5 max(SIfit)+5]);
+                        end
                     end
                     %% Creating plot
                     xlabel('Stimulation Intensity');
@@ -4045,6 +4049,26 @@ end
                     gridxy(Facilitation_Intensity,Facilitation,'DisplayName','Facilitation','color','r')
                     legend('Location','southoutside','Orientation','horizontal')
                 end
+            end
+            function ioc_fit_using_SMLToolbox
+                SIData=obj.inputs.rawData.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).mep_stats(:,1);
+                MEPData=obj.inputs.rawData.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).mep_stats(:,2);
+                SEMData=obj.inputs.rawData.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).mep_stats(:,8);
+                [SIfit,MEPfit,FitData]=sigm_fit(SIData,MEPData,[],[],0);
+                %% Estimating Inflection Points
+                obj.info.ip_x=0;
+                ip_y=mean0;
+                %% Estimating Plateu Points
+                [~ ,index_pt] = min(abs(MEPfit-(0.993*(max(MEPfit)) ) ) );   %99.3 % of MEP max
+                obj.info.pt_x=SIfit(index_pt);
+                pt_y=MEPfit(index_pt);
+                %% Estimating Threshold Points
+                [~ ,index_th] = min(abs(MEPfit-50));
+                obj.info.th=SIfit(index_th);
+                hold on;
+                h = plot(SIfit, MEPfit,'LineWidth',2,'Color','r');
+                errorbar(SIData, MEPData ,SEMData, 'o');
+                xlim([min(SIfit)-5 max(SIfit)+5]);
             end
         end
         function boot_threshold(obj)
