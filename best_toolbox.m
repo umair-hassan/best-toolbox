@@ -3927,9 +3927,9 @@ end
                     legend_pt=plot(obj.info.pt_x,pt_y,'rd','MarkerSize',15);
                     
                     
-                    plot([obj.info.th,min(xlim)],[0.05,0.05],'--','Color' , [0.75 0.75 0.75]);
-                    plot([obj.info.th,obj.info.th],[0.05,ylim_ioc],'--','Color' , [0.75 0.75 0.75]);
-                    legend_th=plot(obj.info.th, 0.05,'r*','MarkerSize',15);
+                    plot([obj.info.th,min(xlim)],[50,50],'--','Color' , [0.75 0.75 0.75]);
+                    plot([obj.info.th,obj.info.th],[50,ylim_ioc],'--','Color' , [0.75 0.75 0.75]);
+                    legend_th=plot(obj.info.th, 50,'r*','MarkerSize',15);
                     %% Creating legends
                     h_legend=[h(1); legend_ip;legend_pt;legend_th];
                     l=legend(h_legend, 'Dose-Response Curve', 'Inflection Point','Plateau','Threshold');
@@ -4056,12 +4056,11 @@ end
                 SEMData=obj.inputs.rawData.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).mep_stats(:,8);
                 [SIfit,MEPfit,FitData]=sigm_fit(SIData,MEPData,[],[],0);
                 %% Estimating Inflection Points
-                obj.info.ip_x=0;
-                ip_y=mean0;
+                obj.info.ip_x = FitData(3); [~,MEPIPyIndex]=min(abs(SIfit-FitData(3)));
+                ip_y = MEPfit(MEPIPyIndex);
                 %% Estimating Plateu Points
-                [~ ,index_pt] = min(abs(MEPfit-(0.993*(max(MEPfit)) ) ) );   %99.3 % of MEP max
-                obj.info.pt_x=SIfit(index_pt);
-                pt_y=MEPfit(index_pt);
+                obj.info.pt_x=FitData(2); [~,MEPIPyIndex]=min(abs(SIfit-(0.97*(FitData(2)))));
+                pt_y=MEPfit(MEPIPyIndex);                
                 %% Estimating Threshold Points
                 [~ ,index_th] = min(abs(MEPfit-50));
                 obj.info.th=SIfit(index_th);
