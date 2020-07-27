@@ -1889,7 +1889,7 @@ classdef best_application < handle
             
             r0=uiextras.HBox( 'Parent', obj.pi.mep.r0v1,'Spacing', 5, 'Padding', 5 );
             uicontrol( 'Style','text','Parent', r0,'String','Brain State:','FontSize',11,'HorizontalAlignment','left','Units','normalized'); % Inter Trial Inteval (s)
-            obj.pi.mep.BrainState=uicontrol( 'Style','popupmenu','Parent', r0 ,'FontSize',11,'String',{'Independent','Dependent'},'Callback',@cb_UniversalPanelAdaptation);
+            obj.pi.BrainState=uicontrol( 'Style','popupmenu','Parent', r0 ,'FontSize',11,'String',{'Independent','Dependent'},'Callback',@cb_UniversalPanelAdaptation);
             set( r0, 'Widths', [150 -2]);
             BrainStateParametersPanel=uix.Panel( 'Parent', obj.pi.mep.r0v1,'Padding',5,'Units','normalized','FontSize',8 ,'Units','normalized','Title','Brain State Parameters' ,'FontWeight','normal','TitlePosition','centertop');
             cb_BrainStateParametersPanel
@@ -1923,14 +1923,14 @@ classdef best_application < handle
             obj.cb_pi_mep_Nconditions;
             Interactivity;
             function cb_UniversalPanelAdaptation(~,~)
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).BrainState=obj.pi.mep.BrainState.Value;
+                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).BrainState=obj.pi.BrainState.Value;
                 cb_BrainStateParametersPanel
                 cb_DisplayParametersPanel
                 cb_SetHeights
                 obj.func_load_mep_par;
             end
             function cb_BrainStateParametersPanel(~,~)
-                switch obj.pi.mep.BrainState.Value
+                switch obj.pi.BrainState.Value
                     case 1
                         expModvBox=uix.VBox( 'Parent', BrainStateParametersPanel, 'Spacing', 0, 'Padding', 0  );
                         
@@ -2015,7 +2015,7 @@ classdef best_application < handle
                 
             end
             function cb_DisplayParametersPanel
-                switch obj.pi.mep.BrainState.Value
+                switch obj.pi.BrainState.Value
                     case 1
                         expModvBox=uix.VBox( 'Parent', DisplayParametersPanel, 'Spacing', 0, 'Padding', 0  );
                         
@@ -2087,7 +2087,7 @@ classdef best_application < handle
                 end
             end
             function cb_SetHeights
-                switch obj.pi.mep.BrainState.Value
+                switch obj.pi.BrainState.Value
                     case 1
                         set(obj.pi.mep.r0v1,'Heights',[40 90 250 -1 55]);
                     case 2
@@ -3415,7 +3415,7 @@ classdef best_application < handle
             
             r0=uiextras.HBox( 'Parent', obj.pi.drc.r0v1,'Spacing', 5, 'Padding', 5 );
             uicontrol( 'Style','text','Parent', r0,'String','Brain State:','FontSize',11,'HorizontalAlignment','left','Units','normalized'); % Inter Trial Inteval (s)
-            obj.pi.drc.BrainState=uicontrol( 'Style','popupmenu','Parent', r0 ,'FontSize',11,'String',{'Independent','Dependent'},'Callback',@cb_UniversalPanelAdaptation);
+            obj.pi.BrainState=uicontrol( 'Style','popupmenu','Parent', r0 ,'FontSize',11,'String',{'Independent','Dependent'},'Callback',@cb_UniversalPanelAdaptation);
             set( r0, 'Widths', [150 -2]);
             BrainStateParametersPanel=uix.Panel( 'Parent', obj.pi.drc.r0v1,'Padding',5,'Units','normalized','FontSize',8 ,'Units','normalized','Title','Brain State Parameters' ,'FontWeight','normal','TitlePosition','centertop');
             cb_BrainStateParametersPanel
@@ -3447,14 +3447,14 @@ classdef best_application < handle
             obj.cb_pi_drc_Nconditions;
             
             function cb_UniversalPanelAdaptation(~,~)
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).BrainState=obj.pi.drc.BrainState.Value;
+                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).BrainState=obj.pi.BrainState.Value;
                 cb_BrainStateParametersPanel
                 cb_DisplayParametersPanel
                 cb_SetHeights
                 obj.func_load_mepdrc_par;
             end
             function cb_BrainStateParametersPanel(~,~)
-                switch obj.pi.drc.BrainState.Value
+                switch obj.pi.BrainState.Value
                     case 1
                         expModvBox=uix.VBox( 'Parent', BrainStateParametersPanel, 'Spacing', 0, 'Padding', 0  );
                         
@@ -3537,7 +3537,7 @@ classdef best_application < handle
                 
             end
             function cb_DisplayParametersPanel
-                switch obj.pi.drc.BrainState.Value
+                switch obj.pi.BrainState.Value
                     case 1
                         expModvBox=uix.VBox( 'Parent', DisplayParametersPanel, 'Spacing', 0, 'Padding', 0  );
                         
@@ -3645,7 +3645,7 @@ classdef best_application < handle
                 end
             end
             function cb_SetHeights
-                switch obj.pi.drc.BrainState.Value
+                switch obj.pi.BrainState.Value
                     case 1
                         set(obj.pi.drc.r0v1,'Heights',[40 90 370 -1 55])
                     case 2
@@ -4833,7 +4833,7 @@ classdef best_application < handle
             
             r0=uiextras.HBox( 'Parent', obj.pi.mth.r0v1,'Spacing', 5, 'Padding', 5 );
             uicontrol( 'Style','text','Parent', r0,'String','Brain State:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            obj.pi.mth.BrainState=uicontrol( 'Style','popupmenu','Parent', r0 ,'FontSize',11,'String',{'Independent','Dependent'},'Callback',@cb_UniversalPanelAdaptation);
+            obj.pi.BrainState=uicontrol( 'Style','popupmenu','Parent', r0 ,'FontSize',11,'String',{'Independent','Dependent'},'Callback',@cb_UniversalPanelAdaptation);
             set( r0, 'Widths', [150 -2]);
             
             BrainStateParametersPanel=uix.Panel( 'Parent', obj.pi.mth.r0v1,'Padding',5,'Units','normalized','FontSize',8 ,'Units','normalized','Title','Brain State Parameters' ,'FontWeight','normal','TitlePosition','centertop');
@@ -4866,14 +4866,14 @@ classdef best_application < handle
             obj.cb_pr_mth_Nconditions;
             
             function cb_UniversalPanelAdaptation(~,~)
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).BrainState=obj.pi.mth.BrainState.Value;
+                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).BrainState=obj.pi.BrainState.Value;
                 cb_BrainStateParametersPanel
                 cb_DisplayParametersPanel
                 cb_SetHeights
                 obj.func_load_mth_par;
             end
             function cb_BrainStateParametersPanel(~,~)
-                switch obj.pi.mth.BrainState.Value
+                switch obj.pi.BrainState.Value
                     case 1
                         expModvBox=uix.VBox( 'Parent', BrainStateParametersPanel, 'Spacing', 0, 'Padding', 0  );
                         
@@ -4955,7 +4955,7 @@ classdef best_application < handle
                 end
             end
             function cb_DisplayParametersPanel
-                switch obj.pi.mth.BrainState.Value
+                switch obj.pi.BrainState.Value
                     case 1
                         expModvBox=uix.VBox( 'Parent', DisplayParametersPanel, 'Spacing', 0, 'Padding', 0  );
                         
@@ -5047,7 +5047,7 @@ classdef best_application < handle
                 end
             end
             function cb_SetHeights
-                switch obj.pi.mth.BrainState.Value
+                switch obj.pi.BrainState.Value
                     case 1
                         set(obj.pi.mth.r0v1,'Heights',[40 90 320 -1 55]);
                     case 2
@@ -6361,7 +6361,7 @@ classdef best_application < handle
             
             r0=uiextras.HBox( 'Parent', obj.pi.psychmth.r0v1,'Spacing', 5, 'Padding', 5 );
             uicontrol( 'Style','text','Parent', r0,'String','Brain State:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            obj.pi.psychmth.BrainState=uicontrol( 'Style','popupmenu','Parent', r0 ,'FontSize',11,'String',{'Independent','Dependent'},'Callback',@cb_UniversalPanelAdaptation);
+            obj.pi.BrainState=uicontrol( 'Style','popupmenu','Parent', r0 ,'FontSize',11,'String',{'Independent','Dependent'},'Callback',@cb_UniversalPanelAdaptation);
             set( r0, 'Widths', [150 -2]);
             
             BrainStateParametersPanel=uix.Panel( 'Parent', obj.pi.psychmth.r0v1,'Padding',5,'Units','normalized','FontSize',8 ,'Units','normalized','Title','Brain State Parameters' ,'FontWeight','normal','TitlePosition','centertop');
@@ -6395,14 +6395,14 @@ classdef best_application < handle
             obj.cb_pr_psychmth_Nconditions;
             
             function cb_UniversalPanelAdaptation(~,~)
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).BrainState=obj.pi.psychmth.BrainState.Value;
+                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).BrainState=obj.pi.BrainState.Value;
                 cb_BrainStateParametersPanel
                 cb_DisplayParametersPanel
                 cb_SetHeights
                 obj.func_load_psychmth_par;
             end
             function cb_BrainStateParametersPanel(~,~)
-                switch obj.pi.psychmth.BrainState.Value
+                switch obj.pi.BrainState.Value
                     case 1
                         expModvBox=uix.VBox( 'Parent', BrainStateParametersPanel, 'Spacing', 0, 'Padding', 0  );
                         
@@ -6485,7 +6485,7 @@ classdef best_application < handle
                 
             end
             function cb_DisplayParametersPanel
-                switch obj.pi.psychmth.BrainState.Value
+                switch obj.pi.BrainState.Value
                     case 1
                         expModvBox=uix.VBox( 'Parent', DisplayParametersPanel, 'Spacing', 0, 'Padding', 0  );
                         
@@ -6539,7 +6539,7 @@ classdef best_application < handle
                 end
             end
             function cb_SetHeights
-                switch obj.pi.psychmth.BrainState.Value
+                switch obj.pi.BrainState.Value
                     case 1
                         set(obj.pi.psychmth.r0v1,'Heights',[40 90 140 -1 55])
                     case 2
@@ -7821,7 +7821,7 @@ classdef best_application < handle
             
             r0=uiextras.HBox( 'Parent', obj.pi.rtms.r0v1,'Spacing', 5, 'Padding', 5 );
             uicontrol( 'Style','text','Parent', r0,'String','Brain State:','FontSize',11,'HorizontalAlignment','left','Units','normalized'); % Inter Trial Inteval (s)
-            obj.pi.rtms.BrainState=uicontrol( 'Style','popupmenu','Parent', r0 ,'FontSize',11,'String',{'Independent','Dependent'},'Callback',@cb_UniversalPanelAdaptation);
+            obj.pi.BrainState=uicontrol( 'Style','popupmenu','Parent', r0 ,'FontSize',11,'String',{'Independent','Dependent'},'Callback',@cb_UniversalPanelAdaptation);
             set( r0, 'Widths', [150 -2]);
             BrainStateParametersPanel=uix.Panel( 'Parent', obj.pi.rtms.r0v1,'Padding',5,'Units','normalized','FontSize',8 ,'Units','normalized','Title','Brain State Parameters' ,'FontWeight','normal','TitlePosition','centertop');
             cb_BrainStateParametersPanel
@@ -7853,14 +7853,14 @@ classdef best_application < handle
             obj.pi.rtms.cond.no=0;
             obj.cb_pi_rtms_Nconditions;
             function cb_UniversalPanelAdaptation(~,~)
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).BrainState=obj.pi.rtms.BrainState.Value;
+                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).BrainState=obj.pi.BrainState.Value;
                 cb_BrainStateParametersPanel
                 cb_DisplayParametersPanel
                 cb_SetHeights
                 obj.func_load_rtms_par;
             end
             function cb_BrainStateParametersPanel(~,~)
-                switch obj.pi.rtms.BrainState.Value
+                switch obj.pi.BrainState.Value
                     case 1
                         expModvBox=uix.VBox( 'Parent', BrainStateParametersPanel, 'Spacing', 0, 'Padding', 0  );
                         
@@ -7933,7 +7933,7 @@ classdef best_application < handle
                 end
             end
             function cb_DisplayParametersPanel
-                switch obj.pi.rtms.BrainState.Value
+                switch obj.pi.BrainState.Value
                     case 1
                         expModvBox=uix.VBox( 'Parent', DisplayParametersPanel, 'Spacing', 0, 'Padding', 0  );
                         
@@ -7955,7 +7955,7 @@ classdef best_application < handle
                 end
             end
             function cb_SetHeights
-                switch obj.pi.rtms.BrainState.Value
+                switch obj.pi.BrainState.Value
                     case 1
                         set(obj.pi.rtms.r0v1,'Heights',[40 75 75 -3 55])
                     case 2
@@ -9408,7 +9408,7 @@ classdef best_application < handle
             
             r0=uiextras.HBox( 'Parent', obj.pi.tep.r0v1,'Spacing', 5, 'Padding', 5 );
             uicontrol( 'Style','text','Parent', r0,'String','Brain State:','FontSize',11,'HorizontalAlignment','left','Units','normalized'); % Inter Trial Inteval (s)
-            obj.pi.tep.BrainState=uicontrol( 'Style','popupmenu','Parent', r0 ,'FontSize',11,'String',{'Independent','Dependent'},'Callback',@cb_UniversalPanelAdaptation);
+            obj.pi.BrainState=uicontrol( 'Style','popupmenu','Parent', r0 ,'FontSize',11,'String',{'Independent','Dependent'},'Callback',@cb_UniversalPanelAdaptation);
             set( r0, 'Widths', [150 -2]);
             BrainStateParametersPanel=uix.Panel( 'Parent', obj.pi.tep.r0v1,'Padding',5,'Units','normalized','FontSize',8 ,'Units','normalized','Title','Brain State Parameters' ,'FontWeight','normal','TitlePosition','centertop');
             cb_BrainStateParametersPanel
@@ -9445,14 +9445,14 @@ classdef best_application < handle
             obj.cb_pi_tep_Nconditions;
             Interactivity;
             function cb_UniversalPanelAdaptation(~,~)
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).BrainState=obj.pi.tep.BrainState.Value;
+                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).BrainState=obj.pi.BrainState.Value;
                 cb_BrainStateParametersPanel
                 cb_DisplayParametersPanel
                 cb_SetHeights
                 obj.func_load_tep_par;
             end
             function cb_BrainStateParametersPanel(~,~)
-                switch obj.pi.tep.BrainState.Value
+                switch obj.pi.BrainState.Value
                     case 1
                         expModvBox=uix.VBox( 'Parent', BrainStateParametersPanel, 'Spacing', 0, 'Padding', 0  );
                         
@@ -9540,7 +9540,7 @@ classdef best_application < handle
                 
             end
             function cb_DisplayParametersPanel
-                switch obj.pi.tep.BrainState.Value
+                switch obj.pi.BrainState.Value
                     case 1
                         expModvBox=uix.VBox( 'Parent', DisplayParametersPanel, 'Spacing', 0, 'Padding', 0  );
                         expModr2=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
@@ -9592,7 +9592,7 @@ classdef best_application < handle
                 end
             end
             function cb_SetHeights
-                switch obj.pi.tep.BrainState.Value
+                switch obj.pi.BrainState.Value
                     case 1
                         set(obj.pi.tep.r0v1,'Heights',[40 90 170 40 -3 55])
                     case 2
@@ -10789,7 +10789,7 @@ classdef best_application < handle
             
             r0=uiextras.HBox( 'Parent', obj.pi.erp.r0v1,'Spacing', 5, 'Padding', 5 );
             uicontrol( 'Style','text','Parent', r0,'String','Brain State:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            obj.pi.erp.BrainState=uicontrol( 'Style','popupmenu','Parent', r0 ,'FontSize',11,'String',{'Independent','Dependent'},'Callback',@cb_UniversalPanelAdaptation);
+            obj.pi.BrainState=uicontrol( 'Style','popupmenu','Parent', r0 ,'FontSize',11,'String',{'Independent','Dependent'},'Callback',@cb_UniversalPanelAdaptation);
             set( r0, 'Widths', [150 -2]);
             BrainStateParametersPanel=uix.Panel( 'Parent', obj.pi.erp.r0v1,'Padding',5,'Units','normalized','FontSize',8 ,'Units','normalized','Title','Brain State Parameters' ,'FontWeight','normal','TitlePosition','centertop');
             cb_BrainStateParametersPanel
@@ -10822,14 +10822,14 @@ classdef best_application < handle
             obj.cb_pi_erp_Nconditions;
             Interactivity;
             function cb_UniversalPanelAdaptation(~,~)
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).BrainState=obj.pi.erp.BrainState.Value;
+                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).BrainState=obj.pi.BrainState.Value;
                 cb_BrainStateParametersPanel
                 cb_DisplayParametersPanel
                 cb_SetHeights
                 obj.func_load_erp_par;
             end
             function cb_BrainStateParametersPanel(~,~)
-                switch obj.pi.erp.BrainState.Value
+                switch obj.pi.BrainState.Value
                     case 1
                         expModvBox=uix.VBox( 'Parent', BrainStateParametersPanel, 'Spacing', 0, 'Padding', 0  );
                         
@@ -10917,7 +10917,7 @@ classdef best_application < handle
                 
             end
             function cb_DisplayParametersPanel
-                switch obj.pi.erp.BrainState.Value
+                switch obj.pi.BrainState.Value
                     case 1
                         expModvBox=uix.VBox( 'Parent', DisplayParametersPanel, 'Spacing', 0, 'Padding', 0  );
                         
@@ -11014,7 +11014,7 @@ classdef best_application < handle
                 end
             end
             function cb_SetHeights
-                switch obj.pi.erp.BrainState.Value
+                switch obj.pi.BrainState.Value
                     case 1
                         set(obj.pi.erp.r0v1,'Heights',[40 90 520 -3 55])
                     case 2
@@ -14749,11 +14749,11 @@ classdef best_application < handle
             for iTableCondition=1:numel(fieldnames(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll))
                 TableCond=['cond' num2str(iTableCondition)];
                 ColCondition=1;
-                ColTS=2;
-                ColThresholdLevel=3;
-                ColIntensityUnits=4;
-                ColStimulator=5;
-                ColPulseMode=6;
+                ColTS=ColCondition+1;
+                ColThresholdLevel=ColTS+1;
+                ColIntensityUnits=ColThresholdLevel+1;
+                ColStimulator=ColIntensityUnits+1;
+                ColPulseMode=ColStimulator+1;
                 ColNoOfPulses=7;
                 ColTimingOnset=8;
                 ColTargetChannel=9;
