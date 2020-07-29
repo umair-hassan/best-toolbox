@@ -1909,7 +1909,7 @@ classdef best_application < handle
             obj.pi.mep.train.btn=uicontrol( 'Parent', r4 ,'Style','PushButton','String','','FontWeight','Bold','HorizontalAlignment','center','CData',obj.icons.train,'Tooltip','Click to Add a Train or Burst on selected stimulator (selected stimulator is highlighted in blue colour)','Tag','train','Callback',@obj.cb_pi_mep_pulse);%add paired pulse
             set( r4, 'Widths', [55 55 55 55 55]);
             
-            cb_SetHeights;
+            
             
             
             obj.pi.mep.r0v2 = uix.VBox( 'Parent', obj.pi.mep.r0, 'Spacing', 5, 'Padding', 0); %uicontext menu to duplicate or delete a condition goes here
@@ -1922,15 +1922,13 @@ classdef best_application < handle
             obj.pi.mep.cond.no=0;
             obj.cb_cm_Nconditions;
             Interactivity;
+            cb_SetHeights;
             function cb_UniversalPanelAdaptation(~,~)
                 obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).BrainState=obj.pi.BrainState.Value;
-                cb_BrainStateParametersPanel
-                cb_DisplayParametersPanel
-                cb_SetHeights
-                obj.func_load_mep_par;
+                obj.RefreshProtocol;
             end
             function cb_BrainStateParametersPanel(~,~)
-                switch obj.pi.BrainState.Value
+                switch obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).BrainState
                     case 1
                         expModvBox=uix.VBox( 'Parent', BrainStateParametersPanel, 'Spacing', 0, 'Padding', 0  );
                         
@@ -2015,7 +2013,7 @@ classdef best_application < handle
                 
             end
             function cb_DisplayParametersPanel
-                switch obj.pi.BrainState.Value
+                switch obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).BrainState
                     case 1
                         expModvBox=uix.VBox( 'Parent', DisplayParametersPanel, 'Spacing', 0, 'Padding', 0  );
                         
@@ -2087,7 +2085,7 @@ classdef best_application < handle
                 end
             end
             function cb_SetHeights
-                switch obj.pi.BrainState.Value
+                switch obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).BrainState
                     case 1
                         set(obj.pi.mep.r0v1,'Heights',[40 90 250 -1 55]);
                     case 2
@@ -2245,7 +2243,7 @@ classdef best_application < handle
                     
                     obj.pi.mep.(ParametersFieldNames{iLoadingParameters}).Value=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(ParametersFieldNames{iLoadingParameters});
                     if(strcmp(ParametersFieldNames{iLoadingParameters},'BrainState'))
-                        %Requirment 93
+                        obj.pi.(ParametersFieldNames{iLoadingParameters}).Value=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(ParametersFieldNames{iLoadingParameters});
                     end
                 elseif(isa(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(ParametersFieldNames{iLoadingParameters}),'struct'))
                     %Do Nothing and Just Avoid
@@ -2284,7 +2282,6 @@ classdef best_application < handle
             obj.pi.drc.train.btn=uicontrol( 'Parent', r4 ,'Style','PushButton','String','','FontWeight','Bold','HorizontalAlignment','center','CData',obj.icons.train,'Tooltip','Click to Add a Train or Burst on selected stimulator (selected stimulator is highlighted in blue colour)','Tag','train','Callback',@obj.cb_pi_drc_pulse);%add paired pulse
             set( r4, 'Widths', [55 55 55 55 55]);
             
-            cb_SetHeights;
             
             
             obj.pi.drc.r0v2 = uix.VBox( 'Parent', obj.pi.drc.r0, 'Spacing', 5, 'Padding', 0); %uicontext menu to duplicate or delete a condition goes here
@@ -2296,16 +2293,13 @@ classdef best_application < handle
             set(obj.pi.drc.r0,'Widths',[-2 -3]);
             obj.pi.drc.cond.no=0;
             obj.cb_pi_drc_Nconditions;
-            
+            cb_SetHeights
             function cb_UniversalPanelAdaptation(~,~)
                 obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).BrainState=obj.pi.BrainState.Value;
-                cb_BrainStateParametersPanel
-                cb_DisplayParametersPanel
-                cb_SetHeights
-                obj.func_load_mepdrc_par;
+                obj.RefreshProtocol;
             end
             function cb_BrainStateParametersPanel(~,~)
-                switch obj.pi.BrainState.Value
+                switch obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).BrainState
                     case 1
                         expModvBox=uix.VBox( 'Parent', BrainStateParametersPanel, 'Spacing', 0, 'Padding', 0  );
                         
@@ -2388,7 +2382,7 @@ classdef best_application < handle
                 
             end
             function cb_DisplayParametersPanel
-                switch obj.pi.BrainState.Value
+                switch obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).BrainState
                     case 1
                         expModvBox=uix.VBox( 'Parent', DisplayParametersPanel, 'Spacing', 0, 'Padding', 0  );
                         
@@ -2496,7 +2490,7 @@ classdef best_application < handle
                 end
             end
             function cb_SetHeights
-                switch obj.pi.BrainState.Value
+                switch obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).BrainState
                     case 1
                         set(obj.pi.drc.r0v1,'Heights',[40 90 370 -1 55])
                     case 2
@@ -3665,7 +3659,7 @@ classdef best_application < handle
                     
                     obj.pi.drc.(ParametersFieldNames{iLoadingParameters}).Value=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(ParametersFieldNames{iLoadingParameters});
                     if(strcmp(ParametersFieldNames{iLoadingParameters},'BrainState'))
-                        %Requirment 93
+                        obj.pi.(ParametersFieldNames{iLoadingParameters}).Value=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(ParametersFieldNames{iLoadingParameters});
                     end
                 elseif(isa(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(ParametersFieldNames{iLoadingParameters}),'struct'))
                     %Do Nothing and Just Avoid
@@ -3703,28 +3697,24 @@ classdef best_application < handle
             obj.pi.mth.train.btn=uicontrol( 'Parent', r4 ,'Style','PushButton','String','','FontWeight','Bold','HorizontalAlignment','center','CData',obj.icons.train,'Tooltip','Click to Add a Train or Burst on selected stimulator (selected stimulator is highlighted in blue colour)','Tag','train','Callback',@obj.cb_pr_mth_pulse);%add paired pulse
             set( r4, 'Widths', [55 55 55 55 55]);
             
-            cb_SetHeights;
             
             
             obj.pi.mth.r0v2 = uix.VBox( 'Parent', obj.pi.mth.r0, 'Spacing', 5, 'Padding', 0);
             obj.pi.mm.r0v2r1=uix.Panel( 'Parent', obj.pi.mth.r0v2,'Padding',0,'Units','normalized','FontSize',8 ,'Units','normalized','Title','Stimulation Parameters' ,'FontWeight','normal','TitlePosition','centertop');
-            obj.cb_pr_mth_StimulationParametersTable;
+            obj.cb_cm_StimulationParametersTable;
             
             obj.pi.mm.tab = uiextras.TabPanel( 'Parent', obj.pi.mth.r0v2, 'Padding', 5 );
             obj.pi.mth.r0v2.Heights=[200 -1];
             set(obj.pi.mth.r0,'Widths',[-1.45 -3]);
             obj.pi.mth.cond.no=0;
-            obj.cb_pr_mth_Nconditions;
-            
+            obj.cb_cm_Nconditions;
+            cb_SetHeights
             function cb_UniversalPanelAdaptation(~,~)
                 obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).BrainState=obj.pi.BrainState.Value;
-                cb_BrainStateParametersPanel
-                cb_DisplayParametersPanel
-                cb_SetHeights
-                obj.func_load_mth_par;
+                obj.RefreshProtocol;
             end
             function cb_BrainStateParametersPanel(~,~)
-                switch obj.pi.BrainState.Value
+                switch obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).BrainState
                     case 1
                         expModvBox=uix.VBox( 'Parent', BrainStateParametersPanel, 'Spacing', 0, 'Padding', 0  );
                         
@@ -3806,7 +3796,7 @@ classdef best_application < handle
                 end
             end
             function cb_DisplayParametersPanel
-                switch obj.pi.BrainState.Value
+                switch obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).BrainState
                     case 1
                         expModvBox=uix.VBox( 'Parent', DisplayParametersPanel, 'Spacing', 0, 'Padding', 0  );
                         
@@ -3898,7 +3888,7 @@ classdef best_application < handle
                 end
             end
             function cb_SetHeights
-                switch obj.pi.BrainState.Value
+                switch obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).BrainState
                     case 1
                         set(obj.pi.mth.r0v1,'Heights',[40 90 320 -1 55]);
                     case 2
@@ -5161,8 +5151,10 @@ classdef best_application < handle
             for idefaults=1:numel(si)
                 cond=['cond' num2str(idefaults)];
                 obj.info.defaults.condsAll.(cond).targetChannel=cellstr('NaN');
+                obj.info.defaults.condsAll.(cond).TrialsPerCondition=40;
+                obj.info.defaults.condsAll.(cond).ITI=[3 4];
                 obj.info.defaults.condsAll.(cond).st1.pulse_count=1;
-                obj.info.defaults.condsAll.(cond).st1.stim_device={'Select'};
+                obj.info.defaults.condsAll.(cond).st1.stim_device={''};
                 obj.info.defaults.condsAll.(cond).st1.stim_mode='single_pulse';
                 obj.info.defaults.condsAll.(cond).st1.stim_timing=num2cell(0);
                 obj.info.defaults.condsAll.(cond).st1.si=si(idefaults);
@@ -5170,6 +5162,21 @@ classdef best_application < handle
                 obj.info.defaults.condsAll.(cond).st1.threshold='';
                 obj.info.defaults.condsAll.(cond).st1.si_pckt={si(idefaults)};
                 obj.info.defaults.condsAll.(cond).st1.threshold_level=0.05;
+                obj.info.defaults.condsAll.(cond).st1.si_pckt={si(idefaults),[],[],[],[],[],[],[]}; % [TS PairedCS ISI TS_intendendunits CS_intendedunits ISIintendentunits TrainFreq NoOfPulses] 
+                obj.info.defaults.condsAll.(cond).st1.IntensityUnit='%MSO';
+                obj.info.defaults.condsAll.(cond).st1.IntensityUnitValue=NaN;
+                obj.info.defaults.condsAll.(cond).st1.IntensityUnitValueUnit=NaN;
+                obj.info.defaults.condsAll.(cond).st1.SessionToCouple='none';
+                obj.info.defaults.condsAll.(cond).st1.ProtocolToCouple='none';
+                obj.info.defaults.condsAll.(cond).st1.ParameterToCouple='none';
+                obj.info.defaults.condsAll.(cond).st1.IntensityToCouple='none';
+                obj.info.defaults.condsAll.(cond).st1.TimingOnsetUnits='ms';
+                obj.info.defaults.condsAll.(cond).st1.CSUnits='';
+                obj.info.defaults.condsAll.(cond).st1.ISIUnits='';
+                obj.info.defaults.condsAll.(cond).st1.StimulationType='Test';
+                obj.info.defaults.condsAll.(cond).st1.Phase='Peak';
+                obj.info.defaults.condsAll.(cond).st1.AmplitudeThreshold='0 1e6';
+                obj.info.defaults.condsAll.(cond).st1.AmplitudeUnits='Absolute (micro volts)';
             end
             obj.par.(obj.info.event.current_session).(obj.info.event.measure_being_added)=obj.info.defaults;
         end
@@ -5191,7 +5198,7 @@ classdef best_application < handle
                     
                     obj.pi.mth.(ParametersFieldNames{iLoadingParameters}).Value=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(ParametersFieldNames{iLoadingParameters});
                     if(strcmp(ParametersFieldNames{iLoadingParameters},'BrainState'))
-                        %Requirment 93
+                        obj.pi.(ParametersFieldNames{iLoadingParameters}).Value=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(ParametersFieldNames{iLoadingParameters});
                     end
                 elseif(isa(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(ParametersFieldNames{iLoadingParameters}),'struct'))
                     %Do Nothing and Just Avoid
@@ -5232,7 +5239,7 @@ classdef best_application < handle
             set( r4, 'Widths', [55 55 55 55 55]);
             
             
-            cb_SetHeights;
+            
             
             
             obj.pi.psychmth.r0v2 = uix.VBox( 'Parent', obj.pi.psychmth.r0, 'Spacing', 5, 'Padding', 0); %uicontext menu to duplicate or delete a condition goes here
@@ -5244,16 +5251,13 @@ classdef best_application < handle
             set(obj.pi.psychmth.r0,'Widths',[-1.45 -3]);
             obj.pi.psychmth.cond.no=0;
             obj.cb_pr_psychmth_Nconditions;
-            
+            cb_SetHeights;
             function cb_UniversalPanelAdaptation(~,~)
                 obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).BrainState=obj.pi.BrainState.Value;
-                cb_BrainStateParametersPanel
-                cb_DisplayParametersPanel
-                cb_SetHeights
-                obj.func_load_psychmth_par;
+                obj.RefreshProtocol;
             end
             function cb_BrainStateParametersPanel(~,~)
-                switch obj.pi.BrainState.Value
+                switch obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).BrainState
                     case 1
                         expModvBox=uix.VBox( 'Parent', BrainStateParametersPanel, 'Spacing', 0, 'Padding', 0  );
                         
@@ -5336,7 +5340,7 @@ classdef best_application < handle
                 
             end
             function cb_DisplayParametersPanel
-                switch obj.pi.BrainState.Value
+                switch obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).BrainState
                     case 1
                         expModvBox=uix.VBox( 'Parent', DisplayParametersPanel, 'Spacing', 0, 'Padding', 0  );
                         
@@ -5390,7 +5394,7 @@ classdef best_application < handle
                 end
             end
             function cb_SetHeights
-                switch obj.pi.BrainState.Value
+                switch obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).BrainState
                     case 1
                         set(obj.pi.psychmth.r0v1,'Heights',[40 90 140 -1 55])
                     case 2
@@ -6651,7 +6655,7 @@ classdef best_application < handle
                     
                     obj.pi.psychmth.(ParametersFieldNames{iLoadingParameters}).Value=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(ParametersFieldNames{iLoadingParameters});
                     if(strcmp(ParametersFieldNames{iLoadingParameters},'BrainState'))
-                        %Requirment 93
+                        obj.pi.(ParametersFieldNames{iLoadingParameters}).Value=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(ParametersFieldNames{iLoadingParameters});
                     end
                 elseif(isa(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(ParametersFieldNames{iLoadingParameters}),'struct'))
                     %Do Nothing and Just Avoid
@@ -6691,7 +6695,7 @@ classdef best_application < handle
             obj.pi.rtms.train.btn=uicontrol( 'Parent', r4 ,'Style','PushButton','String','','FontWeight','Bold','HorizontalAlignment','center','CData',obj.icons.train,'Tooltip','Click to Add a Train or Burst on selected stimulator (selected stimulator is highlighted in blue colour)','Tag','train','Callback',@obj.cb_pi_rtms_pulse);%add paired pulse
             set( r4, 'Widths', [55 55 55 55 55]);
             
-            cb_SetHeights;
+            
             
             
             obj.pi.rtms.r0v2 = uix.VBox( 'Parent', obj.pi.rtms.r0, 'Spacing', 5, 'Padding', 0); %uicontext menu to duplicate or delete a condition goes here
@@ -6703,15 +6707,13 @@ classdef best_application < handle
             set(obj.pi.rtms.r0,'Widths',[-1.45 -3]);
             obj.pi.rtms.cond.no=0;
             obj.cb_pi_rtms_Nconditions;
+            cb_SetHeights;
             function cb_UniversalPanelAdaptation(~,~)
                 obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).BrainState=obj.pi.BrainState.Value;
-                cb_BrainStateParametersPanel
-                cb_DisplayParametersPanel
-                cb_SetHeights
-                obj.func_load_rtms_par;
+                obj.RefreshProtocol;
             end
             function cb_BrainStateParametersPanel(~,~)
-                switch obj.pi.BrainState.Value
+                switch obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).BrainState
                     case 1
                         expModvBox=uix.VBox( 'Parent', BrainStateParametersPanel, 'Spacing', 0, 'Padding', 0  );
                         
@@ -6784,7 +6786,7 @@ classdef best_application < handle
                 end
             end
             function cb_DisplayParametersPanel
-                switch obj.pi.BrainState.Value
+                switch obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).BrainState
                     case 1
                         expModvBox=uix.VBox( 'Parent', DisplayParametersPanel, 'Spacing', 0, 'Padding', 0  );
                         
@@ -6806,7 +6808,7 @@ classdef best_application < handle
                 end
             end
             function cb_SetHeights
-                switch obj.pi.BrainState.Value
+                switch obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).BrainState
                     case 1
                         set(obj.pi.rtms.r0v1,'Heights',[40 75 75 -3 55])
                     case 2
@@ -7949,7 +7951,7 @@ classdef best_application < handle
                     
                     obj.pi.rtms.(ParametersFieldNames{iLoadingParameters}).Value=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(ParametersFieldNames{iLoadingParameters});
                     if(strcmp(ParametersFieldNames{iLoadingParameters},'BrainState'))
-                        %Requirment 93
+                        obj.pi.(ParametersFieldNames{iLoadingParameters}).Value=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(ParametersFieldNames{iLoadingParameters});
                     end
                 elseif(isa(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(ParametersFieldNames{iLoadingParameters}),'struct'))
                     %Do Nothing and Just Avoid
@@ -8282,7 +8284,7 @@ classdef best_application < handle
             obj.pi.tep.train.btn=uicontrol( 'Parent', r4 ,'Style','PushButton','String','','FontWeight','Bold','HorizontalAlignment','center','CData',obj.icons.train,'Tooltip','Click to Add a Train or Burst on selected stimulator (selected stimulator is highlighted in blue colour)','Tag','train','Callback',@obj.cb_pi_tep_pulse);%add paired pulse
             set( r4, 'Widths', [55 55 55 55 55]);
             
-            cb_SetHeights;
+            
             
             
             obj.pi.tep.r0v2 = uix.VBox( 'Parent', obj.pi.tep.r0, 'Spacing', 5, 'Padding', 0); %uicontext menu to duplicate or delete a condition goes here
@@ -8295,15 +8297,13 @@ classdef best_application < handle
             obj.pi.tep.cond.no=0;
             obj.cb_pi_tep_Nconditions;
             Interactivity;
+            cb_SetHeights;
             function cb_UniversalPanelAdaptation(~,~)
                 obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).BrainState=obj.pi.BrainState.Value;
-                cb_BrainStateParametersPanel
-                cb_DisplayParametersPanel
-                cb_SetHeights
-                obj.func_load_tep_par;
+                obj.RefreshProtocol;
             end
             function cb_BrainStateParametersPanel(~,~)
-                switch obj.pi.BrainState.Value
+                switch obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).BrainState
                     case 1
                         expModvBox=uix.VBox( 'Parent', BrainStateParametersPanel, 'Spacing', 0, 'Padding', 0  );
                         
@@ -8391,7 +8391,7 @@ classdef best_application < handle
                 
             end
             function cb_DisplayParametersPanel
-                switch obj.pi.BrainState.Value
+                switch obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).BrainState
                     case 1
                         expModvBox=uix.VBox( 'Parent', DisplayParametersPanel, 'Spacing', 0, 'Padding', 0  );
                         expModr2=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
@@ -8443,7 +8443,7 @@ classdef best_application < handle
                 end
             end
             function cb_SetHeights
-                switch obj.pi.BrainState.Value
+                switch obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).BrainState
                     case 1
                         set(obj.pi.tep.r0v1,'Heights',[40 90 170 40 -3 55])
                     case 2
@@ -9619,7 +9619,7 @@ classdef best_application < handle
                     
                     obj.pi.tep.(ParametersFieldNames{iLoadingParameters}).Value=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(ParametersFieldNames{iLoadingParameters});
                     if(strcmp(ParametersFieldNames{iLoadingParameters},'BrainState'))
-                        %Requirment 93
+                        obj.pi.(ParametersFieldNames{iLoadingParameters}).Value=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(ParametersFieldNames{iLoadingParameters});
                     end
                 elseif(isa(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(ParametersFieldNames{iLoadingParameters}),'struct'))
                     %Do Nothing and Just Avoid
@@ -9659,7 +9659,7 @@ classdef best_application < handle
             obj.pi.erp.train.btn=uicontrol( 'Parent', r4 ,'Style','PushButton','String','','FontWeight','Bold','HorizontalAlignment','center','CData',obj.icons.train,'Tooltip','Click to Add a Train or Burst on selected stimulator (selected stimulator is highlighted in blue colour)','Tag','train','Callback',@obj.cb_pi_erp_pulse);%add paired pulse
             set( r4, 'Widths', [55 55 55 55 55]);
             
-            cb_SetHeights;
+            
             
             
             obj.pi.erp.r0v2 = uix.VBox( 'Parent', obj.pi.erp.r0, 'Spacing', 5, 'Padding', 0); %uicontext menu to duplicate or delete a condition goes here
@@ -9672,15 +9672,13 @@ classdef best_application < handle
             obj.pi.erp.cond.no=0;
             obj.cb_pi_erp_Nconditions;
             Interactivity;
+            cb_SetHeights;
             function cb_UniversalPanelAdaptation(~,~)
                 obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).BrainState=obj.pi.BrainState.Value;
-                cb_BrainStateParametersPanel
-                cb_DisplayParametersPanel
-                cb_SetHeights
-                obj.func_load_erp_par;
+                obj.RefreshProtocol;
             end
             function cb_BrainStateParametersPanel(~,~)
-                switch obj.pi.BrainState.Value
+                switch obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).BrainState
                     case 1
                         expModvBox=uix.VBox( 'Parent', BrainStateParametersPanel, 'Spacing', 0, 'Padding', 0  );
                         
@@ -9768,7 +9766,7 @@ classdef best_application < handle
                 
             end
             function cb_DisplayParametersPanel
-                switch obj.pi.BrainState.Value
+                switch obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).BrainState
                     case 1
                         expModvBox=uix.VBox( 'Parent', DisplayParametersPanel, 'Spacing', 0, 'Padding', 0  );
                         
@@ -9865,7 +9863,7 @@ classdef best_application < handle
                 end
             end
             function cb_SetHeights
-                switch obj.pi.BrainState.Value
+                switch obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).BrainState
                     case 1
                         set(obj.pi.erp.r0v1,'Heights',[40 90 520 -3 55])
                     case 2
@@ -11038,7 +11036,7 @@ classdef best_application < handle
                     
                     obj.pi.erp.(ParametersFieldNames{iLoadingParameters}).Value=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(ParametersFieldNames{iLoadingParameters});
                     if(strcmp(ParametersFieldNames{iLoadingParameters},'BrainState'))
-                        %Requirment 93
+                        obj.pi.(ParametersFieldNames{iLoadingParameters}).Value=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(ParametersFieldNames{iLoadingParameters});
                     end
                 elseif(isa(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(ParametersFieldNames{iLoadingParameters}),'struct'))
                     %Do Nothing and Just Avoid
@@ -13564,7 +13562,7 @@ classdef best_application < handle
             ColCondition=1;
             ColNoOfTrials=ColCondition+1;
             ColITI=ColNoOfTrials+1;
-            if obj.pi.BrainState==2, ColPhase=ColITI+1; ColAmp=ColPhase+1; ColAmpUnits=ColAmp+1;else, ColPhase=ColITI; ColAmp=ColPhase; ColAmpUnits=ColAmp; end %if
+            if obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).BrainState==2, ColPhase=ColITI+1; ColAmp=ColPhase+1; ColAmpUnits=ColAmp+1;else, ColPhase=ColITI; ColAmp=ColPhase; ColAmpUnits=ColAmp; end %if
             ColTS=ColAmpUnits+1;
             ColStimType=ColTS+1;
             if strcmp(obj.info.event.current_measure,'MEP Motor Threshold Hunting'), ColThresholdLevel=ColStimType+1; else, ColThresholdLevel=ColStimType; end
@@ -13594,9 +13592,9 @@ classdef best_application < handle
                     ColumnName{ColCondition}='Condition #'; ColumnFormat{ColCondition}=[];
                     ColumnName{ColNoOfTrials}='No of Trials'; ColumnFormat{ColNoOfTrials}=[];
                     ColumnName{ColITI}='ITI (s)'; ColumnFormat{ColITI}=[];
-                    if obj.pi.BrainState==2
-                        TableData{iData,ColPhase}=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).TargetPhase;
-                        TableData{iData,ColAmp}=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).TargetAmplitude;
+                    if obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).BrainState==2
+                        TableData{iData,ColPhase}=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).Phase;
+                        TableData{iData,ColAmp}=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).AmplitudeThreshold;
                         TableData{iData,ColAmpUnits}=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).AmplitudeUnits;
                         ColumnName{ColPhase}='Phase'; ColumnFormat{ColPhase}={'Peak','Trough','RisingFlank','FallingFlank','Random'};
                         ColumnName{ColAmp}='Amplitude Threshold'; ColumnFormat{ColAmp}=[];
