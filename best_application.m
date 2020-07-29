@@ -2199,6 +2199,8 @@ classdef best_application < handle
             for idefaults=1:6
                 cond=['cond' num2str(idefaults)];
                 obj.info.defaults.condsAll.(cond).targetChannel=cellstr('NaN');
+                obj.info.defaults.condsAll.(cond).TrialsPerCondition=50;
+                obj.info.defaults.condsAll.(cond).ITI=[3 4];
                 obj.info.defaults.condsAll.(cond).st1.pulse_count=1;
                 obj.info.defaults.condsAll.(cond).st1.stim_device={''};
                 obj.info.defaults.condsAll.(cond).st1.stim_mode='single_pulse';
@@ -2221,6 +2223,7 @@ classdef best_application < handle
                 obj.info.defaults.condsAll.(cond).st1.Phase='Peak';
                 obj.info.defaults.condsAll.(cond).st1.AmplitudeThreshold='0 1e6';
                 obj.info.defaults.condsAll.(cond).st1.AmplitudeUnits='Absolute (micro volts)';
+                
             end
             obj.par.(obj.info.event.current_session).(obj.info.event.measure_being_added)=obj.info.defaults;
         end
@@ -13559,7 +13562,9 @@ classdef best_application < handle
             % create the Data from pars
             iData=0;
             ColCondition=1;
-            if obj.pi.BrainState==2, ColPhase=ColCondition+1; ColAmp=ColPhase+1; ColAmpUnits=ColAmp+1;else, ColPhase=ColCondition; ColAmp=ColPhase; ColAmpUnits=ColAmp; end %if
+            ColNoOfTrials=ColCondition+1;
+            ColITI=ColNoOfTrials+1;
+            if obj.pi.BrainState==2, ColPhase=ColITI+1; ColAmp=ColPhase+1; ColAmpUnits=ColAmp+1;else, ColPhase=ColITI; ColAmp=ColPhase; ColAmpUnits=ColAmp; end %if
             ColTS=ColAmpUnits+1;
             ColStimType=ColTS+1;
             if strcmp(obj.info.event.current_measure,'MEP Motor Threshold Hunting'), ColThresholdLevel=ColStimType+1; else, ColThresholdLevel=ColStimType; end
@@ -13580,11 +13585,15 @@ classdef best_application < handle
                 
             for iTableCondition=1:numel(fieldnames(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll))
                 TableCond=['cond' num2str(iTableCondition)];
-                for iTableStimulator=1:numel(fieldnames(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond)))-1 
+                for iTableStimulator=1:numel(fieldnames(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond)))-3 
                     iData=iData+1;
                     TableStim=['st' num2str(iTableStimulator)];
                     TableData{iData,ColCondition}=num2str(iTableCondition);
+                    TableData{iData,ColNoOfTrials}=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).TrialsPerCondition);
+                    TableData{iData,ColITI}=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).ITI);
                     ColumnName{ColCondition}='Condition #'; ColumnFormat{ColCondition}=[];
+                    ColumnName{ColNoOfTrials}='No of Trials'; ColumnFormat{ColNoOfTrials}=[];
+                    ColumnName{ColITI}='ITI (s)'; ColumnFormat{ColITI}=[];
                     if obj.pi.BrainState==2
                         TableData{iData,ColPhase}=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).TargetPhase;
                         TableData{iData,ColAmp}=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).TargetAmplitude;
@@ -13592,16 +13601,18 @@ classdef best_application < handle
                         ColumnName{ColPhase}='Phase'; ColumnFormat{ColPhase}={'Peak','Trough','RisingFlank','FallingFlank','Random'};
                         ColumnName{ColAmp}='Amplitude Threshold'; ColumnFormat{ColAmp}=[];
                         ColumnName{ColAmpUnits}='Amplitude Units'; ColumnFormat{ColAmpUnits}={'Absolute (micro volts)','Percentile'};
+                        ColumnName{ColITI}='Min. ITI (s)';
                     end
                     TableData{iData,ColTS}=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).si_pckt{1,1});
                     TableData{iData,ColStimType}=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).StimulationType;
-                    ColumnName{ColTS}='Intensity'; ColumnFormat{ColTS}=[];
-                    ColumnName{ColStimType}='Stimulus Type'; ColumnFormat{ColStimType}={'Test','Condition','Other'};
+                    ColumnName{ColTS}='Stim. Intensity'; ColumnFormat{ColTS}=[];
+                    ColumnName{ColStimType}='Stim. Type'; ColumnFormat{ColStimType}={'Test','Condition','Other'};
                     if strcmp(obj.info.event.current_measure,'MEP Motor Threshold Hunting')
                         TableData{iData,ColThresholdLevel}=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).threshold_level);
                         ColumnName{ColThresholdLevel}='Threshold Level (mV)'; ColumnFormat{ColThresholdLevel}=[];
+                        ColumnName{ColTS}='Starting Intensity';
                     end
-                    TableData{iData,ColIntensityUnits}=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).IntensityUnits;
+                    TableData{iData,ColIntensityUnits}=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).IntensityUnit;
                     TableData{iData,ColStimulator}=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).stim_device{1,1};
                     TableData{iData,ColPulseMode}=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).stim_mode;
                     TableData{iData,ColNoOfPulses}=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).pulse_count); 
@@ -13646,7 +13657,7 @@ classdef best_application < handle
             table.FontSize=10;
             table.ColumnName = ColumnName;
             table.ColumnFormat= ColumnFormat;
-            table.ColumnWidth = {100*ones(1,numel(ColumnName))};
+            table.ColumnWidth = repmat({100},1,numel(table.ColumnName)); 
             table.ColumnEditable =true(1,numel(table.ColumnName));
             table.RowStriping='on';
             table.RearrangeableColumns='on';
@@ -13977,7 +13988,7 @@ classdef best_application < handle
                 obj.pi.mm.stim.(cd).no=0;
                 
                 %                 make stimulators
-                for istimulators=1:(length(fieldnames(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr)))-1)
+                for istimulators=1:(length(fieldnames(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr)))-3)
                     obj.pi.mm.stim.(cd).no=istimulators;
                     st=['st' num2str(obj.pi.mm.stim.(cd).no)];
                     axes(obj.pi.mm.cond.(cd).ax)
