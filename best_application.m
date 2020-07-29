@@ -2286,13 +2286,13 @@ classdef best_application < handle
             
             obj.pi.drc.r0v2 = uix.VBox( 'Parent', obj.pi.drc.r0, 'Spacing', 5, 'Padding', 0); %uicontext menu to duplicate or delete a condition goes here
             obj.pi.mm.r0v2r1=uix.Panel( 'Parent', obj.pi.drc.r0v2,'Padding',0,'Units','normalized','FontSize',8 ,'Units','normalized','Title','Stimulation Parameters' ,'FontWeight','normal','TitlePosition','centertop');
-            obj.cb_pi_drc_StimulationParametersTable;
+            obj.cb_cm_StimulationParametersTable;
             
             obj.pi.mm.tab = uiextras.TabPanel( 'Parent', obj.pi.drc.r0v2, 'Padding', 5 );
             obj.pi.drc.r0v2.Heights=[200 -1];
             set(obj.pi.drc.r0,'Widths',[-2 -3]);
             obj.pi.drc.cond.no=0;
-            obj.cb_pi_drc_Nconditions;
+            obj.cb_cm_Nconditions;
             cb_SetHeights
             function cb_UniversalPanelAdaptation(~,~)
                 obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).BrainState=obj.pi.BrainState.Value;
@@ -5260,13 +5260,13 @@ classdef best_application < handle
             
             obj.pi.psychmth.r0v2 = uix.VBox( 'Parent', obj.pi.psychmth.r0, 'Spacing', 5, 'Padding', 0); %uicontext menu to duplicate or delete a condition goes here
             obj.pi.mm.r0v2r1=uix.Panel( 'Parent', obj.pi.psychmth.r0v2,'Padding',0,'Units','normalized','FontSize',8 ,'Units','normalized','Title','Stimulation Parameters' ,'FontWeight','normal','TitlePosition','centertop');
-            obj.cb_pr_psychmth_StimulationParametersTable;
+            obj.cb_cm_StimulationParametersTable;
             
             obj.pi.mm.tab = uiextras.TabPanel( 'Parent', obj.pi.psychmth.r0v2, 'Padding', 5 );
             obj.pi.psychmth.r0v2.Heights=[200 -1];
             set(obj.pi.psychmth.r0,'Widths',[-1.45 -3]);
             obj.pi.psychmth.cond.no=0;
-            obj.cb_pr_psychmth_Nconditions;
+            obj.cb_cm_Nconditions;
             cb_SetHeights;
             function cb_UniversalPanelAdaptation(~,~)
                 obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).BrainState=obj.pi.BrainState.Value;
@@ -6732,13 +6732,13 @@ classdef best_application < handle
             
             obj.pi.rtms.r0v2 = uix.VBox( 'Parent', obj.pi.rtms.r0, 'Spacing', 5, 'Padding', 0); %uicontext menu to duplicate or delete a condition goes here
             obj.pi.mm.r0v2r1=uix.Panel( 'Parent', obj.pi.rtms.r0v2,'Padding',0,'Units','normalized','FontSize',8 ,'Units','normalized','Title','Stimulation Parameters' ,'FontWeight','normal','TitlePosition','centertop');
-            obj.cb_pi_rtms_StimulationParametersTable;
+            obj.cb_cm_StimulationParametersTable;
             
             obj.pi.mm.tab = uiextras.TabPanel( 'Parent', obj.pi.rtms.r0v2, 'Padding', 5 );
             obj.pi.rtms.r0v2.Heights=[200 -1];
             set(obj.pi.rtms.r0,'Widths',[-1.45 -3]);
             obj.pi.rtms.cond.no=0;
-            obj.cb_pi_rtms_Nconditions;
+            obj.cb_cm_Nconditions;
             cb_SetHeights;
             function cb_UniversalPanelAdaptation(~,~)
                 obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).BrainState=obj.pi.BrainState.Value;
@@ -8321,13 +8321,13 @@ classdef best_application < handle
             
             obj.pi.tep.r0v2 = uix.VBox( 'Parent', obj.pi.tep.r0, 'Spacing', 5, 'Padding', 0); %uicontext menu to duplicate or delete a condition goes here
             obj.pi.mm.r0v2r1=uix.Panel( 'Parent', obj.pi.tep.r0v2,'Padding',0,'Units','normalized','FontSize',8 ,'Units','normalized','Title','Stimulation Parameters' ,'FontWeight','normal','TitlePosition','centertop');
-            table = obj.cb_pi_tep_StimulationParametersTable;
+            table = obj.cb_cm_StimulationParametersTable;
             
             obj.pi.mm.tab = uiextras.TabPanel( 'Parent', obj.pi.tep.r0v2, 'Padding', 5 );
             obj.pi.tep.r0v2.Heights=[200 -1];
             set(obj.pi.tep.r0,'Widths',[-1.45 -3]);
             obj.pi.tep.cond.no=0;
-            obj.cb_pi_tep_Nconditions;
+            obj.cb_cm_Nconditions;
             Interactivity;
             cb_SetHeights;
             function cb_UniversalPanelAdaptation(~,~)
@@ -9712,13 +9712,13 @@ classdef best_application < handle
             
             obj.pi.erp.r0v2 = uix.VBox( 'Parent', obj.pi.erp.r0, 'Spacing', 5, 'Padding', 0); %uicontext menu to duplicate or delete a condition goes here
             obj.pi.mm.r0v2r1=uix.Panel( 'Parent', obj.pi.erp.r0v2,'Padding',0,'Units','normalized','FontSize',8 ,'Units','normalized','Title','Stimulation Parameters' ,'FontWeight','normal','TitlePosition','centertop');
-            table = obj.cb_pi_erp_StimulationParametersTable;
+            table = obj.cb_cm_StimulationParametersTable;
             
             obj.pi.mm.tab = uiextras.TabPanel( 'Parent', obj.pi.erp.r0v2, 'Padding', 5 );
             obj.pi.erp.r0v2.Heights=[200 -1];
             set(obj.pi.erp.r0,'Widths',[-1.45 -3]);
             obj.pi.erp.cond.no=0;
-            obj.cb_pi_erp_Nconditions;
+            obj.cb_cm_Nconditions;
             Interactivity;
             cb_SetHeights;
             function cb_UniversalPanelAdaptation(~,~)
