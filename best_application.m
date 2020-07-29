@@ -7082,7 +7082,6 @@ classdef best_application < handle
         end
         %% Condition Maker
         function table= cb_cm_StimulationParametersTable(obj)
-            % create the Data from pars
             iData=0;
             ColCondition=1;
             ColNoOfTrials=ColCondition+1;
@@ -7105,7 +7104,7 @@ classdef best_application < handle
             ColTrainFreq=ColISIUnits+1;
             ColNoOfTrains=ColTrainFreq+1;
             ColFixedThreshold=ColNoOfTrains+1;
-                
+            TableData=cell(1,1);ColumnName=cell(1,1);ColumnFormat=cell(1,1);    
             for iTableCondition=1:numel(fieldnames(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll))
                 TableCond=['cond' num2str(iTableCondition)];
                 for iTableStimulator=1:numel(fieldnames(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond)))-3 
@@ -7166,17 +7165,10 @@ classdef best_application < handle
                     ColumnName{ColNoOfTrains}='# of Trains'; ColumnFormat{ColNoOfTrains}=[];
                     ColumnName{ColFixedThreshold}='Threshold'; ColumnFormat{ColFixedThreshold}=[];
                 end
-                if numel(fieldnames(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond)))==1
-                    TableData{iData+1,1}=num2str(iTableCondition);
-                    TableData{iData+1,ColTargetChannel}=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).targetChannel{1,1};
-                end
             end
-%             if (isempty(obj.hw.device_added2_listbox.string))
-%                 obj.hw.device_added2_listbox.string={'Select'};
-%             end
-            % create the table and load the data
+            % create the table and write data in table
             table=uitable( 'Parent', obj.pi.mm.r0v2r1);
-            table.Data=TableData;%cell(6,12); % the row number comes from above
+            table.Data=TableData;
             table.FontSize=10;
             table.ColumnName = ColumnName;
             table.ColumnFormat= ColumnFormat;
@@ -7188,17 +7180,9 @@ classdef best_application < handle
             
             function CellEditCallback (~,CellEditData)
                 AdditionInCondition=['cond' num2str(table.Data{CellEditData.Indices(1),1})];
-                %                     table.Data{:,1}
-                % num2str(table.Data{CellEditData.Indices(1),1})
-                % gp=cellfun(@str2double ,table.Data(:,1))
-                % str2double(table.Data{CellEditData.Indices(1),1})
-                %                     ggg=find(gp==str2double(table.Data{CellEditData.Indices(1),1}))
-                % %                     find(table.Data{:,1}==table.Data{CellEditData.Indices(1),1})
                 AdditionInStimulatorNum=find(find(cellfun(@str2double ,table.Data(:,1))==str2double(table.Data{CellEditData.Indices(1),1}))==CellEditData.Indices(1));
                 AdditionInStimulator=['st' num2str(AdditionInStimulatorNum)];
-                opts               =    [];
-                opts.WindowStyle   =    'modal';
-                opts.Interpreter   =    'none';
+                opts               =    []; opts.WindowStyle   =    'modal'; opts.Interpreter   =    'none';
                 switch CellEditData.Indices(2)
                     case ColTS %TS Intensity
                         obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).si_pckt{1,1}=str2double(CellEditData.NewData);
@@ -7480,8 +7464,6 @@ classdef best_application < handle
                 %condition, delete a stimulator
                 
             end
-            
-            
         end
         function cb_cm_Nconditions(obj)
             
