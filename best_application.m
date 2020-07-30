@@ -2199,6 +2199,9 @@ classdef best_application < handle
                 obj.info.defaults.condsAll.(cond).targetChannel=cellstr('NaN');
                 obj.info.defaults.condsAll.(cond).TrialsPerCondition=50;
                 obj.info.defaults.condsAll.(cond).ITI=[3 4];
+                obj.info.defaults.condsAll.(cond).Phase='Peak';
+                obj.info.defaults.condsAll.(cond).AmplitudeThreshold='0 1e6';
+                obj.info.defaults.condsAll.(cond).AmplitudeUnits='Absolute (micro volts)';
                 obj.info.defaults.condsAll.(cond).st1.pulse_count=1;
                 obj.info.defaults.condsAll.(cond).st1.stim_device={''};
                 obj.info.defaults.condsAll.(cond).st1.stim_mode='single_pulse';
@@ -2218,10 +2221,6 @@ classdef best_application < handle
                 obj.info.defaults.condsAll.(cond).st1.CSUnits='';
                 obj.info.defaults.condsAll.(cond).st1.ISIUnits='';
                 obj.info.defaults.condsAll.(cond).st1.StimulationType='Test';
-                obj.info.defaults.condsAll.(cond).st1.Phase='Peak';
-                obj.info.defaults.condsAll.(cond).st1.AmplitudeThreshold='0 1e6';
-                obj.info.defaults.condsAll.(cond).st1.AmplitudeUnits='Absolute (micro volts)';
-                
             end
             obj.par.(obj.info.event.current_session).(obj.info.event.measure_being_added)=obj.info.defaults;
         end
@@ -2595,6 +2594,9 @@ classdef best_application < handle
                 obj.info.defaults.condsAll.(cond).targetChannel=cellstr('NaN');
                 obj.info.defaults.condsAll.(cond).TrialsPerCondition=50;
                 obj.info.defaults.condsAll.(cond).ITI=[3 4];
+                obj.info.defaults.condsAll.(cond).Phase='Peak';
+                obj.info.defaults.condsAll.(cond).AmplitudeThreshold='0 1e6';
+                obj.info.defaults.condsAll.(cond).AmplitudeUnits='Absolute (micro volts)';
                 obj.info.defaults.condsAll.(cond).st1.pulse_count=1;
                 obj.info.defaults.condsAll.(cond).st1.stim_device={''};
                 obj.info.defaults.condsAll.(cond).st1.stim_mode='single_pulse';
@@ -2614,9 +2616,7 @@ classdef best_application < handle
                 obj.info.defaults.condsAll.(cond).st1.CSUnits='';
                 obj.info.defaults.condsAll.(cond).st1.ISIUnits='';
                 obj.info.defaults.condsAll.(cond).st1.StimulationType='Test';
-                obj.info.defaults.condsAll.(cond).st1.Phase='Peak';
-                obj.info.defaults.condsAll.(cond).st1.AmplitudeThreshold='0 1e6';
-                obj.info.defaults.condsAll.(cond).st1.AmplitudeUnits='Absolute (micro volts)';
+                
             end
             obj.par.(obj.info.event.current_session).(obj.info.event.measure_being_added)=obj.info.defaults;
         end
@@ -2972,6 +2972,9 @@ classdef best_application < handle
                 obj.info.defaults.condsAll.(cond).targetChannel=cellstr('NaN');
                 obj.info.defaults.condsAll.(cond).TrialsPerCondition=40;
                 obj.info.defaults.condsAll.(cond).ITI=[3 4];
+                obj.info.defaults.condsAll.(cond).Phase='Peak';
+                obj.info.defaults.condsAll.(cond).AmplitudeThreshold='0 1e6';
+                obj.info.defaults.condsAll.(cond).AmplitudeUnits='Absolute (micro volts)';
                 obj.info.defaults.condsAll.(cond).st1.pulse_count=1;
                 obj.info.defaults.condsAll.(cond).st1.stim_device={''};
                 obj.info.defaults.condsAll.(cond).st1.stim_mode='single_pulse';
@@ -2993,9 +2996,6 @@ classdef best_application < handle
                 obj.info.defaults.condsAll.(cond).st1.CSUnits='';
                 obj.info.defaults.condsAll.(cond).st1.ISIUnits='';
                 obj.info.defaults.condsAll.(cond).st1.StimulationType='Test';
-                obj.info.defaults.condsAll.(cond).st1.Phase='Peak';
-                obj.info.defaults.condsAll.(cond).st1.AmplitudeThreshold='0 1e6';
-                obj.info.defaults.condsAll.(cond).st1.AmplitudeUnits='Absolute (micro volts)';
             end
             obj.par.(obj.info.event.current_session).(obj.info.event.measure_being_added)=obj.info.defaults;
         end
@@ -3309,6 +3309,9 @@ classdef best_application < handle
                 obj.info.defaults.condsAll.(cond).targetChannel=cellstr('NaN');
                 obj.info.defaults.condsAll.(cond).TrialsPerCondition=50;
                 obj.info.defaults.condsAll.(cond).ITI=[3 4];
+                obj.info.defaults.condsAll.(cond).Phase='Peak';
+                obj.info.defaults.condsAll.(cond).AmplitudeThreshold='0 1e6';
+                obj.info.defaults.condsAll.(cond).AmplitudeUnits='Absolute (micro volts)';
                 obj.info.defaults.condsAll.(cond).st1.pulse_count=1;
                 obj.info.defaults.condsAll.(cond).st1.stim_device={''};
                 obj.info.defaults.condsAll.(cond).st1.stim_mode='single_pulse';
@@ -3329,9 +3332,6 @@ classdef best_application < handle
                 obj.info.defaults.condsAll.(cond).st1.CSUnits='';
                 obj.info.defaults.condsAll.(cond).st1.ISIUnits='';
                 obj.info.defaults.condsAll.(cond).st1.StimulationType='Test';
-                obj.info.defaults.condsAll.(cond).st1.Phase='Peak';
-                obj.info.defaults.condsAll.(cond).st1.AmplitudeThreshold='0 1e6';
-                obj.info.defaults.condsAll.(cond).st1.AmplitudeUnits='Absolute (micro volts)';
             end
             obj.par.(obj.info.event.current_session).(obj.info.event.measure_being_added)=obj.info.defaults;
         end
@@ -4154,6 +4154,9 @@ classdef best_application < handle
                 obj.info.defaults.condsAll.(cond).targetChannel=cellstr('NaN');
                 obj.info.defaults.condsAll.(cond).TrialsPerCondition=50;
                 obj.info.defaults.condsAll.(cond).ITI=[3 4];
+                obj.info.defaults.condsAll.(cond).Phase='Peak';
+                obj.info.defaults.condsAll.(cond).AmplitudeThreshold='0 1e6';
+                obj.info.defaults.condsAll.(cond).AmplitudeUnits='Absolute (micro volts)';
                 obj.info.defaults.condsAll.(cond).st1.pulse_count=1;
                 obj.info.defaults.condsAll.(cond).st1.stim_device={''};
                 obj.info.defaults.condsAll.(cond).st1.stim_mode='single_pulse';
@@ -4173,9 +4176,6 @@ classdef best_application < handle
                 obj.info.defaults.condsAll.(cond).st1.CSUnits='';
                 obj.info.defaults.condsAll.(cond).st1.ISIUnits='';
                 obj.info.defaults.condsAll.(cond).st1.StimulationType='Test';
-                obj.info.defaults.condsAll.(cond).st1.Phase='Peak';
-                obj.info.defaults.condsAll.(cond).st1.AmplitudeThreshold='0 1e6';
-                obj.info.defaults.condsAll.(cond).st1.AmplitudeUnits='Absolute (micro volts)';
             end
             obj.par.(obj.info.event.current_session).(obj.info.event.measure_being_added)=obj.info.defaults;
         end
@@ -4518,6 +4518,9 @@ classdef best_application < handle
                 obj.info.defaults.condsAll.(cond).targetChannel=cellstr('NaN');
                 obj.info.defaults.condsAll.(cond).TrialsPerCondition=50;
                 obj.info.defaults.condsAll.(cond).ITI=[3 4];
+                obj.info.defaults.condsAll.(cond).Phase='Peak';
+                obj.info.defaults.condsAll.(cond).AmplitudeThreshold='0 1e6';
+                obj.info.defaults.condsAll.(cond).AmplitudeUnits='Absolute (micro volts)';
                 obj.info.defaults.condsAll.(cond).st1.pulse_count=1;
                 obj.info.defaults.condsAll.(cond).st1.stim_device={''};
                 obj.info.defaults.condsAll.(cond).st1.stim_mode='single_pulse';
@@ -4537,9 +4540,6 @@ classdef best_application < handle
                 obj.info.defaults.condsAll.(cond).st1.CSUnits='';
                 obj.info.defaults.condsAll.(cond).st1.ISIUnits='';
                 obj.info.defaults.condsAll.(cond).st1.StimulationType='Test';
-                obj.info.defaults.condsAll.(cond).st1.Phase='Peak';
-                obj.info.defaults.condsAll.(cond).st1.AmplitudeThreshold='0 1e6';
-                obj.info.defaults.condsAll.(cond).st1.AmplitudeUnits='Absolute (micro volts)';
             end
             obj.par.(obj.info.event.current_session).(obj.info.event.measure_being_added)=obj.info.defaults;
         end
@@ -7107,7 +7107,7 @@ classdef best_application < handle
             TableData=cell(1,1);ColumnName=cell(1,1);ColumnFormat=cell(1,1);    
             for iTableCondition=1:numel(fieldnames(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll))
                 TableCond=['cond' num2str(iTableCondition)];
-                for iTableStimulator=1:numel(fieldnames(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond)))-3 
+                for iTableStimulator=1:numel(fieldnames(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond)))-6 
                     iData=iData+1;
                     TableStim=['st' num2str(iTableStimulator)];
                     TableData{iData,ColCondition}=num2str(iTableCondition);
@@ -7182,8 +7182,49 @@ classdef best_application < handle
                 AdditionInCondition=['cond' num2str(table.Data{CellEditData.Indices(1),1})];
                 AdditionInStimulatorNum=find(find(cellfun(@str2double ,table.Data(:,1))==str2double(table.Data{CellEditData.Indices(1),1}))==CellEditData.Indices(1));
                 AdditionInStimulator=['st' num2str(AdditionInStimulatorNum)];
-                opts               =    []; opts.WindowStyle   =    'modal'; opts.Interpreter   =    'none';
-                switch CellEditData.Indices(2)
+                opts=[]; opts.WindowStyle='modal'; opts.Interpreter='none';
+                switch table.ColumnName{1,CellEditData.Indices(2)}
+                    case 'No of Trials'
+                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).TrialsPerCondition=str2num(CellEditData.NewData);
+                    case {'ITI (s)','Min. ITI (s)'}
+                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).ITI=str2num(CellEditData.NewData);
+                    case 'Phase'
+                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).Phase=CellEditData.NewData;
+                    case 'Amplitude Threshold'
+                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).AmplitudeThreshold=str2num(CellEditData.NewData);
+                    case 'Amplitude Units'
+                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).AmplitudeUnits=CellEditData.NewData;
+                    case {'Stim. Intensity','Starting Intensity'}
+                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).si_pckt{1,1}=str2double(CellEditData.NewData);
+                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).si=CellEditData.NewData;
+                    case 'Stim. Type'
+                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).StimulationType=CellEditData.NewData;
+                    case 'Threshold Level (mV)'
+                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).threshold_level=str2num(CellEditData.NewData);
+                    case 'Intensity Units'
+                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).IntensityUnit=CellEditData.NewData;
+                    case 'Stimulator'
+                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).stim_device=cellstr(CellEditData.NewData);
+                    case 'Pulse Mode'
+                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).stim_mode=CellEditData.NewData;
+                    case '# of Pulses'
+                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).pulse_count=str2num(CellEditData.NewData);
+                    case 'Timing Onset'
+                        %% start here
+                    case 'Timing Onset Units'
+                    case 'Target Channel'
+                    case 'Paired-CS Intensity'
+                    case 'Paired-CS Intensity Units'
+                    case 'ISI'
+                    case 'ISI Units'
+                    case 'Train Frequency'
+                    case '# of Trains'
+                    case 'Threshold'
+                
+                        
+                        
+                        
+                        
                     case ColTS %TS Intensity
                         obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).si_pckt{1,1}=str2double(CellEditData.NewData);
                         obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).si=CellEditData.NewData;
@@ -7493,7 +7534,7 @@ classdef best_application < handle
                 obj.pi.mm.stim.(cd).no=0;
                 
                 %                 make stimulators
-                for istimulators=1:(length(fieldnames(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr)))-3)
+                for istimulators=1:(length(fieldnames(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr)))-6)
                     obj.pi.mm.stim.(cd).no=istimulators;
                     st=['st' num2str(obj.pi.mm.stim.(cd).no)];
                     axes(obj.pi.mm.cond.(cd).ax)
