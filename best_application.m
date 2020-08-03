@@ -7117,9 +7117,9 @@ classdef best_application < handle
                     ColumnName{ColNoOfTrials}='No of Trials'; ColumnFormat{ColNoOfTrials}=[];
                     ColumnName{ColITI}='ITI (s)'; ColumnFormat{ColITI}=[];
                     if obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).BrainState==2
-                        TableData{iData,ColPhase}=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).Phase;
-                        TableData{iData,ColAmp}=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).AmplitudeThreshold;
-                        TableData{iData,ColAmpUnits}=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).AmplitudeUnits;
+                        TableData{iData,ColPhase}=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).Phase;
+                        TableData{iData,ColAmp}=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).AmplitudeThreshold;
+                        TableData{iData,ColAmpUnits}=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).AmplitudeUnits;
                         ColumnName{ColPhase}='Phase'; ColumnFormat{ColPhase}={'Peak','Trough','RisingFlank','FallingFlank','Random'};
                         ColumnName{ColAmp}='Amplitude Threshold'; ColumnFormat{ColAmp}=[];
                         ColumnName{ColAmpUnits}='Amplitude Units'; ColumnFormat{ColAmpUnits}={'Absolute (micro volts)','Percentile'};
