@@ -6583,6 +6583,7 @@ classdef best_application < handle
             obj.bst.info.matfilstr=['BEST_' save_str '.mat'];
             % % %             obj.bst.info.save_str_runtime=['BEST_' obj.Date '_' save_str '_Autosave.mat'];
             %             obj.bst.info.save_buffer = matfile(obj.bst.info.matfilstr,'Writable',true);
+
             try
                 save(fullfile(obj.par.GlobalSettings.DataBaseDirectory,exp_name,obj.bst.info.matfilstr),'BESTToolboxParameters','-v7.3','-nocompression');
             catch
@@ -7210,17 +7211,29 @@ classdef best_application < handle
                     case '# of Pulses'
                         obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).pulse_count=str2num(CellEditData.NewData);
                     case 'Timing Onset'
-                        %% start here
+                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).stim_timing=num2cell(eval(CellEditData.NewData));
                     case 'Timing Onset Units'
+                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).TimingOnsetUnits=CellEditData.NewData;
                     case 'Target Channel'
+                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).targetChannel=cellstr(CellEditData.NewData);
                     case 'Paired-CS Intensity'
+                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).si_pckt{1,2}=str2double(CellEditData.NewData);
+                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).cs=CellEditData.NewData;
                     case 'Paired-CS Intensity Units'
+                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).CSUnits=CellEditData.NewData;
                     case 'ISI'
+                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).si_pckt{1,3}=str2double(CellEditData.NewData);
+                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).isi=CellEditData.NewData;    
                     case 'ISI Units'
+                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).ISIUnits=CellEditData.NewData;
                     case 'Train Frequency'
+                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).si_pckt{1,7}=str2double(CellEditData.NewData);
+                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).freq=CellEditData.NewData;
                     case '# of Trains'
+                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).si_pckt{1,8}=str2double(CellEditData.NewData);
+                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).pulsesNo=CellEditData.NewData;
                     case 'Threshold'
-                
+                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).threshold=CellEditData.NewData;
                         
                         
                         
