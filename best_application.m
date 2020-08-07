@@ -8293,6 +8293,10 @@ classdef best_application < handle
             function ValueExtraction
             end
         end
+        function cb_ImportPeakFrequency (obj)
+        end
+        function cb_ImportERPLatency (obj)
+        end
         %% Helper Function
        function RefreshProtocol(obj)
            switch obj.info.event.current_measure
