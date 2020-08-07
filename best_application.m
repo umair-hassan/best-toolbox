@@ -7184,7 +7184,7 @@ classdef best_application < handle
                 AdditionInStimulatorNum=find(find(cellfun(@str2double ,table.Data(:,1))==str2double(table.Data{CellEditData.Indices(1),1}))==CellEditData.Indices(1));
                 AdditionInStimulator=['st' num2str(AdditionInStimulatorNum)];
                 opts=[]; opts.WindowStyle='modal'; opts.Interpreter='none';
-                switch table.ColumnName{1,CellEditData.Indices(2)}
+                switch table.ColumnName{CellEditData.Indices(2),1}
                     case 'No of Trials'
                         obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).TrialsPerCondition=str2num(CellEditData.NewData);
                     case {'ITI (s)','Min. ITI (s)'}
@@ -7204,6 +7204,10 @@ classdef best_application < handle
                         obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).threshold_level=str2num(CellEditData.NewData);
                     case 'Intensity Units'
                         obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).IntensityUnit=CellEditData.NewData;
+                        switch CellEditData.NewData
+                            case {'%MSO coupled','%MT coupled','mA coupled','%ST coupled'}
+                                obj.cb_CoupleIntensityUnits(AdditionInCondition,AdditionInStimulator);
+                        end
                     case 'Stimulator'
                         obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).stim_device=cellstr(CellEditData.NewData);
                     case 'Pulse Mode'
@@ -7269,7 +7273,7 @@ classdef best_application < handle
                     obj.pi.mm.stim.(cd).no=0;
                     
                     %make stimulators
-                    for istimulators=1:(length(fieldnames(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr)))-1)
+                    for istimulators=1:(length(fieldnames(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr)))-6)
                         obj.pi.mm.stim.(cd).no=istimulators;
                         st=['st' num2str(obj.pi.mm.stim.(cd).no)];
                         axes(obj.pi.mm.cond.(cd).ax)
@@ -8181,6 +8185,113 @@ classdef best_application < handle
                 close(f)
             end
             
+        end
+        function cb_CoupleIntensityUnits(obj,AdditionInCondition,AdditionInStimulator)
+            %% Making Buffer
+            if ~isfield(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator),'CoupleIntensityUnits')
+                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).CoupleIntensityUnits=struct;
+                Session=obj.pmd.lb_sessions.listbox.String;
+                Protocol=obj.pmd.lb_measures.listbox.String;
+                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).CoupleIntensityUnits.Session=Session{1,1};
+                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).CoupleIntensityUnits.Protocol=Protocol{1,1};
+                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).CoupleIntensityUnits.Parameter='';
+                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).CoupleIntensityUnits.Channel='';
+                Parameter={''};
+                Channel={''};
+                Value='Not Available';
+            else
+                Session={obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).CoupleIntensityUnits.Session};
+                Protocol={obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).CoupleIntensityUnits.Protocol};
+                Parameter={obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).CoupleIntensityUnits.Parameter};
+                Channel={obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).CoupleIntensityUnits.Channel};
+                Value='Not Available';
+                %                 Value=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).CoupleIntensityUnits.Value;
+            end
+            f=figure('ToolBar','none','MenuBar','none','Name','Intensity Units | BEST Toolbox','NumberTitle','off','WindowStyle','modal');
+            c1=uix.VBox('parent',f,'Padding',10,'Spacing',10);
+            %% Select Session - showing all available sessions
+            r1=uix.HBox('parent',c1);
+            uicontrol( 'Style','text','Parent', r1,'String','Select Session:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+            SessionList=uicontrol( 'Style','popupmenu','Parent', r1 ,'FontSize',11,'String',Session,'callback',@SessionSelected);
+            %% Select Protocols - showing all available protocols
+            % Implications: when the protocol is renamed or suffixed, how to handle that?
+            r2=uix.HBox('parent',c1);
+            uicontrol( 'Style','text','Parent', r2,'String','Select Protocol:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+            ProtocolList=uicontrol( 'Style','popupmenu','Parent', r2 ,'FontSize',11,'String',Protocol,'callback',@ProtocolSelected);
+            %% Select Parameter - protocol selection, prefill relevant Parameters
+            r3=uix.HBox('parent',c1);
+            uicontrol( 'Style','text','Parent', r3,'String','Select Parameter:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+            ProtocolsParameters=uicontrol( 'Parent', r3 ,'Style','popupmenu','FontSize',11,'String',Parameter,'Callback',@ParameterSelected);
+            %% Select Channel
+            r4=uix.HBox('parent',c1);
+            uicontrol( 'Style','text','Parent', r4,'String','Select Channel:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+            SelectedChannel=uicontrol( 'Parent', r4 ,'Style','popupmenu','FontSize',11,'String',Channel,'Callback',@ChannelSelected);
+            %% Annotating Value
+            r5=uix.HBox('parent',c1);
+            uicontrol( 'Style','text','Parent', r5,'String','Selected Value:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+            Value=uicontrol( 'Parent', r5 ,'Style','text','FontSize',11,'String',Value);
+            %% Reset Coupling
+            r6=uix.HBox('parent',c1);
+            uicontrol( 'Style','text','Parent', r6,'String','','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+            uicontrol( 'Parent', r6 ,'Style','pushbutton','String','Reset','FontSize',11,'FontWeight','Bold','Callback',@(~,~)ResetCoupling);
+            %% Figure Heights and Positioning
+            set(c1, 'Heights', [25 25 25 25 25 25])
+            f.Position(3)=430;
+            f.Position(4)=225;
+            %% Callbacks
+            function SessionSelected(source,~)
+                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).CoupleIntensityUnits.Session=regexprep((obj.pmd.lb_sessions.listbox.String{source.Value}),' ','_');
+                sess=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).CoupleIntensityUnits.Session;
+                % obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).CoupleIntensityUnits.Protocol=regexprep((obj.pmd.lb_measures.listbox.String{source.Value}),' ','_');
+                ProtocolList.String=obj.data.(sess).info.measurement_str_to_listbox;
+                ProtocolsParameters.String={''};
+                SelectedChannel.String={''};
+            end
+            function ProtocolSelected(source,~)
+                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).CoupleIntensityUnits.Protocol=regexprep((obj.pmd.lb_measures.listbox.String{source.Value}),' ','_');
+                sess=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).CoupleIntensityUnits.Session;
+                prtcl=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).CoupleIntensityUnits.Protocol;
+                switch obj.par.(sess).(prtcl).Protocol{1,1}
+                    case 'Motor Threshold Hunting Protocol' %Motor Thresholds + Channels
+                        ProtocolsParameters.String={'Motor Threshold'};
+                        for TargetChannels=1:numel(fieldnames(obj.par.(sess).(prtcl).condsAll))
+                            cond=['cond' num2str(TargetChannels)];
+                            SelectedChannel.String{1,TargetChannels}=obj.par.(sess).(prtcl).condsAll.(cond).targetChannel{1,1};
+                        end
+                    case 'MEP Dose Response Curve Protocol' %Inflection Point, Plateau, Threshold, Inhibition, Faciliation + Channels
+                        ProtocolsParameters.String={'Inflection Point', 'Inhibition', 'Facilitation', 'Plateau', 'Threshold'};
+                        SelectedChannel.String=eval(obj.par.(sess).(prtcl).EMGTargetChannels);
+                    case 'Psychometric Threshold Hunting Protocol' % Sensory Thresholds + Channels
+                        ProtocolsParameters.String={'Sensory Threshold'};
+                        for TargetChannels=1:numel(fieldnames(obj.par.(sess).(prtcl).condsAll))
+                            cond=['cond' num2str(TargetChannels)];
+                            SelectedChannel.String{1,TargetChannels}=obj.par.(sess).(prtcl).condsAll.(cond).targetChannel{1,1};
+                        end
+                end
+                try
+                    obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).CoupleIntensityUnits.Parameter=ProtocolsParameters.String{1,1};
+                catch
+                    obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).CoupleIntensityUnits.Parameter='';
+                end
+                try
+                    obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).CoupleIntensityUnits.Channel=SelectedChannel.String{1,1};
+                catch
+                    obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).CoupleIntensityUnits.Channel='';
+                end
+            end
+            function ParameterSelected(source,~)
+                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).CoupleIntensityUnits.Parameter=ProtocolsParameters.String{source.Value};
+            end
+            function ChannelSelected(source,~)
+                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).CoupleIntensityUnits.Channel=SelectedChannel.String{source.Value};
+            end
+            function ResetCoupling
+                close(f)
+                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator)=rmfield(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator),'CoupleIntensityUnits');
+                obj.cb_CoupleIntensityUnits(AdditionInCondition,AdditionInStimulator);
+            end
+            function ValueExtraction
+            end
         end
         %% Helper Function
        function RefreshProtocol(obj)
