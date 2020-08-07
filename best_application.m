@@ -7234,104 +7234,8 @@ classdef best_application < handle
                         obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).pulsesNo=CellEditData.NewData;
                     case 'Threshold'
                         obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).threshold=CellEditData.NewData;
-                        
-                        
-                        
-                        
-                    case ColTS %TS Intensity
-                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).si_pckt{1,1}=str2double(CellEditData.NewData);
-                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).si=CellEditData.NewData;
-                    case ColThresholdLevel
-                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).threshold_level=str2double(CellEditData.NewData);
-                    case ColIntensityUnits %Intensity Units
-                        switch CellEditData.NewData
-                            case '%MSO'
-                                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).si_units=1;
-                            case '%MT'
-                                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).si_units=0;
-                                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).threshold='NaN';
-                                
-                        end
-                        
-                    case ColStimulator %Stimulator
-                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).stim_device=cellstr(CellEditData.NewData);
-                        
-                    case ColPulseMode %Pulse Mode
-                        switch CellEditData.NewData
-                            case 'Single Pulse'
-                                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).stim_mode='single_pulse';
-                            case 'Paired Pulse'
-                                
-                                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).stim_mode='paired_pulse';
-                                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).si_pckt{1,2}=NaN;
-                                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).si_pckt{1,3}=NaN;
-                                
-                            case 'Train'
-                                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).stim_mode='train';
-                                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).si_pckt{1,2}=NaN;
-                                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).si_pckt{1,3}=NaN;
-                        end
-                        
-                    case ColNoOfPulses % # of Pulses
-                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).pulse_count=str2double(CellEditData.NewData);
-                        %AAJ: idher add kero k Stimulation Mode bhi nill ho jaye units bhi Nill ho
-                        %jaye intensity bhi khtam ho jaye matlab jese he pulse 0 zero ho to sirf vo
-                        %reh jaye to jab only stimulator add kerty hein to ata he
-                        if(str2double(CellEditData.NewData)==0)
-                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).stim_timing{1,1}=[];
-                        else
-                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).stim_timing{1,str2double(CellEditData.NewData)}=NaN;
-                        end
-                        
-                    case ColTimingOnset %Timing Onset (ms)
-                        CellEditDataTimingOnset=[];
-                        CellEditDataTimingOnset=num2cell(eval(CellEditData.NewData));
-                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).stim_timing=CellEditDataTimingOnset;
-                        
-                    case ColTargetChannel %Target EMG Ch
-                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).targetChannel=cellstr(CellEditData.NewData);
-                        
-                    case {ColTrainFreq,ColNoOfTrains} %Train Freq, # of Trians
-                        if ~(strcmp(table.Data{CellEditData.Indices(1),5},'Train'))
-                            table.Data(CellEditData.Indices(1),CellEditData.Indices(2))=cellstr('          -');
-                            errordlg('Train Frequency and # of Trians are only Editable for the "Train" Pulse Mode, change Pulse Mode respectively if you desire to set this parameter','Warning | BEST Toolbox',opts);
-                        else
-                            switch CellEditData.Indices(2)
-                                case ColTrainFreq
-                                    obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).si_pckt{1,2}=str2double(CellEditData.NewData);
-                                    obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).freq=CellEditData.NewData;
-                                case ColNoOfTrains
-                                    obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).si_pckt{1,3}=str2double(CellEditData.NewData);
-                                    obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).pulsesNo=CellEditData.NewData;
-                            end
-                            
-                        end
-                    case {ColCS,ColISI} % CS Intensity, ISI (ms)
-                        if ~(strcmp(table.Data{CellEditData.Indices(1),5},'Paired Pulse'))
-                            table.Data(CellEditData.Indices(1),CellEditData.Indices(2))=cellstr('          -');
-                            errordlg('CS Intensity and ISI are only Editable for the "Paired Pulse" Pulse Mode, change Pulse Mode respectively if you desire to set this parameter','Warning | BEST Toolbox',opts);
-                        else
-                            switch CellEditData.Indices(2)
-                                case ColCS
-                                    obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).si_pckt{1,2}=str2double(CellEditData.NewData);
-                                    obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).cs=CellEditData.NewData;
-                                case ColISI
-                                    obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).si_pckt{1,3}=str2double(CellEditData.NewData);
-                                    obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).isi=CellEditData.NewData;
-                            end
-                            
-                        end
-                    case ColMotorThreshold
-                        if ~(strcmp(table.Data{CellEditData.Indices(1),3},'%MT'))
-                            table.Data(CellEditData.Indices(1),CellEditData.Indices(2))=cellstr('          -');
-                            errordlg('The selected Stimulation Intensity Units are %MSO, change it to %MT from its dropdown menu if you desire to update this value to a specific threshold','Warning | BEST Toolbox',opts);
-                        else
-                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).threshold=CellEditData.NewData;
-                            
-                        end
                 end
                 %Improvement Note :Requirement 96
-                %                 obj.cm;
                 %cb_pulse_update
                 %cb_condition_addition
                 %cb_condition_deletion
@@ -7359,7 +7263,7 @@ classdef best_application < handle
                     obj.pi.mm.cond.(cd).ax.XLim=[0 5];
                     xticks(obj.pi.mm.cond.(cd).ax,[100 101]);
                     yticks(obj.pi.mm.cond.(cd).ax,-1:1:1)
-                    obj.pi.mm.cond.(cd).ax.YTickLabel={'','MEP Search Window',''};
+                    obj.pi.mm.cond.(cd).ax.YTickLabel={'','',''};
                     plot(0:0.01:10,rand(1,1001)*0.30-0.15,'Color','k','parent',obj.pi.mm.cond.(cd).ax,'LineWidth',2,'Tag','empty'); % 12-Mar-2020 07:37:17
                     text(2.5,0+0.20,['Channel Name:[' char(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).targetChannel) ']'],'VerticalAlignment','bottom','HorizontalAlignment','center','Color',[0.50 0.50 0.50],'FontSize',9,'FontAngle','italic','ButtonDownFcn',@obj.cb_cm_targetChannel) % 11-Mar-2020 14:49:00
                     obj.pi.mm.stim.(cd).no=0;
@@ -7379,7 +7283,7 @@ classdef best_application < handle
                             yticklab{1,i}=cellstr(['Stimulator ' num2str(i)]);
                         end
                         yticklab=flip(horzcat(yticklab{1,:}));
-                        obj.pi.mm.cond.(cd).ax.YTickLabel={'',char(yticklab),'MEP Search Window',''};
+                        obj.pi.mm.cond.(cd).ax.YTickLabel={'',char(yticklab),'',''};
                         text(0,-1*obj.pi.mm.stim.(cd).no,char(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).stim_device),'VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',9,'FontAngle','italic','Tag',num2str(obj.pi.mm.stim.(cd).no),'ButtonDownFcn',@obj.cb_cm_output_device)
                         for ipulses=1:obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).pulse_count
                             
@@ -7509,14 +7413,6 @@ classdef best_application < handle
                         obj.RefreshProtocol;
                     end
                 end
-                
-                
-                
-                
-                %AAJ: add a new uimenu in table for add a condition,
-                %add a stimulator to this condition, delete a
-                %condition, delete a stimulator
-                
             end
         end
         function cb_cm_Nconditions(obj)
