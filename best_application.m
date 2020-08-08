@@ -7096,13 +7096,11 @@ classdef best_application < handle
             ColPulseMode=ColStimulator+1;
             ColNoOfPulses=ColPulseMode+1;
             ColTimingOnset=ColNoOfPulses+1;
-            ColTimingOnsetUnits=ColTimingOnset+1;
-            if ~(strcmp(obj.info.event.current_measure,'MEP Dose Response Curve') || strcmp(obj.info.event.current_measure,'ERP Measurement') || strcmp(obj.info.event.current_measure,'TEP Measurement')), ColTargetChannel=ColTimingOnsetUnits+1; else, ColTargetChannel=ColTimingOnsetUnits; end
+            if ~(strcmp(obj.info.event.current_measure,'MEP Dose Response Curve') || strcmp(obj.info.event.current_measure,'ERP Measurement') || strcmp(obj.info.event.current_measure,'TEP Measurement')), ColTargetChannel=ColTimingOnset+1; else, ColTargetChannel=ColTimingOnset; end
             ColCS=ColTargetChannel+1;
             ColCSUnits=ColCS+1;
             ColISI=ColCSUnits+1;
-            ColISIUnits=ColISI+1;
-            ColTrainFreq=ColISIUnits+1;
+            ColTrainFreq=ColISI+1;
             ColNoOfTrains=ColTrainFreq+1;
             ColFixedThreshold=ColNoOfTrains+1;
             TableData=cell(1,1);ColumnName=cell(1,1);ColumnFormat=cell(1,1);    
@@ -7139,13 +7137,11 @@ classdef best_application < handle
                     TableData{iData,ColStimulator}=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).stim_device{1,1};
                     TableData{iData,ColPulseMode}=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).stim_mode;
                     TableData{iData,ColNoOfPulses}=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).pulse_count); 
-                    TableData{iData,ColTimingOnset}=mat2str(cell2mat(horzcat((obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).stim_timing(1,:)))));
                     TableData{iData,ColTimingOnsetUnits}=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).TimingOnsetUnits;
                     ColumnName{ColIntensityUnits}='Intensity Units'; ColumnFormat{ColIntensityUnits}={'%MSO','%MT','mA','%ST','%MSO coupled','%MT coupled','mA coupled','%ST coupled'};
                     ColumnName{ColStimulator}='Stimulator'; ColumnFormat{ColStimulator}=[{'Select'}, obj.hw.device_added2_listbox.string];
                     ColumnName{ColPulseMode}='Pulse Mode'; ColumnFormat{ColPulseMode}={'single_pulse','paired_pulse', 'train'};
                     ColumnName{ColTimingOnset}='Timing Onset'; ColumnFormat{ColTimingOnset}=[];
-                    ColumnName{ColTimingOnsetUnits}='Timing Onset Units'; ColumnFormat{ColTimingOnsetUnits}={'ms','ms coupled'};
                     ColumnName{ColNoOfPulses}='# of Pulses'; ColumnFormat{ColNoOfPulses}=[];
                     if ~(strcmp(obj.info.event.current_measure,'MEP Dose Response Curve') || strcmp(obj.info.event.current_measure,'ERP Measurement') || strcmp(obj.info.event.current_measure,'TEP Measurement'))
                         TableData{iData,ColTargetChannel}=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).targetChannel{1,1};
@@ -7154,14 +7150,12 @@ classdef best_application < handle
                     TableData{iData,ColCS}=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).si_pckt{1,2});
                     TableData{iData,ColCSUnits}=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).CSUnits);
                     TableData{iData,ColISI}=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).si_pckt{1,3});
-                    TableData{iData,ColISIUnits}=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).ISIUnits);
                     TableData{iData,ColTrainFreq}=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).si_pckt{1,7});
                     TableData{iData,ColNoOfTrains}=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).si_pckt{1,8});
                     TableData{iData,ColFixedThreshold}=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).threshold;
                     ColumnName{ColCS}='Paired-CS Intensity'; ColumnFormat{ColCS}=[];
                     ColumnName{ColCSUnits}='Paired-CS Intensity Units'; ColumnFormat{ColCSUnits}={'%MSO','%MT','mA','%ST','%MSO coupled','%MT coupled','mA coupled','%ST coupled'};
                     ColumnName{ColISI}='ISI'; ColumnFormat{ColISI}=[]; 
-                    ColumnName{ColISIUnits}='ISI Units'; ColumnFormat{ColISIUnits}={'ms','ms coupled'};
                     ColumnName{ColTrainFreq}='Train Frequency'; ColumnFormat{ColTrainFreq}=[];
                     ColumnName{ColNoOfTrains}='# of Trains'; ColumnFormat{ColNoOfTrains}=[];
                     ColumnName{ColFixedThreshold}='Threshold'; ColumnFormat{ColFixedThreshold}=[];
@@ -7216,8 +7210,6 @@ classdef best_application < handle
                         obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).pulse_count=str2num(CellEditData.NewData);
                     case 'Timing Onset'
                         obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).stim_timing=num2cell(eval(CellEditData.NewData));
-                    case 'Timing Onset Units'
-                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).TimingOnsetUnits=CellEditData.NewData;
                     case 'Target Channel'
                         obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).targetChannel=cellstr(CellEditData.NewData);
                     case 'Paired-CS Intensity'
@@ -7228,8 +7220,6 @@ classdef best_application < handle
                     case 'ISI'
                         obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).si_pckt{1,3}=str2double(CellEditData.NewData);
                         obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).isi=CellEditData.NewData;    
-                    case 'ISI Units'
-                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).ISIUnits=CellEditData.NewData;
                     case 'Train Frequency'
                         obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).si_pckt{1,7}=str2double(CellEditData.NewData);
                         obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).freq=CellEditData.NewData;
