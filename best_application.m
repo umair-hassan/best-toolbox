@@ -7137,7 +7137,6 @@ classdef best_application < handle
                     TableData{iData,ColStimulator}=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).stim_device{1,1};
                     TableData{iData,ColPulseMode}=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).stim_mode;
                     TableData{iData,ColNoOfPulses}=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).pulse_count); 
-                    TableData{iData,ColTimingOnsetUnits}=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).TimingOnsetUnits;
                     ColumnName{ColIntensityUnits}='Intensity Units'; ColumnFormat{ColIntensityUnits}={'%MSO','%MT','mA','%ST','%MSO coupled','%MT coupled','mA coupled','%ST coupled'};
                     ColumnName{ColStimulator}='Stimulator'; ColumnFormat{ColStimulator}=[{'Select'}, obj.hw.device_added2_listbox.string];
                     ColumnName{ColPulseMode}='Pulse Mode'; ColumnFormat{ColPulseMode}={'single_pulse','paired_pulse', 'train'};
@@ -7824,6 +7823,7 @@ classdef best_application < handle
             end
         end
         function cb_cm_timing(obj,source,~)
+            %% SnapShot
             prompt = {'Time (mili-seconds):'};
             dlgtitle = 'Insert Time | BEST Toolbox';
             dims = [1 60];
