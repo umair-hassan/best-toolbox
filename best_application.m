@@ -1975,8 +1975,8 @@ classdef best_application < handle
                         mep_panel_row8z = uix.HBox( 'Parent', expModvBox, 'Spacing',  0, 'Padding', 2 );
                         uicontrol( 'Style','text','Parent', mep_panel_row8z,'String','Peak Frequency (Hz):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
                         obj.pi.mep.PeakFrequency=uicontrol( 'Style','edit','Parent', mep_panel_row8z ,'FontSize',11,'Tag','PeakFrequency','Callback',@cb_par_saving);
-                        obj.pi.mep.ImportPeakFrequencyFromProtocols=uicontrol( 'Style','popupmenu','Parent', mep_panel_row8z ,'String',{'Select'},'FontSize',11,'Tag','Bin','Callback',@set_PeakFrequency);
-                        obj.pi.mep.ImportPeakFrequencyFromProtocols.String=getPeakFrequencyProtocols;
+                        obj.pi.mep.ImportPeakFrequencyFromProtocols=uicontrol( 'Style','popupmenu','Parent', mep_panel_row8z ,'String',{'Select'},'FontSize',11,'Tag','Bin','Callback',@(~,~)obj.cb_ImportPeakFrequency);%@set_PeakFrequency);
+                        obj.pi.mep.ImportPeakFrequencyFromProtocols.String={'Select','Import from Protocol'};%getPeakFrequencyProtocols;
                         set( mep_panel_row8z, 'Widths', [150 -2 -2]);
                         
                         % row 2
@@ -2345,8 +2345,8 @@ classdef best_application < handle
                         mep_panel_row8z = uix.HBox( 'Parent', expModvBox, 'Spacing', 0, 'Padding', 2  );
                         uicontrol( 'Style','text','Parent', mep_panel_row8z,'String','Peak Frequency (Hz):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
                         obj.pi.drc.PeakFrequency=uicontrol( 'Style','edit','Parent', mep_panel_row8z ,'FontSize',11,'Tag','PeakFrequency','Callback',@cb_par_saving);
-                        obj.pi.drc.ImportPeakFrequencyFromProtocols=uicontrol( 'Style','popupmenu','Parent', mep_panel_row8z ,'String',{'Select'},'FontSize',11,'Tag','Bin','Callback',@set_PeakFrequency);
-                        obj.pi.drc.ImportPeakFrequencyFromProtocols.String=getPeakFrequencyProtocols;
+                        obj.pi.drc.ImportPeakFrequencyFromProtocols=uicontrol( 'Style','popupmenu','Parent', mep_panel_row8z ,'String',{'Select'},'FontSize',11,'Tag','Bin','Callback',@(~,~)obj.cb_ImportPeakFrequency);
+                        obj.pi.drc.ImportPeakFrequencyFromProtocols.String={'Select','Import from Protocol'};
                         set( mep_panel_row8z, 'Widths', [150 -2 -2]);
                         
                         % row 2
@@ -2740,8 +2740,8 @@ classdef best_application < handle
                         mep_panel_row8z = uix.HBox( 'Parent', expModvBox, 'Spacing', 5, 'Padding', 2  );
                         uicontrol( 'Style','text','Parent', mep_panel_row8z,'String','Peak Frequency (Hz):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
                         obj.pi.mth.PeakFrequency=uicontrol( 'Style','edit','Parent', mep_panel_row8z ,'FontSize',11,'Tag','PeakFrequency','Callback',@cb_par_saving);
-                        obj.pi.mth.ImportPeakFrequencyFromProtocols=uicontrol( 'Style','popupmenu','Parent', mep_panel_row8z ,'String',{'Select'},'FontSize',11,'Tag','Bin','Callback',@set_PeakFrequency);
-                        obj.pi.mth.ImportPeakFrequencyFromProtocols.String=getPeakFrequencyProtocols;
+                        obj.pi.mth.ImportPeakFrequencyFromProtocols=uicontrol( 'Style','popupmenu','Parent', mep_panel_row8z ,'String',{'Select'},'FontSize',11,'Tag','Bin','Callback',@(~,~)obj.cb_ImportPeakFrequency);
+                        obj.pi.mth.ImportPeakFrequencyFromProtocols.String={'Select','Import from Protocol'};
                         set( mep_panel_row8z, 'Widths', [150 -2 -2]);
                         
                         % row 2
@@ -3123,8 +3123,8 @@ classdef best_application < handle
                         mep_panel_row8z = uix.HBox( 'Parent', expModvBox, 'Spacing', 5, 'Padding', 5  );
                         uicontrol( 'Style','text','Parent', mep_panel_row8z,'String','Peak Frequency (Hz):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
                         obj.pi.psychmth.PeakFrequency=uicontrol( 'Style','edit','Parent', mep_panel_row8z ,'FontSize',11,'Tag','PeakFrequency','Callback',@cb_par_saving);
-                        obj.pi.psychmth.ImportPeakFrequencyFromProtocols=uicontrol( 'Style','popupmenu','Parent', mep_panel_row8z ,'String',{'Select'},'FontSize',11,'Tag','Bin','Callback',@set_PeakFrequency);
-                        obj.pi.psychmth.ImportPeakFrequencyFromProtocols.String=getPeakFrequencyProtocols;
+                        obj.pi.psychmth.ImportPeakFrequencyFromProtocols=uicontrol( 'Style','popupmenu','Parent', mep_panel_row8z ,'String',{'Select'},'FontSize',11,'Tag','Bin','Callback',@(~,~)obj.cb_ImportPeakFrequency);
+                        obj.pi.psychmth.ImportPeakFrequencyFromProtocols.String={'Select','Import from Protocol'};
                         set( mep_panel_row8z, 'Widths', [150 -2 -2]);
                         
                         % row 2
@@ -8359,10 +8359,11 @@ classdef best_application < handle
                 sess=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).ImportPeakFrequency.Session;
                 prtcl=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).ImportPeakFrequency.Protocol;
                 switch obj.par.(sess).(prtcl).Protocol{1,1}
-                    case 'rsEEG Measurement Protocol' %Peak Frequency
+                    case 'rs EEG Measurement Protocol' %Peak Frequency
                         ProtocolsParameters.String={'Peak Frequency (Hz)'};
-                        for TargetChannels=1:numel(obj.par.(sess).(prtcl).MontageChannels)
-                            SelectedChannel.String{1,TargetChannels}=erase(char(join(obj.par.(sess).(prtcl).MontageChannels{TargetChannels})),' ');
+                        MontageChannels=eval(obj.par.(sess).(prtcl).MontageChannels);
+                        for TargetChannels=1:numel(MontageChannels)
+                            SelectedChannel.String{1,TargetChannels}=erase(char(join(MontageChannels{TargetChannels})),' ');
                         end
                 end
                 try
