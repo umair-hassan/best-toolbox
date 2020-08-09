@@ -1902,11 +1902,11 @@ classdef best_application < handle
             
             %row4
             r4=uiextras.HBox( 'Parent', obj.pi.mep.r0v1,'Spacing', 5, 'Padding', 5 );
-            obj.pi.mep.cond.btn=uicontrol( 'Parent', r4 ,'Style','PushButton','String','+','FontSize',16,'FontWeight','Bold','HorizontalAlignment','center','Tooltip','Click to Add a new Condition','Callback',@(~,~)obj.cb_pi_mep_conditions);%add condition
-            obj.pi.mep.stim.btn=uicontrol( 'Parent', r4 ,'Style','PushButton','String','','FontWeight','Bold','HorizontalAlignment','center','Position',[0 0 1 1],'units','normalized','CData',obj.icons.stimulator,'Tooltip','Click to Add a new Stimulator on this Condition','Callback',@(~,~)obj.cb_pi_mep_stim); %add stimulator
-            obj.pi.mep.sp.btn=uicontrol( 'Parent', r4 ,'Style','PushButton','String','','FontWeight','Bold','HorizontalAlignment','center','CData',obj.icons.single_pulse,'Tooltip','Click to Add a Single-Pulse on selected stimulator (selected stimulator is highlighted in blue colour)','Tag','single_pulse','Callback',@obj.cb_pi_mep_pulse); %add single pulse
-            obj.pi.mep.pp.btn=uicontrol( 'Parent', r4 ,'Style','PushButton','String','','FontWeight','Bold','HorizontalAlignment','center','CData',obj.icons.paired_pulse,'Tooltip','Click to Add a Paired-Pulse on selected stimulator (selected stimulator is highlighted in blue colour)','Tag','paired_pulse','Callback',@obj.cb_pi_mep_pulse);%add burst or train
-            obj.pi.mep.train.btn=uicontrol( 'Parent', r4 ,'Style','PushButton','String','','FontWeight','Bold','HorizontalAlignment','center','CData',obj.icons.train,'Tooltip','Click to Add a Train or Burst on selected stimulator (selected stimulator is highlighted in blue colour)','Tag','train','Callback',@obj.cb_pi_mep_pulse);%add paired pulse
+            obj.pi.mep.cond.btn=uicontrol( 'Parent', r4 ,'Style','PushButton','String','+','FontSize',16,'FontWeight','Bold','HorizontalAlignment','center','Tooltip','Click to Add a new Condition','Callback',@(~,~)obj.cb_cm_conditions);%add condition
+            obj.pi.mep.stim.btn=uicontrol( 'Parent', r4 ,'Style','PushButton','String','','FontWeight','Bold','HorizontalAlignment','center','Position',[0 0 1 1],'units','normalized','CData',obj.icons.stimulator,'Tooltip','Click to Add a new Stimulator on this Condition','Callback',@(~,~)obj.cb_cm_stim); %add stimulator
+            obj.pi.mep.sp.btn=uicontrol( 'Parent', r4 ,'Style','PushButton','String','','FontWeight','Bold','HorizontalAlignment','center','CData',obj.icons.single_pulse,'Tooltip','Click to Add a Single-Pulse on selected stimulator (selected stimulator is highlighted in blue colour)','Tag','single_pulse','Callback',@obj.cb_cm_pulse); %add single pulse
+            obj.pi.mep.pp.btn=uicontrol( 'Parent', r4 ,'Style','PushButton','String','','FontWeight','Bold','HorizontalAlignment','center','CData',obj.icons.paired_pulse,'Tooltip','Click to Add a Paired-Pulse on selected stimulator (selected stimulator is highlighted in blue colour)','Tag','paired_pulse','Callback',@obj.cb_cm_pulse);%add burst or train
+            obj.pi.mep.train.btn=uicontrol( 'Parent', r4 ,'Style','PushButton','String','','FontWeight','Bold','HorizontalAlignment','center','CData',obj.icons.train,'Tooltip','Click to Add a Train or Burst on selected stimulator (selected stimulator is highlighted in blue colour)','Tag','train','Callback',@obj.cb_cm_pulse);%add paired pulse
             set( r4, 'Widths', [55 55 55 55 55]);
             
             
@@ -2275,11 +2275,11 @@ classdef best_application < handle
             
             %row4
             r4=uiextras.HBox( 'Parent', obj.pi.drc.r0v1,'Spacing', 5, 'Padding', 5 );
-            obj.pi.drc.cond.btn=uicontrol( 'Parent', r4 ,'Style','PushButton','String','+','FontSize',16,'FontWeight','Bold','HorizontalAlignment','center','Tooltip','Click to Add a new Condition','Callback',@(~,~)obj.cb_pi_drc_conditions);%add condition
-            obj.pi.drc.stim.btn=uicontrol( 'Parent', r4 ,'Style','PushButton','String','','FontWeight','Bold','HorizontalAlignment','center','Position',[0 0 1 1],'units','normalized','CData',obj.icons.stimulator,'Tooltip','Click to Add a new Stimulator on this Condition','Callback',@(~,~)obj.cb_pi_drc_stim); %add stimulator
-            obj.pi.drc.sp.btn=uicontrol( 'Parent', r4 ,'Style','PushButton','String','','FontWeight','Bold','HorizontalAlignment','center','CData',obj.icons.single_pulse,'Tooltip','Click to Add a Single-Pulse on selected stimulator (selected stimulator is highlighted in blue colour)','Tag','single_pulse','Callback',@obj.cb_pi_drc_pulse); %add single pulse
-            obj.pi.drc.pp.btn=uicontrol( 'Parent', r4 ,'Style','PushButton','String','','FontWeight','Bold','HorizontalAlignment','center','CData',obj.icons.paired_pulse,'Tooltip','Click to Add a Paired-Pulse on selected stimulator (selected stimulator is highlighted in blue colour)','Tag','paired_pulse','Callback',@obj.cb_pi_drc_pulse);%add burst or train
-            obj.pi.drc.train.btn=uicontrol( 'Parent', r4 ,'Style','PushButton','String','','FontWeight','Bold','HorizontalAlignment','center','CData',obj.icons.train,'Tooltip','Click to Add a Train or Burst on selected stimulator (selected stimulator is highlighted in blue colour)','Tag','train','Callback',@obj.cb_pi_drc_pulse);%add paired pulse
+            obj.pi.drc.cond.btn=uicontrol( 'Parent', r4 ,'Style','PushButton','String','+','FontSize',16,'FontWeight','Bold','HorizontalAlignment','center','Tooltip','Click to Add a new Condition','Callback',@(~,~)obj.cb_cm_conditions);%add condition
+            obj.pi.drc.stim.btn=uicontrol( 'Parent', r4 ,'Style','PushButton','String','','FontWeight','Bold','HorizontalAlignment','center','Position',[0 0 1 1],'units','normalized','CData',obj.icons.stimulator,'Tooltip','Click to Add a new Stimulator on this Condition','Callback',@(~,~)obj.cb_cm_stim); %add stimulator
+            obj.pi.drc.sp.btn=uicontrol( 'Parent', r4 ,'Style','PushButton','String','','FontWeight','Bold','HorizontalAlignment','center','CData',obj.icons.single_pulse,'Tooltip','Click to Add a Single-Pulse on selected stimulator (selected stimulator is highlighted in blue colour)','Tag','single_pulse','Callback',@obj.cb_cm_pulse); %add single pulse
+            obj.pi.drc.pp.btn=uicontrol( 'Parent', r4 ,'Style','PushButton','String','','FontWeight','Bold','HorizontalAlignment','center','CData',obj.icons.paired_pulse,'Tooltip','Click to Add a Paired-Pulse on selected stimulator (selected stimulator is highlighted in blue colour)','Tag','paired_pulse','Callback',@obj.cb_cm_pulse);%add burst or train
+            obj.pi.drc.train.btn=uicontrol( 'Parent', r4 ,'Style','PushButton','String','','FontWeight','Bold','HorizontalAlignment','center','CData',obj.icons.train,'Tooltip','Click to Add a Train or Burst on selected stimulator (selected stimulator is highlighted in blue colour)','Tag','train','Callback',@obj.cb_cm_pulse);%add paired pulse
             set( r4, 'Widths', [55 55 55 55 55]);
             
             
@@ -2670,11 +2670,11 @@ classdef best_application < handle
             
             %row4
             r4=uiextras.HBox( 'Parent', obj.pi.mth.r0v1,'Spacing', 5, 'Padding', 5 );
-            obj.pi.mth.cond.btn=uicontrol( 'Parent', r4 ,'Style','PushButton','String','+','FontSize',16,'FontWeight','Bold','HorizontalAlignment','center','Tooltip','Click to Add a new Condition','Callback',@(~,~)obj.cb_pr_mth_conditions);%add condition
-            obj.pi.mth.stim.btn=uicontrol( 'Parent', r4 ,'Style','PushButton','String','','FontWeight','Bold','HorizontalAlignment','center','Position',[0 0 1 1],'units','normalized','CData',obj.icons.stimulator,'Tooltip','Click to Add a new Stimulator on this Condition','Callback',@(~,~)obj.cb_pr_mth_stim); %add stimulator
-            obj.pi.mth.sp.btn=uicontrol( 'Parent', r4 ,'Style','PushButton','String','','FontWeight','Bold','HorizontalAlignment','center','CData',obj.icons.single_pulse,'Tooltip','Click to Add a Single-Pulse on selected stimulator (selected stimulator is highlighted in blue colour)','Tag','single_pulse','Callback',@obj.cb_pr_mth_pulse); %add single pulse
-            obj.pi.mth.pp.btn=uicontrol( 'Parent', r4 ,'Style','PushButton','String','','FontWeight','Bold','HorizontalAlignment','center','CData',obj.icons.paired_pulse,'Tooltip','Click to Add a Paired-Pulse on selected stimulator (selected stimulator is highlighted in blue colour)','Tag','paired_pulse','Callback',@obj.cb_pr_mth_pulse);%add burst or train
-            obj.pi.mth.train.btn=uicontrol( 'Parent', r4 ,'Style','PushButton','String','','FontWeight','Bold','HorizontalAlignment','center','CData',obj.icons.train,'Tooltip','Click to Add a Train or Burst on selected stimulator (selected stimulator is highlighted in blue colour)','Tag','train','Callback',@obj.cb_pr_mth_pulse);%add paired pulse
+            obj.pi.mth.cond.btn=uicontrol( 'Parent', r4 ,'Style','PushButton','String','+','FontSize',16,'FontWeight','Bold','HorizontalAlignment','center','Tooltip','Click to Add a new Condition','Callback',@(~,~)obj.cb_cm_conditions);%add condition
+            obj.pi.mth.stim.btn=uicontrol( 'Parent', r4 ,'Style','PushButton','String','','FontWeight','Bold','HorizontalAlignment','center','Position',[0 0 1 1],'units','normalized','CData',obj.icons.stimulator,'Tooltip','Click to Add a new Stimulator on this Condition','Callback',@(~,~)obj.cb_cm_stim); %add stimulator
+            obj.pi.mth.sp.btn=uicontrol( 'Parent', r4 ,'Style','PushButton','String','','FontWeight','Bold','HorizontalAlignment','center','CData',obj.icons.single_pulse,'Tooltip','Click to Add a Single-Pulse on selected stimulator (selected stimulator is highlighted in blue colour)','Tag','single_pulse','Callback',@obj.cb_cm_pulse); %add single pulse
+            obj.pi.mth.pp.btn=uicontrol( 'Parent', r4 ,'Style','PushButton','String','','FontWeight','Bold','HorizontalAlignment','center','CData',obj.icons.paired_pulse,'Tooltip','Click to Add a Paired-Pulse on selected stimulator (selected stimulator is highlighted in blue colour)','Tag','paired_pulse','Callback',@obj.cb_cm_pulse);%add burst or train
+            obj.pi.mth.train.btn=uicontrol( 'Parent', r4 ,'Style','PushButton','String','','FontWeight','Bold','HorizontalAlignment','center','CData',obj.icons.train,'Tooltip','Click to Add a Train or Burst on selected stimulator (selected stimulator is highlighted in blue colour)','Tag','train','Callback',@obj.cb_cm_pulse);%add paired pulse
             set( r4, 'Widths', [55 55 55 55 55]);
             
             
@@ -3051,11 +3051,11 @@ classdef best_application < handle
             
             %row4
             r4=uiextras.HBox( 'Parent', obj.pi.psychmth.r0v1,'Spacing', 5, 'Padding', 5 );
-            obj.pi.psychmth.cond.btn=uicontrol( 'Parent', r4 ,'Style','PushButton','String','+','FontSize',16,'FontWeight','Bold','HorizontalAlignment','center','Tooltip','Click to Add a new Condition','Callback',@(~,~)obj.cb_pr_psychmth_conditions);%add condition
-            obj.pi.psychmth.stim.btn=uicontrol( 'Parent', r4 ,'Style','PushButton','String','','FontWeight','Bold','HorizontalAlignment','center','Position',[0 0 1 1],'units','normalized','CData',obj.icons.stimulator,'Tooltip','Click to Add a new Stimulator on this Condition','Callback',@(~,~)obj.cb_pr_psychmth_stim); %add stimulator
-            obj.pi.psychmth.sp.btn=uicontrol( 'Parent', r4 ,'Style','PushButton','String','','FontWeight','Bold','HorizontalAlignment','center','CData',obj.icons.single_pulse,'Tooltip','Click to Add a Single-Pulse on selected stimulator (selected stimulator is highlighted in blue colour)','Tag','single_pulse','Callback',@obj.cb_pr_psychmth_pulse); %add single pulse
-            obj.pi.psychmth.pp.btn=uicontrol( 'Parent', r4 ,'Style','PushButton','String','','FontWeight','Bold','HorizontalAlignment','center','CData',obj.icons.paired_pulse,'Tooltip','Click to Add a Paired-Pulse on selected stimulator (selected stimulator is highlighted in blue colour)','Tag','paired_pulse','Callback',@obj.cb_pr_psychmth_pulse);%add burst or train
-            obj.pi.psychmth.train.btn=uicontrol( 'Parent', r4 ,'Style','PushButton','String','','FontWeight','Bold','HorizontalAlignment','center','CData',obj.icons.train,'Tooltip','Click to Add a Train or Burst on selected stimulator (selected stimulator is highlighted in blue colour)','Tag','train','Callback',@obj.cb_pr_psychmth_pulse);%add paired pulse
+            obj.pi.psychmth.cond.btn=uicontrol( 'Parent', r4 ,'Style','PushButton','String','+','FontSize',16,'FontWeight','Bold','HorizontalAlignment','center','Tooltip','Click to Add a new Condition','Callback',@(~,~)obj.cb_cm_conditions);%add condition
+            obj.pi.psychmth.stim.btn=uicontrol( 'Parent', r4 ,'Style','PushButton','String','','FontWeight','Bold','HorizontalAlignment','center','Position',[0 0 1 1],'units','normalized','CData',obj.icons.stimulator,'Tooltip','Click to Add a new Stimulator on this Condition','Callback',@(~,~)obj.cb_cm_stim); %add stimulator
+            obj.pi.psychmth.sp.btn=uicontrol( 'Parent', r4 ,'Style','PushButton','String','','FontWeight','Bold','HorizontalAlignment','center','CData',obj.icons.single_pulse,'Tooltip','Click to Add a Single-Pulse on selected stimulator (selected stimulator is highlighted in blue colour)','Tag','single_pulse','Callback',@obj.cb_cm_pulse); %add single pulse
+            obj.pi.psychmth.pp.btn=uicontrol( 'Parent', r4 ,'Style','PushButton','String','','FontWeight','Bold','HorizontalAlignment','center','CData',obj.icons.paired_pulse,'Tooltip','Click to Add a Paired-Pulse on selected stimulator (selected stimulator is highlighted in blue colour)','Tag','paired_pulse','Callback',@obj.cb_cm_pulse);%add burst or train
+            obj.pi.psychmth.train.btn=uicontrol( 'Parent', r4 ,'Style','PushButton','String','','FontWeight','Bold','HorizontalAlignment','center','CData',obj.icons.train,'Tooltip','Click to Add a Train or Burst on selected stimulator (selected stimulator is highlighted in blue colour)','Tag','train','Callback',@obj.cb_cm_pulse);%add paired pulse
             set( r4, 'Widths', [55 55 55 55 55]);
             
             
@@ -3910,10 +3910,10 @@ classdef best_application < handle
             %row4
             r4=uiextras.HBox( 'Parent', obj.pi.tep.r0v1,'Spacing', 5, 'Padding', 5 );
             obj.pi.tep.cond.btn=uicontrol( 'Parent', r4 ,'Style','PushButton','String','+','FontSize',16,'FontWeight','Bold','HorizontalAlignment','center','Tooltip','Click to Add a new Condition','Callback',@(~,~)obj.cb_pi_tep_conditions);%add condition
-            obj.pi.tep.stim.btn=uicontrol( 'Parent', r4 ,'Style','PushButton','String','','FontWeight','Bold','HorizontalAlignment','center','Position',[0 0 1 1],'units','normalized','CData',obj.icons.stimulator,'Tooltip','Click to Add a new Stimulator on this Condition','Callback',@(~,~)obj.cb_pi_tep_stim); %add stimulator
-            obj.pi.tep.sp.btn=uicontrol( 'Parent', r4 ,'Style','PushButton','String','','FontWeight','Bold','HorizontalAlignment','center','CData',obj.icons.single_pulse,'Tooltip','Click to Add a Single-Pulse on selected stimulator (selected stimulator is highlighted in blue colour)','Tag','single_pulse','Callback',@obj.cb_pi_tep_pulse); %add single pulse
-            obj.pi.tep.pp.btn=uicontrol( 'Parent', r4 ,'Style','PushButton','String','','FontWeight','Bold','HorizontalAlignment','center','CData',obj.icons.paired_pulse,'Tooltip','Click to Add a Paired-Pulse on selected stimulator (selected stimulator is highlighted in blue colour)','Tag','paired_pulse','Callback',@obj.cb_pi_tep_pulse);%add burst or train
-            obj.pi.tep.train.btn=uicontrol( 'Parent', r4 ,'Style','PushButton','String','','FontWeight','Bold','HorizontalAlignment','center','CData',obj.icons.train,'Tooltip','Click to Add a Train or Burst on selected stimulator (selected stimulator is highlighted in blue colour)','Tag','train','Callback',@obj.cb_pi_tep_pulse);%add paired pulse
+            obj.pi.tep.stim.btn=uicontrol( 'Parent', r4 ,'Style','PushButton','String','','FontWeight','Bold','HorizontalAlignment','center','Position',[0 0 1 1],'units','normalized','CData',obj.icons.stimulator,'Tooltip','Click to Add a new Stimulator on this Condition','Callback',@(~,~)obj.cb_cm_stim); %add stimulator
+            obj.pi.tep.sp.btn=uicontrol( 'Parent', r4 ,'Style','PushButton','String','','FontWeight','Bold','HorizontalAlignment','center','CData',obj.icons.single_pulse,'Tooltip','Click to Add a Single-Pulse on selected stimulator (selected stimulator is highlighted in blue colour)','Tag','single_pulse','Callback',@obj.cb_cm_pulse); %add single pulse
+            obj.pi.tep.pp.btn=uicontrol( 'Parent', r4 ,'Style','PushButton','String','','FontWeight','Bold','HorizontalAlignment','center','CData',obj.icons.paired_pulse,'Tooltip','Click to Add a Paired-Pulse on selected stimulator (selected stimulator is highlighted in blue colour)','Tag','paired_pulse','Callback',@obj.cb_cm_pulse);%add burst or train
+            obj.pi.tep.train.btn=uicontrol( 'Parent', r4 ,'Style','PushButton','String','','FontWeight','Bold','HorizontalAlignment','center','CData',obj.icons.train,'Tooltip','Click to Add a Train or Burst on selected stimulator (selected stimulator is highlighted in blue colour)','Tag','train','Callback',@obj.cb_cm_pulse);%add paired pulse
             set( r4, 'Widths', [55 55 55 55 55]);
             
             
@@ -4231,11 +4231,11 @@ classdef best_application < handle
             
             %row4
             r4=uiextras.HBox( 'Parent', obj.pi.erp.r0v1,'Spacing', 5, 'Padding', 5 );
-            obj.pi.erp.cond.btn=uicontrol( 'Parent', r4 ,'Style','PushButton','String','+','FontSize',16,'FontWeight','Bold','HorizontalAlignment','center','Tooltip','Click to Add a new Condition','Callback',@(~,~)obj.cb_pi_erp_conditions);%add condition
-            obj.pi.erp.stim.btn=uicontrol( 'Parent', r4 ,'Style','PushButton','String','','FontWeight','Bold','HorizontalAlignment','center','Position',[0 0 1 1],'units','normalized','CData',obj.icons.stimulator,'Tooltip','Click to Add a new Stimulator on this Condition','Callback',@(~,~)obj.cb_pi_erp_stim); %add stimulator
-            obj.pi.erp.sp.btn=uicontrol( 'Parent', r4 ,'Style','PushButton','String','','FontWeight','Bold','HorizontalAlignment','center','CData',obj.icons.single_pulse,'Tooltip','Click to Add a Single-Pulse on selected stimulator (selected stimulator is highlighted in blue colour)','Tag','single_pulse','Callback',@obj.cb_pi_erp_pulse); %add single pulse
-            obj.pi.erp.pp.btn=uicontrol( 'Parent', r4 ,'Style','PushButton','String','','FontWeight','Bold','HorizontalAlignment','center','CData',obj.icons.paired_pulse,'Tooltip','Click to Add a Paired-Pulse on selected stimulator (selected stimulator is highlighted in blue colour)','Tag','paired_pulse','Callback',@obj.cb_pi_erp_pulse);%add burst or train
-            obj.pi.erp.train.btn=uicontrol( 'Parent', r4 ,'Style','PushButton','String','','FontWeight','Bold','HorizontalAlignment','center','CData',obj.icons.train,'Tooltip','Click to Add a Train or Burst on selected stimulator (selected stimulator is highlighted in blue colour)','Tag','train','Callback',@obj.cb_pi_erp_pulse);%add paired pulse
+            obj.pi.erp.cond.btn=uicontrol( 'Parent', r4 ,'Style','PushButton','String','+','FontSize',16,'FontWeight','Bold','HorizontalAlignment','center','Tooltip','Click to Add a new Condition','Callback',@(~,~)obj.cb_cm_conditions);%add condition
+            obj.pi.erp.stim.btn=uicontrol( 'Parent', r4 ,'Style','PushButton','String','','FontWeight','Bold','HorizontalAlignment','center','Position',[0 0 1 1],'units','normalized','CData',obj.icons.stimulator,'Tooltip','Click to Add a new Stimulator on this Condition','Callback',@(~,~)obj.cb_cm_stim); %add stimulator
+            obj.pi.erp.sp.btn=uicontrol( 'Parent', r4 ,'Style','PushButton','String','','FontWeight','Bold','HorizontalAlignment','center','CData',obj.icons.single_pulse,'Tooltip','Click to Add a Single-Pulse on selected stimulator (selected stimulator is highlighted in blue colour)','Tag','single_pulse','Callback',@obj.cb_cm_pulse); %add single pulse
+            obj.pi.erp.pp.btn=uicontrol( 'Parent', r4 ,'Style','PushButton','String','','FontWeight','Bold','HorizontalAlignment','center','CData',obj.icons.paired_pulse,'Tooltip','Click to Add a Paired-Pulse on selected stimulator (selected stimulator is highlighted in blue colour)','Tag','paired_pulse','Callback',@obj.cb_cm_pulse);%add burst or train
+            obj.pi.erp.train.btn=uicontrol( 'Parent', r4 ,'Style','PushButton','String','','FontWeight','Bold','HorizontalAlignment','center','CData',obj.icons.train,'Tooltip','Click to Add a Train or Burst on selected stimulator (selected stimulator is highlighted in blue colour)','Tag','train','Callback',@obj.cb_cm_pulse);%add paired pulse
             set( r4, 'Widths', [55 55 55 55 55]);
             
             
@@ -7851,7 +7851,8 @@ classdef best_application < handle
             close(f); obj.cb_cm_StimulationParametersTable;
             end
             function cb_TimingOnsetUnits
-            if TimingOnsetUnits.Value==2, obj.cb_ImportERPLatency(cd,st,source.UserData(1)); end
+            if TimingOnsetUnits.Value==2, cd=['cond' num2str(obj.pi.mm.tab.SelectedChild)];
+            st=['st' num2str(source.UserData(2))];obj.cb_ImportERPLatency(cd,st,source.UserData(1)); end
             end
         end
         function cb_cm_sp_inputfig(obj,source,~)
@@ -8400,6 +8401,105 @@ classdef best_application < handle
             end
         end
         function cb_ImportERPLatency (obj,Condition,Stimulator,Pulse)
+            %% Making Buffer
+            AdditionInCondition=Condition;
+            AdditionInStimulator=Stimulator;
+            AdditionInPulse=['pulse_' num2str(Pulse)];
+            if ~isfield(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator),'ImportERPLatency')
+                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).ImportERPLatency.(AdditionInPulse)=struct;
+                Session=obj.pmd.lb_sessions.listbox.String;
+                Protocol=obj.pmd.lb_measures.listbox.String;
+                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).ImportERPLatency.(AdditionInPulse).Session=Session{1,1};
+                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).ImportERPLatency.(AdditionInPulse).Protocol=Protocol{1,1};
+                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).ImportERPLatency.(AdditionInPulse).Parameter='';
+                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).ImportERPLatency.(AdditionInPulse).Channel='';
+                Parameter={''};
+                Channel={''};
+                Value='Not Available';
+            else
+                Session={obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).ImportERPLatency.(AdditionInPulse).Session};
+                Protocol={obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).ImportERPLatency.(AdditionInPulse).Protocol};
+                Parameter={obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).ImportERPLatency.(AdditionInPulse).Parameter};
+                Channel={obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).ImportERPLatency.(AdditionInPulse).Channel};
+                Value='Not Available';
+                %                 Value=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).ImportERPLatency.(AdditionInPulse).Value;
+            end
+            f=figure('ToolBar','none','MenuBar','none','Name','Import Timing Onset | BEST Toolbox','NumberTitle','off','WindowStyle','modal');
+            c1=uix.VBox('parent',f,'Padding',10,'Spacing',10);
+            %% Select Session - showing all available sessions
+            r1=uix.HBox('parent',c1);
+            uicontrol( 'Style','text','Parent', r1,'String','Select Session:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+            SessionList=uicontrol( 'Style','popupmenu','Parent', r1 ,'FontSize',11,'String',Session,'callback',@SessionSelected);
+            %% Select Protocols - showing all available protocols
+            % Implications: when the protocol is renamed or suffixed, how to handle that?
+            r2=uix.HBox('parent',c1);
+            uicontrol( 'Style','text','Parent', r2,'String','Select Protocol:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+            ProtocolList=uicontrol( 'Style','popupmenu','Parent', r2 ,'FontSize',11,'String',Protocol,'callback',@ProtocolSelected);
+            %% Select Parameter - protocol selection, prefill relevant Parameters
+            r3=uix.HBox('parent',c1);
+            uicontrol( 'Style','text','Parent', r3,'String','Select Parameter:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+            ProtocolsParameters=uicontrol( 'Parent', r3 ,'Style','popupmenu','FontSize',11,'String',Parameter,'Callback',@ParameterSelected);
+            %% Select Channel
+            r4=uix.HBox('parent',c1);
+            uicontrol( 'Style','text','Parent', r4,'String','Select Channel:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+            SelectedChannel=uicontrol( 'Parent', r4 ,'Style','popupmenu','FontSize',11,'String',Channel,'Callback',@ChannelSelected);
+            %% Annotating Value
+            r5=uix.HBox('parent',c1);
+            uicontrol( 'Style','text','Parent', r5,'String','Selected Value:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+            Value=uicontrol( 'Parent', r5 ,'Style','text','FontSize',11,'String',Value);
+            %% Reset Coupling
+            r6=uix.HBox('parent',c1);
+            uicontrol( 'Style','text','Parent', r6,'String','','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+            uicontrol( 'Parent', r6 ,'Style','pushbutton','String','Reset','FontSize',11,'FontWeight','Bold','Callback',@(~,~)ResetCoupling);
+            %% Figure Heights and Positioning
+            set(c1, 'Heights', [25 25 25 25 25 25])
+            f.Position(3)=430;
+            f.Position(4)=225;
+            %% Callbacks
+            function SessionSelected(source,~)
+                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).ImportERPLatency.(AdditionInPulse).Session=regexprep((obj.pmd.lb_sessions.listbox.String{source.Value}),' ','_');
+                sess=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).ImportERPLatency.(AdditionInPulse).Session;
+                % obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).ImportERPLatency.(AdditionInPulse).Protocol=regexprep((obj.pmd.lb_measures.listbox.String{source.Value}),' ','_');
+                ProtocolList.String=obj.data.(sess).info.measurement_str_to_listbox;
+                ProtocolsParameters.String={''};
+                SelectedChannel.String={''};
+            end
+            function ProtocolSelected(source,~)
+                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).ImportERPLatency.(AdditionInPulse).Protocol=regexprep((obj.pmd.lb_measures.listbox.String{source.Value}),' ','_');
+                sess=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).ImportERPLatency.(AdditionInPulse).Session;
+                prtcl=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).ImportERPLatency.(AdditionInPulse).Protocol;
+                switch obj.par.(sess).(prtcl).Protocol{1,1}
+                    case 'ERP Measurement Protocol' %Motor Thresholds + Channels
+                        ProtocolsParameters.String={'ERP Latency (ms)'};
+                        MontageChannels=eval(obj.par.(sess).(prtcl).MontageChannels);
+                        for TargetChannels=1:numel(MontageChannels)
+                            SelectedChannel.String{1,TargetChannels}=erase(char(join(MontageChannels{TargetChannels})),' ');
+                        end
+                end
+                try
+                    obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).ImportERPLatency.(AdditionInPulse).Parameter=ProtocolsParameters.String{1,1};
+                catch
+                    obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).ImportERPLatency.(AdditionInPulse).Parameter='';
+                end
+                try
+                    obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).ImportERPLatency.(AdditionInPulse).Channel=SelectedChannel.String{1,1};
+                catch
+                    obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).ImportERPLatency.(AdditionInPulse).Channel='';
+                end
+            end
+            function ParameterSelected(source,~)
+                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).ImportERPLatency.(AdditionInPulse).Parameter=ProtocolsParameters.String{source.Value};
+            end
+            function ChannelSelected(source,~)
+                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).ImportERPLatency.(AdditionInPulse).Channel=SelectedChannel.String{source.Value};
+            end
+            function ResetCoupling
+                close(f)
+                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator)=rmfield(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator),'ImportERPLatency');
+                obj.cb_ImportERPLatency(AdditionInCondition,AdditionInStimulator,Pulse);
+            end
+            function ValueExtraction
+            end
         end
         %% Helper Function
        function RefreshProtocol(obj)
