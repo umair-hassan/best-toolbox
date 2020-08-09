@@ -1860,6 +1860,7 @@ classdef best_application < handle
                 obj.info.defaults.condsAll.(cond).st1.stim_device={'Select'};
                 obj.info.defaults.condsAll.(cond).st1.stim_mode='single_pulse';
                 obj.info.defaults.condsAll.(cond).st1.stim_timing=num2cell(0);
+                obj.info.defaults.condsAll.(cond).st1.stim_timing_units={'ms'};
                 obj.info.defaults.condsAll.(cond).st1.si=si(idefaults);
                 obj.info.defaults.condsAll.(cond).st1.si_units=1;
                 obj.info.defaults.condsAll.(cond).st1.threshold='';
@@ -2602,6 +2603,7 @@ classdef best_application < handle
                 obj.info.defaults.condsAll.(cond).st1.stim_device={''};
                 obj.info.defaults.condsAll.(cond).st1.stim_mode='single_pulse';
                 obj.info.defaults.condsAll.(cond).st1.stim_timing=num2cell(0);
+                obj.info.defaults.condsAll.(cond).st1.stim_timing_units={'ms'};
                 obj.info.defaults.condsAll.(cond).st1.si=si(idefaults);
                 obj.info.defaults.condsAll.(cond).st1.si_units=1;
                 obj.info.defaults.condsAll.(cond).st1.threshold='';
@@ -2980,6 +2982,7 @@ classdef best_application < handle
                 obj.info.defaults.condsAll.(cond).st1.stim_device={''};
                 obj.info.defaults.condsAll.(cond).st1.stim_mode='single_pulse';
                 obj.info.defaults.condsAll.(cond).st1.stim_timing=num2cell(0);
+                obj.info.defaults.condsAll.(cond).st1.stim_timing_units={'ms'};
                 obj.info.defaults.condsAll.(cond).st1.si=si(idefaults);
                 obj.info.defaults.condsAll.(cond).st1.si_units=1;
                 obj.info.defaults.condsAll.(cond).st1.threshold='';
@@ -3317,6 +3320,7 @@ classdef best_application < handle
                 obj.info.defaults.condsAll.(cond).st1.stim_device={''};
                 obj.info.defaults.condsAll.(cond).st1.stim_mode='single_pulse';
                 obj.info.defaults.condsAll.(cond).st1.stim_timing=num2cell(0);
+                obj.info.defaults.condsAll.(cond).st1.stim_timing_units={'ms'};
                 obj.info.defaults.condsAll.(cond).st1.si=si(idefaults);
                 obj.info.defaults.condsAll.(cond).st1.si_units=1;
                 obj.info.defaults.condsAll.(cond).st1.threshold='';
@@ -3554,6 +3558,7 @@ classdef best_application < handle
                 obj.info.defaults.condsAll.(cond).st1.stim_device={'Select'};
                 obj.info.defaults.condsAll.(cond).st1.stim_mode='train';
                 obj.info.defaults.condsAll.(cond).st1.stim_timing=num2cell(0);
+                obj.info.defaults.condsAll.(cond).st1.stim_timing_units={'ms'};
                 obj.info.defaults.condsAll.(cond).st1.si=si(idefaults);
                 obj.info.defaults.condsAll.(cond).st1.si_units=1;
                 obj.info.defaults.condsAll.(cond).st1.threshold='';
@@ -3864,6 +3869,7 @@ classdef best_application < handle
                 obj.info.defaults.condsAll.(cond).st1.stim_device={'Select'};
                 obj.info.defaults.condsAll.(cond).st1.stim_mode='single_pulse';
                 obj.info.defaults.condsAll.(cond).st1.stim_timing=num2cell(0);
+                obj.info.defaults.condsAll.(cond).st1.stim_timing_units={'ms'};
                 obj.info.defaults.condsAll.(cond).st1.si=si(idefaults);
                 obj.info.defaults.condsAll.(cond).st1.si_units=1;
                 obj.info.defaults.condsAll.(cond).st1.threshold='';
@@ -4162,6 +4168,7 @@ classdef best_application < handle
                 obj.info.defaults.condsAll.(cond).st1.stim_device={''};
                 obj.info.defaults.condsAll.(cond).st1.stim_mode='single_pulse';
                 obj.info.defaults.condsAll.(cond).st1.stim_timing=num2cell(0);
+                obj.info.defaults.condsAll.(cond).st1.stim_timing_units={'ms'};
                 obj.info.defaults.condsAll.(cond).st1.si=si(idefaults);
                 obj.info.defaults.condsAll.(cond).st1.si_units=1;
                 obj.info.defaults.condsAll.(cond).st1.threshold='';
@@ -4526,6 +4533,7 @@ classdef best_application < handle
                 obj.info.defaults.condsAll.(cond).st1.stim_device={''};
                 obj.info.defaults.condsAll.(cond).st1.stim_mode='single_pulse';
                 obj.info.defaults.condsAll.(cond).st1.stim_timing=num2cell(0);
+                obj.info.defaults.condsAll.(cond).st1.stim_timing_units={'ms'};
                 obj.info.defaults.condsAll.(cond).st1.si=si(idefaults);
                 obj.info.defaults.condsAll.(cond).st1.si_units=1;
                 obj.info.defaults.condsAll.(cond).st1.threshold='';
