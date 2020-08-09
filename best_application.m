@@ -2206,6 +2206,7 @@ classdef best_application < handle
                 obj.info.defaults.condsAll.(cond).st1.stim_device={''};
                 obj.info.defaults.condsAll.(cond).st1.stim_mode='single_pulse';
                 obj.info.defaults.condsAll.(cond).st1.stim_timing=num2cell(0);
+                obj.info.defaults.condsAll.(cond).st1.stim_timing_units={'ms'};
                 obj.info.defaults.condsAll.(cond).st1.si=si(idefaults);
                 obj.info.defaults.condsAll.(cond).st1.si_units=1;
                 obj.info.defaults.condsAll.(cond).st1.threshold='';
@@ -7823,18 +7824,35 @@ classdef best_application < handle
             end
         end
         function cb_cm_timing(obj,source,~)
-            %% SnapShot
-            prompt = {'Time (mili-seconds):'};
-            dlgtitle = 'Insert Time | BEST Toolbox';
-            dims = [1 60];
-            definput = {'NaN'};
-            answer = inputdlg(prompt,dlgtitle,dims,definput);
-            source.String=['t: ', char(answer), ' ms'];
+           %% Creating Figure
+            f=figure('ToolBar','none','MenuBar','none','Name','Timing Onset | BEST Toolbox','NumberTitle','off','WindowStyle','modal');
+            c1=uix.VBox('parent',f,'Padding',10,'Spacing',10);
+            %% Timing Onset
+            r1=uix.HBox('parent',c1);
+            uicontrol( 'Style','text','Parent', r1,'String','Timing Onset:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+            TimingOnset=uicontrol( 'Style','edit','Parent', r1 ,'FontSize',11,'String','');
+            %% Timing Onset Units
+            r2=uix.HBox('parent',c1);
+            uicontrol( 'Style','text','Parent', r2,'String','Units/Import','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+            TimingOnsetUnits=uicontrol( 'Style','popupmenu','Parent', r2 ,'FontSize',11,'String',{'ms','Import from Protocol'},'callback',@(~,~)cb_TimingOnsetUnits);
+            %% Selecting Timing Onset
+            r6=uix.HBox('parent',c1);
+            uicontrol( 'Style','text','Parent', r6,'String','','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+            uicontrol( 'Parent', r6 ,'Style','pushbutton','String','OK','FontSize',11,'Callback',@(~,~)cb_TimingOnset);
+            %% Figure Heights and Positioning
+            set(c1, 'Heights', [25 25 25]); f.Position([3 4])=[430 120];
+            %% Callbacks
+            function cb_TimingOnset
+            source.String=['t: ', TimingOnset.String, ' ms'];
             cd=['cond' num2str(obj.pi.mm.tab.SelectedChild)];
             st=['st' num2str(source.UserData(2))];
-            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).stim_timing(source.UserData(1))=num2cell(str2double(answer));
-            obj.cb_cm_StimulationParametersTable;
-            
+            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).stim_timing(source.UserData(1))=num2cell(str2double(TimingOnset.String));
+            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).stim_timing_units(source.UserData(1))={TimingOnsetUnits.String{TimingOnsetUnits.Value}};
+            close(f); obj.cb_cm_StimulationParametersTable;
+            end
+            function cb_TimingOnsetUnits
+            if TimingOnsetUnits.Value==2, obj.cb_ImportERPLatency(cd,st,source.UserData(1)); end
+            end
         end
         function cb_cm_sp_inputfig(obj,source,~)
             if (source.UserData(2)==1)
@@ -8381,7 +8399,7 @@ classdef best_application < handle
             function ValueExtraction
             end
         end
-        function cb_ImportERPLatency (obj)
+        function cb_ImportERPLatency (obj,Condition,Stimulator,Pulse)
         end
         %% Helper Function
        function RefreshProtocol(obj)
