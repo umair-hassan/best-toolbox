@@ -7145,6 +7145,7 @@ classdef best_application < handle
                     TableData{iData,ColIntensityUnits}=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).IntensityUnit;
                     TableData{iData,ColStimulator}=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).stim_device{1,1};
                     TableData{iData,ColPulseMode}=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).stim_mode;
+                    TableData{iData,ColTimingOnset}=num2str(horzcat(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).stim_timing{:}));
                     TableData{iData,ColNoOfPulses}=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).pulse_count); 
                     ColumnName{ColIntensityUnits}='Intensity Units'; ColumnFormat{ColIntensityUnits}={'%MSO','%MT','mA','%ST','%MSO coupled','%MT coupled','mA coupled','%ST coupled'};
                     ColumnName{ColStimulator}='Stimulator'; ColumnFormat{ColStimulator}=[{'Select'}, obj.hw.device_added2_listbox.string];
@@ -7216,8 +7217,17 @@ classdef best_application < handle
                         obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).stim_mode=CellEditData.NewData;
                     case '# of Pulses'
                         obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).pulse_count=str2num(CellEditData.NewData);
+                        if numel(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).stim_timing)<str2num(CellEditData.NewData)
+                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).stim_timing{str2num(CellEditData.NewData)}=NaN;
+                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).stim_timing_units{str2num(CellEditData.NewData)}={'ms'};
+                        end
                     case 'Timing Onset'
+                        try
                         obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).stim_timing=num2cell(eval(CellEditData.NewData));
+                        catch
+                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).stim_timing=num2cell(eval(['[' CellEditData.NewData ']']));
+                        end
+                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).stim_timing_units=repmat({'ms'},1,numel(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).stim_timing));
                     case 'Target Channel'
                         obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).targetChannel=cellstr(CellEditData.NewData);
                     case 'Paired-CS Intensity'
@@ -7243,6 +7253,7 @@ classdef best_application < handle
                 %cb_condition_deletion
                 %cb_stimulator_addition
                 %cb_stimulator_deletion
+                obj.cb_cm_StimulationParametersTable;
                 cb_pulse_update
                 function cb_pulse_update
                     cd=[];
