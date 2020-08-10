@@ -97,6 +97,8 @@ classdef best_toolbox < handle
             obj.app.pr=[];
             %% Preparing Parameters to Inputs
             cb_Pars2Inputs
+            %% Evaluating Linked Lists
+            cb_EvaluateLinkedLists
             %% Evaluating Selected Protocol
             switch obj.inputs.Protocol
                 case 'MEP Hotspot Search Protocol'
@@ -2314,6 +2316,87 @@ classdef best_toolbox < handle
                 obj.inputs.NoiseFilter50Hz=obj.app.par.GlobalSettings.NoiseFilter50Hz;
             catch
                 obj.inputs.NoiseFilter50Hz=0;
+            end
+            %% Callbacks
+            function cb_EvaluateLinkedLists
+                %% Intensity, Paired-CS Intensity, Timing Onset, ISI 
+                for icond=1:obj.inputs.condsAll
+                    condStr=['cond' num2str(icond)];
+                    for s=1:(length(fieldnames(obj.inputs.condsAll.(condStr)))-6)
+                        st=['st' num2str(s)];
+                        %% Checking Intensity Units
+                        switch obj.inputs.condsAll.(condStr).(st).IntensityUnit
+                            case {'%MT','%ST'}
+                                %checking if the corrospondonding threshold is exicstant or not
+                                if isempty(str2num(obj.inputs.condsAll.(condStr).(st).threshold))
+                                    errordlg('The "Threshold" cannot be found to set "Intensity Units".','BEST Toolbox');
+                                else
+                                    obj.inputs.condsAll.(condStr).(st).si_pckt{4}=str2num(obj.inputs.condsAll.(condStr).(st).threshold)*obj.inputs.condsAll.(condStr).(st).si_pckt{1}*0.01; %Multiplying the Threshold with the Intensity to apply Transformation
+                                end
+                            case {'%MSO coupled','%MT coupled','mA coupled','%ST coupled'}
+                                try
+                                    Session=obj.inputs.condsAll.(condStr).(st).CoupleIntensityUnits.Session;
+                                    Protocol=obj.inputs.condsAll.(condStr).(st).CoupleIntensityUnits.Session.Protocol;
+                                    Parameter=obj.inputs.condsAll.(condStr).(st).CoupleIntensityUnits.Session.Parameter;
+                                    Channel=obj.inputs.condsAll.(condStr).(st).CoupleIntensityUnits.Session.Channel;
+                                    switch Parameter
+                                        case 'Motor Threshold'
+                                            try
+                                                MotorThreshold %get the motor threshold
+                                                % set the adjusted value on the 4th packet in si_packet and repeat it for all
+                                            catch
+                                                errordlg('The "Motor Threshold" coupled to import from previous Measurement cannot be found in "Linked List".','BEST Toolbox');
+                                            end
+                                        case 'Sensory Threshold'
+                                            try
+                                            catch
+                                                errordlg('The "Sensory Threshold" coupled to import from previous Measurement cannot be found in "Linked List".','BEST Toolbox');
+                                            end
+                                        case 'Inflection Point'
+                                            try
+                                            catch
+                                                errordlg('The "Inflection Point" coupled to import from previous Measurement cannot be found in "Linked List".','BEST Toolbox');
+                                            end
+                                        case 'Inhibition'
+                                            try
+                                            catch
+                                                errordlg('The "Inhibition" coupled to import from previous Measurement cannot be found in "Linked List".','BEST Toolbox');
+                                            end
+                                        case 'Facilitation'
+                                            try
+                                            catch
+                                                errordlg('The "Facilitation" coupled to import from previous Measurement cannot be found in "Linked List".','BEST Toolbox');
+                                            end
+                                        case 'Plateau'
+                                            try
+                                            catch
+                                                errordlg('The "Plateau" coupled to import from previous Measurement cannot be found in "Linked List".','BEST Toolbox');
+                                            end
+                                    end
+                                catch
+                                    errordlg('The "Intensities Coupled Units" to import from previous Measurement cannot be found in "Linked List".','BEST Toolbox');
+                                end
+                        end
+                        %% Checking Paired-CS Units
+                        %% Checking Timing Onset Units
+                        %% Checking ISI Units
+                    end
+                end
+                %% Peak Frequency
+                if obj.inputs.BrainState==2
+                    if obj.inputs.ImportPeakFrequencyFromProtocols==2
+                        try
+                            Session=obj.inputs.ImportPeakFrequency.Session;
+                            Protocol=obj.inputs.ImportPeakFrequency.Protocol;
+                            Channel=obj.inputs.ImportPeakFrequency.Channel;
+                            obj.inputs.PeakFrequency=obj.sessions.(Session).(Protocol).results.PeakFrequency.(Channel);
+                            obj.app.par.(obj.app.info.event.current_session).(obj.app.info.event.current_measure_fullstr).PeakFrequency=num2str(obj.inputs.PeakFrequency);
+                        catch
+                            errordlg('The Peak Frequency to import from previous rsEEG Measurement Protocol cannot be found in "Linked List".','BEST Toolbox');
+                        end
+                    end
+                end
+                %% ISI
             end
         end
         
