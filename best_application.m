@@ -8287,7 +8287,7 @@ classdef best_application < handle
                             SelectedChannel.String{1,TargetChannels}=obj.par.(sess).(prtcl).condsAll.(cond).targetChannel{1,1};
                         end
                     case 'MEP Dose Response Curve Protocol' %Inflection Point, Plateau, Threshold, Inhibition, Faciliation + Channels
-                        ProtocolsParameters.String={'Inflection Point', 'Inhibition', 'Facilitation', 'Plateau', 'Threshold'};
+                        ProtocolsParameters.String={'Inflection Point', 'Inhibition', 'Facilitation', 'Plateau'};
                         SelectedChannel.String=eval(obj.par.(sess).(prtcl).EMGTargetChannels);
                     case 'Psychometric Threshold Hunting Protocol' % Sensory Thresholds + Channels
                         ProtocolsParameters.String={'Sensory Threshold'};
