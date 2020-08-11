@@ -2359,21 +2359,33 @@ classdef best_toolbox < handle
                                             end
                                         case 'Inflection Point'
                                             try
+                                                IP=obj.sessions.(Session).(Protocol).Results.InflectionPoint_SI_BaseUnits;
+                                                obj.inputs.condsAll.(condStr).(st).threshold=num2str(IP);
+                                                obj.inputs.condsAll.(condStr).(st).si_pckt{4}=str2num(obj.inputs.condsAll.(condStr).(st).threshold)*obj.inputs.condsAll.(condStr).(st).si_pckt{1}*0.01; %Multiplying the IP with the Intensity to apply Transformation
                                             catch
                                                 errordlg('The "Inflection Point" coupled to import from previous Measurement cannot be found in "Linked List".','BEST Toolbox');
                                             end
                                         case 'Inhibition'
                                             try
+                                                Ib=obj.sessions.(Session).(Protocol).Results.Inhibition_SI_BaseUnits;
+                                                obj.inputs.condsAll.(condStr).(st).threshold=num2str(Ib);
+                                                obj.inputs.condsAll.(condStr).(st).si_pckt{4}=str2num(obj.inputs.condsAll.(condStr).(st).threshold)*obj.inputs.condsAll.(condStr).(st).si_pckt{1}*0.01; %Multiplying the Ib with the Intensity to apply Transformation
                                             catch
                                                 errordlg('The "Inhibition" coupled to import from previous Measurement cannot be found in "Linked List".','BEST Toolbox');
                                             end
                                         case 'Facilitation'
                                             try
+                                                Fc=obj.sessions.(Session).(Protocol).Results.Facilitation_SI_BaseUnits;
+                                                obj.inputs.condsAll.(condStr).(st).threshold=num2str(Fc);
+                                                obj.inputs.condsAll.(condStr).(st).si_pckt{4}=str2num(obj.inputs.condsAll.(condStr).(st).threshold)*obj.inputs.condsAll.(condStr).(st).si_pckt{1}*0.01; %Multiplying the Fc with the Intensity to apply Transformation
                                             catch
                                                 errordlg('The "Facilitation" coupled to import from previous Measurement cannot be found in "Linked List".','BEST Toolbox');
                                             end
                                         case 'Plateau'
                                             try
+                                                Pt=obj.sessions.(Session).(Protocol).Results.Plateau_SI_BaseUnits;
+                                                obj.inputs.condsAll.(condStr).(st).threshold=num2str(Pt);
+                                                obj.inputs.condsAll.(condStr).(st).si_pckt{4}=str2num(obj.inputs.condsAll.(condStr).(st).threshold)*obj.inputs.condsAll.(condStr).(st).si_pckt{1}*0.01; %Multiplying the Pt with the Intensity to apply Transformation
                                             catch
                                                 errordlg('The "Plateau" coupled to import from previous Measurement cannot be found in "Linked List".','BEST Toolbox');
                                             end
@@ -2382,7 +2394,6 @@ classdef best_toolbox < handle
                                     errordlg('The "Intensities Coupled Units" to import from previous Measurement cannot be found in "Linked List".','BEST Toolbox');
                                 end
                         end
-                        %% Checking Paired-CS Units
                         %% Checking Timing Onset Units
                         for iStimTiming=1:numel(obj.inputs.condsAll.(condStr).(st).stim_timing)
                             if strcmp(obj.inputs.condsAll.(condStr).(st).stim_timing_units{iStimTiming},'Import from Protocol')
@@ -2398,6 +2409,7 @@ classdef best_toolbox < handle
                                 end
                             end
                         end
+                        %% Checking Paired-CS Units
                         %% Checking ISI Units
                     end
                 end
@@ -2415,7 +2427,6 @@ classdef best_toolbox < handle
                         end
                     end
                 end
-                %% ISI
             end
         end
         
@@ -4057,13 +4068,31 @@ end
                     box off; drawnow;
                     %% Saving Inflection Point, Plateau and Threshold x and y values in the Struct
                     obj.inputs.(obj.app.info.event.current_session).(obj.app.info.event.current_measure_fullstr).Results.InflectionPoint_SI=obj.info.ip_x;
-                    obj.inputs.(obj.app.info.event.current_session).(obj.app.info.event.current_measure_fullstr).Results.InflectionPoint_SI_BaseUnits=obj.info.ip_x;
                     obj.inputs.(obj.app.info.event.current_session).(obj.app.info.event.current_measure_fullstr).Results.InflectionPoint_uV=ip_y;
                     obj.inputs.(obj.app.info.event.current_session).(obj.app.info.event.current_measure_fullstr).Results.Plateau_SI=obj.info.pt_x;
-                    obj.inputs.(obj.app.info.event.current_session).(obj.app.info.event.current_measure_fullstr).Results.Plateau_SI_BaseUnits=obj.info.pt_x;
                     obj.inputs.(obj.app.info.event.current_session).(obj.app.info.event.current_measure_fullstr).Results.Plateau_uV=pt_y;
                     obj.inputs.(obj.app.info.event.current_session).(obj.app.info.event.current_measure_fullstr).Results.Threshold_SI=obj.info.th;
-                    obj.inputs.(obj.app.info.event.current_session).(obj.app.info.event.current_measure_fullstr).Results.Threshold_SI_BaseUnits=obj.info.th;
+                    for icond=1:obj.inputs.condsAll
+                        condStr=['cond' num2str(icond)];
+                        for s=1:(length(fieldnames(obj.inputs.condsAll.(condStr)))-6)
+                            st=['st' num2str(s)];
+                            switch obj.inputs.DoseFunction
+                                case 1 %Test
+                                    if strcmp( obj.inputs.condsAll.(condStr).(st).StimulationType,'Test')
+                                        obj.inputs.(obj.app.info.event.current_session).(obj.app.info.event.current_measure_fullstr).Results.Threshold_SI_BaseUnits=obj.info.th*0.01*str2double(obj.inputs.condsAll.(condStr).(st).threshold);
+                                        obj.inputs.(obj.app.info.event.current_session).(obj.app.info.event.current_measure_fullstr).Results.InflectionPoint_SI_BaseUnits=obj.info.ip_x*0.01*str2double(obj.inputs.condsAll.(condStr).(st).threshold);
+                                        obj.inputs.(obj.app.info.event.current_session).(obj.app.info.event.current_measure_fullstr).Results.Plateau_SI_BaseUnits=obj.info.pt_x*0.01*str2double(obj.inputs.condsAll.(condStr).(st).threshold);
+                                    end
+                                case 2 %Condition
+                                    if strcmp( obj.inputs.condsAll.(condStr).(st).StimulationType,'Condition')
+                                        obj.inputs.(obj.app.info.event.current_session).(obj.app.info.event.current_measure_fullstr).Results.Threshold_SI_BaseUnits=obj.info.th*0.01*str2double(obj.inputs.condsAll.(condStr).(st).threshold);
+                                        obj.inputs.(obj.app.info.event.current_session).(obj.app.info.event.current_measure_fullstr).Results.InflectionPoint_SI_BaseUnits=obj.info.ip_x*0.01*str2double(obj.inputs.condsAll.(condStr).(st).threshold);
+                                        obj.inputs.(obj.app.info.event.current_session).(obj.app.info.event.current_measure_fullstr).Results.Plateau_SI_BaseUnits=obj.info.pt_x*0.01*str2double(obj.inputs.condsAll.(condStr).(st).threshold);
+                                    end
+                            end
+                        end
+                    end
+           
                 elseif numel(obj.inputs.ResponseFunctionNumerator)>1
                     %%  Complicated Response Function case
                     ax=['ax' num2str(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.axesno}{1,obj.inputs.chLab_idx})];
@@ -4160,12 +4189,28 @@ end
                     gridxy(Facilitation_Intensity,Facilitation,'DisplayName','Facilitation','color','r')
                     legend('Location','southoutside','Orientation','horizontal')
                     %% Saving Inhibition and Facilitation in the Struct
-                    obj.inputs.(obj.app.info.event.current_session).(obj.app.info.event.current_measure_fullstr).Results.Inhibition_SI=obj.info.ip_x;
-                    obj.inputs.(obj.app.info.event.current_session).(obj.app.info.event.current_measure_fullstr).Results.Inhibition_SI_BaseUnits=obj.info.ip_x; %Such as %MSO or mA
-                    obj.inputs.(obj.app.info.event.current_session).(obj.app.info.event.current_measure_fullstr).Results.Inhibition_uV=ip_y;
-                    obj.inputs.(obj.app.info.event.current_session).(obj.app.info.event.current_measure_fullstr).Results.Facilitation_SI=obj.info.pt_x; 
-                    obj.inputs.(obj.app.info.event.current_session).(obj.app.info.event.current_measure_fullstr).Results.Facilitation_SI_BaseUnits=obj.info.pt_x; %Such as %MSO or mA
-                    obj.inputs.(obj.app.info.event.current_session).(obj.app.info.event.current_measure_fullstr).Results.Facilitation_uV=pt_y;
+                    obj.inputs.(obj.app.info.event.current_session).(obj.app.info.event.current_measure_fullstr).Results.Inhibition_SI=Inhibition_Intensity;
+                    obj.inputs.(obj.app.info.event.current_session).(obj.app.info.event.current_measure_fullstr).Results.Inhibition_50percent=Inhibition;
+                    obj.inputs.(obj.app.info.event.current_session).(obj.app.info.event.current_measure_fullstr).Results.Facilitation_SI=Facilitation_Intensity; 
+                    obj.inputs.(obj.app.info.event.current_session).(obj.app.info.event.current_measure_fullstr).Results.Facilitation_50percent=Facilitation;
+                    for icond=1:obj.inputs.condsAll
+                        condStr=['cond' num2str(icond)];
+                        for s=1:(length(fieldnames(obj.inputs.condsAll.(condStr)))-6)
+                            st=['st' num2str(s)];
+                            switch obj.inputs.DoseFunction
+                                case 1 %Test
+                                    if strcmp( obj.inputs.condsAll.(condStr).(st).StimulationType,'Test')
+                                        obj.inputs.(obj.app.info.event.current_session).(obj.app.info.event.current_measure_fullstr).Results.Inhibition_SI_BaseUnits=Inhibition_Intensity*0.01*str2double(obj.inputs.condsAll.(condStr).(st).threshold); %Such as %MSO or mA
+                                        obj.inputs.(obj.app.info.event.current_session).(obj.app.info.event.current_measure_fullstr).Results.Facilitation_SI_BaseUnits=Facilitation_Intensity*0.01*str2double(obj.inputs.condsAll.(condStr).(st).threshold);
+                                    end
+                                case 2 %Condition
+                                    if strcmp( obj.inputs.condsAll.(condStr).(st).StimulationType,'Condition')
+                                        obj.inputs.(obj.app.info.event.current_session).(obj.app.info.event.current_measure_fullstr).Results.Inhibition_SI_BaseUnits=Inhibition_Intensity*0.01*str2double(obj.inputs.condsAll.(condStr).(st).threshold); %Such as %MSO or mA
+                                        obj.inputs.(obj.app.info.event.current_session).(obj.app.info.event.current_measure_fullstr).Results.Facilitation_SI_BaseUnits=Facilitation_Intensity*0.01*str2double(obj.inputs.condsAll.(condStr).(st).threshold);
+                                    end
+                            end
+                        end
+                    end
                 end
             end
             function ioc_fit_using_SMLToolbox
