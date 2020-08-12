@@ -2263,7 +2263,338 @@ classdef best_toolbox < handle
                 end
                 obj.inputs.totalConds=numel(obj.inputs.condMat(:,1));
             end
-
+            %% Conversion from Pars2Inputs
+            function cb_Pars2Inputs
+                obj.inputs=obj.app.par.(obj.app.info.event.current_session).(obj.app.info.event.current_measure_fullstr);
+                InputsFieldNames=fieldnames(obj.inputs);
+                for iInputs=1:numel(InputsFieldNames)
+                    if (isa(obj.inputs.(InputsFieldNames{iInputs}),'char'))
+                        if (strcmp(InputsFieldNames{iInputs},'ReferenceChannels')) || (strcmp(InputsFieldNames{iInputs},'ITI')) || (strcmp(InputsFieldNames{iInputs},'EMGDisplayChannels')) || (strcmp(InputsFieldNames{iInputs},'EMGTargetChannels')) || (strcmp(InputsFieldNames{iInputs},'Phase')) || (strcmp(InputsFieldNames{iInputs},'PhaseTolerance')) || (strcmp(InputsFieldNames{iInputs},'MontageChannels')) || (strcmp(InputsFieldNames{iInputs},'AmplitudeThreshold'))|| (strcmp(InputsFieldNames{iInputs},'TargetChannels')) || (strcmp(InputsFieldNames{iInputs},'EEGDisplayPeriod')) ...
+                                || (strcmp(InputsFieldNames{iInputs},'RealTimeChannelsMontage')) || (strcmp(InputsFieldNames{iInputs},'MontageWeights')) || (strcmp(InputsFieldNames{iInputs},'RecordingReference'))
+                            if (isempty(obj.inputs.(InputsFieldNames{iInputs})))
+                                disp donothing
+                            else
+                                try
+                                    obj.inputs.(InputsFieldNames{iInputs})=eval(obj.inputs.(InputsFieldNames{iInputs}));
+                                catch
+                                    obj.inputs.(InputsFieldNames{iInputs})=str2num(obj.inputs.(InputsFieldNames{iInputs}));
+                                end
+                            end
+                        elseif strcmp(InputsFieldNames{iInputs},'RealTimeChannelWeights') || strcmp(InputsFieldNames{iInputs},'RealTimeChannelsWeights') || strcmp(InputsFieldNames{iInputs},'ResponseFunctionNumerator') || strcmp(InputsFieldNames{iInputs},'ResponseFunctionDenominator') ...
+                                || strcmp(InputsFieldNames{iInputs},'TargetFrequencyRange')  || strcmp(InputsFieldNames{iInputs},'BandStopFrequency') || strcmp(InputsFieldNames{iInputs},'EMGXLimit') || strcmp(InputsFieldNames{iInputs},'EEGXLimit') ...
+                                || strcmp(InputsFieldNames{iInputs},'MEPSearchWindow') || strcmp(InputsFieldNames{iInputs},'EMGExtractionPeriod')  || strcmp(InputsFieldNames{iInputs},'EEGExtractionPeriod') || strcmp(InputsFieldNames{iInputs},'EEGYLimit')...
+                                || strcmp(InputsFieldNames{iInputs},'SEPSearchWindow')
+                            obj.inputs.(InputsFieldNames{iInputs})=str2num(obj.inputs.(InputsFieldNames{iInputs}));
+                        else
+                            obj.inputs.(InputsFieldNames{iInputs})=str2double(obj.inputs.(InputsFieldNames{iInputs}));
+                        end
+                    elseif(isa(obj.inputs.(InputsFieldNames{iInputs}),'cell'))
+                        obj.inputs.(InputsFieldNames{iInputs})=obj.inputs.(InputsFieldNames{iInputs}){1,1};
+                    end
+                end
+                %                 obj.inputs.prestim_scope_plt=obj.inputs.EMGDisplayPeriodPre;
+                %                 obj.inputs.poststim_scope_plt=obj.inputs.EMGDisplayPeriodPost;
+                %                 obj.inputs.mep_onset=obj.inputs.MEPOnset;
+                %                 obj.inputs.mep_offset=obj.inputs.MEPOffset;
+                %                 obj.inputs.input_device=obj.app.pi.mep.InputDevice.String(obj.inputs.InputDevice); %TODO: the drc or mep on the 4th structure is not a good solution!
+                %                 obj.inputs.output_device=obj.inputs.condsAll.cond1.st1.stim_device;
+                obj.inputs.stim_mode='MSO';
+                obj.inputs.measure_str='MEP Measurement';
+                %                 obj.inputs.ylimMin=obj.inputs.EMGDisplayYLimMin;
+                %                 obj.inputs.ylimMax=obj.inputs.EMGDisplayYLimMax;
+                obj.inputs.stop_event=0;
+                obj.inputs.ylimMin=-3000;
+                obj.inputs.ylimMax=+3000;
+                obj.inputs.TrialNoForMean=1;
+                %                 obj.inputs.mt_starting_stim_inten=obj.inputs.condsAll.cond1.st1.si_pckt{1,1};
+                
+                
+            end
+            %% Common Settings for All Functions
+            try
+                obj.inputs.NoiseFilter50Hz=obj.app.par.GlobalSettings.NoiseFilter50Hz;
+            catch
+                obj.inputs.NoiseFilter50Hz=0;
+            end
+            %% Callbacks
+            function cb_EvaluateLinkedLists
+                %% Intensity, Paired-CS Intensity, Timing Onset, ISI 
+                for icond=1:obj.inputs.condsAll
+                    condStr=['cond' num2str(icond)];
+                    for s=1:(length(fieldnames(obj.inputs.condsAll.(condStr)))-6)
+                        st=['st' num2str(s)];
+                        %% Checking Intensity Units
+                        switch obj.inputs.condsAll.(condStr).(st).IntensityUnit
+                            case {'%MT','%ST'}
+                                %checking if the corrospondonding threshold is exicstant or not
+                                if isempty(str2num(obj.inputs.condsAll.(condStr).(st).threshold))
+                                    errordlg('The "Threshold" cannot be found to set "Intensity Units".','BEST Toolbox');
+                                else
+                                    obj.inputs.condsAll.(condStr).(st).si_pckt{4}=str2num(obj.inputs.condsAll.(condStr).(st).threshold)*obj.inputs.condsAll.(condStr).(st).si_pckt{1}*0.01; %Multiplying the Threshold with the Intensity to apply Transformation
+                                end
+                            case {'%MSO coupled','%MT coupled','mA coupled','%ST coupled'}
+                                try
+                                    Session=obj.inputs.condsAll.(condStr).(st).CoupleIntensityUnits.Session;
+                                    Protocol=obj.inputs.condsAll.(condStr).(st).CoupleIntensityUnits.Session.Protocol;
+                                    Parameter=obj.inputs.condsAll.(condStr).(st).CoupleIntensityUnits.Session.Parameter;
+                                    Channel=obj.inputs.condsAll.(condStr).(st).CoupleIntensityUnits.Session.Channel;
+                                    switch Parameter
+                                        case 'Motor Threshold'
+                                            try
+                                                Threshold=obj.sessions.(Session).(Protocol).Results.(Channel).MotorThreshold; %get the motor threshold;
+                                                obj.inputs.condsAll.(condStr).(st).threshold=num2str(Threshold);
+                                                obj.inputs.condsAll.(condStr).(st).si_pckt{4}=str2num(obj.inputs.condsAll.(condStr).(st).threshold)*obj.inputs.condsAll.(condStr).(st).si_pckt{1}*0.01; %Multiplying the Threshold with the Intensity to apply Transformation
+                                                % set the adjusted value on the 4th packet in si_packet and repeat it for all
+                                            catch
+                                                errordlg('The "Motor Threshold" coupled to import from previous Measurement cannot be found in "Linked List".','BEST Toolbox');
+                                            end
+                                        case 'Sensory Threshold'
+                                            try
+                                                Threshold=obj.sessions.(Session).(Protocol).Results.(Channel).PsychometricThreshold;
+                                                obj.inputs.condsAll.(condStr).(st).threshold=num2str(Threshold);
+                                                obj.inputs.condsAll.(condStr).(st).si_pckt{4}=str2num(obj.inputs.condsAll.(condStr).(st).threshold)*obj.inputs.condsAll.(condStr).(st).si_pckt{1}*0.01; %Multiplying the Threshold with the Intensity to apply Transformation
+                                            catch
+                                                errordlg('The "Sensory Threshold" coupled to import from previous Measurement cannot be found in "Linked List".','BEST Toolbox');
+                                            end
+                                        case 'Inflection Point'
+                                            try
+                                                IP=obj.sessions.(Session).(Protocol).Results.InflectionPoint_SI_BaseUnits;
+                                                obj.inputs.condsAll.(condStr).(st).threshold=num2str(IP);
+                                                obj.inputs.condsAll.(condStr).(st).si_pckt{4}=str2num(obj.inputs.condsAll.(condStr).(st).threshold)*obj.inputs.condsAll.(condStr).(st).si_pckt{1}*0.01; %Multiplying the IP with the Intensity to apply Transformation
+                                            catch
+                                                errordlg('The "Inflection Point" coupled to import from previous Measurement cannot be found in "Linked List".','BEST Toolbox');
+                                            end
+                                        case 'Inhibition'
+                                            try
+                                                Ib=obj.sessions.(Session).(Protocol).Results.Inhibition_SI_BaseUnits;
+                                                obj.inputs.condsAll.(condStr).(st).threshold=num2str(Ib);
+                                                obj.inputs.condsAll.(condStr).(st).si_pckt{4}=str2num(obj.inputs.condsAll.(condStr).(st).threshold)*obj.inputs.condsAll.(condStr).(st).si_pckt{1}*0.01; %Multiplying the Ib with the Intensity to apply Transformation
+                                            catch
+                                                errordlg('The "Inhibition" coupled to import from previous Measurement cannot be found in "Linked List".','BEST Toolbox');
+                                            end
+                                        case 'Facilitation'
+                                            try
+                                                Fc=obj.sessions.(Session).(Protocol).Results.Facilitation_SI_BaseUnits;
+                                                obj.inputs.condsAll.(condStr).(st).threshold=num2str(Fc);
+                                                obj.inputs.condsAll.(condStr).(st).si_pckt{4}=str2num(obj.inputs.condsAll.(condStr).(st).threshold)*obj.inputs.condsAll.(condStr).(st).si_pckt{1}*0.01; %Multiplying the Fc with the Intensity to apply Transformation
+                                            catch
+                                                errordlg('The "Facilitation" coupled to import from previous Measurement cannot be found in "Linked List".','BEST Toolbox');
+                                            end
+                                        case 'Plateau'
+                                            try
+                                                Pt=obj.sessions.(Session).(Protocol).Results.Plateau_SI_BaseUnits;
+                                                obj.inputs.condsAll.(condStr).(st).threshold=num2str(Pt);
+                                                obj.inputs.condsAll.(condStr).(st).si_pckt{4}=str2num(obj.inputs.condsAll.(condStr).(st).threshold)*obj.inputs.condsAll.(condStr).(st).si_pckt{1}*0.01; %Multiplying the Pt with the Intensity to apply Transformation
+                                            catch
+                                                errordlg('The "Plateau" coupled to import from previous Measurement cannot be found in "Linked List".','BEST Toolbox');
+                                            end
+                                    end
+                                catch
+                                    errordlg('The "Intensities Coupled Units" to import from previous Measurement cannot be found in "Linked List".','BEST Toolbox');
+                                end
+                        end
+                        %% Checking Timing Onset Units
+                        for iStimTiming=1:numel(obj.inputs.condsAll.(condStr).(st).stim_timing)
+                            if strcmp(obj.inputs.condsAll.(condStr).(st).stim_timing_units{iStimTiming},'Import from Protocol')
+                                try
+                                    Pulse=['pulse' num2str(iStimTiming)'];
+                                    Session=obj.inputs.condsAll.(condStr).(st).ImportERPLatency.(Pulse).Session;
+                                    Protocol=obj.inputs.condsAll.(condStr).(st).ImportERPLatency.(Pulse).Protocol;
+                                    Channel=obj.inputs.condsAll.(condStr).(st).ImportERPLatency.(Pulse).Channel;
+                                    obj.inputs.condsAll.(condStr).(st).stim_timing{iStimTiming}=obj.sessions.(Session).(Protocol).results.ERPLatency.(Channel);
+                                    obj.app.par.(obj.app.info.event.current_session).(obj.app.info.event.current_measure_fullstr).condsAll.(condStr).(st).stim_timing{iStimTiming}=obj.sessions.(Session).(Protocol).results.ERPLatency.(Channel);
+                                catch
+                                    errordlg('The "ERP Latency" to import from previous "ERP Measurement" cannot be found in "Linked List".','BEST Toolbox');
+                                end
+                            end
+                        end
+                        %% Checking Paired-CS Units
+                        %% Checking ISI Units
+                    end
+                end
+                %% Peak Frequency
+                if obj.inputs.BrainState==2
+                    if obj.inputs.ImportPeakFrequencyFromProtocols==2
+                        try
+                            Session=obj.inputs.ImportPeakFrequency.Session;
+                            Protocol=obj.inputs.ImportPeakFrequency.Protocol;
+                            Channel=obj.inputs.ImportPeakFrequency.Channel;
+                            obj.inputs.PeakFrequency=obj.sessions.(Session).(Protocol).results.PeakFrequency.(Channel);
+                            obj.app.par.(obj.app.info.event.current_session).(obj.app.info.event.current_measure_fullstr).PeakFrequency=num2str(obj.inputs.PeakFrequency);
+                        catch
+                            errordlg('The Peak Frequency to import from previous rsEEG Measurement Protocol cannot be found in "Linked List".','BEST Toolbox');
+                        end
+                    end
+                end
+            end
+        end
+        function factorizeConditionsExtended(obj)
+            %% Deleting Previous best_toolbox class
+            obj.inputs=[];
+            obj.bossbox=[];
+            obj.magven=[];
+            obj.magStim=[];
+            obj.digitimer=[];
+            obj.fieldtrip=[];
+            obj.app.pr=[];
+            %% Preparing Parameters to Inputs
+            cb_Pars2Inputs
+            %% Evaluating Linked Lists
+            cb_EvaluateLinkedLists
+            %% Evaluating Selected Protocol
+            switch obj.inputs.Protocol
+                case 'MEP Measurement Protocol'
+                case 1 % BS Independent
+                    %% Adjusting New Arhictecture to Old Architecture
+                    obj.inputs.MEPOnset=obj.inputs.MEPSearchWindow(1);
+                    obj.inputs.MEPOffset=obj.inputs.MEPSearchWindow(2);
+                    obj.inputs.EMGDisplayPeriodPre=obj.inputs.EMGExtractionPeriod(1)*(-1);
+                    obj.inputs.EMGDisplayPeriodPost=obj.inputs.EMGExtractionPeriod(2);
+                    obj.inputs.prestim_scope_plt=obj.inputs.EMGDisplayPeriodPre;
+                    obj.inputs.poststim_scope_plt=obj.inputs.EMGDisplayPeriodPost;
+                    obj.inputs.mep_onset=obj.inputs.MEPOnset;
+                    obj.inputs.mep_offset=obj.inputs.MEPOffset;
+                    obj.inputs.input_device=obj.app.pi.mep.InputDevice.String(obj.inputs.InputDevice); %TODO: the drc or mep on the 4th structure is not a good solution!
+                    obj.inputs.output_device=obj.inputs.condsAll.cond1.st1.stim_device;
+                    obj.inputs.stim_mode='MSO';
+                    obj.inputs.measure_str='MEP Measurement';
+                    obj.inputs.ylimMin=obj.inputs.EMGDisplayYLimMin;
+                    obj.inputs.ylimMax=obj.inputs.EMGDisplayYLimMax;
+                    obj.inputs.stop_event=0;
+                    obj.inputs.ylimMin=-3000;
+                    obj.inputs.ylimMax=+3000;
+                    obj.inputs.TrialNoForMean=1;
+                    obj.inputs.mt_starting_stim_inten=obj.inputs.condsAll.cond1.st1.si_pckt{1,1};
+                    %% Creating Column Labels
+                    obj.inputs.colLabel.inputDevices=1;
+                    obj.inputs.colLabel.outputDevices=2;
+                    obj.inputs.colLabel.si=3;
+                    obj.inputs.colLabel.iti=4;
+                    obj.inputs.colLabel.chLab=5;
+                    obj.inputs.colLabel.trials=9;
+                    obj.inputs.colLabel.axesno=6;
+                    obj.inputs.colLabel.measures=7;
+                    obj.inputs.colLabel.stimMode=8;
+                    obj.inputs.colLabel.tpm=10;
+                    obj.inputs.colLabel.chType=11;
+                    obj.inputs.colLabel.chId=12;
+                    %% Creating Channel Types, Axes No, Channel IDs
+                    % sari conds k andar ye fields phir added kero, ta k ye udhor se he uthaye
+                    %% Creating Experimental Conditions
+                    conds=fieldnames(obj.inputs.condsAll);
+                    for c=1:numel(fieldnames(obj.inputs.condsAll))
+                        %% Input Device
+                        obj.inputs.condMat{c,obj.inputs.colLabel.inputDevices}=char(obj.app.pi.mep.InputDevice.String(obj.inputs.InputDevice));
+                        %% TrialsPer Condition
+                        obj.inputs.condMat{c,obj.inputs.colLabel.trials}=obj.inputs.condsAll.(conds{c,1}).TrialsPerCondition;
+                        %% ITI
+                        obj.inputs.condMat{c,obj.inputs.colLabel.iti}=obj.inputs.condsAll.(conds{c,1}).ITI;
+                        %% Channel Label, Measure, Axes No, Channel Type, Channel ID for Plots
+                        obj.inputs.condMat{c,obj.inputs.colLabel.chLab}=[obj.inputs.condsAll.(conds{c,1}).targetChannel,obj.inputs.EMGDisplayChannels,{'StatusTable'}];
+                        obj.inputs.condMat{c,obj.inputs.colLabel.measures}=[repmat({'MEP_Measurement'},1,numel(obj.inputs.condsAll.(conds{c,1}).targetChannel)),repmat({'MEP_Measurement'},1,numel(obj.inputs.EMGDisplayChannels)),{'StatusTable'}];
+                        obj.inputs.condMat{c,obj.inputs.colLabel.axesno}
+                        obj.inputs.condMat{c,obj.inputs.colLabel.chType}
+                        obj.inputs.condMat{c,obj.inputs.colLabel.chId}
+                        
+                        %% done until here but do start from the axesno one and contnue
+                        
+                        obj.inputs.condMat{c,obj.inputs.colLabel.chLab}=[obj.inputs.EMGDisplayChannels,{'StatusTable'}];
+                        obj.inputs.condMat{c,obj.inputs.colLabel.measures}=DisplayChannelsMeasures;
+                        obj.inputs.condMat{c,obj.inputs.colLabel.axesno}=DisplayChannelsAxesNo;
+                        obj.inputs.condMat{c,obj.inputs.colLabel.chType}=DisplayChannelType;
+                        obj.inputs.condMat{c,obj.inputs.colLabel.chId}=DisplayChannelID;
+                        
+                        
+                        
+                        for stno=1:(max(size(fieldnames(obj.inputs.condsAll.(conds{c,1}))))-1)
+                            st=['st' num2str(stno)];
+                            if(obj.inputs.condsAll.(conds{c,1}).(st).stim_mode=='single_pulse')
+                                obj.inputs.condsAll.(conds{c,1}).(st).si_pckt{1,2}=0;
+                                obj.inputs.condsAll.(conds{c,1}).(st).si_pckt{1,3}=0;
+                            end
+                            if obj.inputs.condsAll.(conds{c,1}).(st).si_units==1
+                                obj.inputs.condsAll.(conds{c,1}).(st).si_pckt{1,4}=obj.inputs.condsAll.(conds{c,1}).(st).si_pckt{1,1};
+                            elseif obj.inputs.condsAll.(conds{c,1}).(st).si_units==0 && ~isempty(str2num(obj.inputs.condsAll.(conds{c,1}).(st).threshold)) && str2num(obj.inputs.condsAll.(conds{c,1}).(st).threshold)>0
+                                obj.inputs.condsAll.(conds{c,1}).(st).si_pckt{1,4}=round((obj.inputs.condsAll.(conds{c,1}).(st).si_pckt{1,1}*(str2num(obj.inputs.condsAll.(conds{c,1}).(st).threshold)))/100);
+                            end
+                            condSi{1,stno}=obj.inputs.condsAll.(conds{c,1}).(st).si_pckt;
+                            condstimMode{1,stno}= obj.inputs.condsAll.(conds{c,1}).(st).stim_mode;
+                            obj.inputs.condsAll.(conds{c,1}).(st).stim_device
+                            condoutputDevice{1,stno}=obj.inputs.condsAll.(conds{c,1}).(st).stim_device;
+                            for i=1:numel(obj.inputs.condsAll.(conds{c,1}).(st).stim_timing)
+                                condstimTimingStrings{1,i}=num2str(obj.inputs.condsAll.(conds{c,1}).(st).stim_timing{1,i});
+                            end
+                            condstimTiming{1,stno}=condstimTimingStrings;
+                        end
+                        obj.inputs.condMat(c,obj.inputs.colLabel.si)={condSi};
+                        obj.inputs.condMat(c,obj.inputs.colLabel.outputDevices)={condoutputDevice};
+                        obj.inputs.condMat(c,obj.inputs.colLabel.stimMode)={condstimMode};
+                        %                         condstimTiming=condstimTiming{1,1};
+                        %                         condstimTiming={{cellfun(@num2str, condstimTiming{1,1}(1,1:end))}};
+                        %                                                 condstimTiming={{arrayfun(@num2str, condstimTiming{1,1}(1,1:end))}};
+                        
+                        %                         condstimTiming=cellstr(condstimTiming);
+                        for timing=1:numel(condstimTiming)
+                            for jj=1:numel(condstimTiming{1,timing})
+                                condstimTiming{2,timing}{1,jj}=condoutputDevice{1,timing};
+                            end
+                        end
+                        condstimTiming_new{1}=horzcat(condstimTiming{1,:});
+                        condstimTiming_new{2}=horzcat(condstimTiming{2,:});
+                        [condstimTiming_new_sorted{1},sorted_idx]=sort(condstimTiming_new{1});
+                        
+                        %                                  [condstimTiming_new_sorted{1},sorted_idx]=sort(cellfun(@str2num, condstimTiming_new{1}));
+                        %                                  condstimTiming_new_sorted{1}=cellfun(@num2str, num2cell(condstimTiming_new_sorted{1}));
+                        
+                        
+                        
+                        condstimTiming_new_sorted{2}=condstimTiming_new{1,2}(sorted_idx);
+                        %                                  condstimTiming_new_sorted{1}=cellfun(@num2str, num2cell(condstimTiming_new_sorted{1}));
+                        
+                        for stimno_tpm=1:numel(condstimTiming_new_sorted{2})
+                            port_vector{stimno_tpm}=obj.app.par.hardware_settings.(char(condstimTiming_new_sorted{2}{1,stimno_tpm})).bb_outputport;
+                        end
+                        condstimTiming_new_sorted{2}=port_vector;
+                        tpmVect=[condstimTiming_new_sorted{1};condstimTiming_new_sorted{2}];
+                        [tpmVect_unique,ia,ic]=unique(tpmVect(1,:));
+                        a_counts = accumarray(ic,1);
+                        for binportloop=1:numel(tpmVect_unique)
+                            buffer{1,binportloop}={(cell2mat(tpmVect(2,ia(binportloop):ia(binportloop)-1+a_counts(binportloop))))};
+                            binaryZ='0000';
+                            num=cell2mat(buffer{1,binportloop});
+                            for binaryID=1:numel(num)
+                                binaryZ(str2num(num(binaryID)))='1';
+                            end
+                            buffer{1,binportloop}=bin2dec(flip(binaryZ));
+                            markers{1,binportloop}=0;
+                        end
+                        markers{1,1}=c;
+                        condstimTiming_new_sorted=[num2cell((cellfun(@str2num, tpmVect_unique(1,1:end))));buffer;markers];
+                        condstimTiming_new_sorted=cell2mat(condstimTiming_new_sorted)
+                        [condstimTiming_new_sorted(1,:),sorted_idx]=sort(condstimTiming_new_sorted(1,:))
+                        condstimTiming_new_sorted(1,:)=condstimTiming_new_sorted(1,:)/1000;
+                        condstimTiming_new_sorted(2,:)=condstimTiming_new_sorted(2,sorted_idx)
+                        
+                        obj.inputs.condMat(c,obj.inputs.colLabel.tpm)={num2cell(condstimTiming_new_sorted)};
+                        condSi=[];
+                        condoutputDevice=[];
+                        condstimMode=[];
+                        condstimTiming=[];
+                        buffer=[];
+                        tpmVect_unique=[];
+                        a_counts =[];
+                        ia=[];
+                        ic=[];
+                        port_vector=[];
+                        num=[];
+                        condstimTiming_new=[];
+                        condstimTiming_new_sorted=[];
+                        sorted_idx=[];
+                        markers=[];
+                        condstimTimingStrings=[];
+                    end
+                case 2 % BS Dependent
+            end
             %% Conversion from Pars2Inputs
             function cb_Pars2Inputs
                 obj.inputs=obj.app.par.(obj.app.info.event.current_session).(obj.app.info.event.current_measure_fullstr);
