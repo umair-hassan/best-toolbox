@@ -2478,10 +2478,19 @@ classdef best_toolbox < handle
                     obj.inputs.colLabel.tpm=10;
                     obj.inputs.colLabel.chType=11;
                     obj.inputs.colLabel.chId=12;
-                    %% Creating Channel Types, Axes No, Channel IDs
-                    % sari conds k andar ye fields phir added kero, ta k ye udhor se he uthaye
-                    %% Creating Experimental Conditions
                     conds=fieldnames(obj.inputs.condsAll);
+                    %% Creating Channel Types, Axes No, Channel IDs
+                    DisplayChannelCounter=0;
+                    for c=1:numel(fieldnames(obj.inputs.condsAll))
+                        obj.inputs.condsAllFactorsInfo.(conds{c,1}).TargetChannelNumbers=numel(obj.inputs.condsAll.(conds{c,1}).targetChannel);
+                        obj.inputs.condsAllFactorsInfo.(conds{c,1}).chType=repmat({'EMG'},1,numel(obj.inputs.condsAll.(conds{c,1}).targetChannel));
+                        for itc=1:obj.inputs.condsAll.(conds{c,1}).targetChannel
+                            obj.inputs.condsAllFactorsInfo.(conds{c,1}).chId{itc}=find(strcmp(obj.app.par.hardware_settings.(char(obj.inputs.input_device)).NeurOneProtocolChannelLabels,obj.inputs.condsAll.(conds{c,1}).targetChannel{itc}));
+                            obj.inputs.condsAllFactorsInfo.(conds{c,1}).axesno{itc}=DisplayChannelCounter+itc;
+                        end
+                        DisplayChannelCounter=DisplayChannelCounter+obj.inputs.condsAllFactorsInfo.(conds{c,1}).TargetChannelNumbers;
+                    end
+                    %% Creating Experimental Conditions
                     for c=1:numel(fieldnames(obj.inputs.condsAll))
                         %% Input Device
                         obj.inputs.condMat{c,obj.inputs.colLabel.inputDevices}=char(obj.app.pi.mep.InputDevice.String(obj.inputs.InputDevice));
