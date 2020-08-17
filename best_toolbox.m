@@ -2323,6 +2323,10 @@ classdef best_toolbox < handle
                     condStr=['cond' num2str(icond)];
                     for s=1:(length(fieldnames(obj.inputs.condsAll.(condStr)))-6)
                         st=['st' num2str(s)];
+                        %% Transforming SI Packets to 4,5, 6 index
+                        obj.inputs.condsAll.(condStr).(st).si_pckt{4}=obj.inputs.condsAll.(condStr).(st).si_pckt{1}; %Intensity
+                        obj.inputs.condsAll.(condStr).(st).si_pckt{5}=obj.inputs.condsAll.(condStr).(st).si_pckt{2}; %Paired-CS Intensity
+                        obj.inputs.condsAll.(condStr).(st).si_pckt{6}=obj.inputs.condsAll.(condStr).(st).si_pckt{3;} %ISI
                         %% Checking Intensity Units
                         switch obj.inputs.condsAll.(condStr).(st).IntensityUnit
                             case {'%MT','%ST'}
