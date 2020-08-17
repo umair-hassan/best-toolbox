@@ -2490,6 +2490,9 @@ classdef best_toolbox < handle
                         end
                         DisplayChannelCounter=DisplayChannelCounter+obj.inputs.condsAllFactorsInfo.(conds{c,1}).TargetChannelNumbers;
                     end
+                    for dc=1:numel(obj.inputs.EMGDisplayChannels)
+                        EMGDisplayChannelschID{dc}=find(strcmp(obj.app.par.hardware_settings.(char(obj.inputs.input_device)).NeurOneProtocolChannelLabels,obj.inputs.EMGDisplayChannels{dc}));
+                    end
                     %% Creating Experimental Conditions
                     for c=1:numel(fieldnames(obj.inputs.condsAll))
                         %% Input Device
@@ -2501,22 +2504,16 @@ classdef best_toolbox < handle
                         %% Channel Label, Measure, Axes No, Channel Type, Channel ID for Plots
                         obj.inputs.condMat{c,obj.inputs.colLabel.chLab}=[obj.inputs.condsAll.(conds{c,1}).targetChannel,obj.inputs.EMGDisplayChannels,{'StatusTable'}];
                         obj.inputs.condMat{c,obj.inputs.colLabel.measures}=[repmat({'MEP_Measurement'},1,numel(obj.inputs.condsAll.(conds{c,1}).targetChannel)),repmat({'MEP_Measurement'},1,numel(obj.inputs.EMGDisplayChannels)),{'StatusTable'}];
-                        obj.inputs.condMat{c,obj.inputs.colLabel.axesno}
-                        obj.inputs.condMat{c,obj.inputs.colLabel.chType}
-                        obj.inputs.condMat{c,obj.inputs.colLabel.chId}
-                        
-                        %% done until here but do start from the axesno one and contnue
-                        
-                        obj.inputs.condMat{c,obj.inputs.colLabel.chLab}=[obj.inputs.EMGDisplayChannels,{'StatusTable'}];
-                        obj.inputs.condMat{c,obj.inputs.colLabel.measures}=DisplayChannelsMeasures;
-                        obj.inputs.condMat{c,obj.inputs.colLabel.axesno}=DisplayChannelsAxesNo;
-                        obj.inputs.condMat{c,obj.inputs.colLabel.chType}=DisplayChannelType;
-                        obj.inputs.condMat{c,obj.inputs.colLabel.chId}=DisplayChannelID;
-                        
-                        
-                        
-                        for stno=1:(max(size(fieldnames(obj.inputs.condsAll.(conds{c,1}))))-1)
+                        obj.inputs.condMat{c,obj.inputs.colLabel.axesno}=[obj.inputs.condsAllFactorsInfo.(conds{c,1}).axesno,num2cell(DisplayChannelCounter+1:1:DisplayChannelCounter+1+numel(obj.inputs.EMGDisplayChannels)+1)];
+                        obj.inputs.condMat{c,obj.inputs.colLabel.chType}=[obj.inputs.condsAllFactorsInfo.(conds{c,1}).chType,repmat({'EMG'},1,numel(obj.inputs.EMGDisplayChannels)),{'StatusTable'}q];
+                        obj.inputs.condMat{c,obj.inputs.colLabel.chId}=[obj.inputs.condsAllFactorsInfo.(conds{c,1}).chId,EMGDisplayChannelschID,{1}];
+                        %% Stimulator Specific Parameters
+                        for stno=1:(max(size(fieldnames(obj.inputs.condsAll.(conds{c,1}))))-6)
                             st=['st' num2str(stno)];
+                            % if its single pulse then check the 4th
+                            % otherwise fill the 4th 
+                            
+                            
                             if(obj.inputs.condsAll.(conds{c,1}).(st).stim_mode=='single_pulse')
                                 obj.inputs.condsAll.(conds{c,1}).(st).si_pckt{1,2}=0;
                                 obj.inputs.condsAll.(conds{c,1}).(st).si_pckt{1,3}=0;
