@@ -2514,22 +2514,8 @@ classdef best_toolbox < handle
                         %% Stimulator Specific Parameters
                         for stno=1:(max(size(fieldnames(obj.inputs.condsAll.(conds{c,1}))))-6)
                             st=['st' num2str(stno)];
-                            % if its single pulse then check the 4th
-                            % otherwise fill the 4th 
-                            
-                            
-                            if(obj.inputs.condsAll.(conds{c,1}).(st).stim_mode=='single_pulse')
-                                obj.inputs.condsAll.(conds{c,1}).(st).si_pckt{1,2}=0;
-                                obj.inputs.condsAll.(conds{c,1}).(st).si_pckt{1,3}=0;
-                            end
-                            if obj.inputs.condsAll.(conds{c,1}).(st).si_units==1
-                                obj.inputs.condsAll.(conds{c,1}).(st).si_pckt{1,4}=obj.inputs.condsAll.(conds{c,1}).(st).si_pckt{1,1};
-                            elseif obj.inputs.condsAll.(conds{c,1}).(st).si_units==0 && ~isempty(str2num(obj.inputs.condsAll.(conds{c,1}).(st).threshold)) && str2num(obj.inputs.condsAll.(conds{c,1}).(st).threshold)>0
-                                obj.inputs.condsAll.(conds{c,1}).(st).si_pckt{1,4}=round((obj.inputs.condsAll.(conds{c,1}).(st).si_pckt{1,1}*(str2num(obj.inputs.condsAll.(conds{c,1}).(st).threshold)))/100);
-                            end
                             condSi{1,stno}=obj.inputs.condsAll.(conds{c,1}).(st).si_pckt;
                             condstimMode{1,stno}= obj.inputs.condsAll.(conds{c,1}).(st).stim_mode;
-                            obj.inputs.condsAll.(conds{c,1}).(st).stim_device
                             condoutputDevice{1,stno}=obj.inputs.condsAll.(conds{c,1}).(st).stim_device;
                             for i=1:numel(obj.inputs.condsAll.(conds{c,1}).(st).stim_timing)
                                 condstimTimingStrings{1,i}=num2str(obj.inputs.condsAll.(conds{c,1}).(st).stim_timing{1,i});
@@ -2539,11 +2525,6 @@ classdef best_toolbox < handle
                         obj.inputs.condMat(c,obj.inputs.colLabel.si)={condSi};
                         obj.inputs.condMat(c,obj.inputs.colLabel.outputDevices)={condoutputDevice};
                         obj.inputs.condMat(c,obj.inputs.colLabel.stimMode)={condstimMode};
-                        %                         condstimTiming=condstimTiming{1,1};
-                        %                         condstimTiming={{cellfun(@num2str, condstimTiming{1,1}(1,1:end))}};
-                        %                                                 condstimTiming={{arrayfun(@num2str, condstimTiming{1,1}(1,1:end))}};
-                        
-                        %                         condstimTiming=cellstr(condstimTiming);
                         for timing=1:numel(condstimTiming)
                             for jj=1:numel(condstimTiming{1,timing})
                                 condstimTiming{2,timing}{1,jj}=condoutputDevice{1,timing};
@@ -2552,15 +2533,7 @@ classdef best_toolbox < handle
                         condstimTiming_new{1}=horzcat(condstimTiming{1,:});
                         condstimTiming_new{2}=horzcat(condstimTiming{2,:});
                         [condstimTiming_new_sorted{1},sorted_idx]=sort(condstimTiming_new{1});
-                        
-                        %                                  [condstimTiming_new_sorted{1},sorted_idx]=sort(cellfun(@str2num, condstimTiming_new{1}));
-                        %                                  condstimTiming_new_sorted{1}=cellfun(@num2str, num2cell(condstimTiming_new_sorted{1}));
-                        
-                        
-                        
                         condstimTiming_new_sorted{2}=condstimTiming_new{1,2}(sorted_idx);
-                        %                                  condstimTiming_new_sorted{1}=cellfun(@num2str, num2cell(condstimTiming_new_sorted{1}));
-                        
                         for stimno_tpm=1:numel(condstimTiming_new_sorted{2})
                             port_vector{stimno_tpm}=obj.app.par.hardware_settings.(char(condstimTiming_new_sorted{2}{1,stimno_tpm})).bb_outputport;
                         end
@@ -2586,22 +2559,8 @@ classdef best_toolbox < handle
                         condstimTiming_new_sorted(2,:)=condstimTiming_new_sorted(2,sorted_idx)
                         
                         obj.inputs.condMat(c,obj.inputs.colLabel.tpm)={num2cell(condstimTiming_new_sorted)};
-                        condSi=[];
-                        condoutputDevice=[];
-                        condstimMode=[];
-                        condstimTiming=[];
-                        buffer=[];
-                        tpmVect_unique=[];
-                        a_counts =[];
-                        ia=[];
-                        ic=[];
-                        port_vector=[];
-                        num=[];
-                        condstimTiming_new=[];
-                        condstimTiming_new_sorted=[];
-                        sorted_idx=[];
-                        markers=[];
-                        condstimTimingStrings=[];
+                        condSi=[]; condoutputDevice=[]; condstimMode=[];condstimTiming=[];buffer=[];tpmVect_unique=[];a_counts =[];ia=[];ic=[];port_vector=[];
+                        num=[];condstimTiming_new=[];condstimTiming_new_sorted=[];sorted_idx=[];markers=[];condstimTimingStrings=[];
                     end
                 case 2 % BS Dependent
             end
