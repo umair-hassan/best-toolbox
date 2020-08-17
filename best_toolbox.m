@@ -98,7 +98,7 @@ classdef best_toolbox < handle
             %% Preparing Parameters to Inputs
             cb_Pars2Inputs
             %% Evaluating Linked Lists
-            cb_EvaluateLinkedLists
+%             cb_EvaluateLinkedLists
             %% Evaluating Selected Protocol
             switch obj.inputs.Protocol
                 case 'MEP Hotspot Search Protocol'
@@ -1048,7 +1048,7 @@ classdef best_toolbox < handle
                                 obj.inputs.condMat{c,obj.inputs.colLabel.chId}=[ChannelID(c*2-1),ChannelID(c*2),ChannelID(end-numel(obj.inputs.EMGDisplayChannels):end)]; %% TODO: update it later with the originigal channel index
                                 obj.inputs.condMat{c,obj.inputs.colLabel.marker}=c;
                                 obj.inputs.condMat{c,obj.inputs.colLabel.threshold}=obj.inputs.condsAll.(conds{c,1}).st1.threshold_level;
-                                for stno=1:(max(size(fieldnames(obj.inputs.condsAll.(conds{c,1}))))-1)
+                                for stno=1:(max(size(fieldnames(obj.inputs.condsAll.(conds{c,1}))))-6)
                                     st=['st' num2str(stno)];
                                     if(obj.inputs.condsAll.(conds{c,1}).(st).stim_mode=='single_pulse')
                                         obj.inputs.condsAll.(conds{c,1}).(st).si_pckt{1,2}=0;
@@ -4589,11 +4589,20 @@ end
                 experimental_condition{1}.random_delay_range = 0.1;
                 experimental_condition{1}.port = 1;
                 obj.tc.(mrk).stimvalue = [obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,1}{1,4} 1.0 1.00];
-                obj.tc.(mrk).stepsize = [1 1 1];
-                obj.tc.(mrk).minstep =  1;
-                obj.tc.(mrk).maxstep =  8;
-                obj.tc.(mrk).minvalue = 10;
-                obj.tc.(mrk).maxvalue = 90;
+                switch obj.app.par.hardware_settings.(char(obj.inputs.condsAll.cond1.st1.stim_device)).slct_device
+                    case 9
+                        obj.tc.(mrk).stepsize = [0.4 0.4 0.4];
+                        obj.tc.(mrk).minstep =  0.01;
+                        obj.tc.(mrk).maxstep =  1.00;
+                        obj.tc.(mrk).minvalue = 0.20;
+                        obj.tc.(mrk).maxvalue = 99.9;
+                    otherwise
+                        obj.tc.(mrk).stepsize = [1 1 1];
+                        obj.tc.(mrk).minstep =  1;
+                        obj.tc.(mrk).maxstep =  8;
+                        obj.tc.(mrk).minvalue = 1;
+                        obj.tc.(mrk).maxvalue = 99;
+                end
                 obj.tc.(mrk).responses = {[] [] []};
                 obj.tc.(mrk).stimvalues = {[] [] []};  %storage for post-hoc review
                 obj.tc.(mrk).stepsizes = {[] [] []};   %storage for post-hoc review
@@ -5050,13 +5059,21 @@ end
                     YDataPlusOne=obj.inputs.trialMat{TrialToUpdate,obj.inputs.colLabel.si}{1,1}{1,1};
                     obj.inputs.Handles.(ax).mtplot=plot(YData,'LineWidth',2);
                     xlabel('Trial Number');
-                    ylabel('Stimulation Intensities (%MSO)');
+                    
                     set(gcf, 'color', 'w')
                     obj.inputs.Handles.(ax).mt_nextIntensityDot=plot(2,YDataPlusOne,'o','Color','r','MarkerSize',4,'MarkerFaceColor','r');
-                    yticks(0:2:100); xticks(1:1:1000); ylim auto
+                    switch obj.app.par.hardware_settings.(char(obj.inputs.condsAll.cond1.st1.stim_device)).slct_device
+                        case 9
+                            ylabel('Stimulation Intensities (mA)');
+                            xticks(1:2:1000); yticks(0:0.2:20); ylim auto
+                            textMotorThresholdStatus={['Trials to Average:' num2str(obj.inputs.NoOfTrialsToAverage)],['Threshold (mV):' sprintf('%.1f',obj.inputs.MotorThreshold)]};
+                        otherwise
+                            ylabel('Stimulation Intensities (%MSO)');
+                            yticks(0:2:100); xticks(1:1:1000); ylim auto
+                            textMotorThresholdStatus={['Trials to Average:' num2str(obj.inputs.NoOfTrialsToAverage)],['Threshold (%MSO):' num2str(obj.inputs.MotorThreshold)]};
+                    end
                     xlim([obj.app.pr.ax.(ax).XLim(1) obj.app.pr.ax.(ax).XLim(2)+1])
                     ylim([obj.app.pr.ax.(ax).YLim(1) (obj.app.pr.ax.(ax).YLim(2)*1.1)])
-                    textMotorThresholdStatus={['Trials to Average:' num2str(obj.inputs.NoOfTrialsToAverage)],['Threshold (%MSO):' num2str(obj.inputs.MotorThreshold)]};
                     obj.app.pr.ax.(ax).UserData.status=text(obj.app.pr.ax.(ax),1,1,textMotorThresholdStatus,'units','normalized','HorizontalAlignment','right','VerticalAlignment','cap','color',[0.45 0.45 0.45]);
                     obj.app.pr.ax.(ax).UserData.ThresholdGirdLine=gridxy([],YData,'Color','k','linewidth',1,'Parent',obj.app.pr.ax.(ax));
                 otherwise
