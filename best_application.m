@@ -5047,7 +5047,27 @@ classdef best_application < handle
                 end % (manual stim intensity if flag end)
             end
             
-            
+            exp_name=obj.pmd.exp_title.editfield.String; exp_name(exp_name == ' ') = '_';
+            subj_code=obj.pmd.sub_code.editfield.String; subj_code(subj_code == ' ') = '_';
+            session=obj.info.event.current_session; session(session == '_') = '';
+            measure=obj.info.event.current_measure_fullstr; measure(measure == '_') = '';
+            Date=datestr(now,'yyyy-mm-dd HH:MM:SS'); Date(Date == ' ') = '_'; Date(Date == '-') = ''; Date(Date == ':') = '';
+            FileName=['BESTData_' exp_name '_' subj_code '_' session '_' measure '_' Date '.mat'];
+            try
+                FullFileName=fullfile(obj.par.GlobalSettings.DataBaseDirectory,exp_name,subj_code,session,FileName);
+                if ~exist(fullfile(obj.par.GlobalSettings.DataBaseDirectory,exp_name,subj_code,session), 'dir')
+                    mkdir(fullfile(obj.par.GlobalSettings.DataBaseDirectory,exp_name,subj_code,session));
+                end
+            catch
+                FullFileName=fullfile(eval('cd'),exp_name,subj_code,session,FileName);
+                if ~exist(fullfile(eval('cd'),exp_name,subj_code,session), 'dir')
+                    mkdir(fullfile(eval('cd'),exp_name,subj_code,session));
+                end
+            end
+            BESTData=matfile(FullFileName,'Writable',true);
+            BESTData.RawData=NaN(1,1000); %obj.bst.session.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).Data
+%             obj.bst.session.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).Data=[];
+
             set(obj.pi.tmsfmri.status,'String','Completed!');
         end % (manual stim intensity if flag end)
         function cb_pi_tmsfmri_manual_stim_inten(obj)
