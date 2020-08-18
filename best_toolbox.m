@@ -291,6 +291,7 @@ classdef best_toolbox < handle
                             obj.inputs.colLabel.tpm=10;
                             obj.inputs.colLabel.chType=11;
                             obj.inputs.colLabel.chId=12;
+                            obj.inputs.colLabel.ConditionMarker=13;
                             switch obj.app.par.hardware_settings.(char(obj.inputs.input_device)).slct_device
                                 case 1 %boss box
                                     ChannelType=[repmat({'EMG'},1,numel(obj.inputs.EMGDisplayChannels)),{'StatusTable'}]; %dirctly inside the loop
@@ -321,8 +322,7 @@ classdef best_toolbox < handle
                                 obj.inputs.condMat{c,obj.inputs.colLabel.axesno}=DisplayChannelsAxesNo;
                                 obj.inputs.condMat{c,obj.inputs.colLabel.chType}=DisplayChannelType;
                                 obj.inputs.condMat{c,obj.inputs.colLabel.chId}=DisplayChannelID;
-                                
-                                
+                                obj.inputs.condMat{c,obj.inputs.colLabel.ConditionMarker}=c;
                                 conds=fieldnames(obj.inputs.condsAll);
                                 for stno=1:(max(size(fieldnames(obj.inputs.condsAll.(conds{c,1}))))-1)
                                     st=['st' num2str(stno)];
@@ -2448,121 +2448,135 @@ classdef best_toolbox < handle
             %% Evaluating Selected Protocol
             switch obj.inputs.Protocol
                 case 'MEP Measurement Protocol'
-                case 1 % BS Independent
-                    %% Adjusting New Arhictecture to Old Architecture
-                    obj.inputs.MEPOnset=obj.inputs.MEPSearchWindow(1);
-                    obj.inputs.MEPOffset=obj.inputs.MEPSearchWindow(2);
-                    obj.inputs.EMGDisplayPeriodPre=obj.inputs.EMGExtractionPeriod(1)*(-1);
-                    obj.inputs.EMGDisplayPeriodPost=obj.inputs.EMGExtractionPeriod(2);
-                    obj.inputs.prestim_scope_plt=obj.inputs.EMGDisplayPeriodPre;
-                    obj.inputs.poststim_scope_plt=obj.inputs.EMGDisplayPeriodPost;
-                    obj.inputs.mep_onset=obj.inputs.MEPOnset;
-                    obj.inputs.mep_offset=obj.inputs.MEPOffset;
-                    obj.inputs.input_device=obj.app.pi.mep.InputDevice.String(obj.inputs.InputDevice); %TODO: the drc or mep on the 4th structure is not a good solution!
-                    obj.inputs.output_device=obj.inputs.condsAll.cond1.st1.stim_device;
-                    obj.inputs.stim_mode='MSO';
-                    obj.inputs.measure_str='MEP Measurement';
-                    obj.inputs.ylimMin=obj.inputs.EMGDisplayYLimMin;
-                    obj.inputs.ylimMax=obj.inputs.EMGDisplayYLimMax;
-                    obj.inputs.stop_event=0;
-                    obj.inputs.ylimMin=-3000;
-                    obj.inputs.ylimMax=+3000;
-                    obj.inputs.TrialNoForMean=1;
-                    obj.inputs.mt_starting_stim_inten=obj.inputs.condsAll.cond1.st1.si_pckt{1,1};
-                    %% Creating Column Labels
-                    obj.inputs.colLabel.inputDevices=1;
-                    obj.inputs.colLabel.outputDevices=2;
-                    obj.inputs.colLabel.si=3;
-                    obj.inputs.colLabel.iti=4;
-                    obj.inputs.colLabel.chLab=5;
-                    obj.inputs.colLabel.trials=9;
-                    obj.inputs.colLabel.axesno=6;
-                    obj.inputs.colLabel.measures=7;
-                    obj.inputs.colLabel.stimMode=8;
-                    obj.inputs.colLabel.tpm=10;
-                    obj.inputs.colLabel.chType=11;
-                    obj.inputs.colLabel.chId=12;
-                    conds=fieldnames(obj.inputs.condsAll);
-                    %% Creating Channel Types, Axes No, Channel IDs
-                    DisplayChannelCounter=0;
-                    for c=1:numel(fieldnames(obj.inputs.condsAll))
-                        obj.inputs.condsAllFactorsInfo.(conds{c,1}).TargetChannelNumbers=numel(obj.inputs.condsAll.(conds{c,1}).targetChannel);
-                        obj.inputs.condsAllFactorsInfo.(conds{c,1}).chType=repmat({'EMG'},1,numel(obj.inputs.condsAll.(conds{c,1}).targetChannel));
-                        for itc=1:obj.inputs.condsAll.(conds{c,1}).targetChannel
-                            obj.inputs.condsAllFactorsInfo.(conds{c,1}).chId{itc}=find(strcmp(obj.app.par.hardware_settings.(char(obj.inputs.input_device)).NeurOneProtocolChannelLabels,obj.inputs.condsAll.(conds{c,1}).targetChannel{itc}));
-                            obj.inputs.condsAllFactorsInfo.(conds{c,1}).axesno{itc}=DisplayChannelCounter+itc;
-                        end
-                        DisplayChannelCounter=DisplayChannelCounter+obj.inputs.condsAllFactorsInfo.(conds{c,1}).TargetChannelNumbers;
-                    end
-                    for dc=1:numel(obj.inputs.EMGDisplayChannels)
-                        EMGDisplayChannelschID{dc}=find(strcmp(obj.app.par.hardware_settings.(char(obj.inputs.input_device)).NeurOneProtocolChannelLabels,obj.inputs.EMGDisplayChannels{dc}));
-                    end
-                    %% Creating Experimental Conditions
-                    for c=1:numel(fieldnames(obj.inputs.condsAll))
-                        %% Input Device
-                        obj.inputs.condMat{c,obj.inputs.colLabel.inputDevices}=char(obj.app.pi.mep.InputDevice.String(obj.inputs.InputDevice));
-                        %% TrialsPer Condition
-                        obj.inputs.condMat{c,obj.inputs.colLabel.trials}=obj.inputs.condsAll.(conds{c,1}).TrialsPerCondition;
-                        %% ITI
-                        obj.inputs.condMat{c,obj.inputs.colLabel.iti}=obj.inputs.condsAll.(conds{c,1}).ITI;
-                        %% Channel Label, Measure, Axes No, Channel Type, Channel ID for Plots
-                        obj.inputs.condMat{c,obj.inputs.colLabel.chLab}=[obj.inputs.condsAll.(conds{c,1}).targetChannel,obj.inputs.EMGDisplayChannels,{'StatusTable'}];
-                        obj.inputs.condMat{c,obj.inputs.colLabel.measures}=[repmat({'MEP_Measurement'},1,numel(obj.inputs.condsAll.(conds{c,1}).targetChannel)),repmat({'MEP_Measurement'},1,numel(obj.inputs.EMGDisplayChannels)),{'StatusTable'}];
-                        obj.inputs.condMat{c,obj.inputs.colLabel.axesno}=[obj.inputs.condsAllFactorsInfo.(conds{c,1}).axesno,num2cell(DisplayChannelCounter+1:1:DisplayChannelCounter+1+numel(obj.inputs.EMGDisplayChannels)+1)];
-                        obj.inputs.condMat{c,obj.inputs.colLabel.chType}=[obj.inputs.condsAllFactorsInfo.(conds{c,1}).chType,repmat({'EMG'},1,numel(obj.inputs.EMGDisplayChannels)),{'StatusTable'}];
-                        obj.inputs.condMat{c,obj.inputs.colLabel.chId}=[obj.inputs.condsAllFactorsInfo.(conds{c,1}).chId,EMGDisplayChannelschID,{1}];
-                        %% Stimulator Specific Parameters
-                        for stno=1:(max(size(fieldnames(obj.inputs.condsAll.(conds{c,1}))))-6)
-                            st=['st' num2str(stno)];
-                            condSi{1,stno}=obj.inputs.condsAll.(conds{c,1}).(st).si_pckt;
-                            condstimMode{1,stno}= obj.inputs.condsAll.(conds{c,1}).(st).stim_mode;
-                            condoutputDevice{1,stno}=obj.inputs.condsAll.(conds{c,1}).(st).stim_device;
-                            for i=1:numel(obj.inputs.condsAll.(conds{c,1}).(st).stim_timing)
-                                condstimTimingStrings{1,i}=num2str(obj.inputs.condsAll.(conds{c,1}).(st).stim_timing{1,i});
+                    switch obj.inputs.BrainState
+                        case 1 % BS Independent
+                            %% Adjusting New Arhictecture to Old Architecture
+                            obj.inputs.MEPOnset=obj.inputs.MEPSearchWindow(1);
+                            obj.inputs.MEPOffset=obj.inputs.MEPSearchWindow(2);
+                            obj.inputs.EMGDisplayPeriodPre=obj.inputs.EMGExtractionPeriod(1)*(-1);
+                            obj.inputs.EMGDisplayPeriodPost=obj.inputs.EMGExtractionPeriod(2);
+                            obj.inputs.prestim_scope_plt=obj.inputs.EMGDisplayPeriodPre;
+                            obj.inputs.poststim_scope_plt=obj.inputs.EMGDisplayPeriodPost;
+                            obj.inputs.mep_onset=obj.inputs.MEPOnset;
+                            obj.inputs.mep_offset=obj.inputs.MEPOffset;
+                            obj.inputs.input_device=obj.app.pi.mep.InputDevice.String(obj.inputs.InputDevice); %TODO: the drc or mep on the 4th structure is not a good solution!
+                            obj.inputs.output_device=obj.inputs.condsAll.cond1.st1.stim_device;
+                            obj.inputs.stim_mode='MSO';
+                            obj.inputs.measure_str='MEP Measurement';
+                            obj.inputs.ylimMin=obj.inputs.EMGDisplayYLimMin;
+                            obj.inputs.ylimMax=obj.inputs.EMGDisplayYLimMax;
+                            obj.inputs.stop_event=0;
+                            obj.inputs.ylimMin=-3000;
+                            obj.inputs.ylimMax=+3000;
+                            obj.inputs.TrialNoForMean=1;
+                            obj.inputs.mt_starting_stim_inten=obj.inputs.condsAll.cond1.st1.si_pckt{1,1};
+                            %% Creating Column Labels
+                            obj.inputs.colLabel.inputDevices=1;
+                            obj.inputs.colLabel.outputDevices=2;
+                            obj.inputs.colLabel.si=3;
+                            obj.inputs.colLabel.iti=4;
+                            obj.inputs.colLabel.chLab=5;
+                            obj.inputs.colLabel.trials=9;
+                            obj.inputs.colLabel.axesno=6;
+                            obj.inputs.colLabel.measures=7;
+                            obj.inputs.colLabel.stimMode=8;
+                            obj.inputs.colLabel.tpm=10;
+                            obj.inputs.colLabel.chType=11;
+                            obj.inputs.colLabel.chId=12;
+                            obj.inputs.colLabel.ConditionMarker=13;
+                            conds=fieldnames(obj.inputs.condsAll);
+                            %% Creating Channel Types, Axes No, Channel IDs
+                            DisplayChannelCounter=0;
+                            for c=1:numel(fieldnames(obj.inputs.condsAll))
+                                obj.inputs.condsAllFactorsInfo.(conds{c,1}).TargetChannelNumbers=numel(obj.inputs.condsAll.(conds{c,1}).targetChannel);
+                                obj.inputs.condsAllFactorsInfo.(conds{c,1}).chType=repmat({'EMG'},1,numel(obj.inputs.condsAll.(conds{c,1}).targetChannel));
+                                for itc=1:numel(obj.inputs.condsAll.(conds{c,1}).targetChannel)
+                                    obj.inputs.condsAllFactorsInfo.(conds{c,1}).chId{itc}=find(strcmp(obj.app.par.hardware_settings.(char(obj.inputs.input_device)).NeurOneProtocolChannelLabels,obj.inputs.condsAll.(conds{c,1}).targetChannel{itc}));
+                                    obj.inputs.condsAllFactorsInfo.(conds{c,1}).axesno{itc}=DisplayChannelCounter+itc;
+                                end
+                                DisplayChannelCounter=DisplayChannelCounter+obj.inputs.condsAllFactorsInfo.(conds{c,1}).TargetChannelNumbers;
                             end
-                            condstimTiming{1,stno}=condstimTimingStrings;
-                        end
-                        obj.inputs.condMat(c,obj.inputs.colLabel.si)={condSi};
-                        obj.inputs.condMat(c,obj.inputs.colLabel.outputDevices)={condoutputDevice};
-                        obj.inputs.condMat(c,obj.inputs.colLabel.stimMode)={condstimMode};
-                        for timing=1:numel(condstimTiming)
-                            for jj=1:numel(condstimTiming{1,timing})
-                                condstimTiming{2,timing}{1,jj}=condoutputDevice{1,timing};
+                            if isempty(obj.inputs.EMGDisplayChannels)
+                                EMGDisplayChannelschID=[];
+                                EMGDisplayChannelsAxesNo=num2cell(DisplayChannelCounter+1);%StatusTable
+                            else
+                                for dc=1:numel(obj.inputs.EMGDisplayChannels)
+                                    EMGDisplayChannelschID{dc}=find(strcmp(obj.app.par.hardware_settings.(char(obj.inputs.input_device)).NeurOneProtocolChannelLabels,obj.inputs.EMGDisplayChannels{dc}));
+                                end
+                                EMGDisplayChannelsAxesNo=num2cell(DisplayChannelCounter+1:1:DisplayChannelCounter+1+numel(obj.inputs.EMGDisplayChannels)+1); %DisplayChannels +Status Table
                             end
-                        end
-                        condstimTiming_new{1}=horzcat(condstimTiming{1,:});
-                        condstimTiming_new{2}=horzcat(condstimTiming{2,:});
-                        [condstimTiming_new_sorted{1},sorted_idx]=sort(condstimTiming_new{1});
-                        condstimTiming_new_sorted{2}=condstimTiming_new{1,2}(sorted_idx);
-                        for stimno_tpm=1:numel(condstimTiming_new_sorted{2})
-                            port_vector{stimno_tpm}=obj.app.par.hardware_settings.(char(condstimTiming_new_sorted{2}{1,stimno_tpm})).bb_outputport;
-                        end
-                        condstimTiming_new_sorted{2}=port_vector;
-                        tpmVect=[condstimTiming_new_sorted{1};condstimTiming_new_sorted{2}];
-                        [tpmVect_unique,ia,ic]=unique(tpmVect(1,:));
-                        a_counts = accumarray(ic,1);
-                        for binportloop=1:numel(tpmVect_unique)
-                            buffer{1,binportloop}={(cell2mat(tpmVect(2,ia(binportloop):ia(binportloop)-1+a_counts(binportloop))))};
-                            binaryZ='0000';
-                            num=cell2mat(buffer{1,binportloop});
-                            for binaryID=1:numel(num)
-                                binaryZ(str2num(num(binaryID)))='1';
+                            %% Creating Experimental Conditions
+                            for c=1:numel(fieldnames(obj.inputs.condsAll))
+                                %% Input Device
+                                obj.inputs.condMat{c,obj.inputs.colLabel.inputDevices}=char(obj.app.pi.mep.InputDevice.String(obj.inputs.InputDevice));
+                                %% TrialsPer Condition
+                                obj.inputs.condMat{c,obj.inputs.colLabel.trials}=obj.inputs.condsAll.(conds{c,1}).TrialsPerCondition;
+                                %% ITI
+                                obj.inputs.condMat{c,obj.inputs.colLabel.iti}=obj.inputs.condsAll.(conds{c,1}).ITI;
+                                %% Channel Label, Measure, Axes No, Channel Type, Channel ID for Plots
+                                obj.inputs.condMat{c,obj.inputs.colLabel.chLab}=[obj.inputs.condsAll.(conds{c,1}).targetChannel,obj.inputs.EMGDisplayChannels,{'StatusTable'}];
+                                obj.inputs.condMat{c,obj.inputs.colLabel.measures}=[repmat({'MEP_Measurement'},1,numel(obj.inputs.condsAll.(conds{c,1}).targetChannel)),repmat({'MEP_Measurement'},1,numel(obj.inputs.EMGDisplayChannels)),{'StatusTable'}];
+                                obj.inputs.condMat{c,obj.inputs.colLabel.axesno}=[obj.inputs.condsAllFactorsInfo.(conds{c,1}).axesno,EMGDisplayChannelsAxesNo];
+                                obj.inputs.condMat{c,obj.inputs.colLabel.chType}=[obj.inputs.condsAllFactorsInfo.(conds{c,1}).chType,repmat({'EMG'},1,numel(obj.inputs.EMGDisplayChannels)),{'StatusTable'}];
+                                obj.inputs.condMat{c,obj.inputs.colLabel.chId}=[obj.inputs.condsAllFactorsInfo.(conds{c,1}).chId,EMGDisplayChannelschID,{1}];
+                                obj.inputs.condMat{c,obj.inputs.colLabel.ConditionMarker}=c;
+                                %% Stimulator Specific Parameters
+                                for stno=1:(max(size(fieldnames(obj.inputs.condsAll.(conds{c,1}))))-6)
+                                    st=['st' num2str(stno)];
+                                    condSi{1,stno}=obj.inputs.condsAll.(conds{c,1}).(st).si_pckt;
+                                    condstimMode{1,stno}= obj.inputs.condsAll.(conds{c,1}).(st).stim_mode;
+                                    condoutputDevice{1,stno}=obj.inputs.condsAll.(conds{c,1}).(st).stim_device;
+                                    for i=1:numel(obj.inputs.condsAll.(conds{c,1}).(st).stim_timing)
+                                        condstimTimingStrings{1,i}=num2str(obj.inputs.condsAll.(conds{c,1}).(st).stim_timing{1,i});
+                                    end
+                                    condstimTiming{1,stno}=condstimTimingStrings;
+                                end
+                                obj.inputs.condMat(c,obj.inputs.colLabel.si)={condSi};
+                                obj.inputs.condMat(c,obj.inputs.colLabel.outputDevices)={condoutputDevice};
+                                obj.inputs.condMat(c,obj.inputs.colLabel.stimMode)={condstimMode};
+                                for timing=1:numel(condstimTiming)
+                                    for jj=1:numel(condstimTiming{1,timing})
+                                        condstimTiming{2,timing}{1,jj}=condoutputDevice{1,timing};
+                                    end
+                                end
+                                condstimTiming_new{1}=horzcat(condstimTiming{1,:});
+                                condstimTiming_new{2}=horzcat(condstimTiming{2,:});
+                                [condstimTiming_new_sorted{1},sorted_idx]=sort(condstimTiming_new{1});
+                                condstimTiming_new_sorted{2}=condstimTiming_new{1,2}(sorted_idx);
+                                for stimno_tpm=1:numel(condstimTiming_new_sorted{2})
+                                    port_vector{stimno_tpm}=obj.app.par.hardware_settings.(char(condstimTiming_new_sorted{2}{1,stimno_tpm})).bb_outputport;
+                                end
+                                condstimTiming_new_sorted{2}=port_vector;
+                                tpmVect=[condstimTiming_new_sorted{1};condstimTiming_new_sorted{2}];
+                                [tpmVect_unique,ia,ic]=unique(tpmVect(1,:));
+                                a_counts = accumarray(ic,1);
+                                for binportloop=1:numel(tpmVect_unique)
+                                    buffer{1,binportloop}={(cell2mat(tpmVect(2,ia(binportloop):ia(binportloop)-1+a_counts(binportloop))))};
+                                    binaryZ='0000';
+                                    num=cell2mat(buffer{1,binportloop});
+                                    for binaryID=1:numel(num)
+                                        binaryZ(str2num(num(binaryID)))='1';
+                                    end
+                                    buffer{1,binportloop}=bin2dec(flip(binaryZ));
+                                    markers{1,binportloop}=0;
+                                end
+                                markers{1,1}=c;
+                                condstimTiming_new_sorted=[num2cell((cellfun(@str2num, tpmVect_unique(1,1:end))));buffer;markers];
+                                condstimTiming_new_sorted=cell2mat(condstimTiming_new_sorted)
+                                [condstimTiming_new_sorted(1,:),sorted_idx]=sort(condstimTiming_new_sorted(1,:))
+                                condstimTiming_new_sorted(1,:)=condstimTiming_new_sorted(1,:)/1000;
+                                condstimTiming_new_sorted(2,:)=condstimTiming_new_sorted(2,sorted_idx)
+                                
+                                obj.inputs.condMat(c,obj.inputs.colLabel.tpm)={num2cell(condstimTiming_new_sorted)};
+                                condSi=[]; condoutputDevice=[]; condstimMode=[];condstimTiming=[];buffer=[];tpmVect_unique=[];a_counts =[];ia=[];ic=[];port_vector=[];
+                                num=[];condstimTiming_new=[];condstimTiming_new_sorted=[];sorted_idx=[];markers=[];condstimTimingStrings=[];
                             end
-                            buffer{1,binportloop}=bin2dec(flip(binaryZ));
-                            markers{1,binportloop}=0;
-                        end
-                        markers{1,1}=c;
-                        condstimTiming_new_sorted=[num2cell((cellfun(@str2num, tpmVect_unique(1,1:end))));buffer;markers];
-                        condstimTiming_new_sorted=cell2mat(condstimTiming_new_sorted)
-                        [condstimTiming_new_sorted(1,:),sorted_idx]=sort(condstimTiming_new_sorted(1,:))
-                        condstimTiming_new_sorted(1,:)=condstimTiming_new_sorted(1,:)/1000;
-                        condstimTiming_new_sorted(2,:)=condstimTiming_new_sorted(2,sorted_idx)
-                        
-                        obj.inputs.condMat(c,obj.inputs.colLabel.tpm)={num2cell(condstimTiming_new_sorted)};
-                        condSi=[]; condoutputDevice=[]; condstimMode=[];condstimTiming=[];buffer=[];tpmVect_unique=[];a_counts =[];ia=[];ic=[];port_vector=[];
-                        num=[];condstimTiming_new=[];condstimTiming_new_sorted=[];sorted_idx=[];markers=[];condstimTimingStrings=[];
+                            %% Preparing Results Panels
+                            obj.app.pr.ax_measures=DisplayChannelsMeasures;
+                            obj.app.pr.axesno=numel(obj.inputs.EMGDisplayChannels)+1;
+                            obj.app.pr.ax_ChannelLabels=[obj.inputs.EMGDisplayChannels {'StatusTable'}] ;
+                        case 2 % BS Dependent
                     end
-                case 2 % BS Dependent
             end
             %% Conversion from Pars2Inputs
             function cb_Pars2Inputs
@@ -2620,10 +2634,14 @@ classdef best_toolbox < handle
             %% Callbacks
             function cb_EvaluateLinkedLists
                 %% Intensity, Paired-CS Intensity, Timing Onset, ISI 
-                for icond=1:obj.inputs.condsAll
+                for icond=1:length(fieldnames(obj.inputs.condsAll))
                     condStr=['cond' num2str(icond)];
                     for s=1:(length(fieldnames(obj.inputs.condsAll.(condStr)))-6)
                         st=['st' num2str(s)];
+                         %% Transforming SI Packets to 4,5, 6 index
+                        obj.inputs.condsAll.(condStr).(st).si_pckt{4}=obj.inputs.condsAll.(condStr).(st).si_pckt{1}; %Intensity
+                        obj.inputs.condsAll.(condStr).(st).si_pckt{5}=obj.inputs.condsAll.(condStr).(st).si_pckt{2}; %Paired-CS Intensity
+                        obj.inputs.condsAll.(condStr).(st).si_pckt{6}=obj.inputs.condsAll.(condStr).(st).si_pckt{3}; %ISI
                         %% Checking Intensity Units
                         switch obj.inputs.condsAll.(condStr).(st).IntensityUnit
                             case {'%MT','%ST'}
@@ -2728,6 +2746,7 @@ classdef best_toolbox < handle
                     end
                 end
             end
+            obj.inputs.totalConds=numel(obj.inputs.condMat(:,1));
         end
         
         
@@ -2737,6 +2756,62 @@ classdef best_toolbox < handle
             obj.inputs.totalConds
             obj.inputs.colLabel.trials
             cell2mat(obj.inputs.condMat(1,obj.inputs.colLabel.trials))
+            for i=1:obj.inputs.totalConds
+                cell2mat(obj.inputs.condMat(i,obj.inputs.colLabel.trials))
+                cond_id(i,:)=ones(1,cell2mat(obj.inputs.condMat(i,obj.inputs.colLabel.trials)))*i;
+            end
+            [~,id]=sort(sum(cond_id,2),'descend');
+            cond_id=cond_id(id,:);
+            [~,n]=size(cond_id);
+            randomVect_numel=0;
+            for i=1:n
+                randVect=cond_id(:,i);
+                randVect=randVect(randperm(numel(randVect)));
+                randomVect(randomVect_numel+1:randomVect_numel+numel(randVect),1)=randVect;
+                randomVect_numel=numel(randomVect);
+                
+            end
+            for i=1:numel(randomVect)
+                obj.inputs.trialMat(i,:)=obj.inputs.condMat(randomVect(i,1),:);
+            end
+            %% preparing ITI
+            if isvector(obj.inputs.condMat{1,obj.inputs.colLabel.iti}) && numel(obj.inputs.condMat{1,obj.inputs.colLabel.iti})==2
+                [m,~]=size(obj.inputs.trialMat);
+                for i=1:m
+                    iti=obj.inputs.trialMat{i,obj.inputs.colLabel.iti};
+                    obj.inputs.trialMat(i,obj.inputs.colLabel.iti)=num2cell(round((iti(1)+(iti(2)-iti(1) ).* rand(1,1)),3));
+                end
+            end
+            
+            obj.inputs.totalTrials=numel(obj.inputs.trialMat(:,1));
+            
+            %% preparing prepost stim time var and timeVector
+            obj.planTrials_scopePeriods;
+            %% preparing the timevector for meps
+            %                 case {'MEP_Measurement','Motor Hotspot Search','Motor Threshold Hunting','MEP IOC'}
+            %                     switch obj.app.par.hardware_settings.(char(obj.inputs.input_device)).slct_device
+            %                         case 1 % boss box
+            %                             mep_plot_time_vector=1:obj.inputs.sc_plot_total
+            %                             mep_plot_time_vector=mep_plot_time_vector*5 %because sampling rate is 5khz and time to be in ms
+            %                             obj.inputs.timeVect=mep_plot_time_vector+(((-1)*obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.sc_plot_first)/(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.sc_samplingrate)*1000)
+            %                         case 2 % fieldtrip
+            %                             % http://www.fieldtriptoolbox.org/faq/how_should_i_get_started_with_the_fieldtrip_realtime_buffer/
+            %                         case 3 %Future: input box
+            %                         case 4  %s
+            %                     end
+            %
+            %                 otherwise
+            %             end
+            %% Only for testing purpose #324324
+            %             a=1;
+            %             trial=load('trialMat_test.mat');
+            %             trial_data=load('trial_test.mat');
+            %             obj.inputs.trialMat=trial.trialMat;
+            %             obj.inputs.umair=trial_data.trial_test;
+            
+        end
+        function planTrialsExtended(obj)
+            %% preparing trialMat
             for i=1:obj.inputs.totalConds
                 cell2mat(obj.inputs.condMat(i,obj.inputs.colLabel.trials))
                 cond_id(i,:)=ones(1,cell2mat(obj.inputs.condMat(i,obj.inputs.colLabel.trials)))*i;
@@ -3569,7 +3644,7 @@ end
         
         function best_mep(obj)
             obj.save;
-            obj.factorizeConditions
+            obj.factorizeConditionsExtended %obj.factorizeConditions
             obj.planTrials
             obj.app.resultsPanel;
             obj.boot_outputdevice;
