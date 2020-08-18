@@ -2509,7 +2509,7 @@ classdef best_toolbox < handle
                         obj.inputs.condMat{c,obj.inputs.colLabel.chLab}=[obj.inputs.condsAll.(conds{c,1}).targetChannel,obj.inputs.EMGDisplayChannels,{'StatusTable'}];
                         obj.inputs.condMat{c,obj.inputs.colLabel.measures}=[repmat({'MEP_Measurement'},1,numel(obj.inputs.condsAll.(conds{c,1}).targetChannel)),repmat({'MEP_Measurement'},1,numel(obj.inputs.EMGDisplayChannels)),{'StatusTable'}];
                         obj.inputs.condMat{c,obj.inputs.colLabel.axesno}=[obj.inputs.condsAllFactorsInfo.(conds{c,1}).axesno,num2cell(DisplayChannelCounter+1:1:DisplayChannelCounter+1+numel(obj.inputs.EMGDisplayChannels)+1)];
-                        obj.inputs.condMat{c,obj.inputs.colLabel.chType}=[obj.inputs.condsAllFactorsInfo.(conds{c,1}).chType,repmat({'EMG'},1,numel(obj.inputs.EMGDisplayChannels)),{'StatusTable'}q];
+                        obj.inputs.condMat{c,obj.inputs.colLabel.chType}=[obj.inputs.condsAllFactorsInfo.(conds{c,1}).chType,repmat({'EMG'},1,numel(obj.inputs.EMGDisplayChannels)),{'StatusTable'}];
                         obj.inputs.condMat{c,obj.inputs.colLabel.chId}=[obj.inputs.condsAllFactorsInfo.(conds{c,1}).chId,EMGDisplayChannelschID,{1}];
                         %% Stimulator Specific Parameters
                         for stno=1:(max(size(fieldnames(obj.inputs.condsAll.(conds{c,1}))))-6)
