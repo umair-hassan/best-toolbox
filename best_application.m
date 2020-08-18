@@ -4693,7 +4693,7 @@ classdef best_application < handle
         end
         function tmsfmri_run(obj)
             
-            
+            MagVentureCOM='COM7';
             obj.pi.tmsfmri.ta.Enable='off';
             obj.pi.tmsfmri.trigdelay.Enable='off';
             obj.pi.tmsfmri.totalvolumes.Enable='off';
@@ -4723,10 +4723,34 @@ classdef best_application < handle
             obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).volumes_vector_fullEnable=obj.pi.tmsfmri.volumes_vector_full.Enable;
             obj.pi.tmsfmri.block_design.Value
             
-            
+            %% Bossdevice
+            bd=bossdevice;
+            bd.calibration_mode = 'no';
+            bd.armed = 'no';
+            bd.sample_and_hold_period=0;
+            bd.theta.ignore; pause(0.1)
+            bd.beta.ignore; pause(0.1)
+            bd.alpha.ignore; pause(0.1)
+            NumSamples=round((150)*5);
+            NumPrePostSamples=round(50*5);
+            EMGScope = addscope(bd.tg, 'host', 90);
+            AuxSignalID = getsignalid(bd.tg, 'UDP/raw_aux') + int32(0:7);
+            MrkSignalID = getsignalid(bd.tg, 'MRK/mrk_masked');
+            addsignal(EMGScope, AuxSignalID);
+            EMGScope.NumSamples = NumSamples;
+            EMGScope.NumPrePostSamples = -NumPrePostSamples;
+            EMGScope.Decimation = 1;
+            EMGScope.TriggerMode = 'Signal';
+            EMGScope.TriggerSignal = getsignalid(bd.tg, 'gen_running'); %Remove it in Official Use
+            EMGScope.TriggerSignal = MrkSignalID; % 04-Jun-2020 20:00:50
+            EMGScope.TriggerLevel = 0.5;
+            EMGScope.TriggerSlope = 'Rising';
+            start(EMGScope);
+            TrialCounter=0;
+            %% Initializing
             if(obj.pi.tmsfmri.block_design.Value==1)
                 delete(instrfindall);
-                magventureObject = magventure('COM10'); %0808a
+                magventureObject = magventure(MagVentureCOM); %0808a
                 magventureObject.connect;
                 magventureObject.arm
                 a=[];
@@ -4772,7 +4796,7 @@ classdef best_application < handle
             else
                 
                 delete(instrfindall);
-                magventureObject = magventure('COM10'); %0808a
+                magventureObject = magventure(MagVentureCOM); %0808a
                 magventureObject.connect;
                 magventureObject.arm
                 
@@ -4833,6 +4857,7 @@ classdef best_application < handle
                 %                 save([file_name '_trial_vector.mat'], 'trial_vector');
                 obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).TrialVector=trial_vector;
                 obj.cb_menu_save
+                obj.bst.session.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).Data=cell(1,numel(intensity_vector));
                 
             end
             intensitzcheck=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).manual_stim_inten
@@ -4886,7 +4911,7 @@ classdef best_application < handle
                 set(obj.pi.tmsfmri.status,'String','Completed!');
             else
                 if(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).manual_stim_inten==1)
-                    
+                    % No Intensity Updating
                     %Indicies initilization
                     set(obj.pi.tmsfmri.status,'String','Ready!');
                     i=1;
@@ -4916,10 +4941,12 @@ classdef best_application < handle
                                 
                                 writeDigitalPin(a,'D7',1)
                                 writeDigitalPin(a,'D7',0)
-                                
+                                TrialCounter=TrialCounter+1;
                                 disp('triggered')
-                                
                                 tic
+                                while ~strcmpi(EMGScope.Status,'finished'), end
+                                obj.bst.session.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).Data{1,TrialCounter}=EMGScope.Data(:,[1 2 3])';
+                                start(EMGScope);
                                 while(1)
                                     if(toc>0.30000)
                                         N=N+1
