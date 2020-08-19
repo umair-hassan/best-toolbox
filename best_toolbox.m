@@ -2520,6 +2520,9 @@ classdef best_toolbox < handle
                                 obj.inputs.condMat{c,obj.inputs.colLabel.chType}=[obj.inputs.condsAllFactorsInfo.(conds{c,1}).chType,repmat({'EMG'},1,numel(obj.inputs.EMGDisplayChannels)),{'StatusTable'}];
                                 obj.inputs.condMat{c,obj.inputs.colLabel.chId}=[obj.inputs.condsAllFactorsInfo.(conds{c,1}).chId,EMGDisplayChannelschID,{1}];
                                 obj.inputs.condMat{c,obj.inputs.colLabel.ConditionMarker}=c;
+                                ax_measures{c}=repmat({'MEP_Measurement'},1,numel(obj.inputs.condsAll.(conds{c,1}).targetChannel));
+                                ax_ChannelLabels{c}=obj.inputs.condsAll.(conds{c,1}).targetChannel;
+                                
                                 %% Stimulator Specific Parameters
                                 for stno=1:(max(size(fieldnames(obj.inputs.condsAll.(conds{c,1}))))-6)
                                     st=['st' num2str(stno)];
@@ -2572,9 +2575,9 @@ classdef best_toolbox < handle
                                 num=[];condstimTiming_new=[];condstimTiming_new_sorted=[];sorted_idx=[];markers=[];condstimTimingStrings=[];
                             end
                             %% Preparing Results Panels
-                            obj.app.pr.ax_measures=DisplayChannelsMeasures;
-                            obj.app.pr.axesno=numel(obj.inputs.EMGDisplayChannels)+1;
-                            obj.app.pr.ax_ChannelLabels=[obj.inputs.EMGDisplayChannels {'StatusTable'}] ;
+                            obj.app.pr.ax_measures=[horzcat(ax_measures{:}),repmat({'MEP_Measurement'},1,numel(obj.inputs.EMGDisplayChannels)),{'StatusTable'}];
+                            obj.app.pr.axesno=DisplayChannelCounter+numel(obj.inputs.EMGDisplayChannels)+1;
+                            obj.app.pr.ax_ChannelLabels=[horzcat(ax_ChannelLabels{:}),obj.inputs.EMGDisplayChannels, {'StatusTable'}] ;
                         case 2 % BS Dependent
                     end
             end
