@@ -1090,7 +1090,8 @@ classdef best_application < handle
                 1 0 0;0 1 0;0 0 1;0 1 1;1 0 1;0.7529 0.7529 0.7529;0.5020 0.5020 0.5020;0.4706 0 0;0.5020 0.5020 0;0 0.5020 0;0.5020 0 0.5020;0 0.5020 0.5020;0 0 0.5020;1 0.4980 0.3137;
                 1 0 0;0 1 0;0 0 1;0 1 1;1 0 1;0.7529 0.7529 0.7529;0.5020 0.5020 0.5020;0.4706 0 0;0.5020 0.5020 0;0 0.5020 0;0.5020 0 0.5020;0 0.5020 0.5020;0 0 0.5020;1 0.4980 0.3137];
             obj.pr.ax.(obj.pr.ax_no).UserData.ColorsIndex=0;
-            
+            %% testing feature
+            text(obj.pr.ax.(obj.pr.ax_no),1,0,{'Condition: 2'; 'ISI: 3-4'; 'MagProX100, 78%MSO'},'units','normalized','HorizontalAlignment','right','VerticalAlignment','bottom','color',[0.55 0.55 0.55]);
         end
         function pr_YLimZoomIn(obj,source,~)
             
