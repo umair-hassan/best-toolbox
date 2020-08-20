@@ -1078,7 +1078,7 @@ classdef best_application < handle
             uimenu(ui_menu,'label','export as MATLAB Figure','Callback',@obj.pr_FigureExport,'Tag',obj.pr.ax_no);
             % %             uimenu(ui_menu,'label','reset Mean MEP Amplitude status','Callback',@obj.pr_ResetMEPMeanAmp,'Tag',obj.pr.ax_no);
             % %             uimenu(ui_menu,'label','set trials for Mean MEP Amplitude calculation','Callback',@obj.pr_setMEPMeanTrials,'Tag',obj.pr.ax_no);
-            AxesTitle=['MEP Measurement ' obj.pr.ax_ChannelLabels{1,obj.pr.axesno}];
+            AxesTitle=[obj.pr.ax_ChannelLabels{1,obj.pr.axesno} ' - MEP Measurement'];
             obj.pr.clab.(obj.pr.ax_no)=uix.Panel( 'Parent', obj.pr.grid, 'Padding', 0 ,'Units','normalized','Title', AxesTitle,'FontWeight','bold','FontSize',12,'TitlePosition','centertop' );
             obj.pr.ax.(obj.pr.ax_no)=axes(uicontainer( 'Parent',  obj.pr.clab.(obj.pr.ax_no)),'Units','normalized','uicontextmenu',ui_menu);
             text(obj.pr.ax.(obj.pr.ax_no),1,1,'YLim-','units','normalized','HorizontalAlignment','right','VerticalAlignment','bottom','ButtonDownFcn',@obj.pr_YLimZoomIn,'Tag',obj.pr.ax_no,'color',[0.55 0.55 0.55]);
@@ -1091,7 +1091,7 @@ classdef best_application < handle
                 1 0 0;0 1 0;0 0 1;0 1 1;1 0 1;0.7529 0.7529 0.7529;0.5020 0.5020 0.5020;0.4706 0 0;0.5020 0.5020 0;0 0.5020 0;0.5020 0 0.5020;0 0.5020 0.5020;0 0 0.5020;1 0.4980 0.3137];
             obj.pr.ax.(obj.pr.ax_no).UserData.ColorsIndex=0;
             %% testing feature
-            text(obj.pr.ax.(obj.pr.ax_no),1,0,{'Condition: 2'; 'ISI: 3-4'; 'MagProX100, 78%MSO'},'units','normalized','HorizontalAlignment','right','VerticalAlignment','bottom','color',[0.55 0.55 0.55]);
+            text(obj.pr.ax.(obj.pr.ax_no),0,0,flip(obj.pr.ax_AxesAnnotation{obj.pr.axesno}),'units','normalized','HorizontalAlignment','left','VerticalAlignment','bottom','color',[0.55 0.55 0.55],'FontSize',8);
         end
         function pr_YLimZoomIn(obj,source,~)
             
