@@ -2522,6 +2522,8 @@ classdef best_toolbox < handle
                                 obj.inputs.condMat{c,obj.inputs.colLabel.ConditionMarker}=c;
                                 ax_measures{c}=repmat({'MEP_Measurement'},1,numel(obj.inputs.condsAll.(conds{c,1}).targetChannel));
                                 ax_ChannelLabels{c}=obj.inputs.condsAll.(conds{c,1}).targetChannel;
+                                %% Plot Annotations
+                                
                                 
                                 %% Stimulator Specific Parameters
                                 for stno=1:(max(size(fieldnames(obj.inputs.condsAll.(conds{c,1}))))-6)
@@ -4048,6 +4050,52 @@ end
             %% Trigger MEPP2P Amplitude Calculation
             obj.mep_amp;
             uistack(obj.inputs.Handles.LatestMEP,'top')
+        end
+        function mep_plot_Extended(obj)
+            ax=['ax' num2str(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.axesno}{1,obj.inputs.chLab_idx})];
+            axes(obj.app.pr.ax.(ax)), hold on,
+            obj.mep_amp;
+            CurrentMEPAmp=round((obj.inputs.results.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).MEPAmplitude(obj.inputs.trial,1))/1000,3);
+            if ~isfield(obj.inputs.Handles,ax)
+                obj.inputs.Handles.(ax).current=plot(obj.inputs.timeVect,obj.inputs.rawData.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).data(obj.inputs.trial,:),'Color',[1 0 0],'LineWidth',2);
+                xlim([obj.inputs.EMGXLimit(1), obj.inputs.EMGXLimit(2)]);
+                mat1=linspace(obj.inputs.EMGXLimit(1),obj.inputs.EMGXLimit(2),10);
+                mat2=[0 obj.inputs.mep_onset*1000 obj.inputs.mep_offset*1000 obj.inputs.EMGXLimit(2)];
+                mat=unique(sort([mat1 mat2]));
+                xticks(mat);xtickformat('%.0f');xlabel('Time (ms)');
+                ylim([obj.inputs.ylimMin obj.inputs.ylimMax]);mat3=linspace(obj.inputs.ylimMin,obj.inputs.ylimMax,5);mat4=unique(sort([0 mat3]));
+                yticks(mat4);ylabel('EMG Potential (\mu V)');
+                obj.app.pr.ax.(ax).UserData.GridLines=gridxy([0 (obj.inputs.mep_onset):0.25:(obj.inputs.mep_offset)],'Color',[219/255 246/255 255/255],'linewidth',4) ;
+                obj.info.handle_gridxy_mt_lines=gridxy([],[-0.05*1000 0.05*1000],'Color',[0.45 0.45 0.45],'linewidth',1,'LineStyle','--') ;
+                obj.app.pr.ax.(ax).UserData.GridLines.Annotation.LegendInformation.IconDisplayStyle = 'off';
+                obj.info.handle_gridxy_mt_lines.Annotation.LegendInformation.IconDisplayStyle = 'off';
+                uistack(obj.info.handle_gridxy_mt_lines,'top');
+                MeanMEPAmp=CurrentMEPAmp;
+            elseif isfield(obj.inputs.Handles.(ax),'past')
+                IndexOfTrialsTillNow=find(vertcat(obj.inputs.trialMat{1:obj.inputs.trial,obj.inputs.colLabel.ConditionMarker})==obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.ConditionMarker}); 
+                obj.inputs.Handles.(ax).past=plot(obj.inputs.timeVect,obj.inputs.rawData.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).data(IndexOfTrialsTillNow(1:end-1),:),'Color',[0.75 0.75 0.75]);
+                obj.inputs.Handles.(ax).mean.YData=mean(obj.inputs.rawData.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).data(IndexOfTrialsTillNow(obj.inputs.Handles.(ax).mean.UserData.TrialNoForMean:end),:));
+                obj.inputs.Handles.(ax).current.YData=obj.inputs.rawData.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).data(obj.inputs.trial,:);
+                uistack(obj.inputs.Handles.(ax).current,'top');
+                LegendGrouping=[obj.inputs.Handles.(ax).past; obj.inputs.Handles.(ax).mean; obj.inputs.Handles.(ax).current];
+                legend(LegendGrouping, 'Previous', 'Mean', 'Latest','Location','southoutside','Orientation','horizontal');
+                MeanMEPAmp=round(mean(obj.inputs.results.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).MEPAmplitude(IndexOfTrialsTillNow(obj.inputs.Handles.(ax).mean.UserData.TrialNoForMean:end,1)))/1000,3);
+            else
+                delete(obj.inputs.Handles.(ax).current)
+                IndexOfTrialsTillNow=find(vertcat(obj.inputs.trialMat{1:obj.inputs.trial,obj.inputs.colLabel.ConditionMarker})==obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.ConditionMarker}); 
+                obj.inputs.Handles.(ax).past=plot(obj.inputs.timeVect,obj.inputs.rawData.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).data(IndexOfTrialsTillNow(1:end-1),:),'Color',[0.75 0.75 0.75]);
+                obj.inputs.Handles.(ax).mean=plot(obj.inputs.timeVect,mean(obj.inputs.rawData.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).data(IndexOfTrialsTillNow,:)),'color',[0,0,0],'LineWidth',1.5);
+                obj.inputs.Handles.(ax).current=plot(obj.inputs.timeVect,obj.inputs.rawData.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).data(obj.inputs.trial,:),'Color',[1 0 0],'LineWidth',2);
+                obj.inputs.Handles.(ax).mean.UserData.TrialNoForMean=1;
+                MeanMEPAmp=round(mean(obj.inputs.results.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).MEPAmplitude(IndexOfTrialsTillNow,1))/1000,3);
+            end
+            %% Update the Current MEP Amp & Mean MEP Amp Stauts on Axes
+            textMEPAmpStatus={['Latest MEP Amp (mV):' num2str(CurrentMEPAmp)],['Mean MEP Amp (mV):' num2str(MeanMEPAmp)]};
+            if isfield(obj.app.pr.ax.(ax).UserData,'status')
+                obj.app.pr.ax.(ax).UserData.status.String=textMEPAmpStatus;
+            else
+                obj.app.pr.ax.(ax).UserData.status=text(obj.app.pr.ax.(ax),1,1,textMEPAmpStatus,'units','normalized','HorizontalAlignment','right','VerticalAlignment','cap','color',[0.45 0.45 0.45]);
+            end
         end
         function mep_amp(obj)
             maxx=max(obj.inputs.rawData.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).data(obj.inputs.trial,obj.inputs.mep_onset_samples:obj.inputs.mep_offset_samples));
