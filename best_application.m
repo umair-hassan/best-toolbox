@@ -7219,7 +7219,10 @@ classdef best_application < handle
                 end
             end
             % create the table and write data in table
-            table=uitable( 'Parent', obj.pi.mm.r0v2r1);
+            ui_menu=uicontextmenu(obj.fig.handle);
+            uimenu(ui_menu,'label','add Trials vector manually','Callback',@ManualTrialsVector);
+            uimenu(ui_menu,'label','add ITI(s) vector manually','Callback',@ManualITIVector);
+            table=uitable( 'Parent', obj.pi.mm.r0v2r1,'uicontextmenu',ui_menu);
             table.Data=TableData;
             table.FontSize=10;
             table.ColumnName = ColumnName;
@@ -7230,6 +7233,7 @@ classdef best_application < handle
             table.RearrangeableColumns='on';
             table.CellEditCallback =@CellEditCallback ;
             
+%             table.uicontextmenu=ui_menu;
             function CellEditCallback (~,CellEditData)
                 AdditionInCondition=['cond' num2str(table.Data{CellEditData.Indices(1),1})];
                 AdditionInStimulatorNum=find(find(cellfun(@str2double ,table.Data(:,1))==str2double(table.Data{CellEditData.Indices(1),1}))==CellEditData.Indices(1));
@@ -7243,7 +7247,7 @@ classdef best_application < handle
                     case 'Phase'
                         obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).Phase=CellEditData.NewData;
                     case 'Amplitude Threshold'
-                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).AmplitudeThreshold=str2num(CellEditData.NewData);
+                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).AmplitudeThreshold=CellEditData.NewData;
                     case 'Amplitude Units'
                         obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).AmplitudeUnits=CellEditData.NewData;
                     case {'Stim. Intensity','Starting Intensity'}
