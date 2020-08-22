@@ -4082,15 +4082,6 @@ end
             obj.saveFigures;
             obj.completed;
         end
-        function h5(obj)
-            tic;
-            saved=struct;
-            saved.par=obj.app.par;
-            saved.inputs=obj.inputs;
-            %           saveh5(saved,'saved.best_toolbox'); %% Complete but slow on cells
-            %           struct2h5('savedNWE.h5', '/savedNWE', saved); %Not much useful as required new name of file everytime and loading is alse a bit problemtic
-            
-        end
         function best_rseeg(obj)
             obj.factorizeConditions;
             obj.app.resultsPanel;
