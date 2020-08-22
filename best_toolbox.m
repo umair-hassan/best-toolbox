@@ -4467,167 +4467,22 @@ end
             end
         end
         function mep_scat_plot(obj)
-            %% Backin Up MEP Scat Plot Function
             ax=['ax' num2str(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.axesno}{1,obj.inputs.chLab_idx})];
             axes(obj.app.pr.ax.(ax)), hold on, ylim auto
-            if  numel(obj.inputs.ResponseFunctionNumerator) ==1 && numel(obj.inputs.ResponseFunctionDenominator) ==1 && any(obj.inputs.ResponseFunctionNumerator==obj.inputs.ResponseFunctionDenominator)
-                %% Preparing xvalue on the basis of Dose Function
-                switch obj.inputs.DoseFunction
-                    case 1 % TS
-                        xvalue=obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,1}{1,1};
-                        if obj.inputs.trial==1
-                            xlabelstring='TS Intensity';
-                            ylabelstring='MEP P2P Amplitude (\muV)';
-                            si(1,1)=0;
-                            for iSI=1:obj.inputs.totalTrials %Previously this was so, now changed1:numel([obj.inputs.trialMat{:,obj.inputs.colLabel.si}]')
-                                si(iSI,1)=obj.inputs.trialMat{iSI,obj.inputs.colLabel.si}{1,1}{1,1};
-                            end
-                            si=unique(si,'stable');
-                            xlimvector=[min(si)-(min(si)*.10) max(si)+(max(si)*.10)];
-                            xtickvector=unique(sort([si']));
-                        end
-                    case 2 % CS
-                        xvalue=obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,1}{1,2};
-                        if obj.inputs.trial==1
-                            xlabelstring='CS Intensity';
-                            ylabelstring='MEP P2P Amplitude (\muV)';
-                            si(1,1)=0;
-                            for iSI=1:numel([obj.inputs.trialMat{:,obj.inputs.colLabel.si}]')
-                                si(iSI,1)=obj.inputs.trialMat{iSI,obj.inputs.colLabel.si}{1,1}{1,2};
-                            end
-                            si=unique(si,'stable');
-                            xlimvector=[min(si)-(min(si)*10) max(si)+(max(si)*10)];
-                            xtickvector=unique(sort([si']));
-                        end
-                    case 3 % ISI
-                        xvalue=obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,1}{1,3};
-                        if obj.inputs.trial==1
-                            xlabelstring='ISI (ms)';
-                            ylabelstring='MEP P2P Amplitude (\muV)';
-                            si(1,1)=0;
-                            for iSI=1:numel([obj.inputs.trialMat{:,obj.inputs.colLabel.si}]')
-                                si(iSI,1)=obj.inputs.trialMat{iSI,obj.inputs.colLabel.si}{1,1}{1,3};
-                            end
-                            si=unique(si,'stable');
-                            xlimvector=[min(si)-(min(si)*.10) max(si)+(max(si)*.10)];
-                            xtickvector=unique(sort([si']));
-                        end
-                    case 4 % ITI
-                        xvalue=obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.iti};
-                        if obj.inputs.trial==1
-                            xlabelstring='ITI (ms)';
-                            ylabelstring='MEP P2P Amplitude (\muV)';
-                            si(1,1)=0;
-                            for iSI=1:numel([obj.inputs.trialMat{:,obj.inputs.colLabel.iti}]')
-                                si(iSI,1)=obj.inputs.trialMat{iSI,obj.inputs.colLabel.iti};
-                            end
-                            si=unique(si,'stable');
-                            xlimvector=[min(si)-(min(si)*.10) max(si)+(max(si)*.10)];
-                            xtickvector=unique(sort([si']));
-                        end
-                end
-                %% Preparing yvalue
-                yvalue=obj.inputs.results.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).MEPAmplitude(obj.inputs.trial,1);
-                %% Plotting
-                switch obj.inputs.trial
-                    case 1
-                        obj.info.plt.(ax).ioc_scatplot=plot(xvalue,yvalue,'o','Color','r','MarkerSize',8,'MarkerFaceColor','r');
-                        hold on;
-                        xlabel(xlabelstring); ylabel(ylabelstring); xlim(xlimvector); xticks(xtickvector);
-                    otherwise
-                        set(obj.info.plt.(ax).ioc_scatplot,'Color',[0.45 0.45 0.45],'MarkerSize',8,'MarkerFaceColor',[0.45 0.45 0.45])
-                end
-                obj.info.plt.(ax).ioc_scatplot=plot(xvalue,yvalue,'o','MarkerSize',8,'Color','r','MarkerFaceColor','r'); hold on; uistack(obj.info.plt.(ax).ioc_scatplot,'top')
-            elseif numel(obj.inputs.ResponseFunctionNumerator)>1
-                %% Preparing xvalue on the basis of Dose Function
-                switch obj.inputs.DoseFunction
-                    case 1 % TS
-                        xvalue=nonzeros(obj.inputs.results.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).MEPAmplitudeRatios(:,2));
-                        if obj.inputs.trial==1
-                            xlabelstring='TS Intensity';
-                            ylabelstring='MEP Amp. ( \muV )';
-                            xlimvalue=vertcat(obj.inputs.trialMat{:,obj.inputs.colLabel.si});
-                            xlimvalue=vertcat(xlimvalue{:}); xlimvalue=cell2mat(xlimvalue); xlimvalue=xlimvalue(:,1);
-                            stimcdMrkvalue=vertcat(obj.inputs.trialMat{:,obj.inputs.colLabel.stimcdMrk});
-                            for iDenominators=1:numel(obj.inputs.ResponseFunctionDenominator)
-                                indextodelete=find(stimcdMrkvalue==obj.inputs.ResponseFunctionDenominator(iDenominators));
-                                xlimvalue(indextodelete)=0;
-                            end
-                            xlimvalue=nonzeros(xlimvalue);
-                            xlimvalue=unique(xlimvalue,'stable');
-                            xlimvector=[min(xlimvalue)-(min(xlimvalue)*.10) max(xlimvalue)+(max(xlimvalue)*.10)];
-                            xtickvector=unique(sort([xlimvalue']));
-                        end
-                    case 2 % CS
-                        xvalue=nonzeros(obj.inputs.results.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).MEPAmplitudeRatios(:,3));
-                        if obj.inputs.trial==1
-                            xlabelstring='CS Intensity';
-                            ylabelstring='MEP Amp. ( \muV )';
-                            xlimvalue=vertcat(obj.inputs.trialMat{:,obj.inputs.colLabel.si});
-                            xlimvalue=vertcat(xlimvalue{:}); xlimvalue=cell2mat(xlimvalue); xlimvalue=xlimvalue(:,2);
-                            stimcdMrkvalue=vertcat(obj.inputs.trialMat{:,obj.inputs.colLabel.stimcdMrk});
-                            for iDenominators=1:numel(obj.inputs.ResponseFunctionDenominator)
-                                indextodelete=find(stimcdMrkvalue==obj.inputs.ResponseFunctionDenominator(iDenominators));
-                                xlimvalue(indextodelete)=0;
-                            end
-                            xlimvalue=nonzeros(xlimvalue);
-                            xlimvalue=unique(xlimvalue,'stable');
-                            xlimvector=[min(xlimvalue)-(min(xlimvalue)*.10) max(xlimvalue)+(max(xlimvalue)*.10)];
-                            xtickvector=unique(sort([xlimvalue']));
-                        end
-                    case 3 % ISI
-                        xvalue=nonzeros(obj.inputs.results.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).MEPAmplitudeRatios(:,4));
-                        if obj.inputs.trial==1
-                            xlabelstring='ISI (ms)';
-                            ylabelstring='MEP Amp. (\muV )';
-                            xlimvalue=vertcat(obj.inputs.trialMat{:,obj.inputs.colLabel.si});
-                            xlimvalue=vertcat(xlimvalue{:}); xlimvalue=cell2mat(xlimvalue); xlimvalue=xlimvalue(:,3);
-                            stimcdMrkvalue=vertcat(obj.inputs.trialMat{:,obj.inputs.colLabel.stimcdMrk});
-                            for iDenominators=1:numel(obj.inputs.ResponseFunctionDenominator)
-                                indextodelete=find(stimcdMrkvalue==obj.inputs.ResponseFunctionDenominator(iDenominators));
-                                xlimvalue(indextodelete)=0;
-                            end
-                            xlimvalue=nonzeros(xlimvalue);
-                            xlimvalue=unique(xlimvalue,'stable');
-                            xlimvector=[min(xlimvalue)-(min(xlimvalue)*.10) max(xlimvalue)+(max(xlimvalue)*.10)];
-                            xtickvector=unique(sort([xlimvalue']));
-                        end
-                    case 4 % ITI
-                        xvalue=nonzeros(obj.inputs.results.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).MEPAmplitudeRatios(:,5));
-                        if obj.inputs.trial==1
-                            xlabelstring='ITI (ms)';
-                            ylabelstring='MEP Amp. ( \muV )';
-                            xlimvalue=vertcat(obj.inputs.trialMat{:,obj.inputs.colLabel.iti});
-                            stimcdMrkvalue=vertcat(obj.inputs.trialMat{:,obj.inputs.colLabel.stimcdMrk});
-                            for iDenominators=1:numel(obj.inputs.ResponseFunctionDenominator)
-                                indextodelete=find(stimcdMrkvalue==obj.inputs.ResponseFunctionDenominator(iDenominators));
-                                xlimvalue(indextodelete)=0;
-                            end
-                            xlimvalue=nonzeros(xlimvalue);
-                            xlimvalue=unique(xlimvalue,'stable');
-                            xlimvector=[min(xlimvalue)-(min(xlimvalue)*.10) max(xlimvalue)+(max(xlimvalue)*.10)];
-                            xtickvector=unique(sort([xlimvalue']));
-                        end
-                end
-                %% Preparing yvalue
-                yvalue=nonzeros(obj.inputs.results.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).MEPAmplitudeRatios(:,1));
-                %% Plotting
-                %                 if obj.inputs.trial==1
-                %                     obj.info.plt.(ax).ioc_scatplot=plot(xvalue,yvalue,'o','Color',[0.45 0.45 0.45],'MarkerSize',8,'MarkerFaceColor',[0.45 0.45 0.45]);
-                %                     xlabel(xlabelstring); ylabel(ylabelstring); xlim(xlimvector); xticks(xtickvector); hold on;
-                %                 else
-                %                     obj.info.plt.(ax).ioc_scatplot=plot(xvalue(end),yvalue(end),'o','Color',[0.45 0.45 0.45],'MarkerSize',8,'MarkerFaceColor',[0.45 0.45 0.45]);
-                %                     obj.info.plt.(ax).ioc_scatplot.XData=xvalue; obj.info.plt.(ax).ioc_scatplot.YData=yvalue;
-                %                 end
-                switch obj.inputs.trial
-                    case 1
-                        obj.info.plt.(ax).ioc_scatplot=plot(xvalue,yvalue,'o','Color','r','MarkerSize',8,'MarkerFaceColor','r'); hold on;
-                        xlabel(xlabelstring); ylabel(ylabelstring); xlim(xlimvector); xticks(xtickvector);
-                    otherwise
-                        set(obj.info.plt.(ax).ioc_scatplot,'Color',[0.45 0.45 0.45],'MarkerSize',8,'MarkerFaceColor',[0.45 0.45 0.45])
-                end
-                try obj.info.plt.(ax).ioc_scatplot=plot(xvalue(end),yvalue(end),'o','MarkerSize',8,'Color','r','MarkerFaceColor','r'); hold on; uistack(obj.info.plt.(ax).ioc_scatplot,'top'); catch; end
+            yvalue=obj.inputs.results.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).MEPAmplitude(obj.inputs.trial,1);
+            xvalue=obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.ConditionMarker};
+            switch obj.inputs.trial
+                case 1
+                    obj.info.plt.(ax).ioc_scatplot=plot(xvalue,yvalue,'o','Color','r','MarkerSize',8,'MarkerFaceColor','r'); hold on;
+                    xlim([0 obj.inputs.totalConds+1]); xticks(1:obj.inputs.totalConds);
+                    for i=1:obj.inputs.totalConds
+                        xticklabelvector{i}=['Cond.' num2str(i)];
+                    end
+                    xticklabels(xticklabelvector);
+                otherwise
+                    set(obj.info.plt.(ax).ioc_scatplot,'Color',[0.45 0.45 0.45],'MarkerSize',8,'MarkerFaceColor',[0.45 0.45 0.45])
             end
+            obj.info.plt.(ax).ioc_scatplot=plot(xvalue,yvalue,'o','MarkerSize',8,'Color','r','MarkerFaceColor','r'); hold on; uistack(obj.info.plt.(ax).ioc_scatplot,'top');
         end
         function mep_stats(obj)
             %             ax=['ax' num2str(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.axesno}{1,obj.inputs.chLab_idx})];
