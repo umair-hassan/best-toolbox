@@ -4648,6 +4648,13 @@ end
            
                 elseif numel(obj.inputs.ResponseFunctionNumerator)>1
                     %%  Complicated Response Function case
+                    switch obj.inputs.DoseFunction
+                        case 1 %TS
+                        case 2 %CS
+                            
+                        case 3 %ISI
+                        case 4 %Paired-CS
+                    end
                     ax=['ax' num2str(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.axesno}{1,obj.inputs.chLab_idx})];
                     axes(obj.app.pr.ax.(ax)), hold on,
                     xdata=nonzeros(obj.inputs.results.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).MEPAmplitudeRatios(:,3)); % 
