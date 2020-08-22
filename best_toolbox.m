@@ -2945,6 +2945,7 @@ classdef best_toolbox < handle
                     RandomizationVectorCounter=1; RandomizationVector=randperm(obj.inputs.totalConds);
                 end
             end
+            RandVect=RandVect';
             for i=1:numel(RandVect)
                 obj.inputs.trialMat(i,:)=obj.inputs.condMat(RandVect(i,1),:);
             end
