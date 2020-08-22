@@ -4467,6 +4467,7 @@ end
             end
         end
         function mep_scat_plot(obj)
+            %% Backin Up MEP Scat Plot Function
             ax=['ax' num2str(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.axesno}{1,obj.inputs.chLab_idx})];
             axes(obj.app.pr.ax.(ax)), hold on, ylim auto
             if  numel(obj.inputs.ResponseFunctionNumerator) ==1 && numel(obj.inputs.ResponseFunctionDenominator) ==1 && any(obj.inputs.ResponseFunctionNumerator==obj.inputs.ResponseFunctionDenominator)
