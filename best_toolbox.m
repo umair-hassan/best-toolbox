@@ -2934,28 +2934,50 @@ classdef best_toolbox < handle
         function planTrials(obj)
             %% preparing trialMat
             
-            obj.inputs.totalConds
-            obj.inputs.colLabel.trials
-            %% issue here that has to be updated
-            cell2mat(obj.inputs.condMat(1,obj.inputs.colLabel.trials))
-            for i=1:obj.inputs.totalConds
-                cell2mat(obj.inputs.condMat(i,obj.inputs.colLabel.trials))
-                cond_id(i,:)=ones(1,cell2mat(obj.inputs.condMat(i,obj.inputs.colLabel.trials)))*i; %previous this was different
+%             obj.inputs.totalConds
+%             obj.inputs.colLabel.trials
+%             %% issue here that has to be updated
+%             cell2mat(obj.inputs.condMat(1,obj.inputs.colLabel.trials))
+%             for i=1:obj.inputs.totalConds
+%                 cell2mat(obj.inputs.condMat(i,obj.inputs.colLabel.trials))
+%                 cond_id(i,:)=ones(1,cell2mat(obj.inputs.condMat(i,obj.inputs.colLabel.trials)))*i; %previous this was different
+%             end
+%             [~,id]=sort(sum(cond_id,2),'descend');
+%             cond_id=cond_id(id,:);
+%             [~,n]=size(cond_id);
+%             randomVect_numel=0;
+%             for i=1:n
+%                 randVect=cond_id(:,i);
+%                 randVect=randVect(randperm(numel(randVect)));
+%                 randomVect(randomVect_numel+1:randomVect_numel+numel(randVect),1)=randVect;
+%                 randomVect_numel=numel(randomVect);
+%                 
+%             end
+%             for i=1:numel(randomVect)
+%                 obj.inputs.trialMat(i,:)=obj.inputs.condMat(randomVect(i,1),:);
+%             end
+            %% New Method for creating Trials Vector
+            TotalTrials=sum(vertcat(obj.inputs.condMat{:,obj.inputs.colLabel.trials}));
+            RandVect=[];
+            Index=0;
+            RandomizationVectorCounter=1;
+            RandomizationVector=randperm(obj.inputs.totalConds);
+            for t=1:2*TotalTrials
+                vect=find(RandVect==RandomizationVector(RandomizationVectorCounter));
+                if ~(sum(numel(vect))==obj.inputs.condMat{RandomizationVector(RandomizationVectorCounter),obj.inputs.colLabel.trials})
+                    Index=Index+1;
+                    RandVect(Index)=RandomizationVector(RandomizationVectorCounter);
+                end
+                RandomizationVectorCounter=RandomizationVectorCounter+1;
+                if RandomizationVectorCounter>obj.inputs.totalConds
+                    RandomizationVectorCounter=1;
+                    RandomizationVector=randperm(obj.inputs.totalConds);
+                end
             end
-            [~,id]=sort(sum(cond_id,2),'descend');
-            cond_id=cond_id(id,:);
-            [~,n]=size(cond_id);
-            randomVect_numel=0;
-            for i=1:n
-                randVect=cond_id(:,i);
-                randVect=randVect(randperm(numel(randVect)));
-                randomVect(randomVect_numel+1:randomVect_numel+numel(randVect),1)=randVect;
-                randomVect_numel=numel(randomVect);
-                
+            for i=1:numel(RandVect)
+                obj.inputs.trialMat(i,:)=obj.inputs.condMat(RandVect(i,1),:);
             end
-            for i=1:numel(randomVect)
-                obj.inputs.trialMat(i,:)=obj.inputs.condMat(randomVect(i,1),:);
-            end
+            
             %% preparing ITI
             [m,~]=size(obj.inputs.trialMat);
             for i=1:m
