@@ -4651,17 +4651,37 @@ end
                     switch obj.inputs.DoseFunction
                         case 1 %TS
                         case 2 %CS
-                            
+                            %% Dose Values
+                                for a=1:numel(obj.inputs.ResponseFunctionNumerator)
+                                    DoseValuesIndices(a)={find(vertcat(obj.inputs.trialMat{:,obj.inputs.colLabel.ConditionMarker})==obj.inputs.ResponseFunctionNumerator(a))};
+                                end
+                                DoseValuesIndices=vertcat(DoseValuesIndices{:});                                
+                                for b=1:numel(DoseValuesIndices)
+                                    for c=1:numel(obj.inputs.trialMat{DoseValuesIndices(b),obj.inputs.colLabel.StimulationType})
+                                        if strcmp(obj.inputs.trialMat{DoseValuesIndices(b),obj.inputs.colLabel.StimulationType}{1,c},'Condition'), ConditionStimulationIndex=c; break;end
+                                    end
+                                    DoseValues(b,1)=obj.inputs.trialMat{DoseValuesIndices(b),obj.inputs.colLabel.si}{1,ConditionStimulationIndex}{1,1};
+                                end
+                                %% TS Alone Values
+                                for a=1:numel(obj.inputs.ResponseFunctionDenominator)
+                                    TSAloneValuesIndices(a)={find(vertcat(obj.inputs.trialMat{:,obj.inputs.colLabel.ConditionMarker})==obj.inputs.ResponseFunctionDenominator(a))};
+                                end
+                                TSAloneValuesIndices=vertcat(TSAloneValuesIndices{:}); 
+                                ResponseValues=obj.inputs.results.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).MEPAmplitude(DoseValuesIndices,1);
+                                TSAloneCond=mean(obj.inputs.results.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).MEPAmplitude(TSAloneValuesIndices,1));
                         case 3 %ISI
                         case 4 %Paired-CS
                     end
                     ax=['ax' num2str(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.axesno}{1,obj.inputs.chLab_idx})];
                     axes(obj.app.pr.ax.(ax)), hold on,
-                    xdata=nonzeros(obj.inputs.results.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).MEPAmplitudeRatios(:,3)); % 
-                    xzeros=find((obj.inputs.results.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).MEPAmplitudeRatios(:,3))==0);
-                    TSAloneCond=mean(obj.inputs.results.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).MEPAmplitude(xzeros,1));
+                    % Adjusting New Architectural Values to Old Ones
+                    xdata=DoseValues;
+                    ydata=ResponseValues;
                     
-                    ydata=nonzeros(obj.inputs.results.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).MEPAmplitudeRatios(:,1));
+%                     xdata=nonzeros(obj.inputs.results.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).MEPAmplitudeRatios(:,3)); % 
+%                     xzeros=find((obj.inputs.results.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).MEPAmplitudeRatios(:,3))==0);
+%                     TSAloneCond=mean(obj.inputs.results.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).MEPAmplitude(xzeros,1));
+%                     %                     ydata=nonzeros(obj.inputs.results.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).MEPAmplitudeRatios(:,1));
                     ydata=((ydata-TSAloneCond)/TSAloneCond)*100;
                     [xdataunique,~,idx] = unique(xdata);
                     mep_median = accumarray(idx,ydata,[],@median);
@@ -4690,17 +4710,17 @@ end
                         case 2 % CS
                             xlabelstring='CS Intensity';
                             ylabelstring='MEP Amp. ( % Control )';
-                            xlimvalue=vertcat(obj.inputs.trialMat{:,obj.inputs.colLabel.si});
-                            xlimvalue=vertcat(xlimvalue{:}); xlimvalue=cell2mat(xlimvalue); xlimvalue=xlimvalue(:,2);
-                            stimcdMrkvalue=vertcat(obj.inputs.trialMat{:,obj.inputs.colLabel.stimcdMrk});
-                            for iDenominators=1:numel(obj.inputs.ResponseFunctionDenominator)
-                                indextodelete=find(stimcdMrkvalue==obj.inputs.ResponseFunctionDenominator(iDenominators));
-                                xlimvalue(indextodelete)=0;
-                            end
-                            xlimvalue=nonzeros(xlimvalue);
-                            xlimvalue=unique(xlimvalue,'stable');
-                            xlimvector=[min(xlimvalue)-(min(xlimvalue)*.10) max(xlimvalue)+(max(xlimvalue)*.10)];
-                            xtickvector=unique(sort([xlimvalue']));
+%                             xlimvalue=vertcat(obj.inputs.trialMat{:,obj.inputs.colLabel.si});
+%                             xlimvalue=vertcat(xlimvalue{:}); xlimvalue=cell2mat(xlimvalue); xlimvalue=xlimvalue(:,2);
+%                             stimcdMrkvalue=vertcat(obj.inputs.trialMat{:,obj.inputs.colLabel.stimcdMrk});
+%                             for iDenominators=1:numel(obj.inputs.ResponseFunctionDenominator)
+%                                 indextodelete=find(stimcdMrkvalue==obj.inputs.ResponseFunctionDenominator(iDenominators));
+%                                 xlimvalue(indextodelete)=0;
+%                             end
+%                             xlimvalue=nonzeros(xlimvalue);
+%                             xlimvalue=unique(xlimvalue,'stable');
+                            xlimvector=[min(obj.inputs.DoseFunctionValues)-(min(obj.inputs.DoseFunctionValues)*.10) max(obj.inputs.DoseFunctionValues)+(max(obj.inputs.DoseFunctionValues)*.10)];
+                            xtickvector=unique(sort([obj.inputs.DoseFunctionValues]));
                         case 3 % ISI
                             xlabelstring='ISI (ms)';
                             ylabelstring='MEP Amp. ( % Control )';
