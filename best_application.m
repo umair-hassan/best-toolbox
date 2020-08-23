@@ -7181,35 +7181,35 @@ classdef best_application < handle
                         ColumnName{ColAmpUnits}='Amplitude Units'; ColumnFormat{ColAmpUnits}={'Absolute (micro volts)','Percentile'};
                         ColumnName{ColITI}='Min. ITI (s)';
                     end
-                    TableData{iData,ColTS}=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).si_pckt{1,1});
-                    TableData{iData,ColStimType}=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).StimulationType;
-                    ColumnName{ColTS}='Stim. Intensity'; ColumnFormat{ColTS}=[];
+                    try TableData{iData,ColTS}=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).si_pckt{1,1});catch,end
+                    try TableData{iData,ColStimType}=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).StimulationType;catch, end
+                    try ColumnName{ColTS}='Stim. Intensity'; ColumnFormat{ColTS}=[]; catch,end
                     ColumnName{ColStimType}='Stim. Type'; ColumnFormat{ColStimType}={'Test','Condition','Other'};
                     if strcmp(obj.info.event.current_measure,'MEP Motor Threshold Hunting')
-                        TableData{iData,ColThresholdLevel}=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).threshold_level);
+                        try TableData{iData,ColThresholdLevel}=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).threshold_level); catch, end
                         ColumnName{ColThresholdLevel}='Threshold Level (mV)'; ColumnFormat{ColThresholdLevel}=[];
                         ColumnName{ColTS}='Starting Intensity';
                     end
-                    TableData{iData,ColIntensityUnits}=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).IntensityUnit;
-                    TableData{iData,ColStimulator}=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).stim_device{1,1};
-                    TableData{iData,ColPulseMode}=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).stim_mode;
-                    TableData{iData,ColTimingOnset}=num2str(horzcat(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).stim_timing{:}));
-                    TableData{iData,ColNoOfPulses}=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).pulse_count); 
+                    try TableData{iData,ColIntensityUnits}=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).IntensityUnit; catch, end
+                    try TableData{iData,ColStimulator}=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).stim_device{1,1};catch, end
+                    try TableData{iData,ColPulseMode}=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).stim_mode;catch, end
+                    try TableData{iData,ColTimingOnset}=num2str(horzcat(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).stim_timing{:}));catch, end
+                    try TableData{iData,ColNoOfPulses}=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).pulse_count); catch, end
                     ColumnName{ColIntensityUnits}='Intensity Units'; ColumnFormat{ColIntensityUnits}={'%MSO','%MT','mA','%ST','%MSO coupled','%MT coupled','mA coupled','%ST coupled'};
                     ColumnName{ColStimulator}='Stimulator'; ColumnFormat{ColStimulator}=[{'Select'}, obj.hw.device_added2_listbox.string];
                     ColumnName{ColPulseMode}='Pulse Mode'; ColumnFormat{ColPulseMode}={'single_pulse','paired_pulse', 'train'};
                     ColumnName{ColTimingOnset}='Timing Onset'; ColumnFormat{ColTimingOnset}=[];
                     ColumnName{ColNoOfPulses}='# of Pulses'; ColumnFormat{ColNoOfPulses}=[];
                     if ~(strcmp(obj.info.event.current_measure,'MEP Dose Response Curve') || strcmp(obj.info.event.current_measure,'ERP Measurement') || strcmp(obj.info.event.current_measure,'TEP Measurement'))
-                        TableData{iData,ColTargetChannel}=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).targetChannel{1,1};
+                        try TableData{iData,ColTargetChannel}=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).targetChannel{1,1};catch, end
                         ColumnName{ColTargetChannel}='Target Channel'; ColumnFormat{ColTargetChannel}=[];
                     end
-                    TableData{iData,ColCS}=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).si_pckt{1,2});
-                    TableData{iData,ColCSUnits}=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).CSUnits);
-                    TableData{iData,ColISI}=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).si_pckt{1,3});
-                    TableData{iData,ColTrainFreq}=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).si_pckt{1,7});
-                    TableData{iData,ColNoOfTrains}=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).si_pckt{1,8});
-                    TableData{iData,ColFixedThreshold}=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).threshold;
+                    try TableData{iData,ColCS}=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).si_pckt{1,2});catch, end
+                    try TableData{iData,ColCSUnits}=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).CSUnits);catch, end
+                    try TableData{iData,ColISI}=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).si_pckt{1,3});catch, end
+                    try TableData{iData,ColTrainFreq}=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).si_pckt{1,7});catch, end
+                    try TableData{iData,ColNoOfTrains}=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).si_pckt{1,8});catch, end
+                    try TableData{iData,ColFixedThreshold}=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).threshold;catch, end
                     ColumnName{ColCS}='Paired-CS Intensity'; ColumnFormat{ColCS}=[];
                     ColumnName{ColCSUnits}='Paired-CS Intensity Units'; ColumnFormat{ColCSUnits}={'%MSO','%MT','mA','%ST','%MSO coupled','%MT coupled','mA coupled','%ST coupled'};
                     ColumnName{ColISI}='ISI'; ColumnFormat{ColISI}=[]; 
@@ -7673,6 +7673,11 @@ classdef best_application < handle
             plot(0:0.01:10,rand(1,1001)*0.30-0.15,'Color','k','parent',obj.pi.mm.cond.(cd).ax,'LineWidth',2,'Tag','empty'); % 12-Mar-2020 07:37:17
             text(2.5,0+0.20,'Channel Name:[?]','VerticalAlignment','bottom','HorizontalAlignment','center','Color',[0.50 0.50 0.50],'FontSize',9,'FontAngle','italic','ButtonDownFcn',@obj.cb_cm_targetChannel) % 11-Mar-2020 14:49:00
             obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).targetChannel=cellstr('NaN');
+            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).TrialsPerCondition=50;
+            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).ITI=[3 4];
+            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).Phase='Peak';
+            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).AmplitudeThreshold='0 1e6';
+            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).AmplitudeUnits='Absolute (micro volts)';
             obj.pi.mm.stim.(cd).no=0;
             function cb_pr_mm_duplicateCondition(~,~)
                 conditionIndex=length(fieldnames(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll));
@@ -7723,6 +7728,13 @@ classdef best_application < handle
             obj.pi.mm.cond.(cd).ax.YTickLabel={'',char(yticklab),'MEP Search Window',''};
             text(0,-1*obj.pi.mm.stim.(cd).no,'click to tag device','VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',9,'FontAngle','italic','Tag',num2str(obj.pi.mm.stim.(cd).no),'ButtonDownFcn',@obj.cb_cm_output_device)
             obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).stim_device=cellstr('Select');
+            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).StimulationType='';
+            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt={[],[],[],[],[],[],[],[]};
+            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).IntensityUnit='';
+            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).stim_mode='single_pulse';
+            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).stim_timing=num2cell(0);
+            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).CSUnits='';
+            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).threshold='';
             function cb_stimulatorSelector(source,~)
                 if(isfield(obj.pi.mm,'stimulatorSelector'))
                     if(isvalid(obj.pi.mm.stimulatorSelector))
