@@ -41,7 +41,7 @@ classdef best_toolbox < handle
         
         function obj= best_toolbox (app)
             %put app in the argument of this above func declreation
-            load simMep.mat;
+            load simMep.mat;simMep=[simMep(251:500) simMep(1:250) simMep(501:1000)]/5.7; %Reducing simMep amp to 100uV
             obj.app=app;
             obj.sim_mep=simMep;
             
@@ -3200,7 +3200,7 @@ classdef best_toolbox < handle
                     %find unique values of the chType
                     %these unique values are also identifiers of the scope
                     %initialize all those scopes
-                    UniqueChannelType=unique(obj.inputs.ChannelsTypeUnique);
+                    UniqueChannelType=unique(horzcat(obj.inputs.trialMat{:,obj.inputs.colLabel.chType}));%%unique(obj.inputs.ChannelsTypeUnique);
                     for i=1:numel(UniqueChannelType)
                         switch UniqueChannelType{1,i}
                             case 'EMG'
@@ -3226,7 +3226,7 @@ classdef best_toolbox < handle
                 case 6 %NeurOne, Keyboard and Mouse
                     if obj.inputs.BrainState==2
                         if isempty(obj.bossbox), obj.boot_bossbox; end
-                        UniqueChannelType=unique(obj.inputs.ChannelsTypeUnique);
+                        UniqueChannelType=unique(horzcat(obj.inputs.trialMat{:,obj.inputs.colLabel.chType}));%%unique(obj.inputs.ChannelsTypeUnique);
                         for i=1:numel(UniqueChannelType)
                             switch UniqueChannelType{1,i}
                                 case 'EMG' %Future Release: This can be depricated
@@ -3350,6 +3350,9 @@ classdef best_toolbox < handle
                                 EMGChannelIndex=find(strcmp(obj.app.par.hardware_settings.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.inputDevices}).NeurOneProtocolChannelLabels,unique_chLab{1,i}));
                                 EMGChannelIndex=EMGChannelIndex-obj.bossbox.bb.eeg_channels;
                                 [obj.inputs.rawData.(unique_chLab{1,i}).time(obj.inputs.trial,:), obj.inputs.rawData.(unique_chLab{1,i}).data(obj.inputs.trial,:)]=obj.bossbox.EMGScopeRead(EMGChannelIndex);
+                                %% Simulation Start
+                                obj.inputs.rawData.(unique_chLab{1,i}).data(obj.inputs.trial,:)=obj.sim_mep*obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.ConditionMarker};
+                                %% Simuation End
                                 % 04-Jun-2020 19:58:28 Comment below two lines
                                 %                                 obj.inputs.rawData.(unique_chLab{1,i}).data(obj.inputs.trial,:)=obj.best_VisualizationFilter([obj.sim_mep(1,700:1000), obj.sim_mep(1,1:699)]*1000*obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,1}{1,1}*(randi([1 3])*0.10));
                                 %                                 obj.inputs.rawData.(unique_chLab{1,i}).time(obj.inputs.trial,:)=obj.best_VisualizationFilter([obj.sim_mep(1,700:1000), obj.sim_mep(1,1:699)]*1000*obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,1}{1,1}*(randi([1 3])*0.10));
