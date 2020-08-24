@@ -2592,6 +2592,10 @@ classdef best_toolbox < handle
                             obj.inputs.MEPOffset=obj.inputs.MEPSearchWindow(2);
                             obj.inputs.EMGDisplayPeriodPre=obj.inputs.EMGExtractionPeriod(1)*(-1);
                             obj.inputs.EMGDisplayPeriodPost=obj.inputs.EMGExtractionPeriod(2);
+                            obj.inputs.EEGDisplayPeriodPre=obj.inputs.EEGExtractionPeriod(1)*(-1);
+                            obj.inputs.EEGDisplayPeriodPost=obj.inputs.EEGExtractionPeriod(2);
+                            obj.inputs.MontageChannels=obj.inputs.RealTimeChannelsMontage;
+                            obj.inputs.MontageWeights=obj.inputs.RealTimeChannelsWeights;
                             obj.inputs.prestim_scope_plt=obj.inputs.EMGDisplayPeriodPre;
                             obj.inputs.poststim_scope_plt=obj.inputs.EMGDisplayPeriodPost;
                             obj.inputs.mep_onset=obj.inputs.MEPOnset;
@@ -2679,13 +2683,13 @@ classdef best_toolbox < handle
                                 %% Amplitude Threshold 
                                 switch obj.inputs.condsAll.(conds{c,1}).AmplitudeUnits
                                     case 'Percentile' %Percentile
-                                        obj.inputs.condMat{c,obj.inputs.colLabel.IA}={str2num(obj.inputs.condsAll.(conds{c,1}).AmplitudeThreshold)};
-                                        obj.inputs.condMat{c,obj.inputs.colLabel.IAPercentile}={str2num(obj.inputs.condsAll.(conds{c,1}).AmplitudeThreshold)};
-                                        obj.inputs.condMat{c,obj.inputs.colLabel.IAInput}={str2num(obj.inputs.condsAll.(conds{c,1}).AmplitudeThreshold)};
+                                        obj.inputs.condMat{c,obj.inputs.colLabel.IA}=num2cell(str2num(obj.inputs.condsAll.(conds{c,1}).AmplitudeThreshold));
+                                        obj.inputs.condMat{c,obj.inputs.colLabel.IAPercentile}=num2cell(str2num(obj.inputs.condsAll.(conds{c,1}).AmplitudeThreshold));
+                                        obj.inputs.condMat{c,obj.inputs.colLabel.IAInput}=num2cell(str2num(obj.inputs.condsAll.(conds{c,1}).AmplitudeThreshold));
                                         obj.inputs.condMat{c,obj.inputs.colLabel.IAUnit}='Percentile';
                                     case 'Absolute (micro volts)' %Absolute uV
-                                        obj.inputs.condMat{c,obj.inputs.colLabel.IA}={str2num(obj.inputs.condsAll.(conds{c,1}).AmplitudeThreshold)};
-                                        obj.inputs.condMat{c,obj.inputs.colLabel.IAInput}={str2num(obj.inputs.condsAll.(conds{c,1}).AmplitudeThreshold)};
+                                        obj.inputs.condMat{c,obj.inputs.colLabel.IA}=num2cell(str2num(obj.inputs.condsAll.(conds{c,1}).AmplitudeThreshold));
+                                        obj.inputs.condMat{c,obj.inputs.colLabel.IAInput}=num2cell(str2num(obj.inputs.condsAll.(conds{c,1}).AmplitudeThreshold));
                                         obj.inputs.condMat{c,obj.inputs.colLabel.IAUnit}='uV';
                                 end
                                 %% Channel Label, Measure, Axes No, Channel Type, Channel ID for Plots
@@ -2981,15 +2985,19 @@ classdef best_toolbox < handle
                             case {'%MSO coupled','%MT coupled','mA coupled','%ST coupled'}
                                 try
                                     Session=obj.inputs.condsAll.(condStr).(st).CoupleIntensityUnits.Session;
-                                    Protocol=obj.inputs.condsAll.(condStr).(st).CoupleIntensityUnits.Session.Protocol;
-                                    Parameter=obj.inputs.condsAll.(condStr).(st).CoupleIntensityUnits.Session.Parameter;
-                                    Channel=obj.inputs.condsAll.(condStr).(st).CoupleIntensityUnits.Session.Channel;
+                                    Protocol=obj.inputs.condsAll.(condStr).(st).CoupleIntensityUnits.Protocol;
+                                    Parameter=obj.inputs.condsAll.(condStr).(st).CoupleIntensityUnits.Parameter;
+                                    Channel=obj.inputs.condsAll.(condStr).(st).CoupleIntensityUnits.Channel;
                                     switch Parameter
                                         case 'Motor Threshold'
                                             try
                                                 Threshold=obj.sessions.(Session).(Protocol).Results.(Channel).MotorThreshold; %get the motor threshold;
                                                 obj.inputs.condsAll.(condStr).(st).threshold=num2str(Threshold);
-                                                obj.inputs.condsAll.(condStr).(st).si_pckt{4}=str2num(obj.inputs.condsAll.(condStr).(st).threshold)*obj.inputs.condsAll.(condStr).(st).si_pckt{1}*0.01; %Multiplying the Threshold with the Intensity to apply Transformation
+                                                if floor(Threshold)==Threshold %% Integer-ness check when the Input is double
+                                                    obj.inputs.condsAll.(condStr).(st).si_pckt{4}=round(str2num(obj.inputs.condsAll.(condStr).(st).threshold)*obj.inputs.condsAll.(condStr).(st).si_pckt{1}*0.01); %Multiplying the Threshold with the Intensity to apply Transformation
+                                                else
+                                                    obj.inputs.condsAll.(condStr).(st).si_pckt{4}=str2num(obj.inputs.condsAll.(condStr).(st).threshold)*obj.inputs.condsAll.(condStr).(st).si_pckt{1}*0.01; %Multiplying the Threshold with the Intensity to apply Transformation
+                                                end
                                                 % set the adjusted value on the 4th packet in si_packet and repeat it for all
                                             catch
                                                 errordlg('The "Motor Threshold" coupled to import from previous Measurement cannot be found in "Linked List".','BEST Toolbox');
@@ -3004,9 +3012,14 @@ classdef best_toolbox < handle
                                             end
                                         case 'Inflection Point'
                                             try
-                                                IP=obj.sessions.(Session).(Protocol).Results.InflectionPoint_SI_BaseUnits;
+                                                %% Make the roundness before already in the DRC end 
+                                                IP=round(obj.sessions.(Session).(Protocol).Results.InflectionPoint_SI_BaseUnits);
                                                 obj.inputs.condsAll.(condStr).(st).threshold=num2str(IP);
-                                                obj.inputs.condsAll.(condStr).(st).si_pckt{4}=str2num(obj.inputs.condsAll.(condStr).(st).threshold)*obj.inputs.condsAll.(condStr).(st).si_pckt{1}*0.01; %Multiplying the IP with the Intensity to apply Transformation
+                                                if floor(IP)==IP %% Integer-ness check when the Input is double
+                                                    obj.inputs.condsAll.(condStr).(st).si_pckt{4}=round(str2num(obj.inputs.condsAll.(condStr).(st).threshold)*obj.inputs.condsAll.(condStr).(st).si_pckt{1}*0.01); %Multiplying the IP with the Intensity to apply Transformation
+                                                else
+                                                    obj.inputs.condsAll.(condStr).(st).si_pckt{4}=str2num(obj.inputs.condsAll.(condStr).(st).threshold)*obj.inputs.condsAll.(condStr).(st).si_pckt{1}*0.01; %Multiplying the IP with the Intensity to apply Transformation
+                                                end
                                             catch
                                                 errordlg('The "Inflection Point" coupled to import from previous Measurement cannot be found in "Linked List".','BEST Toolbox');
                                             end
@@ -3014,7 +3027,11 @@ classdef best_toolbox < handle
                                             try
                                                 Ib=obj.sessions.(Session).(Protocol).Results.Inhibition_SI_BaseUnits;
                                                 obj.inputs.condsAll.(condStr).(st).threshold=num2str(Ib);
-                                                obj.inputs.condsAll.(condStr).(st).si_pckt{4}=str2num(obj.inputs.condsAll.(condStr).(st).threshold)*obj.inputs.condsAll.(condStr).(st).si_pckt{1}*0.01; %Multiplying the Ib with the Intensity to apply Transformation
+                                                if floor(Ib)==Ib %% Integer-ness check when the Input is double
+                                                    obj.inputs.condsAll.(condStr).(st).si_pckt{4}=round(str2num(obj.inputs.condsAll.(condStr).(st).threshold)*obj.inputs.condsAll.(condStr).(st).si_pckt{1}*0.01); %Multiplying the Ib with the Intensity to apply Transformation
+                                                else
+                                                    obj.inputs.condsAll.(condStr).(st).si_pckt{4}=str2num(obj.inputs.condsAll.(condStr).(st).threshold)*obj.inputs.condsAll.(condStr).(st).si_pckt{1}*0.01; %Multiplying the Ib with the Intensity to apply Transformation
+                                                end
                                             catch
                                                 errordlg('The "Inhibition" coupled to import from previous Measurement cannot be found in "Linked List".','BEST Toolbox');
                                             end
@@ -3022,6 +3039,7 @@ classdef best_toolbox < handle
                                             try
                                                 Fc=obj.sessions.(Session).(Protocol).Results.Facilitation_SI_BaseUnits;
                                                 obj.inputs.condsAll.(condStr).(st).threshold=num2str(Fc);
+                                                %% Add Integer-ness check here
                                                 obj.inputs.condsAll.(condStr).(st).si_pckt{4}=str2num(obj.inputs.condsAll.(condStr).(st).threshold)*obj.inputs.condsAll.(condStr).(st).si_pckt{1}*0.01; %Multiplying the Fc with the Intensity to apply Transformation
                                             catch
                                                 errordlg('The "Facilitation" coupled to import from previous Measurement cannot be found in "Linked List".','BEST Toolbox');
@@ -3030,6 +3048,7 @@ classdef best_toolbox < handle
                                             try
                                                 Pt=obj.sessions.(Session).(Protocol).Results.Plateau_SI_BaseUnits;
                                                 obj.inputs.condsAll.(condStr).(st).threshold=num2str(Pt);
+                                                %% Add Integer-ness check here
                                                 obj.inputs.condsAll.(condStr).(st).si_pckt{4}=str2num(obj.inputs.condsAll.(condStr).(st).threshold)*obj.inputs.condsAll.(condStr).(st).si_pckt{1}*0.01; %Multiplying the Pt with the Intensity to apply Transformation
                                             catch
                                                 errordlg('The "Plateau" coupled to import from previous Measurement cannot be found in "Linked List".','BEST Toolbox');
@@ -3066,7 +3085,7 @@ classdef best_toolbox < handle
                                 Session=obj.inputs.ImportPeakFrequency.Session;
                                 Protocol=obj.inputs.ImportPeakFrequency.Protocol;
                                 Channel=obj.inputs.ImportPeakFrequency.Channel;
-                                obj.inputs.PeakFrequency=obj.sessions.(Session).(Protocol).results.PeakFrequency.(Channel);
+                                obj.inputs.PeakFrequency=obj.sessions.(Session).(Protocol).Results.PeakFrequency.(Channel);
                                 obj.app.par.(obj.app.info.event.current_session).(obj.app.info.event.current_measure_fullstr).PeakFrequency=num2str(obj.inputs.PeakFrequency);
                             catch
                                 errordlg('The Peak Frequency to import from previous rsEEG Measurement Protocol cannot be found in "Linked List".','BEST Toolbox');
@@ -3814,10 +3833,10 @@ end
                             obj.BESTData.condition_matrix=obj.inputs.condMat;
                             obj.BESTData.trial_matrix=obj.inputs.trialMat;
                             obj.BESTData.fsample=5000;
-                            obj.BESTData.label=obj.inputs.EMGDisplayChannels';
+                            obj.BESTData.label=[setdiff(unique(horzcat(obj.inputs.trialMat{:,obj.inputs.colLabel.chLab})),{'StatusTable'})]';%%obj.inputs.EMGDisplayChannels';
                             obj.BESTData.timeunits='ms';
-                            obj.BESTData.chantype=repmat({'emg'},numel(obj.inputs.EMGDisplayChannels),1);
-                            obj.BESTData.chanunits=repmat({'uV'},numel(obj.inputs.EMGDisplayChannels),1);
+                            obj.BESTData.chantype=repmat({'emg'},numel(obj.BESTData.label),1);
+                            obj.BESTData.chanunits=repmat({'uV'},numel(obj.BESTData.label),1);
                             obj.BESTData.trilainfo_label={'TSIntensity (%MSO)','ITI(s)'};
                             TS=vertcat(obj.inputs.trialMat{:,3}); TS=vertcat(TS{:,1}); TS=vertcat(TS{:,1});
                             obj.BESTData.trialinfo(1:numel(TS),1)=TS;
@@ -3828,12 +3847,12 @@ end
                             obj.BESTData.fsample=5000;
                             obj.BESTData.timeunits='ms';
                             label{1}=erase(char(join(obj.inputs.RealTimeChannelsMontage)),' ');
-                            obj.BESTData.label=[label{1}; obj.inputs.EMGDisplayChannels'];
-                            obj.BESTData.chantype=[{'eeg'}; repmat({'emg'},numel(obj.inputs.EMGDisplayChannels),1)];
-                            obj.BESTData.chanunits=repmat({'uV'},numel(obj.inputs.EMGDisplayChannels)+1,1);
+                            obj.BESTData.label=[label{1}; [setdiff(unique(horzcat(obj.inputs.trialMat{:,obj.inputs.colLabel.chLab})),{'OsscillationPhase','OsscillationEEG','AmplitudeDistribution','OsscillationAmplitude','IADistribution','AmplitudeDistribution','StatusTable'})]'];
+                            obj.BESTData.chantype=[{'eeg'}; repmat({'emg'},numel(obj.BESTData.label)-1,1)];
+                            obj.BESTData.chanunits=repmat({'uV'},numel(obj.BESTData.label),1);
                             obj.BESTData.trilainfo_label={'TSIntensity (%MSO)','ITI(s)','Target Phase(radians)','Phase Tolerance (radians)','Target Min Amplitude (uV)','Target Max Amplitude (uV)'};
-                            TS=vertcat(obj.inputs.trialMat{:,3}); TS=vertcat(TS{:,1}); TS=vertcat(TS{:,1});
-                            obj.BESTData.trialinfo(1:obj.inputs.totalTrials,1)=TS;
+%                             TS=vertcat(obj.inputs.trialMat{:,3}); TS=vertcat(TS{:,1}); TS=vertcat(TS{:,1});
+                            obj.BESTData.trialinfo(1:obj.inputs.totalTrials,1)=rand;
                             obj.BESTData.trialinfo(1:obj.inputs.totalTrials,2)=vertcat(obj.inputs.trialMat{:,4});
                             Phase=cell2mat(vertcat(obj.inputs.trialMat{:,obj.inputs.colLabel.phase}));
                             Amplitude=cell2mat(vertcat(obj.inputs.trialMat{:,obj.inputs.colLabel.IA}));
@@ -3848,13 +3867,13 @@ end
                             obj.BESTData.condition_matrix=obj.inputs.condMat;
                             obj.BESTData.trial_matrix=obj.inputs.trialMat;
                             obj.BESTData.fsample=5000;
-                            obj.BESTData.label=[obj.inputs.EMGTargetChannels'; obj.inputs.EMGDisplayChannels'];
+                            obj.BESTData.label=[setdiff(unique(horzcat(obj.inputs.trialMat{:,obj.inputs.colLabel.chLab})),{'StatusTable'})]';
                             obj.BESTData.timeunits='ms';
                             obj.BESTData.chantype=repmat({'emg'},numel(obj.inputs.EMGTargetChannels)+numel(obj.inputs.EMGDisplayChannels),1);
                             obj.BESTData.chanunits=repmat({'uV'},numel(obj.inputs.EMGTargetChannels)+numel(obj.inputs.EMGDisplayChannels),1);
                             obj.BESTData.trilainfo_label={'TSIntensity (%MSO)','ITI(s)'};
-                            TS=vertcat(obj.inputs.trialMat{:,3}); TS=vertcat(TS{:,1}); TS=vertcat(TS{:,1});
-                            obj.BESTData.trialinfo(1:numel(TS),1)=TS;
+%                             TS=vertcat(obj.inputs.trialMat{:,3}); TS=vertcat(TS{:,1}); TS=vertcat(TS{:,1});
+                            obj.BESTData.trialinfo(1:numel(1),1)=rand;
                             obj.BESTData.trialinfo(1:numel(vertcat(obj.inputs.trialMat{:,4})),2)=vertcat(obj.inputs.trialMat{:,4});
                         case 2 %Dependent
                             obj.BESTData.condition_matrix=obj.inputs.condMat;
@@ -3934,6 +3953,7 @@ end
                     obj.BESTData.time=obj.inputs.results.RawEEGData.time;
                     results=rmfield(obj.inputs.results,'RawEEGData');
                     obj.BESTData.results=results;
+                    
             end
         end
         function saveFigures(obj)
@@ -4103,6 +4123,7 @@ end
             end
             obj.rseegInProcess('close');
             obj.prepSaving;
+            obj.saveRuntime;
             obj.saveFigures;
             obj.completed;
         end
@@ -4393,8 +4414,9 @@ end
                 obj.inputs.Handles.(ax).mean.YData=mean(obj.inputs.rawData.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).data(IndexOfTrialsTillNow(obj.inputs.Handles.(ax).mean.UserData.TrialNoForMean:end),:));
                 obj.inputs.Handles.(ax).current.YData=obj.inputs.rawData.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).data(obj.inputs.trial,:);
                 uistack(obj.inputs.Handles.(ax).current,'top');
-                LegendGrouping=[obj.inputs.Handles.(ax).past; obj.inputs.Handles.(ax).mean; obj.inputs.Handles.(ax).current];
-                legend(LegendGrouping, 'Previous', 'Mean', 'Latest','Location','southoutside','Orientation','horizontal');
+%                 obj.inputs.Handles.(ax).past.Annotation.LegendInformation.IconDisplayStyle= 'off';
+                LegendGrouping=[obj.inputs.Handles.(ax).current;obj.inputs.Handles.(ax).mean; obj.inputs.Handles.(ax).past];
+                legend(LegendGrouping, 'Latest', 'Mean', 'Previous','Location','southoutside','Orientation','horizontal');
                 MeanMEPAmp=round(mean(obj.inputs.results.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).MEPAmplitude(IndexOfTrialsTillNow(obj.inputs.Handles.(ax).mean.UserData.TrialNoForMean:end,1)))/1000,3);
             else
                 delete(obj.inputs.Handles.(ax).current)
@@ -4403,6 +4425,8 @@ end
                 obj.inputs.Handles.(ax).mean=plot(obj.inputs.timeVect,mean(obj.inputs.rawData.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).data(IndexOfTrialsTillNow,:)),'color',[0,0,0],'LineWidth',1.5);
                 obj.inputs.Handles.(ax).current=plot(obj.inputs.timeVect,obj.inputs.rawData.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).data(obj.inputs.trial,:),'Color',[1 0 0],'LineWidth',2);
                 obj.inputs.Handles.(ax).mean.UserData.TrialNoForMean=1;
+%                 LegendGrouping=[obj.inputs.Handles.(ax).past; obj.inputs.Handles.(ax).mean; obj.inputs.Handles.(ax).current];
+%                 legend(LegendGrouping, 'Previous', 'Mean', 'Latest','Location','southoutside','Orientation','horizontal');
                 MeanMEPAmp=round(mean(obj.inputs.results.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).MEPAmplitude(IndexOfTrialsTillNow,1))/1000,3);
             end
             %% Update the Current MEP Amp & Mean MEP Amp Stauts on Axes
@@ -4426,9 +4450,9 @@ end
             switch obj.inputs.trial
                 case 1
                     obj.info.plt.(ax).ioc_scatplot=plot(xvalue,yvalue,'o','Color','r','MarkerSize',8,'MarkerFaceColor','r'); hold on;
-                    xlim([0 obj.inputs.totalConds+1]); xticks(1:obj.inputs.totalConds);
+                    xlim([0 obj.inputs.totalConds+1]); xticks(1:obj.inputs.totalConds); ylabel('MEP Amplitude (uV)');
                     for i=1:obj.inputs.totalConds
-                        xticklabelvector{i}=['Cond.' num2str(i)];
+                        xticklabelvector{i}=['Cond' num2str(i)];
                     end
                     xticklabels(xticklabelvector);
                 otherwise
@@ -4628,22 +4652,26 @@ end
                     obj.inputs.(obj.app.info.event.current_session).(obj.app.info.event.current_measure_fullstr).Results.Plateau_SI=obj.info.pt_x;
                     obj.inputs.(obj.app.info.event.current_session).(obj.app.info.event.current_measure_fullstr).Results.Plateau_uV=pt_y;
                     obj.inputs.(obj.app.info.event.current_session).(obj.app.info.event.current_measure_fullstr).Results.Threshold_SI=obj.info.th;
-                    for icond=1:obj.inputs.condsAll
+                    for icond=1:numel(obj.inputs.condsAll)
                         condStr=['cond' num2str(icond)];
                         for s=1:(length(fieldnames(obj.inputs.condsAll.(condStr)))-6)
                             st=['st' num2str(s)];
                             switch obj.inputs.DoseFunction
                                 case 1 %Test
                                     if strcmp( obj.inputs.condsAll.(condStr).(st).StimulationType,'Test')
-                                        obj.inputs.(obj.app.info.event.current_session).(obj.app.info.event.current_measure_fullstr).Results.Threshold_SI_BaseUnits=obj.info.th*0.01*str2double(obj.inputs.condsAll.(condStr).(st).threshold);
-                                        obj.inputs.(obj.app.info.event.current_session).(obj.app.info.event.current_measure_fullstr).Results.InflectionPoint_SI_BaseUnits=obj.info.ip_x*0.01*str2double(obj.inputs.condsAll.(condStr).(st).threshold);
-                                        obj.inputs.(obj.app.info.event.current_session).(obj.app.info.event.current_measure_fullstr).Results.Plateau_SI_BaseUnits=obj.info.pt_x*0.01*str2double(obj.inputs.condsAll.(condStr).(st).threshold);
+%                                         obj.sessions.(obj.app.info.event.current_session).(obj.app.info.event.current_measure_fullstr).Results.Threshold_SI_BaseUnits=obj.info.th*0.01*str2double(obj.inputs.condsAll.(condStr).(st).threshold);
+%                                         obj.sessions.(obj.app.info.event.current_session).(obj.app.info.event.current_measure_fullstr).Results.InflectionPoint_SI_BaseUnits=obj.info.ip_x*0.01*str2double(obj.inputs.condsAll.(condStr).(st).threshold);
+%                                         obj.sessions.(obj.app.info.event.current_session).(obj.app.info.event.current_measure_fullstr).Results.Plateau_SI_BaseUnits=obj.info.pt_x*0.01*str2double(obj.inputs.condsAll.(condStr).(st).threshold);
+                                        obj.inputs.results.Threshold_SI_BaseUnits=obj.info.th*0.01*str2double(obj.inputs.condsAll.(condStr).(st).threshold);
+                                        obj.inputs.results.InflectionPoint_SI_BaseUnits=obj.info.ip_x*0.01*str2double(obj.inputs.condsAll.(condStr).(st).threshold);
+                                        obj.inputs.results.Plateau_SI_BaseUnits=obj.info.pt_x*0.01*str2double(obj.inputs.condsAll.(condStr).(st).threshold);
+                                   
                                     end
                                 case 2 %Condition
                                     if strcmp( obj.inputs.condsAll.(condStr).(st).StimulationType,'Condition')
-                                        obj.inputs.(obj.app.info.event.current_session).(obj.app.info.event.current_measure_fullstr).Results.Threshold_SI_BaseUnits=obj.info.th*0.01*str2double(obj.inputs.condsAll.(condStr).(st).threshold);
-                                        obj.inputs.(obj.app.info.event.current_session).(obj.app.info.event.current_measure_fullstr).Results.InflectionPoint_SI_BaseUnits=obj.info.ip_x*0.01*str2double(obj.inputs.condsAll.(condStr).(st).threshold);
-                                        obj.inputs.(obj.app.info.event.current_session).(obj.app.info.event.current_measure_fullstr).Results.Plateau_SI_BaseUnits=obj.info.pt_x*0.01*str2double(obj.inputs.condsAll.(condStr).(st).threshold);
+                                        obj.inputs.results.Threshold_SI_BaseUnits=obj.info.th*0.01*str2double(obj.inputs.condsAll.(condStr).(st).threshold);
+                                        obj.inputs.results.InflectionPoint_SI_BaseUnits=obj.info.ip_x*0.01*str2double(obj.inputs.condsAll.(condStr).(st).threshold);
+                                        obj.inputs.results.Plateau_SI_BaseUnits=obj.info.pt_x*0.01*str2double(obj.inputs.condsAll.(condStr).(st).threshold);
                                     end
                             end
                         end
@@ -4776,20 +4804,20 @@ end
                     obj.inputs.(obj.app.info.event.current_session).(obj.app.info.event.current_measure_fullstr).Results.Inhibition_50percent=Inhibition;
                     obj.inputs.(obj.app.info.event.current_session).(obj.app.info.event.current_measure_fullstr).Results.Facilitation_SI=Facilitation_Intensity; 
                     obj.inputs.(obj.app.info.event.current_session).(obj.app.info.event.current_measure_fullstr).Results.Facilitation_50percent=Facilitation;
-                    for icond=1:obj.inputs.condsAll
+                    for icond=1:numel(obj.inputs.condsAll)
                         condStr=['cond' num2str(icond)];
                         for s=1:(length(fieldnames(obj.inputs.condsAll.(condStr)))-6)
                             st=['st' num2str(s)];
                             switch obj.inputs.DoseFunction
                                 case 1 %Test
                                     if strcmp( obj.inputs.condsAll.(condStr).(st).StimulationType,'Test')
-                                        obj.inputs.(obj.app.info.event.current_session).(obj.app.info.event.current_measure_fullstr).Results.Inhibition_SI_BaseUnits=Inhibition_Intensity*0.01*str2double(obj.inputs.condsAll.(condStr).(st).threshold); %Such as %MSO or mA
-                                        obj.inputs.(obj.app.info.event.current_session).(obj.app.info.event.current_measure_fullstr).Results.Facilitation_SI_BaseUnits=Facilitation_Intensity*0.01*str2double(obj.inputs.condsAll.(condStr).(st).threshold);
+                                        obj.inputs.results.Inhibition_SI_BaseUnits=Inhibition_Intensity*0.01*str2double(obj.inputs.condsAll.(condStr).(st).threshold); %Such as %MSO or mA
+                                        obj.inputs.results.Facilitation_SI_BaseUnits=Facilitation_Intensity*0.01*str2double(obj.inputs.condsAll.(condStr).(st).threshold);
                                     end
                                 case 2 %Condition
                                     if strcmp( obj.inputs.condsAll.(condStr).(st).StimulationType,'Condition')
-                                        obj.inputs.(obj.app.info.event.current_session).(obj.app.info.event.current_measure_fullstr).Results.Inhibition_SI_BaseUnits=Inhibition_Intensity*0.01*str2double(obj.inputs.condsAll.(condStr).(st).threshold); %Such as %MSO or mA
-                                        obj.inputs.(obj.app.info.event.current_session).(obj.app.info.event.current_measure_fullstr).Results.Facilitation_SI_BaseUnits=Facilitation_Intensity*0.01*str2double(obj.inputs.condsAll.(condStr).(st).threshold);
+                                        obj.inputs.results.Inhibition_SI_BaseUnits=Inhibition_Intensity*0.01*str2double(obj.inputs.condsAll.(condStr).(st).threshold); %Such as %MSO or mA
+                                        obj.inputs.results.Facilitation_SI_BaseUnits=Facilitation_Intensity*0.01*str2double(obj.inputs.condsAll.(condStr).(st).threshold);
                                     end
                             end
                         end

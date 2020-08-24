@@ -1091,7 +1091,7 @@ classdef best_application < handle
                 1 0 0;0 1 0;0 0 1;0 1 1;1 0 1;0.7529 0.7529 0.7529;0.5020 0.5020 0.5020;0.4706 0 0;0.5020 0.5020 0;0 0.5020 0;0.5020 0 0.5020;0 0.5020 0.5020;0 0 0.5020;1 0.4980 0.3137];
             obj.pr.ax.(obj.pr.ax_no).UserData.ColorsIndex=0;
             %% testing feature
-            text(obj.pr.ax.(obj.pr.ax_no),0,0,flip(obj.pr.ax_AxesAnnotation{obj.pr.axesno}),'units','normalized','HorizontalAlignment','left','VerticalAlignment','bottom','color',[0.55 0.55 0.55],'FontSize',8);
+            try text(obj.pr.ax.(obj.pr.ax_no),0,0,flip(obj.pr.ax_AxesAnnotation{obj.pr.axesno}),'units','normalized','HorizontalAlignment','left','VerticalAlignment','bottom','color',[0.55 0.55 0.55],'FontSize',8); catch, end
         end
         function pr_YLimZoomIn(obj,source,~)
             
@@ -1977,8 +1977,8 @@ classdef best_application < handle
                         mep_panel_row8z = uix.HBox( 'Parent', expModvBox, 'Spacing',  0, 'Padding', 2 );
                         uicontrol( 'Style','text','Parent', mep_panel_row8z,'String','Peak Frequency (Hz):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
                         obj.pi.mep.PeakFrequency=uicontrol( 'Style','edit','Parent', mep_panel_row8z ,'FontSize',11,'Tag','PeakFrequency','Callback',@cb_par_saving);
-                        obj.pi.mep.ImportPeakFrequencyFromProtocols=uicontrol( 'Style','popupmenu','Parent', mep_panel_row8z ,'String',{'Select'},'FontSize',11,'Tag','Bin','Callback',@(~,~)obj.cb_ImportPeakFrequency);%@set_PeakFrequency);
-                        obj.pi.mep.ImportPeakFrequencyFromProtocols.String={'Select','Import from Protocol'};%getPeakFrequencyProtocols;
+                        obj.pi.mep.ImportPeakFrequencyFromProtocols=uicontrol( 'Style','popupmenu','Parent', mep_panel_row8z ,'String',{'Select'},'FontSize',11,'Tag','Bin','Callback',@obj.cb_ImportPeakFrequency);%@set_PeakFrequency);
+                        obj.pi.mep.ImportPeakFrequencyFromProtocols.String={'Hz','Import from Protocol'};%getPeakFrequencyProtocols;
                         set( mep_panel_row8z, 'Widths', [150 -2 -2]);
                         
                         % row 2
@@ -8385,7 +8385,12 @@ classdef best_application < handle
             function ValueExtraction
             end
         end
-        function cb_ImportPeakFrequency (obj)
+        function cb_ImportPeakFrequency (obj,source,~)
+            switch source.Value
+                case 1
+                    obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).ImportPeakFrequencyFromProtocols=1;
+                case 2
+                     obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).ImportPeakFrequencyFromProtocols=2;
             %% Making Buffer
             if ~isfield(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr),'ImportPeakFrequency')
                 obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).ImportPeakFrequency=struct;
@@ -8437,6 +8442,7 @@ classdef best_application < handle
             set(c1, 'Heights', [25 25 25 25 25 25])
             f.Position(3)=430;
             f.Position(4)=225;
+            end
             %% Callbacks
             function SessionSelected(source,~)
                 obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).ImportPeakFrequency.Session=regexprep((obj.pmd.lb_sessions.listbox.String{source.Value}),' ','_');
@@ -8482,6 +8488,7 @@ classdef best_application < handle
             end
             function ValueExtraction
             end
+            
         end
         function cb_ImportERPLatency (obj,Condition,Stimulator,Pulse)
             %% Making Buffer
