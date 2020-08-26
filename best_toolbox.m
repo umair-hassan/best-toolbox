@@ -2093,7 +2093,7 @@ classdef best_toolbox < handle
                         obj.inputs.condMat{c,obj.inputs.colLabel.chType}={'EEG','StatusTable'};
                         obj.inputs.condMat{c,obj.inputs.colLabel.chId}={1,1};
                         conds=fieldnames(obj.inputs.condsAll);
-                        for stno=1:(max(size(fieldnames(obj.inputs.condsAll.(conds{c,1}))))-1)
+                        for stno=1:(max(size(fieldnames(obj.inputs.condsAll.(conds{c,1}))))-6)
                             st=['st' num2str(stno)];
                             if(obj.inputs.condsAll.(conds{c,1}).(st).stim_mode=='single_pulse')
                                 obj.inputs.condsAll.(conds{c,1}).(st).si_pckt{1,2}=0;
