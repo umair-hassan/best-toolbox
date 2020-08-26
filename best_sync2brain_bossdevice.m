@@ -33,9 +33,9 @@ classdef best_sync2brain_bossdevice <handle
                 %% Preparing Spatial Filter Weights for BOSS Device
                 if obj.best_toolbox.app.par.hardware_settings.(InputDevice).slct_device==1 || obj.best_toolbox.app.par.hardware_settings.(InputDevice).slct_device==6 %%NeurOneOnly OR NeurOnewithKeyboard
                     SpatialFilterWeights=zeros(obj.bb.eeg_channels,1);
-                    MontageChannelsIndicies(1,numel(obj.best_toolbox.inputs.MontageChannels))=0;
-                    for iMontageChannels=1:numel(obj.best_toolbox.inputs.MontageChannels)
-                        MontageChannelsIndicies(iMontageChannels)=find(strcmp(obj.best_toolbox.app.par.hardware_settings.(InputDevice).NeurOneProtocolChannelLabels,obj.best_toolbox.inputs.MontageChannels{iMontageChannels}));
+                    MontageChannelsIndicies(1,numel(obj.best_toolbox.inputs.RealTimeChannelsMontage))=0;
+                    for iMontageChannels=1:numel(obj.best_toolbox.inputs.RealTimeChannelsMontage)
+                        MontageChannelsIndicies(iMontageChannels)=find(strcmp(obj.best_toolbox.app.par.hardware_settings.(InputDevice).NeurOneProtocolChannelLabels,obj.best_toolbox.inputs.RealTimeChannelsMontage{iMontageChannels}));
                     end
                     SpatialFilterWeights(MontageChannelsIndicies)=obj.best_toolbox.inputs.MontageWeights;
                 end
@@ -389,7 +389,7 @@ classdef best_sync2brain_bossdevice <handle
             obj.EEGScope.Decimation = 1;
             obj.EEGScope.TriggerMode = 'Signal';
             obj.EEGScope.TriggerSignal = getsignalid(obj.bb.tg, 'gen_running'); %Remove it in Official Usee
-            obj.EEGScope.TriggerSignal = MrkSignalID;
+%             obj.EEGScope.TriggerSignal = MrkSignalID;
             obj.EEGScope.TriggerLevel = 0.5;
             obj.EEGScope.TriggerSlope = 'Rising';
             %% Starting Scope
