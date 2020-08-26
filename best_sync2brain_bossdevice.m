@@ -1,4 +1,4 @@
-classdef best_sync2brain_bossdevice <handle    
+classdef best_sync2brain_bossdevice <handle
     properties
         bb %bossbox API object
         best_toolbox
@@ -28,8 +28,8 @@ classdef best_sync2brain_bossdevice <handle
                 obj.bb.eeg_channels=nnz(strcmp(obj.best_toolbox.app.par.hardware_settings.(InputDevice).NeurOneProtocolChannelSignalTypes,'EEG'));
                 obj.bb.aux_channels=nnz(strcmp(obj.best_toolbox.app.par.hardware_settings.(InputDevice).NeurOneProtocolChannelSignalTypes,'EMG'));
             end
-            %% Setting Brain State Dependent Defaults 
-            if(obj.best_toolbox.inputs.BrainState==2)                
+            %% Setting Brain State Dependent Defaults
+            if(obj.best_toolbox.inputs.BrainState==2)
                 %% Preparing Spatial Filter Weights for BOSS Device
                 if obj.best_toolbox.app.par.hardware_settings.(InputDevice).slct_device==1 || obj.best_toolbox.app.par.hardware_settings.(InputDevice).slct_device==6 %%NeurOneOnly OR NeurOnewithKeyboard
                     SpatialFilterWeights=zeros(obj.bb.eeg_channels,1);
@@ -39,7 +39,7 @@ classdef best_sync2brain_bossdevice <handle
                     end
                     SpatialFilterWeights(MontageChannelsIndicies)=obj.best_toolbox.inputs.MontageWeights;
                 end
-
+                
                 %% Setting Spatial Filter
                 obj.bb.spatial_filter_weights=SpatialFilterWeights;
                 
@@ -60,7 +60,7 @@ classdef best_sync2brain_bossdevice <handle
         end
         
         function singlePulse(obj,portNo)
-                obj.bb.sendPulse(portNo)
+            obj.bb.sendPulse(portNo)
         end
         
         function multiPulse(obj,time_port_marker_vector)
@@ -87,115 +87,115 @@ classdef best_sync2brain_bossdevice <handle
             obj.bb.configure_time_port_marker(cell2mat(time_port_marker_vector'))
             pause(0.1)
             %% Starting respective Scopes
-
+            
             obj.IAScopeStart; % not sure if this would be necessary
             
-            %% Starting 
-            obj.bb.armed 
+            %% Starting
+            obj.bb.armed
             obj.bb.triggers_remaining;
             obj.bb.min_inter_trig_interval = 2+rand(1);
             pause(0.1);
             obj.bb.arm;
             obj.bb.armed ;
             exit_flag=0;
-%             trigger(obj.FileScope.sc(obj.FileScope.activeScope));
-%             while ~(strcmp(obj.FileScope.sc(obj.FileScope.activeScope).Status, 'Finished') || strcmp(obj.FileScope.sc(obj.FileScope.activeScope).Status, 'Interrupted')), pause(0.01), end
+            %             trigger(obj.FileScope.sc(obj.FileScope.activeScope));
+            %             while ~(strcmp(obj.FileScope.sc(obj.FileScope.activeScope).Status, 'Finished') || strcmp(obj.FileScope.sc(obj.FileScope.activeScope).Status, 'Interrupted')), pause(0.01), end
             while (exit_flag<1)
-                                disp TrialRestarted
-
+                disp TrialRestarted
+                
                 if ~(strcmp(obj.FileScope.sc(obj.FileScope.activeScope).Status, 'Finished') || strcmp(obj.FileScope.sc(obj.FileScope.activeScope).Status, 'Interrupted'))
                     trigger(obj.FileScope.sc(obj.FileScope.activeScope));
                     while ~(strcmp(obj.FileScope.sc(obj.FileScope.activeScope).Status, 'Finished') || strcmp(obj.FileScope.sc(obj.FileScope.activeScope).Status, 'Interrupted')), pause(0.01), end
                 end
-
-                    if (strcmp(obj.FileScope.sc(obj.FileScope.activeScope).Status, 'Finished') || strcmp(obj.FileScope.sc(obj.FileScope.activeScope).Status, 'Interrupted'))
-                        disp --------------------------
-                        time = obj.FileScope.sc(obj.FileScope.activeScope).Time;
-                        data = obj.FileScope.sc(obj.FileScope.activeScope).Data;
-                        plot(obj.FileScope.hAmplitudeHistoryAxes,time, data(:,1));
-                        % Restart this scope.
-                        start(obj.FileScope.sc(obj.FileScope.activeScope));
-                        % Switch to the next scope.
-                        if(obj.FileScope.activeScope == 1)
-                            obj.FileScope.activeScope = 2;
-                        else
-                            obj.FileScope.activeScope = 1;
-                        end
-                        % append data in circular buffer
-                        obj.FileScope.mAmplitudeScopeCircBuf{obj.FileScope.mAmplitudeScopeCircBufCurrentBlock} = data';
-                        
-                        switch obj.best_toolbox.inputs.trialMat{obj.best_toolbox.inputs.trial,obj.best_toolbox.inputs.colLabel.IAUnit}
-                            case 'Percentile'
-                                obj.FileScope.maxmindata = cell2mat(cellfun(@(data) quantile(data(1, data(2,:) == 1), [obj.best_toolbox.inputs.trialMat{obj.best_toolbox.inputs.trial,obj.best_toolbox.inputs.colLabel.IAPercentile}{1,1}/100 obj.best_toolbox.inputs.trialMat{obj.best_toolbox.inputs.trial,obj.best_toolbox.inputs.colLabel.IAPercentile}{1,2}/100])', obj.FileScope.mAmplitudeScopeCircBuf, 'UniformOutput', false))';
-                            case 'uV'
-                                obj.FileScope.maxmindata = cell2mat(cellfun(@(data) quantile(data(1, data(2,:) == 1), [0.01 0.99])', obj.FileScope.mAmplitudeScopeCircBuf, 'UniformOutput', false))';
-                        end
-                        
-                        obj.FileScope.maxmindata = circshift(obj.FileScope.maxmindata, obj.FileScope.mAmplitudeScopeCircBufCurrentBlock);
-                        plot(obj.FileScope.hAmplitudeHistoryAxes, obj.FileScope.maxmindata)
-                        xlim(obj.FileScope.hAmplitudeHistoryAxes, [1 obj.FileScope.mAmplitudeScopeCircBufTotalBlocks])
-                        set(obj.FileScope.hAmplitudeHistoryAxes, 'Xdir', 'reverse')
-% %                         xlabel(['Data for Past ' num2str(obj.best_toolbox.inputs.AmplitudeAssignmentPeriod) ' mins']);
-% %                         ylabel('EEG Quantile Amplitude (\mu V)');
-% %                         xticks([]); xticklabels([]);
-% %                         drawnow;
-                        
-                        
-                        obj.FileScope.circular_buffer_data = cell2mat(obj.FileScope.mAmplitudeScopeCircBuf);
-                        % Switch to the next data block
-                        if(obj.FileScope.mAmplitudeScopeCircBufCurrentBlock < obj.FileScope.mAmplitudeScopeCircBufTotalBlocks)
-                            obj.FileScope.mAmplitudeScopeCircBufCurrentBlock = obj.FileScope.mAmplitudeScopeCircBufCurrentBlock + 1;
-                        else
-                            obj.FileScope.mAmplitudeScopeCircBufCurrentBlock = 1;
-                        end
-                        % remove post-stimulus data
-                        obj.FileScope.amplitude_clean = obj.FileScope.circular_buffer_data(1, obj.FileScope.circular_buffer_data(2,:) == 1);
-                        
-                        obj.FileScope.amplitude_sorted = sort(obj.FileScope.amplitude_clean);
-                        plot(obj.FileScope.hAmplitudeDistributionAxes, obj.FileScope.amplitude_sorted)
-% %                         ylabel('Amplitude (microV)');
-% %                         xticks([]); xticklabels([]);
-
-                        
-                        % calculate percentiles
-                        switch obj.best_toolbox.inputs.trialMat{obj.best_toolbox.inputs.trial,obj.best_toolbox.inputs.colLabel.IAUnit}
-                            case 'Percentile'
-                                obj.FileScope.amp_lower= quantile(obj.FileScope.amplitude_clean, obj.best_toolbox.inputs.trialMat{obj.best_toolbox.inputs.trial,obj.best_toolbox.inputs.colLabel.IAPercentile}{1,1}/100);
-                                obj.FileScope.amp_upper = quantile(obj.FileScope.amplitude_clean, obj.best_toolbox.inputs.trialMat{obj.best_toolbox.inputs.trial,obj.best_toolbox.inputs.colLabel.IAPercentile}{1,2}/100);
-                                obj.best_toolbox.inputs.trialMat{obj.best_toolbox.inputs.trial,obj.best_toolbox.inputs.colLabel.IA}{1,1}= obj.FileScope.amp_lower;
-                                obj.best_toolbox.inputs.trialMat{obj.best_toolbox.inputs.trial,obj.best_toolbox.inputs.colLabel.IA}{1,2} = obj.FileScope.amp_upper;
-                            case 'uV'
-                                obj.FileScope.amp_lower=  obj.best_toolbox.inputs.trialMat{obj.best_toolbox.inputs.trial,obj.best_toolbox.inputs.colLabel.IA}{1,1};
-                                obj.FileScope.amp_upper =  obj.best_toolbox.inputs.trialMat{obj.best_toolbox.inputs.trial,obj.best_toolbox.inputs.colLabel.IA}{1,2};
-                        end
-                        
-                        hold(obj.FileScope.hAmplitudeDistributionAxes, 'on')
-                        plot(obj.FileScope.hAmplitudeDistributionAxes, [1 length(obj.FileScope.amplitude_clean)], [obj.FileScope.amp_lower obj.FileScope.amp_upper; obj.FileScope.amp_lower obj.FileScope.amp_upper]);
-                        hold(obj.FileScope.hAmplitudeDistributionAxes, 'off')
-                        
-                        if length(obj.FileScope.amplitude_clean) > 1
-                            xlim(obj.FileScope.hAmplitudeDistributionAxes, [1 length(obj.FileScope.amplitude_clean)]);
-                        end
-                        
-%                         if (obj.FileScope.amplitude_sorted(end) > obj.FileScope.amplitude_sorted(1))
-%                             ylim(obj.FileScope.hAmplitudeDistributionAxes, [obj.FileScope.amplitude_sorted(1) obj.FileScope.amplitude_sorted(end)]);
-%                         end
-                        
-                        % set amplitude threshold
-                        switch obj.best_toolbox.inputs.FrequencyBand
-                            case 1 % Alpha
-                                obj.bb.alpha.amplitude_min(1)=obj.best_toolbox.inputs.trialMat{obj.best_toolbox.inputs.trial,obj.best_toolbox.inputs.colLabel.IA}{1,1};
-                                obj.bb.alpha.amplitude_max(1)=obj.best_toolbox.inputs.trialMat{obj.best_toolbox.inputs.trial,obj.best_toolbox.inputs.colLabel.IA}{1,2};
-                            case 2 % Theta
-                                obj.bb.theta.amplitude_min(1)=obj.best_toolbox.inputs.trialMat{obj.best_toolbox.inputs.trial,obj.best_toolbox.inputs.colLabel.IA}{1,1};
-                                obj.bb.theta.amplitude_max(1)=obj.best_toolbox.inputs.trialMat{obj.best_toolbox.inputs.trial,obj.best_toolbox.inputs.colLabel.IA}{1,2};
-                            case 3 % Beta
-                                obj.bb.beta.amplitude_min(1)=obj.best_toolbox.inputs.trialMat{obj.best_toolbox.inputs.trial,obj.best_toolbox.inputs.colLabel.IA}{1,1};
-                                obj.bb.beta.amplitude_max(1)=obj.best_toolbox.inputs.trialMat{obj.best_toolbox.inputs.trial,obj.best_toolbox.inputs.colLabel.IA}{1,2};
-                        end
-                        title(obj.FileScope.hAmplitudeDistributionAxes, ['Amplitude(Min Max): [', num2str(obj.FileScope.amp_lower) '  ' num2str(obj.FileScope.amp_upper) ']']);
-                    end % handle the amplitude tracking
-
+                
+                if (strcmp(obj.FileScope.sc(obj.FileScope.activeScope).Status, 'Finished') || strcmp(obj.FileScope.sc(obj.FileScope.activeScope).Status, 'Interrupted'))
+                    disp --------------------------
+                    time = obj.FileScope.sc(obj.FileScope.activeScope).Time;
+                    data = obj.FileScope.sc(obj.FileScope.activeScope).Data;
+                    plot(obj.FileScope.hAmplitudeHistoryAxes,time, data(:,1));
+                    % Restart this scope.
+                    start(obj.FileScope.sc(obj.FileScope.activeScope));
+                    % Switch to the next scope.
+                    if(obj.FileScope.activeScope == 1)
+                        obj.FileScope.activeScope = 2;
+                    else
+                        obj.FileScope.activeScope = 1;
+                    end
+                    % append data in circular buffer
+                    obj.FileScope.mAmplitudeScopeCircBuf{obj.FileScope.mAmplitudeScopeCircBufCurrentBlock} = data';
+                    
+                    switch obj.best_toolbox.inputs.trialMat{obj.best_toolbox.inputs.trial,obj.best_toolbox.inputs.colLabel.IAUnit}
+                        case 'Percentile'
+                            obj.FileScope.maxmindata = cell2mat(cellfun(@(data) quantile(data(1, data(2,:) == 1), [obj.best_toolbox.inputs.trialMat{obj.best_toolbox.inputs.trial,obj.best_toolbox.inputs.colLabel.IAPercentile}{1,1}/100 obj.best_toolbox.inputs.trialMat{obj.best_toolbox.inputs.trial,obj.best_toolbox.inputs.colLabel.IAPercentile}{1,2}/100])', obj.FileScope.mAmplitudeScopeCircBuf, 'UniformOutput', false))';
+                        case 'uV'
+                            obj.FileScope.maxmindata = cell2mat(cellfun(@(data) quantile(data(1, data(2,:) == 1), [0.01 0.99])', obj.FileScope.mAmplitudeScopeCircBuf, 'UniformOutput', false))';
+                    end
+                    
+                    obj.FileScope.maxmindata = circshift(obj.FileScope.maxmindata, obj.FileScope.mAmplitudeScopeCircBufCurrentBlock);
+                    plot(obj.FileScope.hAmplitudeHistoryAxes, obj.FileScope.maxmindata)
+                    xlim(obj.FileScope.hAmplitudeHistoryAxes, [1 obj.FileScope.mAmplitudeScopeCircBufTotalBlocks])
+                    set(obj.FileScope.hAmplitudeHistoryAxes, 'Xdir', 'reverse')
+                    % %                         xlabel(['Data for Past ' num2str(obj.best_toolbox.inputs.AmplitudeAssignmentPeriod) ' mins']);
+                    % %                         ylabel('EEG Quantile Amplitude (\mu V)');
+                    % %                         xticks([]); xticklabels([]);
+                    % %                         drawnow;
+                    
+                    
+                    obj.FileScope.circular_buffer_data = cell2mat(obj.FileScope.mAmplitudeScopeCircBuf);
+                    % Switch to the next data block
+                    if(obj.FileScope.mAmplitudeScopeCircBufCurrentBlock < obj.FileScope.mAmplitudeScopeCircBufTotalBlocks)
+                        obj.FileScope.mAmplitudeScopeCircBufCurrentBlock = obj.FileScope.mAmplitudeScopeCircBufCurrentBlock + 1;
+                    else
+                        obj.FileScope.mAmplitudeScopeCircBufCurrentBlock = 1;
+                    end
+                    % remove post-stimulus data
+                    obj.FileScope.amplitude_clean = obj.FileScope.circular_buffer_data(1, obj.FileScope.circular_buffer_data(2,:) == 1);
+                    
+                    obj.FileScope.amplitude_sorted = sort(obj.FileScope.amplitude_clean);
+                    plot(obj.FileScope.hAmplitudeDistributionAxes, obj.FileScope.amplitude_sorted)
+                    % %                         ylabel('Amplitude (microV)');
+                    % %                         xticks([]); xticklabels([]);
+                    
+                    
+                    % calculate percentiles
+                    switch obj.best_toolbox.inputs.trialMat{obj.best_toolbox.inputs.trial,obj.best_toolbox.inputs.colLabel.IAUnit}
+                        case 'Percentile'
+                            obj.FileScope.amp_lower= quantile(obj.FileScope.amplitude_clean, obj.best_toolbox.inputs.trialMat{obj.best_toolbox.inputs.trial,obj.best_toolbox.inputs.colLabel.IAPercentile}{1,1}/100);
+                            obj.FileScope.amp_upper = quantile(obj.FileScope.amplitude_clean, obj.best_toolbox.inputs.trialMat{obj.best_toolbox.inputs.trial,obj.best_toolbox.inputs.colLabel.IAPercentile}{1,2}/100);
+                            obj.best_toolbox.inputs.trialMat{obj.best_toolbox.inputs.trial,obj.best_toolbox.inputs.colLabel.IA}{1,1}= obj.FileScope.amp_lower;
+                            obj.best_toolbox.inputs.trialMat{obj.best_toolbox.inputs.trial,obj.best_toolbox.inputs.colLabel.IA}{1,2} = obj.FileScope.amp_upper;
+                        case 'uV'
+                            obj.FileScope.amp_lower=  obj.best_toolbox.inputs.trialMat{obj.best_toolbox.inputs.trial,obj.best_toolbox.inputs.colLabel.IA}{1,1};
+                            obj.FileScope.amp_upper =  obj.best_toolbox.inputs.trialMat{obj.best_toolbox.inputs.trial,obj.best_toolbox.inputs.colLabel.IA}{1,2};
+                    end
+                    
+                    hold(obj.FileScope.hAmplitudeDistributionAxes, 'on')
+                    plot(obj.FileScope.hAmplitudeDistributionAxes, [1 length(obj.FileScope.amplitude_clean)], [obj.FileScope.amp_lower obj.FileScope.amp_upper; obj.FileScope.amp_lower obj.FileScope.amp_upper]);
+                    hold(obj.FileScope.hAmplitudeDistributionAxes, 'off')
+                    
+                    if length(obj.FileScope.amplitude_clean) > 1
+                        xlim(obj.FileScope.hAmplitudeDistributionAxes, [1 length(obj.FileScope.amplitude_clean)]);
+                    end
+                    
+                    %                         if (obj.FileScope.amplitude_sorted(end) > obj.FileScope.amplitude_sorted(1))
+                    %                             ylim(obj.FileScope.hAmplitudeDistributionAxes, [obj.FileScope.amplitude_sorted(1) obj.FileScope.amplitude_sorted(end)]);
+                    %                         end
+                    
+                    % set amplitude threshold
+                    switch obj.best_toolbox.inputs.FrequencyBand
+                        case 1 % Alpha
+                            obj.bb.alpha.amplitude_min(1)=obj.best_toolbox.inputs.trialMat{obj.best_toolbox.inputs.trial,obj.best_toolbox.inputs.colLabel.IA}{1,1};
+                            obj.bb.alpha.amplitude_max(1)=obj.best_toolbox.inputs.trialMat{obj.best_toolbox.inputs.trial,obj.best_toolbox.inputs.colLabel.IA}{1,2};
+                        case 2 % Theta
+                            obj.bb.theta.amplitude_min(1)=obj.best_toolbox.inputs.trialMat{obj.best_toolbox.inputs.trial,obj.best_toolbox.inputs.colLabel.IA}{1,1};
+                            obj.bb.theta.amplitude_max(1)=obj.best_toolbox.inputs.trialMat{obj.best_toolbox.inputs.trial,obj.best_toolbox.inputs.colLabel.IA}{1,2};
+                        case 3 % Beta
+                            obj.bb.beta.amplitude_min(1)=obj.best_toolbox.inputs.trialMat{obj.best_toolbox.inputs.trial,obj.best_toolbox.inputs.colLabel.IA}{1,1};
+                            obj.bb.beta.amplitude_max(1)=obj.best_toolbox.inputs.trialMat{obj.best_toolbox.inputs.trial,obj.best_toolbox.inputs.colLabel.IA}{1,2};
+                    end
+                    title(obj.FileScope.hAmplitudeDistributionAxes, ['Amplitude(Min Max): [', num2str(obj.FileScope.amp_lower) '  ' num2str(obj.FileScope.amp_upper) ']']);
+                end % handle the amplitude tracking
+                
                 
                 if(obj.bb.triggers_remaining == 0)
                     obj.bb.disarm;
@@ -212,7 +212,7 @@ classdef best_sync2brain_bossdevice <handle
             NumSamples=round((EMGDisplayPeriodPost+EMGDisplayPeriodPre)*5);
             NumPrePostSamples=round(EMGDisplayPeriodPre*5);
             obj.EMGScope = addscope(obj.bb.tg, 'host', 90);
-            AuxSignalID = getsignalid(obj.bb.tg, 'UDP/raw_aux') + int32(0:7);  
+            AuxSignalID = getsignalid(obj.bb.tg, 'UDP/raw_aux') + int32(0:7);
             MrkSignalID = getsignalid(obj.bb.tg, 'MRK/mrk_masked');
             addsignal(obj.EMGScope, AuxSignalID);
             obj.EMGScope.NumSamples = NumSamples;
@@ -220,7 +220,7 @@ classdef best_sync2brain_bossdevice <handle
             obj.EMGScope.Decimation = 1;
             obj.EMGScope.TriggerMode = 'Signal';
             obj.EMGScope.TriggerSignal = getsignalid(obj.bb.tg, 'gen_running'); %Remove it in Official Use
-%             obj.EMGScope.TriggerSignal = MrkSignalID; % 04-Jun-2020 20:00:50
+            %             obj.EMGScope.TriggerSignal = MrkSignalID; % 04-Jun-2020 20:00:50
             obj.EMGScope.TriggerLevel = 0.5;
             obj.EMGScope.TriggerSlope = 'Rising';
             obj.best_toolbox.FilterCoefficients.HumNoiseNotchFilter=designfilt('bandstopiir','FilterOrder',2,'HalfPowerFrequency1',39,'HalfPowerFrequency2',61,'DesignMethod','butter','SampleRate',NumSamples);
@@ -242,7 +242,7 @@ classdef best_sync2brain_bossdevice <handle
             obj.IEEGScope.Decimation = Decimation;
             obj.IEEGScope.TriggerMode = 'Signal';
             obj.IEEGScope.TriggerSignal = getsignalid(obj.bb.tg, 'gen_running'); %Remove it in Official Use
-%             obj.IEEGScope.TriggerSignal = MrkSignalID; % 31-May-2020 11:05:43
+            %             obj.IEEGScope.TriggerSignal = MrkSignalID; % 31-May-2020 11:05:43
             obj.IEEGScope.TriggerLevel = 0.5;
             obj.IEEGScope.TriggerSlope = 'Rising';
             obj.best_toolbox.inputs.rawData.IEEG.time=linspace(-1*(obj.best_toolbox.inputs.EEGDisplayPeriodPre),obj.best_toolbox.inputs.EEGDisplayPeriodPost,NumSamples);
@@ -269,7 +269,7 @@ classdef best_sync2brain_bossdevice <handle
             obj.IPScope.Decimation = 1;
             obj.IPScope.TriggerMode = 'Signal';
             obj.IPScope.TriggerSignal = getsignalid(obj.bb.tg, 'gen_running'); %Remove it in Official Use
-%             obj.IPScope.TriggerSignal = MrkSignalID; 
+            %             obj.IPScope.TriggerSignal = MrkSignalID;
             obj.IPScope.TriggerLevel = 0.5;
             obj.IPScope.TriggerSlope = 'Rising';
             %% Starting Scope
@@ -389,7 +389,7 @@ classdef best_sync2brain_bossdevice <handle
             obj.EEGScope.Decimation = 1;
             obj.EEGScope.TriggerMode = 'Signal';
             obj.EEGScope.TriggerSignal = getsignalid(obj.bb.tg, 'gen_running'); %Remove it in Official Usee
-%             obj.EEGScope.TriggerSignal = MrkSignalID;
+            %             obj.EEGScope.TriggerSignal = MrkSignalID;
             obj.EEGScope.TriggerLevel = 0.5;
             obj.EEGScope.TriggerSlope = 'Rising';
             %% Starting Scope
@@ -398,24 +398,24 @@ classdef best_sync2brain_bossdevice <handle
         
         function EMGScopeStart(obj)
             start(obj.EMGScope);
-%             pause(0.1); % give the scope time to pre-aquire
+            %             pause(0.1); % give the scope time to pre-aquire
             while ~strcmpi(obj.EMGScope.Status,'Ready for being Triggered'), end
-%             assert(strcmp(obj.EMGScope.Status, 'Ready for being Triggered'));
+            %             assert(strcmp(obj.EMGScope.Status, 'Ready for being Triggered'));
         end
         
         function IEEGScopeStart(obj)
             start(obj.IEEGScope);
-             while ~strcmpi(obj.IEEGScope.Status,'Ready for being Triggered'), end
+            while ~strcmpi(obj.IEEGScope.Status,'Ready for being Triggered'), end
         end
         
         function IPScopeStart(obj)
-             start(obj.IPScope);
-             while ~strcmpi(obj.IPScope.Status,'Ready for being Triggered'), end
+            start(obj.IPScope);
+            while ~strcmpi(obj.IPScope.Status,'Ready for being Triggered'), end
         end
         
         function EEGScopeStart(obj)
-             start(obj.EEGScope);
-             while ~strcmpi(obj.EEGScope.Status,'Ready for being Triggered'), disp('EEG Scope is started'); drawnow, end
+            start(obj.EEGScope);
+            while ~strcmpi(obj.EEGScope.Status,'Ready for being Triggered'), disp('EEG Scope is started'); drawnow, end
         end
         
         function IAScopeStart(obj)
@@ -433,34 +433,34 @@ classdef best_sync2brain_bossdevice <handle
                 ftdata.trial{1}=Data;
                 ftdata.time{1}=Time;
                 cfg.demean='yes';
-%                 cfg.hpfilter      = 'yes'; % high-pass in order to get rid of low-freq trends
-%                 cfg.hpfiltord     = 5;
-%                 cfg.hpfreq        = 0.1;
-%                 cfg.lpfilter      = 'yes'; % low-pass in order to get rid of high-freq noise
-%                 cfg.lpfiltord     = 3;
-%                 cfg.lpfreq        = 249; % 249 when combining with a linenoise bandstop filter
-%                 cfg.bsfilter      = 'yes'; % band-stop filter, to take out 50 Hz and its harmonics
-%                 cfg.bsfiltord     = 3;
-%                 cfg.bsfreq        = [49 51; 99 101; 149 151; 199 201]; % EU line noise
+                %                 cfg.hpfilter      = 'yes'; % high-pass in order to get rid of low-freq trends
+                %                 cfg.hpfiltord     = 5;
+                %                 cfg.hpfreq        = 0.1;
+                %                 cfg.lpfilter      = 'yes'; % low-pass in order to get rid of high-freq noise
+                %                 cfg.lpfiltord     = 3;
+                %                 cfg.lpfreq        = 249; % 249 when combining with a linenoise bandstop filter
+                %                 cfg.bsfilter      = 'yes'; % band-stop filter, to take out 50 Hz and its harmonics
+                %                 cfg.bsfiltord     = 3;
+                %                 cfg.bsfreq        = [49 51; 99 101; 149 151; 199 201]; % EU line noise
                 cfg.detrend='yes'; % It does not help in improving, however introduces weired drifts therefore deprication is recommended in Future Release
                 cfg.baselinewindow=[obj.best_toolbox.inputs.EMGDisplayPeriodPre*(-1)/1000 -10]; %[EMGDisplayPeriodPre_ms to -10ms]
                 ProcessedData=ft_preprocessing(cfg, ftdata);
                 
                 %% Here the Line Noise Filtering is Performed Using a Template
                 if obj.best_toolbox.inputs.NoiseFilter50Hz==1
-                    ats.Trial=ProcessedData.trial{1};
-                    ats.Time=ProcessedData.time{1};
-                    ats.Trial_1_20=ats.Trial(1,1:100); %Extracting 1st 50 Hz Cycle
-                    ats.Trial_21_40=ats.Trial(1,101:200); %Extracting 2nd 50 Hz Cycle
-                    ats.Trial_mean=(ats.Trial_1_20+ats.Trial_21_40)/2; %Averaging Both Cycle to Generalize Tempalte
-                    ats.Trial_Template=repmat(ats.Trial_mean,1,2*ceil(size(ats.Trial,2)/20)); 
-                    ats.Trial_Tempalte=ats.Trial_Template(1,1:size(ats.Trial,2)); %Making the dimensions of Template Compatible with Trial
-                    ats.Trial_corrected=ats.Trial-ats.Trial_Tempalte; %Subtracting Tempalte
-                    Data=ats.Trial_corrected;
-                    Time=ProcessedData.time{1};
+                    ats.Trial           = ProcessedData.trial{1};
+                    ats.Time            = ProcessedData.time{1};
+                    ats.Trial_1_20      = ats.Trial(1,1:100); %Extracting 1st 50 Hz Cycle
+                    ats.Trial_21_40     = ats.Trial(1,101:200); %Extracting 2nd 50 Hz Cycle
+                    ats.Trial_mean      = (ats.Trial_1_20+ats.Trial_21_40)/2; %Averaging Both Cycle to Generalize Tempalte
+                    ats.Trial_Template  = repmat(ats.Trial_mean,1,2*ceil(size(ats.Trial,2)/20));
+                    ats.Trial_Tempalte  = ats.Trial_Template(1,1:size(ats.Trial,2)); %Making the dimensions of Template Compatible with Trial
+                    ats.Trial_corrected = ats.Trial-ats.Trial_Tempalte; %Subtracting Tempalte
+                    Data                = ats.Trial_corrected;
+                    Time                = ProcessedData.time{1};
                 elseif obj.best_toolbox.inputs.NoiseFilter50Hz==0
-                    Data=ProcessedData.trial{1};
-                    Time=ProcessedData.time{1};
+                    Data = ProcessedData.trial{1};
+                    Time = ProcessedData.time{1};
                 end
             end
         end
@@ -471,7 +471,7 @@ classdef best_sync2brain_bossdevice <handle
         end
         function Data = IEEGScopeRead(obj)
             while ~strcmpi(obj.IEEGScope.Status,'finished'), drawnow, if obj.best_toolbox.inputs.stop_event==1, break, end ,end
-            Data=obj.IEEGScope.Data(:,1)'; 
+            Data=obj.IEEGScope.Data(:,1)';
             Time=(obj.IEEGScope.Time-obj.IEEGScope.Time(1)+(obj.IEEGScope.Time(2)-obj.IEEGScope.Time(1)))';
             Time=(Time*1000)+obj.best_toolbox.inputs.EEGDisplayPeriodPre*(-1);
             if(obj.best_toolbox.inputs.EEGDisplayPeriodPre>0)
@@ -481,7 +481,7 @@ classdef best_sync2brain_bossdevice <handle
                 ftdata.trial{1}=Data;
                 ftdata.time{1}=Time;
                 cfg.demean='yes';
-%                 cfg.detrend='yes'; % It does not help in improving, however introduces weired drifts therefore deprication is recommended in Future Release
+                %                 cfg.detrend='yes'; % It does not help in improving, however introduces weired drifts therefore deprication is recommended in Future Release
                 cfg.baselinewindow=[obj.best_toolbox.inputs.EEGDisplayPeriodPre*(-1)/1000 -10]; %obj.best_toolbox.inputs.EEGDisplayPeriodPre*(-1)/1000 -10 %[EMGDisplayPeriodPre_ms to -10ms]
                 ProcessedData=ft_preprocessing(cfg, ftdata);
                 Data=ProcessedData.trial{1};
@@ -491,22 +491,85 @@ classdef best_sync2brain_bossdevice <handle
         end
         function [Time, Data]=EEGScopeRead(obj)
             Time=[]; Data=[];
-            obj.EEGScope.Status,  trigger(obj.EEGScope); obj.EEGScope.Status, 
+            obj.EEGScope.Status,  trigger(obj.EEGScope); obj.EEGScope.Status,
             while ~strcmpi(obj.EEGScope.Status,'finished') ,drawnow, if obj.best_toolbox.inputs.stop_event==1, break, end ,end
             if obj.best_toolbox.inputs.stop_event==1, return, end
             Data=obj.EEGScope.Data';
             Time=(obj.EEGScope.Time-obj.EEGScope.Time(1)+(obj.EEGScope.Time(2)-obj.EEGScope.Time(1)))';
+            switch obj.best_toolbox.inputs.Protocol
+                case 'ERP Measurement Protocol'
+                    %1. take all raw data and apply filteration, detrend, baseline correction
+                    %2. create montages and 
+                    %3. append fieldtrip formatted data into the corrospondign trial of inputs.rawdata %% obj.best_toolbox.inputs.rawdata
+                    %% Converting Trial's Data Into FieldTrip Format Data for PreProcessing
+                    Time=(Time*1000)+obj.best_toolbox.inputs.EEGExtractionPeriod(1);
+                    
+                    %% Creating RawEEGData
+                    InputDevice      = obj.best_toolbox.inputs.trialMat{obj.best_toolbox.inputs.trial,obj.best_toolbox.inputs.colLabel.inputDevices};
+                    EEGChannelsIndex = find(strcmp(obj.best_toolbox.app.par.hardware_settings.(InputDevice).NeurOneProtocolChannelSignalTypes,'EEG'));
+                    EEGChanelsLabels = obj.best_toolbox.app.par.hardware_settings.(InputDevice).NeurOneProtocolChannelLabels(EEGChannelsIndex);
+                    Data             = [];
+                    Data.label       = EEGChanelsLabels';
+                    Data.fsample     = 5000;
+                    Data.trial       = {Data};
+                    Data.time        = {Time};
+                    %% PreProcessing RawEEGData for this Trial
+                    cfg=[];
+                    cfg.detrend='yes';                    
+                    if obj.best_toolbox.inputs.EEGExtractionPeriod(1)<=-10
+                        cfg.demean='yes';
+                        cfg.baselinewindow=[obj.best_toolbox.inputs.EEGExtractionPeriod(1) -10]; 
+                    end
+                    if ~isempty(obj.best_toolbox.inputs.HighPassFrequency)
+                        cfg.hpfilter      = 'yes'; 
+                        cfg.hpfiltord     = obj.best_toolbox.inputs.HighPassFilterOrder;
+                        cfg.hpfreq        = obj.best_toolbox.inputs.HighPassFrequency;
+                    end
+                    if ~isempty(obj.best_toolbox.inputs.BandStopFrequency)
+                        cfg.bsfilter      = 'yes'; 
+                        cfg.bsfiltord     = obj.best_toolbox.inputs.BandStopFilterOrder;
+                        cfg.bsfreq        = obj.best_toolbox.inputs.BandStopFrequency;
+                    end
+                    if ~isempty(obj.best_toolbox.inputs.ReferenceChannels)
+                        cfg.reref         = 'yes'; 
+                        cfg.refchannel    = obj.best_toolbox.inputs.ReferenceChannels;
+                    end
+                    PreProcessedData = ft_preprocessing(cfg,Data);
+                    %% now save this PreProcessData
+                    
+                    
+                    
+                    
+                    for MontageChannelNo=1:numel(obj.best_toolbox.inputs.MontageChannels)
+                        MontageChannel=erase(char(join(obj.best_toolbox.inputs.MontageChannels{MontageChannelNo})),' ');
+                        if strcmp(MontageChannel,EEGChannel), break; end
+                    end
+                    % create montage, detrend, baseline correction
+                    
+                    
+                    Data = ft_preprocessing(cfg,obj.best_toolbox.inputs.results.RawEEGData);
+                    
+                    
+                    
+                    ftdata=[];
+                    cfg=[];
+                    ftdata.label={'preprocessing'};
+                    ftdata.trial{1}
+                    cfg=[];
+                    MontageChannel=erase(char(join(obj.inputs.MontageChannels{iA})),' ');
+                    
+            end
             if ~strcmpi(obj.best_toolbox.inputs.Protocol,'rs EEG Measurement Protocol')
                 Time=(Time*1000)+obj.best_toolbox.inputs.EEGExtractionPeriod(1);
                 if(obj.best_toolbox.inputs.EEGDisplayPeriodPre>0)
-                    cfg=[];
-                    ftdata.label={'ch1'};
-                    InputDevice=obj.best_toolbox.inputs.condMat{1,obj.best_toolbox.inputs.colLabel.inputDevices};
-                    ftdata.trial{1}=[Data(find(strcmp(obj.best_toolbox.app.par.hardware_settings.(InputDevice).NeurOneProtocolChannelLabels,obj.best_toolbox.inputs.MontageChannels{1})),:)];
-                    ftdata.time{1}=[Time];
+                    cfg             = [];
+                    ftdata.label    = {'ch1'};
+                    InputDevice     = obj.best_toolbox.inputs.condMat{1,obj.best_toolbox.inputs.colLabel.inputDevices};
+                    ftdata.trial{1} = [Data(find(strcmp(obj.best_toolbox.app.par.hardware_settings.(InputDevice).NeurOneProtocolChannelLabels,obj.best_toolbox.inputs.MontageChannels{1})),:)];
+                    ftdata.time{1}  = [Time];
                     cfg.demean='yes';
-%                     cfg.reref         = 'yes'; % band-stop filter, to take out 50 Hz and its harmonics
-%                     cfg.refchannel    = {'ch2'};
+                    %                     cfg.reref         = 'yes'; % band-stop filter, to take out 50 Hz and its harmonics
+                    %                     cfg.refchannel    = {'ch2'};
                     %                 cfg.detrend='yes'; % It does not help in improving, however introduces weired drifts therefore deprication is recommended in Future Release
                     cfg.baselinewindow=[obj.best_toolbox.inputs.EEGDisplayPeriodPre*(-1)/1000 -10]; %obj.best_toolbox.inputs.EEGDisplayPeriodPre*(-1)/1000 -10 %[EMGDisplayPeriodPre_ms to -10ms]
                     ProcessedData=ft_preprocessing(cfg, ftdata);
@@ -514,21 +577,21 @@ classdef best_sync2brain_bossdevice <handle
                     Data=Data(1,:);
                     Time=ProcessedData.time{1};
                     obj.best_toolbox.inputs.rawData.IEEG.time=ProcessedData.time{1};
-%                     cfg=[];
-%                     ftdata.label={'ch1';'ch2'};
-%                     InputDevice=obj.best_toolbox.inputs.condMat{1,obj.best_toolbox.inputs.colLabel.inputDevices};
-%                     ftdata.trial{1}=[Data(find(strcmp(obj.best_toolbox.app.par.hardware_settings.(InputDevice).NeurOneProtocolChannelLabels,obj.best_toolbox.inputs.MontageChannels{1})),:);Data(find(strcmp(obj.best_toolbox.app.par.hardware_settings.(InputDevice).NeurOneProtocolChannelLabels,obj.best_toolbox.inputs.ReferenceChannels)),:)];
-%                     ftdata.time{1}=[Time];
-%                     cfg.demean='yes';
-%                     cfg.reref         = 'yes'; % band-stop filter, to take out 50 Hz and its harmonics
-%                     cfg.refchannel    = {'ch2'};
-%                     %                 cfg.detrend='yes'; % It does not help in improving, however introduces weired drifts therefore deprication is recommended in Future Release
-%                     cfg.baselinewindow=[obj.best_toolbox.inputs.EEGDisplayPeriodPre*(-1)/1000 -10]; %obj.best_toolbox.inputs.EEGDisplayPeriodPre*(-1)/1000 -10 %[EMGDisplayPeriodPre_ms to -10ms]
-%                     ProcessedData=ft_preprocessing(cfg, ftdata);
-%                     Data=ProcessedData.trial{1};
-%                     Data=Data(1,:);
-%                     Time=ProcessedData.time{1};
-%                     obj.best_toolbox.inputs.rawData.IEEG.time=ProcessedData.time{1};
+                    %                     cfg=[];
+                    %                     ftdata.label={'ch1';'ch2'};
+                    %                     InputDevice=obj.best_toolbox.inputs.condMat{1,obj.best_toolbox.inputs.colLabel.inputDevices};
+                    %                     ftdata.trial{1}=[Data(find(strcmp(obj.best_toolbox.app.par.hardware_settings.(InputDevice).NeurOneProtocolChannelLabels,obj.best_toolbox.inputs.MontageChannels{1})),:);Data(find(strcmp(obj.best_toolbox.app.par.hardware_settings.(InputDevice).NeurOneProtocolChannelLabels,obj.best_toolbox.inputs.ReferenceChannels)),:)];
+                    %                     ftdata.time{1}=[Time];
+                    %                     cfg.demean='yes';
+                    %                     cfg.reref         = 'yes'; % band-stop filter, to take out 50 Hz and its harmonics
+                    %                     cfg.refchannel    = {'ch2'};
+                    %                     %                 cfg.detrend='yes'; % It does not help in improving, however introduces weired drifts therefore deprication is recommended in Future Release
+                    %                     cfg.baselinewindow=[obj.best_toolbox.inputs.EEGDisplayPeriodPre*(-1)/1000 -10]; %obj.best_toolbox.inputs.EEGDisplayPeriodPre*(-1)/1000 -10 %[EMGDisplayPeriodPre_ms to -10ms]
+                    %                     ProcessedData=ft_preprocessing(cfg, ftdata);
+                    %                     Data=ProcessedData.trial{1};
+                    %                     Data=Data(1,:);
+                    %                     Time=ProcessedData.time{1};
+                    %                     obj.best_toolbox.inputs.rawData.IEEG.time=ProcessedData.time{1};
                 end
             end
             
