@@ -4217,7 +4217,6 @@ classdef best_application < handle
         end
         %% ERP Measurement
         function pi_erp(obj)
-            %% Backup
             obj.fig.main.Widths(1)=-1.15;
             obj.fig.main.Widths(2)=-3.35;
             obj.fig.main.Widths(3)=-0;
@@ -4383,7 +4382,12 @@ classdef best_application < handle
                         obj.pi.erp.EEGXLimit=uicontrol( 'Style','edit','Parent', expModr2 ,'FontSize',11,'Tag','EEGXLimit','callback',@cb_par_saving);
                         expModr2.Widths=[150 -2];
                         
-                        expModvBox.Heights=[ 45 45 45 45 45 45 45 45 45 45];
+                        expModr2=uiextras.HBox( 'Parent', expModvBox,'Spacing',  0, 'Padding', 2 );
+                        uicontrol( 'Style','text','Parent', expModr2,'String','ERP Latency Offset (ms):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                        obj.pi.erp.ERPLatencyOffset=uicontrol( 'Style','edit','Parent', expModr2 ,'FontSize',11,'Tag','ERPLatencyOffset','callback',@cb_par_saving);
+                        expModr2.Widths=[150 -2];
+                        
+                        expModvBox.Heights=[ 45 45 45 45 45 45 45 45 45 45 45];
                     case 2
                         expModvBox=uix.VBox( 'Parent', DisplayParametersPanel, 'Spacing', 0, 'Padding', 0  );
                         
@@ -4443,15 +4447,20 @@ classdef best_application < handle
                         obj.pi.erp.EEGXLimit=uicontrol( 'Style','edit','Parent', expModr2 ,'FontSize',11,'Tag','EEGXLimit','callback',@cb_par_saving);
                         expModr2.Widths=[150 -2];
                         
-                        expModvBox.Heights=[ 45 45 45 45 45 45 45 45 45 45];
+                        expModr2=uiextras.HBox( 'Parent', expModvBox,'Spacing',  0, 'Padding', 2 );
+                        uicontrol( 'Style','text','Parent', expModr2,'String','ERP Latency Offset (ms):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                        obj.pi.erp.ERPLatencyOffset=uicontrol( 'Style','edit','Parent', expModr2 ,'FontSize',11,'Tag','ERPLatencyOffset','callback',@cb_par_saving);
+                        expModr2.Widths=[150 -2];
+                        
+                        expModvBox.Heights=[ 45 45 45 45 45 45 45 45 45 45 45];
                 end
             end
             function cb_SetHeights
                 switch obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).BrainState
                     case 1
-                        set(obj.pi.erp.r0v1,'Heights',[40 60 475 -3 55])
+                        set(obj.pi.erp.r0v1,'Heights',[40 60 525 -3 55])
                     case 2
-                        set(obj.pi.erp.r0v1,'Heights',[40 275 475 -1 55])
+                        set(obj.pi.erp.r0v1,'Heights',[40 275 525 -1 55])
                 end
             end            
             function cb_par_saving(source,~)
