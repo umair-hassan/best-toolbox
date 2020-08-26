@@ -2934,22 +2934,25 @@ classdef best_toolbox < handle
                             obj.inputs.colLabel.tpm=10;
                             obj.inputs.colLabel.chType=11;
                             obj.inputs.colLabel.chId=12;
-                            obj.inputs.colLabel.ConditionMarker=13;
+                            obj.inputs.colLabel.StimulationType=13;
+                            obj.inputs.colLabel.ConditionMarker=14;
                             conds=fieldnames(obj.inputs.condsAll);
                             %% Creating Channel Types, Axes No, Channel IDs
-                            DisplayChannelCounter=0;
+                            DisplayChannelCounter=0; iIndex=1;
                             for c=1:numel(fieldnames(obj.inputs.condsAll))
                                 obj.inputs.condsAllFactorsInfo.(conds{c,1}).TargetChannelNumbers=numel(obj.inputs.MontageChannels);
                                 for itc=1:numel(obj.inputs.MontageChannels)
                                     for PlotNo=1:2
-                                        DisplayChannelCounter=DisplayChannelCounter+PlotNo;
-                                        obj.inputs.condsAllFactorsInfo.(conds{c,1}).axesno{DisplayChannelCounter}=DisplayChannelCounter;
-                                        ax_AxesAnnotation{1,obj.inputs.condsAllFactorsInfo.(conds{c,1}).axesno{DisplayChannelCounter}}{1,1}=['Condition:' num2str(c)];
-                                        ax_AxesAnnotation{1,obj.inputs.condsAllFactorsInfo.(conds{c,1}).axesno{DisplayChannelCounter}}{2,1}=['Channel: ' horzcat(obj.inputs.MontageChannels{itc}{:})];
-                                        ax_AxesAnnotation{1,obj.inputs.condsAllFactorsInfo.(conds{c,1}).axesno{DisplayChannelCounter}}{3,1}=['ITI(s): ' num2str(obj.inputs.condsAll.(conds{c,1}).ITI)];
+                                        DisplayChannelCounter=DisplayChannelCounter+1;
+                                        obj.inputs.condsAllFactorsInfo.(conds{c,1}).axesno{iIndex}=DisplayChannelCounter;
+                                        ax_AxesAnnotation{1,obj.inputs.condsAllFactorsInfo.(conds{c,1}).axesno{iIndex}}{1,1}=['Condition:' num2str(c)];
+                                        ax_AxesAnnotation{1,obj.inputs.condsAllFactorsInfo.(conds{c,1}).axesno{iIndex}}{2,1}=['Channel: ' horzcat(obj.inputs.MontageChannels{itc}{:})];
+                                        ax_AxesAnnotation{1,obj.inputs.condsAllFactorsInfo.(conds{c,1}).axesno{iIndex}}{3,1}=['ITI(s): ' num2str(obj.inputs.condsAll.(conds{c,1}).ITI)];
                                         % % ax_AxesAnnotation{1,obj.inputs.condsAllFactorsInfo.(conds{c,1}).axesno{itc}}{4,1}=['Stim. Pars'] %For Future Release
+                                        iIndex=iIndex+1;
                                     end
                                 end
+                                iIndex=1;
                             end
                             for m=1:numel(obj.inputs.MontageChannels)
                                 MontageChannels{m}=erase(char(join(obj.inputs.MontageChannels{m})),' ');
@@ -2963,14 +2966,14 @@ classdef best_toolbox < handle
                                 %% ITI
                                 obj.inputs.condMat{c,obj.inputs.colLabel.iti}=obj.inputs.condsAll.(conds{c,1}).ITI;
                                 %% Channel Label, Measure, Axes No, Channel Type, Channel ID for Plots
-                                obj.inputs.condMat{c,obj.inputs.colLabel.chLab}=[repelm(MontageChannels,2),{'StatusTable'}];
+                                obj.inputs.condMat{c,obj.inputs.colLabel.chLab}=[repelem(MontageChannels,2),{'StatusTable'}];
                                 obj.inputs.condMat{c,obj.inputs.colLabel.measures}=[repmat({'ERPTriggerLockedEEG','ERPTopoPlot'},1,numel(MontageChannels)),{'StatusTable'}];
                                 obj.inputs.condMat{c,obj.inputs.colLabel.axesno}=[obj.inputs.condsAllFactorsInfo.(conds{c,1}).axesno,DisplayChannelCounter+1];
                                 obj.inputs.condMat{c,obj.inputs.colLabel.chType}=[{'EEG'},{'StatusTable'}];
                                 obj.inputs.condMat{c,obj.inputs.colLabel.chId}=[{1},{1}];
                                 obj.inputs.condMat{c,obj.inputs.colLabel.ConditionMarker}=c;
                                 ax_measures{c}=repmat({'ERPTriggerLockedEEG','ERPTopoPlot'},1,numel(MontageChannels));
-                                ax_ChannelLabels{c}=repelm(MontageChannels,2);
+                                ax_ChannelLabels{c}=repelem(MontageChannels,2);
                                 %% Stimulator Specific Parameters
                                 for stno=1:(max(size(fieldnames(obj.inputs.condsAll.(conds{c,1}))))-6)
                                     st=['st' num2str(stno)];
@@ -3044,8 +3047,6 @@ classdef best_toolbox < handle
                             obj.inputs.measure_str='ERP Measurement Protocol';
                             obj.inputs.EEGDisplayPeriodPre=obj.inputs.EEGExtractionPeriod(1)*(-1);
                             obj.inputs.EEGDisplayPeriodPost=obj.inputs.EEGExtractionPeriod(2);
-                            obj.inputs.MontageChannels=obj.inputs.RealTimeChannelsMontage;
-                            obj.inputs.MontageWeights=obj.inputs.RealTimeChannelsWeights;
                             %% Creating Column Labels
                             obj.inputs.colLabel.inputDevices=1;
                             obj.inputs.colLabel.outputDevices=2;
@@ -3064,22 +3065,25 @@ classdef best_toolbox < handle
                             obj.inputs.colLabel.IAPercentile=15;
                             obj.inputs.colLabel.IAInput=16;
                             obj.inputs.colLabel.IAUnit=17;
-                            obj.inputs.colLabel.ConditionMarker=18;
+                            obj.inputs.colLabel.StimulationType=18;
+                            obj.inputs.colLabel.ConditionMarker=19;
                             conds=fieldnames(obj.inputs.condsAll);
                             %% Creating Channel Types, Axes No, Channel IDs
-                            DisplayChannelCounter=2;
+                            DisplayChannelCounter=2;iIndex=1;
                             for c=1:numel(fieldnames(obj.inputs.condsAll))
                                 obj.inputs.condsAllFactorsInfo.(conds{c,1}).TargetChannelNumbers=numel(obj.inputs.MontageChannels);
                                 for itc=1:numel(obj.inputs.MontageChannels)
                                     for PlotNo=1:2
-                                        DisplayChannelCounter=DisplayChannelCounter+PlotNo;
-                                        obj.inputs.condsAllFactorsInfo.(conds{c,1}).axesno{DisplayChannelCounter}=DisplayChannelCounter;
-                                        ax_AxesAnnotation{1,obj.inputs.condsAllFactorsInfo.(conds{c,1}).axesno{DisplayChannelCounter}}{1,1}=['Condition:' num2str(c)];
-                                        ax_AxesAnnotation{1,obj.inputs.condsAllFactorsInfo.(conds{c,1}).axesno{DisplayChannelCounter}}{2,1}=['Channel: ' horzcat(obj.inputs.MontageChannels{itc}{:})];
-                                        ax_AxesAnnotation{1,obj.inputs.condsAllFactorsInfo.(conds{c,1}).axesno{DisplayChannelCounter}}{3,1}=['ITI(s): ' num2str(obj.inputs.condsAll.(conds{c,1}).ITI)];
+                                        DisplayChannelCounter=DisplayChannelCounter+1;
+                                        obj.inputs.condsAllFactorsInfo.(conds{c,1}).axesno{iIndex}=DisplayChannelCounter;
+                                        ax_AxesAnnotation{1,obj.inputs.condsAllFactorsInfo.(conds{c,1}).axesno{iIndex}}{1,1}=['Condition:' num2str(c)];
+                                        ax_AxesAnnotation{1,obj.inputs.condsAllFactorsInfo.(conds{c,1}).axesno{iIndex}}{2,1}=['Channel: ' horzcat(obj.inputs.MontageChannels{itc}{:})];
+                                        ax_AxesAnnotation{1,obj.inputs.condsAllFactorsInfo.(conds{c,1}).axesno{iIndex}}{3,1}=['ITI(s): ' num2str(obj.inputs.condsAll.(conds{c,1}).ITI)];
                                         % % ax_AxesAnnotation{1,obj.inputs.condsAllFactorsInfo.(conds{c,1}).axesno{itc}}{4,1}=['Stim. Pars'] %For Future Release
+                                        iIndex=iIndex+1;
                                     end
                                 end
+                                iIndex=1;
                             end
                             for m=1:numel(obj.inputs.MontageChannels)
                                 MontageChannels{m}=erase(char(join(obj.inputs.MontageChannels{m})),' ');
@@ -3118,14 +3122,14 @@ classdef best_toolbox < handle
                                         obj.inputs.condMat{c,obj.inputs.colLabel.IAUnit}='uV';
                                 end
                                 %% Channel Label, Measure, Axes No, Channel Type, Channel ID for Plots
-                                obj.inputs.condMat{c,obj.inputs.colLabel.chLab}=[{'OsscillationPhase','OsscillationEEG'},repelm(MontageChannels,2),{'OsscillationAmplitude','AmplitudeDistribution','StatusTable'}];
+                                obj.inputs.condMat{c,obj.inputs.colLabel.chLab}=[{'OsscillationPhase','OsscillationEEG'},repelem(MontageChannels,2),{'OsscillationAmplitude','AmplitudeDistribution','StatusTable'}];
                                 obj.inputs.condMat{c,obj.inputs.colLabel.measures}=[{'PhaseHistogram','TriggerLockedEEG'},repmat({'ERPTriggerLockedEEG','ERPTopoPlot'},1,numel(MontageChannels)),{'RunningAmplitude','AmplitudeDistribution','StatusTable'}];
                                 obj.inputs.condMat{c,obj.inputs.colLabel.axesno}=[{1,2},obj.inputs.condsAllFactorsInfo.(conds{c,1}).axesno,DisplayChannelCounter+1];
                                 obj.inputs.condMat{c,obj.inputs.colLabel.chType}=[{'IP'},{'IEEG'},{'EEG'},{'IA'},{'IADistribution'},{'StatusTable'}];
                                 obj.inputs.condMat{c,obj.inputs.colLabel.chId}=[{1,1}, {1},{1,1,1}];
                                 obj.inputs.condMat{c,obj.inputs.colLabel.ConditionMarker}=c;
                                 ax_measures{c}=repmat({'ERPTriggerLockedEEG','ERPTopoPlot'},1,numel(MontageChannels));
-                                ax_ChannelLabels{c}=repelm(MontageChannels,2);
+                                ax_ChannelLabels{c}=repelem(MontageChannels,2);
                                 %% Stimulator Specific Parameters
                                 for stno=1:(max(size(fieldnames(obj.inputs.condsAll.(conds{c,1}))))-6)
                                     st=['st' num2str(stno)];
@@ -4437,7 +4441,7 @@ end
         end
         function best_erp(obj)
             obj.save;
-            obj.factorizeConditions;
+            obj.factorizeConditionsExtended %obj.factorizeConditions
             obj.planTrials;
             obj.app.resultsPanel;
             obj.boot_outputdevice;
