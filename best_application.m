@@ -1002,7 +1002,11 @@ classdef best_application < handle
                         obj.pr_StatusTable;
                     case 'TEP Measurement'
                         %                             obj.pr_TEPMeasurement;
-                        obj.pr_TriggerLockedEEG
+                        obj.pr_TriggerLockedEEG;
+                    case 'ERPTriggerLockedEEG'
+                        obj.pr_TriggerLockedEEG;
+                    case 'ERPTopoPlot'
+                        obj.pr_ERPTopoPlot;
                         
                 end
             end
@@ -1720,6 +1724,16 @@ classdef best_application < handle
             end
         end
         function pr_TEPMeasurement(obj)
+            obj.pr.ax_no=['ax' num2str(obj.pr.axesno)];
+            AxesTitle=obj.pr.ax_ChannelLabels{obj.pr.axesno};
+            ui_menu=uicontextmenu(obj.fig.handle);
+            uimenu(ui_menu,'label','set Font size','Callback',@cbFontSize,'Tag',obj.pr.ax_no);
+            uimenu(ui_menu,'label','export as MATLAB Figure','Callback',@obj.pr_FigureExport,'Tag',obj.pr.ax_no);
+            obj.pr.clab.(obj.pr.ax_no)=uix.Panel( 'Parent', obj.pr.grid, 'Padding', 5 ,'Units','normalized','Title',AxesTitle,'FontWeight','bold','FontSize',12,'TitlePosition','centertop' );
+            obj.pr.container.(obj.pr.ax_no)=uicontainer('Parent',   obj.pr.clab.(obj.pr.ax_no),'uicontextmenu',ui_menu);
+            %             obj.pr.ax.(obj.pr.ax_no)=axes('Parent',   obj.pr.container.(obj.pr.ax_no),'Units','normalized','uicontextmenu',ui_menu);
+        end
+        function pr_ERPTopoPlot (obj)
             obj.pr.ax_no=['ax' num2str(obj.pr.axesno)];
             AxesTitle=obj.pr.ax_ChannelLabels{obj.pr.axesno};
             ui_menu=uicontextmenu(obj.fig.handle);
@@ -4486,72 +4500,72 @@ classdef best_application < handle
             % Editing Rule: Values should be Integers, Strings should
             % Strings , cells are the defaults values that do not have any
             % uicontroller
-            obj.info.defaults=[];
-            obj.info.defaults.BrainState=1;
-            obj.info.defaults.TrialsPerCondition='200';
-            obj.info.defaults.InputDevice=1;
-            obj.info.defaults.ITI='4 6';
-            obj.info.defaults.ReferenceChannels='';
-            obj.info.defaults.RecordingReference='';
-            obj.info.defaults.MontageChannels='';
-            obj.info.defaults.MontageWeights='';
-            obj.info.defaults.HighPassFilterOrder='3';
-            obj.info.defaults.HighPassFrequency='1';
-            obj.info.defaults.BandStopFilterOrder='3';
-            obj.info.defaults.BandStopFrequency='49 51';
-            obj.info.defaults.Protocol={'ERP Measurement Protocol'};
-            obj.info.defaults.Handles.UserData='Reserved for Future Use';
-            obj.info.defaults.Enable={'on'};
-            obj.info.defaults.ProtocolStatus={'created'};
-            obj.info.defaults.RealTimeChannelsMontage=['{' ' ''C3'',' ' ''FC1'',' ' ''FC5'',' ' ''CP1'',' ' ''CP5''}'];
-            obj.info.defaults.RealTimeChannelsWeights='1 -0.25 -0.25 -0.25 -0.25';
-            obj.info.defaults.FrequencyBand=1;
-            obj.info.defaults.PeakFrequency='';
-            obj.info.defaults.ImportPeakFrequencyFromProtocol='';
-            obj.info.defaults.ImportPeakFrequencyFromMontage='';
-            obj.info.defaults.BandPassFilterOrder='80';
-            obj.info.defaults.Phase='0';
-            obj.info.defaults.PhaseTolerance='pi/40';
-            obj.info.defaults.AmplitudeThreshold='0 1e6';
-            obj.info.defaults.AmplitudeUnits=2;
-            obj.info.defaults.AmplitudeAssignmentPeriod='4';
-            obj.info.defaults.SEPOnset='15';
-            obj.info.defaults.SEPOffset='25';
-            obj.info.defaults.EEGDisplayPeriodPre='100';
-            obj.info.defaults.EEGDisplayPeriodPost='100';
-            obj.info.defaults.SEPSearchWindow='15 25';
-            obj.info.defaults.EEGExtractionPeriod='-20 100';
-            obj.info.defaults.EEGXLimit='-20 100';
-            obj.info.defaults.EEGYLimit='-100 100';
+            obj.info.defaults                                 = [];
+            obj.info.defaults.BrainState                      = 1;
+            obj.info.defaults.TrialsPerCondition              = '200';
+            obj.info.defaults.InputDevice                     = 1;
+            obj.info.defaults.ITI                             = '4 6';
+            obj.info.defaults.ReferenceChannels               = '';
+            obj.info.defaults.RecordingReference              = '';
+            obj.info.defaults.MontageChannels                 = '';
+            obj.info.defaults.MontageWeights                  = '';
+            obj.info.defaults.HighPassFilterOrder             = '3';
+            obj.info.defaults.HighPassFrequency               = '1';
+            obj.info.defaults.BandStopFilterOrder             = '3';
+            obj.info.defaults.BandStopFrequency               = '49 51';
+            obj.info.defaults.Protocol                        = {'ERP Measurement Protocol'};
+            obj.info.defaults.Handles.UserData                = 'Reserved for Future Use';
+            obj.info.defaults.Enable                          = {'on'};
+            obj.info.defaults.ProtocolStatus                  = {'created'};
+            obj.info.defaults.RealTimeChannelsMontage         = ['{' ' ''C3'',' ' ''FC1'',' ' ''FC5'',' ' ''CP1'',' ' ''CP5''}'];
+            obj.info.defaults.RealTimeChannelsWeights         = '1 -0.25 -0.25 -0.25 -0.25';
+            obj.info.defaults.FrequencyBand                   = 1;
+            obj.info.defaults.PeakFrequency                   = '';
+            obj.info.defaults.ImportPeakFrequencyFromProtocol = '';
+            obj.info.defaults.ImportPeakFrequencyFromMontage  = '';
+            obj.info.defaults.BandPassFilterOrder             = '80';
+            obj.info.defaults.Phase                           = '0';
+            obj.info.defaults.PhaseTolerance                  = 'pi/40';
+            obj.info.defaults.AmplitudeThreshold              = '0 1e6';
+            obj.info.defaults.AmplitudeUnits                  = 2;
+            obj.info.defaults.AmplitudeAssignmentPeriod       = '4';
+            obj.info.defaults.SEPOnset                        = '15';
+            obj.info.defaults.SEPOffset                       = '25';
+            obj.info.defaults.EEGDisplayPeriodPre             = '100';
+            obj.info.defaults.EEGDisplayPeriodPost            = '100';
+            obj.info.defaults.SEPSearchWindow                 = '15 25';
+            obj.info.defaults.EEGExtractionPeriod             = '-20 100';
+            obj.info.defaults.EEGXLimit                       = '-20 100';
+            obj.info.defaults.EEGYLimit                       = '-100 100';
             si=[30];
             for idefaults=1:1
-                cond=['cond' num2str(idefaults)];
-                obj.info.defaults.condsAll.(cond).targetChannel=cellstr('NaN');
-                obj.info.defaults.condsAll.(cond).TrialsPerCondition=50;
-                obj.info.defaults.condsAll.(cond).ITI=[3 4];
-                obj.info.defaults.condsAll.(cond).Phase='Peak';
-                obj.info.defaults.condsAll.(cond).AmplitudeThreshold='0 1e6';
-                obj.info.defaults.condsAll.(cond).AmplitudeUnits='Absolute (micro volts)';
-                obj.info.defaults.condsAll.(cond).st1.pulse_count=1;
-                obj.info.defaults.condsAll.(cond).st1.stim_device={''};
-                obj.info.defaults.condsAll.(cond).st1.stim_mode='single_pulse';
-                obj.info.defaults.condsAll.(cond).st1.stim_timing=num2cell(0);
-                obj.info.defaults.condsAll.(cond).st1.stim_timing_units={'ms'};
-                obj.info.defaults.condsAll.(cond).st1.si=si(idefaults);
-                obj.info.defaults.condsAll.(cond).st1.si_units=1;
-                obj.info.defaults.condsAll.(cond).st1.threshold='';
-                obj.info.defaults.condsAll.(cond).st1.si_pckt={si(idefaults),[],[],[],[],[],[],[]}; % [TS PairedCS ISI TS_intendendunits CS_intendedunits ISIintendentunits TrainFreq NoOfPulses] 
-                obj.info.defaults.condsAll.(cond).st1.IntensityUnit='%MSO';
-                obj.info.defaults.condsAll.(cond).st1.IntensityUnitValue=NaN;
-                obj.info.defaults.condsAll.(cond).st1.IntensityUnitValueUnit=NaN;
-                obj.info.defaults.condsAll.(cond).st1.SessionToCouple='none';
-                obj.info.defaults.condsAll.(cond).st1.ProtocolToCouple='none';
-                obj.info.defaults.condsAll.(cond).st1.ParameterToCouple='none';
-                obj.info.defaults.condsAll.(cond).st1.IntensityToCouple='none';
-                obj.info.defaults.condsAll.(cond).st1.TimingOnsetUnits='ms';
-                obj.info.defaults.condsAll.(cond).st1.CSUnits='';
-                obj.info.defaults.condsAll.(cond).st1.ISIUnits='';
-                obj.info.defaults.condsAll.(cond).st1.StimulationType='Test';
+                cond = ['cond' num2str(idefaults)];
+                obj.info.defaults.condsAll.(cond).targetChannel              = cellstr('NaN');
+                obj.info.defaults.condsAll.(cond).TrialsPerCondition         = 50;
+                obj.info.defaults.condsAll.(cond).ITI                        = [3 4];
+                obj.info.defaults.condsAll.(cond).Phase                      = 'Peak';
+                obj.info.defaults.condsAll.(cond).AmplitudeThreshold         = '0 1e6';
+                obj.info.defaults.condsAll.(cond).AmplitudeUnits             = 'Absolute (micro volts)';
+                obj.info.defaults.condsAll.(cond).st1.pulse_count            = 1;
+                obj.info.defaults.condsAll.(cond).st1.stim_device            = {''};
+                obj.info.defaults.condsAll.(cond).st1.stim_mode              = 'single_pulse';
+                obj.info.defaults.condsAll.(cond).st1.stim_timing            = num2cell(0);
+                obj.info.defaults.condsAll.(cond).st1.stim_timing_units      = {'ms'};
+                obj.info.defaults.condsAll.(cond).st1.si                     = si(idefaults);
+                obj.info.defaults.condsAll.(cond).st1.si_units               = 1;
+                obj.info.defaults.condsAll.(cond).st1.threshold              = '';
+                obj.info.defaults.condsAll.(cond).st1.si_pckt                = {si(idefaults),[],[],[],[],[],[],[]}; % [TS PairedCS ISI TS_intendendunits CS_intendedunits ISIintendentunits TrainFreq NoOfPulses] 
+                obj.info.defaults.condsAll.(cond).st1.IntensityUnit          = '%MSO';
+                obj.info.defaults.condsAll.(cond).st1.IntensityUnitValue     = NaN;
+                obj.info.defaults.condsAll.(cond).st1.IntensityUnitValueUnit = NaN;
+                obj.info.defaults.condsAll.(cond).st1.SessionToCouple        = 'none';
+                obj.info.defaults.condsAll.(cond).st1.ProtocolToCouple       = 'none';
+                obj.info.defaults.condsAll.(cond).st1.ParameterToCouple      = 'none';
+                obj.info.defaults.condsAll.(cond).st1.IntensityToCouple      = 'none';
+                obj.info.defaults.condsAll.(cond).st1.TimingOnsetUnits       = 'ms';
+                obj.info.defaults.condsAll.(cond).st1.CSUnits                = '';
+                obj.info.defaults.condsAll.(cond).st1.ISIUnits               = '';
+                obj.info.defaults.condsAll.(cond).st1.StimulationType        = 'Test';
             end
             obj.par.(obj.info.event.current_session).(obj.info.event.measure_being_added)=obj.info.defaults;
         end
