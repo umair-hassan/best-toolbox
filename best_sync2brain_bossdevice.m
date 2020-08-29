@@ -498,12 +498,8 @@ classdef best_sync2brain_bossdevice <handle
             Time=(obj.EEGScope.Time-obj.EEGScope.Time(1)+(obj.EEGScope.Time(2)-obj.EEGScope.Time(1)))';
             switch obj.best_toolbox.inputs.Protocol
                 case 'ERP Measurement Protocol'
-                    %1. take all raw data and apply filteration, detrend, baseline correction
-                    %2. create montages and 
-                    %3. append fieldtrip formatted data into the corrospondign trial of inputs.rawdata %% obj.best_toolbox.inputs.rawdata
                     %% Converting Trial's Data Into FieldTrip Format Data for PreProcessing
                     Time=(Time*1000)+obj.best_toolbox.inputs.EEGExtractionPeriod(1);
-                    
                     %% Creating RawEEGData
                     InputDevice      = obj.best_toolbox.inputs.trialMat{obj.best_toolbox.inputs.trial,obj.best_toolbox.inputs.colLabel.inputDevices};
                     EEGChannelsIndex = find(strcmp(obj.best_toolbox.app.par.hardware_settings.(InputDevice).NeurOneProtocolChannelSignalTypes,'EEG'));
@@ -536,64 +532,63 @@ classdef best_sync2brain_bossdevice <handle
                     end
                     PreProcessedData = ft_preprocessing(cfg,Data);
                     %% now save this PreProcessData
-                    
-                    
-                    
-                    
-                    for MontageChannelNo=1:numel(obj.best_toolbox.inputs.MontageChannels)
-                        MontageChannel=erase(char(join(obj.best_toolbox.inputs.MontageChannels{MontageChannelNo})),' ');
-                        if strcmp(MontageChannel,EEGChannel), break; end
+                    obj.best_toolbox.inputs.rawdata.RawEEGData=PreProcessedData.trial{1};
+                    obj.best_toolbox.inputs.rawdata.RawEEGTime=Time;
+% %                     for MontageChannelNo=1:numel(obj.best_toolbox.inputs.MontageChannels)
+% %                         MontageChannel{MontageChannelNo}=erase(char(join(obj.best_toolbox.inputs.MontageChannels{MontageChannelNo})),' ');
+% %                     end
+                    %% Applying Montage on Preprocessed Data, Creating Montage Channels
+                    SelectedData={};
+                    for channel=1:numel(obj.best_toolbox.inputs.MontageChannels)
+                        SelectedData{channel}=obj.best_toolbox.inputs.MontageChannels{channel};
+                        if iscell(obj.best_toolbox.inputs.MontageChannels{channel})
+                            cfg=[];
+                            cfg.labelold  =obj.best_toolbox.inputs.MontageChannels{channel};
+                            cfg.labelnew  ={erase(char(join(obj.best_toolbox.inputs.MontageChannels{channel})),' ')};
+                            cfg.tra       =cell2mat(obj.best_toolbox.inputs.MontageWeights{channel});
+                            Montage=ft_apply_montage(Data,cfg);
+                            obj.best_toolbox.inputs.rawdata.(char(cfg.labelnew))=Montage.trial{1};
+                        else
+                            id=strcmp(obj.best_toolbox.app.par.hardware_settings.(InputDevice).NeurOneProtocolChannelLabels,obj.best_toolbox.inputs.MontageChannels{channel});
+                            obj.best_toolbox.inputs.rawdata.(obj.best_toolbox.inputs.MontageChannels{channel})=Data(id,:);
+                        end
                     end
-                    % create montage, detrend, baseline correction
-                    
-                    
-                    Data = ft_preprocessing(cfg,obj.best_toolbox.inputs.results.RawEEGData);
-                    
-                    
-                    
-                    ftdata=[];
-                    cfg=[];
-                    ftdata.label={'preprocessing'};
-                    ftdata.trial{1}
-                    cfg=[];
-                    MontageChannel=erase(char(join(obj.inputs.MontageChannels{iA})),' ');
-                    
             end
-            if ~strcmpi(obj.best_toolbox.inputs.Protocol,'rs EEG Measurement Protocol')
-                Time=(Time*1000)+obj.best_toolbox.inputs.EEGExtractionPeriod(1);
-                if(obj.best_toolbox.inputs.EEGDisplayPeriodPre>0)
-                    cfg             = [];
-                    ftdata.label    = {'ch1'};
-                    InputDevice     = obj.best_toolbox.inputs.condMat{1,obj.best_toolbox.inputs.colLabel.inputDevices};
-                    ftdata.trial{1} = [Data(find(strcmp(obj.best_toolbox.app.par.hardware_settings.(InputDevice).NeurOneProtocolChannelLabels,obj.best_toolbox.inputs.MontageChannels{1})),:)];
-                    ftdata.time{1}  = [Time];
-                    cfg.demean='yes';
-                    %                     cfg.reref         = 'yes'; % band-stop filter, to take out 50 Hz and its harmonics
-                    %                     cfg.refchannel    = {'ch2'};
-                    %                 cfg.detrend='yes'; % It does not help in improving, however introduces weired drifts therefore deprication is recommended in Future Release
-                    cfg.baselinewindow=[obj.best_toolbox.inputs.EEGDisplayPeriodPre*(-1)/1000 -10]; %obj.best_toolbox.inputs.EEGDisplayPeriodPre*(-1)/1000 -10 %[EMGDisplayPeriodPre_ms to -10ms]
-                    ProcessedData=ft_preprocessing(cfg, ftdata);
-                    Data=ProcessedData.trial{1};
-                    Data=Data(1,:);
-                    Time=ProcessedData.time{1};
-                    obj.best_toolbox.inputs.rawData.IEEG.time=ProcessedData.time{1};
-                    %                     cfg=[];
-                    %                     ftdata.label={'ch1';'ch2'};
-                    %                     InputDevice=obj.best_toolbox.inputs.condMat{1,obj.best_toolbox.inputs.colLabel.inputDevices};
-                    %                     ftdata.trial{1}=[Data(find(strcmp(obj.best_toolbox.app.par.hardware_settings.(InputDevice).NeurOneProtocolChannelLabels,obj.best_toolbox.inputs.MontageChannels{1})),:);Data(find(strcmp(obj.best_toolbox.app.par.hardware_settings.(InputDevice).NeurOneProtocolChannelLabels,obj.best_toolbox.inputs.ReferenceChannels)),:)];
-                    %                     ftdata.time{1}=[Time];
-                    %                     cfg.demean='yes';
-                    %                     cfg.reref         = 'yes'; % band-stop filter, to take out 50 Hz and its harmonics
-                    %                     cfg.refchannel    = {'ch2'};
-                    %                     %                 cfg.detrend='yes'; % It does not help in improving, however introduces weired drifts therefore deprication is recommended in Future Release
-                    %                     cfg.baselinewindow=[obj.best_toolbox.inputs.EEGDisplayPeriodPre*(-1)/1000 -10]; %obj.best_toolbox.inputs.EEGDisplayPeriodPre*(-1)/1000 -10 %[EMGDisplayPeriodPre_ms to -10ms]
-                    %                     ProcessedData=ft_preprocessing(cfg, ftdata);
-                    %                     Data=ProcessedData.trial{1};
-                    %                     Data=Data(1,:);
-                    %                     Time=ProcessedData.time{1};
-                    %                     obj.best_toolbox.inputs.rawData.IEEG.time=ProcessedData.time{1};
-                end
-            end
+%             if ~strcmpi(obj.best_toolbox.inputs.Protocol,'rs EEG Measurement Protocol')
+%                 Time=(Time*1000)+obj.best_toolbox.inputs.EEGExtractionPeriod(1);
+%                 if(obj.best_toolbox.inputs.EEGDisplayPeriodPre>0)
+%                     cfg             = [];
+%                     ftdata.label    = {'ch1'};
+%                     InputDevice     = obj.best_toolbox.inputs.condMat{1,obj.best_toolbox.inputs.colLabel.inputDevices};
+%                     ftdata.trial{1} = [Data(find(strcmp(obj.best_toolbox.app.par.hardware_settings.(InputDevice).NeurOneProtocolChannelLabels,obj.best_toolbox.inputs.MontageChannels{1})),:)];
+%                     ftdata.time{1}  = [Time];
+%                     cfg.demean='yes';
+%                     %                     cfg.reref         = 'yes'; % band-stop filter, to take out 50 Hz and its harmonics
+%                     %                     cfg.refchannel    = {'ch2'};
+%                     %                 cfg.detrend='yes'; % It does not help in improving, however introduces weired drifts therefore deprication is recommended in Future Release
+%                     cfg.baselinewindow=[obj.best_toolbox.inputs.EEGDisplayPeriodPre*(-1)/1000 -10]; %obj.best_toolbox.inputs.EEGDisplayPeriodPre*(-1)/1000 -10 %[EMGDisplayPeriodPre_ms to -10ms]
+%                     ProcessedData=ft_preprocessing(cfg, ftdata);
+%                     Data=ProcessedData.trial{1};
+%                     Data=Data(1,:);
+%                     Time=ProcessedData.time{1};
+%                     obj.best_toolbox.inputs.rawData.IEEG.time=ProcessedData.time{1};
+%                     %                     cfg=[];
+%                     %                     ftdata.label={'ch1';'ch2'};
+%                     %                     InputDevice=obj.best_toolbox.inputs.condMat{1,obj.best_toolbox.inputs.colLabel.inputDevices};
+%                     %                     ftdata.trial{1}=[Data(find(strcmp(obj.best_toolbox.app.par.hardware_settings.(InputDevice).NeurOneProtocolChannelLabels,obj.best_toolbox.inputs.MontageChannels{1})),:);Data(find(strcmp(obj.best_toolbox.app.par.hardware_settings.(InputDevice).NeurOneProtocolChannelLabels,obj.best_toolbox.inputs.ReferenceChannels)),:)];
+%                     %                     ftdata.time{1}=[Time];
+%                     %                     cfg.demean='yes';
+%                     %                     cfg.reref         = 'yes'; % band-stop filter, to take out 50 Hz and its harmonics
+%                     %                     cfg.refchannel    = {'ch2'};
+%                     %                     %                 cfg.detrend='yes'; % It does not help in improving, however introduces weired drifts therefore deprication is recommended in Future Release
+%                     %                     cfg.baselinewindow=[obj.best_toolbox.inputs.EEGDisplayPeriodPre*(-1)/1000 -10]; %obj.best_toolbox.inputs.EEGDisplayPeriodPre*(-1)/1000 -10 %[EMGDisplayPeriodPre_ms to -10ms]
+%                     %                     ProcessedData=ft_preprocessing(cfg, ftdata);
+%                     %                     Data=ProcessedData.trial{1};
+%                     %                     Data=Data(1,:);
+%                     %                     Time=ProcessedData.time{1};
+%                     %                     obj.best_toolbox.inputs.rawData.IEEG.time=ProcessedData.time{1};
+%                 end
+%             end
             
             obj.EEGScopeStart;
         end
