@@ -2969,8 +2969,8 @@ classdef best_toolbox < handle
                                 obj.inputs.condMat{c,obj.inputs.colLabel.chLab}=[repelem(MontageChannels,2),{'StatusTable'}];
                                 obj.inputs.condMat{c,obj.inputs.colLabel.measures}=[repmat({'ERPTriggerLockedEEG','ERPTopoPlot'},1,numel(MontageChannels)),{'StatusTable'}];
                                 obj.inputs.condMat{c,obj.inputs.colLabel.axesno}=[obj.inputs.condsAllFactorsInfo.(conds{c,1}).axesno,DisplayChannelCounter+1];
-                                obj.inputs.condMat{c,obj.inputs.colLabel.chType}=[{'EEG'},{'StatusTable'}];
-                                obj.inputs.condMat{c,obj.inputs.colLabel.chId}=[{1},{1}];
+                                obj.inputs.condMat{c,obj.inputs.colLabel.chType}=[repmat({'EEG'},1,2*numel(MontageChannels)),{'StatusTable'}]; 
+                                obj.inputs.condMat{c,obj.inputs.colLabel.chId}=[repmat({1},1,2*numel(MontageChannels)),{1}];
                                 obj.inputs.condMat{c,obj.inputs.colLabel.ConditionMarker}=c;
                                 ax_measures{c}=repmat({'ERPTriggerLockedEEG','ERPTopoPlot'},1,numel(MontageChannels));
                                 ax_ChannelLabels{c}=repelem(MontageChannels,2);
@@ -3125,8 +3125,8 @@ classdef best_toolbox < handle
                                 obj.inputs.condMat{c,obj.inputs.colLabel.chLab}=[{'OsscillationPhase','OsscillationEEG'},repelem(MontageChannels,2),{'OsscillationAmplitude','AmplitudeDistribution','StatusTable'}];
                                 obj.inputs.condMat{c,obj.inputs.colLabel.measures}=[{'PhaseHistogram','TriggerLockedEEG'},repmat({'ERPTriggerLockedEEG','ERPTopoPlot'},1,numel(MontageChannels)),{'RunningAmplitude','AmplitudeDistribution','StatusTable'}];
                                 obj.inputs.condMat{c,obj.inputs.colLabel.axesno}=[{1,2},obj.inputs.condsAllFactorsInfo.(conds{c,1}).axesno,DisplayChannelCounter+1];
-                                obj.inputs.condMat{c,obj.inputs.colLabel.chType}=[{'IP'},{'IEEG'},{'EEG'},{'IA'},{'IADistribution'},{'StatusTable'}];
-                                obj.inputs.condMat{c,obj.inputs.colLabel.chId}=[{1,1}, {1},{1,1,1}];
+                                obj.inputs.condMat{c,obj.inputs.colLabel.chType}=[{'IP'},{'IEEG'},repmat({'EEG'},1,2*numel(MontageChannels)),{'IA'},{'IADistribution'},{'StatusTable'}];
+                                obj.inputs.condMat{c,obj.inputs.colLabel.chId}=[{1,1}, repmat({1},1,2*numel(MontageChannels)),{1,1,1}];
                                 obj.inputs.condMat{c,obj.inputs.colLabel.ConditionMarker}=c;
                                 ax_measures{c}=repmat({'ERPTriggerLockedEEG','ERPTopoPlot'},1,numel(MontageChannels));
                                 ax_ChannelLabels{c}=repelem(MontageChannels,2);
@@ -6019,7 +6019,7 @@ classdef best_toolbox < handle
             %     legend([obj.inputs.Handles.PhaseHistogramPeak obj.inputs.Handles.PhaseHistogramTrough obj.inputs.Handles.PhaseHistogramRandom], 'Location','southoutside','Orientation','horizontal')
             % end
             
-        end % End obj.PlotPhaseHistogram
+        end 
         function PlotTriggerLockedEEG(obj)
             ax=['ax' num2str(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.axesno}{1,obj.inputs.chLab_idx})];
             axes(obj.app.pr.ax.(ax)), hold on,
@@ -6083,7 +6083,7 @@ classdef best_toolbox < handle
                 ZeroLine=gridxy(0,'Color','k','linewidth',2,'Parent',obj.app.pr.ax.(ax),'Tag','TriggerLockedEEGZeroLine');hold on;
                 ZeroLine.Annotation.LegendInformation.IconDisplayStyle = 'off'; legend('Location','southoutside','Orientation','horizontal'); hold on;
             end
-        end %End obj.PlotTriggerLockedEEG
+        end 
         function PlotRunnigAmplitude(obj)
             ax=['ax' num2str(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.axesno}{1,obj.inputs.chLab_idx})];
             axes(obj.app.pr.ax.(ax)), hold on,
@@ -6101,25 +6101,46 @@ classdef best_toolbox < handle
             ax=['ax' num2str(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.axesno}{1,obj.inputs.chLab_idx})];
             axes(obj.app.pr.ax.(ax)), hold on,
             ThisChannelName=obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx};
-            ThisEEGTime=obj.inputs.rawData.IEEG.time;
-            if(isfield(obj.inputs.Handles,'ERP')==0)
-                ThisEEG=obj.inputs.rawData.(ThisChannelName).data(obj.inputs.trial,:);
-                obj.inputs.Handles.ERP=plot(ThisEEGTime,ThisEEG,'color','red','LineWidth',2,'DisplayName','ERP');
+            ThisEEGTime=obj.inputs.rawdata.RawEEGTime;
+            if(isfield(obj.inputs.Handles,ax)==0)
+                ThisEEG=obj.inputs.rawdata.(ThisChannelName).data(obj.inputs.trial,:);
+                obj.inputs.Handles.(ax).ERP=plot(ThisEEGTime,ThisEEG,'color','red','LineWidth',2,'DisplayName','ERP');
                 legend('Location','southoutside','Orientation','horizontal'); hold on;
-                obj.inputs.Handles.ERP.UserData(1,1)=obj.inputs.trial;
-            else
-                obj.inputs.Handles.ERP.UserData(1,1+numel(obj.inputs.Handles.ERP.UserData))=obj.inputs.trial;
-                obj.inputs.Handles.ERP.YData=mean(obj.inputs.rawData.(ThisChannelName).data(obj.inputs.Handles.ERP.UserData,:));
-                drawnow;
-            end
-            if obj.inputs.trial==1
+                %%obj.inputs.Handles.(ax).ERP.UserData(1,1)=obj.inputs.trial; May be deleted
                 xlim(obj.app.pr.ax.(ax),obj.inputs.EEGXLimit), ylim(obj.app.pr.ax.(ax),obj.inputs.EEGYLimit), drawnow
                 xticks(obj.app.pr.ax.(ax),unique(sort([0 obj.inputs.EEGXLimit(1):10:obj.inputs.EEGXLimit(2)])))
                 ZeroLine=gridxy(0,'Color','k','linewidth',2,'Parent',obj.app.pr.ax.(ax),'Tag','TriggerLockedEEGZeroLine');hold on;
                 ZeroLine.Annotation.LegendInformation.IconDisplayStyle = 'off'; legend('Location','southoutside','Orientation','horizontal'); hold on;
+            else
+                IndexOfTrialsTillNow=find(vertcat(obj.inputs.trialMat{1:obj.inputs.trial,obj.inputs.colLabel.ConditionMarker})==obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.ConditionMarker}); 
+                %%obj.inputs.Handles.(ax).ERP.UserData(1,1+numel(obj.inputs.Handles.ERP.UserData))=obj.inputs.trial; May be deleted
+                obj.inputs.Handles.(ax).ERP.YData=mean(obj.inputs.rawData.(ThisChannelName).data(IndexOfTrialsTillNow,:));
+                drawnow;
             end
-        end %End obj.PlotTriggerLockedEEG
+        end 
         function ERPTopoPlot(obj)
+            ax                    = ['ax' num2str(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.axesno}{1,obj.inputs.chLab_idx})];
+            IndexOfTrialsTillNow  = vertcat(obj.inputs.trialMat{1:obj.inputs.trial,obj.inputs.colLabel.ConditionMarker})==obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.ConditionMarker};
+            ERPTopoPlotData       = struct;
+            ERPTopoPlotData.label = obj.best_toolbox.inputs.rawdata.RawEEGData.label;
+            ERPTopoPlotData.time  = {obj.best_toolbox.inputs.rawdata.RawEEGData.time{1}/1000};
+            ERPTopoPlotData.trial = {mean(cell2mat(obj.best_toolbox.inputs.rawdata.RawEEGData.trial(IndexOfTrialsTillNow)),2)};
+            cfg                   = [];
+            cfg.layout            = 'easycapM1.mat';
+            layout                = ft_prepare_layout(cfg);
+            layout.label          = ERPTopoPlotData.label;
+            cfg                   = [];
+            cfg.layout            = layout;
+            cfg.colorbar          = 'yes';
+            cfg.trials            = 1;
+            cfg.zlim              = 'maxabs';
+            cfg.xlim              = obj.inputs.SEPSearchWindow/1000;
+            figure('Visible','off'); ft_topoplotER(cfg,ERPTopoPlotData);
+            fh                    = gcf; %% fh.Visible='off';
+            delete(allchild(obj.app.pr.container.(ax)))
+            fh.Children(3).Parent = obj.app.pr.container.(ax);
+            %%fh.Children(2).Parent=obj.app.pr.container.(ax);
+            delete(fh); pause(0.1);
         end
         function DeMeanedEEGData =best_DeMeanEEG(obj,RawData)
             DeMeanedEEGData=RawData-mean(RawData);

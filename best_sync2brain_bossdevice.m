@@ -504,17 +504,16 @@ classdef best_sync2brain_bossdevice <handle
                     InputDevice      = obj.best_toolbox.inputs.trialMat{obj.best_toolbox.inputs.trial,obj.best_toolbox.inputs.colLabel.inputDevices};
                     EEGChannelsIndex = find(strcmp(obj.best_toolbox.app.par.hardware_settings.(InputDevice).NeurOneProtocolChannelSignalTypes,'EEG'));
                     EEGChanelsLabels = obj.best_toolbox.app.par.hardware_settings.(InputDevice).NeurOneProtocolChannelLabels(EEGChannelsIndex);
-                    Data             = [];
-                    Data.label       = EEGChanelsLabels';
-                    Data.fsample     = 5000;
-                    Data.trial       = {Data};
-                    Data.time        = {Time};
+                    FieldTripData             = struct;
+                    FieldTripData.label       = EEGChanelsLabels';
+                    FieldTripData.trial {1}   = Data;
+                    FieldTripData.time  {1}   = Time/1000;
                     %% PreProcessing RawEEGData for this Trial
                     cfg=[];
                     cfg.detrend='yes';                    
                     if obj.best_toolbox.inputs.EEGExtractionPeriod(1)<=-10
                         cfg.demean='yes';
-                        cfg.baselinewindow=[obj.best_toolbox.inputs.EEGExtractionPeriod(1) -10]; 
+                        cfg.baselinewindow=[obj.best_toolbox.inputs.EEGExtractionPeriod(1)+1/1000 -10/1000]; 
                     end
                     if ~isempty(obj.best_toolbox.inputs.HighPassFrequency)
                         cfg.hpfilter      = 'yes'; 
@@ -530,9 +529,9 @@ classdef best_sync2brain_bossdevice <handle
                         cfg.reref         = 'yes'; 
                         cfg.refchannel    = obj.best_toolbox.inputs.ReferenceChannels;
                     end
-                    PreProcessedData = ft_preprocessing(cfg,Data);
+                    PreProcessedData = ft_preprocessing(cfg,FieldTripData);
                     %% now save this PreProcessData
-                    obj.best_toolbox.inputs.rawdata.RawEEGData=PreProcessedData.trial{1};
+                    obj.best_toolbox.inputs.rawdata.RawEEGData{obj.best_toolbox.inputs.trial}=PreProcessedData;
                     obj.best_toolbox.inputs.rawdata.RawEEGTime=Time;
 % %                     for MontageChannelNo=1:numel(obj.best_toolbox.inputs.MontageChannels)
 % %                         MontageChannel{MontageChannelNo}=erase(char(join(obj.best_toolbox.inputs.MontageChannels{MontageChannelNo})),' ');
@@ -547,10 +546,10 @@ classdef best_sync2brain_bossdevice <handle
                             cfg.labelnew  ={erase(char(join(obj.best_toolbox.inputs.MontageChannels{channel})),' ')};
                             cfg.tra       =cell2mat(obj.best_toolbox.inputs.MontageWeights{channel});
                             Montage=ft_apply_montage(Data,cfg);
-                            obj.best_toolbox.inputs.rawdata.(char(cfg.labelnew))=Montage.trial{1};
+                            obj.best_toolbox.inputs.rawdata.(char(cfg.labelnew)).data(obj.best_toolbox.inputs.trial,:)=Montage.trial{1};
                         else
                             id=strcmp(obj.best_toolbox.app.par.hardware_settings.(InputDevice).NeurOneProtocolChannelLabels,obj.best_toolbox.inputs.MontageChannels{channel});
-                            obj.best_toolbox.inputs.rawdata.(obj.best_toolbox.inputs.MontageChannels{channel})=Data(id,:);
+                            obj.best_toolbox.inputs.rawdata.(obj.best_toolbox.inputs.MontageChannels{channel}).data(obj.best_toolbox.inputs.trial,:)=Data(id,:);
                         end
                     end
             end

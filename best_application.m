@@ -1735,13 +1735,12 @@ classdef best_application < handle
         end
         function pr_ERPTopoPlot (obj)
             obj.pr.ax_no=['ax' num2str(obj.pr.axesno)];
-            AxesTitle=obj.pr.ax_ChannelLabels{obj.pr.axesno};
+            AxesTitle=[obj.pr.ax_ChannelLabels{1,obj.pr.axesno} ' - Topography'];
             ui_menu=uicontextmenu(obj.fig.handle);
             uimenu(ui_menu,'label','set Font size','Callback',@cbFontSize,'Tag',obj.pr.ax_no);
             uimenu(ui_menu,'label','export as MATLAB Figure','Callback',@obj.pr_FigureExport,'Tag',obj.pr.ax_no);
             obj.pr.clab.(obj.pr.ax_no)=uix.Panel( 'Parent', obj.pr.grid, 'Padding', 5 ,'Units','normalized','Title',AxesTitle,'FontWeight','bold','FontSize',12,'TitlePosition','centertop' );
             obj.pr.container.(obj.pr.ax_no)=uicontainer('Parent',   obj.pr.clab.(obj.pr.ax_no),'uicontextmenu',ui_menu);
-            %             obj.pr.ax.(obj.pr.ax_no)=axes('Parent',   obj.pr.container.(obj.pr.ax_no),'Units','normalized','uicontextmenu',ui_menu);
         end
         %% MEP Hotspot Search Section
         function pi_hotspot(obj)
