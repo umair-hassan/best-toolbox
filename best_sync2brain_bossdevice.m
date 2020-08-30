@@ -531,7 +531,9 @@ classdef best_sync2brain_bossdevice <handle
                     end
                     PreProcessedData = ft_preprocessing(cfg,FieldTripData);
                     %% now save this PreProcessData
-                    obj.best_toolbox.inputs.rawdata.RawEEGData{obj.best_toolbox.inputs.trial}=PreProcessedData;
+                    obj.best_toolbox.inputs.rawdata.RawEEGData.label=PreProcessedData.label;
+                    obj.best_toolbox.inputs.rawdata.RawEEGData.time{obj.best_toolbox.inputs.trial}=PreProcessedData.time{1};
+                    obj.best_toolbox.inputs.rawdata.RawEEGData.trial{obj.best_toolbox.inputs.trial}=PreProcessedData.trial{1};
                     obj.best_toolbox.inputs.rawdata.RawEEGTime=Time;
 % %                     for MontageChannelNo=1:numel(obj.best_toolbox.inputs.MontageChannels)
 % %                         MontageChannel{MontageChannelNo}=erase(char(join(obj.best_toolbox.inputs.MontageChannels{MontageChannelNo})),' ');
@@ -545,7 +547,7 @@ classdef best_sync2brain_bossdevice <handle
                             cfg.labelold  =obj.best_toolbox.inputs.MontageChannels{channel};
                             cfg.labelnew  ={erase(char(join(obj.best_toolbox.inputs.MontageChannels{channel})),' ')};
                             cfg.tra       =cell2mat(obj.best_toolbox.inputs.MontageWeights{channel});
-                            Montage=ft_apply_montage(Data,cfg);
+                            Montage=ft_apply_montage(PreProcessedData,cfg);
                             obj.best_toolbox.inputs.rawdata.(char(cfg.labelnew)).data(obj.best_toolbox.inputs.trial,:)=Montage.trial{1};
                         else
                             id=strcmp(obj.best_toolbox.app.par.hardware_settings.(InputDevice).NeurOneProtocolChannelLabels,obj.best_toolbox.inputs.MontageChannels{channel});

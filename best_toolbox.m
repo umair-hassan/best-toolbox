@@ -3666,12 +3666,12 @@ classdef best_toolbox < handle
                                 % NewUseThis obj.inputs.rawData.(unique_chLab{1,i}).data(obj.inputs.trial,:)=obj.best_VisualizationFilter(obj.bossbox.EMGScopeRead(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chID}{1,i}))   %%[obj.bossbox.EMGScope.Data(:,1)]');
                             case 'EEG'
                                 %                                 [obj.inputs.rawData.time{obj.inputs.trial} , obj.inputs.rawData.data{obj.inputs.trial}]=obj.bossbox.EEGScopeRead;
-                                try % 22-Jul-2020 07:30:33
+%                                 try % 22-Jul-2020 07:30:33
                                     obj.bossbox.EEGScopeRead;
                                     break;
-                                catch
+%                                 catch
                                     
-                                end
+%                                 end
 %                                 obj.fieldtrip.best2ftdata(obj.inputs.rawData,obj.inputs.trial,obj.inputs.input_device);
 %                                 obj.fieldtrip.preprocess(obj.inputs.Configuration, obj.inputs.rawData.ftdata,obj.inputs.trial)
                         end
@@ -3801,7 +3801,11 @@ classdef best_toolbox < handle
                 end
                 AxesNum=obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.axesno}{1,obj.inputs.chLab_idx};
                 AxesField=['ax' num2str(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.axesno}{1,obj.inputs.chLab_idx})];
-                CopiedAxes=copy(obj.app.pr.ax.(AxesField));
+                try %Container is not there for Status Table, but exist for all others
+                    CopiedAxes=copy(obj.app.pr.ax.(AxesField));
+                catch
+                    CopiedAxes=copy(obj.app.pr.container.(AxesField));
+                end
                 CopiedAxes.Parent=[]; pause(0.1)
                 obj.inputs.Figures{AxesNum}=CopiedAxes;
             end
@@ -4255,7 +4259,11 @@ classdef best_toolbox < handle
                     end
                     ax=['ax' num2str(iaxes)];
                     Figure=figure('Visible','off','CreateFcn','set(gcf,''Visible'',''on'')','Name',FigureFileName,'NumberTitle','off');
-                    copyobj(obj.app.pr.ax.(ax),Figure)
+                    try
+                        copyobj(obj.app.pr.contaienr.(ax),Figure)
+                    catch
+                        copyobj(obj.app.pr.ax.(ax),Figure)
+                    end
                     set( gca, 'Units', 'normalized', 'Position', [0.2 0.2 0.7 0.7] );
                     saveas(Figure,FullFileName,'fig');
                     close(Figure)
@@ -6100,42 +6108,63 @@ classdef best_toolbox < handle
         function ERPTriggerLockedEEG(obj)
             ax=['ax' num2str(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.axesno}{1,obj.inputs.chLab_idx})];
             axes(obj.app.pr.ax.(ax)), hold on,
+            obj.ERPLatency;
             ThisChannelName=obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx};
             ThisEEGTime=obj.inputs.rawdata.RawEEGTime;
+            CurrentERPLatency=obj.inputs.results.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).ERPLatency(obj.inputs.trial,1);
             if(isfield(obj.inputs.Handles,ax)==0)
                 ThisEEG=obj.inputs.rawdata.(ThisChannelName).data(obj.inputs.trial,:);
                 obj.inputs.Handles.(ax).ERP=plot(ThisEEGTime,ThisEEG,'color','red','LineWidth',2,'DisplayName','ERP');
-                legend('Location','southoutside','Orientation','horizontal'); hold on;
+                %legend('Location','southoutside','Orientation','horizontal'); hold on;
                 %%obj.inputs.Handles.(ax).ERP.UserData(1,1)=obj.inputs.trial; May be deleted
                 xlim(obj.app.pr.ax.(ax),obj.inputs.EEGXLimit), ylim(obj.app.pr.ax.(ax),obj.inputs.EEGYLimit), drawnow
                 xticks(obj.app.pr.ax.(ax),unique(sort([0 obj.inputs.EEGXLimit(1):10:obj.inputs.EEGXLimit(2)])))
                 ZeroLine=gridxy(0,'Color','k','linewidth',2,'Parent',obj.app.pr.ax.(ax),'Tag','TriggerLockedEEGZeroLine');hold on;
                 ZeroLine.Annotation.LegendInformation.IconDisplayStyle = 'off'; legend('Location','southoutside','Orientation','horizontal'); hold on;
+                MeanERPLatency=CurrentERPLatency;
             else
                 IndexOfTrialsTillNow=find(vertcat(obj.inputs.trialMat{1:obj.inputs.trial,obj.inputs.colLabel.ConditionMarker})==obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.ConditionMarker}); 
                 %%obj.inputs.Handles.(ax).ERP.UserData(1,1+numel(obj.inputs.Handles.ERP.UserData))=obj.inputs.trial; May be deleted
-                obj.inputs.Handles.(ax).ERP.YData=mean(obj.inputs.rawData.(ThisChannelName).data(IndexOfTrialsTillNow,:));
+                obj.inputs.Handles.(ax).ERP.YData=mean(obj.inputs.rawdata.(ThisChannelName).data(IndexOfTrialsTillNow,:));
                 drawnow;
+                MeanERPLatency=round(mean(obj.inputs.results.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).ERPLatency(IndexOfTrialsTillNow,1)),3);
             end
+            %% Update the Latest ERP Latency & Mean ERP Latency Stauts on Axes
+            textERPLatencyStatus={['Latest ERP Latency(ms):' num2str(CurrentERPLatency)],['Mean ERP Latency(ms):' num2str(MeanERPLatency)]};
+            if isfield(obj.app.pr.ax.(ax).UserData,'status')
+                obj.app.pr.ax.(ax).UserData.status.String=textERPLatencyStatus;
+            else
+                obj.app.pr.ax.(ax).UserData.status=text(obj.app.pr.ax.(ax),1,1,textERPLatencyStatus,'units','normalized','HorizontalAlignment','right','VerticalAlignment','cap','color',[0.45 0.45 0.45]);
+            end
+            %% Storing the ERP Latency Mean Result for final use as result or thats overwritten
+            Condition=['Condition' num2str(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.ConditionMarker})];
+            obj.inputs.results.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).MeanERPLatency.(Condition)=MeanERPLatency;
         end 
+        function ERPLatency (obj)
+            % Output = stores ERP latency in ms with in a given ERP Search Window, for a given channel
+            maxx=find(max(obj.inputs.rawdata.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).data(obj.inputs.trial,obj.inputs.SEPSearchWindow(1)*5:obj.inputs.SEPSearchWindow(2)*5)));
+            obj.inputs.results.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).ERPLatency(obj.inputs.trial,1)=1000*(obj.inputs.rawdata.RawEEGData.time(obj.inputs.rawdata.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).data(obj.inputs.trial,:)==maxx));
+        end
         function ERPTopoPlot(obj)
             ax                    = ['ax' num2str(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.axesno}{1,obj.inputs.chLab_idx})];
             IndexOfTrialsTillNow  = vertcat(obj.inputs.trialMat{1:obj.inputs.trial,obj.inputs.colLabel.ConditionMarker})==obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.ConditionMarker};
-            ERPTopoPlotData       = struct;
-            ERPTopoPlotData.label = obj.best_toolbox.inputs.rawdata.RawEEGData.label;
-            ERPTopoPlotData.time  = {obj.best_toolbox.inputs.rawdata.RawEEGData.time{1}/1000};
-            ERPTopoPlotData.trial = {mean(cell2mat(obj.best_toolbox.inputs.rawdata.RawEEGData.trial(IndexOfTrialsTillNow)),2)};
+            cfg                   = [];
+            cfg.trials            = IndexOfTrialsTillNow;
+            AverageERP            = ft_timelockanalysis(cfg,obj.inputs.rawdata.RawEEGData);
             cfg                   = [];
             cfg.layout            = 'easycapM1.mat';
             layout                = ft_prepare_layout(cfg);
-            layout.label          = ERPTopoPlotData.label;
+            layout.label          = obj.inputs.rawdata.RawEEGData.label;
             cfg                   = [];
             cfg.layout            = layout;
             cfg.colorbar          = 'yes';
             cfg.trials            = 1;
             cfg.zlim              = 'maxabs';
             cfg.xlim              = obj.inputs.SEPSearchWindow/1000;
-            figure('Visible','off'); ft_topoplotER(cfg,ERPTopoPlotData);
+            cfg.colorbartext      = 'uV';
+            cfg.comment           = 'xlim';
+            cfg.interactive       = 'no';
+            figure('Visible','off'); ft_topoplotER(cfg,AverageERP);
             fh                    = gcf; %% fh.Visible='off';
             delete(allchild(obj.app.pr.container.(ax)))
             fh.Children(3).Parent = obj.app.pr.container.(ax);

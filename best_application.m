@@ -1608,7 +1608,8 @@ classdef best_application < handle
             uimenu(ui_menu,'label','X auto-fit','Callback',@obj.pr_EEGXAutoFit,'Tag',obj.pr.ax_no);
             uimenu(ui_menu,'label','export as MATLAB Figure','Callback',@obj.pr_FigureExport,'Tag',obj.pr.ax_no);
             obj.pr.clab.(obj.pr.ax_no)=uix.Panel( 'Parent', obj.pr.grid, 'Padding', 5 ,'Units','normalized','Title', 'Trigger Locked EEG','FontWeight','bold','FontSize',12,'TitlePosition','centertop' );
-            obj.pr.ax.(obj.pr.ax_no)=axes( uicontainer('Parent',   obj.pr.clab.(obj.pr.ax_no)),'Units','normalized','uicontextmenu',ui_menu);
+            obj.pr.container.(obj.pr.ax_no)=uicontainer('Parent',   obj.pr.clab.(obj.pr.ax_no));
+            obj.pr.ax.(obj.pr.ax_no)=axes( 'Parent',obj.pr.container.(obj.pr.ax_no),'Units','normalized','uicontextmenu',ui_menu);
             xlabel('Time (ms)'); ylabel('EEG Potential (\mu V)');
             text(obj.pr.ax.(obj.pr.ax_no),1,1,'YLim-','units','normalized','HorizontalAlignment','right','VerticalAlignment','bottom','ButtonDownFcn',@obj.pr_EEGYLimZoomIn,'Tag',obj.pr.ax_no,'color',[0.55 0.55 0.55]);
             text(obj.pr.ax.(obj.pr.ax_no),0.1,1,'YLim+','units','normalized','HorizontalAlignment','left','VerticalAlignment','bottom','ButtonDownFcn',@obj.pr_EEGYLimZoomOut,'Tag',obj.pr.ax_no,'color',[0.55 0.55 0.55]);
