@@ -60,13 +60,12 @@ classdef best_application < handle
             obj.create_inputs_panel;
             obj.create_results_panel;
             obj.create_hwcfg_panel;
+            obj.create_settings;
+            obj.protect_experiment;
             %              obj.pi_ioc
             %             obj.results_panel;
             % obj.pr.axesno=6;
             % obj.resultsPanel
-            
-            
-            
         end
         function create_best_obj(obj)
             obj.bst= best_toolbox (obj);
@@ -182,13 +181,13 @@ classdef best_application < handle
             % sessions listbox: seventh horizontal row on first panel
             obj.pmd.lb_sessions.string={};
             m_sessions=uicontextmenu(obj.fig.handle);
-            mus1 = uimenu(m_sessions,'label','Copy','Callback',@(~,~)obj.cb_pmd_lb_sessions_copy);
+            obj.pmd.copysession = uimenu(m_sessions,'label','Copy','Callback',@(~,~)obj.cb_pmd_lb_sessions_copy);
             %             mus2 = uimenu(m_sessions,'label','Paste Above','Callback',@(~,~)obj.cb_pmd_lb_sessions_pasteup);
-            mus3 = uimenu(m_sessions,'label','Paste','Callback',@(~,~)obj.cb_pmd_lb_sessions_pastedown);
-            mus4 = uimenu(m_sessions,'label','Delete','Callback',@(~,~)obj.cb_pmd_lb_sessions_del);
-            mus5 = uimenu(m_sessions,'label','Move Up','Callback',@(~,~)obj.cb_pmd_lb_sessions_moveup);
-            mus5 = uimenu(m_sessions,'label','Move Down','Callback',@(~,~)obj.cb_pmd_lb_sessions_movedown);
-            mus7 = uimenu(m_sessions,'label','Rename Sesion','Callback',@(~,~)obj.cb_session_rename);
+            obj.pmd.pastesession = uimenu(m_sessions,'label','Paste','Callback',@(~,~)obj.cb_pmd_lb_sessions_pastedown);
+            obj.pmd.deletesession = uimenu(m_sessions,'label','Delete','Callback',@(~,~)obj.cb_pmd_lb_sessions_del);
+            mus1 = uimenu(m_sessions,'label','Move Up','Callback',@(~,~)obj.cb_pmd_lb_sessions_moveup);
+            mus2 = uimenu(m_sessions,'label','Move Down','Callback',@(~,~)obj.cb_pmd_lb_sessions_movedown);
+            obj.pmd.renamesession = uimenu(m_sessions,'label','Rename Sesion','Callback',@(~,~)obj.cb_session_rename);
             
             obj.pmd.lb_sessions.listbox=uicontrol( 'Style','listbox','Parent', pmd_vbox ,'KeyPressFcn',@(~,~)obj.cb_pmd_lb_session_keypressfcn,'FontSize',11,'String',obj.pmd.lb_sessions.string,'uicontextmenu',m_sessions,'Callback',@(~,~)obj.cb_session_listbox);
             
@@ -201,15 +200,15 @@ classdef best_application < handle
             %             measure_lb2={'MEP Measurement','MEP Hotspot Search','MEP Motor Threshold Hunting','Dose-Response Curve (MEP-sp)','Dose-Response Curve (MEP-pp)','EEG triggered TMS','MR triggered TMS','TEP Measurement'};
             obj.pmd.lb_measures.string={};
             m=uicontextmenu(obj.fig.handle);
-            mu1 = uimenu(m,'label','Copy','Callback',@(~,~)obj.cb_pmd_lb_measures_copy);
+            obj.pmd.copyprotocol = uimenu(m,'label','Copy','Callback',@(~,~)obj.cb_pmd_lb_measures_copy);
             %             mu2 = uimenu(m,'label','Paste Above','Callback',@(~,~)obj.cb_pmd_lb_measures_pasteup);
-            mu3 = uimenu(m,'label','Paste','Callback',@(~,~)obj.cb_pmd_lb_measures_pastedown);
-            mu4 = uimenu(m,'label','Delete','Callback',@(~,~)obj.cb_pmd_lb_measures_del);
-            mu7 = uimenu(m,'label','Add Suffix','Callback',@(~,~)obj.cb_measure_suffix);
+            obj.pmd.pasteprotocol = uimenu(m,'label','Paste','Callback',@(~,~)obj.cb_pmd_lb_measures_pastedown);
+            obj.pmd.deleteprotocol = uimenu(m,'label','Delete','Callback',@(~,~)obj.cb_pmd_lb_measures_del);
+            obj.pmd.suffixprotocol = uimenu(m,'label','Add Suffix','Callback',@(~,~)obj.cb_measure_suffix);
             mu5 = uimenu(m,'label','Move Up','Callback',@(~,~)obj.cb_pmd_lb_measures_moveup);
             mu6 = uimenu(m,'label','Move Down','Callback',@(~,~)obj.cb_pmd_lb_measures_movedown);
             obj.pmd.lb_measure_menu_loadresults=uimenu(m,'label','Load Results','Callback',@(~,~)obj.cb_pmd_lb_measure_menu_loadresult);
-            mu8 = uimenu(m,'label','Rename Protocol','Callback',@(~,~)obj.cb_measure_rename);
+            obj.pmd.renameprotocol = uimenu(m,'label','Rename Protocol','Callback',@(~,~)obj.cb_measure_rename);
             
             obj.pmd.lb_measures.listbox=uicontrol( 'Style','listbox','Parent', ProtocolListBox ,'KeyPressFcn',@(~,~)obj.cb_pmd_lb_measure_keypressfcn,'FontSize',11,'String',obj.pmd.lb_measures.string,'uicontextmenu',m,'Callback',@(~,~)obj.cb_measure_listbox);
             obj.pmd.ProtocolStatus.listbox=uicontrol( 'Style','listbox','Parent', ProtocolListBox ,'FontAngle','italic','KeyPressFcn',@(~,~)obj.cb_pmd_lb_measure_keypressfcn,'FontSize',11,'String',obj.pmd.lb_measures.string,'uicontextmenu',m,'Callback',@(~,~)obj.cb_measure_listbox);
@@ -6720,6 +6719,7 @@ classdef best_application < handle
                 drawnow
                 pause(1);
                 obj.cb_session_listbox;
+                obj.protect_experiment;
                 drawnow;
                 %% Below Code Works for When Saved is Performed using AMAT File, but it is recommended to depricate that in Future Release because it is too slow
                 %             saved_struct=load(FileName,varname);
@@ -7068,8 +7068,12 @@ classdef best_application < handle
         end
         function pi_ToolboxSetings(obj)
             obj.fig.main.Widths([1 2 3])=[0 -3.35 -0];
+            settingsmenu=uicontextmenu(obj.fig.handle);
+            uimenu(settingsmenu,'label','Lock Experiment','Callback',@protect);
+            uimenu(settingsmenu,'label','Unlock Experiment','Callback',@protect);
+            set(obj.pi.empty_panel,'uicontextmenu',settingsmenu);
             Panel=uix.Panel( 'Parent', obj.pi.empty_panel,'FontSize',14 ,'Units','normalized','Title','Toolbox Global Settings' ,'FontWeight','Bold','TitlePosition','centertop');
-            vb = uix.VBox( 'Parent', Panel, 'Spacing', 5, 'Padding', 5  );
+            vb = uix.VBox( 'Parent', Panel, 'Spacing', 5, 'Padding', 5 );
             obj.pi.settings.Apply50HZLineNoiseFilter=uicontrol( 'Style','checkbox','Parent', vb ,'FontSize',11,'String','Apply 50HZ Line Noise Filter to EMG Data:','Tag','NoiseFilter50Hz','callback',@cb_par_saving);
             obj.pi.settings.Apply60HZLineNoiseFilter=uicontrol( 'Style','checkbox','Parent', vb ,'FontSize',11,'String','Apply 60HZ Line Noise Filter to EMG Data:','Tag','NoiseFilter60Hz','callback',@cb_par_saving);
             obj.pi.settings.SaveFiguresofeachProtocol=uicontrol( 'Style','checkbox','Parent', vb ,'FontSize',11,'String','Save Figures of each Protocol:','Tag','SaveFiguresofeachProtocol','callback',@cb_par_saving);
@@ -7098,7 +7102,17 @@ classdef best_application < handle
                     obj.par.GlobalSettings.NoiseFilter60Hz=0;
                     obj.par.GlobalSettings.SaveFigures=1;
                     obj.par.GlobalSettings.DataBaseDirectory=eval('cd');
+                    obj.par.GlobalSettings.Protect=false;
                 end
+            end
+            function protect(source,~)
+                switch source.Text
+                    case 'Lock Experiment'
+                        obj.par.GlobalSettings.Protect=true;
+                    case 'Unlock Experiment'
+                        obj.par.GlobalSettings.Protect=false;
+                end
+                obj.protect_experiment;
             end
         end
         function func_load_ToolboxSetings(obj)
@@ -8646,6 +8660,46 @@ classdef best_application < handle
                     obj.pi_tep;
                     obj.func_load_tep_par;
             end
+       end
+       function protect_experiment(obj)
+           if isempty(obj.par), obj.par.GlobalSettings.Protect=false; end
+           if ~isfield(obj.par,'GlobalSettings'), obj.par.GlobalSettings.Protect=false; end
+           if ~isfield(obj.par.GlobalSettings,'Protect'), obj.par.GlobalSettings.Protect=false; end
+           switch obj.par.GlobalSettings.Protect
+               case 0
+                   obj.pmd.sess_title.btn.Enable     = 'on';
+                   obj.pmd.select_measure.btn.Enable = 'on';
+                   obj.pmd.copysession.Enable        = 'on';
+                   obj.pmd.pastesession.Enable       = 'on';
+                   obj.pmd.deletesession.Enable      = 'on';
+                   obj.pmd.renamesession.Enable      = 'on';
+                   obj.pmd.copyprotocol.Enable       = 'on';
+                   obj.pmd.pasteprotocol.Enable      = 'on';
+                   obj.pmd.deleteprotocol.Enable     = 'on';
+                   obj.pmd.suffixprotocol.Enable     = 'on';
+                   obj.pmd.renameprotocol.Enable     = 'on';
+               case 1
+                   obj.pmd.sess_title.btn.Enable     = 'off';
+                   obj.pmd.select_measure.btn.Enable = 'off';
+                   obj.pmd.copysession.Enable        = 'off';
+                   obj.pmd.pastesession.Enable       = 'off';
+                   obj.pmd.deletesession.Enable      = 'off';
+                   obj.pmd.renamesession.Enable      = 'off';
+                   obj.pmd.copyprotocol.Enable       = 'off';
+                   obj.pmd.pasteprotocol.Enable      = 'off';
+                   obj.pmd.deleteprotocol.Enable     = 'off';
+                   obj.pmd.suffixprotocol.Enable     = 'off';
+                   obj.pmd.renameprotocol.Enable     = 'off';
+           end
+       end
+       function create_settings(obj)
+           if ~isfield(obj.par,'GlobalSettings') || isempty(obj.par)
+               obj.par.GlobalSettings.NoiseFilter50Hz=0;
+               obj.par.GlobalSettings.NoiseFilter60Hz=0;
+               obj.par.GlobalSettings.SaveFigures=1;
+               obj.par.GlobalSettings.DataBaseDirectory=eval('cd');
+               obj.par.GlobalSettings.Protect=false;
+           end
        end
 
     end
