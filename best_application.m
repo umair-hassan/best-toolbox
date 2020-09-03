@@ -2111,6 +2111,7 @@ classdef best_application < handle
             
             
             function cb_par_saving(source,~)
+                if obj.par.GlobalSettings.Protect==1, obj.RefreshProtocol; return; end
                 if strcmp(source.Tag,'InputDevice') || strcmp(source.Tag,'AmplitudeUnits') || strcmp(source.Tag,'FrequencyBand')
                     obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(source.Tag)=source.Value;
                 else
@@ -2515,6 +2516,7 @@ classdef best_application < handle
             
             
             function cb_par_saving(source,~)
+                if obj.par.GlobalSettings.Protect==1, return; end
                 if strcmp(source.Tag,'InputDevice') || strcmp(source.Tag,'AmplitudeUnits') || strcmp(source.Tag,'FrequencyBand') || strcmp(source.Tag,'DoseFunction')
                     obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(source.Tag)=source.Value;
                 else
@@ -2895,6 +2897,7 @@ classdef best_application < handle
             
             
             function cb_par_saving(source,~)
+                if obj.par.GlobalSettings.Protect==1, return; end
                 if strcmp(source.Tag,'InputDevice') || strcmp(source.Tag,'AmplitudeUnits') || strcmp(source.Tag,'FrequencyBand') || strcmp(source.Tag,'DoseFunction') || strcmp(source.Tag,'ThresholdMethod')
                     obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(source.Tag)=source.Value;
                 else
@@ -3690,6 +3693,7 @@ classdef best_application < handle
             set(vb,'Heights',[35 35 45 45 45 45 45 45 45 45 45 -1])
             
             function cb_par_saving(source,~)
+                if obj.par.GlobalSettings.Protect==1, return; end
                 source = obj.ExceptionHandling(source);
                 if strcmp(source.Tag,'InputDevice') || strcmp(source.Tag,'OutputDevice') || strcmp(source.Tag,'SpectralAnalysis')
                     obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(source.Tag)=source.Value;
@@ -7085,6 +7089,7 @@ classdef best_application < handle
             set( vb, 'Heights', [100 100 100 30 -1]);
             CreateDefaultsIfRequired;
             function cb_par_saving(source,~)
+                if obj.par.GlobalSettings.Protect==1, return; end
                 if strcmp(source.Tag,'DataBaseDirectory')
                     if exist(source.String, 'dir')==7
                         obj.par.GlobalSettings.DataBaseDirectory=source.String;
@@ -8533,14 +8538,17 @@ classdef best_application < handle
                 obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).ImportERPLatency.(AdditionInPulse).Protocol=Protocol{1,1};
                 obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).ImportERPLatency.(AdditionInPulse).Parameter='';
                 obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).ImportERPLatency.(AdditionInPulse).Channel='';
+                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).ImportERPLatency.(AdditionInPulse).Condition='';
                 Parameter={''};
                 Channel={''};
+                AvailableConditions={''};
                 Value='Not Available';
             else
                 Session={obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).ImportERPLatency.(AdditionInPulse).Session};
                 Protocol={obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).ImportERPLatency.(AdditionInPulse).Protocol};
                 Parameter={obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).ImportERPLatency.(AdditionInPulse).Parameter};
                 Channel={obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).ImportERPLatency.(AdditionInPulse).Channel};
+                AvailableConditions={obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).ImportERPLatency.(AdditionInPulse).Condition};
                 Value='Not Available';
                 %                 Value=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).ImportERPLatency.(AdditionInPulse).Value;
             end
@@ -8563,6 +8571,10 @@ classdef best_application < handle
             r4=uix.HBox('parent',c1);
             uicontrol( 'Style','text','Parent', r4,'String','Select Channel:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
             SelectedChannel=uicontrol( 'Parent', r4 ,'Style','popupmenu','FontSize',11,'String',Channel,'Callback',@ChannelSelected);
+            %% Select Condition
+            r4=uix.HBox('parent',c1);
+            uicontrol( 'Style','text','Parent', r4,'String','Select Condition:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+            SelectedCondition=uicontrol( 'Parent', r4 ,'Style','popupmenu','FontSize',11,'String',AvailableConditions,'Callback',@ConditionSelected);
             %% Annotating Value
             r5=uix.HBox('parent',c1);
             uicontrol( 'Style','text','Parent', r5,'String','Selected Value:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
@@ -8572,9 +8584,9 @@ classdef best_application < handle
             uicontrol( 'Style','text','Parent', r6,'String','','FontSize',11,'HorizontalAlignment','left','Units','normalized');
             uicontrol( 'Parent', r6 ,'Style','pushbutton','String','Reset','FontSize',11,'FontWeight','Bold','Callback',@(~,~)ResetCoupling);
             %% Figure Heights and Positioning
-            set(c1, 'Heights', [25 25 25 25 25 25])
+            set(c1, 'Heights', [25 25 25 25 25 25 25])
             f.Position(3)=430;
-            f.Position(4)=225;
+            f.Position(4)=250;
             %% Callbacks
             function SessionSelected(source,~)
                 obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).ImportERPLatency.(AdditionInPulse).Session=regexprep((obj.pmd.lb_sessions.listbox.String{source.Value}),' ','_');
@@ -8583,6 +8595,7 @@ classdef best_application < handle
                 ProtocolList.String=obj.data.(sess).info.measurement_str_to_listbox;
                 ProtocolsParameters.String={''};
                 SelectedChannel.String={''};
+                SelectedCondition.String={''};
             end
             function ProtocolSelected(source,~)
                 obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).ImportERPLatency.(AdditionInPulse).Protocol=regexprep((obj.pmd.lb_measures.listbox.String{source.Value}),' ','_');
@@ -8595,6 +8608,9 @@ classdef best_application < handle
                         for TargetChannels=1:numel(MontageChannels)
                             SelectedChannel.String{1,TargetChannels}=erase(char(join(MontageChannels{TargetChannels})),' ');
                         end
+                        for ii=1:numel(fieldnames(obj.par.(sess).(prtcl).condsAll))
+                            SelectedCondition.String{ii}=['Condition' num2str(ii)];
+                        end
                 end
                 try
                     obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).ImportERPLatency.(AdditionInPulse).Parameter=ProtocolsParameters.String{1,1};
@@ -8606,12 +8622,20 @@ classdef best_application < handle
                 catch
                     obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).ImportERPLatency.(AdditionInPulse).Channel='';
                 end
+                try
+                    obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).ImportERPLatency.(AdditionInPulse).Condition=SelectedCondition.String{1,1};
+                catch
+                    obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).ImportERPLatency.(AdditionInPulse).Condition='';
+                end
             end
             function ParameterSelected(source,~)
                 obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).ImportERPLatency.(AdditionInPulse).Parameter=ProtocolsParameters.String{source.Value};
             end
             function ChannelSelected(source,~)
                 obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).ImportERPLatency.(AdditionInPulse).Channel=SelectedChannel.String{source.Value};
+            end
+            function ConditionSelected(source,~)
+                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).ImportERPLatency.(AdditionInPulse).Condition=SelectedCondition.String{source.Value};
             end
             function ResetCoupling
                 close(f)

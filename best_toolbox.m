@@ -3345,8 +3345,9 @@ classdef best_toolbox < handle
                                     Session=obj.inputs.condsAll.(condStr).(st).ImportERPLatency.(Pulse).Session;
                                     Protocol=obj.inputs.condsAll.(condStr).(st).ImportERPLatency.(Pulse).Protocol;
                                     Channel=obj.inputs.condsAll.(condStr).(st).ImportERPLatency.(Pulse).Channel;
-                                    obj.inputs.condsAll.(condStr).(st).stim_timing{iStimTiming}=obj.sessions.(Session).(Protocol).results.ERPLatency.(Channel);
-                                    obj.app.par.(obj.app.info.event.current_session).(obj.app.info.event.current_measure_fullstr).condsAll.(condStr).(st).stim_timing{iStimTiming}=obj.sessions.(Session).(Protocol).results.ERPLatency.(Channel);
+                                    Condition=obj.inputs.condsAll.(condStr).(st).ImportERPLatency.(Pulse).Condition;
+                                    obj.inputs.condsAll.(condStr).(st).stim_timing{iStimTiming}=obj.sessions.(Session).(Protocol).results.(Channel).MeanERPLatency.(Condition);
+                                    obj.app.par.(obj.app.info.event.current_session).(obj.app.info.event.current_measure_fullstr).condsAll.(condStr).(st).stim_timing{iStimTiming}=obj.sessions.(Session).(Protocol).results.(Channel).MeanERPLatency.(Condition);
                                 catch
                                     errordlg('The "ERP Latency" to import from previous "ERP Measurement" cannot be found in "Linked List".','BEST Toolbox');
                                 end
@@ -6114,17 +6115,14 @@ classdef best_toolbox < handle
             CurrentERPLatency=obj.inputs.results.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).ERPLatency(obj.inputs.trial,1);
             if(isfield(obj.inputs.Handles,ax)==0)
                 ThisEEG=obj.inputs.rawdata.(ThisChannelName).data(obj.inputs.trial,:);
-                obj.inputs.Handles.(ax).ERP=plot(ThisEEGTime,ThisEEG,'color','red','LineWidth',2,'DisplayName','ERP');
-                %legend('Location','southoutside','Orientation','horizontal'); hold on;
-                %%obj.inputs.Handles.(ax).ERP.UserData(1,1)=obj.inputs.trial; May be deleted
+                obj.inputs.Handles.(ax).ERP=plot(ThisEEGTime,ThisEEG,'color','red','LineWidth',2);
                 xlim(obj.app.pr.ax.(ax),obj.inputs.EEGXLimit), ylim(obj.app.pr.ax.(ax),obj.inputs.EEGYLimit), drawnow
                 xticks(obj.app.pr.ax.(ax),unique(sort([0 obj.inputs.EEGXLimit(1):10:obj.inputs.EEGXLimit(2)])))
                 ZeroLine=gridxy(0,'Color','k','linewidth',2,'Parent',obj.app.pr.ax.(ax),'Tag','TriggerLockedEEGZeroLine');hold on;
-                ZeroLine.Annotation.LegendInformation.IconDisplayStyle = 'off'; legend('Location','southoutside','Orientation','horizontal'); hold on;
+                ZeroLine.Annotation.LegendInformation.IconDisplayStyle = 'off'; 
                 MeanERPLatency=CurrentERPLatency;
             else
                 IndexOfTrialsTillNow=find(vertcat(obj.inputs.trialMat{1:obj.inputs.trial,obj.inputs.colLabel.ConditionMarker})==obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.ConditionMarker}); 
-                %%obj.inputs.Handles.(ax).ERP.UserData(1,1+numel(obj.inputs.Handles.ERP.UserData))=obj.inputs.trial; May be deleted
                 obj.inputs.Handles.(ax).ERP.YData=mean(obj.inputs.rawdata.(ThisChannelName).data(IndexOfTrialsTillNow,:));
                 drawnow;
                 MeanERPLatency=round(mean(obj.inputs.results.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).ERPLatency(IndexOfTrialsTillNow,1)),3);
@@ -6142,8 +6140,9 @@ classdef best_toolbox < handle
         end 
         function ERPLatency (obj)
             % Output = stores ERP latency in ms with in a given ERP Search Window, for a given channel
-            maxx=find(max(obj.inputs.rawdata.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).data(obj.inputs.trial,obj.inputs.SEPSearchWindow(1)*5:obj.inputs.SEPSearchWindow(2)*5)));
-            obj.inputs.results.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).ERPLatency(obj.inputs.trial,1)=1000*(obj.inputs.rawdata.RawEEGData.time(obj.inputs.rawdata.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).data(obj.inputs.trial,:)==maxx));
+            % Minima is taken from the retrieved results because it could happen that there are two maximas of same amplitude in rare cases
+            maxx=max(obj.inputs.rawdata.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).data(obj.inputs.trial,obj.inputs.SEPSearchWindow(1)*5:obj.inputs.SEPSearchWindow(2)*5));
+            obj.inputs.results.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).ERPLatency(obj.inputs.trial,1)=min((obj.inputs.rawdata.RawEEGTime(obj.inputs.rawdata.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).data(obj.inputs.trial,:)==maxx)));
         end
         function ERPTopoPlot(obj)
             ax                    = ['ax' num2str(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.axesno}{1,obj.inputs.chLab_idx})];
