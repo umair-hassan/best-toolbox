@@ -56,7 +56,8 @@ classdef best_sync2brain_bossdevice <handle
                         obj.bb.beta.bpf_fir_coeffs =  firls(obj.best_toolbox.inputs.BandPassFilterOrder, [0 (obj.best_toolbox.inputs.PeakFrequency + [-5 -2 +2 +5]) (1000/2)]/(1000/2), [0 0 1 1 0 0], [1 1 1]) ;
                 end
             end
-            
+            %% Confirming Data Streaming
+            obj.isStreaming;
         end
         
         function singlePulse(obj,portNo)
@@ -602,7 +603,55 @@ classdef best_sync2brain_bossdevice <handle
             obj.bb.stop;
             try stop([obj.EMGScope obj.IEEGScope obj.IAScope obj.IPScope obj. EEGScope]); catch, end
         end
-        
+        function isStreaming(obj)
+            %% 96, 97 Scope Checking
+            if obj.bb.aux_channels>0
+                NumSamples=round((10+10)*5); % 20 ms total
+                NumPrePostSamples=round(10*5); %10ms prepost
+                EMGScopeStreaming = addscope(obj.bb.tg, 'host', 97);
+                AuxSignalID = getsignalid(obj.bb.tg, 'UDP/raw_aux') + int32(0:7);
+                addsignal(EMGScopeStreaming, AuxSignalID);
+                EMGScopeStreaming.NumSamples = NumSamples;
+                EMGScopeStreaming.NumPrePostSamples = -NumPrePostSamples;
+                EMGScopeStreaming.Decimation = 1;
+                EMGScopeStreaming.TriggerMode = 'Signal';
+                EMGScopeStreaming.TriggerSignal = getsignalid(obj.bb.tg, 'gen_running');
+                EMGScopeStreaming.TriggerLevel = 0.5;
+                EMGScopeStreaming.TriggerSlope = 'Rising';
+                start(EMGScopeStreaming);
+                while ~strcmpi(EMGScopeStreaming.Status,'Ready for being Triggered'), end
+                trigger(EMGScopeStreaming);
+                while ~strcmpi(EMGScopeStreaming.Status,'finished'),end
+                isAuxStreaming=any(mean(EMGScopeStreaming.Data(:,1:obj.bb.aux_channels))~=0);
+                if isAuxStreaming==false
+                     obj.best_toolbox.app.info.ErrorMessage='The EMG Channels listed in the running BEST Toolbox Protocol are not streaming, try again after streaming correct channels.';
+                     error(obj.best_toolbox.app.info.ErrorMessage);
+                end
+            end
+            if obj.bb.eeg_channels>0
+                NumSamples=round((10+10)*5); % 20 ms total
+                NumPrePostSamples=round(10*5); %10ms prepost
+                EEGScopeStreaming = addscope(obj.bb.tg, 'host', 96);
+                AuxSignalID = getsignalid(obj.bb.tg, 'UDP/raw_eeg') + int32(0:obj.bb.eeg_channels-1);
+                addsignal(EEGScopeStreaming, AuxSignalID);
+                EEGScopeStreaming.NumSamples = NumSamples;
+                EEGScopeStreaming.NumPrePostSamples = -NumPrePostSamples;
+                EEGScopeStreaming.Decimation = 1;
+                EEGScopeStreaming.TriggerMode = 'Signal';
+                EEGScopeStreaming.TriggerSignal = getsignalid(obj.bb.tg, 'gen_running'); 
+                EEGScopeStreaming.TriggerLevel = 0.5;
+                EEGScopeStreaming.TriggerSlope = 'Rising';
+                start(EEGScopeStreaming);
+                while ~strcmpi(EEGScopeStreaming.Status,'Ready for being Triggered'), end
+                trigger(EEGScopeStreaming);
+                while ~strcmpi(EEGScopeStreaming.Status,'finished'),end
+                isEEGStreaming=any(mean(EEGScopeStreaming.Data(:,1:obj.bb.eeg_channels))~=0);
+                if isEEGStreaming==false
+                     obj.best_toolbox.app.info.ErrorMessage='The EEG Channels listed in the running BEST Toolbox Protocol are not streaming, try again after streaming correct channels.';
+                     error(obj.best_toolbox.app.info.ErrorMessage);
+                end
+            end
+        end
     end
 end
 
