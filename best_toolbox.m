@@ -1364,7 +1364,7 @@ classdef best_toolbox < handle
                                 obj.inputs.condMat{c,obj.inputs.colLabel.chId}=num2cell(1); %% TODO: update it later with the originigal channel index
                                 obj.inputs.condMat{c,obj.inputs.colLabel.marker}=c;
                                 obj.inputs.condMat{c,obj.inputs.colLabel.threshold}=1;
-                                for stno=1:(max(size(fieldnames(obj.inputs.condsAll.(conds{c,1}))))-1)
+                                for stno=1:(max(size(fieldnames(obj.inputs.condsAll.(conds{c,1}))))-6)
                                     st=['st' num2str(stno)];
                                     if(obj.inputs.condsAll.(conds{c,1}).(st).stim_mode=='single_pulse')
                                         obj.inputs.condsAll.(conds{c,1}).(st).si_pckt{1,2}=0;
@@ -2330,7 +2330,8 @@ classdef best_toolbox < handle
                             case {'%MT','%ST'}
                                 %checking if the corrospondonding threshold is exicstant or not
                                 if isempty(str2num(obj.inputs.condsAll.(condStr).(st).threshold))
-                                    errordlg('The "Threshold" cannot be found to set "Intensity Units".','BEST Toolbox');
+                                    obj.app.info.ErrorMessage='The "Threshold" cannot be found to set "Intensity Units"., try again after filling correct column in Protocol Designer.';
+                                    error(obj.app.info.ErrorMessage);
                                 else
                                     obj.inputs.condsAll.(condStr).(st).si_pckt{4}=str2num(obj.inputs.condsAll.(condStr).(st).threshold)*obj.inputs.condsAll.(condStr).(st).si_pckt{1}*0.01; %Multiplying the Threshold with the Intensity to apply Transformation
                                 end
@@ -3257,7 +3258,8 @@ classdef best_toolbox < handle
                             case {'%MT','%ST'}
                                 %checking if the corrospondonding threshold is exicstant or not
                                 if isempty(str2num(obj.inputs.condsAll.(condStr).(st).threshold))
-                                    errordlg('The "Threshold" cannot be found to set "Intensity Units".','BEST Toolbox');
+                                    obj.app.info.ErrorMessage='The "Threshold" cannot be found to set "Intensity Units"., try again after filling correct column in Protocol Designer.';
+                                    error(obj.app.info.ErrorMessage);
                                 else
                                     obj.inputs.condsAll.(condStr).(st).si_pckt{4}=str2num(obj.inputs.condsAll.(condStr).(st).threshold)*obj.inputs.condsAll.(condStr).(st).si_pckt{1}*0.01; %Multiplying the Threshold with the Intensity to apply Transformation
                                 end
@@ -3272,14 +3274,16 @@ classdef best_toolbox < handle
                                             try
                                                 Threshold=obj.sessions.(Session).(Protocol).Results.(Channel).MotorThreshold; %get the motor threshold;
                                                 obj.inputs.condsAll.(condStr).(st).threshold=num2str(Threshold);
-                                                if floor(Threshold)==Threshold %% Integer-ness check when the Input is double
-                                                    obj.inputs.condsAll.(condStr).(st).si_pckt{4}=round(str2num(obj.inputs.condsAll.(condStr).(st).threshold)*obj.inputs.condsAll.(condStr).(st).si_pckt{1}*0.01); %Multiplying the Threshold with the Intensity to apply Transformation
-                                                else
-                                                    obj.inputs.condsAll.(condStr).(st).si_pckt{4}=str2num(obj.inputs.condsAll.(condStr).(st).threshold)*obj.inputs.condsAll.(condStr).(st).si_pckt{1}*0.01; %Multiplying the Threshold with the Intensity to apply Transformation
-                                                end
+                                                obj.inputs.condsAll.(condStr).(st).si_pckt{4}=(str2num(obj.inputs.condsAll.(condStr).(st).threshold)*obj.inputs.condsAll.(condStr).(st).si_pckt{1}*0.01); %Multiplying the Threshold with the Intensity to apply Transformation
+% %                                                 if floor(Threshold)==Threshold %% Integer-ness check when the Input is double
+% %                                                     obj.inputs.condsAll.(condStr).(st).si_pckt{4}=round(str2num(obj.inputs.condsAll.(condStr).(st).threshold)*obj.inputs.condsAll.(condStr).(st).si_pckt{1}*0.01); %Multiplying the Threshold with the Intensity to apply Transformation
+% %                                                 else
+% %                                                     obj.inputs.condsAll.(condStr).(st).si_pckt{4}=str2num(obj.inputs.condsAll.(condStr).(st).threshold)*obj.inputs.condsAll.(condStr).(st).si_pckt{1}*0.01; %Multiplying the Threshold with the Intensity to apply Transformation
+% %                                                 end
                                                 % set the adjusted value on the 4th packet in si_packet and repeat it for all
                                             catch
-                                                errordlg('The "Motor Threshold" coupled to import from previous Measurement cannot be found in "Linked List".','BEST Toolbox');
+                                                obj.app.info.ErrorMessage='The "Motor Threshold" intensity coupled to import from previous Measurement cannot be found in "Linked List", try again after linking correct intensiteis.';
+                                                error(obj.app.info.ErrorMessage);
                                             end
                                         case 'Sensory Threshold'
                                             try
@@ -3287,7 +3291,8 @@ classdef best_toolbox < handle
                                                 obj.inputs.condsAll.(condStr).(st).threshold=num2str(Threshold);
                                                 obj.inputs.condsAll.(condStr).(st).si_pckt{4}=str2num(obj.inputs.condsAll.(condStr).(st).threshold)*obj.inputs.condsAll.(condStr).(st).si_pckt{1}*0.01; %Multiplying the Threshold with the Intensity to apply Transformation
                                             catch
-                                                errordlg('The "Sensory Threshold" coupled to import from previous Measurement cannot be found in "Linked List".','BEST Toolbox');
+                                                obj.app.info.ErrorMessage='The "Sensory Threshold" intensity coupled to import from previous Measurement cannot be found in "Linked List", try again after linking correct intensiteis.';
+                                                error(obj.app.info.ErrorMessage);
                                             end
                                         case 'Inflection Point'
                                             try
@@ -3300,7 +3305,8 @@ classdef best_toolbox < handle
                                                     obj.inputs.condsAll.(condStr).(st).si_pckt{4}=str2num(obj.inputs.condsAll.(condStr).(st).threshold)*obj.inputs.condsAll.(condStr).(st).si_pckt{1}*0.01; %Multiplying the IP with the Intensity to apply Transformation
                                                 end
                                             catch
-                                                errordlg('The "Inflection Point" coupled to import from previous Measurement cannot be found in "Linked List".','BEST Toolbox');
+                                                obj.app.info.ErrorMessage='The "Inflection Point" intensity coupled to import from previous Measurement cannot be found in "Linked List", try again after linking correct intensiteis.';
+                                                error(obj.app.info.ErrorMessage);
                                             end
                                         case 'Inhibition'
                                             try
@@ -3312,7 +3318,8 @@ classdef best_toolbox < handle
                                                     obj.inputs.condsAll.(condStr).(st).si_pckt{4}=str2num(obj.inputs.condsAll.(condStr).(st).threshold)*obj.inputs.condsAll.(condStr).(st).si_pckt{1}*0.01; %Multiplying the Ib with the Intensity to apply Transformation
                                                 end
                                             catch
-                                                errordlg('The "Inhibition" coupled to import from previous Measurement cannot be found in "Linked List".','BEST Toolbox');
+                                                obj.app.info.ErrorMessage='The "50% Inhibition" intensity coupled to import from previous Measurement cannot be found in "Linked List", try again after linking correct intensiteis.';
+                                                error(obj.app.info.ErrorMessage);
                                             end
                                         case 'Facilitation'
                                             try
@@ -3321,7 +3328,8 @@ classdef best_toolbox < handle
                                                 %% Add Integer-ness check here
                                                 obj.inputs.condsAll.(condStr).(st).si_pckt{4}=str2num(obj.inputs.condsAll.(condStr).(st).threshold)*obj.inputs.condsAll.(condStr).(st).si_pckt{1}*0.01; %Multiplying the Fc with the Intensity to apply Transformation
                                             catch
-                                                errordlg('The "Facilitation" coupled to import from previous Measurement cannot be found in "Linked List".','BEST Toolbox');
+                                                obj.app.info.ErrorMessage='The "50% Facilitation" intensity coupled to import from previous Measurement cannot be found in "Linked List", try again after linking correct intensiteis.';
+                                                error(obj.app.info.ErrorMessage);
                                             end
                                         case 'Plateau'
                                             try
@@ -3330,11 +3338,13 @@ classdef best_toolbox < handle
                                                 %% Add Integer-ness check here
                                                 obj.inputs.condsAll.(condStr).(st).si_pckt{4}=str2num(obj.inputs.condsAll.(condStr).(st).threshold)*obj.inputs.condsAll.(condStr).(st).si_pckt{1}*0.01; %Multiplying the Pt with the Intensity to apply Transformation
                                             catch
-                                                errordlg('The "Plateau" coupled to import from previous Measurement cannot be found in "Linked List".','BEST Toolbox');
+                                                obj.app.info.ErrorMessage='The "Plateau" intensity coupled to import from previous Measurement cannot be found in "Linked List", try again after linking correct intensiteis.';
+                                                error(obj.app.info.ErrorMessage);
                                             end
                                     end
                                 catch
-                                    errordlg('The "Intensities Coupled Units" to import from previous Measurement cannot be found in "Linked List".','BEST Toolbox');
+                                    obj.app.info.ErrorMessage='The "Intensities Coupled Units" to import from previous Measurement cannot be found in "Linked List", try again after linking correct intensiteis.';
+                                    error(obj.app.info.ErrorMessage);
                                 end
                         end
                         %% Checking Timing Onset Units
@@ -3349,7 +3359,8 @@ classdef best_toolbox < handle
                                     obj.inputs.condsAll.(condStr).(st).stim_timing{iStimTiming}=obj.sessions.(Session).(Protocol).results.(Channel).MeanERPLatency.(Condition);
                                     obj.app.par.(obj.app.info.event.current_session).(obj.app.info.event.current_measure_fullstr).condsAll.(condStr).(st).stim_timing{iStimTiming}=obj.sessions.(Session).(Protocol).results.(Channel).MeanERPLatency.(Condition);
                                 catch
-                                    errordlg('The "ERP Latency" to import from previous "ERP Measurement" cannot be found in "Linked List".','BEST Toolbox');
+                                    obj.app.info.ErrorMessage='The "ERP Latency" to import from previous "ERP Measurement" cannot be found in "Linked List", try again after linking correct ERP Latency.';
+                                    error(obj.app.info.ErrorMessage);
                                 end
                             end
                         end
@@ -3368,7 +3379,8 @@ classdef best_toolbox < handle
                                 obj.inputs.PeakFrequency=obj.sessions.(Session).(Protocol).Results.PeakFrequency.(Channel);
                                 obj.app.par.(obj.app.info.event.current_session).(obj.app.info.event.current_measure_fullstr).PeakFrequency=num2str(obj.inputs.PeakFrequency);
                             catch
-                                errordlg('The Peak Frequency to import from previous rsEEG Measurement Protocol cannot be found in "Linked List".','BEST Toolbox');
+                                obj.app.info.ErrorMessage='The Peak Frequency to import from previous rsEEG Measurement Protocol cannot be found in "Linked List". try againa after linking correct Peak Frequency.';
+                                error(obj.app.info.ErrorMessage);
                             end
                         end
                     catch
@@ -3608,6 +3620,21 @@ classdef best_toolbox < handle
                 case 9 %% digitimer
                     switch obj.app.par.hardware_settings.(char(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.outputDevices}{1,1})).TriggerControl
                         case 1 %bossdevice
+                            if strcmpi(obj.app.info.event.current_measure_fullstr,'Left_Thumb_Attention_Titration')
+                                if obj.inputs.trialMat{obj.inputs.trial,15}==1 %conditionmarker
+                                    obj.bossbox.multiPulse([{0 4 1};{0.3 6 0}; {0.6 6 0}; {0.9 4 0}]');
+%                                     0 4 1
+%                                     0.3 6 0
+%                                     0.6 6 0
+%                                     0.9 4 0
+                                    tic;
+                                    return;
+                                elseif obj.inputs.trialMat{obj.inputs.trial,15}==2 %conditionmarker
+                                    obj.bossbox.multiPulse([{0 2 1};{0.3 6 0}; {0.6 6 0}; {0.9 2 0}]');
+                                    tic;
+                                    return;
+                                end
+                            end
                             switch obj.inputs.BrainState
                                 case 1
                                     obj.bossbox.multiPulse(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.tpm});
@@ -3650,7 +3677,7 @@ classdef best_toolbox < handle
                                 EMGChannelIndex=EMGChannelIndex-obj.bossbox.bb.eeg_channels;
                                 [obj.inputs.rawData.(unique_chLab{1,i}).time(obj.inputs.trial,:), obj.inputs.rawData.(unique_chLab{1,i}).data(obj.inputs.trial,:)]=obj.bossbox.EMGScopeRead(EMGChannelIndex);
                                 %% Simulation Start
-                                obj.inputs.rawData.(unique_chLab{1,i}).data(obj.inputs.trial,:)=obj.sim_mep*obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.ConditionMarker};
+%                                 obj.inputs.rawData.(unique_chLab{1,i}).data(obj.inputs.trial,:)=obj.sim_mep*obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.ConditionMarker};
                                 %% Simuation End
                                 % 04-Jun-2020 19:58:28 Comment below two lines
                                 %                                 obj.inputs.rawData.(unique_chLab{1,i}).data(obj.inputs.trial,:)=obj.best_VisualizationFilter([obj.sim_mep(1,700:1000), obj.sim_mep(1,1:699)]*1000*obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,1}{1,1}*(randi([1 3])*0.10));
@@ -3903,6 +3930,8 @@ classdef best_toolbox < handle
                                 case 9 %digitimer
                                     switch obj.app.par.hardware_settings.(char(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.outputDevices}{1,i})).IntensityControl
                                         case 1 % Manual
+%                                             if strcmpi(obj.app.info.event.current_measure_fullstr,'Left_Thumb_Attention_Titration')
+%                                             end
                                             OutputDevice=char(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.outputDevices}{1,i});
                                             obj.digitimer.(OutputDevice).setManualAmplitude(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,i}{1,4},OutputDevice);
                                         case 2 % Arduino
@@ -5708,16 +5737,25 @@ classdef best_toolbox < handle
         end
         function computePsychometricThreshold(obj,Channel,AllIntensities)
             if obj.inputs.results.(Channel).NoOfLastTrialsToAverage<numel(AllIntensities)
-                obj.inputs.results.(Channel).PsychometricThreshold=round(mean(AllIntensities(end-obj.inputs.results.(Channel).NoOfLastTrialsToAverage:end)),1);
+                obj.inputs.results.(Channel).PsychometricThreshold=round(mean(AllIntensities(end-obj.inputs.results.(Channel).NoOfLastTrialsToAverage:end)),2);
             else
-                obj.inputs.results.(Channel).PsychometricThreshold=round(mean(AllIntensities),1);
+                obj.inputs.results.(Channel).PsychometricThreshold=round(mean(AllIntensities),2);
             end
         end
         function computeMotorThreshold(obj,Channel,AllIntensities)
-            if obj.inputs.results.(Channel).NoOfLastTrialsToAverage<numel(AllIntensities)
-                obj.inputs.results.(Channel).MotorThreshold=ceil(mean(AllIntensities(end-obj.inputs.results.(Channel).NoOfLastTrialsToAverage:end)));
-            else
-                obj.inputs.results.(Channel).MotorThreshold=ceil(mean(AllIntensities));
+            switch obj.app.par.hardware_settings.(char(obj.inputs.condsAll.cond1.st1.stim_device)).slct_device
+                case 9
+                    if obj.inputs.results.(Channel).NoOfLastTrialsToAverage<numel(AllIntensities)
+                        obj.inputs.results.(Channel).MotorThreshold=round((mean(AllIntensities(end-obj.inputs.results.(Channel).NoOfLastTrialsToAverage:end))),2);
+                    else
+                        obj.inputs.results.(Channel).MotorThreshold=round((mean(AllIntensities)),2);
+                    end
+                otherwise
+                    if obj.inputs.results.(Channel).NoOfLastTrialsToAverage<numel(AllIntensities)
+                        obj.inputs.results.(Channel).MotorThreshold=ceil(mean(AllIntensities(end-obj.inputs.results.(Channel).NoOfLastTrialsToAverage:end)));
+                    else
+                        obj.inputs.results.(Channel).MotorThreshold=ceil(mean(AllIntensities));
+                    end
             end
         end
         function TEPMeasurementVerticalPlot(obj)
@@ -6183,6 +6221,26 @@ classdef best_toolbox < handle
             
         end
         function Response = responseKeyboardAndMouse(obj)
+            
+            if strcmpi(obj.app.info.event.current_measure_fullstr,'Left_Thumb_Attention_Titration')
+                Pressed=getkeywait(obj.inputs.ResponsePeriod/1000);
+                if obj.inputs.trialMat{obj.inputs.trial,15}==1 %conditionmarker
+                    if Pressed==97
+                        Response=1;
+                    else
+                        Response=1;
+                    end
+                    return;
+                elseif obj.inputs.trialMat{obj.inputs.trial,15}==2 %conditionmarker
+                    if Pressed==99
+                        Response=1;
+                    else
+                        Response=1;
+                    end
+                    return;
+                end
+            end
+            
             Pressed=getkeywait(obj.inputs.ResponsePeriod/1000);
             if Pressed==-1
                 Response=-1;

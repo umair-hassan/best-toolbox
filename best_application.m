@@ -310,7 +310,8 @@ classdef best_application < handle
                     obj.pmd.ProtocolStatus.listbox.String(obj.pmd.ProtocolStatus.listbox.Value)={'Successful'};
                 end
             catch e
-                errordlg('This Protcol has been stopped due to an error. Check your input parameters and MATLAB command line.','BEST Toolbox');
+                if isempty(obj.info.ErrorMessage), obj.info.ErrorMessage='This Protcol has been stopped due to an error. Check your input parameters and MATLAB command line.'; end
+                errordlg(obj.info.ErrorMessage,'BEST Toolbox');
                 fprintf(1,'The identifier was:\n%s',e.identifier);
                 fprintf(1,'\nThere was an error! The message was:\n%s',e.message);
                 obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).ProtocolStatus={'Error'};
@@ -8725,6 +8726,5 @@ classdef best_application < handle
                obj.par.GlobalSettings.Protect=false;
            end
        end
-
     end
 end
