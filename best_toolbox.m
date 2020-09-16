@@ -1048,6 +1048,7 @@ classdef best_toolbox < handle
                                 obj.inputs.condMat{c,obj.inputs.colLabel.chId}=[ChannelID(c*2-1),ChannelID(c*2),ChannelID(end-numel(obj.inputs.EMGDisplayChannels):end)]; %% TODO: update it later with the originigal channel index
                                 obj.inputs.condMat{c,obj.inputs.colLabel.marker}=c;
                                 obj.inputs.condMat{c,obj.inputs.colLabel.threshold}=obj.inputs.condsAll.(conds{c,1}).st1.threshold_level;
+                                TestStimulatorIndex=[];
                                 for stno=1:(max(size(fieldnames(obj.inputs.condsAll.(conds{c,1}))))-6)
                                     st=['st' num2str(stno)];
                                     if(obj.inputs.condsAll.(conds{c,1}).(st).stim_mode=='single_pulse')
@@ -1067,6 +1068,9 @@ classdef best_toolbox < handle
                                         condstimTimingStrings{1,i}=num2str(obj.inputs.condsAll.(conds{c,1}).(st).stim_timing{1,i});
                                     end
                                     condstimTiming{1,stno}=condstimTimingStrings;
+                                    if strcmpi(obj.inputs.condsAll.(conds{c,1}).(st).StimulationType,'Test')
+                                        TestStimulatorIndex=stno;
+                                    end
                                 end
                                 obj.inputs.condMat(c,obj.inputs.colLabel.si)={condSi};
                                 obj.inputs.condMat(c,obj.inputs.colLabel.outputDevices)={condoutputDevice};
@@ -1116,6 +1120,18 @@ classdef best_toolbox < handle
                                 [condstimTiming_new_sorted(1,:),sorted_idx]=sort(condstimTiming_new_sorted(1,:))
                                 condstimTiming_new_sorted(1,:)=condstimTiming_new_sorted(1,:)/1000;
                                 condstimTiming_new_sorted(2,:)=condstimTiming_new_sorted(2,sorted_idx)
+                                % find the test stimulator number
+                                % if it matches on of the baseline values,
+                                % replace the port numbre on that
+                                % respective counter
+                                    switch condstimTiming_new_sorted(2,TestStimulatorIndex)
+                                        case 2
+                                            condstimTiming_new_sorted(2,TestStimulatorIndex)=10;
+                                        case 4
+                                            condstimTiming_new_sorted(2,TestStimulatorIndex)=12;
+                                    end
+                                    condstimTiming_new_sorted(3,:)=0;
+                                    condstimTiming_new_sorted(3,TestStimulatorIndex)=c;
                                 
                                 obj.inputs.condMat(c,obj.inputs.colLabel.tpm)={num2cell(condstimTiming_new_sorted)};
                                 condSi=[];
@@ -1364,6 +1380,7 @@ classdef best_toolbox < handle
                                 obj.inputs.condMat{c,obj.inputs.colLabel.chId}=num2cell(1); %% TODO: update it later with the originigal channel index
                                 obj.inputs.condMat{c,obj.inputs.colLabel.marker}=c;
                                 obj.inputs.condMat{c,obj.inputs.colLabel.threshold}=1;
+                                TestStimulatorIndex=[];
                                 for stno=1:(max(size(fieldnames(obj.inputs.condsAll.(conds{c,1}))))-6)
                                     st=['st' num2str(stno)];
                                     if(obj.inputs.condsAll.(conds{c,1}).(st).stim_mode=='single_pulse')
@@ -1383,6 +1400,9 @@ classdef best_toolbox < handle
                                         condstimTimingStrings{1,i}=num2str(obj.inputs.condsAll.(conds{c,1}).(st).stim_timing{1,i});
                                     end
                                     condstimTiming{1,stno}=condstimTimingStrings;
+                                    if strcmpi(obj.inputs.condsAll.(conds{c,1}).(st).StimulationType,'Test')
+                                        TestStimulatorIndex=stno;
+                                    end
                                 end
                                 obj.inputs.condMat(c,obj.inputs.colLabel.si)={condSi};
                                 obj.inputs.condMat(c,obj.inputs.colLabel.outputDevices)={condoutputDevice};
@@ -1432,6 +1452,18 @@ classdef best_toolbox < handle
                                 [condstimTiming_new_sorted(1,:),sorted_idx]=sort(condstimTiming_new_sorted(1,:))
                                 condstimTiming_new_sorted(1,:)=condstimTiming_new_sorted(1,:)/1000;
                                 condstimTiming_new_sorted(2,:)=condstimTiming_new_sorted(2,sorted_idx)
+                                % find the test stimulator number
+                                % if it matches on of the baseline values,
+                                % replace the port numbre on that
+                                % respective counter
+                                    switch condstimTiming_new_sorted(2,TestStimulatorIndex)
+                                        case 2
+                                            condstimTiming_new_sorted(2,TestStimulatorIndex)=10;
+                                        case 4
+                                            condstimTiming_new_sorted(2,TestStimulatorIndex)=12;
+                                    end
+                                    condstimTiming_new_sorted(3,:)=0;
+                                    condstimTiming_new_sorted(3,TestStimulatorIndex)=c;
                                 
                                 obj.inputs.condMat(c,obj.inputs.colLabel.tpm)={num2cell(condstimTiming_new_sorted)};
                                 condSi=[];
@@ -2530,6 +2562,7 @@ classdef best_toolbox < handle
                                 ax_ChannelLabels{c}=obj.inputs.condsAll.(conds{c,1}).targetChannel;
                                 
                                 %% Stimulator Specific Parameters
+                                TestStimulatorIndex=[]; 
                                 for stno=1:(max(size(fieldnames(obj.inputs.condsAll.(conds{c,1}))))-6)
                                     st=['st' num2str(stno)];
                                     condSi{1,stno}=obj.inputs.condsAll.(conds{c,1}).(st).si_pckt;
@@ -2539,6 +2572,9 @@ classdef best_toolbox < handle
                                         condstimTimingStrings{1,i}=num2str(obj.inputs.condsAll.(conds{c,1}).(st).stim_timing{1,i});
                                     end
                                     condstimTiming{1,stno}=condstimTimingStrings;
+                                    if strcmpi(obj.inputs.condsAll.(conds{c,1}).(st).StimulationType,'Test')
+                                        TestStimulatorIndex=stno;
+                                    end
                                 end
                                 obj.inputs.condMat(c,obj.inputs.colLabel.si)={condSi};
                                 obj.inputs.condMat(c,obj.inputs.colLabel.outputDevices)={condoutputDevice};
@@ -2575,6 +2611,18 @@ classdef best_toolbox < handle
                                 [condstimTiming_new_sorted(1,:),sorted_idx]=sort(condstimTiming_new_sorted(1,:))
                                 condstimTiming_new_sorted(1,:)=condstimTiming_new_sorted(1,:)/1000;
                                 condstimTiming_new_sorted(2,:)=condstimTiming_new_sorted(2,sorted_idx)
+                                % find the test stimulator number
+                                % if it matches on of the baseline values,
+                                % replace the port numbre on that
+                                % respective counter
+                                switch condstimTiming_new_sorted(2,TestStimulatorIndex)
+                                    case 2
+                                        condstimTiming_new_sorted(2,TestStimulatorIndex)=10;
+                                    case 4
+                                        condstimTiming_new_sorted(2,TestStimulatorIndex)=12;
+                                end
+                                condstimTiming_new_sorted(3,:)=0;
+                                condstimTiming_new_sorted(3,TestStimulatorIndex)=c;
                                 
                                 obj.inputs.condMat(c,obj.inputs.colLabel.tpm)={num2cell(condstimTiming_new_sorted)};
                                 condSi=[]; condoutputDevice=[]; condstimMode=[];condstimTiming=[];buffer=[];tpmVect_unique=[];a_counts =[];ia=[];ic=[];port_vector=[];
@@ -2701,6 +2749,7 @@ classdef best_toolbox < handle
                                 ax_ChannelLabels{c}=obj.inputs.condsAll.(conds{c,1}).targetChannel;
                                 
                                 %% Stimulator Specific Parameters
+                                TestStimulatorIndex=[]; 
                                 for stno=1:(max(size(fieldnames(obj.inputs.condsAll.(conds{c,1}))))-6)
                                     st=['st' num2str(stno)];
                                     condSi{1,stno}=obj.inputs.condsAll.(conds{c,1}).(st).si_pckt;
@@ -2710,6 +2759,9 @@ classdef best_toolbox < handle
                                         condstimTimingStrings{1,i}=num2str(obj.inputs.condsAll.(conds{c,1}).(st).stim_timing{1,i});
                                     end
                                     condstimTiming{1,stno}=condstimTimingStrings;
+                                    if strcmpi(obj.inputs.condsAll.(conds{c,1}).(st).StimulationType,'Test')
+                                        TestStimulatorIndex=stno;
+                                    end
                                 end
                                 obj.inputs.condMat(c,obj.inputs.colLabel.si)={condSi};
                                 obj.inputs.condMat(c,obj.inputs.colLabel.outputDevices)={condoutputDevice};
@@ -2746,6 +2798,18 @@ classdef best_toolbox < handle
                                 [condstimTiming_new_sorted(1,:),sorted_idx]=sort(condstimTiming_new_sorted(1,:))
                                 condstimTiming_new_sorted(1,:)=condstimTiming_new_sorted(1,:)/1000;
                                 condstimTiming_new_sorted(2,:)=condstimTiming_new_sorted(2,sorted_idx)
+                                % find the test stimulator number
+                                % if it matches on of the baseline values,
+                                % replace the port numbre on that
+                                % respective counter
+                                    switch condstimTiming_new_sorted(2,TestStimulatorIndex)
+                                        case 2
+                                            condstimTiming_new_sorted(2,TestStimulatorIndex)=10;
+                                        case 4
+                                            condstimTiming_new_sorted(2,TestStimulatorIndex)=12;
+                                    end
+                                    condstimTiming_new_sorted(3,:)=0;
+                                    condstimTiming_new_sorted(3,TestStimulatorIndex)=c;
                                 
                                 obj.inputs.condMat(c,obj.inputs.colLabel.tpm)={num2cell(condstimTiming_new_sorted)};
                                 condSi=[]; condoutputDevice=[]; condstimMode=[];condstimTiming=[];buffer=[];tpmVect_unique=[];a_counts =[];ia=[];ic=[];port_vector=[];
@@ -2845,6 +2909,7 @@ classdef best_toolbox < handle
                                 ax_ChannelLabels{c}=obj.inputs.EMGTargetChannels;
                                 
                                 %% Stimulator Specific Parameters
+                                TestStimulatorIndex=[];
                                 for stno=1:(max(size(fieldnames(obj.inputs.condsAll.(conds{c,1}))))-6)
                                     st=['st' num2str(stno)];
                                     condSi{1,stno}=obj.inputs.condsAll.(conds{c,1}).(st).si_pckt;
@@ -2855,6 +2920,9 @@ classdef best_toolbox < handle
                                     end
                                     condstimTiming{1,stno}=condstimTimingStrings;
                                     StimulationType{1,stno}=obj.inputs.condsAll.(conds{c,1}).(st).StimulationType;
+                                    if strcmpi(obj.inputs.condsAll.(conds{c,1}).(st).StimulationType,'Test')
+                                        TestStimulatorIndex=stno;
+                                    end
                                 end
                                 obj.inputs.condMat(c,obj.inputs.colLabel.si)={condSi};
                                 obj.inputs.condMat(c,obj.inputs.colLabel.outputDevices)={condoutputDevice};
@@ -2892,6 +2960,18 @@ classdef best_toolbox < handle
                                 [condstimTiming_new_sorted(1,:),sorted_idx]=sort(condstimTiming_new_sorted(1,:))
                                 condstimTiming_new_sorted(1,:)=condstimTiming_new_sorted(1,:)/1000;
                                 condstimTiming_new_sorted(2,:)=condstimTiming_new_sorted(2,sorted_idx)
+                                % find the test stimulator number
+                                % if it matches on of the baseline values,
+                                % replace the port numbre on that
+                                % respective counter
+                                    switch condstimTiming_new_sorted(2,TestStimulatorIndex)
+                                        case 2
+                                            condstimTiming_new_sorted(2,TestStimulatorIndex)=10;
+                                        case 4
+                                            condstimTiming_new_sorted(2,TestStimulatorIndex)=12;
+                                    end
+                                    condstimTiming_new_sorted(3,:)=0;
+                                    condstimTiming_new_sorted(3,TestStimulatorIndex)=c;
                                 
                                 obj.inputs.condMat(c,obj.inputs.colLabel.tpm)={num2cell(condstimTiming_new_sorted)};
                                 condSi=[]; condoutputDevice=[]; condstimMode=[];condstimTiming=[];buffer=[];tpmVect_unique=[];a_counts =[];ia=[];ic=[];port_vector=[];
@@ -2976,6 +3056,7 @@ classdef best_toolbox < handle
                                 ax_measures{c}=repmat({'ERPTriggerLockedEEG','ERPTopoPlot'},1,numel(MontageChannels));
                                 ax_ChannelLabels{c}=repelem(MontageChannels,2);
                                 %% Stimulator Specific Parameters
+                                TestStimulatorIndex=[];
                                 for stno=1:(max(size(fieldnames(obj.inputs.condsAll.(conds{c,1}))))-6)
                                     st=['st' num2str(stno)];
                                     condSi{1,stno}=obj.inputs.condsAll.(conds{c,1}).(st).si_pckt;
@@ -2986,6 +3067,9 @@ classdef best_toolbox < handle
                                     end
                                     condstimTiming{1,stno}=condstimTimingStrings;
                                     StimulationType{1,stno}=obj.inputs.condsAll.(conds{c,1}).(st).StimulationType;
+                                    if strcmpi(obj.inputs.condsAll.(conds{c,1}).(st).StimulationType,'Test')
+                                        TestStimulatorIndex=stno;
+                                    end
                                 end
                                 obj.inputs.condMat(c,obj.inputs.colLabel.si)={condSi};
                                 obj.inputs.condMat(c,obj.inputs.colLabel.outputDevices)={condoutputDevice};
@@ -3023,6 +3107,18 @@ classdef best_toolbox < handle
                                 [condstimTiming_new_sorted(1,:),sorted_idx]=sort(condstimTiming_new_sorted(1,:))
                                 condstimTiming_new_sorted(1,:)=condstimTiming_new_sorted(1,:)/1000;
                                 condstimTiming_new_sorted(2,:)=condstimTiming_new_sorted(2,sorted_idx)
+                                % find the test stimulator number
+                                % if it matches on of the baseline values,
+                                % replace the port numbre on that
+                                % respective counter
+                                    switch condstimTiming_new_sorted(2,TestStimulatorIndex)
+                                        case 2
+                                            condstimTiming_new_sorted(2,TestStimulatorIndex)=10;
+                                        case 4
+                                            condstimTiming_new_sorted(2,TestStimulatorIndex)=12;
+                                    end
+                                    condstimTiming_new_sorted(3,:)=0;
+                                    condstimTiming_new_sorted(3,TestStimulatorIndex)=c;
                                 obj.inputs.condMat(c,obj.inputs.colLabel.tpm)={num2cell(condstimTiming_new_sorted)};
                                 condSi=[]; condoutputDevice=[]; condstimMode=[];condstimTiming=[];buffer=[];tpmVect_unique=[];a_counts =[];ia=[];ic=[];port_vector=[];
                                 num=[];condstimTiming_new=[];condstimTiming_new_sorted=[];sorted_idx=[];markers=[];condstimTimingStrings=[];
@@ -3132,6 +3228,7 @@ classdef best_toolbox < handle
                                 ax_measures{c}=repmat({'ERPTriggerLockedEEG','ERPTopoPlot'},1,numel(MontageChannels));
                                 ax_ChannelLabels{c}=repelem(MontageChannels,2);
                                 %% Stimulator Specific Parameters
+                                TestStimulatorIndex=[];
                                 for stno=1:(max(size(fieldnames(obj.inputs.condsAll.(conds{c,1}))))-6)
                                     st=['st' num2str(stno)];
                                     condSi{1,stno}=obj.inputs.condsAll.(conds{c,1}).(st).si_pckt;
@@ -3141,6 +3238,9 @@ classdef best_toolbox < handle
                                         condstimTimingStrings{1,i}=num2str(obj.inputs.condsAll.(conds{c,1}).(st).stim_timing{1,i});
                                     end
                                     condstimTiming{1,stno}=condstimTimingStrings;
+                                     if strcmpi(obj.inputs.condsAll.(conds{c,1}).(st).StimulationType,'Test')
+                                        TestStimulatorIndex=stno;
+                                    end
                                 end
                                 obj.inputs.condMat(c,obj.inputs.colLabel.si)={condSi};
                                 obj.inputs.condMat(c,obj.inputs.colLabel.outputDevices)={condoutputDevice};
@@ -3177,6 +3277,18 @@ classdef best_toolbox < handle
                                 [condstimTiming_new_sorted(1,:),sorted_idx]=sort(condstimTiming_new_sorted(1,:))
                                 condstimTiming_new_sorted(1,:)=condstimTiming_new_sorted(1,:)/1000;
                                 condstimTiming_new_sorted(2,:)=condstimTiming_new_sorted(2,sorted_idx)
+                                 % find the test stimulator number
+                                % if it matches on of the baseline values,
+                                % replace the port numbre on that
+                                % respective counter
+                                    switch condstimTiming_new_sorted(2,TestStimulatorIndex)
+                                        case 2
+                                            condstimTiming_new_sorted(2,TestStimulatorIndex)=10;
+                                        case 4
+                                            condstimTiming_new_sorted(2,TestStimulatorIndex)=12;
+                                    end
+                                    condstimTiming_new_sorted(3,:)=0;
+                                    condstimTiming_new_sorted(3,TestStimulatorIndex)=c;
                                 
                                 obj.inputs.condMat(c,obj.inputs.colLabel.tpm)={num2cell(condstimTiming_new_sorted)};
                                 condSi=[]; condoutputDevice=[]; condstimMode=[];condstimTiming=[];buffer=[];tpmVect_unique=[];a_counts =[];ia=[];ic=[];port_vector=[];
