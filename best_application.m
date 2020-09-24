@@ -2742,12 +2742,7 @@ classdef best_application < handle
                         obj.pi.mth.InputDevice=uicontrol( 'Style','popupmenu','Parent', expModr1 ,'FontSize',11,'String',str_in_device,'Tag','InputDevice','callback',@cb_par_saving);
                         expModr1.Widths=[150 -2];
                         
-                        expModr2c=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
-                        uicontrol( 'Style','text','Parent', expModr2c,'String','Inter Trial Interval (s):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-                        obj.pi.mth.ITI=uicontrol( 'Style','edit','Parent', expModr2c ,'FontSize',11,'Tag','ITI','callback',@cb_par_saving);
-                        expModr2c.Widths=[150 -2];
-                        
-                        expModvBox.Heights=[30 35];
+                        expModvBox.Heights=[30];
                     case 2
                         expModvBox=uix.VBox( 'Parent', BrainStateParametersPanel, 'Spacing', 0, 'Padding', 0  );
                         %row1
@@ -2804,11 +2799,7 @@ classdef best_application < handle
                         obj.pi.mth.AmplitudeAssignmentPeriod=uicontrol( 'Style','edit','Parent', mep_panel_row2z ,'FontSize',11,'Tag','AmplitudeAssignmentPeriod','Callback',@cb_par_saving);
                         set( mep_panel_row2z, 'Widths', [200 -2]);
                         
-                        expModr2c=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 2 );
-                        uicontrol( 'Style','text','Parent', expModr2c,'String','Minimum ITI (s):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-                        obj.pi.mth.ITI=uicontrol( 'Style','edit','Parent', expModr2c ,'FontSize',11,'Tag','ITI','callback',@cb_par_saving);
-                        expModr2c.Widths=[150 -2];
-                        expModvBox.Heights=[-1 -1 -1 -1 -1 -1 -1 -1 -1 -1];%[30 42 42 35 35 35 35 35 42 35];
+                        expModvBox.Heights=[-1 -1 -1 -1 -1 -1 -1 -1 -1];%[30 42 42 35 35 35 35 35 42 35];
                 end
             end
             function cb_DisplayParametersPanel
@@ -2820,12 +2811,7 @@ classdef best_application < handle
                         uicontrol( 'Style','text','Parent', expModr2,'String','Threshold Method:','FontSize',11,'HorizontalAlignment','left','Units','normalized'); % Inter Trial Inteval (s)
                         obj.pi.mth.ThresholdMethod=uicontrol( 'Style','popupmenu','Parent', expModr2 ,'FontSize',11,'Tag','ThresholdMethod','String',{'Adaptive Staircase Estimation', 'Maximum Likelihood Estimation'},'Callback',@cb_par_saving);
                         expModr2.Widths=[150 -2];
-                        
-                        expModr2=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
-                        uicontrol( 'Style','text','Parent', expModr2,'String','Trials Per Condition:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-                        obj.pi.mth.TrialsPerCondition=uicontrol( 'Style','edit','Parent', expModr2 ,'FontSize',11,'Tag','TrialsPerCondition','callback',@cb_par_saving);
-                        expModr2.Widths=[150 -2];
-                        
+                                                
                         expModr2=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
                         uicontrol( 'Style','text','Parent', expModr2,'String','EMG Display Channels:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
                         obj.pi.mth.EMGDisplayChannels=uicontrol( 'Style','edit','Parent', expModr2 ,'FontSize',11,'Tag','EMGDisplayChannels','callback',@cb_par_saving);
@@ -2851,18 +2837,13 @@ classdef best_application < handle
                         obj.pi.mth.NoOfTrialsToAverage=uicontrol( 'Style','edit','Parent', expModr4 ,'FontSize',11,'Tag','NoOfTrialsToAverage','callback',@cb_par_saving);
                         expModr4.Widths=[150 -2];
                         
-                        expModvBox.Heights=[30 35 45 45 45 45 45];
+                        expModvBox.Heights=[30 45 45 45 45 45];
                     case 2
                         expModvBox=uix.VBox( 'Parent', DisplayParametersPanel, 'Spacing', 0, 'Padding', 0  );
                         
                         expModr2=uiextras.HBox( 'Parent', expModvBox,'Spacing', 0, 'Padding', 2 );
                         uicontrol( 'Style','text','Parent', expModr2,'String','Threshold Method:','FontSize',11,'HorizontalAlignment','left','Units','normalized'); % Inter Trial Inteval (s)
                         obj.pi.mth.ThresholdMethod=uicontrol( 'Style','popupmenu','Parent', expModr2 ,'FontSize',11,'Tag','ThresholdMethod','String',{'Adaptive Staircase Estimation', 'Maximum Likelihood Estimation'},'Callback',@cb_par_saving);
-                        expModr2.Widths=[150 -2];
-                        
-                        expModr2=uiextras.HBox( 'Parent', expModvBox,'Spacing', 0, 'Padding', 2 );
-                        uicontrol( 'Style','text','Parent', expModr2,'String','Trials Per Condition:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-                        obj.pi.mth.TrialsPerCondition=uicontrol( 'Style','edit','Parent', expModr2 ,'FontSize',11,'Tag','TrialsPerCondition','callback',@cb_par_saving);
                         expModr2.Widths=[150 -2];
                         
                         expModr2=uiextras.HBox( 'Parent', expModvBox,'Spacing', 0, 'Padding', 2 );
@@ -2900,15 +2881,15 @@ classdef best_application < handle
                         obj.pi.mth.NoOfTrialsToAverage=uicontrol( 'Style','edit','Parent', expModr4 ,'FontSize',11,'Tag','NoOfTrialsToAverage','callback',@cb_par_saving);
                         expModr4.Widths=[200 -2];
                         
-                        expModvBox.Heights=[-1 -1 -1 -1 -1 -1 -1 -1 -1];%[30 35 42 42 42 42 42 42 42];
+                        expModvBox.Heights=[-1 -1 -1 -1 -1 -1 -1 -1];%[30 35 42 42 42 42 42 42 42];
                 end
             end
             function cb_SetHeights
                 switch obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).BrainState
                     case 1
-                        set(obj.pi.mth.r0v1,'Heights',[40 90 320 -1 55]);
+                        set(obj.pi.mth.r0v1,'Heights',[40 60 290 -1 55]);
                     case 2
-                        set(obj.pi.mth.r0v1,'Heights',[-0.7 -8 -6 -0 -1.2])%[40 390 390 -1 55])
+                        set(obj.pi.mth.r0v1,'Heights',[-0.7 -7 -5 -0 -1.2])%[40 390 390 -1 55])
                         set(obj.pi.mth.r0,'Widths',[-2 -3]);
                 end
             end
