@@ -2539,7 +2539,7 @@ classdef best_toolbox < handle
                             end
                             if isempty(obj.inputs.EMGDisplayChannels)
                                 EMGDisplayChannelschID=[];
-                                EMGDisplayChannelsAxesNo=num2cell(DisplayChannelCounter+1);%StatusTable
+                                EMGDisplayChannelsAxesNo=num2cell(DisplayChannelCounter+1+1);%StatusTable
                             else
                                 for dc=1:numel(obj.inputs.EMGDisplayChannels)
                                     EMGDisplayChannelschID{dc}=find(strcmp(obj.app.par.hardware_settings.(char(obj.inputs.input_device)).NeurOneProtocolChannelLabels,obj.inputs.EMGDisplayChannels{dc}));
@@ -2547,7 +2547,7 @@ classdef best_toolbox < handle
                                     ax_AxesAnnotation{1,DisplayChannelCounter+dc}{2,1}=['Channel: ' obj.inputs.EMGDisplayChannels{dc}];
                                     % % ax_AxesAnnotation{1,DisplayChannelCounter+dc}{3,1}=['Stim. Pars'] %For Future Release 
                                 end
-                                EMGDisplayChannelsAxesNo=num2cell(DisplayChannelCounter+1:1:DisplayChannelCounter+numel(obj.inputs.EMGDisplayChannels)+1); %DisplayChannels +Status Table
+                                EMGDisplayChannelsAxesNo=num2cell(DisplayChannelCounter+1:1:DisplayChannelCounter+numel(obj.inputs.EMGDisplayChannels)+1+1); %DisplayChannels +Status Table
                             end
                             %% Creating Experimental Conditions
                             for c=1:numel(fieldnames(obj.inputs.condsAll))
@@ -2558,11 +2558,11 @@ classdef best_toolbox < handle
                                 %% ITI
                                 obj.inputs.condMat{c,obj.inputs.colLabel.iti}=obj.inputs.condsAll.(conds{c,1}).ITI;
                                 %% Channel Label, Measure, Axes No, Channel Type, Channel ID for Plots
-                                obj.inputs.condMat{c,obj.inputs.colLabel.chLab}=[obj.inputs.condsAll.(conds{c,1}).targetChannel,obj.inputs.EMGDisplayChannels,{'StatusTable'}];
-                                obj.inputs.condMat{c,obj.inputs.colLabel.measures}=[repmat({'MEP_Measurement_Conditional'},1,numel(obj.inputs.condsAll.(conds{c,1}).targetChannel)),repmat({'MEP_Measurement'},1,numel(obj.inputs.EMGDisplayChannels)),{'StatusTable'}];
+                                obj.inputs.condMat{c,obj.inputs.colLabel.chLab}=[obj.inputs.condsAll.(conds{c,1}).targetChannel,obj.inputs.EMGDisplayChannels,{'TotalITIDistribution','StatusTable'}];
+                                obj.inputs.condMat{c,obj.inputs.colLabel.measures}=[repmat({'MEP_Measurement_Conditional'},1,numel(obj.inputs.condsAll.(conds{c,1}).targetChannel)),repmat({'MEP_Measurement'},1,numel(obj.inputs.EMGDisplayChannels)),{'TotalITIDistribution','StatusTable'}];
                                 obj.inputs.condMat{c,obj.inputs.colLabel.axesno}=[obj.inputs.condsAllFactorsInfo.(conds{c,1}).axesno,EMGDisplayChannelsAxesNo];
-                                obj.inputs.condMat{c,obj.inputs.colLabel.chType}=[obj.inputs.condsAllFactorsInfo.(conds{c,1}).chType,repmat({'EMG'},1,numel(obj.inputs.EMGDisplayChannels)),{'StatusTable'}];
-                                obj.inputs.condMat{c,obj.inputs.colLabel.chId}=[obj.inputs.condsAllFactorsInfo.(conds{c,1}).chId,EMGDisplayChannelschID,{1}];
+                                obj.inputs.condMat{c,obj.inputs.colLabel.chType}=[obj.inputs.condsAllFactorsInfo.(conds{c,1}).chType,repmat({'EMG'},1,numel(obj.inputs.EMGDisplayChannels)),{'TotalITIDistribution'},{'StatusTable'}];
+                                obj.inputs.condMat{c,obj.inputs.colLabel.chId}=[obj.inputs.condsAllFactorsInfo.(conds{c,1}).chId,EMGDisplayChannelschID,{1,1}];
                                 obj.inputs.condMat{c,obj.inputs.colLabel.ConditionMarker}=c;
                                 ax_measures{c}=repmat({'MEP_Measurement'},1,numel(obj.inputs.condsAll.(conds{c,1}).targetChannel));
                                 ax_ChannelLabels{c}=obj.inputs.condsAll.(conds{c,1}).targetChannel;
@@ -2635,9 +2635,9 @@ classdef best_toolbox < handle
                                 num=[];condstimTiming_new=[];condstimTiming_new_sorted=[];sorted_idx=[];markers=[];condstimTimingStrings=[];
                             end
                             %% Preparing Results Panels
-                            obj.app.pr.ax_measures=[horzcat(ax_measures{:}),repmat({'MEP_Measurement'},1,numel(obj.inputs.EMGDisplayChannels)),{'StatusTable'}];
-                            obj.app.pr.axesno=DisplayChannelCounter+numel(obj.inputs.EMGDisplayChannels)+1;
-                            obj.app.pr.ax_ChannelLabels=[horzcat(ax_ChannelLabels{:}),obj.inputs.EMGDisplayChannels, {'StatusTable'}] ;
+                            obj.app.pr.ax_measures=[horzcat(ax_measures{:}),repmat({'MEP_Measurement'},1,numel(obj.inputs.EMGDisplayChannels)),{'TotalITIDistribution','StatusTable'}];
+                            obj.app.pr.axesno=DisplayChannelCounter+numel(obj.inputs.EMGDisplayChannels)+1+1;
+                            obj.app.pr.ax_ChannelLabels=[horzcat(ax_ChannelLabels{:}),obj.inputs.EMGDisplayChannels, {'TotalITIDistribution'},{'StatusTable'}] ;
                             obj.app.pr.ax_AxesAnnotation=ax_AxesAnnotation;
                         case 2 % BS Dependent
                             %% Adjusting New Arhictecture to Old Architecture
