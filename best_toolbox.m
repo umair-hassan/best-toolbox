@@ -4090,7 +4090,7 @@ classdef best_toolbox < handle
                 tic
 %                 obj.saveRuntime;
                 toc
-                pause(1)
+%                 pause(1)
                 obj.prepTrial;
                 wait_period=obj.inputs.trialMat{obj.inputs.trial-1,obj.inputs.colLabel.iti}-toc;
                 wait_idx=3*floor(wait_period);
