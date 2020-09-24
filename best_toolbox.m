@@ -6348,18 +6348,27 @@ obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.TotalITI}=round((obj.in
             axes(obj.app.pr.ax.(ax)), hold on,
             IndexOfTrialsTillNow=find(vertcat(obj.inputs.trialMat{1:obj.inputs.trial,obj.inputs.colLabel.ConditionMarker})==obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.ConditionMarker});
             conditionmarker=['Cond' num2str(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.ConditionMarker})];
-                if ~isfield(obj.inputs.Handles,'TotalITIDistributionPlotHandle')
-                    obj.inputs.Handles.TotalITIDistributionPlotHandle.(conditionmarker)=histogram([obj.inputs.trialMat{IndexOfTrialsTillNow,obj.inputs.colLabel.TotalITI}],'FaceColor',Colors(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.ConditionMarker},:),'DisplayName',conditionmarker,'BinWidth',0.1);
-                    xlabel('Total ITI (ms)');
-                    ylabel('No. of Trials');
-                elseif ~isfield(obj.inputs.Handles.TotalITIDistributionPlotHandle,conditionmarker)
-                    obj.inputs.Handles.TotalITIDistributionPlotHandle.(conditionmarker)=histogram([obj.inputs.trialMat{IndexOfTrialsTillNow,obj.inputs.colLabel.TotalITI}],'FaceColor',Colors(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.ConditionMarker},:),'DisplayName',conditionmarker,'BinWidth',0.1);
-                else
-                    delete(obj.inputs.Handles.TotalITIDistributionPlotHandle.(conditionmarker))
-                    obj.inputs.Handles.TotalITIDistributionPlotHandle.(conditionmarker)=histogram([obj.inputs.trialMat{IndexOfTrialsTillNow,obj.inputs.colLabel.TotalITI}],'FaceColor',Colors(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.ConditionMarker},:),'DisplayName',conditionmarker,'BinWidth',0.1);
-                end
-%                 legend('Location','southoutside','Orientation','horizontal'); hold on;
-                legend; hold on;
+            if ~isfield(obj.inputs.Handles,'TotalITIDistributionPlotHandle')
+                %                     obj.inputs.Handles.TotalITIDistributionPlotHandle.(conditionmarker)=histogram([obj.inputs.trialMat{IndexOfTrialsTillNow,obj.inputs.colLabel.TotalITI}],'FaceColor',Colors(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.ConditionMarker},:),'DisplayName',conditionmarker,'BinWidth',0.1);
+                obj.inputs.Handles.TotalITIDistributionPlotHandle.(conditionmarker)=plotITIDistribution([obj.inputs.trialMat{IndexOfTrialsTillNow,obj.inputs.colLabel.TotalITI}]);
+                xlabel('Total ITI (ms)');
+                ylabel('No. of Trials');
+            elseif ~isfield(obj.inputs.Handles.TotalITIDistributionPlotHandle,conditionmarker)
+                %                     obj.inputs.Handles.TotalITIDistributionPlotHandle.(conditionmarker)=histogram([obj.inputs.trialMat{IndexOfTrialsTillNow,obj.inputs.colLabel.TotalITI}],'FaceColor',Colors(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.ConditionMarker},:),'DisplayName',conditionmarker,'BinWidth',0.1);
+                obj.inputs.Handles.TotalITIDistributionPlotHandle.(conditionmarker)=plotITIDistribution([obj.inputs.trialMat{IndexOfTrialsTillNow,obj.inputs.colLabel.TotalITI}]);
+            else
+                delete(obj.inputs.Handles.TotalITIDistributionPlotHandle.(conditionmarker))
+                %                     obj.inputs.Handles.TotalITIDistributionPlotHandle.(conditionmarker)=histogram([obj.inputs.trialMat{IndexOfTrialsTillNow,obj.inputs.colLabel.TotalITI}],'FaceColor',Colors(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.ConditionMarker},:),'DisplayName',conditionmarker,'BinWidth',0.1);
+                obj.inputs.Handles.TotalITIDistributionPlotHandle.(conditionmarker)=plotITIDistribution([obj.inputs.trialMat{IndexOfTrialsTillNow,obj.inputs.colLabel.TotalITI}]);
+            end
+            %                 legend('Location','southoutside','Orientation','horizontal'); hold on;
+            legend; hold on;
+            function handle=plotITIDistribution (ITIvec)
+                [cb] = cbrewer('qual', 'Set3', 12, 'pchip');
+                ITI{1} = (ITIvec);
+                handle = raincloud_plot(ITI{1}, 'box_on', 1,'color', cb(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.ConditionMarker}, :), 'alpha', 0.5,'box_dodge', 1, 'box_dodge_amount', .15, 'dot_dodge_amount', .15,'box_col_match', 0);
+                ylim([0 1])
+            end
         end
         function DeMeanedEEGData =best_DeMeanEEG(obj,RawData)
             DeMeanedEEGData=RawData-mean(RawData);
