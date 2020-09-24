@@ -135,6 +135,7 @@ classdef best_toolbox < handle
                     obj.inputs.colLabel.tpm=10;
                     obj.inputs.colLabel.chType=11;
                     obj.inputs.colLabel.chId=12;
+                    obj.inputs.colLabel.TotalITI=13;
                     %% Creating Channel Type and Channel ID
                     switch obj.app.par.hardware_settings.(char(obj.inputs.input_device)).slct_device
                         case 1 %boss box
@@ -1006,6 +1007,7 @@ classdef best_toolbox < handle
                             obj.inputs.colLabel.mepamp=13;
                             obj.inputs.colLabel.threshold=14;
                             obj.inputs.colLabel.marker=15;
+                            obj.inputs.colLabel.TotalITI=16;
                             %% Creating Channel Measures, AxesNo, Labels
                             conds=fieldnames(obj.inputs.condsAll);
                             %                             ChannelLabls=[repelem(obj.inputs.EMGTargetChannels,3),obj.inputs.EMGDisplayChannels]; %this can go directly inside the cond object in the loop
@@ -1195,6 +1197,7 @@ classdef best_toolbox < handle
                             obj.inputs.colLabel.IA=16;
                             obj.inputs.colLabel.threshold=13;
                             obj.inputs.colLabel.marker=14;
+                            obj.inputs.colLabel.TotalITI=15;
                             if obj.inputs.AmplitudeUnits==1
                                 obj.inputs.colLabel.IAPercentile=17;
                             end
@@ -1357,6 +1360,7 @@ classdef best_toolbox < handle
                             obj.inputs.colLabel.mepamp=13;
                             obj.inputs.colLabel.threshold=14;
                             obj.inputs.colLabel.marker=15;
+                            obj.inputs.colLabel.TotalITI=16;
                             %% Creating Channel Measures, AxesNo, Labels
                             conds=fieldnames(obj.inputs.condsAll);
                             ChannelMeasures=[repmat({'Sensory Threshold Hunting'},1,numel(conds)),{'StatusTable'}];
@@ -1513,6 +1517,7 @@ classdef best_toolbox < handle
                             obj.inputs.colLabel.IA=16;
                             obj.inputs.colLabel.threshold=13;
                             obj.inputs.colLabel.marker=14;
+                            obj.inputs.colLabel.TotalITI=15;
                             if obj.inputs.AmplitudeUnits==1
                                 obj.inputs.colLabel.IAPercentile=17;
                             end
@@ -2515,6 +2520,7 @@ classdef best_toolbox < handle
                             obj.inputs.colLabel.chType=11;
                             obj.inputs.colLabel.chId=12;
                             obj.inputs.colLabel.ConditionMarker=13;
+                            obj.inputs.colLabel.TotalITI=14;
                             conds=fieldnames(obj.inputs.condsAll);
                             %% Creating Channel Types, Axes No, Channel IDs
                             DisplayChannelCounter=0;
@@ -2677,6 +2683,7 @@ classdef best_toolbox < handle
                             obj.inputs.colLabel.IAInput=16;
                             obj.inputs.colLabel.IAUnit=17;
                             obj.inputs.colLabel.ConditionMarker=18;
+                            obj.inputs.colLabel.TotalITI=19;
                             conds=fieldnames(obj.inputs.condsAll);
                             %% Creating Channel Types, Axes No, Channel IDs
                             DisplayChannelCounter=2;
@@ -2696,14 +2703,14 @@ classdef best_toolbox < handle
                             end
                             if isempty(obj.inputs.EMGDisplayChannels)
                                 EMGDisplayChannelschID=[];
-                                EMGDisplayChannelsAxesNo=num2cell(DisplayChannelCounter+1:DisplayChannelCounter+2+1);%Amplitude Thresholds + Amplitude Distriution+StatusTable
+                                EMGDisplayChannelsAxesNo=num2cell(DisplayChannelCounter+1:DisplayChannelCounter+2+1+1);%Amplitude Thresholds + Amplitude Distriution+StatusTable
                             else
                                 for dc=1:numel(obj.inputs.EMGDisplayChannels)
                                     EMGDisplayChannelschID{dc}=find(strcmp(obj.app.par.hardware_settings.(char(obj.inputs.input_device)).NeurOneProtocolChannelLabels,obj.inputs.EMGDisplayChannels{dc}));
                                     ax_AxesAnnotation{1,DisplayChannelCounter+dc}{1,1}=['Condition:' 'All'];
                                     ax_AxesAnnotation{1,DisplayChannelCounter+dc}{2,1}=['Channel: ' obj.inputs.EMGDisplayChannels{dc}];
                                 end
-                                EMGDisplayChannelsAxesNo=num2cell(DisplayChannelCounter+1:1:DisplayChannelCounter+numel(obj.inputs.EMGDisplayChannels)+2+1); %DisplayChannels +Amplitude Thresholds + Amplitude Distriution + Status Table
+                                EMGDisplayChannelsAxesNo=num2cell(DisplayChannelCounter+1:1:DisplayChannelCounter+numel(obj.inputs.EMGDisplayChannels)+2+1+1); %DisplayChannels +Amplitude Thresholds + Amplitude Distriution + Status Table
                             end
                             %% Creating Experimental Conditions
                             for c=1:numel(fieldnames(obj.inputs.condsAll))
@@ -2739,11 +2746,11 @@ classdef best_toolbox < handle
                                         obj.inputs.condMat{c,obj.inputs.colLabel.IAUnit}='uV';
                                 end
                                 %% Channel Label, Measure, Axes No, Channel Type, Channel ID for Plots
-                                obj.inputs.condMat{c,obj.inputs.colLabel.chLab}=[{'OsscillationPhase','OsscillationEEG'},obj.inputs.condsAll.(conds{c,1}).targetChannel,obj.inputs.EMGDisplayChannels,{'OsscillationAmplitude','AmplitudeDistribution','StatusTable'}];
-                                obj.inputs.condMat{c,obj.inputs.colLabel.measures}=[{'PhaseHistogram','TriggerLockedEEG'},repmat({'MEP_Measurement_Conditional'},1,numel(obj.inputs.condsAll.(conds{c,1}).targetChannel)),repmat({'MEP_Measurement'},1,numel(obj.inputs.EMGDisplayChannels)),{'RunningAmplitude','AmplitudeDistribution','StatusTable'}];
+                                obj.inputs.condMat{c,obj.inputs.colLabel.chLab}=[{'OsscillationPhase','OsscillationEEG'},obj.inputs.condsAll.(conds{c,1}).targetChannel,obj.inputs.EMGDisplayChannels,{'OsscillationAmplitude','AmplitudeDistribution','TotalITIDistribution','StatusTable'}];
+                                obj.inputs.condMat{c,obj.inputs.colLabel.measures}=[{'PhaseHistogram','TriggerLockedEEG'},repmat({'MEP_Measurement_Conditional'},1,numel(obj.inputs.condsAll.(conds{c,1}).targetChannel)),repmat({'MEP_Measurement'},1,numel(obj.inputs.EMGDisplayChannels)),{'RunningAmplitude','AmplitudeDistribution','TotalITIDistribution','StatusTable'}];
                                 obj.inputs.condMat{c,obj.inputs.colLabel.axesno}=[{1,2},obj.inputs.condsAllFactorsInfo.(conds{c,1}).axesno,EMGDisplayChannelsAxesNo];
-                                obj.inputs.condMat{c,obj.inputs.colLabel.chType}=[{'IP'},{'IEEG'},obj.inputs.condsAllFactorsInfo.(conds{c,1}).chType,repmat({'EMG'},1,numel(obj.inputs.EMGDisplayChannels)),{'IA'},{'IADistribution'},{'StatusTable'}];
-                                obj.inputs.condMat{c,obj.inputs.colLabel.chId}=[{1,1}, obj.inputs.condsAllFactorsInfo.(conds{c,1}).chId,EMGDisplayChannelschID,{1,1,1}];
+                                obj.inputs.condMat{c,obj.inputs.colLabel.chType}=[{'IP'},{'IEEG'},obj.inputs.condsAllFactorsInfo.(conds{c,1}).chType,repmat({'EMG'},1,numel(obj.inputs.EMGDisplayChannels)),{'IA'},{'IADistribution'},{'TotalITIDistribution'},{'StatusTable'}];
+                                obj.inputs.condMat{c,obj.inputs.colLabel.chId}=[{1,1}, obj.inputs.condsAllFactorsInfo.(conds{c,1}).chId,EMGDisplayChannelschID,{1,1,1,1}];
                                 obj.inputs.condMat{c,obj.inputs.colLabel.ConditionMarker}=c;
                                 ax_measures{c}=repmat({'MEP_Measurement'},1,numel(obj.inputs.condsAll.(conds{c,1}).targetChannel));
                                 ax_ChannelLabels{c}=obj.inputs.condsAll.(conds{c,1}).targetChannel;
@@ -2816,9 +2823,9 @@ classdef best_toolbox < handle
                                 num=[];condstimTiming_new=[];condstimTiming_new_sorted=[];sorted_idx=[];markers=[];condstimTimingStrings=[];
                             end
                             %% Preparing Results Panels
-                            obj.app.pr.ax_measures=[{'PhaseHistogram','TriggerLockedEEG'},horzcat(ax_measures{:}),repmat({'MEP_Measurement'},1,numel(obj.inputs.EMGDisplayChannels)),{'RunningAmplitude','AmplitudeDistribution','StatusTable'}];
-                            obj.app.pr.axesno=DisplayChannelCounter+numel(obj.inputs.EMGDisplayChannels)+2+1;
-                            obj.app.pr.ax_ChannelLabels=[{'OsscillationPhase','OsscillationEEG'},horzcat(ax_ChannelLabels{:}),obj.inputs.EMGDisplayChannels, {'OsscillationAmplitude','AmplitudeDistribution','StatusTable'}] ;
+                            obj.app.pr.ax_measures=[{'PhaseHistogram','TriggerLockedEEG'},horzcat(ax_measures{:}),repmat({'MEP_Measurement'},1,numel(obj.inputs.EMGDisplayChannels)),{'RunningAmplitude','AmplitudeDistribution','TotalITIDistribution','StatusTable'}];
+                            obj.app.pr.axesno=DisplayChannelCounter+numel(obj.inputs.EMGDisplayChannels)+2+1+1;
+                            obj.app.pr.ax_ChannelLabels=[{'OsscillationPhase','OsscillationEEG'},horzcat(ax_ChannelLabels{:}),obj.inputs.EMGDisplayChannels, {'OsscillationAmplitude','AmplitudeDistribution','TotalITIDistribution','StatusTable'}] ;
                             obj.app.pr.ax_AxesAnnotation=ax_AxesAnnotation;
                     end
                 case 'MEP Dose Response Curve Protocol'
@@ -2860,6 +2867,7 @@ classdef best_toolbox < handle
                             obj.inputs.colLabel.chId=12;
                             obj.inputs.colLabel.StimulationType=13;
                             obj.inputs.colLabel.ConditionMarker=14;
+                            obj.inputs.colLabel.TotalITI=15;
                             %%obj.inputs.colLabel.stimcdMrk=13;
                             %%obj.inputs.colLabel.cdMrk=14;
                             conds=fieldnames(obj.inputs.condsAll);
@@ -3017,6 +3025,7 @@ classdef best_toolbox < handle
                             obj.inputs.colLabel.chId=12;
                             obj.inputs.colLabel.StimulationType=13;
                             obj.inputs.colLabel.ConditionMarker=14;
+                            obj.inputs.colLabel.TotalITI=15;
                             conds=fieldnames(obj.inputs.condsAll);
                             %% Creating Channel Types, Axes No, Channel IDs
                             DisplayChannelCounter=0; iIndex=1;
@@ -3164,6 +3173,7 @@ classdef best_toolbox < handle
                             obj.inputs.colLabel.IAUnit=17;
                             obj.inputs.colLabel.StimulationType=18;
                             obj.inputs.colLabel.ConditionMarker=19;
+                            obj.inputs.colLabel.TotalITI=20;
                             conds=fieldnames(obj.inputs.condsAll);
                             %% Creating Channel Types, Axes No, Channel IDs
                             DisplayChannelCounter=2;iIndex=1;
@@ -3387,11 +3397,13 @@ classdef best_toolbox < handle
                                                 Threshold=obj.sessions.(Session).(Protocol).Results.(Channel).MotorThreshold; %get the motor threshold;
                                                 obj.inputs.condsAll.(condStr).(st).threshold=num2str(Threshold);
                                                 obj.inputs.condsAll.(condStr).(st).si_pckt{4}=(str2num(obj.inputs.condsAll.(condStr).(st).threshold)*obj.inputs.condsAll.(condStr).(st).si_pckt{1}*0.01); %Multiplying the Threshold with the Intensity to apply Transformation
-% %                                                 if floor(Threshold)==Threshold %% Integer-ness check when the Input is double
-% %                                                     obj.inputs.condsAll.(condStr).(st).si_pckt{4}=round(str2num(obj.inputs.condsAll.(condStr).(st).threshold)*obj.inputs.condsAll.(condStr).(st).si_pckt{1}*0.01); %Multiplying the Threshold with the Intensity to apply Transformation
-% %                                                 else
-% %                                                     obj.inputs.condsAll.(condStr).(st).si_pckt{4}=str2num(obj.inputs.condsAll.(condStr).(st).threshold)*obj.inputs.condsAll.(condStr).(st).si_pckt{1}*0.01; %Multiplying the Threshold with the Intensity to apply Transformation
-% %                                                 end
+                                                if obj.app.par.hardware_settings.(char(obj.inputs.condsAll.(condStr).(st).stim_device)).slct_device~=9
+                                                    if floor(Threshold)==Threshold %% Integer-ness check when the Input is double
+                                                        obj.inputs.condsAll.(condStr).(st).si_pckt{4}=round(str2num(obj.inputs.condsAll.(condStr).(st).threshold)*obj.inputs.condsAll.(condStr).(st).si_pckt{1}*0.01); %Multiplying the Threshold with the Intensity to apply Transformation
+                                                    else
+                                                        obj.inputs.condsAll.(condStr).(st).si_pckt{4}=str2num(obj.inputs.condsAll.(condStr).(st).threshold)*obj.inputs.condsAll.(condStr).(st).si_pckt{1}*0.01; %Multiplying the Threshold with the Intensity to apply Transformation
+                                                    end
+                                                end
                                                 % set the adjusted value on the 4th packet in si_packet and repeat it for all
                                             catch
                                                 obj.app.info.ErrorMessage='The "Motor Threshold" intensity coupled to import from previous Measurement cannot be found in "Linked List", try again after linking correct intensiteis.';
@@ -3712,7 +3724,6 @@ classdef best_toolbox < handle
             obj.prepTrial;
         end
         function trigTrial(obj)
-            
             switch obj.app.par.hardware_settings.(char(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.outputDevices}{1,1})).slct_device
                 case 1 % pc controlled magven
                 case 2 % pc controlled magstim
@@ -3725,6 +3736,7 @@ classdef best_toolbox < handle
                             %                             obj.bossbox.EEGScopeTrigger;
                             tic;
                         case 2
+                            
                             obj.bossbox.armPulse;
                             obj.bossbox.bb.triggers_remaining
                             tic;
@@ -3936,6 +3948,9 @@ classdef best_toolbox < handle
                         obj.ERPTriggerLockedEEG;
                     case 'ERPTopoPlot'
                         obj.ERPTopoPlot;
+                    case 'TotalITIDistribution'
+                        obj.TotalITIDistributionPlot;
+                        
                     case 'StatusTable'
                         obj.StatusTable;
                 end
@@ -4047,9 +4062,9 @@ classdef best_toolbox < handle
                                             OutputDevice=char(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.outputDevices}{1,i});
                                             obj.digitimer.(OutputDevice).setManualAmplitude(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,i}{1,4},OutputDevice);
                                         case 2 % Arduino
-                                            OutputDevice=char(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.outputDevices}{1,i});
-                                            ST=3*13;
-                                            obj.digitimer.(OutputDevice).setManualAmplitude(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,i}{1,2}*ST*0.01,OutputDevice);
+%                                             OutputDevice=char(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.outputDevices}{1,i});
+%                                             ST=3*13;
+%                                             obj.digitimer.(OutputDevice).setManualAmplitude(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,i}{1,2}*ST*0.01,OutputDevice);
                                     end
                                 case 10 %simulation
                                     switch char(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.stimMode}{1,i})
@@ -4067,12 +4082,13 @@ classdef best_toolbox < handle
         end
         function stimLoop(obj)
             for tt=1:obj.inputs.totalTrials
+                obj.info.timeA=clock;
                 tic
                 obj.trigTrial;
                 obj.readTrial;
                 obj.plotTrial;
                 tic
-                obj.saveRuntime;
+%                 obj.saveRuntime;
                 toc
                 pause(1)
                 obj.prepTrial;
@@ -4089,7 +4105,9 @@ classdef best_toolbox < handle
                     obj.inputs.stop_event=0;
                     break;
                 end
-                toc
+                obj.info.timeB=clock;
+%                 obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.TotalITI}=toc
+obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.TotalITI}=round((obj.info.timeB(5)*60+obj.info.timeB(6))-(obj.info.timeA(5)*60+obj.info.timeA(6)),2)
                 disp('................................................');
             end
         end
@@ -6319,6 +6337,29 @@ classdef best_toolbox < handle
             fh.Children(3).Parent = obj.app.pr.container.(ax);
             %%fh.Children(2).Parent=obj.app.pr.container.(ax);
             delete(fh); pause(0.1);
+        end
+        function TotalITIDistributionPlot(obj)
+            Colors=[1 0 0;0 1 0;0 0 1;0 1 1;1 0 1;0.7529 0.7529 0.7529;0.5020 0.5020 0.5020;0.4706 0 0;0.5020 0.5020 0;0 0.5020 0;0.5020 0 0.5020;0 0.5020 0.5020;0 0 0.5020;1 0.4980 0.3137;
+                1 0 0;0 1 0;0 0 1;0 1 1;1 0 1;0.7529 0.7529 0.7529;0.5020 0.5020 0.5020;0.4706 0 0;0.5020 0.5020 0;0 0.5020 0;0.5020 0 0.5020;0 0.5020 0.5020;0 0 0.5020;1 0.4980 0.3137;
+                1 0 0;0 1 0;0 0 1;0 1 1;1 0 1;0.7529 0.7529 0.7529;0.5020 0.5020 0.5020;0.4706 0 0;0.5020 0.5020 0;0 0.5020 0;0.5020 0 0.5020;0 0.5020 0.5020;0 0 0.5020;1 0.4980 0.3137;
+                1 0 0;0 1 0;0 0 1;0 1 1;1 0 1;0.7529 0.7529 0.7529;0.5020 0.5020 0.5020;0.4706 0 0;0.5020 0.5020 0;0 0.5020 0;0.5020 0 0.5020;0 0.5020 0.5020;0 0 0.5020;1 0.4980 0.3137];
+            if obj.inputs.trial<=obj.inputs.totalConds, return; end
+            ax=['ax' num2str(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.axesno}{1,obj.inputs.chLab_idx})];
+            axes(obj.app.pr.ax.(ax)), hold on,
+            IndexOfTrialsTillNow=find(vertcat(obj.inputs.trialMat{1:obj.inputs.trial,obj.inputs.colLabel.ConditionMarker})==obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.ConditionMarker});
+            conditionmarker=['Cond' num2str(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.ConditionMarker})];
+                if ~isfield(obj.inputs.Handles,'TotalITIDistributionPlotHandle')
+                    obj.inputs.Handles.TotalITIDistributionPlotHandle.(conditionmarker)=histogram([obj.inputs.trialMat{IndexOfTrialsTillNow,obj.inputs.colLabel.TotalITI}],'FaceColor',Colors(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.ConditionMarker},:),'DisplayName',conditionmarker,'BinWidth',0.1);
+                    xlabel('Total ITI (ms)');
+                    ylabel('No. of Trials');
+                elseif ~isfield(obj.inputs.Handles.TotalITIDistributionPlotHandle,conditionmarker)
+                    obj.inputs.Handles.TotalITIDistributionPlotHandle.(conditionmarker)=histogram([obj.inputs.trialMat{IndexOfTrialsTillNow,obj.inputs.colLabel.TotalITI}],'FaceColor',Colors(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.ConditionMarker},:),'DisplayName',conditionmarker,'BinWidth',0.1);
+                else
+                    delete(obj.inputs.Handles.TotalITIDistributionPlotHandle.(conditionmarker))
+                    obj.inputs.Handles.TotalITIDistributionPlotHandle.(conditionmarker)=histogram([obj.inputs.trialMat{IndexOfTrialsTillNow,obj.inputs.colLabel.TotalITI}],'FaceColor',Colors(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.ConditionMarker},:),'DisplayName',conditionmarker,'BinWidth',0.1);
+                end
+%                 legend('Location','southoutside','Orientation','horizontal'); hold on;
+                legend; hold on;
         end
         function DeMeanedEEGData =best_DeMeanEEG(obj,RawData)
             DeMeanedEEGData=RawData-mean(RawData);
