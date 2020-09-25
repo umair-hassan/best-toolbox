@@ -4500,7 +4500,7 @@ classdef best_application < handle
             si=[30];
             for idefaults=1:1
                 cond = ['cond' num2str(idefaults)];
-                obj.info.defaults.condsAll.(cond).targetChannel              = cellstr('NaN');
+                obj.info.defaults.condsAll.(cond).targetChannel              = cellstr('');
                 obj.info.defaults.condsAll.(cond).TrialsPerCondition         = 50;
                 obj.info.defaults.condsAll.(cond).ITI                        = [3 4];
                 obj.info.defaults.condsAll.(cond).Phase                      = 'Peak';
@@ -7494,7 +7494,7 @@ classdef best_application < handle
                 obj.pi.mm.cond.(cd).ax.XLim=[0 5];
                 xticks(obj.pi.mm.cond.(cd).ax,[100 101]);
                 yticks(obj.pi.mm.cond.(cd).ax,-1:1:1)
-                obj.pi.mm.cond.(cd).ax.YTickLabel={'','MEP Search Window',''};
+                obj.pi.mm.cond.(cd).ax.YTickLabel={'','Search Window',''};
                 plot(0:0.01:10,rand(1,1001)*0.30-0.15,'Color','k','parent',obj.pi.mm.cond.(cd).ax,'LineWidth',2,'Tag','empty'); % 12-Mar-2020 07:37:17
                 text(2.5,0+0.20,['Channel Name:[' char(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).targetChannel) ']'],'VerticalAlignment','bottom','HorizontalAlignment','center','Color',[0.50 0.50 0.50],'FontSize',9,'FontAngle','italic','ButtonDownFcn',@obj.cb_cm_targetChannel) % 11-Mar-2020 14:49:00
                 obj.pi.mm.stim.(cd).no=0;
@@ -7513,7 +7513,7 @@ classdef best_application < handle
                         yticklab{1,i}=cellstr(['Stimulator ' num2str(i)]);
                     end
                     yticklab=flip(horzcat(yticklab{1,:}));
-                    obj.pi.mm.cond.(cd).ax.YTickLabel={'',char(yticklab),'MEP Search Window',''};
+                    obj.pi.mm.cond.(cd).ax.YTickLabel={'',char(yticklab),' Search Window',''};
                     text(0,-1*obj.pi.mm.stim.(cd).no,char(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).stim_device),'VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',9,'FontAngle','italic','Tag',num2str(obj.pi.mm.stim.(cd).no),'ButtonDownFcn',@obj.cb_cm_output_device)
                     for ipulses=1:obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).pulse_count
                         
@@ -7529,9 +7529,9 @@ classdef best_application < handle
                                 if (obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_units==1)
                                     
                                     
-                                    SinglePulseAnnotation=['TS: [' num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt{1,1}) '] %MSO'];
+                                    SinglePulseAnnotation=['TS: [' num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt{1,1}) '] Inten. Units'];
                                 else
-                                    SinglePulseAnnotation=['TS: [' num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt{1,1}) '] %MT'];
+                                    SinglePulseAnnotation=['TS: [' num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt{1,1}) '] Inten. Units'];
                                 end
                                 %                                 AAJ: idher ye banao jese oper hehehehehe
                                 %                                 vala bnaya he pp aur train dono k lye
@@ -7661,7 +7661,7 @@ classdef best_application < handle
             obj.pi.mm.cond.(cd).ax.XLim=[0 5];
             xticks(obj.pi.mm.cond.(cd).ax,[100 101]);
             yticks(obj.pi.mm.cond.(cd).ax,[-1:1:1])
-            obj.pi.mm.cond.(cd).ax.YTickLabel={'','MEP Search Window',''};
+            obj.pi.mm.cond.(cd).ax.YTickLabel={'','Search Window',''};
             plot(0:0.01:10,rand(1,1001)*0.30-0.15,'Color','k','parent',obj.pi.mm.cond.(cd).ax,'LineWidth',2,'Tag','empty'); % 12-Mar-2020 07:37:17
             text(2.5,0+0.20,'Channel Name:[?]','VerticalAlignment','bottom','HorizontalAlignment','center','Color',[0.50 0.50 0.50],'FontSize',9,'FontAngle','italic','ButtonDownFcn',@obj.cb_cm_targetChannel) % 11-Mar-2020 14:49:00
             obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).targetChannel=cellstr('NaN');
@@ -7717,7 +7717,7 @@ classdef best_application < handle
                 yticklab{1,i}=cellstr(['Stimulator ' num2str(i)]);
             end
             yticklab=flip(horzcat(yticklab{1,:}));
-            obj.pi.mm.cond.(cd).ax.YTickLabel={'',char(yticklab),'MEP Search Window',''};
+            obj.pi.mm.cond.(cd).ax.YTickLabel={'',char(yticklab),'Search Window',''};
             text(0,-1*obj.pi.mm.stim.(cd).no,'click to tag device','VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',9,'FontAngle','italic','Tag',num2str(obj.pi.mm.stim.(cd).no),'ButtonDownFcn',@obj.cb_cm_output_device)
             obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).stim_device=cellstr('Select');
             obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).StimulationType='';
@@ -7796,9 +7796,9 @@ classdef best_application < handle
                             obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).stim_timing(1,obj.pi.mm.stim.(cd).(st).pulse_count)={NaN};
                             
                             if obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_units==1
-                                UnitString='%MSO';
+                                UnitString='Inten. Units';
                             elseif obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_units==0
-                                UnitString='%MT';
+                                UnitString='Inten. Units';
                             end
                             text(obj.pi.mm.stim.(cd).(st).pulse_count-0.25,-obj.pi.mm.stim.(cd).slctd+0.41,['     TS: ' num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt{1,1}) ' ' UnitString],'VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',7,'FontAngle','italic','UserData',[obj.pi.mm.stim.(cd).(st).pulse_count,obj.pi.mm.stim.(cd).slctd],'ButtonDownFcn',@obj.cb_cm_sp_inputfig) % 11-Mar-2020 14:49:00
                             
