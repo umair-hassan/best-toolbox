@@ -30,12 +30,8 @@ classdef bt < handle
         % just checking out this file
         % cleaning
 
-        %this change came from the git
-        % now making another change
-        % now this is anotehr change
-        % just antother change
-        % changing 15
-
+        % refining
+        % changing #14
 
         function obj=bt()
             %             close all
@@ -5493,7 +5489,7 @@ classdef bt < handle
                         expModr4=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
                         uicontrol( 'Style','text','Parent', expModr4,'String','Response Function:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
                         obj.pi.drc.ResponseFunctionNumerator=uicontrol( 'Style','edit','Parent', expModr4 ,'FontSize',11,'Tag','ResponseFunctionNumerator','callback',@cb_par_saving);
-                        uicontrol( 'Style','text','Parent', expModr4,'String','÷','FontSize',13,'HorizontalAlignment','center','Units','normalized');
+                        uicontrol( 'Style','text','Parent', expModr4,'String','Ã·','FontSize',13,'HorizontalAlignment','center','Units','normalized');
                         obj.pi.drc.ResponseFunctionDenominator=uicontrol( 'Style','edit','Parent', expModr4 ,'FontSize',11,'Tag','ResponseFunctionDenominator','callback',@cb_par_saving);
                         expModr4.Widths=[150 -2 30 -2];
                         
@@ -5543,7 +5539,7 @@ classdef bt < handle
                         expModr4=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
                         uicontrol( 'Style','text','Parent', expModr4,'String','Response Function:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
                         obj.pi.drc.ResponseFunctionNumerator=uicontrol( 'Style','edit','Parent', expModr4 ,'FontSize',11,'Tag','ResponseFunctionNumerator','callback',@cb_par_saving);
-                        uicontrol( 'Style','text','Parent', expModr4,'String','÷','FontSize',13,'HorizontalAlignment','center','Units','normalized');
+                        uicontrol( 'Style','text','Parent', expModr4,'String','Ã·','FontSize',13,'HorizontalAlignment','center','Units','normalized');
                         obj.pi.drc.ResponseFunctionDenominator=uicontrol( 'Style','edit','Parent', expModr4 ,'FontSize',11,'Tag','ResponseFunctionDenominator','callback',@cb_par_saving);
                         expModr4.Widths=[150 -2 30 -2];
                         
