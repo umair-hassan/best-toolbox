@@ -2026,7 +2026,12 @@ classdef best_application < handle
                         obj.pi.mep.AmplitudeAssignmentPeriod=uicontrol( 'Style','edit','Parent', mep_panel_row2z ,'FontSize',11,'Tag','AmplitudeAssignmentPeriod','Callback',@cb_par_saving);
                         set( mep_panel_row2z, 'Widths', [150 -2]);
                         
-                        expModvBox.Heights=[30 35 35 35 35 35 35 42];
+                        mep_panel_row2z = uix.HBox( 'Parent', expModvBox, 'Spacing',  0, 'Padding', 2 );
+                        uicontrol( 'Style','text','Parent', mep_panel_row2z,'String','Protocol Onset(s):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                        obj.pi.mep.ProtocolOnset=uicontrol( 'Style','edit','Parent', mep_panel_row2z ,'FontSize',11,'Tag','ProtocolOnset','Callback',@cb_par_saving);
+                        set( mep_panel_row2z, 'Widths', [150 -2]);
+                        
+                        expModvBox.Heights=[30 35 35 35 35 35 35 42 35];
                 end
                 
             end
@@ -2099,7 +2104,7 @@ classdef best_application < handle
                     case 1
                         set(obj.pi.mep.r0v1,'Heights',[40 60 220 -1 55]);
                     case 2
-                        set(obj.pi.mep.r0v1,'Heights',[-0.6 -5 -5 -2 -1.1]);
+                        set(obj.pi.mep.r0v1,'Heights',[-0.6 -6 -5 -2 -1.1]);
                         set(obj.pi.mep.r0,'Widths',[-2 -3]);
                 end
             end
@@ -2204,6 +2209,7 @@ classdef best_application < handle
             obj.info.defaults.Handles.UserData='Reserved for Future Use';
             obj.info.defaults.Enable={'on'};
             obj.info.defaults.ProtocolStatus={'created'};
+            obj.info.defaults.ProtocolOnset='1';
             si=[30 40 50 60 70 80];
             for idefaults=1:6
                 cond=['cond' num2str(idefaults)];
@@ -4291,8 +4297,13 @@ classdef best_application < handle
                         uicontrol( 'Style','text','Parent', erp_panel_row2z,'String','Amp Assignment Period(minutes):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
                         obj.pi.erp.AmplitudeAssignmentPeriod=uicontrol( 'Style','edit','Parent', erp_panel_row2z ,'FontSize',11,'Tag','AmplitudeAssignmentPeriod','Callback',@cb_par_saving);
                         set( erp_panel_row2z, 'Widths', [150 -2]);
+                        
+                        mep_panel_row2z = uix.HBox( 'Parent', expModvBox, 'Spacing',  0, 'Padding', 2 );
+                        uicontrol( 'Style','text','Parent', mep_panel_row2z,'String','Protocol Onset(s):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                        obj.pi.erp.ProtocolOnset=uicontrol( 'Style','edit','Parent', mep_panel_row2z ,'FontSize',11,'Tag','ProtocolOnset','Callback',@cb_par_saving);
+                        set( mep_panel_row2z, 'Widths', [150 -2]);
 
-                        expModvBox.Heights=[30 35 35 35 35 35 42];
+                        expModvBox.Heights=[30 35 35 35 35 35 42 35];
                 end
             end
             function cb_DisplayParametersPanel
@@ -4426,7 +4437,7 @@ classdef best_application < handle
                         obj.pi.erp.ERPLatencyOffset=uicontrol( 'Style','edit','Parent', expModr2 ,'FontSize',11,'Tag','ERPLatencyOffset','callback',@cb_par_saving);
                         expModr2.Widths=[150 -2];
                         
-                        expModvBox.Heights=[ 45 45 45 45 45 45 45 45 45 45 45];
+                        expModvBox.Heights=[ 45 35 35 35 35 45 45 45 45 45 45];
                 end
             end
             function cb_SetHeights
@@ -4434,7 +4445,7 @@ classdef best_application < handle
                     case 1
                         set(obj.pi.erp.r0v1,'Heights',[40 60 525 -3 55])
                     case 2
-                        set(obj.pi.erp.r0v1,'Heights',[40 275 525 -1 55])
+                        set(obj.pi.erp.r0v1,'Heights',[40 310 470 0 55])
                 end
             end            
             function cb_par_saving(source,~)
