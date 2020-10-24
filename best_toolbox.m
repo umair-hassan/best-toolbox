@@ -34,7 +34,6 @@ classdef best_toolbox < handle
         best_timer;
         FilterCoefficients;
         handles;
-        BESTData
     end
     
     methods
@@ -3500,7 +3499,7 @@ classdef best_toolbox < handle
                                 Session=obj.inputs.ImportPeakFrequency.Session;
                                 Protocol=obj.inputs.ImportPeakFrequency.Protocol;
                                 Channel=obj.inputs.ImportPeakFrequency.Channel;
-                                obj.inputs.PeakFrequency=obj.sessions.(Session).(Protocol).Results.PeakFrequency.(Channel);
+                                obj.inputs.PeakFrequency=obj.sessions.(Session).(Protocol).results.PeakFrequency.(Channel);
                                 obj.app.par.(obj.app.info.event.current_session).(obj.app.info.event.current_measure_fullstr).PeakFrequency=num2str(obj.inputs.PeakFrequency);
                             catch
                                 obj.app.info.ErrorMessage='The Peak Frequency to import from previous rsEEG Measurement Protocol cannot be found in "Linked List". try againa after linking correct Peak Frequency.';
@@ -3540,6 +3539,11 @@ classdef best_toolbox < handle
             if ~isscalar(obj.inputs.trialMat{i,obj.inputs.colLabel.iti}) && numel(obj.inputs.trialMat{i,obj.inputs.colLabel.iti})==2
                     iti=obj.inputs.trialMat{i,obj.inputs.colLabel.iti};
                     obj.inputs.trialMat(i,obj.inputs.colLabel.iti)=num2cell(round((iti(1)+(iti(2)-iti(1) ).* rand(1,1)),3));
+            end
+            if obj.inputs.BrainState==2
+                MinITI=obj.inputs.trialMat{i,obj.inputs.colLabel.iti}-(1/obj.inputs.PeakFrequency);
+                MaxITI=obj.inputs.trialMat{i,obj.inputs.colLabel.iti}+(1/obj.inputs.PeakFrequency);
+                obj.inputs.trialMat(i,obj.inputs.colLabel.iti)=num2cell(round((MinITI+(MaxITI-MinITI ).* rand(1,1)),3));
             end
             end
             
@@ -3734,12 +3738,10 @@ classdef best_toolbox < handle
                         case 1
                             obj.bossbox.multiPulse(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.tpm});
                             %                             obj.bossbox.EEGScopeTrigger;
-                            tic;
                         case 2
                             
                             obj.bossbox.armPulse;
                             obj.bossbox.bb.triggers_remaining
-                            tic;
                     end
                 case 9 %% digitimer
                     switch obj.app.par.hardware_settings.(char(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.outputDevices}{1,1})).TriggerControl
@@ -3954,15 +3956,15 @@ classdef best_toolbox < handle
                     case 'StatusTable'
                         obj.StatusTable;
                 end
-                AxesNum=obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.axesno}{1,obj.inputs.chLab_idx};
-                AxesField=['ax' num2str(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.axesno}{1,obj.inputs.chLab_idx})];
-                try %Container is not there for Status Table, but exist for all others
-                    CopiedAxes=copy(obj.app.pr.ax.(AxesField));
-                catch
-                    CopiedAxes=copy(obj.app.pr.container.(AxesField));
-                end
-                CopiedAxes.Parent=[]; pause(0.1)
-                obj.inputs.Figures{AxesNum}=CopiedAxes;
+% %                 AxesNum=obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.axesno}{1,obj.inputs.chLab_idx};
+% %                 AxesField=['ax' num2str(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.axesno}{1,obj.inputs.chLab_idx})];
+% %                 try %Container is not there for Status Table, but exist for all others
+% %                     CopiedAxes=copy(obj.app.pr.ax.(AxesField));
+% %                 catch
+% %                     CopiedAxes=copy(obj.app.pr.container.(AxesField));
+% %                 end
+% %                 CopiedAxes.Parent=[]; pause(0.1)
+% %                 obj.inputs.Figures{AxesNum}=CopiedAxes;
             end
         end
         function prepTrial(obj)
@@ -4019,8 +4021,8 @@ classdef best_toolbox < handle
                                     obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.stimMode}{1,i}
                                     switch char(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.stimMode}{1,i})
                                         case 'single_pulse'
-                                            obj.magven.arm;
-                                            obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,i}
+                                            %obj.magven.arm;
+                                            %obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,i}
                                             obj.magven.setAmplitude(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,i}{1,4});
                                         case 'paired_pulse'
                                             obj.magven.arm;
@@ -4060,10 +4062,16 @@ classdef best_toolbox < handle
 %                                             if strcmpi(obj.app.info.event.current_measure_fullstr,'Left_Thumb_Attention_Titration')
 %                                             end
                                             OutputDevice=char(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.outputDevices}{1,i});
+                                            if obj.inputs.BrainState==2 && obj.inputs.trial==1	551	obj.digitimer.(OutputDevice).setManualAmplitude(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,i}{1,4},OutputDevice);
+                                                obj.digitimer.(OutputDevice).setManualAmplitude(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,i}{1,4},OutputDevice);
+                                            elseif obj.inputs.BrainState==2 && obj.inputs.trial>1
+                                                %Do Nothing
+                                            else
+                                                obj.digitimer.(OutputDevice).setManualAmplitude(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,i}{1,4},OutputDevice);
+                                            end
                                             obj.digitimer.(OutputDevice).setManualAmplitude(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,i}{1,4},OutputDevice);
                                         case 2 % Arduino
 %                                             OutputDevice=char(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.outputDevices}{1,i});
-%                                             ST=3*13;
 %                                             obj.digitimer.(OutputDevice).setManualAmplitude(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,i}{1,2}*ST*0.01,OutputDevice);
                                     end
                                 case 10 %simulation
@@ -4082,328 +4090,47 @@ classdef best_toolbox < handle
         end
         function stimLoop(obj)
             for tt=1:obj.inputs.totalTrials
-                obj.info.timeA=clock;
-                tic
+                obj.info.TimerAA=tic;
                 obj.trigTrial;
                 obj.readTrial;
                 obj.plotTrial;
-                tic
-%                 obj.saveRuntime;
-                toc
-%                 pause(1)
                 obj.prepTrial;
-                wait_period=obj.inputs.trialMat{obj.inputs.trial-1,obj.inputs.colLabel.iti}-toc;
-                wait_idx=3*floor(wait_period);
-                for wait_id=1:wait_idx
-                    pause(wait_period/wait_idx)
-                    if(obj.inputs.stop_event==1)
-                        break;
-                    end
+                obj.saveRunTimeBackup;
+                wait_period=obj.inputs.trialMat{obj.inputs.trial-1,obj.inputs.colLabel.iti}-toc(obj.info.TimerAA);
+                if wait_period>0 && wait_period<obj.inputs.trialMat{obj.inputs.trial-1,obj.inputs.colLabel.iti}
+                    pause(wait_period)
                 end
                 if(obj.inputs.stop_event==1)
                     disp('returned after the execution')
                     obj.inputs.stop_event=0;
                     break;
                 end
-                obj.info.timeB=clock;
-%                 obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.TotalITI}=toc
-obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.TotalITI}=round((obj.info.timeB(5)*60+obj.info.timeB(6))-(obj.info.timeA(5)*60+obj.info.timeA(6)),2)
                 disp('................................................');
+                obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.TotalITI}=toc(obj.info.TimerAA);
             end
         end
         function save(obj)
             obj.app.cb_menu_save;
         end
-        function saveRuntime(obj)
-            tic
-            switch obj.inputs.Protocol
-                case 'MEP Hotspot Search Protocol'
-                    label=obj.BESTData.label;
-                    for i=1:size(label,1)
-                        trial(i,:)=single(obj.inputs.rawData.(label{i}).data(obj.inputs.trial,:));
-                        time(i,:)=obj.inputs.rawData.(label{i}).time(obj.inputs.trial,:);
-                    end
-                    obj.BESTData.trial(1,obj.inputs.trial)={trial};
-                    obj.BESTData.time(1,obj.inputs.trial)={time};
-                    obj.BESTData.results=obj.inputs.results;
-                    % Write MEP Amplitude in trialinfo
-                case 'MEP Measurement Protocol'
-                    switch obj.inputs.BrainState
-                        case 1 %Independent
-                            label=obj.BESTData.label;
-                            for i=1:size(label,1)
-                                trial(i,:)=single(obj.inputs.rawData.(label{i}).data(obj.inputs.trial,:));
-                                time(i,:)=obj.inputs.rawData.(label{i}).time(obj.inputs.trial,:);
-                            end
-                            obj.BESTData.trial(1,obj.inputs.trial)={trial};
-                            obj.BESTData.time(1,obj.inputs.trial)={time};
-                            obj.BESTData.results=obj.inputs.results;
-                            % Write MEP Amplitude in trialinfo
-                        case 2 %Dependent
-                            label=obj.BESTData.label;
-                            EEGDataSize=1:size(obj.inputs.rawData.OsscillationEEG.data,2);
-                            trial(1,EEGDataSize)=single(obj.inputs.rawData.OsscillationEEG.data(obj.inputs.trial,:));
-                            time(1,EEGDataSize)=obj.inputs.rawData.IEEG.time;
-                            for i=2:size(label,1)
-                                EMGDataSize=1:size(obj.inputs.rawData.(label{i}).data,2);
-                                trial(i,EMGDataSize)=single(obj.inputs.rawData.(label{i}).data(obj.inputs.trial,:));
-                                time(i,EMGDataSize)=obj.inputs.rawData.(label{i}).time(obj.inputs.trial,:);
-                            end
-                            obj.BESTData.trial(1,obj.inputs.trial)={trial};
-                            obj.BESTData.time(1,obj.inputs.trial)={time};
-                            obj.BESTData.results=obj.inputs.results;
-                            % Write MEP Amplitude in trialinfo
-                    end
-                case 'MEP Dose Response Curve Protocol'
-                    switch obj.inputs.BrainState
-                        case 1 %Independent
-                            label=obj.BESTData.label;
-                            for i=1:size(label,1)
-                                trial(i,:)=single(obj.inputs.rawData.(label{i}).data(obj.inputs.trial,:));
-                                time(i,:)=obj.inputs.rawData.(label{i}).time(obj.inputs.trial,:);
-                            end
-                            obj.BESTData.trial(1,obj.inputs.trial)={trial};
-                            obj.BESTData.time(1,obj.inputs.trial)={time};
-                            obj.BESTData.results=obj.inputs.results;
-                            % Write MEP Amplitude in trialinfo
-                        case 2 %Dependent
-                            label=obj.BESTData.label;
-                            EEGDataSize=1:size(obj.inputs.rawData.OsscillationEEG.data,2);
-                            trial(1,EEGDataSize)=single(obj.inputs.rawData.OsscillationEEG.data(obj.inputs.trial,:));
-                            time(1,EEGDataSize)=obj.inputs.rawData.IEEG.time;
-                            for i=2:size(label,1)
-                                EMGDataSize=1:size(obj.inputs.rawData.(label{i}).data,2);
-                                trial(i,EMGDataSize)=single(obj.inputs.rawData.(label{i}).data(obj.inputs.trial,:));
-                                time(i,EMGDataSize)=obj.inputs.rawData.(label{i}).time(obj.inputs.trial,:);
-                            end
-                            obj.BESTData.trial(1,obj.inputs.trial)={trial};
-                            obj.BESTData.time(1,obj.inputs.trial)={time};
-                            obj.BESTData.results=obj.inputs.results;
-                            % Write MEP Amplitude in trialinfo
-                    end
-                case 'Motor Threshold Hunting Protocol'
-                    switch obj.inputs.BrainState
-                        case 1 %Independent
-                            label=obj.BESTData.label;
-                            for i=1:size(label,1)
-                                trial(i,:)=single(obj.inputs.rawData.(label{i}).data(obj.inputs.trial,:));
-                                time(i,:)=obj.inputs.rawData.(label{i}).time(obj.inputs.trial,:);
-                            end
-                            obj.BESTData.trial(1,obj.inputs.trial)={trial};
-                            obj.BESTData.time(1,obj.inputs.trial)={time};
-                            obj.BESTData.results=obj.inputs.results;
-                        case 2 %Dependent
-                            label=obj.BESTData.label;
-                            EEGDataSize=1:size(obj.inputs.rawData.OsscillationEEG.data,2);
-                            trial(1,EEGDataSize)=single(obj.inputs.rawData.OsscillationEEG.data(obj.inputs.trial,:));
-                            time(1,EEGDataSize)=obj.inputs.rawData.IEEG.time;
-                            for i=2:size(label,1)
-                                EMGDataSize=1:size(obj.inputs.rawData.(label{i}).data,2);
-                                trial(i,EMGDataSize)=single(obj.inputs.rawData.(label{i}).data(obj.inputs.trial,:));
-                                time(i,EMGDataSize)=obj.inputs.rawData.(label{i}).time(obj.inputs.trial,:);
-                            end
-                            obj.BESTData.trial(1,obj.inputs.trial)={trial};
-                            obj.BESTData.time(1,obj.inputs.trial)={time};
-                            obj.BESTData.results=obj.inputs.results;
-                            % Write MEP Amplitude in trialinfo
-                    end
-                case 'Psychometric Threshold Hunting Protocol'
-                    switch obj.inputs.BrainState
-                        case 1 %Independent
-                        case 2 %Dependent
-                    end
-                case 'rs EEG Measurement Protocol'
-            end
-            obj.sessions.(obj.app.info.event.current_session).(obj.app.info.event.current_measure_fullstr).ConditionsMatrix=obj.inputs.condMat;
-            % obj.sessions.(obj.app.info.event.current_session).(obj.app.info.event.current_measure_fullstr).TrialsMatrix=obj.inputs.trialMat; % 04-Jun-2020 20:35:39
-            obj.sessions.(obj.app.info.event.current_session).(obj.app.info.event.current_measure_fullstr).Figures=obj.inputs.Figures;
-            try obj.sessions.(obj.app.info.event.current_session).(obj.app.info.event.current_measure_fullstr).Results=obj.inputs.results; catch, end %Known Error when run on PsychMTH
-            toc
-        end
-        function TmrFcn(obj)
-            pause(0.1)
-            tic
-            disp entered___________________TimerFCN__________
-            BESTToolboxAutosave=obj.inputs;
-            BESTToolboxAutosave.Test=rand(1e4,1e4);
-            BESTToolboxAutosave.TestB= BESTToolboxAutosave.Test;
-            BESTToolboxAutosave.TestC= BESTToolboxAutosave.Test;
-            BESTToolboxAutosave.TestD= BESTToolboxAutosave.Test;
-            BESTToolboxAutosave.TestE= BESTToolboxAutosave.Test;
-            save(obj.info.save_str_runtime,'BESTToolboxAutosave','-v7.3');
-            disp [[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[DONWWITHTIMER
-            toc
-        end
-        function prepSaving(obj)
-            %% Creating MatFile Name and File on a directory
+        function saveRunTimeBackup (obj)
             exp_name=obj.app.pmd.exp_title.editfield.String; exp_name(exp_name == ' ') = '_';
             subj_code=obj.app.pmd.sub_code.editfield.String; subj_code(subj_code == ' ') = '_';
             session=obj.app.info.event.current_session; session(session == '_') = '';
             measure=obj.app.info.event.current_measure_fullstr; measure(measure == '_') = '';
-            Date=datestr(now,'yyyy-mm-dd HH:MM:SS'); Date(Date == ' ') = '_'; Date(Date == '-') = ''; Date(Date == ':') = '';
-            FileName=['BESTData_' exp_name '_' subj_code '_' session '_' measure '_' Date '.mat'];
-            % FilePath=cd;
-            FullFileName=fullfile(obj.app.par.GlobalSettings.DataBaseDirectory,exp_name,subj_code,session,FileName);
-            if ~exist(fullfile(obj.app.par.GlobalSettings.DataBaseDirectory,exp_name,subj_code,session), 'dir')
-                mkdir(fullfile(obj.app.par.GlobalSettings.DataBaseDirectory,exp_name,subj_code,session));
-            end
-            obj.BESTData=matfile(FullFileName,'Writable',true);
-            %% Writing General Variables
-            obj.BESTData.pars=obj.app.par.(obj.app.info.event.current_session).(obj.app.info.event.current_measure_fullstr);
-            obj.BESTData.experiment_name=exp_name;
-            obj.BESTData.subject_name=subj_code;
-            obj.BESTData.session_name=session;
-            obj.BESTData.protocol_name=measure;
-            %% Writing Protocol Specific Initial Variables
-            switch obj.inputs.Protocol
-                case 'MEP Hotspot Search Protocol'
-                    %labels, fsample, chantype, chanunits, trialinfo collabels,
-                    obj.BESTData.condition_matrix=obj.inputs.condMat;
-                    obj.BESTData.trial_matrix=obj.inputs.trialMat;
-                    obj.BESTData.fsample=5000;
-                    obj.BESTData.label=obj.inputs.EMGDisplayChannels';
-                    obj.BESTData.chantype=repmat({'emg'},numel(obj.inputs.EMGDisplayChannels),1);
-                    obj.BESTData.chanunits=repmat({'uV'},numel(obj.inputs.EMGDisplayChannels),1);
-                    obj.BESTData.timeunits='ms';
-                    obj.BESTData.trilainfo_label={'TSIntensity (%MSO)','ITI(s)'};
-                    switch obj.inputs.ProtocolMode
-                        case 1 %Automatic
-                            TS=vertcat(obj.inputs.trialMat{:,3}); TS=vertcat(TS{:,1}); TS=vertcat(TS{:,1});
-                            obj.BESTData.trialinfo(1:numel(TS),1)=TS;
-                            obj.BESTData.trialinfo(1:numel(vertcat(obj.inputs.trialMat{:,4})),2)=vertcat(obj.inputs.trialMat{:,4});
-                        case 2 %Manual
-                            obj.BESTData.trialinfo(1,1)=NaN;
-                            obj.BESTData.trialinfo(1,2)=NaN;
-                    end
-                case 'MEP Measurement Protocol'
-                    switch obj.inputs.BrainState
-                        case 1 %Independent
-                            obj.BESTData.condition_matrix=obj.inputs.condMat;
-                            obj.BESTData.trial_matrix=obj.inputs.trialMat;
-                            obj.BESTData.fsample=5000;
-                            obj.BESTData.label=[setdiff(unique(horzcat(obj.inputs.trialMat{:,obj.inputs.colLabel.chLab})),{'StatusTable'})]';%%obj.inputs.EMGDisplayChannels';
-                            obj.BESTData.timeunits='ms';
-                            obj.BESTData.chantype=repmat({'emg'},numel(obj.BESTData.label),1);
-                            obj.BESTData.chanunits=repmat({'uV'},numel(obj.BESTData.label),1);
-                            obj.BESTData.trilainfo_label={'TSIntensity (%MSO)','ITI(s)'};
-                            TS=vertcat(obj.inputs.trialMat{:,3}); TS=vertcat(TS{:,1}); TS=vertcat(TS{:,1});
-                            obj.BESTData.trialinfo(1:numel(TS),1)=TS;
-                            obj.BESTData.trialinfo(1:numel(vertcat(obj.inputs.trialMat{:,4})),2)=vertcat(obj.inputs.trialMat{:,4});
-                        case 2 %Dependent
-                            obj.BESTData.condition_matrix=obj.inputs.condMat;
-                            obj.BESTData.trial_matrix=obj.inputs.trialMat;
-                            obj.BESTData.fsample=5000;
-                            obj.BESTData.timeunits='ms';
-                            label{1}=erase(char(join(obj.inputs.RealTimeChannelsMontage)),' ');
-                            obj.BESTData.label=[label{1}; [setdiff(unique(horzcat(obj.inputs.trialMat{:,obj.inputs.colLabel.chLab})),{'OsscillationPhase','OsscillationEEG','AmplitudeDistribution','OsscillationAmplitude','IADistribution','AmplitudeDistribution','StatusTable'})]'];
-                            obj.BESTData.chantype=[{'eeg'}; repmat({'emg'},numel(obj.BESTData.label)-1,1)];
-                            obj.BESTData.chanunits=repmat({'uV'},numel(obj.BESTData.label),1);
-                            obj.BESTData.trilainfo_label={'TSIntensity (%MSO)','ITI(s)','Target Phase(radians)','Phase Tolerance (radians)','Target Min Amplitude (uV)','Target Max Amplitude (uV)'};
-%                             TS=vertcat(obj.inputs.trialMat{:,3}); TS=vertcat(TS{:,1}); TS=vertcat(TS{:,1});
-                            obj.BESTData.trialinfo(1:obj.inputs.totalTrials,1)=rand;
-                            obj.BESTData.trialinfo(1:obj.inputs.totalTrials,2)=vertcat(obj.inputs.trialMat{:,4});
-                            Phase=cell2mat(vertcat(obj.inputs.trialMat{:,obj.inputs.colLabel.phase}));
-                            Amplitude=cell2mat(vertcat(obj.inputs.trialMat{:,obj.inputs.colLabel.IA}));
-                            obj.BESTData.trialinfo(1:obj.inputs.totalTrials,3)=Phase(:,1);
-                            obj.BESTData.trialinfo(1:obj.inputs.totalTrials,4)=Phase(:,2);
-                            obj.BESTData.trialinfo(1:obj.inputs.totalTrials,5)=Amplitude(:,1);
-                            obj.BESTData.trialinfo(1:obj.inputs.totalTrials,6)=Amplitude(:,2);
-                    end
-                case 'MEP Dose Response Curve Protocol'
-                    switch obj.inputs.BrainState
-                        case 1 %Independent
-                            obj.BESTData.condition_matrix=obj.inputs.condMat;
-                            obj.BESTData.trial_matrix=obj.inputs.trialMat;
-                            obj.BESTData.fsample=5000;
-                            obj.BESTData.label=[setdiff(unique(horzcat(obj.inputs.trialMat{:,obj.inputs.colLabel.chLab})),{'StatusTable'})]';
-                            obj.BESTData.timeunits='ms';
-                            obj.BESTData.chantype=repmat({'emg'},numel(obj.inputs.EMGTargetChannels)+numel(obj.inputs.EMGDisplayChannels),1);
-                            obj.BESTData.chanunits=repmat({'uV'},numel(obj.inputs.EMGTargetChannels)+numel(obj.inputs.EMGDisplayChannels),1);
-                            obj.BESTData.trilainfo_label={'TSIntensity (%MSO)','ITI(s)'};
-%                             TS=vertcat(obj.inputs.trialMat{:,3}); TS=vertcat(TS{:,1}); TS=vertcat(TS{:,1});
-                            obj.BESTData.trialinfo(1:numel(1),1)=rand;
-                            obj.BESTData.trialinfo(1:numel(vertcat(obj.inputs.trialMat{:,4})),2)=vertcat(obj.inputs.trialMat{:,4});
-                        case 2 %Dependent
-                            obj.BESTData.condition_matrix=obj.inputs.condMat;
-                            obj.BESTData.trial_matrix=obj.inputs.trialMat;
-                            obj.BESTData.fsample=5000;
-                            obj.BESTData.timeunits='ms';
-                            label{1}=erase(char(join(obj.inputs.RealTimeChannelsMontage)),' ');
-                            obj.BESTData.label=[obj.inputs.EMGTargetChannels'; obj.inputs.EMGDisplayChannels'];
-                            obj.BESTData.chantype=[{'eeg'}; repmat({'emg'},numel(obj.inputs.EMGTargetChannels)+numel(obj.inputs.EMGDisplayChannels),1)];
-                            obj.BESTData.chanunits=repmat({'uV'},numel(obj.inputs.EMGTargetChannels)+numel(obj.inputs.EMGDisplayChannels)+1,1);
-                            obj.BESTData.trilainfo_label={'TSIntensity (%MSO)','ITI(s)','Target Phase(radians)','Phase Tolerance (radians)','Target Min Amplitude (uV)','Target Max Amplitude (uV)'};
-                            TS=vertcat(obj.inputs.trialMat{:,3}); TS=vertcat(TS{:,1}); TS=vertcat(TS{:,1});
-                            obj.BESTData.trialinfo(1:obj.inputs.totalTrials,1)=TS;
-                            obj.BESTData.trialinfo(1:obj.inputs.totalTrials,2)=vertcat(obj.inputs.trialMat{:,4});
-                            Phase=cell2mat(vertcat(obj.inputs.trialMat{:,obj.inputs.colLabel.phase}));
-                            Amplitude=cell2mat(vertcat(obj.inputs.trialMat{:,obj.inputs.colLabel.IA}));
-                            obj.BESTData.trialinfo(1:obj.inputs.totalTrials,3)=Phase(:,1);
-                            obj.BESTData.trialinfo(1:obj.inputs.totalTrials,4)=Phase(:,2);
-                            obj.BESTData.trialinfo(1:obj.inputs.totalTrials,5)=Amplitude(:,1);
-                            obj.BESTData.trialinfo(1:obj.inputs.totalTrials,6)=Amplitude(:,2);
-                    end
-                case 'Motor Threshold Hunting Protocol'
-                    switch obj.inputs.BrainState
-                        case 1 %Independent
-                            conds=fieldnames(obj.inputs.condsAll);
-                            for icdts=1:numel(conds)
-                                EMGTargetChannels(icdts)=obj.inputs.condsAll.(conds{icdts,1}).targetChannel;
-                            end
-                            obj.BESTData.condition_matrix=obj.inputs.condMat;
-                            obj.BESTData.trial_matrix=obj.inputs.trialMat;
-                            obj.BESTData.fsample=5000;
-                            obj.BESTData.label=[EMGTargetChannels'; obj.inputs.EMGDisplayChannels'];
-                            obj.BESTData.timeunits='ms';
-                            obj.BESTData.chantype=repmat({'emg'},numel(EMGTargetChannels)+numel(obj.inputs.EMGDisplayChannels),1);
-                            obj.BESTData.chanunits=repmat({'uV'},numel(EMGTargetChannels)+numel(obj.inputs.EMGDisplayChannels),1);
-                            obj.BESTData.trilainfo_label={'TSIntensity (%MSO)','ITI(s)'};
-                            TS=vertcat(obj.inputs.trialMat{:,3}); TS=vertcat(TS{:,1}); TS=vertcat(TS{:,1});
-                            obj.BESTData.trialinfo(1:numel(TS),1)=TS;
-                            obj.BESTData.trialinfo(1:numel(vertcat(obj.inputs.trialMat{:,4})),2)=vertcat(obj.inputs.trialMat{:,4});
-                        case 2 %Dependent
-                            conds=fieldnames(obj.inputs.condsAll);
-                            for icdts=1:numel(conds)
-                                EMGTargetChannels(icdts)=obj.inputs.condsAll.(conds{icdts,1}).targetChannel;
-                            end
-                            obj.inputs.EMGTargetChannels=EMGTargetChannels;
-                            obj.BESTData.condition_matrix=obj.inputs.condMat;
-                            obj.BESTData.trial_matrix=obj.inputs.trialMat;
-                            obj.BESTData.fsample=5000;
-                            obj.BESTData.timeunits='ms';
-                            label{1}=erase(char(join(obj.inputs.RealTimeChannelsMontage)),' ');
-                            obj.BESTData.label=[obj.inputs.EMGTargetChannels'; obj.inputs.EMGDisplayChannels'];
-                            obj.BESTData.chantype=[{'eeg'}; repmat({'emg'},numel(obj.inputs.EMGTargetChannels)+numel(obj.inputs.EMGDisplayChannels),1)];
-                            obj.BESTData.chanunits=repmat({'uV'},numel(obj.inputs.EMGTargetChannels)+numel(obj.inputs.EMGDisplayChannels)+1,1);
-                            obj.BESTData.trilainfo_label={'TSIntensity (%MSO)','ITI(s)','Target Phase(radians)','Phase Tolerance (radians)','Target Min Amplitude (uV)','Target Max Amplitude (uV)'};
-                            TS=vertcat(obj.inputs.trialMat{:,3}); TS=vertcat(TS{:,1}); TS=vertcat(TS{:,1});
-                            obj.BESTData.trialinfo(1:obj.inputs.totalTrials,1)=TS;
-                            obj.BESTData.trialinfo(1:obj.inputs.totalTrials,2)=vertcat(obj.inputs.trialMat{:,4});
-                            Phase=cell2mat(vertcat(obj.inputs.trialMat{:,obj.inputs.colLabel.phase}));
-                            Amplitude=cell2mat(vertcat(obj.inputs.trialMat{:,obj.inputs.colLabel.IA}));
-                            obj.BESTData.trialinfo(1:obj.inputs.totalTrials,3)=Phase(:,1);
-                            obj.BESTData.trialinfo(1:obj.inputs.totalTrials,4)=Phase(:,2);
-                            obj.BESTData.trialinfo(1:obj.inputs.totalTrials,5)=Amplitude(:,1);
-                            obj.BESTData.trialinfo(1:obj.inputs.totalTrials,6)=Amplitude(:,2);
-                    end
-                case 'Psychometric Threshold Hunting Protocol'
-                    switch obj.inputs.BrainState
-                        case 1 %Independent
-                        case 2 %Dependent
-                    end
-                case 'rs EEG Measurement Protocol'
-                    obj.BESTData.fsample=5000;
-                    obj.BESTData.label=obj.inputs.results.RawEEGData.label;
-                    obj.BESTData.chantype=repmat({'eeg'},numel(obj.inputs.results.RawEEGData.label),1);
-                    obj.BESTData.chanunits=repmat({'uV'},numel(obj.inputs.results.RawEEGData.label),1);
-                    obj.BESTData.timeunits='ms';
-                    obj.BESTData.trial=obj.inputs.results.RawEEGData.trial;
-                    obj.BESTData.time=obj.inputs.results.RawEEGData.time;
-                    results=rmfield(obj.inputs.results,'RawEEGData');
-                    obj.BESTData.results=results;
-                    
-            end
+            backupfolder='RunTimeBackup';
+            BESTDataBackup=[];
+            BESTDataBackup.trialmat=obj.inputs.trialMat;
+            BESTDataBackup.results=obj.inputs.results;
+            BESTDataBackup.rawData=obj.inputs.rawData;
+            BESTDataBackup.Experiment=exp_name;
+            BESTDataBackup.SubjectCode=subj_code;
+            BESTDataBackup.Session=session;
+            BESTDataBackup.Measure=measure;
+            mkdir(fullfile(obj.app.par.GlobalSettings.DataBaseDirectory,exp_name,backupfolder));
+            save(fullfile(obj.app.par.GlobalSettings.DataBaseDirectory,exp_name,backupfolder,obj.info.matfilstr),'BESTDataBackup','-v7.3','-nocompression');
         end
+        
+        
         function saveFigures(obj)
             exp_name=obj.app.pmd.exp_title.editfield.String; exp_name(exp_name == ' ') = '_';
             subj_code=obj.app.pmd.sub_code.editfield.String; subj_code(subj_code == ' ') = '_';
@@ -4411,8 +4138,7 @@ obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.TotalITI}=round((obj.in
             measure=obj.app.info.event.current_measure_fullstr; measure(measure == '_') = '';
             FigureFileName1=erase(obj.info.matfilstr,'.mat');
             for iaxes=1:obj.app.pr.axesno
-                if ~strcmp(obj.app.pr.ax_ChannelLabels{1,iaxes},'StatusTable')
-                    FigureFileName=[FigureFileName1 '_' obj.app.pr.ax_measures{1,iaxes} '_' obj.app.pr.ax_ChannelLabels{1,iaxes}];
+                    FigureFileName=[FigureFileName1 '_Figure' num2str(iaxes) '_' obj.app.pr.ax_measures{1,iaxes} '_' obj.app.pr.ax_ChannelLabels{1,iaxes}];
                     FullFileName=fullfile(obj.app.par.GlobalSettings.DataBaseDirectory,exp_name,subj_code,session,measure,FigureFileName);
                     if ~exist(fullfile(obj.app.par.GlobalSettings.DataBaseDirectory,exp_name,subj_code,session,measure), 'dir')
                         mkdir(fullfile(obj.app.par.GlobalSettings.DataBaseDirectory,exp_name,subj_code,session,measure));
@@ -4420,15 +4146,40 @@ obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.TotalITI}=round((obj.in
                     ax=['ax' num2str(iaxes)];
                     Figure=figure('Visible','off','CreateFcn','set(gcf,''Visible'',''on'')','Name',FigureFileName,'NumberTitle','off');
                     try
-                        copyobj(obj.app.pr.contaienr.(ax),Figure)
+                         %CopiedAxes=copy(obj.app.pr.container.(ax));
+                         copyobj(obj.app.pr.contaienr.(ax),Figure);
                     catch
-                        copyobj(obj.app.pr.ax.(ax),Figure)
+                         %CopiedAxes=copy(obj.app.pr.ax.(ax)); 
+                         copyobj(obj.app.pr.ax.(ax),Figure);
                     end
                     set( gca, 'Units', 'normalized', 'Position', [0.2 0.2 0.7 0.7] );
                     saveas(Figure,FullFileName,'fig');
+                    %obj.sessions.(obj.app.info.event.current_session).(obj.app.info.event.current_measure_fullstr).Figures{iaxes}=CopiedAxes;
                     close(Figure)
-                end
             end
+            obj.SavingTerminal;
+        end
+        function SavingTerminal(obj)
+            exp_name=obj.app.pmd.exp_title.editfield.String; exp_name(exp_name == ' ') = '_';
+            subj_code=obj.app.pmd.sub_code.editfield.String; subj_code(subj_code == ' ') = '_';
+            session=obj.app.info.event.current_session; session(session == '_') = '';
+            measure=obj.app.info.event.current_measure_fullstr; measure(measure == '_') = '';
+            Date=datestr(now,'yyyy-mm-dd HH:MM:SS'); Date(Date == ' ') = '_'; Date(Date == '-') = ''; Date(Date == ':') = '';
+            FileName=['BESTData_' exp_name '_' subj_code '_' session '_' measure '_' Date '.mat'];
+            FullFileName=fullfile(obj.app.par.GlobalSettings.DataBaseDirectory,exp_name,subj_code,session,FileName);
+            if ~exist(fullfile(obj.app.par.GlobalSettings.DataBaseDirectory,exp_name,subj_code,session), 'dir')
+                mkdir(fullfile(obj.app.par.GlobalSettings.DataBaseDirectory,exp_name,subj_code,session));
+            end
+            BESTData=struct;
+            try BESTData.trialmat=obj.inputs.trialMat; catch, end
+            try BESTData.results=obj.inputs.results; catch, end
+            try BESTData.rawData=obj.inputs.rawData; catch, end
+            try BESTData.Results=obj.inputs.Results; catch, end
+            save(FullFileName,'BESTData','-v7.3','-nocompression');
+            % save this in FieldTrip format
+            rmdir(fullfile(obj.app.par.GlobalSettings.DataBaseDirectory,exp_name,'RunTimeBackup'),'s')
+            try obj.sessions.(obj.app.info.event.current_session).(obj.app.info.event.current_measure_fullstr).results=obj.inputs.results; catch, end
+            try obj.sessions.(obj.app.info.event.current_session).(obj.app.info.event.current_measure_fullstr).Results=obj.inputs.Results; catch, end
         end
         function completed(obj)
             questdlg('This Protocol has been Completed or Stopped, click Okay to continue.','Status','Okay','Okay');
@@ -4445,13 +4196,12 @@ obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.TotalITI}=round((obj.in
         end
         
         function best_mep(obj)
-            obj.save;
+            %obj.save;
             obj.factorizeConditionsExtended %obj.factorizeConditions
             obj.planTrials
             obj.app.resultsPanel;
             obj.boot_outputdevice;
             obj.boot_inputdevice;
-            obj.prepSaving;
             obj.bootTrial;
             obj.stimLoop;
             obj.save;
@@ -4459,13 +4209,12 @@ obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.TotalITI}=round((obj.in
             obj.completed;
         end
         function best_hotspot(obj)
-            obj.save;
+            %obj.save;
             obj.factorizeConditions;
             obj.planTrials;
             obj.app.resultsPanel;
             obj.boot_outputdevice;
             obj.boot_inputdevice;
-            obj.prepSaving;
             obj.bootTrial;
             obj.stimLoop;
             obj.save;
@@ -4473,13 +4222,12 @@ obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.TotalITI}=round((obj.in
             obj.completed;
         end
         function best_hotspot_manual(obj)
-            obj.save;
+            %obj.save;
             obj.factorizeConditions;
             obj.planTrials;
             obj.app.resultsPanel;
             obj.boot_outputdevice;
             obj.boot_inputdevice;
-            obj.prepSaving;
             obj.bootTrial;
             stimLoop;
             obj.save;
@@ -4503,40 +4251,25 @@ obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.TotalITI}=round((obj.in
             end
         end
         function best_drc(obj)
-            obj.save;
-            obj.factorizeConditionsExtended %obj.factorizeConditions
+%             obj.save;
+            obj.factorizeConditionsExtended 
             obj.planTrials
             obj.app.resultsPanel;
             obj.boot_outputdevice;
             obj.boot_inputdevice;
-            obj.prepSaving;
             obj.bootTrial;
             obj.stimLoop;
             obj.save;
             obj.saveFigures;
             obj.completed;
-%% all the upper will be uncommented when prepared completely
-%             obj.save;
-%             obj.factorizeConditions
-%             obj.planTrials
-%             obj.app.resultsPanel;
-%             obj.boot_outputdevice;
-%             obj.boot_inputdevice;
-%             obj.prepSaving;
-%             obj.bootTrial;
-%             obj.drc_bs2
-%             obj.save;
-%             obj.saveFigures;
-%             obj.completed;
         end
         function best_mth(obj)
-            obj.save;
+            %obj.save;
             obj.factorizeConditions
             obj.planTrials
             obj.app.resultsPanel;
             obj.boot_outputdevice;
             obj.boot_inputdevice;
-            obj.prepSaving;
             obj.bootTrial;
             obj.stimLoop;
             obj.save;
@@ -4544,13 +4277,12 @@ obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.TotalITI}=round((obj.in
             obj.completed;
         end
         function best_psychmth (obj)
-            obj.save;
+            %obj.save;
             obj.factorizeConditions
             obj.planTrials
             obj.app.resultsPanel;
             obj.boot_outputdevice;
             obj.boot_inputdevice;
-            obj.prepSaving;
             obj.bootTrial;
             obj.stimLoop;
             obj.save;
@@ -4574,8 +4306,8 @@ obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.TotalITI}=round((obj.in
                     obj.fieldtrip.fft(obj.inputs.rawData.EEG,obj.inputs.input_device);
             end
             obj.rseegInProcess('close');
-            obj.prepSaving;
-            obj.saveRuntime;
+            PeakFrequency=obj.inputs.results.PeakFrequency;
+            obj.inputs.results=[]; obj.inputs.results.PeakFrequency=PeakFrequency;
             obj.saveFigures;
             obj.completed;
         end
@@ -4609,7 +4341,7 @@ obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.TotalITI}=round((obj.in
             obj.completed;
         end
         function best_erp(obj)
-            obj.save;
+            %obj.save;
             obj.factorizeConditionsExtended %obj.factorizeConditions
             obj.planTrials;
             obj.app.resultsPanel;
@@ -4628,15 +4360,6 @@ obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.TotalITI}=round((obj.in
             obj.app.resultsPanel;
             obj.boot_outputdevice;
             obj.boot_inputdevice;
-        end
-        function best_multimodal(obj)
-            obj.factorizeConditions
-            obj.planTrials
-            obj.app.resultsPanel;
-            obj.boot_inputdevice;
-            obj.boot_outputdevice;
-            obj.bootTrial;
-            obj.stimLoop
         end
         
         function mep_plot_OLD_May_Be_Depricated(obj)
@@ -4865,10 +4588,10 @@ obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.TotalITI}=round((obj.in
                 obj.inputs.Handles.(ax).past=plot(obj.inputs.timeVect,obj.inputs.rawData.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).data(IndexOfTrialsTillNow(1:end-1),:),'Color',[0.75 0.75 0.75]);
                 obj.inputs.Handles.(ax).mean.YData=mean(obj.inputs.rawData.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).data(IndexOfTrialsTillNow(obj.inputs.Handles.(ax).mean.UserData.TrialNoForMean:end),:));
                 obj.inputs.Handles.(ax).current.YData=obj.inputs.rawData.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).data(obj.inputs.trial,:);
-                uistack(obj.inputs.Handles.(ax).current,'top');
+%                 uistack(obj.inputs.Handles.(ax).current,'top');
 %                 obj.inputs.Handles.(ax).past.Annotation.LegendInformation.IconDisplayStyle= 'off';
-                LegendGrouping=[obj.inputs.Handles.(ax).current;obj.inputs.Handles.(ax).mean; obj.inputs.Handles.(ax).past];
-                legend(LegendGrouping, 'Latest', 'Mean', 'Previous','Location','southoutside','Orientation','horizontal');
+%                 LegendGrouping=[obj.inputs.Handles.(ax).current;obj.inputs.Handles.(ax).mean; obj.inputs.Handles.(ax).past];
+%                 legend(LegendGrouping, 'Latest', 'Mean', 'Previous','Location','southoutside','Orientation','horizontal');
                 MeanMEPAmp=round(mean(obj.inputs.results.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).MEPAmplitude(IndexOfTrialsTillNow(obj.inputs.Handles.(ax).mean.UserData.TrialNoForMean:end,1)))/1000,3);
             else
                 delete(obj.inputs.Handles.(ax).current)
@@ -6148,119 +5871,104 @@ obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.TotalITI}=round((obj.in
         end
         function PlotPhaseHistogram(obj)
             ax=['ax' num2str(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.axesno}{1,obj.inputs.chLab_idx})];
-            axes(obj.app.pr.ax.(ax)), hold on,
+            axes(obj.app.pr.ax.(ax)), 
+            hold on,
             ThisChannelName=obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx};
             
             ThisPhase=obj.inputs.rawData.(ThisChannelName).data(obj.inputs.trial,1);
-            if obj.inputs.trial==1, legend('Location','southoutside','Orientation','horizontal'); hold on; end
             if obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.phase}{1,1}==0 && obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.phase}{1,2}~=pi %Peak
                 if ~(isfield(obj.inputs.Handles,'PhaseHistogramPeak'))
                     obj.inputs.Handles.PhaseHistogramPeak=polarhistogram(ThisPhase,20,'FaceColor','green','BinEdges',deg2rad([0 5:10:355 360]),'DisplayName','Peak');
                 else
-                    obj.inputs.Handles.PhaseHistogramPeak=polarhistogram([obj.inputs.Handles.PhaseHistogramPeak.Data ThisPhase],20,'FaceColor','green','BinEdges',deg2rad(0:5:360));
-                    obj.inputs.Handles.PhaseHistogramPeak.Annotation.LegendInformation.IconDisplayStyle = 'off';
+                    Data=obj.inputs.Handles.PhaseHistogramPeak.Data;
+                    delete(obj.inputs.Handles.PhaseHistogramPeak);
+                    obj.inputs.Handles.PhaseHistogramPeak=polarhistogram([Data ThisPhase],20,'FaceColor','green','BinEdges',deg2rad(0:5:360));
                 end
             elseif obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.phase}{1,1}==pi && obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.phase}{1,2}~=pi %Trough
                 if ~(isfield(obj.inputs.Handles,'PhaseHistogramTrough'))
                     obj.inputs.Handles.PhaseHistogramTrough=polarhistogram(ThisPhase,20,'FaceColor','red','BinEdges',deg2rad([0 5:10:355 360]),'DisplayName','Trough');
                 else
-                    obj.inputs.Handles.PhaseHistogramTrough=polarhistogram([obj.inputs.Handles.PhaseHistogramTrough.Data ThisPhase],20,'FaceColor','red','BinEdges',deg2rad(0:5:360));
-                    obj.inputs.Handles.PhaseHistogramTrough.Annotation.LegendInformation.IconDisplayStyle = 'off';
+                    Data=obj.inputs.Handles.PhaseHistogramTrough.Data; delete(obj.inputs.Handles.PhaseHistogramTrough);
+                    obj.inputs.Handles.PhaseHistogramTrough=polarhistogram([Data ThisPhase],20,'FaceColor','red','BinEdges',deg2rad(0:5:360));
                 end
             elseif obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.phase}{1,1}==0 && obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.phase}{1,2}==pi %Random
                 if ~(isfield(obj.inputs.Handles,'PhaseHistogramRandom'))
                     obj.inputs.Handles.PhaseHistogramRandom=polarhistogram(ThisPhase,20,'FaceColor','blue','BinEdges',deg2rad([0 5:10:355 360]),'DisplayName','Random');
                 else
-                    obj.inputs.Handles.PhaseHistogramRandom=polarhistogram([obj.inputs.Handles.PhaseHistogramRandom.Data ThisPhase],20,'FaceColor','blue','BinEdges',deg2rad(0:5:360));
-                    obj.inputs.Handles.PhaseHistogramRandom.Annotation.LegendInformation.IconDisplayStyle = 'off';
+                    Data=obj.inputs.Handles.PhaseHistogramRandom.Data; delete(obj.inputs.Handles.PhaseHistogramRandom);
+                    obj.inputs.Handles.PhaseHistogramRandom=polarhistogram([Data ThisPhase],20,'FaceColor','blue','BinEdges',deg2rad(0:5:360));
                 end
             elseif obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.phase}{1,1}==-pi/2 && obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.phase}{1,2}~=pi %Rising Flank
                 if ~(isfield(obj.inputs.Handles,'PhaseHistogramRising'))
                     obj.inputs.Handles.PhaseHistogramRising=polarhistogram(ThisPhase,20,'FaceColor','y','BinEdges',deg2rad([0 5:10:355 360]),'DisplayName','Rising');
                 else
-                    obj.inputs.Handles.PhaseHistogramRising=polarhistogram([obj.inputs.Handles.PhaseHistogramRising.Data ThisPhase],20,'FaceColor','y','BinEdges',deg2rad(0:5:360));
-                    obj.inputs.Handles.PhaseHistogramRising.Annotation.LegendInformation.IconDisplayStyle = 'off';
+                    Data=obj.inputs.Handles.PhaseHistogramRising.Data; delete(obj.inputs.Handles.PhaseHistogramRising);
+                    obj.inputs.Handles.PhaseHistogramRising=polarhistogram([Data ThisPhase],20,'FaceColor','y','BinEdges',deg2rad(0:5:360));
                 end
             elseif obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.phase}{1,1}==pi/2 && obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.phase}{1,2}~=pi %Falling Flank
                 if ~(isfield(obj.inputs.Handles,'PhaseHistogramFalling'))
                     obj.inputs.Handles.PhaseHistogramFalling=polarhistogram(ThisPhase,20,'FaceColor','m','BinEdges',deg2rad([0 5:10:355 360]),'DisplayName','Falling');
                 else
-                    obj.inputs.Handles.PhaseHistogramFalling=polarhistogram([obj.inputs.Handles.PhaseHistogramFalling.Data ThisPhase],20,'FaceColor','m','BinEdges',deg2rad(0:5:360));
-                    obj.inputs.Handles.PhaseHistogramFalling.Annotation.LegendInformation.IconDisplayStyle = 'off';
+                    Data=obj.inputs.Handles.PhaseHistogramFalling.Data; delete(obj.inputs.Handles.PhaseHistogramFalling)
+                    obj.inputs.Handles.PhaseHistogramFalling=polarhistogram([Data ThisPhase],20,'FaceColor','m','BinEdges',deg2rad(0:5:360));
                 end
             end
-            %             if isfield(obj.inputs.Handles,'PhaseHistogramPeak'), legend(obj.inputs.Handles.PhaseHistogramPeak,'Peak','Location','southoutside','Orientation','horizontal'), end
-            %             if isfield(obj.inputs.Handles,'PhaseHistogramTrough'), legend(obj.inputs.Handles.PhaseHistogramTrough,'Trough','Location','southoutside','Orientation','horizontal'), end
-            %             if isfield(obj.inputs.Handles,'PhaseHistogramRandom'), legend(obj.inputs.Handles.PhaseHistogramRandom, 'Random','Location','southoutside','Orientation','horizontal'), end
-            % if isfield(obj.inputs.Handles,'PhaseHistogramPeak') && isfield(obj.inputs.Handles,'PhaseHistogramTrough') && isfield(obj.inputs.Handles,'PhaseHistogramRandom')
-            %     legend([obj.inputs.Handles.PhaseHistogramPeak obj.inputs.Handles.PhaseHistogramTrough obj.inputs.Handles.PhaseHistogramRandom], 'Location','southoutside','Orientation','horizontal')
-            % end
-            
         end 
         function PlotTriggerLockedEEG(obj)
             ax=['ax' num2str(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.axesno}{1,obj.inputs.chLab_idx})];
-            axes(obj.app.pr.ax.(ax)), hold on,
+            axes(obj.app.pr.ax.(ax)),
+            hold on,
             ThisChannelName=obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx};
             ThisEEGTime=obj.inputs.rawData.IEEG.time;
             if obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.phase}{1,1}==0 && obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.phase}{1,2}~=pi %Peak
                 if(isfield(obj.inputs.Handles,'TriggerLockedEEGPeak')==0)
                     ThisEEG=obj.inputs.rawData.(ThisChannelName).data(obj.inputs.trial,:);
-                    obj.inputs.Handles.TriggerLockedEEGPeak=plot(ThisEEGTime,ThisEEG,'color','green','LineWidth',2,'DisplayName','Peak');
-                    legend('Location','southoutside','Orientation','horizontal'); hold on;
-                    obj.inputs.Handles.TriggerLockedEEGPeak.UserData(1,1)=obj.inputs.trial;
+                    obj.inputs.Handles.TriggerLockedEEGPeak=plot(ThisEEGTime,ThisEEG,'color','green','LineWidth',2,'DisplayName','Peak'); 
                 else
-                    obj.inputs.Handles.TriggerLockedEEGPeak.UserData(1,1+numel(obj.inputs.Handles.TriggerLockedEEGPeak.UserData))=obj.inputs.trial;
-                    obj.inputs.Handles.TriggerLockedEEGPeak.YData=mean(obj.inputs.rawData.(ThisChannelName).data(obj.inputs.Handles.TriggerLockedEEGPeak.UserData,:));
-                    drawnow;
+                    IndexOfTrialsTillNow=strcmp(vertcat(obj.inputs.trialMat(1:obj.inputs.trial,obj.inputs.colLabel.PhaseCondition)), 'Peak');
+                    obj.inputs.Handles.TriggerLockedEEGPeak.YData=mean(obj.inputs.rawData.(ThisChannelName).data(IndexOfTrialsTillNow,:));
                 end
             elseif obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.phase}{1,1}==pi && obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.phase}{1,2}~=pi %Trough
                 if(isfield(obj.inputs.Handles,'TriggerLockedEEGTrough')==0)
                     ThisEEG=obj.inputs.rawData.(ThisChannelName).data(obj.inputs.trial,:);
                     obj.inputs.Handles.TriggerLockedEEGTrough=plot(ThisEEGTime, ThisEEG,'color','red','LineWidth',2,'DisplayName','Trough');
-                    obj.inputs.Handles.TriggerLockedEEGTrough.UserData(1,1)=obj.inputs.trial;
                 else
-                    obj.inputs.Handles.TriggerLockedEEGTrough.UserData(1,1+numel(obj.inputs.Handles.TriggerLockedEEGTrough.UserData))=obj.inputs.trial;
-                    obj.inputs.Handles.TriggerLockedEEGTrough.YData=mean(obj.inputs.rawData.(ThisChannelName).data(obj.inputs.Handles.TriggerLockedEEGTrough.UserData,:));
-                    drawnow;
+                    IndexOfTrialsTillNow=strcmp(vertcat(obj.inputs.trialMat(1:obj.inputs.trial,obj.inputs.colLabel.PhaseCondition)), 'Trough');
+                    obj.inputs.Handles.TriggerLockedEEGTrough.YData=mean(obj.inputs.rawData.(ThisChannelName).data(IndexOfTrialsTillNow,:));
                 end
             elseif obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.phase}{1,1}==0 && obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.phase}{1,2}==pi %Random
                 if(isfield(obj.inputs.Handles,'TriggerLockedEEGRandom')==0)
                     ThisEEG=obj.inputs.rawData.(ThisChannelName).data(obj.inputs.trial,:);
                     obj.inputs.Handles.TriggerLockedEEGRandom=plot(ThisEEGTime, ThisEEG,'color','blue','LineWidth',2,'DisplayName','Random');
-                    obj.inputs.Handles.TriggerLockedEEGRandom.UserData(1,1)=obj.inputs.trial;
                 else
-                    obj.inputs.Handles.TriggerLockedEEGRandom.UserData(1,1+numel(obj.inputs.Handles.TriggerLockedEEGRandom.UserData))=obj.inputs.trial;
-                    obj.inputs.Handles.TriggerLockedEEGRandom.YData=mean(obj.inputs.rawData.(ThisChannelName).data(obj.inputs.Handles.TriggerLockedEEGRandom.UserData,:));
-                    drawnow;
+                    IndexOfTrialsTillNow=strcmp(vertcat(obj.inputs.trialMat(1:obj.inputs.trial,obj.inputs.colLabel.PhaseCondition)), 'Random');
+                    obj.inputs.Handles.TriggerLockedEEGRandom.YData=mean(obj.inputs.rawData.(ThisChannelName).data(IndexOfTrialsTillNow,:));
                 end
             elseif obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.phase}{1,1}==-pi/2 && obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.phase}{1,2}~=pi %Rising Flank
                 if(isfield(obj.inputs.Handles,'TriggerLockedEEGRising')==0)
                     ThisEEG=obj.inputs.rawData.(ThisChannelName).data(obj.inputs.trial,:);
                     obj.inputs.Handles.TriggerLockedEEGRising=plot(ThisEEGTime, ThisEEG,'color','y','LineWidth',2,'DisplayName','Rising');
-                    obj.inputs.Handles.TriggerLockedEEGRising.UserData(1,1)=obj.inputs.trial;
                 else
-                    obj.inputs.Handles.TriggerLockedEEGRising.UserData(1,1+numel(obj.inputs.Handles.TriggerLockedEEGRising.UserData))=obj.inputs.trial;
-                    obj.inputs.Handles.TriggerLockedEEGRising.YData=mean(obj.inputs.rawData.(ThisChannelName).data(obj.inputs.Handles.TriggerLockedEEGRising.UserData,:));
-                    drawnow;
+                    IndexOfTrialsTillNow=strcmp(vertcat(obj.inputs.trialMat(1:obj.inputs.trial,obj.inputs.colLabel.PhaseCondition)), 'RisingFlank');
+                    obj.inputs.Handles.TriggerLockedEEGRising.YData=mean(obj.inputs.rawData.(ThisChannelName).data(IndexOfTrialsTillNow,:));
                 end
             elseif obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.phase}{1,1}==pi/2 && obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.phase}{1,2}~=pi %Falling Flank
                 if(isfield(obj.inputs.Handles,'TriggerLockedEEGFalling')==0)
                     ThisEEG=obj.inputs.rawData.(ThisChannelName).data(obj.inputs.trial,:);
                     obj.inputs.Handles.TriggerLockedEEGFalling=plot(ThisEEGTime, ThisEEG,'color','m','LineWidth',2,'DisplayName','Falling');
-                    obj.inputs.Handles.TriggerLockedEEGFalling.UserData(1,1)=obj.inputs.trial;
                 else
-                    obj.inputs.Handles.TriggerLockedEEGFalling.UserData(1,1+numel(obj.inputs.Handles.TriggerLockedEEGFalling.UserData))=obj.inputs.trial;
-                    obj.inputs.Handles.TriggerLockedEEGFalling.YData=mean(obj.inputs.rawData.(ThisChannelName).data(obj.inputs.Handles.TriggerLockedEEGFalling.UserData,:));
-                    drawnow;
+                    IndexOfTrialsTillNow=strcmp(vertcat(obj.inputs.trialMat(1:obj.inputs.trial,obj.inputs.colLabel.PhaseCondition)), 'FallingFlank');
+                    obj.inputs.Handles.TriggerLockedEEGFalling.YData=mean(obj.inputs.rawData.(ThisChannelName).data(IndexOfTrialsTillNow,:));
                 end
             end
             if obj.inputs.trial==1
                 xlim(obj.app.pr.ax.(ax),obj.inputs.EEGXLimit), ylim(obj.app.pr.ax.(ax),obj.inputs.EEGYLimit), drawnow
                 xticks(obj.app.pr.ax.(ax),unique(sort([0 obj.inputs.EEGXLimit])))
                 ZeroLine=gridxy(0,'Color','k','linewidth',2,'Parent',obj.app.pr.ax.(ax),'Tag','TriggerLockedEEGZeroLine');hold on;
-                ZeroLine.Annotation.LegendInformation.IconDisplayStyle = 'off'; legend('Location','southoutside','Orientation','horizontal'); hold on;
+                ZeroLine.Annotation.LegendInformation.IconDisplayStyle = 'off';
+                %legend('Location','southoutside','Orientation','horizontal'); hold on;
             end
-        end 
+        end
         function PlotRunnigAmplitude(obj)
             ax=['ax' num2str(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.axesno}{1,obj.inputs.chLab_idx})];
             axes(obj.app.pr.ax.(ax)), hold on,
@@ -6339,6 +6047,7 @@ obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.TotalITI}=round((obj.in
             delete(fh); pause(0.1);
         end
         function TotalITIDistributionPlot(obj)
+            obj.inputs.trialMat{2,obj.inputs.colLabel.TotalITI}=2;
             Colors=[1 0 0;0 1 0;0 0 1;0 1 1;1 0 1;0.7529 0.7529 0.7529;0.5020 0.5020 0.5020;0.4706 0 0;0.5020 0.5020 0;0 0.5020 0;0.5020 0 0.5020;0 0.5020 0.5020;0 0 0.5020;1 0.4980 0.3137;
                 1 0 0;0 1 0;0 0 1;0 1 1;1 0 1;0.7529 0.7529 0.7529;0.5020 0.5020 0.5020;0.4706 0 0;0.5020 0.5020 0;0 0.5020 0;0.5020 0 0.5020;0 0.5020 0.5020;0 0 0.5020;1 0.4980 0.3137;
                 1 0 0;0 1 0;0 0 1;0 1 1;1 0 1;0.7529 0.7529 0.7529;0.5020 0.5020 0.5020;0.4706 0 0;0.5020 0.5020 0;0 0.5020 0;0.5020 0 0.5020;0 0.5020 0.5020;0 0 0.5020;1 0.4980 0.3137;
@@ -6349,24 +6058,30 @@ obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.TotalITI}=round((obj.in
             IndexOfTrialsTillNow=find(vertcat(obj.inputs.trialMat{1:obj.inputs.trial,obj.inputs.colLabel.ConditionMarker})==obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.ConditionMarker});
             conditionmarker=['Cond' num2str(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.ConditionMarker})];
             if ~isfield(obj.inputs.Handles,'TotalITIDistributionPlotHandle')
-                %                     obj.inputs.Handles.TotalITIDistributionPlotHandle.(conditionmarker)=histogram([obj.inputs.trialMat{IndexOfTrialsTillNow,obj.inputs.colLabel.TotalITI}],'FaceColor',Colors(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.ConditionMarker},:),'DisplayName',conditionmarker,'BinWidth',0.1);
-                obj.inputs.Handles.TotalITIDistributionPlotHandle.(conditionmarker)=plotITIDistribution([obj.inputs.trialMat{IndexOfTrialsTillNow,obj.inputs.colLabel.TotalITI}]);
+                                    obj.inputs.Handles.TotalITIDistributionPlotHandle.(conditionmarker)=histogram([obj.inputs.trialMat{IndexOfTrialsTillNow,obj.inputs.colLabel.TotalITI}],'FaceColor',Colors(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.ConditionMarker},:),'DisplayName',conditionmarker,'BinWidth',0.1);
+%                 obj.inputs.Handles.TotalITIDistributionPlotHandle.(conditionmarker)=plotITIDistribution([obj.inputs.trialMat{IndexOfTrialsTillNow,obj.inputs.colLabel.TotalITI}]);
                 xlabel('Total ITI (ms)');
                 ylabel('No. of Trials');
             elseif ~isfield(obj.inputs.Handles.TotalITIDistributionPlotHandle,conditionmarker)
-                %                     obj.inputs.Handles.TotalITIDistributionPlotHandle.(conditionmarker)=histogram([obj.inputs.trialMat{IndexOfTrialsTillNow,obj.inputs.colLabel.TotalITI}],'FaceColor',Colors(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.ConditionMarker},:),'DisplayName',conditionmarker,'BinWidth',0.1);
-                obj.inputs.Handles.TotalITIDistributionPlotHandle.(conditionmarker)=plotITIDistribution([obj.inputs.trialMat{IndexOfTrialsTillNow,obj.inputs.colLabel.TotalITI}]);
+                                    obj.inputs.Handles.TotalITIDistributionPlotHandle.(conditionmarker)=histogram([obj.inputs.trialMat{IndexOfTrialsTillNow,obj.inputs.colLabel.TotalITI}],'FaceColor',Colors(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.ConditionMarker},:),'DisplayName',conditionmarker,'BinWidth',0.1);
+%                 obj.inputs.Handles.TotalITIDistributionPlotHandle.(conditionmarker)=plotITIDistribution([obj.inputs.trialMat{IndexOfTrialsTillNow,obj.inputs.colLabel.TotalITI}]);
             else
+%                 H=obj.inputs.Handles.TotalITIDistributionPlotHandle.(conditionmarker);
+%                 delete(H{1});
                 delete(obj.inputs.Handles.TotalITIDistributionPlotHandle.(conditionmarker))
-                %                     obj.inputs.Handles.TotalITIDistributionPlotHandle.(conditionmarker)=histogram([obj.inputs.trialMat{IndexOfTrialsTillNow,obj.inputs.colLabel.TotalITI}],'FaceColor',Colors(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.ConditionMarker},:),'DisplayName',conditionmarker,'BinWidth',0.1);
-                obj.inputs.Handles.TotalITIDistributionPlotHandle.(conditionmarker)=plotITIDistribution([obj.inputs.trialMat{IndexOfTrialsTillNow,obj.inputs.colLabel.TotalITI}]);
+                                    obj.inputs.Handles.TotalITIDistributionPlotHandle.(conditionmarker)=histogram([obj.inputs.trialMat{IndexOfTrialsTillNow,obj.inputs.colLabel.TotalITI}],'FaceColor',Colors(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.ConditionMarker},:),'DisplayName',conditionmarker,'BinWidth',0.1);
+%                 obj.inputs.Handles.TotalITIDistributionPlotHandle.(conditionmarker)=plotITIDistribution([obj.inputs.trialMat{IndexOfTrialsTillNow,obj.inputs.colLabel.TotalITI}]);
             end
-            %                 legend('Location','southoutside','Orientation','horizontal'); hold on;
+%             xlim([1 10]);
+%                             legend('Location','southoutside','Orientation','horizontal'); hold on;
             legend; hold on;
             function handle=plotITIDistribution (ITIvec)
+%                 if isempty(ITIvec), return, end
+                if numel(ITIvec)==1, ITIvec=[ITIvec ITIvec+rand]; end
                 [cb] = cbrewer('qual', 'Set3', 12, 'pchip');
-                ITI{1} = (ITIvec);
-                handle = raincloud_plot(ITI{1}, 'box_on', 1,'color', cb(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.ConditionMarker}, :), 'alpha', 0.5,'box_dodge', 1, 'box_dodge_amount', .15, 'dot_dodge_amount', .15,'box_col_match', 0);
+                ITI{1} = (ITIvec');
+%                 handle = raincloud_plot(ITI{1}, 'box_on', 1,'color', cb(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.ConditionMarker}, :), 'alpha', 0.5,'box_dodge', 1, 'box_dodge_amount', .15, 'dot_dodge_amount', .15,'box_col_match', 0);
+                handle = raincloud_plot(ITI{1}, 'box_on', 1,'color', cb(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.ConditionMarker}, :));
                 ylim([0 1])
             end
         end
@@ -6486,2042 +6201,5 @@ obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.TotalITI}=round((obj.in
             %% ----EMG Line Noise Removal End
             
         end
-        %% Old Scripts
-        function best_motorhotspot(obj)
-            obj.info.method=obj.info.method+1;
-            obj.info.str=strcat('motorhotspot_',num2str(obj.info.method));
-            obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs=obj.inputs;
-            % todo: obj.data.str.inputs should only save non NaN fields of
-            obj.info.event.best_mep_amp=1;
-            obj.info.event.best_mep_plot=1;
-            obj.info.event.best_mt_pest=NaN;
-            obj.info.event.best_mt_plot=NaN;
-            obj.info.event.best_ioc_plot=NaN;
-            obj.info.event.hotspot=1;
-            obj.info.event.best_mt_pest_tc=0;
-            obj.info.event.pest_tc=0;
-            obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.update_event=0;
-            figHandle = findobj('Tag','umi1');
-            panelhandle=findobj(figHandle,'Type','axes');
-            obj.info.axes.mep=findobj( panelhandle,'Type','axes','Tag','mep');
-            obj.best_trialprep;
-            obj.best_stimloop;
-        end
-        function best_motorthreshold(obj)
-            obj.info.method=obj.info.method+1;
-            obj.info.str=strcat('motorthreshold_',num2str(obj.info.method));
-            obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs=obj.inputs;
-            % todo: obj.data.str.inputs should only save non NaN fields of
-            obj.info.event.best_mep_amp=1;
-            obj.info.event.best_mep_plot=1;
-            obj.info.event.best_mt_pest=1;
-            obj.info.event.best_mt_plot=1;
-            obj.info.event.best_ioc_plot=NaN;
-            obj.info.event.pest_tc=0;
-            obj.info.event.hotspot=0;
-            obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.update_event=0;
-            figHandle = findobj('Tag','umi1');
-            panelhandle=findobj(figHandle,'Type','axes');
-            obj.info.axes.mep=findobj( panelhandle,'Type','axes','Tag','mep');
-            obj.info.axes.mt=findobj( panelhandle,'Type','axes','Tag','rmt');
-            obj.best_trialprep;
-            obj.best_mt_pest_boot;
-            obj.best_stimloop;
-            axes(obj.info.axes.mt);
-            str_mt1='Motor Threshold (%MSO): ';
-            str_mt2=num2str(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).results.mt);
-            str_mt=[str_mt1 str_mt2];
-            y_lim=max(ylim)+1;
-            x_lim=mean(xlim)-3;
-            obj.info.handles.annotated_trialsNo=text(x_lim, y_lim,str_mt,'FontSize',obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.FontSize);
-            
-            
-            
-        end
-        function best_ioc_OLD(obj)
-            obj.info.method=obj.info.method+1;
-            obj.info.str=strcat('ioc_',num2str(obj.info.method));
-            obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs=obj.inputs;
-            % todo: obj.data.str.inputs should only save non NaN fields of
-            obj.info.event.best_mep_amp=1;
-            obj.info.event.best_mep_plot=1;
-            obj.info.event.best_mt_pest=NaN;
-            obj.info.event.best_mt_plot=NaN;
-            obj.info.event.best_ioc_plot=1;
-            obj.info.event.best_mt_pest_tc=0;
-            obj.info.event.pest_tc=0;
-            obj.info.event.hotspot=0;
-            obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.update_event=0;
-            
-            
-            figHandle = findobj('Tag','umi1')
-            panelhandle=findobj(figHandle,'Type','axes')
-            obj.info.axes.mep=findobj( panelhandle,'Type','axes','Tag','mep')
-            obj.info.axes.ioc_first=findobj( panelhandle,'Type','axes','Tag','ioc')
-            obj.info.axes.ioc_second=findobj( panelhandle,'Type','axes','Tag','ioc_fit')
-            
-            obj.best_trialprep;
-            obj.best_stimloop;
-            
-        end
-        function best_motorthreshold_pest_tc(obj)
-            obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs=obj.inputs;
-            obj.info.event.pest_tc=1;
-            obj.info.event.best_mep_amp=1;
-            obj.info.event.best_mep_plot=1;
-            obj.info.event.best_mt_pest=0;
-            obj.info.event.best_mt_plot=1;
-            obj.info.event.best_ioc_plot=NaN;
-            obj.info.event.best_mt_pest_tc=1;
-            obj.info.event.hotspot=0;
-            
-            obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.update_event=0;
-            figHandle = findobj('Tag','umi1');
-            panelhandle=findobj(figHandle,'Type','axes');
-            obj.info.axes.mep=findobj( panelhandle,'Type','axes','Tag','mep');
-            obj.info.axes.mt=findobj( panelhandle,'Type','axes','Tag','rmt');
-            obj.best_trialprep;
-            obj.best_mt_pest_tc_boot;
-            obj.best_stimloop;
-            axes(obj.info.axes.mt);
-            str_mt1='Motor Threshold (%MSO): ';
-            str_mt2=num2str(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).results.mt);
-            str_mt=[str_mt1 str_mt2];
-            y_lim=max(ylim)+1;
-            x_lim=mean(xlim)-3;
-            disp('printing mt value');
-            obj.info.handles.annotated_trialsNo=text(x_lim, y_lim,str_mt,'FontSize',obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.FontSize);
-            
-            
-            
-        end
-        function best_trialprep(obj)
-            %% scope extraction preperation
-            obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.sc_ext_samples=((obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.prestim_scope_ext)+(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.poststim_scope_ext))*5;
-            obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.sc_ext_prepostsamples=(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.prestim_scope_ext)*(-5);
-            
-            %% scope plotting preperation
-            obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.sc_plot_last=(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.poststim_scope_plt)*5;
-            obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.sc_plot_first=(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.prestim_scope_plt)*(5);
-            obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.sc_plot_total=obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.sc_plot_last+obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.sc_plot_first;
-            %% making time vector
-            mep_plot_time_vector=1:obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.sc_plot_total
-            mep_plot_time_vector=mep_plot_time_vector./obj.inputs.sc_samplingrate
-            mep_plot_time_vector=mep_plot_time_vector*1000
-            mep_plot_time_vector=mep_plot_time_vector+(((-1)*obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.sc_plot_first)/(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.sc_samplingrate)*1000)
-            obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.timevector=mep_plot_time_vector
-            
-            obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.sc_plot_first=((obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.sc_ext_prepostsamples)*-1)-obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.sc_plot_first;
-            obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.sc_plot_last=((obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.sc_ext_prepostsamples)*-1)+obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.sc_plot_last;
-            
-            
-            % % %             obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.timevector = linspace((-1)*obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.prestim_scope_plt,obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.poststim_scope_plt,obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.sc_plot_total+1);
-            
-            
-            %%  1. made stimulation vector ;
-            % todo2 assert an error here if the stim vector is not equal to trials vector
-            if(obj.info.event.hotspot==1)
-                obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).trials(1:obj.inputs.trials,1)=NaN;
-                obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.total_trials=obj.inputs.trials;
-            else
-                
-                if(obj.info.event.best_mt_pest==1 || obj.info.event.best_mt_pest_tc==1)
-                    obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.total_trials=obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.trials;
-                    obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).trials(:,1)=zeros(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.total_trials,1);
-                else
-                    % % %                 stimuli=repelem(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.stimuli,obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.trials);
-                    % % %                 stimuli=stimuli(randperm(length(stimuli)));
-                    % % %                 obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).trials(:,1)=stimuli';
-                    % % %                 obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.total_trials=length(stimuli');
-                    % % %
-                    stimuli=[];
-                    if(numel(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.trials)==1)
-                        
-                        for i=1:(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.trials)
-                            stimuli = [stimuli, obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.stimuli(randperm(numel(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.stimuli)))];
-                        end
-                        
-                    else
-                        stimuli=repelem(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.stimuli,obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.trials);
-                        stimuli=stimuli(randperm(length(stimuli)));
-                        
-                    end
-                    obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).trials(:,1)=stimuli';
-                    obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.total_trials=length(stimuli');
-                    
-                    
-                    
-                    
-                    if(strcmp(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.stim_mode,'MT'))
-                        obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).trials(:,5)=round(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).trials(:,1)*(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.mt_mso/100));
-                    end
-                    
-                end
-            end
-            
-            if (length(obj.inputs.trials==1))
-                obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.ioc.trialsperSI=obj.inputs.trials/length(obj.inputs.stimuli);
-            else
-                obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.ioc.trialsperSI=max(obj.inputs.trials);
-            end
-            %% 2. iti vector (for timer func) and timing sequence (for dbsp) vector ;
-            
-            
-            if (length(obj.inputs.iti)==2)
-                jitter=(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.iti(2)-obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.iti(1));
-                iti=ones(1,obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.total_trials)*obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.iti(1);
-                iti=iti+rand(1,length(iti))*jitter;
-            elseif (length(obj.inputs.iti)==1)
-                iti=ones(1,obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.total_trials)*(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.iti(1));
-            else
-                error(' BEST Toolbox Error: Inter-Trial Interval (ITI) input vector must be a scalar e.g. 2 or a row vector with 2 elements e.g. [3 4]')
-            end
-            obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).trials(:,2)=(round(iti,3))';
-            obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).trials(:,3)=(movsum(iti,[length(iti) 0]))';
-            
-            %             mep_plot_time_vector=1:obj.inputs.sc_samples;
-            %             mep_plot_time_vector=mep_plot_time_vector./obj.inputs.sc_samplingrate;
-            %             mep_plot_time_vector=mep_plot_time_vector*1000; % conversion from seconds to ms
-            %             mep_plot_time_vector=mep_plot_time_vector+((obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.sc_prepostsamples)/(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.sc_samplingrate)*1000);
-            %             obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.timevector=mep_plot_time_vector;
-            
-            
-            % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %             obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.totaltime=((obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.sc_plot_total)/(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.sc_samplingrate))*1000;
-            % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %             obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.prestimulustime=((obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.sc_prepostsamples)/(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.sc_samplingrate))*1000;
-            %             obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.timevector=(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.prestimulustime*1000):((obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.totaltime*1000)+(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.prestimulustime*1000));
-            
-            
-            % onset offset MEP Amps
-            obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.mep_onset_calib=obj.inputs.mep_onset*5000;
-            obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.mep_offset_calib=obj.inputs.mep_offset*5000;
-            
-            obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.mep_onset_samp=abs(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.sc_ext_prepostsamples)+obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.mep_onset_calib;
-            obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.mep_offset_samp=abs(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.sc_ext_prepostsamples)+obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.mep_offset_calib;
-            
-            
-            % %
-            % %             if (obj.inputs.sc_prepostsamples<0)
-            % %                 obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.mep_onset_samp=abs(obj.inputs.sc_prepostsamples)+obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.mep_onset_calib;
-            % %                 obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.mep_offset_samp=abs(obj.inputs.sc_prepostsamples)+obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.mep_offset_calib;
-            % %
-            % %             elseif (obj.inputs.sc_prepostsamples>0)
-            % %
-            % %                 error('BEST Toolbox Error: PrePostSample should be negative in order to be able to get amplitude on required onset')
-            % %
-            % %             end
-            
-            
-        end
-        function best_trialprep_eegtms(obj)
-            %phase_angle first coloumn
-            phase_angle=[];
-            if(numel(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.trials)==1)
-                
-                for i=1:(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.trials)
-                    phase_angle = [phase_angle, obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.phase_angle(randperm(numel(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.phase_angle)))];
-                end
-                
-            else
-                phase_angle=repelem(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.phase_angle,obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.trials);
-                phase_angle=phase_angle(randperm(length(phase_angle)));
-                
-            end
-            obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).trials(:,1)=phase_angle';
-            obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.total_trials=length(phase_angle');
-            
-            %phase tolerance second coloumn
-            obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).trials(1:obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.total_trials,2)=obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.phase_tolerance;
-            
-            %iti third coloumn
-            if (length(obj.inputs.iti)==2)
-                jitter=(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.iti(2)-obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.iti(1));
-                iti=ones(1,obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.total_trials)*obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.iti(1);
-                iti=iti+rand(1,length(iti))*jitter;
-            elseif (length(obj.inputs.iti)==1)
-                iti=ones(1,obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.total_trials)*(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.iti(1));
-            end
-            obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).trials(:,3)=(round(iti,3))';
-            
-            % 4th coloumn: stim intensity
-            % add the fleixbility such as each phase condition should have
-            % all the stim intensity conditions and then the next phase
-            % condition and then next too
-            stimuli=[];
-            for i=1:(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.total_trials)
-                stimuli = [stimuli, obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.stimuli(randperm(numel(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.stimuli)))];
-            end
-            stimuli=stimuli(1:obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.total_trials);
-            obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).trials(:,4)=stimuli';
-            
-            
-            % 6th col
-            obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).trials(1:obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.total_trials,6)=obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.amp_low;
-            obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).trials(1:obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.total_trials,7)=obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.amp_hi;
-            obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).trials(1:obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.total_trials,8 )=obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.offset_samples;
-            
-            
-            
-            obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).time=linspace(-100,100,1000);
-            % 5th coloum low amplitude
-            % 6th coloum upper amplitude
-            % 7th coloum output device tag
-            %8th coloumn input device tag
-            
-            % correct when there is a rand in the phaese make the phae
-            % tolerance pi over there
-            
-            idx=find(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).trials(1:obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.total_trials,1)==2)
-            obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).trials(idx,1)=0;
-            obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).trials(idx,2)=pi;
-            
-        end
-        function best_stimloop_eegtms(obj)
-            rtcls = dbsp2('10.10.10.1');
-            clab = neurone_digitalout_clab_from_xml(xmlread(obj.inputs.neurone_protocol));
-            clab = clab(1:64); % remove EMG channels
-            clab{65} = 'FCz';
-            rtcls.spatial_filter_clab = clab;
-            rtcls.calibration_mode = 'no';
-            rtcls.armed = 'no';
-            rtcls.sample_and_hold_period=0;
-            obj.scope_eeg.NumSamples=0
-            obj.scope_eeg.NumPrePostSamples=0
-            set_spatial_filter(rtcls, obj.inputs.target_montage_channels, obj.inputs.target_montage_weights, 1)
-            set_spatial_filter(rtcls, {}, [], 2)
-            rtcls.theta.ignore, pause(0.1)
-            rtcls.beta.ignore, pause(0.1)
-            rtcls.alpha.ignore, pause(0.1)
-            obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.trial=1;
-            %             f=figure
-            while (obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.trial <= obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.total_trials)
-                
-                if(strcmp(rtcls.armed, 'no'))
-                    start(rtcls.scope_eeg)
-                    pause(0.05)
-                    rtcls.triggers_remaining = 1;
-                    rtcls.beta.phase_target(1) = obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).trials(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.trial,1);
-                    rtcls.beta.phase_plusminus(1) = obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).trials(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.trial,2);
-                    %                     rtcls.configure_time_port_marker([obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).trials(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.trial,3), 1, 0])
-                    rtcls.configure_time_port_marker([0, 1, 0])
-                    
-                    rtcls.min_inter_trig_interval = obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).trials(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.trial,3);
-                    %                     rtcls.alpha.amplitude_min(1)= obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).trials(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.trial,6);
-                    %                     rtcls.alpha.amplitude_max(1)= obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).trials(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.trial,7);
-                    %                     rtcls.alpha.offset_samples= obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).trials(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.trial,8);
-                    
-                    pause(0.1)
-                    rtcls.arm;
-                end
-                
-                % trigger has been executed, move to the next condition
-                if(rtcls.triggers_remaining == 0)
-                    %                     rtcls.sendPulse
-                    rtcls.disarm;
-                    %% plotting time locked avg
-                    tic
-                    % % % % % % % % % % Fs = 500;
-                    obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).rawdata(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.trial,:)= rtcls.mep';
-                    %                             switch obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).trials(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.trial,1)
-                    %                                 case 0
-                    %                                     obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).rawdata(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.trial,:)= rtcls.mep(1);
-                    % %                                     obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).rawdata(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.trial,:)= [sin([1:Fs]/Fs*5*2*pi)'] + (0.50)*randn(Fs,1);
-                    %                                 case pi
-                    %                                     obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).rawdata(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.trial,:)=rtcls.mep(1);
-                    %
-                    % %                                     obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).rawdata(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.trial,:)=[sin([1:Fs]/Fs*5*2*pi+pi)'] + (0.50)*randn(Fs,1);
-                    %                             end
-                    D = designfilt('bandpassfir', 'FilterOrder', round(500/5), 'CutoffFrequency1', 45, 'CutoffFrequency2', 55, 'SampleRate', 1000);
-                    data= obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).rawdata(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.trial,1:500)';
-                    obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).trials(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.trial,5) = phastimate(data, D, 40, 65, 64)
-                    %                 figure
-                    %                 plot(mean(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).rawdata))
-                    
-                    %% plotting phase histogram
-                    %                 switch obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).trials(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.trial,1)
-                    %                     case 0
-                    %                         obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).trials(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.trial,5)=0
-                    %                     case pi
-                    %                         obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).trials(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.trial,5)=pi
-                    %                 end
-                    
-                    obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.trial
-                    positive_indices= find(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).trials(1:obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.trial,1)==pi)
-                    negative_indices= find(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).trials(1:obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.trial,1)==0)
-                    positives=obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).trials(positive_indices,5)
-                    negatives=obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).trials(negative_indices,5)
-                    axes(obj.app.pr.eegtms.axes2)
-                    obj.app.pr.eegtms.axes2.FontSize=15
-                    hold on
-                    cla
-                    if( obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.trial>4)
-                        %                                     gridxy(150,'Color',[0.97 0.97 0],'linewidth',2) ;
-                        hold on
-                        plot(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).time,mean(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).rawdata(positive_indices,:)),'LineWidth',2,'Color','red')
-                        %                                     plot(mean(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).rawdata(positive_indices,:)),'LineWidth',2,'Color','red')
-                        
-                        hold on
-                        
-                        ylim auto
-                        xlabel('Time (ms)','FontSize',12);
-                        xticks([-75 0 75])
-                        xlim([-75 75])
-                        gridxy(0,'Color',[0.45 0.45 0.45],'linewidth',2) ;
-                        
-                        % Create ylabel
-                        ylabel('Voltage (\mu V)','FontSize',12);
-                        hold on
-                        plot(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).time,mean(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).rawdata(negative_indices,:)),'LineWidth',2,'Color','green')
-                        %                                     plot(mean(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).rawdata(negative_indices,:)),'LineWidth',2,'Color','green')
-                        
-                        %                                     xticks([-100 0 100])
-                        %                                     xlim([-100 100])
-                    end
-                    axes(obj.app.pr.eegtms.axes1)
-                    obj.app.pr.eegtms.axes1.FontSize=15
-                    hold on
-                    cla
-                    obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.trial
-                    t=positives'-1.58
-                    polarhistogram(t,36,'FaceColor','red','BinEdges',deg2rad(5:10:355))
-                    hold on
-                    positives=[];
-                    positive_indices=[];
-                    tt=negatives'-1.58
-                    polarhistogram(tt,36,'FaceColor','green','BinEdges',deg2rad(5:10:355))
-                    negatives=[];
-                    negative_indices=[];
-                    obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.trial
-                    obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.trial = obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.trial + 1;
-                    
-                    toc
-                end
-                
-                
-                
-                %plot scope here
-                % estimate phase here
-                % plot phase here
-                
-                
-                
-            end
-            disp ended
-        end
-        
-        function best_stimloop(obj)
-            
-            % % % % % % % % % % % % % % % % % % % % % % % % % % % %             try
-            obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.trial=0;
-            obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.trial_plotted=0;
-            
-            if(obj.info.event.hotspot~=1)
-                %% initiliaze MAGIC
-                % rapid and magstim caluses have to be added up here too and its handling will have to be formulated
-                delete(instrfindall);
-                magventureObject = magventure('COM3'); %0808a
-                magventureObject.connect;
-                magventureObject.arm
-            end
-            
-            %% initiliaze DBSP
-            NumSamp=  obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.sc_ext_samples;
-            PrePostSamp=obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.sc_ext_prepostsamples;
-            rtcls = dbsp('10.10.10.1',NumSamp,PrePostSamp);
-            clab = neurone_digitalout_clab_from_xml(xmlread('neuroneprotocol.xml')); %adapt this file name as per the inserted file name in the hardware handling module
-            % % %
-            
-            
-            %% set stimulation amp for the first trial using magic
-            % use switch case to imply the mag vencture , mag stim and
-            % rapid object
-            %             magventureObject.setAmplitude(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).trials((obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.trial+1),1));
-            if(obj.info.event.hotspot~=1)
-                if(strcmp(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.stim_mode,'MT'))
-                    if(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.trial==obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.total_trials)
-                    else
-                        magventureObject.setAmplitude(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).trials((obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.trial+1),5));
-                    end
-                else
-                    if(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.trial==obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.total_trials)
-                    else
-                        magventureObject.setAmplitude(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).trials((obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.trial+1),1));
-                    end
-                end
-            end
-            tic
-            %% make timer call back, then stop fcn call back and then the loop stuff and put events marker into it
-            while obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.trial<=obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.total_trials-1
-                if(obj.inputs.stop_event==1)
-                    disp('returned before execution');
-                    obj.inputs.stop_event=0;
-                    break;
-                end
-                obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.trial=obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.trial+1;
-                tt=obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.trial
-                obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.thistime(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.trial)=toc
-                
-                rtcls.sendPulse;
-                
-                tic
-                tic
-                obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).rawdata(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.trial,:)=rtcls.mep(1); % will have to pur the handle of right, left and APB or FDI muscle here, also there is a third muscle pinky muscle which is used sometime so add for that t00
-                
-                %% SIM MEP Simulation starts here
-                % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                 if(obj.info.event.hotspot~=1)
-                % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                     obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).rawdata(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.trial,:)=rand*(obj.sim_mep(1,1:NumSamp))*(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).trials((obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.trial),1));
-                % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                 else
-                % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                     obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).rawdata(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.trial,:)=rand*(obj.sim_mep(1,1:NumSamp));
-                % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
-                % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                 end
-                if (obj.info.event.best_mep_amp==1)
-                    obj.best_mep_amp; end
-                if (obj.info.event.best_mt_pest==1)
-                    obj.best_mt_pest; end
-                
-                if (obj.info.event.best_mt_pest_tc==1)
-                    obj.best_mt_pest_tc; end
-                if(obj.info.event.hotspot~=1)
-                    if(strcmp(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.stim_mode,'MT'))
-                        if(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.trial==obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.total_trials)
-                        else
-                            magventureObject.setAmplitude(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).trials((obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.trial+1),5));
-                        end
-                    else
-                        if(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.trial==obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.total_trials)
-                        else
-                            magventureObject.setAmplitude(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).trials((obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.trial+1),1));
-                        end
-                    end
-                end
-                obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.trial_plotted=obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.trial_plotted+1;
-                gg=obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.trial_plotted
-                
-                disp('plotted')
-                if (obj.info.event.best_mep_plot==1)
-                    obj.best_mep_plot;
-                end
-                
-                if (obj.info.event.best_mt_plot==1)
-                    obj.best_mt_plot; end
-                %                 if (obj.info.event.best_mep_amp==1)
-                %                     obj.best_mep_amp; end
-                if(obj.info.event.best_ioc_plot==1)
-                    obj.best_ioc_scatplot; end
-                tic
-                obj.save_data_runtime
-                toc
-                disp('data saved')
-                
-                if (obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.trial_plotted==obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.total_trials)
-                    break;
-                    
-                end
-                
-                if(obj.inputs.stop_event==1)
-                    disp('returned after the execution')
-                    obj.inputs.stop_event=0;
-                    break;
-                end
-                time_to_subtract_iti=toc;
-                time_to_wait= obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).trials(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.trial,2)-time_to_subtract_iti;
-                %                                   obj.best_wait(time_to_wait)
-                
-                %  trick for executing stop in between pause time interval is to just divide pause into like 6 or 10
-                %  intervals and then put the stop check statement everywhere
-                pause(time_to_wait/6)
-                
-                if(obj.inputs.stop_event==1)
-                    disp('returned after the execution and pause')
-                    obj.inputs.stop_event=0;
-                    break;
-                end
-                
-                pause(time_to_wait/6)
-                
-                if(obj.inputs.stop_event==1)
-                    disp('returned after the execution and pause')
-                    obj.inputs.stop_event=0;
-                    break;
-                end
-                
-                pause(time_to_wait/6)
-                
-                if(obj.inputs.stop_event==1)
-                    disp('returned after the execution and pause')
-                    obj.inputs.stop_event=0;
-                    break;
-                end
-                
-                pause(time_to_wait/6)
-                
-                if(obj.inputs.stop_event==1)
-                    disp('returned after the execution and pause')
-                    obj.inputs.stop_event=0;
-                    break;
-                end
-                
-                pause(time_to_wait/6)
-                
-                if(obj.inputs.stop_event==1)
-                    disp('returned after the execution and pause')
-                    obj.inputs.stop_event=0;
-                    break;
-                end
-                
-                pause(time_to_wait/6)
-                
-                if(obj.inputs.stop_event==1)
-                    disp('returned after the execution and pause')
-                    obj.inputs.stop_event=0;
-                    break;
-                end
-                
-            end
-            % save('C:\0. HARD DISK\BEST Toolbox\BEST-04.08\GUI','obj')
-            
-            % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %             catch
-            % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                  save best_toolbox_backup
-            % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %             end
-            obj.best_mep_stats;
-            
-            if(obj.info.event.best_ioc_plot==1)
-                obj.best_ioc_fit;
-                
-                obj.best_ioc_plot;
-                
-            end
-            if(obj.info.event.best_mt_pest==1)
-                
-                obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).results.mt=ceil(mean(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).trials((obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.total_trials-(obj.inputs.mt_trialstoavg-1):obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.total_trials),1)));
-                obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.rmt=obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).results.mt;
-            end
-            
-            if(obj.info.event.pest_tc==1)
-                
-                if(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.trial_plotted~=obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.total_trials)
-                    total_trials=obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.trial_plotted;
-                    obj.inputs.mt_trialstoavg
-                    obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.trial_plotted
-                    if(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.trial_plotted<obj.inputs.mt_trialstoavg)
-                        obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).results.mt=ceil(mean(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).trials(:,1)));
-                    else
-                        obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).results.mt=ceil(mean(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).trials((total_trials-(obj.inputs.mt_trialstoavg-1):total_trials),1)));
-                        
-                    end
-                    obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.rmt=obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).results.mt;
-                    total_trials=[]
-                else
-                    
-                    
-                    obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).results.mt=ceil(mean(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).trials((obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.total_trials-(obj.inputs.mt_trialstoavg-1):obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.total_trials),1)));
-                    obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.rmt=obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).results.mt;
-                    obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).results.mt
-                    obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.total_trials
-                    obj.inputs.mt_trialstoavg
-                    obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).trials((obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.total_trials-(obj.inputs.mt_trialstoavg-1):obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.total_trials),1)
-                end
-                
-            end
-            
-        end
-        function save_data_runtime(obj)
-            varr_runtime.sessions=obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement);
-            varr_runtime.inputs=obj.inputs;
-            varr_runtime.info=obj.info;
-            varr_runtime.info.axes=[];
-            best_toolbox_runtime_backup=varr_runtime;
-            %             matfilstr=[obj.info.save_str '_matfile.mat']
-            save(obj.info.save_str_runtime,'best_toolbox_runtime_backup');
-        end
-        function best_mep_plot(obj)
-            %              figHandle = findobj('Tag','umi1')
-            %             ap=findobj( figHandle,'Type','axes')
-            
-            
-            
-            axes(obj.info.axes.mep)
-            
-            set(obj.info.axes.mep,'FontSize',obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.FontSize)
-            
-            %  set(gca,'FontSize',obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.FontSize)
-            
-            %             ap.Units='normalized'
-            %             ap.OuterPosition= [0 0 1 1]
-            %             ap.Position= [925 164.3143 400 528.6857]
-            
-            if (obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.trial_plotted>1)
-                
-                
-                delete(obj.info.handles.annotated_trialsNo);
-            end
-            str_plottedTrials=['Current Trial/Total Trials: ',num2str(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.trial_plotted),'/',num2str(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.total_trials)];
-            
-            
-            
-            if (obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.trial_plotted==1)
-                % % %
-                obj.info.str_amp1='MEP Amp (mv) (Latest | Avg): ';
-                % % %             str_plottedTrials=['Current Trial/Total Trials: ',num2str(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.trial_plotted),'/',num2str(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.total_trials)];
-                % % %             obj.info.handles.annotated_trialsNo=text(0, obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.ylim_max+1000,str_plottedTrials,'FontSize',25);
-                % % %
-                % % %
-                
-                
-                obj.info.handles.current_mep_plot=plot(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.timevector,obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).rawdata(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.trial_plotted,obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.sc_plot_first+1:obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.sc_plot_last),'Color',[1 0 0],'LineWidth',2);
-                hold on;
-                ylim([obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.ylim_min obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.ylim_max])
-                xlim([obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.timevector(1), obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.timevector(end)]);
-                % % %                 mat1=obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.prestimulustime:20:(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.totaltime+obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.prestimulustime)
-                % % %                 mat2=[0 obj.inputs.mep_onset*1000 obj.inputs.mep_offset*1000 obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.timevector(end)]
-                % % %                 mat=unique(sort([mat1 mat2]))
-                % % % %                 mat=unique(mat)
-                % % %                 xticks(mat);
-                % % %                gridxy([(obj.inputs.mep_onset*1000):5:(obj.inputs.mep_offset*1000)],'Color',[0.97 0.97 0],'linewidth',10) ;
-                % % %                 gridxy(0,'Color',[0.97 0.97 0],'linewidth',2) ;
-                %    gridxy([(obj.inputs.mep_onset*1000),(obj.inputs.mep_offset*1000)],'Color',[0.97 0.97 0],'linewidth',10) ;
-                mat1=obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.prestim_scope_plt*(-1):10:obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.poststim_scope_plt
-                
-                
-                mat2=[0 obj.inputs.mep_onset*1000 obj.inputs.mep_offset*1000 obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.timevector(end)]
-                mat=unique(sort([mat1 mat2]))
-                %                 mat=unique(mat)
-                xticks(mat);
-                obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.handle_gridxy=gridxy([0 (obj.inputs.mep_onset*1000):0.25:(obj.inputs.mep_offset*1000)],'Color',[219/255 246/255 255/255],'linewidth',1) ;
-                if(obj.info.event.best_mt_pest==1 || obj.info.event.pest_tc==1)
-                    obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.handle_gridxy_mt_lines=gridxy([],[-obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.motor_threshold*1000 obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.motor_threshold*1000],'Color',[0.45 0.45 0.45],'linewidth',1,'LineStyle','--') ;
-                    uistack(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.handle_gridxy_mt_lines,'top');
-                    uistack(obj.info.handles.current_mep_plot,'top')
-                    
-                end
-                %23.10
-                %  xticks(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.prestimulustime:20:(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.totaltime+obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.prestimulustime));
-                y_ticks_mep=linspace(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.ylim_min,obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.ylim_max,5)
-                yticks(y_ticks_mep);
-                %                 yticks(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.ylim_min:2000:obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.ylim_max)
-                % obj.info.axes.mep.FontSize=obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.FontSize;
-                
-                % legend(obj.info.handles.current_mep_plot,'Current MEP');
-                
-                % Create xlabel
-                xlabel('Time (ms)','FontSize',obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.FontSize,'FontName','Arial');
-                % Create ylabel
-                ylabel('EMG Potential (\mu V)','FontSize',obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.FontSize,'FontName','Arial');
-                
-                % l=legend(obj.info.handles.current_mep_plot,'Current MEP','Orientation','horizontal','Position',[2000 6 200 200]);
-                
-                
-                
-                
-                % set(l,'Orientation','horizontal','Location', 'southoutside','FontSize',12);
-                disp('this was done');
-                obj.info.handles.annotated_trialsNo=text(0, obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.ylim_max+((obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.ylim_max)*(0.10)),str_plottedTrials,'FontSize',obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.FontSize);
-                
-            elseif (obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.trial_plotted==2)
-                
-                % % %                 delete(obj.info.handles.annotated_trialsNo);
-                % % %                 str_plottedTrials=['Current Trial/Total Trials: ',num2str(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.trial_plotted),'/',num2str(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.total_trials)];
-                % % %                 obj.info.handles.annotated_trialsNo=text(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.stimuli(end)-20, obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.ylim_max+1000,str_plottedTrials);
-                % % %                         obj.info.handles.annotated_trialsNo=text(0, obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.ylim_max+1000,str_plottedTrials,'FontSize',25);
-                
-                
-                
-                ylim([obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.ylim_min obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.ylim_max])
-                xlim([obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.timevector(1), obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.timevector(end)]);
-                
-                
-                %xticks(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.prestimulustime:20:(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.totaltime+obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.prestimulustime));
-                % %                 yticks(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.ylim_min:2000:obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.ylim_max)
-                y_ticks_mep=linspace(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.ylim_min,obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.ylim_max,5)
-                yticks(y_ticks_mep);
-                
-                %                 obj.info.handles.past_mep_plot=plot(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.timevector,obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).rawdata(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.trial_plotted,:),'Color',[0.75 0.75 0.75]);
-                %                 hold on;
-                %                   obj.info.handles.mean_mep_plot=plot(mean(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).rawdata),'color',[0,0,0],'LineWidth',1.5);
-                % %                  obj.info.handles.mean_mep_plot=plot(NaN,NaN);
-                % hold on;
-                %                 obj.info.handles.current_mep_plot=plot(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.timevector,obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).rawdata(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.trial_plotted,:),'Color',[1 0 0],'LineWidth',2);
-                %                 hold on;
-                
-                %    obj.info.handles.past_mep_plot=plot(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).rawdata(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.trial_plotted,:),'Color',[0.75 0.75 0.75]);
-                %                 hold on;
-                %                 obj.info.handles.mean_mep_plot=plot(mean(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).rawdata),'color',[0,0,0],'LineWidth',1.5);
-                %                 hold on;
-                %                 obj.info.handles.current_mep_plot=plot(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).rawdata(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.trial_plotted,:),'Color',[1 0 0],'LineWidth',2);
-                %                 hold on;
-                
-                obj.info.handles.past_mep_plot=plot(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.timevector,obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).rawdata(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.trial_plotted-1,obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.sc_plot_first+1:obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.sc_plot_last),'Color',[0.75 0.75 0.75]);
-                hold on;
-                obj.info.handles.mean_mep_plot=plot(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.timevector,mean(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).rawdata(:,obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.sc_plot_first+1:obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.sc_plot_last)),'color',[0,0,0],'LineWidth',1.5);
-                hold on;
-                delete(obj.info.handles.current_mep_plot);
-                obj.info.handles.current_mep_plot=plot(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.timevector,obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).rawdata(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.trial_plotted,obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.sc_plot_first+1:obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.sc_plot_last),'Color',[1 0 0],'LineWidth',2);
-                hold on;
-                %  h_legend=[obj.info.handles.past_mep_plot; obj.info.handles.mean_mep_plot; obj.info.handles.current_mep_plot];
-                % l=legend(h_legend, 'Previous MEPs', 'Mean Plot', 'Current MEP','FontSize',14,'Position',[1300 0.6 0.1 0.2]);
-                %set(l,'Orientation','horizontal','Location', 'southoutside','FontSize',12);
-                %                 str_plottedTrials=['Trial Plotted: ',num2str(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.trial_plotted),'/',num2str(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.total_trials)];
-                %                 str_triggeredTrials=['Trial Triggered: ',num2str(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.trial),'/',num2str(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.total_trials)];
-                %                 str = {str_plottedTrials,str_triggeredTrials};
-                %                 obj.info.handles.annotated_trialsNo=text(80, -10000,str);
-                
-                obj.info.handles.annotated_trialsNo=text(0, obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.ylim_max+((obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.ylim_max)*(0.10)),str_plottedTrials,'FontSize',obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.FontSize);
-                if(obj.info.event.best_mt_pest==1 || obj.info.event.pest_tc==1)
-                    uistack(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.handle_gridxy_mt_lines,'top');
-                end
-                uistack(obj.info.handles.mean_mep_plot,'top')
-                uistack(obj.info.handles.current_mep_plot,'top')
-            else
-                
-                % % %                 delete(obj.info.handles.annotated_trialsNo);
-                % % %                 str_plottedTrials=['Current Trial/Total Trials: ',num2str(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.trial_plotted),'/',num2str(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.total_trials)];
-                % % %                 obj.info.handles.annotated_trialsNo=text(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.stimuli(end)-20, obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.ylim_max+1000,str_plottedTrials);
-                % % %
-                ylim([obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.ylim_min obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.ylim_max])
-                xlim([obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.timevector(1), obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.timevector(end)]);
-                % % %
-                
-                
-                
-                
-                %xticks(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.prestimulustime:20:(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.totaltime+obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.prestimulustime));
-                % % %                 yticks(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.ylim_min:2000:obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.ylim_max)
-                y_ticks_mep=linspace(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.ylim_min,obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.ylim_max,5)
-                yticks(y_ticks_mep);
-                % figure(obj.info.handles.mep_figure);
-                %                 str_plottedTrials=['Trial Plotted: ',num2str(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.trial_plotted),'/',num2str(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.total_trials)];
-                %                 str_triggeredTrials=['Trial Triggered: ',num2str(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.trial),'/',num2str(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.total_trials)];
-                %                 str = {str_plottedTrials,str_triggeredTrials};
-                %                 delete(obj.info.handles.annotated_trialsNo);
-                %                 obj.info.handles.annotated_trialsNo=text(80, -10000,str);
-                %                  obj.info.handles.past_mep_previousplot=plot(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).rawdata(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.trial_plotted-1,:),'Color',[0.75 0.75 0.75]);
-                %                 plot(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).rawdata(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.trial_plotted-1,:),'Color',[0.75 0.75 0.75]);
-                
-                
-                obj.info.handles.prev_mep_plot=animatedline(obj.info.axes.mep,obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.timevector,obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).rawdata(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.trial_plotted-1,obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.sc_plot_first+1:obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.sc_plot_last),'color',[0.75 0.75 0.75]);
-                obj.info.handles.prev_mep_plot.Annotation.LegendInformation.IconDisplayStyle = 'off';
-                
-                %                                 h = animatedline(1:1000,obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).rawdata(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.trial_plotted-2,:));
-                %                 h = animatedline(1:1000,obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).rawdata(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.trial_plotted-3,:));
-                %
-                %                 addpoints(h,obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).rawdata(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.trial_plotted-2,:));
-                %                 drawnow;
-                
-                
-                %
-                % %                 clearpoints(obj.info.handles.mean_mep_plot)
-                % %                 obj.info.handles.mean_mep_plot=animatedline(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.timevector,mean(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).rawdata),'color',[0,0,0],'LineWidth',1.5);
-                % %
-                % %                 clearpoints(obj.info.handles.current_mep_plot)
-                % %                 obj.info.handles.current_mep_plot=animatedline(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.timevector,obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).rawdata(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.trial_plotted,:),'Color',[1 0 0],'LineWidth',2);
-                % %
-                % %
-                %
-                %                 set(obj.info.handles.mean_mep_plot,'YData',mean(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).rawdata(:,obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.sc_plot_first:obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.sc_plot_last)))
-                %                 set(obj.info.handles.current_mep_plot,'YData',(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).rawdata(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.trial_plotted,obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.sc_plot_first:obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.sc_plot_last)))
-                
-                delete(obj.info.handles.mean_mep_plot);
-                
-                if(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.plot_reset_pressed==1)
-                    obj.info.handles.mean_mep_plot=plot(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.timevector,mean(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).rawdata(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.plot_reset_idx:obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.trial,obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.sc_plot_first+1:obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.sc_plot_last)),'color',[0,0,0],'LineWidth',1.5);
-                else
-                    obj.info.handles.mean_mep_plot=plot(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.timevector,mean(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).rawdata(:,obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.sc_plot_first+1:obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.sc_plot_last)),'color',[0,0,0],'LineWidth',1.5);
-                end
-                hold on;
-                delete(obj.info.handles.current_mep_plot);
-                obj.info.handles.current_mep_plot=plot(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.timevector,obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).rawdata(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.trial_plotted,obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.sc_plot_first+1:obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.sc_plot_last),'Color',[1 0 0],'LineWidth',2);
-                hold on;
-                
-                
-                if(obj.info.event.best_mt_pest==1 || obj.info.event.pest_tc==1)
-                    uistack(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.handle_gridxy_mt_lines,'top');
-                end
-                uistack(obj.info.handles.mean_mep_plot,'top')
-                uistack(obj.info.handles.current_mep_plot,'top')
-                obj.info.handles.annotated_trialsNo=text(0, obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.ylim_max+((obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.ylim_max)*(0.10)),str_plottedTrials,'FontSize',obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.FontSize);
-                
-                
-            end
-            
-            if(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.update_event==1)
-                delete(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.handle_gridxy);
-                mat1=obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.prestim_scope_plt*(-1):10:obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.poststim_scope_plt;
-                mat2=[0 obj.inputs.mep_onset*1000 obj.inputs.mep_offset*1000 obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.timevector(end)];
-                mat=unique(sort([mat1 mat2]));
-                mat=unique(mat);
-                xticks(mat);
-                obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.handle_gridxy=gridxy([0 (obj.inputs.mep_onset*1000):0.25:(obj.inputs.mep_offset*1000)],'Color',[219/255 246/255 255/255],'linewidth',1) ;
-                obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.update_event=0;
-            end
-            
-            format short;
-            if (obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.reset_pressed==0)
-                
-                if (obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.trial<=obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.trials_for_mean_annotation)
-                    n1=obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.trial;
-                    
-                    str_amp2=num2str(  ((obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).trials(n1,4))/1000));
-                    
-                    str_amp4=num2str(((mean  (obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).trials(1:n1,4)))/1000));
-                    str_amp_final=[obj.info.str_amp1 str_amp2 ' | ' str_amp4];
-                    if(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.trial>1)
-                        delete(obj.info.handles.annotated_mep);
-                    end
-                    obj.info.handles.annotated_mep=text(0, obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.ylim_max+(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.ylim_max*(0.05)),str_amp_final,'FontSize',obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.FontSize);
-                else
-                    delete(obj.info.handles.annotated_mep);
-                    n1=obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.trial;
-                    n2=obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.trials_for_mean_annotation;
-                    str_amp2=num2str(  ((obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).trials(n1,4))/1000));
-                    str_amp4=num2str(((mean  (obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).trials(n1-n2:n1,4)))/1000));
-                    str_amp_final=[obj.info.str_amp1 str_amp2 ' | ' str_amp4];
-                    obj.info.handles.annotated_mep=text(0, obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.ylim_max+(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.ylim_max*(0.05)),str_amp_final,'FontSize',obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.FontSize);
-                end
-            elseif   (obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.reset_pressed==1)
-                obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.reset_pressed_counter=obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.reset_pressed_counter+1;
-                if(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.reset_pressed_counter<=obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.trials_for_mean_annotation)
-                    if(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.reset_pressed_counter==1)
-                        delete(obj.info.handles.annotated_mep);
-                        n1=obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.trial;
-                        str_amp2=num2str(  ((obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).trials(n1,4))/1000));
-                        str_amp4=num2str(((  (obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).trials(n1,4)))/1000));
-                        str_amp_final=[obj.info.str_amp1 str_amp2 ' | ' str_amp4];
-                        obj.info.handles.annotated_mep=text(0, obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.ylim_max+(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.ylim_max*(0.05)),str_amp_final,'FontSize',obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.FontSize);
-                    else
-                        delete(obj.info.handles.annotated_mep);
-                        n1=obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.trial;
-                        n3=obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.reset_pressed_counter;
-                        str_amp2=num2str(  ((obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).trials(n1,4))/1000));
-                        str_amp4=num2str(((mean  (obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).trials(n1-n3:n1,4)))/1000));
-                        str_amp_final=[obj.info.str_amp1 str_amp2 ' | ' str_amp4];
-                        obj.info.handles.annotated_mep=text(0, obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.ylim_max+(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.ylim_max*(0.05)),str_amp_final,'FontSize',obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.FontSize);
-                    end
-                    
-                else
-                    obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.reset_pressed=0;
-                    delete(obj.info.handles.annotated_mep);
-                    n1=obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.trial;
-                    n3=obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.reset_pressed_counter;
-                    str_amp2=num2str(  ((obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).trials(n1,4))/1000));
-                    str_amp4=num2str(((mean  (obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).trials(n1-n3:n1,4)))/1000));
-                    str_amp_final=[obj.info.str_amp1 str_amp2 ' | ' str_amp4];
-                    obj.info.handles.annotated_mep=text(0, obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.ylim_max+(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.ylim_max*(0.05)),str_amp_final,'FontSize',obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.FontSize);
-                    
-                end
-            end
-            
-            
-            
-            % % % % % % %             if(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.trial==1)
-            % % % % % % %                 n1=obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.trial;
-            % % % % % % %
-            % % % % % % %                 str_amp2=num2str(  ((obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).trials(n1,4))/1000));
-            % % % % % % %
-            % % % % % % %                 str_amp4=num2str(((mean  (obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).trials(n1,4)))/1000));
-            % % % % % % %                 str_amp_final=[obj.info.str_amp1 str_amp2 ' | ' str_amp4];
-            % % % % % % %                 obj.info.handles.annotated_mep=text(0, obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.ylim_max+(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.ylim_max*(0.05)),str_amp_final,'FontSize',obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.FontSize);
-            % % % % % % %
-            % % % % % % %             elseif(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.trial==2)
-            % % % % % % %                 delete( obj.info.handles.annotated_mep)
-            % % % % % % %                 n1=obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.trial;
-            % % % % % % %                 str_amp2=num2str(  ((obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).trials(n1,4))/1000));
-            % % % % % % %                 str_amp4=num2str(((mean  (obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).trials(n1-1:n1,4)))/1000));
-            % % % % % % %                 str_amp_final=[obj.info.str_amp1 str_amp2 ' | ' str_amp4];
-            % % % % % % %                 obj.info.handles.annotated_mep=text(0, obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.ylim_max+(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.ylim_max*(0.05)),str_amp_final,'FontSize',obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.FontSize);
-            % % % % % % %
-            % % % % % % %             elseif(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.trial==3)
-            % % % % % % %                 delete( obj.info.handles.annotated_mep)
-            % % % % % % %                 n1=obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.trial;
-            % % % % % % %                 str_amp2=num2str(  ((obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).trials(n1,4))/1000));
-            % % % % % % %                 str_amp4=num2str(((mean  (obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).trials(n1-2:n1,4)))/1000));
-            % % % % % % %                 str_amp_final=[obj.info.str_amp1 str_amp2 ' | ' str_amp4];
-            % % % % % % %                 obj.info.handles.annotated_mep=text(0, obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.ylim_max+(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.ylim_max*(0.05)),str_amp_final,'FontSize',obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.FontSize);
-            % % % % % % %
-            % % % % % % %             elseif(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.trial==4)
-            % % % % % % %                 delete( obj.info.handles.annotated_mep)
-            % % % % % % %                 n1=obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.trial;
-            % % % % % % %                 str_amp2=num2str(  ((obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).trials(n1,4))/1000));
-            % % % % % % %                 str_amp4=num2str(((mean  (obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).trials(n1-3:n1,4)))/1000));
-            % % % % % % %                 str_amp_final=[obj.info.str_amp1 str_amp2 ' | ' str_amp4];
-            % % % % % % %                 obj.info.handles.annotated_mep=text(0, obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.ylim_max+(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.ylim_max*(0.05)),str_amp_final,'FontSize',obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.FontSize);
-            % % % % % % %
-            % % % % % % %             else
-            % % % % % % %                 delete( obj.info.handles.annotated_mep)
-            % % % % % % %                 n1=obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.trial;
-            % % % % % % %                 str_amp2=num2str(  ((obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).trials(n1,4))/1000));
-            % % % % % % %                 str_amp4=num2str(((mean  (obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).trials(n1-4:n1,4)))/1000));
-            % % % % % % %                 str_amp_final=[obj.info.str_amp1 str_amp2 ' | ' str_amp4];
-            % % % % % % %                 obj.info.handles.annotated_mep=text(0, obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.ylim_max+(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.ylim_max*(0.05)),str_amp_final,'FontSize',obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.FontSize);
-            % % % % % % %             end
-            
-            
-        end
-        function best_mep_amp(obj)
-            
-            % give handle of post trigger offset and onset
-            obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).trials(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.trial,4)=(max(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).rawdata(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.trial,obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.mep_onset_samp:obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.mep_offset_samp)))-(min(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).rawdata(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.trial,obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.mep_onset_samp:obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.mep_offset_samp)));
-            
-            
-            % epoch in the window
-            % find max in that eopched
-            % find min in that eopch
-            % take abs of that epoch
-            % add both to find p2p
-            % add it to corrosponding trial
-            
-            
-        end
-        function best_mt_pest_boot(obj)
-            
-            % Custom cdf where 'm' is mean and '0.07*m' is predifined variance
-            cdfFormula = @(m) normcdf(0:0.5:100,m,0.07*m);
-            
-            % emulated cdf
-            realCdf = zeros(2,201);
-            spot = 1;
-            for i = 0:0.5:100
-                realCdf(1,spot) = i;
-                spot = spot + 1;
-            end
-            realCdf(2,:) = normcdf(0:0.5:100,40,0.07*40);
-            
-            %% Log likelihood func
-            obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.mt.log = zeros(2,201);
-            spot = 1;
-            for i = 0:0.5:100
-                obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.mt.log(1,spot) = i;
-                spot = spot + 1;
-            end
-            %% Start with hit at 100% intensity and miss at 0% intensity
-            spot = 1;
-            for i = 0:0.5:100 % go through all possible intensities
-                thisCdf = cdfFormula(i);
-                % calculate log likelihood function
-                obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.mt.log(2,spot) = log(thisCdf(101)) + log(1-thisCdf(61));
-                spot = spot + 1;
-            end
-            
-            %%
-            
-            %find max values, returns intensity (no indice problem)
-            maxValues = obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.mt.log(1,find(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.mt.log(2,:) == max(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.mt.log(2,:))));
-            
-            % Middle Value from maxValues
-            obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.mt.nextInt = (min(maxValues) + max(maxValues))/2;
-            obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).trials(1,1)=obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.mt.nextInt;
-            
-        end
-        function best_mt_pest_tc_boot(obj)
-            obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).trials(1,1)=obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.mt_starting_stim_inten;
-        end
-        function best_mt_pest(obj)
-            
-            
-            
-            %% MEP Measurment
-            
-            
-            
-            No_of_iterations=obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.total_trials;
-            
-            % % %             for N=1:No_of_iterations
-            
-            % MAGIC command for setting Intensity
-            % % %                 rtcls.sendPulse(1); %RTCLS command for stimulating at that command
-            % % %                 rtcls.MEP(1);       %RTCLS command for measuring raw data
-            % % %                 obj=best_mep_P2Pamp(obj); %BEST command for calcualting P2P amps
-            
-            % Custom cdf where 'm' is mean and '0.07*m' is predifined variance
-            cdfFormula = @(m) normcdf(0:0.5:100,m,0.07*m);
-            factor=1;
-            
-            if (obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.trial>1)
-                if obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).trials(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.trial-1,4) > (obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.motor_threshold*(1000))
-                    %disp('Hit')
-                    evokedMEP = 1;
-                else
-                    %disp('Miss')
-                    evokedMEP = 0;
-                end
-            else
-                
-                evokedMEP = 0;
-                
-            end
-            
-            
-            %find max values
-            maxValues = obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.mt.log(1,find(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.mt.log(2,:) == max(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.mt.log(2,:))));
-            % Middle Value from maxValues
-            obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.mt.nextInt = round((min(maxValues) + max(maxValues)) / 2);
-            %nextInt = maxValues(round(length(maxValues)/2));
-            
-            % calculate updated log likelihood function
-            spot = 1;
-            for i = 0:0.5:100 % go through all possible intensities
-                thisCdf = cdfFormula(i);
-                if evokedMEP == 1 % hit!
-                    obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.mt.log(2,spot) = obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.mt.log(2,spot) + factor*log(thisCdf(2*obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.mt.nextInt+1));
-                elseif evokedMEP == 0 % miss!
-                    obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.mt.log(2,spot) = obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.mt.log(2,spot) + factor*log(1-thisCdf(2*obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.mt.nextInt+1));
-                end
-                spot = spot + 1;
-            end
-            
-            %display(sprintf('using next intensity: %.2f', obj.nextInt))
-            
-            obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).trials((obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.trial+1),1)=obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.mt.nextInt;
-            %             if (obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.trial<obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.total_trials)
-            %             obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).trials((obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.trial+1),1)=obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.mt.nextInt; end
-            
-        end
-        function best_mt_pest_tc(obj)
-            if((obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.trial==1))
-                experimental_condition = [];
-                experimental_condition{1}.name = 'random';
-                experimental_condition{1}.phase_target = 0;
-                experimental_condition{1}.phase_plusminus = pi;
-                experimental_condition{1}.marker = 3;
-                experimental_condition{1}.random_delay_range = 0.1;
-                experimental_condition{1}.port = 1;
-                obj.tc.stimvalue = [obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.mt_starting_stim_inten 1.0 1.00];
-                obj.tc.stepsize = [1 1 1];
-                obj.tc.minstep =  1;
-                obj.tc.maxstep =  8;
-                obj.tc.minvalue = 10;
-                obj.tc.maxvalue = 90;
-                obj.tc.responses = {[] [] []};
-                obj.tc.stimvalues = {[] [] []};  %storage for post-hoc review
-                obj.tc.stepsizes = {[] [] []};   %storage for post-hoc review
-                
-                obj.tc.lastdouble = [0,0,0];
-                obj.tc.lastreverse = [0,0,0];
-                
-                
-                
-            end
-            StimDevice=1;
-            stimtype = 1;
-            experimental_condition{1}.port = 1;
-            
-            condition = experimental_condition{1};
-            
-            
-            obj.tc.stimvalues{StimDevice} = [obj.tc.stimvalues{StimDevice}, round(obj.tc.stimvalue(StimDevice),2)];
-            obj.tc.stepsizes{StimDevice} = [obj.tc.stepsizes{StimDevice}, round(obj.tc.stepsize(StimDevice),2)];
-            
-            % % % % % % % % % % % % % % % % % % % % % % % % %             obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).trials(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.trial,4)=input('enter mep amp  ');
-            
-            
-            if obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).trials(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.trial,4) > (obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.motor_threshold*(1000))
-                %disp('Hit')
-                answer = 1;
-            else
-                %disp('Miss')
-                answer = 0;
-            end
-            
-            obj.tc.responses{StimDevice} = [obj.tc.responses{StimDevice}, answer];
-            
-            
-            if length(obj.tc.responses{StimDevice}) == 1
-                if answer == 1
-                    obj.tc.stepsize(StimDevice) =  -obj.tc.stepsize(StimDevice);
-                end
-            elseif length(obj.tc.responses{StimDevice}) == 2
-                if obj.tc.responses{StimDevice}(end) ~= obj.tc.responses{StimDevice}(end-1)
-                    obj.tc.stepsize(StimDevice) = -obj.tc.stepsize(StimDevice)/2;
-                    fprintf(' Step Reversed and Halved\n')
-                    obj.tc.lastreverse(StimDevice) = length(obj.tc.responses{StimDevice});
-                end
-                
-            elseif length(obj.tc.responses{StimDevice})  == 3
-                if obj.tc.responses{StimDevice}(end) ~= obj.tc.responses{StimDevice}(end-1)
-                    obj.tc.stepsize(StimDevice) = -obj.tc.stepsize(StimDevice)/2;
-                    fprintf(' Step Reversed and Halved\n')
-                    obj.tc.lastreverse(StimDevice) = length(obj.tc.responses{StimDevice});
-                elseif obj.tc.responses{StimDevice}(end) == obj.tc.responses{StimDevice}(end-1) && obj.tc.responses{StimDevice}(end) == obj.tc.responses{StimDevice}(end-2)
-                    obj.tc.stepsize(StimDevice) = obj.tc.stepsize(StimDevice)*2;
-                    fprintf(' Step Size Doubled\n')
-                    obj.tc.lastdouble(StimDevice) = length(obj.tc.responses{StimDevice});
-                end
-                
-            elseif length(obj.tc.responses{StimDevice}) > 3
-                if obj.tc.responses{StimDevice}(end) ~= obj.tc.responses{StimDevice}(end-1)
-                    %             rule 1
-                    obj.tc.stepsize(StimDevice) = -obj.tc.stepsize(StimDevice)/2;
-                    fprintf(' Step Reversed and Halved\n')
-                    obj.tc.lastreverse(StimDevice) = length(obj.tc.responses{StimDevice});
-                    %             rule 2 doesnt  need any specific dealing
-                    %             rule 4
-                elseif obj.tc.responses{StimDevice}(end) == obj.tc.responses{StimDevice}(end-2) && obj.tc.responses{StimDevice}(end) == obj.tc.responses{StimDevice}(end-3)
-                    obj.tc.stepsize(StimDevice) = obj.tc.stepsize(StimDevice)*2;
-                    fprintf(' Step Size Doubled\n')
-                    obj.tc.lastdouble(StimDevice) = length(obj.tc.responses{StimDevice});
-                    %             rule 3
-                elseif obj.tc.responses{StimDevice}(end) == obj.tc.responses{StimDevice}(end-1) && obj.tc.responses{StimDevice}(end) == obj.tc.responses{StimDevice}(end-2) && obj.tc.lastdouble(StimDevice) ~= obj.tc.lastreverse(StimDevice)-1
-                    obj.tc.stepsize(StimDevice) = obj.tc.stepsize(StimDevice)*2;
-                    fprintf(' Step Size Doubled\n')
-                    obj.tc.lastdouble(StimDevice) = length(obj.tc.responses{StimDevice});
-                end
-                
-            end
-            
-            if abs(obj.tc.stepsize(StimDevice)) < obj.tc.minstep
-                if obj.tc.stepsize(StimDevice) < 0
-                    obj.tc.stepsize(StimDevice) = -obj.tc.minstep;
-                else
-                    obj.tc.stepsize(StimDevice) = obj.tc.minstep;
-                end
-            end
-            
-            obj.tc.stimvalue(StimDevice) = obj.tc.stimvalue(StimDevice) + obj.tc.stepsize(StimDevice);
-            
-            if obj.tc.stimvalue(StimDevice) < obj.tc.minvalue
-                obj.tc.stimvalue(StimDevice) = obj.tc.minvalue;
-                disp('Minimum value reached.')
-            end
-            
-            if obj.tc.stimvalue(StimDevice) > obj.tc.maxvalue
-                obj.tc.stimvalue(StimDevice) = obj.tc.maxvalue;
-                disp('Max value reached.')
-            end
-            
-            obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).trials((obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.trial+1),1)=obj.tc.stimvalue(StimDevice);
-            
-            
-            
-        end
-        function best_mt_plot(obj)
-            axes(obj.info.axes.mt)
-            %             obj.info.axes.mt.FontSize=obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.FontSize
-            
-            if(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.trial==1)
-                %  obj.info.handles.mt_figure=figure('name','Motor Thresholding, MEP Amp Trace');
-                disp('entered first loop')
-                obj.info.handles.mt_plot=plot(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).trials(1:2,1),'Parent',obj.info.axes.mt,'LineWidth',2);
-                %       obj.info.handles.mt_plot=plot(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).trials(1,1));
-                
-                xlabel('Trial Number','FontSize',obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.FontSize);   %TODO: Put if loop of RMT or MSO
-                
-                % Create ylabel
-                ylabel('Stimulation Intensities (%MSO)','FontSize',obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.FontSize);
-                
-                
-                yticks(0:1:400);
-                % x & y ticks and labels
-                % will have to be referneced with GUI
-                xticks(1:2:100);    % will have to be referneced with GUI
-                
-                % Create title
-                %                 title({'Threshold Hunting - Stimulation Intensities Trace'},'FontWeight','bold','FontSize',obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.FontSize,'FontName','Calibri');
-                set(gcf, 'color', 'w')
-            else
-                if(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.trial_plotted==obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.total_trials)
-                    obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).trials(end,:)=[];
-                else
-                    % obj.info.handles.mt_plot=plot(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).trials(1:obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.trial_plotted+1,1),'Parent',obj.info.axes.mt,'LineWidth',2);
-                    set(obj.info.handles.mt_plot,'YData',(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).trials(1:obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.trial_plotted+1,1)))
-                    
-                end
-            end
-            
-        end
-        function best_mep_stats(obj)
-            
-            % handle to put 0 in case of unequal trials vector
-            % for this calculate the median of all elements seperately
-            % then append the missing SI values and replace them by the
-            % median
-            % then the usual procedure downwards will be working
-            
-            
-            [si,ia,idx] = unique(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).trials(:,1),'stable');
-            mep_median = accumarray(idx,obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).trials(:,4),[],@median);
-            mep_mean = accumarray(idx,obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).trials(:,4),[],@mean);
-            mep_std = accumarray(idx,obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).trials(:,4),[],@std);
-            mep_min = accumarray(idx,obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).trials(:,4),[],@min);
-            mep_max = accumarray(idx,obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).trials(:,4),[],@max);
-            mep_var = accumarray(idx,obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).trials(:,4),[],@var);
-            M=[si,mep_median,mep_mean,mep_std, mep_min, mep_max, mep_var];
-            M1 = M(randperm(size(M,1)),:,:,:,:,:,:);
-            obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).results.mep_stats(:,1)=M1(:,1); %Sampled SIs
-            obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).results.mep_stats(:,2)=M1(:,2); %Sampled Medians MEPs
-            obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).results.mep_stats(:,3)=M1(:,3); %Mean MEPs over trial
-            obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).results.mep_stats(:,4)=M1(:,4); %Std MEPs
-            obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).results.mep_stats(:,5)=M1(:,5); %Min of MEPs
-            obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).results.mep_stats(:,6)=M1(:,6); %Max of MEPs
-            obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).results.mep_stats(:,7)=M1(:,7); %Var of MEPs
-            obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.SI=obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).results.mep_stats(:,1);
-            obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.MEP=obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).results.mep_stats(:,2);
-            
-            obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).results.mep_stats(:,8)=(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).results.mep_stats(:,4))/sqrt(numel(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).results.mep_stats(:,4)));    %TODO: Make it modular by replacing 15 to # trials per intensity object value
-            obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.SEM=obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).results.mep_stats(:,8);
-        end
-        function best_ioc_fit(obj)
-            %obj.info.handles.ioc_plot_fig=figure('name',' MEP Dose-Response Curve');
-            axes(obj.info.axes.ioc_second)
-            %  set(gcf,'Visible', 'off');
-            [SIData, MEPData] = prepareCurveData(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).results.mep_stats(:,1) ,obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).results.mep_stats(:,2));
-            ft = fittype( 'MEPmax*SI^n/(SI^n+SI50^n)', 'independent', 'SI', 'dependent', 'MEP' );
-            %             ft = best_fittype( 'MEPmax*SI^n/(SI^n+SI50^n)', 'independent', 'SI', 'dependent', 'MEP' );
-            
-            %% Optimization of fit paramters;
-            
-            opts = fitoptions( ft );
-            opts.Display = 'Off';
-            opts.Lower = [0 0 0 ];
-            opts.StartPoint = [10 10 10];
-            opts.Upper = [Inf Inf Inf];
-            
-            %% Fit sigmoid model to data
-            
-            [obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.ioc.fitresult,obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.ioc.gof] = fit( SIData, MEPData, ft, opts);
-            %% Extract fitted curve points
-            
-            plot( obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.ioc.fitresult, SIData, MEPData);
-            
-            obj.info.handle.ioc_curve= get(gca,'Children');
-            x1lim=xlim
-            y1lim=ylim
-            
-            
-            
-            bg = gca; legend(bg,'off');
-            
-        end
-        function best_ioc_plot(obj)
-            %             figure(obj.info.handles.ioc_plot_fig)
-            %             set(gcf,'Visible', 'off');
-            
-            format short g
-            %% Inflection point (ip) detection on fitted curve
-            %             index_ip=find(abs(obj.curve(1).XData-obj.fitresult.SI50)<10^-1, 1, 'first');
-            %              obj.ip_x=obj.curve(1).XData(index_ip);
-            %             ip_y = obj.curve(1).YData(index_ip)
-            
-            [value_ip , index_ip] = min(abs(obj.info.handle.ioc_curve(1).XData-obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.ioc.fitresult.SI50));
-            obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.ip_x = obj.info.handle.ioc_curve(1).XData(index_ip);
-            ip_y = obj.info.handle.ioc_curve(1).YData(index_ip);
-            
-            %% Plateau (pt) detection on fitted curve
-            %             index_pt=find(abs(obj.curve(1).YData-obj.fitresult.MEPmax)<10^1, 1, 'first');
-            %             obj.pt_x=obj.curve(1).XData(index_pt);
-            %             pt_y=obj.curve(1).YData(index_pt);
-            %
-            [value_pt , index_pt] = min(abs(obj.info.handle.ioc_curve(1).YData-(0.993*(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.ioc.fitresult.MEPmax) ) ) );   %99.3 % of MEP max %TODO: Test it with longer plateu
-            obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.pt_x=obj.info.handle.ioc_curve(1).XData(index_pt);
-            pt_y=obj.info.handle.ioc_curve(1).YData(index_pt);
-            
-            %% Threshold (th) detection on fitted curve
-            %             if(strcmp(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.stim_mode,'MSO'))
-            %
-            %                     index_ip1=index_ip+2;
-            %                 ip1_x=obj.info.handle.ioc_curve(1).XData(index_ip1);
-            %                 ip1_y=obj.info.handle.ioc_curve(1).YData(index_ip1);
-            %                 % Calculating slope (m) using two-points equation
-            %                 m1=(ip1_y-ip_y)/(ip1_x-obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.ip_x)
-            %                 m=m1
-            %                 % Calculating threshold (th) using point-slope equation
-            %                 obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.th=obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.ip_x-(ip_y/m);
-            %             end
-            
-            [value_th , index_th] = min(abs(obj.info.handle.ioc_curve(1).YData-50 ) );   % change the 50 to be adaptive to what threshold in mV or microV is given
-            obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.th=obj.info.handle.ioc_curve(1).XData(index_th);
-            
-            
-            
-            
-            %% Creating plot
-            %         figure(4)
-            hold on;
-            h = plot( obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.ioc.fitresult, obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.SI, obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.MEP);
-            set(h(1), 'MarkerFaceColor',[0 0 0],'MarkerEdgeColor',[0 0 0],'Marker','square','LineStyle','none');
-            
-            % Plotting SEM on Curve points
-            errorbar(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.SI, obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.MEP ,obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.SEM, 'o');
-            set(h(2),'LineWidth',2);
-            
-            % Create xlabel
-            xlabel(' Stimulation Intensity','FontSize',14,'FontName','Calibri');   %TODO: Put if loop of RMT or MSO
-            
-            % Create ylabel
-            ylabel('MEP Amplitude ( \mu V)','FontSize',14,'FontName','Calibri');
-            
-            
-            
-            % x & y ticks and labels
-            %             yticks(-1:0.5:10000);  % will have to be referneced with GUI
-            %             xticks(0:5:1000);    % will have to be referneced with GUI
-            
-            % Create title
-            title({'Input Output Curve'},'FontWeight','bold','FontSize',14,'FontName','Calibri');
-            set(gcf, 'color', 'w')
-            
-            
-            SI_min_point = (round(min(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.SI)/5)*5)-5; % Referncing the dotted lines wrt to lowest 5ths of SI_min
-            % SI_min_point = 0;
-            seet=-0.5;
-            ylim_ioc=-500;
-            
-            
-            % Plotting Inflection point's horizontal & vertical dotted lines
-            % %             plot([obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.ip_x,SI_min_point],[ip_y,ip_y],'--','Color' , [0.75 0.75 0.75]);
-            % %             plot([obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.ip_x,obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.ip_x],[ip_y,seet],'--','Color' , [0.75 0.75 0.75]);
-            % %             legend_ip=plot(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.ip_x,ip_y,'rs','MarkerSize',15);
-            
-            plot([obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.ip_x,min(xlim)],[ip_y,ip_y],'--','Color' , [0.75 0.75 0.75]);
-            plot([obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.ip_x,obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.ip_x],[ip_y,ylim_ioc],'--','Color' , [0.75 0.75 0.75]);
-            legend_ip=plot(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.ip_x,ip_y,'rs','MarkerSize',15);
-            
-            
-            % Plotting Plateau's horizontal & vertical dotted lines
-            plot([obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.pt_x,min(xlim)],[pt_y,pt_y],'--','Color' , [0.75 0.75 0.75]); %xline
-            plot([obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.pt_x,obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.pt_x],[pt_y,ylim_ioc],'--','Color' , [0.75 0.75 0.75]);
-            legend_pt=plot(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.pt_x,pt_y,'rd','MarkerSize',15);
-            
-            % Plotting Threshold's horizontal & vertical dotted lines
-            if(strcmp(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.stim_mode,'MT'))
-                %% Creating legends
-                h_legend=[h(1); h(2); legend_ip;legend_pt];
-                %l=legend(h_legend, 'Amp(MEP) vs Stim. Inten', 'Sigmoid Fit', 'Inflection Point','Plateau');
-                %set(l,'Orientation','horizontal','Location', 'southoutside','FontSize',12);
-                
-                %% Creating Properties annotation box
-                
-                str_ip=['Inflection Point: ',num2str(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.ip_x),' (%MT)',' , ',num2str(ip_y),' (\muV)'];
-                str_pt=['Plateau: ',num2str(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.pt_x),' (%MT)',' , ',num2str(pt_y),' (\muV)'];
-                
-                
-                dim = [0.69 0.35 0 0];
-                str = {str_ip,[],str_pt};
-                annotation('textbox',dim,'String',str,'FitBoxToText','on','FontSize',12);
-            else
-                disp('error is here');
-                plot([obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.th,min(xlim)],[0.05,0.05],'--','Color' , [0.75 0.75 0.75]);
-                plot([obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.th,obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.th],[0.05,ylim_ioc],'--','Color' , [0.75 0.75 0.75]);
-                legend_th=plot(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.th, 0.05,'r*','MarkerSize',15);
-                
-                
-                
-                %% Creating legends
-                h_legend=[h(1); h(2); legend_ip;legend_pt;legend_th];
-                %l=legend(h_legend, 'Amp(MEP) vs Stim. Inten', 'Sigmoid Fit', 'Inflection Point','Plateau','Threshold');
-                %set(l,'Orientation','horizontal','Location', 'southoutside','FontSize',12);
-                
-                %% Creating Properties annotation box
-                
-                str_ip=['Inflection Point: ',num2str(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.ip_x),' (%MSO)',' , ',num2str(ip_y),' (\muV)'];
-                str_pt=['Plateau: ',num2str(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.pt_x),' (%MSO)',' , ',num2str(pt_y),' (\muV)'];
-                str_th=['Thershold: ',num2str(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.th),' (%MSO)',' , ', '0.05',' (\muV)'];
-                
-                dim = [0 0 0.5 0.5];
-                str = {str_ip,[],str_th,[],str_pt};
-                %                 annotation('textbox',dim,'String',str,'FitBoxToText','on','FontSize',12,'units','normalized');
-                
-            end
-            xlim
-            ylim([-500 Inf])
-            xticks
-            yticks
-            store2=get(gca,'YTick')
-            xticklabels
-            yticklabels
-            xlim([min(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.SI)-5 max(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.SI)+5]);
-            % %             store2=get(gca,'YTick')
-            %             xlim([min(xlim) (max(xlim)+5)])
-            %             y_limm=ylim
-            %             yt=yticks
-            %             xt=xticks
-            %             xl=xlim
-            text((max(xlim)-30), -200,str,'FontSize',12);
-            
-            bt = gca; legend(bt,'off');
-            box on; drawnow;
-            
-            % %             code for copying the axes from one fig to another fig
-            
-            % % % % % % %              f1 = figure('Units','normalized', 'Position', [0 0 0.8 0.8]); % Open a new figure with handle f1
-            % % % % % % % s = copyobj(obj.info.axes.ioc_second,f1)
-            
-            % set(gcf,'Visible', 'on');
-            
-            
-            
-            
-        end
-        function best_ioc_scatplot(obj)
-            axes(obj.info.axes.ioc_first)
-            ylim auto
-            set(obj.info.axes.ioc_first,'FontSize',obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.FontSize)
-            % x & y ticks and labels
-            % will have to be referneced with GUI
-            %  xticks(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.stimuli);    % will have to be referneced with GUI
-            
-            
-            
-            
-            if(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.trial==1)
-                %   obj.info.handles.ioc_scatplot_fig=figure('name','IOC - MEP Amp Scatter Plot');
-                
-                obj.info.handles.ioc_scatplot=plot(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).trials(1,1),obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).trials(1,4),'o','Color','r','MarkerSize',8,'MarkerFaceColor','r');
-                hold on;
-                xlabel('Stimulation Intensities','FontSize',obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.FontSize);   %TODO: Put if loop of RMT or MSO
-                
-                % Create ylabel
-                ylabel('MEP P2P Amplitude (\muV)','FontSize',obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.FontSize);
-                low=obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.stimuli(1)-10
-                up=obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.stimuli(end)+10
-                temp_str=unique(sort([obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.stimuli obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.stimuli(1)-10 obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.stimuli(end)+10]))
-                
-                xlim([low up]);
-                xticks(temp_str)
-                
-                
-                %                 xticks(temp_str);
-                % Create title
-                % title({'IOC - MEP Amp Scatter Plot'},'FontWeight','bold','FontSize',14,'FontName','Calibri');
-                set(gcf, 'color', 'w')
-            end
-            % figure(obj.info.handles.ioc_scatplot_fig);
-            if (obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.trial>1)
-                set(obj.info.handles.ioc_scatplot,'Color',[0.45 0.45 0.45],'MarkerSize',8,'MarkerFaceColor',[0.45 0.45 0.45])
-            end
-            obj.info.handles.ioc_scatplot=plot(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).trials(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.trial_plotted,1),obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).trials(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.trial_plotted,4),'o','MarkerSize',8,'Color','r','MarkerFaceColor','r');
-            
-            hold on;
-            %             set(obj.info.handles.ioc_scatplot,'XData',obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).trials(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.trial_plotted,1),'YData',obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).trials(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.trial_plotted,4));
-            %             hold on;
-            uistack(obj.info.handles.ioc_scatplot,'top')
-        end
-        function best_wait(obj,varargin)
-            tic;
-            disp('entered')
-            while(obj.inputs.NN>0)
-                obj.inputs.NN=obj.inputs.NN+1
-                if(toc>=varargin{1})
-                    break
-                end
-                
-                if(obj.inputs.stop_event==1)
-                    disp('entered stoppped')
-                    
-                    obj.inputs.stop_event=0;
-                    break
-                end
-            end
-            return
-            disp('returned')
-            % reuturn, type return here as it would take this entire function out of the entire
-            % execution mode and thats how it becomes the auto wait func
-        end
-        function best_posthoc_mep_plot(obj)
-            axes(obj.info.axes.mep)
-            set(obj.info.axes.mep,'FontSize',obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.FontSize)
-            
-            
-            obj.info.handles.current_mep_plot_ph=plot(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.timevector,obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).rawdata(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.trial_plotted,obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.sc_plot_first+1:obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.sc_plot_last),'Color',[1 0 0],'LineWidth',2);
-            hold on;
-            obj.info.handles.past_mep_plot_ph=plot(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.timevector,obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).rawdata(:,obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.sc_plot_first+1:obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.sc_plot_last),'Color',[0.75 0.75 0.75]);
-            hold on;
-            obj.info.handles.mean_mep_plot_ph=plot(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.timevector,mean(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).rawdata(:,obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.sc_plot_first+1:obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.sc_plot_last)),'color',[0,0,0],'LineWidth',1.5);
-            
-            str_plottedTrials=['Current Trial/Total Trials: ',num2str(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.trial_plotted),'/',num2str(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.total_trials)];
-            
-            obj.info.str_amp1='MEP Amp (mv) (Latest | Avg): ';
-            
-            ylim([obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.ylim_min obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.ylim_max])
-            xlim([obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.timevector(1), obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.timevector(end)]);
-            
-            mat1=obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.prestim_scope_plt*(-1):10:obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.poststim_scope_plt
-            
-            
-            mat2=[0 obj.inputs.mep_onset*1000 obj.inputs.mep_offset*1000 obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.timevector(end)]
-            mat=unique(sort([mat1 mat2]))
-            %                 mat=unique(mat)
-            xticks(mat);
-            try
-                if(obj.info.event.mep_plot_ph==1)
-                    obj.info.event.mep_plot_ph=0;
-                    obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.handle_gridxy_mt_lines=gridxy([],[-obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.motor_threshold*1000 obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.motor_threshold*1000],'Color',[0.45 0.45 0.45],'linewidth',1,'LineStyle','--') ;
-                end
-            catch
-            end
-            obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.handle_gridxy=gridxy([0 (obj.inputs.mep_onset*1000):0.25:(obj.inputs.mep_offset*1000)],'Color',[219/255 246/255 255/255],'linewidth',1) ;
-            
-            y_ticks_mep=linspace(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.ylim_min,obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.ylim_max,5)
-            yticks(y_ticks_mep);
-            xlabel('Time (ms)','FontSize',obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.FontSize,'FontName','Arial');
-            % Create ylabel
-            ylabel('EMG Potential (\mu V)','FontSize',obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.FontSize,'FontName','Arial');
-            
-            obj.info.handles.annotated_trialsNo=text(0, obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.ylim_max+((obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.ylim_max)*(0.10)),str_plottedTrials,'FontSize',obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.FontSize);
-            
-            
-            mat1=obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.prestim_scope_plt*(-1):10:obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.poststim_scope_plt;
-            mat2=[0 obj.inputs.mep_onset*1000 obj.inputs.mep_offset*1000 obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.timevector(end)];
-            mat=unique(sort([mat1 mat2]));
-            mat=unique(mat);
-            xticks(mat);
-            
-            obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.handle_gridxy=gridxy([0 (obj.inputs.mep_onset*1000):0.25:(obj.inputs.mep_offset*1000)],'Color',[219/255 246/255 255/255],'linewidth',1) ;
-            
-            obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.update_event=0;
-            
-            n1=obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.trial;
-            % %
-            % n3=obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.reset_pressed_counter;
-            %  error
-            n3=5;
-            str_amp2=num2str(  ((obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).trials(n1,4))/1000));
-            if(n1>n3)
-                str_amp4=num2str(((mean  (obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).trials(n1-n3:n1,4)))/1000));
-            else
-                str_amp4=num2str(((mean  (obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).trials(n1-(n3-3):n1,4)))/1000));
-                
-            end
-            str_amp_final=[obj.info.str_amp1 str_amp2 ' | ' str_amp4];
-            obj.info.handles.annotated_mep=text(0, obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.ylim_max+(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.ylim_max*(0.05)),str_amp_final,'FontSize',obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.FontSize);
-            
-            
-            
-            
-            
-            obj.info.handles.past_mep_plot_ph=plot(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.timevector,obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).rawdata(:,obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.sc_plot_first+1:obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.sc_plot_last),'Color',[0.75 0.75 0.75]);
-            hold on;
-            obj.info.handles.mean_mep_plot_ph=plot(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.timevector,mean(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).rawdata(:,obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.sc_plot_first+1:obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.sc_plot_last)),'color',[0,0,0],'LineWidth',1.5);
-            hold on;
-            obj.info.handles.current_mep_plot_ph=plot(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.timevector,obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).rawdata(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.trial_plotted,obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.sc_plot_first+1:obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).info.sc_plot_last),'Color',[1 0 0],'LineWidth',2);
-            
-        end
-        function best_posthoc_mt_plot(obj)
-            axes(obj.info.axes.mt)
-            set(obj.info.axes.mt,'FontSize',obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.FontSize);
-            obj.info.handles.mt_plot=plot(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).trials(:,1),'LineWidth',2);
-            xlabel('Trial Number','FontSize',obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.FontSize);   %TODO: Put if loop of RMT or MSO
-            ylabel('Stimulation Intensities (%MSO)','FontSize',obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.FontSize);
-            yticks(0:1:400);
-            % x & y ticks and labels
-            % will have to be referneced with GUI
-            xticks(1:2:100);    % will have to be referneced with GUI
-            set(gcf, 'color', 'w')
-        end
-        function best_posthoc_ioc_scatplot(obj)
-            axes(obj.info.axes.ioc_first)
-            set(obj.info.axes.ioc_first,'FontSize',obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.FontSize)
-            obj.info.handles.ioc_scatplot=plot(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).trials(1:end-1,1),obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).trials(1:end-1,4),'o','MarkerSize',8,'Color',[0.45 0.45 0.45],'MarkerFaceColor',[0.45 0.45 0.45]);
-            hold on;
-            obj.info.handles.ioc_scatplot=plot(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).trials(end,1),obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).trials(end,4),'o','MarkerSize',8,'Color','r','MarkerFaceColor','r');
-            hold on;
-            set(gcf, 'color', 'w')
-            xlabel('Stimulation Intensities','FontSize',obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.FontSize);   %TODO: Put if loop of RMT or MSO
-            ylabel('MEP P2P Amplitude (\muV)','FontSize',obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.FontSize);
-            low=obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.stimuli(1)-10
-            up=obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.stimuli(end)+10
-            temp_str=unique(sort([obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.stimuli obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.stimuli(1)-10 obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.stimuli(end)+10]));
-            xlim([low up]);
-            xticks(temp_str)
-            
-        end
-        function best_mep_posthoc(obj)
-            figHandle = findobj('Tag','umi1');
-            panelhandle=findobj(figHandle,'Type','axes');
-            obj.info.axes.mep=findobj( panelhandle,'Type','axes','Tag','mep');
-            obj.best_posthoc_mep_plot;
-            obj.info.axes.mep
-        end
-        function best_mt_posthoc(obj)
-            figHandle = findobj('Tag','umi1');
-            panelhandle=findobj(figHandle,'Type','axes');
-            obj.info.axes.mep=findobj( panelhandle,'Type','axes','Tag','mep');
-            obj.info.axes.mt=findobj( panelhandle,'Type','axes','Tag','rmt');
-            obj.info.event.mep_plot_ph=1;
-            obj.best_posthoc_mep_plot;
-            obj.best_posthoc_mt_plot;
-            axes(obj.info.axes.mt);
-            str_mt1='Motor Threshold (%MSO): ';
-            str_mt2=num2str(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).results.mt);
-            str_mt=[str_mt1 str_mt2];
-            y_lim=max(ylim)+1;
-            x_lim=mean(xlim)-3;
-            obj.info.handles.annotated_trialsNo=text(x_lim, y_lim,str_mt,'FontSize',obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs.FontSize);
-            
-            
-        end
-        function best_hotspot_posthoc(obj)
-            figHandle = findobj('Tag','umi1');
-            panelhandle=findobj(figHandle,'Type','axes');
-            obj.info.axes.mep=findobj( panelhandle,'Type','axes','Tag','mep');
-            obj.best_posthoc_mep_plot;
-        end
-        function best_ioc_posthoc(obj)
-            figHandle = findobj('Tag','umi1');
-            panelhandle=findobj(figHandle,'Type','axes');
-            obj.info.axes.mep=findobj( panelhandle,'Type','axes','Tag','mep');
-            obj.info.axes.ioc_first=findobj( panelhandle,'Type','axes','Tag','ioc');
-            obj.info.axes.ioc_second=findobj( panelhandle,'Type','axes','Tag','ioc_fit');
-            
-            obj.best_posthoc_mep_plot;
-            obj.best_posthoc_ioc_scatplot;
-            obj.best_ioc_fit;
-            obj.best_ioc_plot;
-            
-            
-        end
-        function best_eegtms(obj)
-            obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).inputs=obj.inputs;
-            obj.best_trialprep_eegtms;
-            obj.best_stimloop_eegtms;
-        end
-        %% new functions
-        function best_boot_inputdevice(obj)
-            %input device marker for boss box=1
-            %input device marker for fieldtrip buffer=2
-            %it is assumed that there will always be one input device
-            obj.bossbox=[];
-            obj.ftbuffer=[];
-            if(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).trials(:,2)==1)
-                obj.bossbox=dbsp('10.10.10.1');
-                %add the reference of a particularly attached neurone
-                %protofol file here in the lower line
-                % ask about the reference channel in neurone input channel
-                % box
-                clab = neurone_digitalout_clab_from_xml(xmlread(obj.inputs.neurone_protocol));
-                clab = clab(1:64); % remove EMG channels
-                clab{65} = 'FCz';
-                obj.bossbox.spatial_filter_clab = clab;
-                obj.bossbox.sample_and_hold_period=0;
-            elseif(obj.sessions.(obj.inputs.current_session).(obj.inputs.current_measurement).trials(:,2)==2)
-            end
-            
-        end
-        function boot_bb(obj)
-            obj.bossbox=dbsp2('10.10.10.1');
-            
-            
-        end
-        %% Result Oriented Functions
-        function drc_bs2 (obj)
-            for tt=1:obj.inputs.totalTrials
-                tic
-                obj.trigTrial;
-                obj.readTrial;
-                plotTrial_bs2;
-                tic
-                obj.saveRuntime;
-                toc
-                pause(1)
-                obj.prepTrial;
-                wait_period=obj.inputs.trialMat{obj.inputs.trial-1,obj.inputs.colLabel.iti}-toc;
-                wait_idx=3*floor(wait_period);
-                for wait_id=1:wait_idx
-                    pause(wait_period/wait_idx)
-                    if(obj.inputs.stop_event==1)
-                        break;
-                    end
-                end
-                if(obj.inputs.stop_event==1)
-                    disp('returned after the execution')
-                    obj.inputs.stop_event=0;
-                    break;
-                end
-                disp('................................................');
-            end
-            function plotTrial_bs2
-            for i=1:numel(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab})
-                disp entered--------------------------------------------------------====================
-                
-                obj.inputs.chLab_idx=i;
-                (obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.measures}{1,i})
-                switch (obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.measures}{1,i})
-                    case 'MEP_Measurement'
-                        mep_plot_bs2;
-                    case 'Threshold Trace'
-                        switch obj.inputs.ThresholdMethod
-                            case 1
-                                obj.mep_threshold;
-                            case 2
-                                obj.mep_threshold_MLE;
-                        end
-                        obj.mep_threshold_trace_plot;
-                    case 'IOC'
-                    case 'Motor Hotspot Search'
-                    case 'MEP Scatter Plot'
-                        obj.mep_scat_plot;
-                    case 'MEP IOC Fit'
-                        obj.ioc_fit_plot;
-                    case 'PhaseHistogram'
-                        obj.PlotPhaseHistogram;
-                    case 'TriggerLockedEEG'
-                        obj.PlotTriggerLockedEEG;
-                    case 'Psychometric Threshold Trace'
-                        switch obj.inputs.ThresholdMethod
-                            case 1
-                                obj.psych_threshold;
-                            case 2
-                                obj.psych_threshold_MLE;
-                        end
-                        obj.psych_threshold_trace_plot;
-                    case 'TEP Measurement Vertical Plot'
-                        obj.TEPMeasurementVerticalPlot;
-                    case 'TEP Measurement Single Plot'
-%                         obj.TEPMeasurementSinglePlot;
-                        obj.ERPTriggerLockedEEG;
-                    case 'TEP Measurement Topo Plot'
-                        obj.TEPMeasurementTopoPlot;
-                    case 'TEP Measurement Multi Plot'
-                        obj.TEPMeasurementMultiPlot;
-                    case 'StatusTable'
-                        obj.StatusTable;
-                end
-                AxesNum=obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.axesno}{1,obj.inputs.chLab_idx};
-                AxesField=['ax' num2str(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.axesno}{1,obj.inputs.chLab_idx})];
-                CopiedAxes=copy(obj.app.pr.ax.(AxesField));
-                CopiedAxes.Parent=[]; pause(0.1)
-                obj.inputs.Figures{AxesNum}=CopiedAxes;
-            end
-            end
-            function mep_plot_bs2
-                ax=['ax' num2str(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.axesno}{1,obj.inputs.chLab_idx})];
-            axes(obj.app.pr.ax.(ax)), hold on,
-            ThisChannelName=obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx};
-            %% Preparing Condition wrt to Dose Function
-            switch obj.inputs.DoseFunction
-                case {1,2,3}
-                    cd=['cd' num2str(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.stimcdMrk})];
-                case 4
-                    cd=['cd' num2str(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.iti})];
-                otherwise
-                    error('BEST Toolbox: MEP Plot Function does not any have Dose Function to decide about plot condition.')
-            end
-            if ~(isfield(obj.inputs.Handles,cd))
-                switch obj.inputs.DoseFunction
-                    case 1 %TS
-                        DisplayName=['TS:' num2str(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,1}{1,1})];
-                        obj.app.pr.ax.(ax).UserData.ColorsIndex=obj.app.pr.ax.(ax).UserData.ColorsIndex+1;
-                    case 2 %CS
-                        if obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,1}{1,2}~=0
-                            DisplayName=['CS:' num2str(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,1}{1,2})];
-                        else
-                            DisplayName=['TS:' num2str(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,1}{1,1})];
-                        end
-                        obj.app.pr.ax.(ax).UserData.ColorsIndex=obj.app.pr.ax.(ax).UserData.ColorsIndex+1;
-                    case 3 %ISI
-                        if obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,1}{1,3}~=0
-                            DisplayName=['ISI:' num2str(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,1}{1,3})];
-                        else
-                            DisplayName=['TS:' num2str(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,1}{1,1})];
-                        end
-                        obj.app.pr.ax.(ax).UserData.ColorsIndex=obj.app.pr.ax.(ax).UserData.ColorsIndex+1;
-                    case 4 %ITI
-                        DisplayName=['ITI:' num2str(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.iti})];
-                        obj.app.pr.ax.(ax).UserData.ColorsIndex=obj.app.pr.ax.(ax).UserData.ColorsIndex+1;
-                end
-            end
-            %% Plot Latest Trial
-            if ~(isfield(obj.inputs.Handles,'LatestMEP'))
-                obj.inputs.Handles.LatestMEP=plot(obj.inputs.timeVect,obj.inputs.rawData.(ThisChannelName).data(obj.inputs.trial,:),'LineStyle','-.','Color','k','LineWidth',1.5,'DisplayName','Latest','Parent',obj.app.pr.ax.(ax));
-                legend('Location','southoutside','Orientation','horizontal'); hold on;
-            else
-                obj.inputs.Handles.LatestMEP.YData=obj.inputs.rawData.(ThisChannelName).data(obj.inputs.trial,:);
-                drawnow;
-            end
-            %% Plot Mean respectively prepared condition
-            if ~(isfield(obj.inputs.Handles,cd))
-                obj.inputs.Handles.(cd)=plot(obj.inputs.timeVect,obj.inputs.rawData.(ThisChannelName).data(obj.inputs.trial,:),'Color',obj.app.pr.ax.(ax).UserData.Colors(obj.app.pr.ax.(ax).UserData.ColorsIndex,:),'LineWidth',2,'DisplayName',DisplayName,'Parent',obj.app.pr.ax.(ax));
-                obj.inputs.Handles.(cd).UserData(1,1)=obj.inputs.trial;
-                legend('Location','southoutside','Orientation','horizontal'); hold on;
-                
-            else
-                obj.inputs.Handles.(cd).UserData(1,1+numel(obj.inputs.Handles.(cd).UserData))=obj.inputs.trial;
-                obj.inputs.Handles.(cd).YData=mean(obj.inputs.rawData.(ThisChannelName).data(obj.inputs.Handles.(cd).UserData,:));
-                drawnow;
-            end
-            %% Plotting Zero and Search Window GirdLine on 1st Trial only
-            if obj.inputs.trial==1
-                ZeroLine=gridxy([0 (obj.inputs.mep_onset):0.25:(obj.inputs.mep_offset)],'Color',[219/255 246/255 255/255],'linewidth',4,'Parent',obj.app.pr.ax.(ax)) ;
-                ZeroLine.Annotation.LegendInformation.IconDisplayStyle = 'off';
-                xlim([obj.inputs.EMGXLimit(1), obj.inputs.EMGXLimit(2)]);
-                mat1=obj.inputs.prestim_scope_plt*(-1):20:obj.inputs.poststim_scope_plt;
-                mat2=[0 obj.inputs.mep_onset*1000 obj.inputs.mep_offset*1000 obj.inputs.timeVect(end)];
-                mat=unique(sort([mat1 mat2]));
-                xticks(mat);
-                xlabel('Time (ms)');
-                ylim([obj.inputs.ylimMin obj.inputs.ylimMax]);
-                mat3=linspace(obj.inputs.ylimMin,obj.inputs.ylimMax,5);
-                mat4=unique(sort([0 mat3]));
-                yticks(mat4);
-                ylabel('EMG Potential (\mu V)');
-            end
-            %% Trigger MEPP2P Amplitude Calculation
-            obj.mep_amp;
-            uistack(obj.inputs.Handles.LatestMEP,'top')
-            end
-            function scat_plot_bs2
-               
-            ax=['ax' num2str(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.axesno}{1,obj.inputs.chLab_idx})];
-            axes(obj.app.pr.ax.(ax)), hold on, ylim auto
-            if  numel(obj.inputs.ResponseFunctionNumerator) ==1 && numel(obj.inputs.ResponseFunctionDenominator) ==1 && any(obj.inputs.ResponseFunctionNumerator==obj.inputs.ResponseFunctionDenominator)
-                %% Preparing xvalue on the basis of Dose Function
-                switch obj.inputs.DoseFunction
-                    case 1 % TS
-                        xvalue=obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,1}{1,1};
-                        if obj.inputs.trial==1
-                            xlabelstring='TS Intensity';
-                            ylabelstring='MEP P2P Amplitude (\muV)';
-                            si(1,1)=0;
-                            for iSI=1:obj.inputs.totalTrials %Previously this was so, now changed1:numel([obj.inputs.trialMat{:,obj.inputs.colLabel.si}]')
-                                si(iSI,1)=obj.inputs.trialMat{iSI,obj.inputs.colLabel.si}{1,1}{1,1};
-                            end
-                            si=unique(si,'stable');
-                            xlimvector=[min(si)-(min(si)*.10) max(si)+(max(si)*.10)];
-                            xtickvector=unique(sort([si']));
-                        end
-                    case 2 % CS
-                        xvalue=obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,1}{1,2};
-                        if obj.inputs.trial==1
-                            xlabelstring='CS Intensity';
-                            ylabelstring='MEP P2P Amplitude (\muV)';
-                            si(1,1)=0;
-                            for iSI=1:numel([obj.inputs.trialMat{:,obj.inputs.colLabel.si}]')
-                                si(iSI,1)=obj.inputs.trialMat{iSI,obj.inputs.colLabel.si}{1,1}{1,2};
-                            end
-                            si=unique(si,'stable');
-                            xlimvector=[min(si)-(min(si)*10) max(si)+(max(si)*10)];
-                            xtickvector=unique(sort([si']));
-                        end
-                    case 3 % ISI
-                        xvalue=obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,1}{1,3};
-                        if obj.inputs.trial==1
-                            xlabelstring='ISI (ms)';
-                            ylabelstring='MEP P2P Amplitude (\muV)';
-                            si(1,1)=0;
-                            for iSI=1:numel([obj.inputs.trialMat{:,obj.inputs.colLabel.si}]')
-                                si(iSI,1)=obj.inputs.trialMat{iSI,obj.inputs.colLabel.si}{1,1}{1,3};
-                            end
-                            si=unique(si,'stable');
-                            xlimvector=[min(si)-(min(si)*.10) max(si)+(max(si)*.10)];
-                            xtickvector=unique(sort([si']));
-                        end
-                    case 4 % ITI
-                        xvalue=obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.iti};
-                        if obj.inputs.trial==1
-                            xlabelstring='ITI (ms)';
-                            ylabelstring='MEP P2P Amplitude (\muV)';
-                            si(1,1)=0;
-                            for iSI=1:numel([obj.inputs.trialMat{:,obj.inputs.colLabel.iti}]')
-                                si(iSI,1)=obj.inputs.trialMat{iSI,obj.inputs.colLabel.iti};
-                            end
-                            si=unique(si,'stable');
-                            xlimvector=[min(si)-(min(si)*.10) max(si)+(max(si)*.10)];
-                            xtickvector=unique(sort([si']));
-                        end
-                end
-                %% Preparing yvalue
-                yvalue=obj.inputs.results.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).MEPAmplitude(obj.inputs.trial,1);
-                %% Plotting
-                switch obj.inputs.trial
-                    case 1
-                        obj.info.plt.(ax).ioc_scatplot=plot(xvalue,yvalue,'o','Color','r','MarkerSize',8,'MarkerFaceColor','r');
-                        hold on;
-                        xlabel(xlabelstring); ylabel(ylabelstring); xlim(xlimvector); xticks(xtickvector);
-                    otherwise
-                        set(obj.info.plt.(ax).ioc_scatplot,'Color',[0.45 0.45 0.45],'MarkerSize',8,'MarkerFaceColor',[0.45 0.45 0.45])
-                end
-                obj.info.plt.(ax).ioc_scatplot=plot(xvalue,yvalue,'o','MarkerSize',8,'Color','r','MarkerFaceColor','r'); hold on; uistack(obj.info.plt.(ax).ioc_scatplot,'top')
-            elseif numel(obj.inputs.ResponseFunctionNumerator)>1
-                %% Preparing xvalue on the basis of Dose Function
-                switch obj.inputs.DoseFunction
-                    case 1 % TS
-                        xvalue=nonzeros(obj.inputs.results.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).MEPAmplitudeRatios(:,2));
-                        if obj.inputs.trial==1
-                            xlabelstring='TS Intensity';
-                            ylabelstring='MEP Amp. ( \muV )';
-                            xlimvalue=vertcat(obj.inputs.trialMat{:,obj.inputs.colLabel.si});
-                            xlimvalue=vertcat(xlimvalue{:}); xlimvalue=cell2mat(xlimvalue); xlimvalue=xlimvalue(:,1);
-                            stimcdMrkvalue=vertcat(obj.inputs.trialMat{:,obj.inputs.colLabel.stimcdMrk});
-                            for iDenominators=1:numel(obj.inputs.ResponseFunctionDenominator)
-                                indextodelete=find(stimcdMrkvalue==obj.inputs.ResponseFunctionDenominator(iDenominators));
-                                xlimvalue(indextodelete)=0;
-                            end
-                            xlimvalue=nonzeros(xlimvalue);
-                            xlimvalue=unique(xlimvalue,'stable');
-                            xlimvector=[min(xlimvalue)-(min(xlimvalue)*.10) max(xlimvalue)+(max(xlimvalue)*.10)];
-                            xtickvector=unique(sort([xlimvalue']));
-                        end
-                    case 2 % CS
-                        xvalue=nonzeros(obj.inputs.results.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).MEPAmplitudeRatios(:,3));
-                        if obj.inputs.trial==1
-                            xlabelstring='CS Intensity';
-                            ylabelstring='MEP Amp. ( \muV )';
-                            xlimvalue=vertcat(obj.inputs.trialMat{:,obj.inputs.colLabel.si});
-                            xlimvalue=vertcat(xlimvalue{:}); xlimvalue=cell2mat(xlimvalue); xlimvalue=xlimvalue(:,2);
-                            stimcdMrkvalue=vertcat(obj.inputs.trialMat{:,obj.inputs.colLabel.stimcdMrk});
-                            for iDenominators=1:numel(obj.inputs.ResponseFunctionDenominator)
-                                indextodelete=find(stimcdMrkvalue==obj.inputs.ResponseFunctionDenominator(iDenominators));
-                                xlimvalue(indextodelete)=0;
-                            end
-                            xlimvalue=nonzeros(xlimvalue);
-                            xlimvalue=unique(xlimvalue,'stable');
-                            xlimvector=[min(xlimvalue)-(min(xlimvalue)*.10) max(xlimvalue)+(max(xlimvalue)*.10)];
-                            xtickvector=unique(sort([xlimvalue']));
-                        end
-                    case 3 % ISI
-                        xvalue=nonzeros(obj.inputs.results.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).MEPAmplitudeRatios(:,4));
-                        if obj.inputs.trial==1
-                            xlabelstring='ISI (ms)';
-                            ylabelstring='MEP Amp. (\muV )';
-                            xlimvalue=vertcat(obj.inputs.trialMat{:,obj.inputs.colLabel.si});
-                            xlimvalue=vertcat(xlimvalue{:}); xlimvalue=cell2mat(xlimvalue); xlimvalue=xlimvalue(:,3);
-                            stimcdMrkvalue=vertcat(obj.inputs.trialMat{:,obj.inputs.colLabel.stimcdMrk});
-                            for iDenominators=1:numel(obj.inputs.ResponseFunctionDenominator)
-                                indextodelete=find(stimcdMrkvalue==obj.inputs.ResponseFunctionDenominator(iDenominators));
-                                xlimvalue(indextodelete)=0;
-                            end
-                            xlimvalue=nonzeros(xlimvalue);
-                            xlimvalue=unique(xlimvalue,'stable');
-                            xlimvector=[min(xlimvalue)-(min(xlimvalue)*.10) max(xlimvalue)+(max(xlimvalue)*.10)];
-                            xtickvector=unique(sort([xlimvalue']));
-                        end
-                    case 4 % ITI
-                        xvalue=nonzeros(obj.inputs.results.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).MEPAmplitudeRatios(:,5));
-                        if obj.inputs.trial==1
-                            xlabelstring='ITI (ms)';
-                            ylabelstring='MEP Amp. ( \muV )';
-                            xlimvalue=vertcat(obj.inputs.trialMat{:,obj.inputs.colLabel.iti});
-                            stimcdMrkvalue=vertcat(obj.inputs.trialMat{:,obj.inputs.colLabel.stimcdMrk});
-                            for iDenominators=1:numel(obj.inputs.ResponseFunctionDenominator)
-                                indextodelete=find(stimcdMrkvalue==obj.inputs.ResponseFunctionDenominator(iDenominators));
-                                xlimvalue(indextodelete)=0;
-                            end
-                            xlimvalue=nonzeros(xlimvalue);
-                            xlimvalue=unique(xlimvalue,'stable');
-                            xlimvector=[min(xlimvalue)-(min(xlimvalue)*.10) max(xlimvalue)+(max(xlimvalue)*.10)];
-                            xtickvector=unique(sort([xlimvalue']));
-                        end
-                end
-                %% Preparing yvalue
-                yvalue=nonzeros(obj.inputs.results.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).MEPAmplitudeRatios(:,1));
-                %% Plotting
-                %                 if obj.inputs.trial==1
-                %                     obj.info.plt.(ax).ioc_scatplot=plot(xvalue,yvalue,'o','Color',[0.45 0.45 0.45],'MarkerSize',8,'MarkerFaceColor',[0.45 0.45 0.45]);
-                %                     xlabel(xlabelstring); ylabel(ylabelstring); xlim(xlimvector); xticks(xtickvector); hold on;
-                %                 else
-                %                     obj.info.plt.(ax).ioc_scatplot=plot(xvalue(end),yvalue(end),'o','Color',[0.45 0.45 0.45],'MarkerSize',8,'MarkerFaceColor',[0.45 0.45 0.45]);
-                %                     obj.info.plt.(ax).ioc_scatplot.XData=xvalue; obj.info.plt.(ax).ioc_scatplot.YData=yvalue;
-                %                 end
-                switch obj.inputs.trial
-                    case 1
-                        obj.info.plt.(ax).ioc_scatplot=plot(xvalue,yvalue,'o','Color','r','MarkerSize',8,'MarkerFaceColor','r'); hold on;
-                        xlabel(xlabelstring); ylabel(ylabelstring); xlim(xlimvector); xticks(xtickvector);
-                    otherwise
-                        set(obj.info.plt.(ax).ioc_scatplot,'Color',[0.45 0.45 0.45],'MarkerSize',8,'MarkerFaceColor',[0.45 0.45 0.45])
-                end
-                obj.info.plt.(ax).ioc_scatplot=plot(xvalue(end),yvalue(end),'o','MarkerSize',8,'Color','r','MarkerFaceColor','r'); hold on; uistack(obj.info.plt.(ax).ioc_scatplot,'top')
-            end
-        
-            end
-        end
-        
-        
     end
 end
