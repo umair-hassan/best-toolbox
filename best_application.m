@@ -163,7 +163,7 @@ classdef best_application < handle
             % drop-down select measure: fourth horizontal row on first panel
             pmd_hbox_slct_mes = uix.HBox( 'Parent', pmd_vbox, 'Spacing', 5, 'Padding', 5  );
             uicontrol( 'Style','text','Parent', pmd_hbox_slct_mes,'String','Select Protocol:','FontSize',11,'HorizontalAlignment','left' ,'Units','normalized');
-            obj.pmd.select_measure.string={'MEP Hotspot Search','MEP Motor Threshold Hunting','MEP Dose Response Curve','MEP Measurement','rsEEG Measurement','Sensory Threshold Hunting','rTMS Intervention','TEP Hotspot Search','TEP Measurement','ERP Measurement','TMS fMRI'};
+            obj.pmd.select_measure.string={'MEP Hotspot Search','MEP Motor Threshold Hunting','MEP Dose Response Curve','MEP Measurement','rsEEG Measurement','Sensory Threshold Hunting','rTMS Intervention','TEP Hotspot Search','TEP Measurement','ERP Measurement','TMS fMRI','Custom Protocol'};
             obj.pmd.select_measure.popupmenu=uicontrol( 'Style','popupmenu','Parent', pmd_hbox_slct_mes ,'FontSize',11,'String',obj.pmd.select_measure.string);
             obj.pmd.select_measure.btn=uicontrol( 'Parent', pmd_hbox_slct_mes ,'Style','PushButton','String','+','FontWeight','Bold','Callback',@(~,~)obj.cb_measure_add);
             set( pmd_hbox_slct_mes, 'Widths', [120 -0.7 -0.09]);
@@ -310,8 +310,8 @@ classdef best_application < handle
                     obj.pmd.ProtocolStatus.listbox.String(obj.pmd.ProtocolStatus.listbox.Value)={'Successful'};
                 end
             catch e
-%                 if isempty(obj.info.ErrorMessage), obj.info.ErrorMessage='This Protcol has been stopped due to an error. Check your input parameters and MATLAB command line.'; end
-%                 errordlg(obj.info.ErrorMessage,'BEST Toolbox');
+                %                 if isempty(obj.info.ErrorMessage), obj.info.ErrorMessage='This Protcol has been stopped due to an error. Check your input parameters and MATLAB command line.'; end
+                %                 errordlg(obj.info.ErrorMessage,'BEST Toolbox');
                 fprintf(1,'The identifier was:\n%s',e.identifier);
                 fprintf(1,'\nThere was an error! The message was:\n%s',e.message);
                 obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).ProtocolStatus={'Error'};
@@ -2039,7 +2039,7 @@ classdef best_application < handle
                 switch obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).BrainState
                     case 1
                         expModvBox=uix.VBox( 'Parent', DisplayParametersPanel, 'Spacing', 0, 'Padding', 0  );
-
+                        
                         
                         expModr2=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
                         uicontrol( 'Style','text','Parent', expModr2,'String','EMG Display Channels:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
@@ -2064,7 +2064,7 @@ classdef best_application < handle
                         expModvBox.Heights=[ 45 45 45 45];
                     case 2
                         expModvBox=uix.VBox( 'Parent', DisplayParametersPanel, 'Spacing', 0, 'Padding', 0  );
-                       
+                        
                         
                         expModr2=uiextras.HBox( 'Parent', expModvBox,'Spacing',  0, 'Padding', 2 );
                         uicontrol( 'Style','text','Parent', expModr2,'String','EMG Display Channels:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
@@ -2227,7 +2227,7 @@ classdef best_application < handle
                 obj.info.defaults.condsAll.(cond).st1.si=si(idefaults);
                 obj.info.defaults.condsAll.(cond).st1.si_units=1;
                 obj.info.defaults.condsAll.(cond).st1.threshold='';
-                obj.info.defaults.condsAll.(cond).st1.si_pckt={si(idefaults),[],[],[],[],[],[],[]}; % [TS PairedCS ISI TS_intendendunits CS_intendedunits ISIintendentunits TrainFreq NoOfPulses] 
+                obj.info.defaults.condsAll.(cond).st1.si_pckt={si(idefaults),[],[],[],[],[],[],[]}; % [TS PairedCS ISI TS_intendendunits CS_intendedunits ISIintendentunits TrainFreq NoOfPulses]
                 obj.info.defaults.condsAll.(cond).st1.IntensityUnit='%MSO';
                 obj.info.defaults.condsAll.(cond).st1.IntensityUnitValue=NaN;
                 obj.info.defaults.condsAll.(cond).st1.IntensityUnitValueUnit=NaN;
@@ -2384,7 +2384,7 @@ classdef best_application < handle
                         uicontrol( 'Style','text','Parent', mep_panel_row2z,'String','Amp Assignment Period(s):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
                         obj.pi.drc.AmplitudeAssignmentPeriod=uicontrol( 'Style','edit','Parent', mep_panel_row2z ,'FontSize',11,'Tag','AmplitudeAssignmentPeriod','Callback',@cb_par_saving);
                         set( mep_panel_row2z, 'Widths', [200 -2]);
-
+                        
                         expModvBox.Heights=[-1 -1 -1 -1 -1 -1 -1 -1 -1];%[30 35 35 35 35 35 35 35 42 35];
                 end
                 
@@ -2605,7 +2605,7 @@ classdef best_application < handle
                 obj.info.defaults.condsAll.(cond).st1.si=si(idefaults);
                 obj.info.defaults.condsAll.(cond).st1.si_units=1;
                 obj.info.defaults.condsAll.(cond).st1.threshold='';
-                obj.info.defaults.condsAll.(cond).st1.si_pckt={si(idefaults),[],[],[],[],[],[],[]}; % [TS PairedCS ISI TS_intendendunits CS_intendedunits ISIintendentunits TrainFreq NoOfPulses] 
+                obj.info.defaults.condsAll.(cond).st1.si_pckt={si(idefaults),[],[],[],[],[],[],[]}; % [TS PairedCS ISI TS_intendendunits CS_intendedunits ISIintendentunits TrainFreq NoOfPulses]
                 obj.info.defaults.condsAll.(cond).st1.IntensityUnit='%MSO';
                 obj.info.defaults.condsAll.(cond).st1.IntensityUnitValue=NaN;
                 obj.info.defaults.condsAll.(cond).st1.IntensityUnitValueUnit=NaN;
@@ -2775,7 +2775,7 @@ classdef best_application < handle
                         uicontrol( 'Style','text','Parent', expModr2,'String','Threshold Method:','FontSize',11,'HorizontalAlignment','left','Units','normalized'); % Inter Trial Inteval (s)
                         obj.pi.mth.ThresholdMethod=uicontrol( 'Style','popupmenu','Parent', expModr2 ,'FontSize',11,'Tag','ThresholdMethod','String',{'Adaptive Staircase Estimation', 'Maximum Likelihood Estimation'},'Callback',@cb_par_saving);
                         expModr2.Widths=[150 -2];
-                                                
+                        
                         expModr2=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
                         uicontrol( 'Style','text','Parent', expModr2,'String','EMG Display Channels:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
                         obj.pi.mth.EMGDisplayChannels=uicontrol( 'Style','edit','Parent', expModr2 ,'FontSize',11,'Tag','EMGDisplayChannels','callback',@cb_par_saving);
@@ -2948,7 +2948,9 @@ classdef best_application < handle
             obj.info.defaults.NoOfTrialsToAverage='10';
             obj.info.defaults.MotorThreshold='NaN';
             obj.info.defaults.ThresholdMethod=1;
+            %             obj.info.defaults.ColThresholdLevelUnits='uV';
             obj.info.defaults.ProtocolStatus={'created'};
+            %             obj.info.defaults.condsAll.cond1.ColThresholdLevelUnits='uV';
             si=[30];
             for idefaults=1:numel(si)
                 cond=['cond' num2str(idefaults)];
@@ -2968,7 +2970,7 @@ classdef best_application < handle
                 obj.info.defaults.condsAll.(cond).st1.threshold='';
                 obj.info.defaults.condsAll.(cond).st1.si_pckt={si(idefaults)};
                 obj.info.defaults.condsAll.(cond).st1.threshold_level=0.05;
-                obj.info.defaults.condsAll.(cond).st1.si_pckt={si(idefaults),[],[],[],[],[],[],[]}; % [TS PairedCS ISI TS_intendendunits CS_intendedunits ISIintendentunits TrainFreq NoOfPulses] 
+                obj.info.defaults.condsAll.(cond).st1.si_pckt={si(idefaults),[],[],[],[],[],[],[]}; % [TS PairedCS ISI TS_intendendunits CS_intendedunits ISIintendentunits TrainFreq NoOfPulses]
                 obj.info.defaults.condsAll.(cond).st1.IntensityUnit='%MSO';
                 obj.info.defaults.condsAll.(cond).st1.IntensityUnitValue=NaN;
                 obj.info.defaults.condsAll.(cond).st1.IntensityUnitValueUnit=NaN;
@@ -2980,6 +2982,7 @@ classdef best_application < handle
                 obj.info.defaults.condsAll.(cond).st1.CSUnits='';
                 obj.info.defaults.condsAll.(cond).st1.ISIUnits='';
                 obj.info.defaults.condsAll.(cond).st1.StimulationType='Test';
+                %                 obj.info.defaults.condsAll.(cond).st1.ColThresholdLevelUnits='uV';
             end
             obj.par.(obj.info.event.current_session).(obj.info.event.measure_being_added)=obj.info.defaults;
         end
@@ -3305,7 +3308,7 @@ classdef best_application < handle
                 obj.info.defaults.condsAll.(cond).st1.si_units=1;
                 obj.info.defaults.condsAll.(cond).st1.threshold='';
                 obj.info.defaults.condsAll.(cond).st1.threshold_level=1;
-                obj.info.defaults.condsAll.(cond).st1.si_pckt={si(idefaults),[],[],[],[],[],[],[]}; % [TS PairedCS ISI TS_intendendunits CS_intendedunits ISIintendentunits TrainFreq NoOfPulses] 
+                obj.info.defaults.condsAll.(cond).st1.si_pckt={si(idefaults),[],[],[],[],[],[],[]}; % [TS PairedCS ISI TS_intendendunits CS_intendedunits ISIintendentunits TrainFreq NoOfPulses]
                 obj.info.defaults.condsAll.(cond).st1.IntensityUnit='%MSO';
                 obj.info.defaults.condsAll.(cond).st1.IntensityUnitValue=NaN;
                 obj.info.defaults.condsAll.(cond).st1.IntensityUnitValueUnit=NaN;
@@ -4153,7 +4156,7 @@ classdef best_application < handle
                 obj.info.defaults.condsAll.(cond).st1.si=si(idefaults);
                 obj.info.defaults.condsAll.(cond).st1.si_units=1;
                 obj.info.defaults.condsAll.(cond).st1.threshold='';
-                obj.info.defaults.condsAll.(cond).st1.si_pckt={si(idefaults),[],[],[],[],[],[],[]}; % [TS PairedCS ISI TS_intendendunits CS_intendedunits ISIintendentunits TrainFreq NoOfPulses] 
+                obj.info.defaults.condsAll.(cond).st1.si_pckt={si(idefaults),[],[],[],[],[],[],[]}; % [TS PairedCS ISI TS_intendendunits CS_intendedunits ISIintendentunits TrainFreq NoOfPulses]
                 obj.info.defaults.condsAll.(cond).st1.IntensityUnit='%MSO';
                 obj.info.defaults.condsAll.(cond).st1.IntensityUnitValue=NaN;
                 obj.info.defaults.condsAll.(cond).st1.IntensityUnitValueUnit=NaN;
@@ -4302,7 +4305,7 @@ classdef best_application < handle
                         uicontrol( 'Style','text','Parent', mep_panel_row2z,'String','Protocol Onset(s):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
                         obj.pi.erp.ProtocolOnset=uicontrol( 'Style','edit','Parent', mep_panel_row2z ,'FontSize',11,'Tag','ProtocolOnset','Callback',@cb_par_saving);
                         set( mep_panel_row2z, 'Widths', [150 -2]);
-
+                        
                         expModvBox.Heights=[30 35 35 35 35 35 42 35];
                 end
             end
@@ -4447,7 +4450,7 @@ classdef best_application < handle
                     case 2
                         set(obj.pi.erp.r0v1,'Heights',[40 310 470 0 55])
                 end
-            end            
+            end
             function cb_par_saving(source,~)
                 if strcmp(source.Tag,'InputDevice') || strcmp(source.Tag,'AmplitudeUnits') || strcmp(source.Tag,'FrequencyBand')
                     obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(source.Tag)=source.Value;
@@ -4525,7 +4528,7 @@ classdef best_application < handle
                 obj.info.defaults.condsAll.(cond).st1.si                     = si(idefaults);
                 obj.info.defaults.condsAll.(cond).st1.si_units               = 1;
                 obj.info.defaults.condsAll.(cond).st1.threshold              = '';
-                obj.info.defaults.condsAll.(cond).st1.si_pckt                = {si(idefaults),[],[],[],[],[],[],[]}; % [TS PairedCS ISI TS_intendendunits CS_intendedunits ISIintendentunits TrainFreq NoOfPulses] 
+                obj.info.defaults.condsAll.(cond).st1.si_pckt                = {si(idefaults),[],[],[],[],[],[],[]}; % [TS PairedCS ISI TS_intendendunits CS_intendedunits ISIintendentunits TrainFreq NoOfPulses]
                 obj.info.defaults.condsAll.(cond).st1.IntensityUnit          = '%MSO';
                 obj.info.defaults.condsAll.(cond).st1.IntensityUnitValue     = NaN;
                 obj.info.defaults.condsAll.(cond).st1.IntensityUnitValueUnit = NaN;
@@ -4617,7 +4620,7 @@ classdef best_application < handle
             mep_panel_row12a = uix.HBox( 'Parent', obj.pi.tmsfmri.vb, 'Spacing', 5, 'Padding', 5  );
             uicontrol( 'Style','text','Parent', mep_panel_row12a,'String','Ignore Automated Updating of Stim. Itensity:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
             
-            obj.pi.tmsfmri.manual_stim_inten=uicontrol( 'Style','checkbox','Parent', mep_panel_row12a ,'FontSize',11,'Value',1,'Callback',@(~,~)obj.cb_pi_tmsfmri_manual_stim_inten);
+            obj.pi.tmsfmri.manual_stim_inten=uicontrol( 'Style','checkbox','Parent', mep_panel_row12a ,'FontSize',11,'Value',0,'Callback',@(~,~)obj.cb_pi_tmsfmri_manual_stim_inten);
             
             set( mep_panel_row12a, 'Widths', [-4 -2]);
             
@@ -5054,8 +5057,8 @@ classdef best_application < handle
             end
             BESTData=matfile(FullFileName,'Writable',true);
             BESTData.RawData=NaN(1,1000); %obj.bst.session.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).Data
-%             obj.bst.session.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).Data=[];
-
+            %             obj.bst.session.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).Data=[];
+            
             set(obj.pi.tmsfmri.status,'String','Completed!');
         end % (manual stim intensity if flag end)
         function cb_pi_tmsfmri_manual_stim_inten(obj)
@@ -5140,6 +5143,8 @@ classdef best_application < handle
                 
             end
             obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).units_mt=(obj.pi.tmsfmri.units_mt.Value);
+            obj.cb_CoupleIntensityUnits('cond1','st1');
+            obj.pi.tmsfmri.mt.String='%Coupled';
         end
         function cb_pi_tmsfmri_mt(obj)
             obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).mt=str2num(obj.pi.tmsfmri.mt.String);
@@ -5176,7 +5181,7 @@ classdef best_application < handle
             obj.info.defaults.trials_for_mean_annotation=5;
             obj.info.defaults.reset_pressed=0;
             obj.info.defaults.plot_reset_pressed=0;
-            obj.info.defaults.manual_stim_inten=1;
+            obj.info.defaults.manual_stim_inten=0;
             obj.info.defaults.save_plt=0;
             obj.info.defaults.result_mt=11;
             obj.info.defaults.mt_starting_stim_inten=25;
@@ -5204,6 +5209,36 @@ classdef best_application < handle
             obj.info.defaults.ProtocolStatus={'created'};
             obj.info.defaults.Protocol={'TMS fMRI Protocol'};
             obj.info.defaults.Enable={'on'};
+            si=[30 40 50 60 70 80];
+            for idefaults=1:6
+                cond=['cond' num2str(idefaults)];
+                obj.info.defaults.condsAll.(cond).targetChannel=cellstr('NaN');
+                obj.info.defaults.condsAll.(cond).TrialsPerCondition=50;
+                obj.info.defaults.condsAll.(cond).ITI=[3 4];
+                obj.info.defaults.condsAll.(cond).Phase='Peak';
+                obj.info.defaults.condsAll.(cond).AmplitudeThreshold='0 1e6';
+                obj.info.defaults.condsAll.(cond).AmplitudeUnits='Absolute (micro volts)';
+                obj.info.defaults.condsAll.(cond).st1.pulse_count=1;
+                obj.info.defaults.condsAll.(cond).st1.stim_device={''};
+                obj.info.defaults.condsAll.(cond).st1.stim_mode='single_pulse';
+                obj.info.defaults.condsAll.(cond).st1.stim_timing=num2cell(0);
+                obj.info.defaults.condsAll.(cond).st1.stim_timing_units={'ms'};
+                obj.info.defaults.condsAll.(cond).st1.si=si(idefaults);
+                obj.info.defaults.condsAll.(cond).st1.si_units=1;
+                obj.info.defaults.condsAll.(cond).st1.threshold='';
+                obj.info.defaults.condsAll.(cond).st1.si_pckt={si(idefaults),[],[],[],[],[],[],[]}; % [TS PairedCS ISI TS_intendendunits CS_intendedunits ISIintendentunits TrainFreq NoOfPulses]
+                obj.info.defaults.condsAll.(cond).st1.IntensityUnit='%MSO';
+                obj.info.defaults.condsAll.(cond).st1.IntensityUnitValue=NaN;
+                obj.info.defaults.condsAll.(cond).st1.IntensityUnitValueUnit=NaN;
+                obj.info.defaults.condsAll.(cond).st1.SessionToCouple='none';
+                obj.info.defaults.condsAll.(cond).st1.ProtocolToCouple='none';
+                obj.info.defaults.condsAll.(cond).st1.ParameterToCouple='none';
+                obj.info.defaults.condsAll.(cond).st1.IntensityToCouple='none';
+                obj.info.defaults.condsAll.(cond).st1.TimingOnsetUnits='ms';
+                obj.info.defaults.condsAll.(cond).st1.CSUnits='';
+                obj.info.defaults.condsAll.(cond).st1.ISIUnits='';
+                obj.info.defaults.condsAll.(cond).st1.StimulationType='Test';
+            end
             obj.par.(obj.info.event.current_session).(obj.info.event.measure_being_added)=obj.info.defaults;
         end
         %% Exception Handling
@@ -6516,6 +6551,8 @@ classdef best_application < handle
                     obj.default_par_tep;
                 case 'ERP Measurement'
                     obj.default_par_erp;
+                case 'Custom Protocol'
+                    obj.default_par_mep;
             end
         end
         
@@ -6627,7 +6664,7 @@ classdef best_application < handle
             obj.bst.info.matfilstr=['BEST_' save_str '.mat'];
             % % %             obj.bst.info.save_str_runtime=['BEST_' obj.Date '_' save_str '_Autosave.mat'];
             %             obj.bst.info.save_buffer = matfile(obj.bst.info.matfilstr,'Writable',true);
-
+            
             try
                 save(fullfile(obj.par.GlobalSettings.DataBaseDirectory,exp_name,obj.bst.info.matfilstr),'BESTToolboxParameters','-v7.3','-nocompression');
             catch
@@ -7152,7 +7189,8 @@ classdef best_application < handle
             ColStimType=ColTS+1;
             if strcmp(obj.info.event.current_measure,'MEP Motor Threshold Hunting'), ColThresholdLevel=ColStimType+1; else, ColThresholdLevel=ColStimType; end
             ColIntensityUnits=ColThresholdLevel+1;
-            ColStimulator=ColIntensityUnits+1;
+            if strcmp(obj.info.event.current_measure,'MEP Motor Threshold Hunting'), ColThresholdLevelUnits=ColIntensityUnits+1; else, ColThresholdLevelUnits=ColIntensityUnits; end
+            ColStimulator=ColThresholdLevelUnits+1;
             ColPulseMode=ColStimulator+1;
             ColNoOfPulses=ColPulseMode+1;
             ColTimingOnset=ColNoOfPulses+1;
@@ -7163,10 +7201,10 @@ classdef best_application < handle
             ColTrainFreq=ColISI+1;
             ColNoOfTrains=ColTrainFreq+1;
             ColFixedThreshold=ColNoOfTrains+1;
-            TableData=cell(1,1);ColumnName=cell(1,1);ColumnFormat=cell(1,1);    
+            TableData=cell(1,1);ColumnName=cell(1,1);ColumnFormat=cell(1,1);
             for iTableCondition=1:numel(fieldnames(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll))
                 TableCond=['cond' num2str(iTableCondition)];
-                for iTableStimulator=1:numel(fieldnames(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond)))-6 
+                for iTableStimulator=1:numel(fieldnames(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond)))-6
                     iData=iData+1;
                     TableStim=['st' num2str(iTableStimulator)];
                     TableData{iData,ColCondition}=num2str(iTableCondition);
@@ -7190,15 +7228,17 @@ classdef best_application < handle
                     ColumnName{ColStimType}='Stim. Type'; ColumnFormat{ColStimType}={'Test','Condition','Other'};
                     if strcmp(obj.info.event.current_measure,'MEP Motor Threshold Hunting')
                         try TableData{iData,ColThresholdLevel}=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).threshold_level); catch, end
-                        ColumnName{ColThresholdLevel}='Threshold Level (mV)'; ColumnFormat{ColThresholdLevel}=[];
+                        ColumnName{ColThresholdLevel}='Threshold Level'; ColumnFormat{ColThresholdLevel}=[];
                         ColumnName{ColTS}='Starting Intensity';
+                        ColumnName{ColThresholdLevelUnits}='Threshold Level Units'; ColumnFormat{ColThresholdLevelUnits}={'uV','Import from Protocol'};
+                        %                         TableData{iData,ColThresholdLevelUnits}=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).ColThresholdLevelUnits;
                     end
                     try TableData{iData,ColIntensityUnits}=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).IntensityUnit; catch, end
                     try TableData{iData,ColStimulator}=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).stim_device{1,1};catch, end
                     try TableData{iData,ColPulseMode}=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).stim_mode;catch, end
                     try TableData{iData,ColTimingOnset}=num2str(horzcat(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).stim_timing{:}));catch, end
                     try TableData{iData,ColNoOfPulses}=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).pulse_count); catch, end
-                    ColumnName{ColIntensityUnits}='Intensity Units'; ColumnFormat{ColIntensityUnits}={'%MSO','%MT','mA','%ST','%MSO coupled','%MT coupled','%mA coupled','%ST coupled'};
+                    ColumnName{ColIntensityUnits}='Intensity Units'; ColumnFormat{ColIntensityUnits}={'%MSO','%MT','mA','%ST','%Coupled'};
                     ColumnName{ColStimulator}='Stimulator'; ColumnFormat{ColStimulator}=[{'Select'}, obj.hw.device_added2_listbox.string];
                     ColumnName{ColPulseMode}='Pulse Mode'; ColumnFormat{ColPulseMode}={'single_pulse','paired_pulse', 'train'};
                     ColumnName{ColTimingOnset}='Timing Onset'; ColumnFormat{ColTimingOnset}=[];
@@ -7214,8 +7254,8 @@ classdef best_application < handle
                     try TableData{iData,ColNoOfTrains}=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).si_pckt{1,8});catch, end
                     try TableData{iData,ColFixedThreshold}=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).threshold;catch, end
                     ColumnName{ColCS}='Paired-CS Intensity'; ColumnFormat{ColCS}=[];
-                    ColumnName{ColCSUnits}='Paired-CS Intensity Units'; ColumnFormat{ColCSUnits}={'%MSO','%MT','mA','%ST','%MSO coupled','%MT coupled','mA coupled','%ST coupled'};
-                    ColumnName{ColISI}='ISI'; ColumnFormat{ColISI}=[]; 
+                    ColumnName{ColCSUnits}='Paired-CS Intensity Units'; ColumnFormat{ColCSUnits}={'%MSO','%MT','mA','%ST','%Coupled'};
+                    ColumnName{ColISI}='ISI'; ColumnFormat{ColISI}=[];
                     ColumnName{ColTrainFreq}='Train Frequency'; ColumnFormat{ColTrainFreq}=[];
                     ColumnName{ColNoOfTrains}='# of Trains'; ColumnFormat{ColNoOfTrains}=[];
                     ColumnName{ColFixedThreshold}='Threshold'; ColumnFormat{ColFixedThreshold}=[];
@@ -7230,13 +7270,13 @@ classdef best_application < handle
             table.FontSize=10;
             table.ColumnName = ColumnName;
             table.ColumnFormat= ColumnFormat;
-            table.ColumnWidth = repmat({100},1,numel(table.ColumnName)); 
+            table.ColumnWidth = repmat({100},1,numel(table.ColumnName));
             table.ColumnEditable =true(1,numel(table.ColumnName));
             table.RowStriping='on';
             table.RearrangeableColumns='on';
             table.CellEditCallback =@CellEditCallback ;
             
-%             table.uicontextmenu=ui_menu;
+            %             table.uicontextmenu=ui_menu;
             function CellEditCallback (~,CellEditData)
                 AdditionInCondition=['cond' num2str(table.Data{CellEditData.Indices(1),1})];
                 AdditionInStimulatorNum=find(find(cellfun(@str2double ,table.Data(:,1))==str2double(table.Data{CellEditData.Indices(1),1}))==CellEditData.Indices(1));
@@ -7258,12 +7298,12 @@ classdef best_application < handle
                         obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).si=CellEditData.NewData;
                     case 'Stim. Type'
                         obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).StimulationType=CellEditData.NewData;
-                    case 'Threshold Level (mV)'
+                    case 'Threshold Level'
                         obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).threshold_level=str2num(CellEditData.NewData);
                     case 'Intensity Units'
                         obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).IntensityUnit=CellEditData.NewData;
                         switch CellEditData.NewData
-                            case {'%MSO coupled','%MT coupled','%mA coupled','%ST coupled'}
+                            case '%Coupled'
                                 obj.cb_CoupleIntensityUnits(AdditionInCondition,AdditionInStimulator);
                         end
                     case 'Stimulator'
@@ -7278,7 +7318,7 @@ classdef best_application < handle
                         end
                     case 'Timing Onset'
                         try
-                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).stim_timing=num2cell(eval(CellEditData.NewData));
+                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).stim_timing=num2cell(eval(CellEditData.NewData));
                         catch
                             obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).stim_timing=num2cell(eval(['[' CellEditData.NewData ']']));
                         end
@@ -7292,7 +7332,7 @@ classdef best_application < handle
                         obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).CSUnits=CellEditData.NewData;
                     case 'ISI'
                         obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).si_pckt{1,3}=str2double(CellEditData.NewData);
-                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).isi=CellEditData.NewData;    
+                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).isi=CellEditData.NewData;
                     case 'Train Frequency'
                         obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).si_pckt{1,7}=str2double(CellEditData.NewData);
                         obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).freq=CellEditData.NewData;
@@ -7301,6 +7341,12 @@ classdef best_application < handle
                         obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).pulsesNo=CellEditData.NewData;
                     case 'Threshold'
                         obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).threshold=CellEditData.NewData;
+                    case 'Threshold Level Units'
+                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).ThresholdLevelUnits=CellEditData.NewData;
+                        switch CellEditData.NewData
+                            case 'Import from Protocol'
+                                obj.cb_CoupleIntensityUnits(AdditionInCondition,AdditionInStimulator);
+                        end
                 end
                 %Improvement Note :Requirement 96
                 %cb_pulse_update
@@ -7484,7 +7530,8 @@ classdef best_application < handle
             end
         end
         function cb_cm_Nconditions(obj)
-            
+            if strcmp(obj.info.event.current_measure,'MEP Motor Threshold Hunting')
+            end
             obj.pi.mm.cond.TabNames=[];
             contextMenu_condition=uicontextmenu(obj.fig.handle);
             uimenu(contextMenu_condition,'label','Duplicate Condition','Callback',@cb_pr_mm_duplicateCondition);
@@ -7910,7 +7957,7 @@ classdef best_application < handle
             end
         end
         function cb_cm_timing(obj,source,~)
-           %% Creating Figure
+            %% Creating Figure
             f=figure('ToolBar','none','MenuBar','none','Name','Timing Onset | BEST Toolbox','NumberTitle','off','WindowStyle','modal');
             c1=uix.VBox('parent',f,'Padding',10,'Spacing',10);
             %% Timing Onset
@@ -7929,16 +7976,16 @@ classdef best_application < handle
             set(c1, 'Heights', [25 25 25]); f.Position([3 4])=[430 120];
             %% Callbacks
             function cb_TimingOnset
-            source.String=['t: ', TimingOnset.String, ' ms'];
-            cd=['cond' num2str(obj.pi.mm.tab.SelectedChild)];
-            st=['st' num2str(source.UserData(2))];
-            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).stim_timing(source.UserData(1))=num2cell(str2double(TimingOnset.String));
-            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).stim_timing_units(source.UserData(1))={TimingOnsetUnits.String{TimingOnsetUnits.Value}};
-            close(f); obj.cb_cm_StimulationParametersTable;
+                source.String=['t: ', TimingOnset.String, ' ms'];
+                cd=['cond' num2str(obj.pi.mm.tab.SelectedChild)];
+                st=['st' num2str(source.UserData(2))];
+                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).stim_timing(source.UserData(1))=num2cell(str2double(TimingOnset.String));
+                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).stim_timing_units(source.UserData(1))={TimingOnsetUnits.String{TimingOnsetUnits.Value}};
+                close(f); obj.cb_cm_StimulationParametersTable;
             end
             function cb_TimingOnsetUnits
-            if TimingOnsetUnits.Value==2, cd=['cond' num2str(obj.pi.mm.tab.SelectedChild)];
-            st=['st' num2str(source.UserData(2))];obj.cb_ImportERPLatency(cd,st,source.UserData(1)); end
+                if TimingOnsetUnits.Value==2, cd=['cond' num2str(obj.pi.mm.tab.SelectedChild)];
+                    st=['st' num2str(source.UserData(2))];obj.cb_ImportERPLatency(cd,st,source.UserData(1)); end
             end
         end
         function cb_cm_sp_inputfig(obj,source,~)
@@ -8393,58 +8440,58 @@ classdef best_application < handle
                 case 1
                     obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).ImportPeakFrequencyFromProtocols=1;
                 case 2
-                     obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).ImportPeakFrequencyFromProtocols=2;
-            %% Making Buffer
-            if ~isfield(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr),'ImportPeakFrequency')
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).ImportPeakFrequency=struct;
-                Session=obj.pmd.lb_sessions.listbox.String;
-                Protocol=obj.pmd.lb_measures.listbox.String;
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).ImportPeakFrequency.Session=Session{1,1};
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).ImportPeakFrequency.Protocol=Protocol{1,1};
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).ImportPeakFrequency.Parameter='';
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).ImportPeakFrequency.Channel='';
-                Parameter={''};
-                Channel={''};
-                Value='Not Available';
-            else
-                Session={obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).ImportPeakFrequency.Session};
-                Protocol={obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).ImportPeakFrequency.Protocol};
-                Parameter={obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).ImportPeakFrequency.Parameter};
-                Channel={obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).ImportPeakFrequency.Channel};
-                Value='Not Available';
-                %                 Value=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).ImportPeakFrequency.Value;
-            end
-            f=figure('ToolBar','none','MenuBar','none','Name','Import Peak Frequency | BEST Toolbox','NumberTitle','off','WindowStyle','modal');
-            c1=uix.VBox('parent',f,'Padding',10,'Spacing',10);
-            %% Select Session - showing all available sessions
-            r1=uix.HBox('parent',c1);
-            uicontrol( 'Style','text','Parent', r1,'String','Select Session:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            SessionList=uicontrol( 'Style','popupmenu','Parent', r1 ,'FontSize',11,'String',Session,'callback',@SessionSelected);
-            %% Select Protocols - showing all available protocols
-            % Implications: when the protocol is renamed or suffixed, how to handle that?
-            r2=uix.HBox('parent',c1);
-            uicontrol( 'Style','text','Parent', r2,'String','Select Protocol:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            ProtocolList=uicontrol( 'Style','popupmenu','Parent', r2 ,'FontSize',11,'String',Protocol,'callback',@ProtocolSelected);
-            %% Select Parameter - protocol selection, prefill relevant Parameters
-            r3=uix.HBox('parent',c1);
-            uicontrol( 'Style','text','Parent', r3,'String','Select Parameter:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            ProtocolsParameters=uicontrol( 'Parent', r3 ,'Style','popupmenu','FontSize',11,'String',Parameter,'Callback',@ParameterSelected);
-            %% Select Channel
-            r4=uix.HBox('parent',c1);
-            uicontrol( 'Style','text','Parent', r4,'String','Select Channel:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            SelectedChannel=uicontrol( 'Parent', r4 ,'Style','popupmenu','FontSize',11,'String',Channel,'Callback',@ChannelSelected);
-            %% Annotating Value
-            r5=uix.HBox('parent',c1);
-            uicontrol( 'Style','text','Parent', r5,'String','Selected Value:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            Value=uicontrol( 'Parent', r5 ,'Style','text','FontSize',11,'String',Value);
-            %% Reset Coupling
-            r6=uix.HBox('parent',c1);
-            uicontrol( 'Style','text','Parent', r6,'String','','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            uicontrol( 'Parent', r6 ,'Style','pushbutton','String','Reset','FontSize',11,'FontWeight','Bold','Callback',@(~,~)ResetCoupling);
-            %% Figure Heights and Positioning
-            set(c1, 'Heights', [25 25 25 25 25 25])
-            f.Position(3)=430;
-            f.Position(4)=225;
+                    obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).ImportPeakFrequencyFromProtocols=2;
+                    %% Making Buffer
+                    if ~isfield(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr),'ImportPeakFrequency')
+                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).ImportPeakFrequency=struct;
+                        Session=obj.pmd.lb_sessions.listbox.String;
+                        Protocol=obj.pmd.lb_measures.listbox.String;
+                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).ImportPeakFrequency.Session=Session{1,1};
+                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).ImportPeakFrequency.Protocol=Protocol{1,1};
+                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).ImportPeakFrequency.Parameter='';
+                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).ImportPeakFrequency.Channel='';
+                        Parameter={''};
+                        Channel={''};
+                        Value='Not Available';
+                    else
+                        Session={obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).ImportPeakFrequency.Session};
+                        Protocol={obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).ImportPeakFrequency.Protocol};
+                        Parameter={obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).ImportPeakFrequency.Parameter};
+                        Channel={obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).ImportPeakFrequency.Channel};
+                        Value='Not Available';
+                        %                 Value=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).ImportPeakFrequency.Value;
+                    end
+                    f=figure('ToolBar','none','MenuBar','none','Name','Import Peak Frequency | BEST Toolbox','NumberTitle','off','WindowStyle','modal');
+                    c1=uix.VBox('parent',f,'Padding',10,'Spacing',10);
+                    %% Select Session - showing all available sessions
+                    r1=uix.HBox('parent',c1);
+                    uicontrol( 'Style','text','Parent', r1,'String','Select Session:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                    SessionList=uicontrol( 'Style','popupmenu','Parent', r1 ,'FontSize',11,'String',Session,'callback',@SessionSelected);
+                    %% Select Protocols - showing all available protocols
+                    % Implications: when the protocol is renamed or suffixed, how to handle that?
+                    r2=uix.HBox('parent',c1);
+                    uicontrol( 'Style','text','Parent', r2,'String','Select Protocol:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                    ProtocolList=uicontrol( 'Style','popupmenu','Parent', r2 ,'FontSize',11,'String',Protocol,'callback',@ProtocolSelected);
+                    %% Select Parameter - protocol selection, prefill relevant Parameters
+                    r3=uix.HBox('parent',c1);
+                    uicontrol( 'Style','text','Parent', r3,'String','Select Parameter:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                    ProtocolsParameters=uicontrol( 'Parent', r3 ,'Style','popupmenu','FontSize',11,'String',Parameter,'Callback',@ParameterSelected);
+                    %% Select Channel
+                    r4=uix.HBox('parent',c1);
+                    uicontrol( 'Style','text','Parent', r4,'String','Select Channel:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                    SelectedChannel=uicontrol( 'Parent', r4 ,'Style','popupmenu','FontSize',11,'String',Channel,'Callback',@ChannelSelected);
+                    %% Annotating Value
+                    r5=uix.HBox('parent',c1);
+                    uicontrol( 'Style','text','Parent', r5,'String','Selected Value:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                    Value=uicontrol( 'Parent', r5 ,'Style','text','FontSize',11,'String',Value);
+                    %% Reset Coupling
+                    r6=uix.HBox('parent',c1);
+                    uicontrol( 'Style','text','Parent', r6,'String','','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                    uicontrol( 'Parent', r6 ,'Style','pushbutton','String','Reset','FontSize',11,'FontWeight','Bold','Callback',@(~,~)ResetCoupling);
+                    %% Figure Heights and Positioning
+                    set(c1, 'Heights', [25 25 25 25 25 25])
+                    f.Position(3)=430;
+                    f.Position(4)=225;
             end
             %% Callbacks
             function SessionSelected(source,~)
@@ -8614,8 +8661,8 @@ classdef best_application < handle
             end
         end
         %% Helper Function
-       function RefreshProtocol(obj)
-           switch obj.info.event.current_measure
+        function RefreshProtocol(obj)
+            switch obj.info.event.current_measure
                 case 'MEP Measurement'
                     obj.pi_mep;
                     obj.func_load_mep_par;
@@ -8651,47 +8698,49 @@ classdef best_application < handle
                 case 'TEP Measurement'
                     obj.pi_tep;
                     obj.func_load_tep_par;
+                case 'Custom Protocol'
+                    %                    obj.create_inputs_panel;
             end
-       end
-       function protect_experiment(obj)
-           if isempty(obj.par), obj.par.GlobalSettings.Protect=false; end
-           if ~isfield(obj.par,'GlobalSettings'), obj.par.GlobalSettings.Protect=false; end
-           if ~isfield(obj.par.GlobalSettings,'Protect'), obj.par.GlobalSettings.Protect=false; end
-           switch obj.par.GlobalSettings.Protect
-               case 0
-                   obj.pmd.sess_title.btn.Enable     = 'on';
-                   obj.pmd.select_measure.btn.Enable = 'on';
-                   obj.pmd.copysession.Enable        = 'on';
-                   obj.pmd.pastesession.Enable       = 'on';
-                   obj.pmd.deletesession.Enable      = 'on';
-                   obj.pmd.renamesession.Enable      = 'on';
-                   obj.pmd.copyprotocol.Enable       = 'on';
-                   obj.pmd.pasteprotocol.Enable      = 'on';
-                   obj.pmd.deleteprotocol.Enable     = 'on';
-                   obj.pmd.suffixprotocol.Enable     = 'on';
-                   obj.pmd.renameprotocol.Enable     = 'on';
-               case 1
-                   obj.pmd.sess_title.btn.Enable     = 'off';
-                   obj.pmd.select_measure.btn.Enable = 'off';
-                   obj.pmd.copysession.Enable        = 'off';
-                   obj.pmd.pastesession.Enable       = 'off';
-                   obj.pmd.deletesession.Enable      = 'off';
-                   obj.pmd.renamesession.Enable      = 'off';
-                   obj.pmd.copyprotocol.Enable       = 'off';
-                   obj.pmd.pasteprotocol.Enable      = 'off';
-                   obj.pmd.deleteprotocol.Enable     = 'off';
-                   obj.pmd.suffixprotocol.Enable     = 'off';
-                   obj.pmd.renameprotocol.Enable     = 'off';
-           end
-       end
-       function create_settings(obj)
-           if ~isfield(obj.par,'GlobalSettings') || isempty(obj.par)
-               obj.par.GlobalSettings.NoiseFilter50Hz=0;
-               obj.par.GlobalSettings.NoiseFilter60Hz=0;
-               obj.par.GlobalSettings.SaveFigures=1;
-               obj.par.GlobalSettings.DataBaseDirectory=eval('cd');
-               obj.par.GlobalSettings.Protect=false;
-           end
-       end
+        end
+        function protect_experiment(obj)
+            if isempty(obj.par), obj.par.GlobalSettings.Protect=false; end
+            if ~isfield(obj.par,'GlobalSettings'), obj.par.GlobalSettings.Protect=false; end
+            if ~isfield(obj.par.GlobalSettings,'Protect'), obj.par.GlobalSettings.Protect=false; end
+            switch obj.par.GlobalSettings.Protect
+                case 0
+                    obj.pmd.sess_title.btn.Enable     = 'on';
+                    obj.pmd.select_measure.btn.Enable = 'on';
+                    obj.pmd.copysession.Enable        = 'on';
+                    obj.pmd.pastesession.Enable       = 'on';
+                    obj.pmd.deletesession.Enable      = 'on';
+                    obj.pmd.renamesession.Enable      = 'on';
+                    obj.pmd.copyprotocol.Enable       = 'on';
+                    obj.pmd.pasteprotocol.Enable      = 'on';
+                    obj.pmd.deleteprotocol.Enable     = 'on';
+                    obj.pmd.suffixprotocol.Enable     = 'on';
+                    obj.pmd.renameprotocol.Enable     = 'on';
+                case 1
+                    obj.pmd.sess_title.btn.Enable     = 'off';
+                    obj.pmd.select_measure.btn.Enable = 'off';
+                    obj.pmd.copysession.Enable        = 'off';
+                    obj.pmd.pastesession.Enable       = 'off';
+                    obj.pmd.deletesession.Enable      = 'off';
+                    obj.pmd.renamesession.Enable      = 'off';
+                    obj.pmd.copyprotocol.Enable       = 'off';
+                    obj.pmd.pasteprotocol.Enable      = 'off';
+                    obj.pmd.deleteprotocol.Enable     = 'off';
+                    obj.pmd.suffixprotocol.Enable     = 'off';
+                    obj.pmd.renameprotocol.Enable     = 'off';
+            end
+        end
+        function create_settings(obj)
+            if ~isfield(obj.par,'GlobalSettings') || isempty(obj.par)
+                obj.par.GlobalSettings.NoiseFilter50Hz=0;
+                obj.par.GlobalSettings.NoiseFilter60Hz=0;
+                obj.par.GlobalSettings.SaveFigures=1;
+                obj.par.GlobalSettings.DataBaseDirectory=eval('cd');
+                obj.par.GlobalSettings.Protect=false;
+            end
+        end
     end
 end
