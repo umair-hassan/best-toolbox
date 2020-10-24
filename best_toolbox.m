@@ -4062,7 +4062,7 @@ classdef best_toolbox < handle
 %                                             if strcmpi(obj.app.info.event.current_measure_fullstr,'Left_Thumb_Attention_Titration')
 %                                             end
                                             OutputDevice=char(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.outputDevices}{1,i});
-                                            if obj.inputs.BrainState==2 && obj.inputs.trial==1	551	obj.digitimer.(OutputDevice).setManualAmplitude(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,i}{1,4},OutputDevice);
+                                            if obj.inputs.BrainState==2 && obj.inputs.trial==1	
                                                 obj.digitimer.(OutputDevice).setManualAmplitude(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,i}{1,4},OutputDevice);
                                             elseif obj.inputs.BrainState==2 && obj.inputs.trial>1
                                                 %Do Nothing
