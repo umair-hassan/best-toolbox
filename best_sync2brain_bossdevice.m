@@ -86,19 +86,19 @@ classdef best_sync2brain_bossdevice <handle
             %% Configuring Trial's respective Trigger Pattern
             time_port_marker_vector=obj.best_toolbox.inputs.trialMat{obj.best_toolbox.inputs.trial,obj.best_toolbox.inputs.colLabel.tpm};
             obj.bb.configure_time_port_marker(cell2mat(time_port_marker_vector'))
-            pause(0.1)
+            
             %% Starting respective Scopes
             
             obj.IAScopeStart; % not sure if this would be necessary
             
             %% Starting
-            obj.bb.armed
-            obj.bb.triggers_remaining;
-            obj.bb.min_inter_trig_interval = 2+rand(1);
-            pause(0.1);
+            obj.bb.min_inter_trig_interval = 0;
             obj.bb.arm;
-            obj.bb.armed ;
             exit_flag=0;
+            if strcmp(obj.best_toolbox.inputs.trialMat{obj.best_toolbox.inputs.trial,obj.best_toolbox.inputs.colLabel.IAUnit},'Percentile')
+                AmpMin=obj.best_toolbox.inputs.trialMat{obj.best_toolbox.inputs.trial,obj.best_toolbox.inputs.colLabel.IAPercentile}{1,1}/100;
+                AmpMax=obj.best_toolbox.inputs.trialMat{obj.best_toolbox.inputs.trial,obj.best_toolbox.inputs.colLabel.IAPercentile}{1,2}/100;
+            end
             %             trigger(obj.FileScope.sc(obj.FileScope.activeScope));
             %             while ~(strcmp(obj.FileScope.sc(obj.FileScope.activeScope).Status, 'Finished') || strcmp(obj.FileScope.sc(obj.FileScope.activeScope).Status, 'Interrupted')), pause(0.01), end
             while (exit_flag<1)
@@ -106,7 +106,7 @@ classdef best_sync2brain_bossdevice <handle
                 
                 if ~(strcmp(obj.FileScope.sc(obj.FileScope.activeScope).Status, 'Finished') || strcmp(obj.FileScope.sc(obj.FileScope.activeScope).Status, 'Interrupted'))
                     trigger(obj.FileScope.sc(obj.FileScope.activeScope));
-                    while ~(strcmp(obj.FileScope.sc(obj.FileScope.activeScope).Status, 'Finished') || strcmp(obj.FileScope.sc(obj.FileScope.activeScope).Status, 'Interrupted')), pause(0.01), end
+                    while ~(strcmp(obj.FileScope.sc(obj.FileScope.activeScope).Status, 'Finished') || strcmp(obj.FileScope.sc(obj.FileScope.activeScope).Status, 'Interrupted')), end
                 end
                 
                 if (strcmp(obj.FileScope.sc(obj.FileScope.activeScope).Status, 'Finished') || strcmp(obj.FileScope.sc(obj.FileScope.activeScope).Status, 'Interrupted'))
@@ -127,7 +127,7 @@ classdef best_sync2brain_bossdevice <handle
                     
                     switch obj.best_toolbox.inputs.trialMat{obj.best_toolbox.inputs.trial,obj.best_toolbox.inputs.colLabel.IAUnit}
                         case 'Percentile'
-                            obj.FileScope.maxmindata = cell2mat(cellfun(@(data) quantile(data(1, data(2,:) == 1), [obj.best_toolbox.inputs.trialMat{obj.best_toolbox.inputs.trial,obj.best_toolbox.inputs.colLabel.IAPercentile}{1,1}/100 obj.best_toolbox.inputs.trialMat{obj.best_toolbox.inputs.trial,obj.best_toolbox.inputs.colLabel.IAPercentile}{1,2}/100])', obj.FileScope.mAmplitudeScopeCircBuf, 'UniformOutput', false))';
+                            obj.FileScope.maxmindata = cell2mat(cellfun(@(data) quantile(data(1, data(2,:) == 1), [AmpMin AmpMax])', obj.FileScope.mAmplitudeScopeCircBuf, 'UniformOutput', false))';
                         case 'uV'
                             obj.FileScope.maxmindata = cell2mat(cellfun(@(data) quantile(data(1, data(2,:) == 1), [0.01 0.99])', obj.FileScope.mAmplitudeScopeCircBuf, 'UniformOutput', false))';
                     end
@@ -194,6 +194,8 @@ classdef best_sync2brain_bossdevice <handle
                             obj.bb.beta.amplitude_min(1)=obj.best_toolbox.inputs.trialMat{obj.best_toolbox.inputs.trial,obj.best_toolbox.inputs.colLabel.IA}{1,1};
                             obj.bb.beta.amplitude_max(1)=obj.best_toolbox.inputs.trialMat{obj.best_toolbox.inputs.trial,obj.best_toolbox.inputs.colLabel.IA}{1,2};
                     end
+                    setparam(obj.bb.tg, 'VIS/Amplitude', 'refline_1',obj.best_toolbox.inputs.trialMat{obj.best_toolbox.inputs.trial,obj.best_toolbox.inputs.colLabel.IA}{1,1})		
+                    setparam(obj.bb.tg, 'VIS/Amplitude', 'refline_2', obj.best_toolbox.inputs.trialMat{obj.best_toolbox.inputs.trial,obj.best_toolbox.inputs.colLabel.IA}{1,2})
                     title(obj.FileScope.hAmplitudeDistributionAxes, ['Amplitude(Min Max): [', num2str(obj.FileScope.amp_lower) '  ' num2str(obj.FileScope.amp_upper) ']']);
                 end % handle the amplitude tracking
                 
@@ -202,9 +204,6 @@ classdef best_sync2brain_bossdevice <handle
                     obj.bb.disarm;
                     exit_flag=2;
                 end
-                
-                
-                pause(0.01);
             end
         end
         
@@ -221,7 +220,7 @@ classdef best_sync2brain_bossdevice <handle
             obj.EMGScope.Decimation = 1;
             obj.EMGScope.TriggerMode = 'Signal';
             obj.EMGScope.TriggerSignal = getsignalid(obj.bb.tg, 'gen_running'); %Remove it in Official Use
-            %             obj.EMGScope.TriggerSignal = MrkSignalID; % 04-Jun-2020 20:00:50
+            obj.EMGScope.TriggerSignal = MrkSignalID; % 04-Jun-2020 20:00:50
             obj.EMGScope.TriggerLevel = 0.5;
             obj.EMGScope.TriggerSlope = 'Rising';
             obj.best_toolbox.FilterCoefficients.HumNoiseNotchFilter=designfilt('bandstopiir','FilterOrder',2,'HalfPowerFrequency1',39,'HalfPowerFrequency2',61,'DesignMethod','butter','SampleRate',NumSamples);
@@ -237,13 +236,12 @@ classdef best_sync2brain_bossdevice <handle
             Decimation=1;
             obj.IEEGScope = addscope(obj.bb.tg, 'host', 92);
             addsignal(obj.IEEGScope, IPSignalID);
-            % If 100 samples are extracted there will be a data of 400ms for Theta, 200ms for Alpha and 100ms for Beta
             obj.IEEGScope.NumSamples = NumSamples;
             obj.IEEGScope.NumPrePostSamples = NumPrePostSamples;
             obj.IEEGScope.Decimation = Decimation;
             obj.IEEGScope.TriggerMode = 'Signal';
             obj.IEEGScope.TriggerSignal = getsignalid(obj.bb.tg, 'gen_running'); %Remove it in Official Use
-            %             obj.IEEGScope.TriggerSignal = MrkSignalID; % 31-May-2020 11:05:43
+            obj.IEEGScope.TriggerSignal = MrkSignalID; % 31-May-2020 11:05:43
             obj.IEEGScope.TriggerLevel = 0.5;
             obj.IEEGScope.TriggerSlope = 'Rising';
             obj.best_toolbox.inputs.rawData.IEEG.time=linspace(-1*(obj.best_toolbox.inputs.EEGDisplayPeriodPre),obj.best_toolbox.inputs.EEGDisplayPeriodPost,NumSamples);
@@ -390,7 +388,7 @@ classdef best_sync2brain_bossdevice <handle
             obj.EEGScope.Decimation = 1;
             obj.EEGScope.TriggerMode = 'Signal';
             obj.EEGScope.TriggerSignal = getsignalid(obj.bb.tg, 'gen_running'); %Remove it in Official Usee
-            %             obj.EEGScope.TriggerSignal = MrkSignalID;
+            obj.EEGScope.TriggerSignal = MrkSignalID;
             obj.EEGScope.TriggerLevel = 0.5;
             obj.EEGScope.TriggerSlope = 'Rising';
             %% Starting Scope
