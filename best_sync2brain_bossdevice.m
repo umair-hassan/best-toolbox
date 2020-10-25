@@ -57,7 +57,7 @@ classdef best_sync2brain_bossdevice <handle
                 end
             end
             %% Confirming Data Streaming
-            obj.isStreaming;
+            %obj.isStreaming;
         end
         
         function singlePulse(obj,portNo)
@@ -220,7 +220,7 @@ classdef best_sync2brain_bossdevice <handle
             obj.EMGScope.Decimation = 1;
             obj.EMGScope.TriggerMode = 'Signal';
             obj.EMGScope.TriggerSignal = getsignalid(obj.bb.tg, 'gen_running'); %Remove it in Official Use
-            obj.EMGScope.TriggerSignal = MrkSignalID; % 04-Jun-2020 20:00:50
+%             obj.EMGScope.TriggerSignal = MrkSignalID; % 04-Jun-2020 20:00:50
             obj.EMGScope.TriggerLevel = 0.5;
             obj.EMGScope.TriggerSlope = 'Rising';
             obj.best_toolbox.FilterCoefficients.HumNoiseNotchFilter=designfilt('bandstopiir','FilterOrder',2,'HalfPowerFrequency1',39,'HalfPowerFrequency2',61,'DesignMethod','butter','SampleRate',NumSamples);
@@ -241,7 +241,7 @@ classdef best_sync2brain_bossdevice <handle
             obj.IEEGScope.Decimation = Decimation;
             obj.IEEGScope.TriggerMode = 'Signal';
             obj.IEEGScope.TriggerSignal = getsignalid(obj.bb.tg, 'gen_running'); %Remove it in Official Use
-            obj.IEEGScope.TriggerSignal = MrkSignalID; % 31-May-2020 11:05:43
+%             obj.IEEGScope.TriggerSignal = MrkSignalID; % 31-May-2020 11:05:43
             obj.IEEGScope.TriggerLevel = 0.5;
             obj.IEEGScope.TriggerSlope = 'Rising';
             obj.best_toolbox.inputs.rawData.IEEG.time=linspace(-1*(obj.best_toolbox.inputs.EEGDisplayPeriodPre),obj.best_toolbox.inputs.EEGDisplayPeriodPost,NumSamples);
@@ -430,21 +430,20 @@ classdef best_sync2brain_bossdevice <handle
                 ftdata.label={'ch1'};
                 ftdata.fsample=5000;
                 ftdata.trial{1}=Data;
-                ftdata.time{1}=Time;
+                ftdata.time{1}=Time/1000;
                 cfg.demean='yes';
-                %                 cfg.hpfilter      = 'yes'; % high-pass in order to get rid of low-freq trends
-                %                 cfg.hpfiltord     = 5;
-                %                 cfg.hpfreq        = 0.1;
+                cfg.hpfilter      = 'yes'; % high-pass in order to get rid of low-freq trends
+                cfg.hpfiltord     = 3;
+                cfg.hpfreq        = 1;
                 %                 cfg.lpfilter      = 'yes'; % low-pass in order to get rid of high-freq noise
                 %                 cfg.lpfiltord     = 3;
                 %                 cfg.lpfreq        = 249; % 249 when combining with a linenoise bandstop filter
                 %                 cfg.bsfilter      = 'yes'; % band-stop filter, to take out 50 Hz and its harmonics
                 %                 cfg.bsfiltord     = 3;
                 %                 cfg.bsfreq        = [49 51; 99 101; 149 151; 199 201]; % EU line noise
-                cfg.detrend='yes'; % It does not help in improving, however introduces weired drifts therefore deprication is recommended in Future Release
-                cfg.baselinewindow=[obj.best_toolbox.inputs.EMGDisplayPeriodPre*(-1)/1000 -10]; %[EMGDisplayPeriodPre_ms to -10ms]
+                % cfg.detrend='yes'; % It does not help in improving, however introduces weired drifts therefore deprication is recommended in Future Release
+                cfg.baselinewindow=[(obj.best_toolbox.inputs.EMGDisplayPeriodPre*(-1)+1)/1000 -25/1000]; %[EMGDisplayPeriodPre_ms to -10ms]
                 ProcessedData=ft_preprocessing(cfg, ftdata);
-                
                 %% Here the Line Noise Filtering is Performed Using a Template
                 if obj.best_toolbox.inputs.NoiseFilter50Hz==1
                     ats.Trial           = ProcessedData.trial{1};
@@ -459,7 +458,7 @@ classdef best_sync2brain_bossdevice <handle
                     Time                = ProcessedData.time{1};
                 elseif obj.best_toolbox.inputs.NoiseFilter50Hz==0
                     Data = ProcessedData.trial{1};
-                    Time = ProcessedData.time{1};
+                    Time = ProcessedData.time{1}*1000;
                 end
             end
         end
@@ -478,13 +477,16 @@ classdef best_sync2brain_bossdevice <handle
                 ftdata.label={'ch1'};
                 ftdata.fsample=5000;
                 ftdata.trial{1}=Data;
-                ftdata.time{1}=Time;
+                ftdata.time{1}=Time/1000;
                 cfg.demean='yes';
+                cfg.hpfilter      = 'yes'; % high-pass in order to get rid of low-freq trends
+                cfg.hpfiltord     = 3;
+                cfg.hpfreq        = 1;
                 %                 cfg.detrend='yes'; % It does not help in improving, however introduces weired drifts therefore deprication is recommended in Future Release
-                cfg.baselinewindow=[obj.best_toolbox.inputs.EEGDisplayPeriodPre*(-1)/1000 -10]; %obj.best_toolbox.inputs.EEGDisplayPeriodPre*(-1)/1000 -10 %[EMGDisplayPeriodPre_ms to -10ms]
+                cfg.baselinewindow=[(obj.best_toolbox.inputs.EEGDisplayPeriodPre*(-1)+1)/1000 -50/1000]; %obj.best_toolbox.inputs.EEGDisplayPeriodPre*(-1)/1000 -10 %[EMGDisplayPeriodPre_ms to -10ms]
                 ProcessedData=ft_preprocessing(cfg, ftdata);
                 Data=ProcessedData.trial{1};
-                obj.best_toolbox.inputs.rawData.IEEG.time=ProcessedData.time{1};
+                obj.best_toolbox.inputs.rawData.IEEG.time=ProcessedData.time{1}*1000;
             end
             obj.IEEGScopeStart;
         end

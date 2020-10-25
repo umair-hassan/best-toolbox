@@ -3972,7 +3972,7 @@ classdef best_toolbox < handle
             end
         end
         function prepTrial(obj)
-            if(obj.inputs.trial<obj.inputs.totalTrials)
+            if(obj.inputs.trial<=obj.inputs.totalTrials)
                 obj.inputs.trial=obj.inputs.trial+1;
                 
                 switch char(obj.inputs.measure_str)
@@ -4110,7 +4110,7 @@ classdef best_toolbox < handle
                     break;
                 end
                 disp('................................................');
-                obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.TotalITI}=toc(obj.info.TimerAA);
+                obj.inputs.trialMat{obj.inputs.trial-1,obj.inputs.colLabel.TotalITI}=toc(obj.info.TimerAA);
             end
         end
         function save(obj)
@@ -4186,56 +4186,37 @@ classdef best_toolbox < handle
         end
         function BESTData=SavingInFieldTripFormat (obj)
             %first create a time field
-            idx=[];
             BESTData=struct;
             %Label
-            BESTData.label=unique(horzcat(obj.inputs.trialMat{:,obj.inputs.colLabel.chLab}));
+            BESTData.label=setdiff(unique(horzcat(obj.inputs.trialMat{:,obj.inputs.colLabel.chLab})),{'OsscillationPhase','OsscillationAmplitude','IADistribution','AmplitudeDistribution','TotalITIDistribution','StatusTable'})';
             %Data
             for i=1:obj.inputs.trial
                 for j=1:numel(BESTData.label)
-                    switch BESTData.label{j}
-                        case {'OsscillationPhase','OsscillationAmplitude','IADistribution','AmplitudeDistribution','StatusTable'}
-                            %Do Nothing
-                        otherwise
-                            idx=idx+1;
-                            BESTData.trial{1,i}(idx,:)=obj.inputs.rawData.(BESTData.label{j}).data(i,:);
-                            if strcmpi(BESTData.label{j},'OsscillationEEG'), BESTData.label{j}='RealTimeTargetMontage'; end
-                    end
+                    BESTData.trial{1,i}(j,:)=obj.inputs.rawData.(BESTData.label{j}).data(i,:);
                 end
             end
             %Time
             for i=1:obj.inputs.trial
                 for j=1:numel(BESTData.label)
-                    switch BESTData.label{j}
-                        case {'OsscillationPhase','OsscillationAmplitude','IADistribution','AmplitudeDistribution','StatusTable'}
-                            %Do Nothing
-                        otherwise
-                            try
-                            BESTData.trial{1,i}(1,:)=obj.inputs.rawData.(BESTData.label{j}).data(i,:);
-                            break;
-                            catch
-                            end
+                    try
+                        BESTData.time{1,i}(1,:)=obj.inputs.rawData.(BESTData.label{j}).data(i,:);
+                        break;
+                    catch
                     end
                 end
             end
             %TrialInfo
-            try obj.inputs.trialMat{:,size(obj.inputs.trialMat,2)+1}=obj.inputs.rawData.OsscillationPhase.data'; obj.inputs.colLabel.MeasuredPhase=size(obj.inputs.trialMat,2); catch, end
+            try obj.inputs.trialMat(:,size(obj.inputs.trialMat,2)+1)=num2cell(obj.inputs.rawData.OsscillationPhase.data); obj.inputs.colLabel.MeasuredPhase=size(obj.inputs.trialMat,2); catch, end
             for i=1:numel(fieldnames(obj.inputs.results))
                 try
                     resultschannels=fieldnames(obj.inputs.results);
-                    obj.inputs.trialMat{:,size(obj.inputs.trialMat,2)+1}=obj.inputs.results.(resultschannels{i}).MEPAmplitude';
-                    chan=['MEPAmplitude' resultschannels{i}]; 
+                    obj.inputs.trialMat(:,size(obj.inputs.trialMat,2)+1)=num2cell(obj.inputs.results.(resultschannels{i}).MEPAmplitude);
+                    chan=['MEPAmplitude' resultschannels{i}];
                     obj.inputs.colLabel.(chan)=size(obj.inputs.trialMat,2);
                 catch
                 end
             end
             BESTData.trialinfomatrix=obj.inputs.trialMat;
-            BESTData.Parameters
-            BESTData.TimeStamp=clock;
-            BESTData.ChannelUnits='All Channel units are uV';
-%             BESTData.ChannelType
-            BESTData.TimeUnits='ms';
-            BESTData.Results=obj.inputs.results;
             FieldNames=fieldnames(obj.inputs.colLabel);
             for i=1:100
                 try
@@ -4244,6 +4225,17 @@ classdef best_toolbox < handle
                     break;
                 end
             end
+            try BESTData.label{strcmpi(BESTData.label,'OsscillationEEG'),1}='RealTimeTargetMontage'; catch, end
+            %BESTData.ChannelType
+            BESTData.ChannelUnits='All Channel units are uV';
+            BESTData.TimeUnits='ms';
+            BESTData.Parameters=obj.app.par.(obj.app.info.event.current_session).(obj.app.info.event.current_measure_fullstr);
+            BESTData.Results=obj.inputs.results;
+            BESTData.ExperimentName=obj.app.pmd.exp_title.editfield.String; 
+            BESTData.SubjectID=obj.app.pmd.sub_code.editfield.String; 
+            BESTData.SessionName=obj.app.info.event.current_session; 
+            BESTData.ProtocolName=obj.app.info.event.current_measure_fullstr; 
+            BESTData.TimeStamp=clock;
         end
         function completed(obj)
             questdlg('This Protocol has been Completed or Stopped, click Okay to continue.','Status','Okay','Okay');
@@ -6111,7 +6103,6 @@ classdef best_toolbox < handle
             delete(fh); pause(0.1);
         end
         function TotalITIDistributionPlot(obj)
-            obj.inputs.trialMat{2,obj.inputs.colLabel.TotalITI}=2;
             Colors=[1 0 0;0 1 0;0 0 1;0 1 1;1 0 1;0.7529 0.7529 0.7529;0.5020 0.5020 0.5020;0.4706 0 0;0.5020 0.5020 0;0 0.5020 0;0.5020 0 0.5020;0 0.5020 0.5020;0 0 0.5020;1 0.4980 0.3137;
                 1 0 0;0 1 0;0 0 1;0 1 1;1 0 1;0.7529 0.7529 0.7529;0.5020 0.5020 0.5020;0.4706 0 0;0.5020 0.5020 0;0 0.5020 0;0.5020 0 0.5020;0 0.5020 0.5020;0 0 0.5020;1 0.4980 0.3137;
                 1 0 0;0 1 0;0 0 1;0 1 1;1 0 1;0.7529 0.7529 0.7529;0.5020 0.5020 0.5020;0.4706 0 0;0.5020 0.5020 0;0 0.5020 0;0.5020 0 0.5020;0 0.5020 0.5020;0 0 0.5020;1 0.4980 0.3137;
