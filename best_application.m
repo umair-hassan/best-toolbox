@@ -2077,7 +2077,7 @@ classdef best_application < handle
                         expModr2.Widths=[200 -2];
                         
                         expModr2=uiextras.HBox( 'Parent', expModvBox,'Spacing',  0, 'Padding', 2 );
-                        uicontrol( 'Style','text','Parent', expModr2,'String','EMG Extraction Period (ms):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                        uicontrol( 'Style','text','Parent', expModr2,'String','Data Extraction Period (ms):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
                         obj.pi.mep.EMGExtractionPeriod=uicontrol( 'Style','edit','Parent', expModr2 ,'FontSize',11,'Tag','EMGExtractionPeriod','callback',@cb_par_saving);
                         expModr2.Widths=[200 -2];
                         
@@ -2087,16 +2087,11 @@ classdef best_application < handle
                         expModr2.Widths=[200 -2];
                         
                         expModr2=uiextras.HBox( 'Parent', expModvBox,'Spacing',  0, 'Padding', 2 );
-                        uicontrol( 'Style','text','Parent', expModr2,'String','EEG Extraction Period (ms):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-                        obj.pi.mep.EEGExtractionPeriod=uicontrol( 'Style','edit','Parent', expModr2 ,'FontSize',11,'Tag','EEGExtractionPeriod','callback',@cb_par_saving);
-                        expModr2.Widths=[200 -2];
-                        
-                        expModr2=uiextras.HBox( 'Parent', expModvBox,'Spacing',  0, 'Padding', 2 );
                         uicontrol( 'Style','text','Parent', expModr2,'String','EEG Display Period (ms):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
                         obj.pi.mep.EEGXLimit=uicontrol( 'Style','edit','Parent', expModr2 ,'FontSize',11,'Tag','EEGXLimit','callback',@cb_par_saving);
                         expModr2.Widths=[200 -2];
                         
-                        expModvBox.Heights=[-1 -1 -1 -1 -1 -1];%[35 42 42 42 42 42 42];
+                        expModvBox.Heights=[-1 -1 -1 -1 -1];%[35 42 42 42 42 42 42];
                 end
             end
             function cb_SetHeights
@@ -2452,18 +2447,13 @@ classdef best_application < handle
                         expModr2.Widths=[200 -2];
                         
                         expModr2=uiextras.HBox( 'Parent', expModvBox,'Spacing', 0, 'Padding', 2 );
-                        uicontrol( 'Style','text','Parent', expModr2,'String','EMG Extraction Period (ms):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                        uicontrol( 'Style','text','Parent', expModr2,'String','Data Extraction Period (ms):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
                         obj.pi.drc.EMGExtractionPeriod=uicontrol( 'Style','edit','Parent', expModr2 ,'FontSize',11,'Tag','EMGExtractionPeriod','callback',@cb_par_saving);
                         expModr2.Widths=[200 -2];
                         
                         expModr2=uiextras.HBox( 'Parent', expModvBox,'Spacing', 0, 'Padding', 2 );
                         uicontrol( 'Style','text','Parent', expModr2,'String','EMG Display Period (ms):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
                         obj.pi.drc.EMGXLimit=uicontrol( 'Style','edit','Parent', expModr2 ,'FontSize',11,'Tag','EMGXLimit','callback',@cb_par_saving);
-                        expModr2.Widths=[200 -2];
-                        
-                        expModr2=uiextras.HBox( 'Parent', expModvBox,'Spacing', 0, 'Padding', 2 );
-                        uicontrol( 'Style','text','Parent', expModr2,'String','EEG Extraction Period (ms):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-                        obj.pi.drc.EEGExtractionPeriod=uicontrol( 'Style','edit','Parent', expModr2 ,'FontSize',11,'Tag','EEGExtractionPeriod','callback',@cb_par_saving);
                         expModr2.Widths=[200 -2];
                         
                         expModr2=uiextras.HBox( 'Parent', expModvBox,'Spacing', 0, 'Padding', 2 );
@@ -2484,7 +2474,7 @@ classdef best_application < handle
                         obj.pi.drc.ResponseFunctionDenominator=uicontrol( 'Style','edit','Parent', expModr4 ,'FontSize',11,'Tag','ResponseFunctionDenominator','callback',@cb_par_saving);
                         expModr4.Widths=[150 -2 30 -2];
                         
-                        expModvBox.Heights=[-1 -1 -1 -1 -1 -1 -1 -1 -1];%[35 35 45 45 45 45 45 30 35];
+                        expModvBox.Heights=[-1 -1 -1 -1 -1 -1 -1 -1];%[35 35 45 45 45 45 45 30 35];
                 end
             end
             function cb_SetHeights
@@ -2821,7 +2811,7 @@ classdef best_application < handle
                         expModr2.Widths=[200 -2];
                         
                         expModr2=uiextras.HBox( 'Parent', expModvBox,'Spacing', 0, 'Padding', 2 );
-                        uicontrol( 'Style','text','Parent', expModr2,'String','EMG Extraction Period (ms):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                        uicontrol( 'Style','text','Parent', expModr2,'String','Data Extraction Period (ms):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
                         obj.pi.mth.EMGExtractionPeriod=uicontrol( 'Style','edit','Parent', expModr2 ,'FontSize',11,'Tag','EMGExtractionPeriod','callback',@cb_par_saving);
                         expModr2.Widths=[200 -2];
                         
@@ -2835,17 +2825,12 @@ classdef best_application < handle
                         obj.pi.mth.EEGExtractionPeriod=uicontrol( 'Style','edit','Parent', expModr2 ,'FontSize',11,'Tag','EEGExtractionPeriod','callback',@cb_par_saving);
                         expModr2.Widths=[200 -2];
                         
-                        expModr2=uiextras.HBox( 'Parent', expModvBox,'Spacing', 0, 'Padding', 2 );
-                        uicontrol( 'Style','text','Parent', expModr2,'String','EEG Display Period (ms):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-                        obj.pi.mth.EEGXLimit=uicontrol( 'Style','edit','Parent', expModr2 ,'FontSize',11,'Tag','EEGXLimit','callback',@cb_par_saving);
-                        expModr2.Widths=[200 -2];
-                        
                         expModr4=uiextras.HBox( 'Parent', expModvBox,'Spacing', 0, 'Padding', 2 );
                         uicontrol( 'Style','text','Parent', expModr4,'String','Trials to Average:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
                         obj.pi.mth.NoOfTrialsToAverage=uicontrol( 'Style','edit','Parent', expModr4 ,'FontSize',11,'Tag','NoOfTrialsToAverage','callback',@cb_par_saving);
                         expModr4.Widths=[200 -2];
                         
-                        expModvBox.Heights=[-1 -1 -1 -1 -1 -1 -1 -1];%[30 35 42 42 42 42 42 42 42];
+                        expModvBox.Heights=[-1 -1 -1 -1 -1 -1 -1];%[30 35 42 42 42 42 42 42 42];
                 end
             end
             function cb_SetHeights
@@ -3181,8 +3166,8 @@ classdef best_application < handle
                         expModr2.Widths=[150 -2];
                         
                         expModr2=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
-                        uicontrol( 'Style','text','Parent', expModr2,'String','EEG Extraction Period (ms):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-                        obj.pi.psychmth.EEGExtractionPeriod=uicontrol( 'Style','edit','Parent', expModr2 ,'FontSize',11,'Tag','EEGExtractionPeriod','callback',@cb_par_saving);
+                        uicontrol( 'Style','text','Parent', expModr2,'String','Data Extraction Period (ms):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                        obj.pi.psychmth.EMGExtractionPeriod=uicontrol( 'Style','edit','Parent', expModr2 ,'FontSize',11,'Tag','EMGExtractionPeriod','callback',@cb_par_saving);
                         expModr2.Widths=[150 -2];
                         
                         expModr2=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
@@ -4426,8 +4411,8 @@ classdef best_application < handle
                         expModr2.Widths=[150 -2];
                         
                         expModr2=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
-                        uicontrol( 'Style','text','Parent', expModr2,'String','EEG Extraction Period (ms):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-                        obj.pi.erp.EEGExtractionPeriod=uicontrol( 'Style','edit','Parent', expModr2 ,'FontSize',11,'Tag','EEGExtractionPeriod','callback',@cb_par_saving);
+                        uicontrol( 'Style','text','Parent', expModr2,'String','Data Extraction Period (ms):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                        obj.pi.erp.EMGExtractionPeriod=uicontrol( 'Style','edit','Parent', expModr2 ,'FontSize',11,'Tag','EMGExtractionPeriod','callback',@cb_par_saving);
                         expModr2.Widths=[150 -2];
                         
                         expModr2=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
