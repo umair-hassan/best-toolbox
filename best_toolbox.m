@@ -2538,7 +2538,7 @@ classdef best_toolbox < handle
                             end
                             if isempty(obj.inputs.EMGDisplayChannels)
                                 EMGDisplayChannelschID=[];
-                                EMGDisplayChannelsAxesNo=num2cell(DisplayChannelCounter+1+1);%StatusTable
+                                EMGDisplayChannelsAxesNo=num2cell(DisplayChannelCounter+1:DisplayChannelCounter+1+1);%StatusTable
                             else
                                 for dc=1:numel(obj.inputs.EMGDisplayChannels)
                                     EMGDisplayChannelschID{dc}=find(strcmp(obj.app.par.hardware_settings.(char(obj.inputs.input_device)).NeurOneProtocolChannelLabels,obj.inputs.EMGDisplayChannels{dc}));
@@ -2684,6 +2684,7 @@ classdef best_toolbox < handle
                             obj.inputs.colLabel.IAUnit=17;
                             obj.inputs.colLabel.ConditionMarker=18;
                             obj.inputs.colLabel.TotalITI=19;
+                            obj.inputs.colLabel.PhaseCondition=20; %Necessary to have a Phase String to filter out multiple conditions have same phase
                             conds=fieldnames(obj.inputs.condsAll);
                             %% Creating Channel Types, Axes No, Channel IDs
                             DisplayChannelCounter=2;
@@ -2733,6 +2734,7 @@ classdef best_toolbox < handle
                                     case 'Random' % NaN Value and Random Phase
                                         obj.inputs.condMat{c,obj.inputs.colLabel.phase}={0,pi};
                                 end
+                                obj.inputs.condMat{c,obj.inputs.colLabel.PhaseCondition}=obj.inputs.condsAll.(conds{c,1}).Phase;
                                 %% Amplitude Threshold 
                                 switch obj.inputs.condsAll.(conds{c,1}).AmplitudeUnits
                                     case 'Percentile' %Percentile
@@ -4182,7 +4184,7 @@ classdef best_toolbox < handle
             try obj.sessions.(obj.app.info.event.current_session).(obj.app.info.event.current_measure_fullstr).results=obj.inputs.results; catch, end
             try obj.sessions.(obj.app.info.event.current_session).(obj.app.info.event.current_measure_fullstr).Results=obj.inputs.Results; catch, end
         end
-        function FieldTripFormattedData=SavingInFieldTripFormat (obj)
+        function BESTData=SavingInFieldTripFormat (obj)
             %first create a time field
             idx=[];
             BESTData=struct;
