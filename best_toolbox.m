@@ -2640,6 +2640,7 @@ classdef best_toolbox < handle
                             obj.app.pr.ax_AxesAnnotation=ax_AxesAnnotation;
                         case 2 % BS Dependent
                             %% Adjusting New Arhictecture to Old Architecture
+                            obj.inputs.EEGExtractionPeriod=obj.inputs.EMGExtractionPeriod;
                             obj.inputs.MEPOnset=obj.inputs.MEPSearchWindow(1);
                             obj.inputs.MEPOffset=obj.inputs.MEPSearchWindow(2);
                             obj.inputs.EMGDisplayPeriodPre=obj.inputs.EMGExtractionPeriod(1)*(-1);
@@ -3146,6 +3147,7 @@ classdef best_toolbox < handle
                             obj.inputs.input_device=char(obj.app.pi.erp.InputDevice.String(obj.inputs.InputDevice)); %TODO: the drc or mep on the 4th structure is not a good solution!
                             obj.inputs.SEPOnset=obj.inputs.SEPSearchWindow(1);
                             obj.inputs.SEPOffset=obj.inputs.SEPSearchWindow(2);
+                            obj.inputs.EEGExtractionPeriod=obj.inputs.EMGExtractionPeriod;
                             obj.inputs.EEGDisplayPeriodPre=obj.inputs.EEGExtractionPeriod(1)*(-1);
                             obj.inputs.EEGDisplayPeriodPost=obj.inputs.EEGExtractionPeriod(2);
                             obj.inputs.stim_mode='MSO';
