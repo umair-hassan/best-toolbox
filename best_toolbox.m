@@ -4172,16 +4172,76 @@ classdef best_toolbox < handle
             if ~exist(fullfile(obj.app.par.GlobalSettings.DataBaseDirectory,exp_name,subj_code,session), 'dir')
                 mkdir(fullfile(obj.app.par.GlobalSettings.DataBaseDirectory,exp_name,subj_code,session));
             end
-            BESTData=struct;
-            try BESTData.trialmat=obj.inputs.trialMat; catch, end
-            try BESTData.results=obj.inputs.results; catch, end
-            try BESTData.rawData=obj.inputs.rawData; catch, end
-            try BESTData.Results=obj.inputs.Results; catch, end
+            BESTData=obj.SavingInFieldTripFormat;
             save(FullFileName,'BESTData','-v7.3','-nocompression');
-            % save this in FieldTrip format
+%             try BESTData.trialmat=obj.inputs.trialMat; catch, end
+%             try BESTData.results=obj.inputs.results; catch, end
+%             try BESTData.rawData=obj.inputs.rawData; catch, end
+%             try BESTData.Results=obj.inputs.Results; catch, end
             rmdir(fullfile(obj.app.par.GlobalSettings.DataBaseDirectory,exp_name,'RunTimeBackup'),'s')
             try obj.sessions.(obj.app.info.event.current_session).(obj.app.info.event.current_measure_fullstr).results=obj.inputs.results; catch, end
             try obj.sessions.(obj.app.info.event.current_session).(obj.app.info.event.current_measure_fullstr).Results=obj.inputs.Results; catch, end
+        end
+        function FieldTripFormattedData=SavingInFieldTripFormat (obj)
+            %first create a time field
+            idx=[];
+            BESTData=struct;
+            %Label
+            BESTData.label=unique(horzcat(obj.inputs.trialMat{:,obj.inputs.colLabel.chLab}));
+            %Data
+            for i=1:obj.inputs.trial
+                for j=1:numel(BESTData.label)
+                    switch BESTData.label{j}
+                        case {'OsscillationPhase','OsscillationAmplitude','IADistribution','AmplitudeDistribution','StatusTable'}
+                            %Do Nothing
+                        otherwise
+                            idx=idx+1;
+                            BESTData.trial{1,i}(idx,:)=obj.inputs.rawData.(BESTData.label{j}).data(i,:);
+                            if strcmpi(BESTData.label{j},'OsscillationEEG'), BESTData.label{j}='RealTimeTargetMontage'; end
+                    end
+                end
+            end
+            %Time
+            for i=1:obj.inputs.trial
+                for j=1:numel(BESTData.label)
+                    switch BESTData.label{j}
+                        case {'OsscillationPhase','OsscillationAmplitude','IADistribution','AmplitudeDistribution','StatusTable'}
+                            %Do Nothing
+                        otherwise
+                            try
+                            BESTData.trial{1,i}(1,:)=obj.inputs.rawData.(BESTData.label{j}).data(i,:);
+                            break;
+                            catch
+                            end
+                    end
+                end
+            end
+            %TrialInfo
+            try obj.inputs.trialMat{:,size(obj.inputs.trialMat,2)+1}=obj.inputs.rawData.OsscillationPhase.data'; obj.inputs.colLabel.MeasuredPhase=size(obj.inputs.trialMat,2); catch, end
+            for i=1:numel(fieldnames(obj.inputs.results))
+                try
+                    resultschannels=fieldnames(obj.inputs.results);
+                    obj.inputs.trialMat{:,size(obj.inputs.trialMat,2)+1}=obj.inputs.results.(resultschannels{i}).MEPAmplitude';
+                    chan=['MEPAmplitude' resultschannels{i}]; 
+                    obj.inputs.colLabel.(chan)=size(obj.inputs.trialMat,2);
+                catch
+                end
+            end
+            BESTData.trialinfomatrix=obj.inputs.trialMat;
+            BESTData.Parameters
+            BESTData.TimeStamp=clock;
+            BESTData.ChannelUnits='All Channel units are uV';
+%             BESTData.ChannelType
+            BESTData.TimeUnits='ms';
+            BESTData.Results=obj.inputs.results;
+            FieldNames=fieldnames(obj.inputs.colLabel);
+            for i=1:100
+                try
+                    BESTData.trialinfomatrix_label{i}=FieldNames{i};
+                catch
+                    break;
+                end
+            end
         end
         function completed(obj)
             questdlg('This Protocol has been Completed or Stopped, click Okay to continue.','Status','Okay','Okay');
