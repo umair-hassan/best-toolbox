@@ -60,13 +60,12 @@ classdef best_application < handle
             obj.create_inputs_panel;
             obj.create_results_panel;
             obj.create_hwcfg_panel;
-            %               obj.pi_ioc
+            obj.create_settings;
+            obj.protect_experiment;
+            %              obj.pi_ioc
             %             obj.results_panel;
             % obj.pr.axesno=6;
             % obj.resultsPanel
-            
-            
-            
         end
         function create_best_obj(obj)
             obj.bst= best_toolbox (obj);
@@ -121,9 +120,9 @@ classdef best_application < handle
             obj.menu.rp.btn=uicontrol( 'Parent', menu_hbox ,'Style','PushButton','String','Close Results','FontWeight','Bold','Callback', @(~,~)obj.cb_menu_rp );
             obj.menu.hwcfg.btn=uicontrol( 'Parent', menu_hbox ,'Style','PushButton','String','Open Hardware Config','FontWeight','Bold','Callback', @(~,~)obj.cb_menu_hwcfg ); %TODO1
             obj.menu.settings.btn=uicontrol( 'Parent', menu_hbox ,'Style','PushButton','String','Open Settings','FontWeight','Bold','Callback', @(~,~)obj.cb_menu_settings ); %TODO1
-            
+            obj.menu.notes.btn=uicontrol( 'Parent', menu_hbox ,'Style','PushButton','String','Notes','FontWeight','Bold','Callback', @(~,~)obj.cb_notes );
             uiextras.HBox( 'Parent', menu_hbox,'Spacing', 5, 'Padding', 5 );
-            set(menu_hbox,'Widths',[-0.6 -0.6 -1.5 -1.5 -1.5 -1.8 -1.8 -12]);
+            set(menu_hbox,'Widths',[-0.6 -0.6 -1.5 -1.5 -1.5 -1.8 -1.8 -1.5 -12]);
             
             
             obj.info.menu.md=0;
@@ -164,7 +163,7 @@ classdef best_application < handle
             % drop-down select measure: fourth horizontal row on first panel
             pmd_hbox_slct_mes = uix.HBox( 'Parent', pmd_vbox, 'Spacing', 5, 'Padding', 5  );
             uicontrol( 'Style','text','Parent', pmd_hbox_slct_mes,'String','Select Protocol:','FontSize',11,'HorizontalAlignment','left' ,'Units','normalized');
-            obj.pmd.select_measure.string={'MEP Hotspot Search','MEP Motor Threshold Hunting','MEP Dose Response Curve','MEP Measurement','rsEEG Measurement','Psychometric Threshold Hunting','rTMS Intervention','TEP Hotspot Search','TEP Measurement','ERP Measurement','TMS fMRI'};
+            obj.pmd.select_measure.string={'MEP Hotspot Search','MEP Motor Threshold Hunting','MEP Dose Response Curve','MEP Measurement','rsEEG Measurement','Sensory Threshold Hunting','rTMS Intervention','TEP Hotspot Search','TEP Measurement','ERP Measurement','TMS fMRI','Custom Protocol'};
             obj.pmd.select_measure.popupmenu=uicontrol( 'Style','popupmenu','Parent', pmd_hbox_slct_mes ,'FontSize',11,'String',obj.pmd.select_measure.string);
             obj.pmd.select_measure.btn=uicontrol( 'Parent', pmd_hbox_slct_mes ,'Style','PushButton','String','+','FontWeight','Bold','Callback',@(~,~)obj.cb_measure_add);
             set( pmd_hbox_slct_mes, 'Widths', [120 -0.7 -0.09]);
@@ -182,13 +181,13 @@ classdef best_application < handle
             % sessions listbox: seventh horizontal row on first panel
             obj.pmd.lb_sessions.string={};
             m_sessions=uicontextmenu(obj.fig.handle);
-            mus1 = uimenu(m_sessions,'label','Copy','Callback',@(~,~)obj.cb_pmd_lb_sessions_copy);
+            obj.pmd.copysession = uimenu(m_sessions,'label','Copy','Callback',@(~,~)obj.cb_pmd_lb_sessions_copy);
             %             mus2 = uimenu(m_sessions,'label','Paste Above','Callback',@(~,~)obj.cb_pmd_lb_sessions_pasteup);
-            mus3 = uimenu(m_sessions,'label','Paste','Callback',@(~,~)obj.cb_pmd_lb_sessions_pastedown);
-            mus4 = uimenu(m_sessions,'label','Delete','Callback',@(~,~)obj.cb_pmd_lb_sessions_del);
-            mus5 = uimenu(m_sessions,'label','Move Up','Callback',@(~,~)obj.cb_pmd_lb_sessions_moveup);
-            mus5 = uimenu(m_sessions,'label','Move Down','Callback',@(~,~)obj.cb_pmd_lb_sessions_movedown);
-            mus7 = uimenu(m_sessions,'label','Rename Sesion','Callback',@(~,~)obj.cb_session_rename);
+            obj.pmd.pastesession = uimenu(m_sessions,'label','Paste','Callback',@(~,~)obj.cb_pmd_lb_sessions_pastedown);
+            obj.pmd.deletesession = uimenu(m_sessions,'label','Delete','Callback',@(~,~)obj.cb_pmd_lb_sessions_del);
+            mus1 = uimenu(m_sessions,'label','Move Up','Callback',@(~,~)obj.cb_pmd_lb_sessions_moveup);
+            mus2 = uimenu(m_sessions,'label','Move Down','Callback',@(~,~)obj.cb_pmd_lb_sessions_movedown);
+            obj.pmd.renamesession = uimenu(m_sessions,'label','Rename Sesion','Callback',@(~,~)obj.cb_session_rename);
             
             obj.pmd.lb_sessions.listbox=uicontrol( 'Style','listbox','Parent', pmd_vbox ,'KeyPressFcn',@(~,~)obj.cb_pmd_lb_session_keypressfcn,'FontSize',11,'String',obj.pmd.lb_sessions.string,'uicontextmenu',m_sessions,'Callback',@(~,~)obj.cb_session_listbox);
             
@@ -201,15 +200,15 @@ classdef best_application < handle
             %             measure_lb2={'MEP Measurement','MEP Hotspot Search','MEP Motor Threshold Hunting','Dose-Response Curve (MEP-sp)','Dose-Response Curve (MEP-pp)','EEG triggered TMS','MR triggered TMS','TEP Measurement'};
             obj.pmd.lb_measures.string={};
             m=uicontextmenu(obj.fig.handle);
-            mu1 = uimenu(m,'label','Copy','Callback',@(~,~)obj.cb_pmd_lb_measures_copy);
+            obj.pmd.copyprotocol = uimenu(m,'label','Copy','Callback',@(~,~)obj.cb_pmd_lb_measures_copy);
             %             mu2 = uimenu(m,'label','Paste Above','Callback',@(~,~)obj.cb_pmd_lb_measures_pasteup);
-            mu3 = uimenu(m,'label','Paste','Callback',@(~,~)obj.cb_pmd_lb_measures_pastedown);
-            mu4 = uimenu(m,'label','Delete','Callback',@(~,~)obj.cb_pmd_lb_measures_del);
-            mu7 = uimenu(m,'label','Add Suffix','Callback',@(~,~)obj.cb_measure_suffix);
+            obj.pmd.pasteprotocol = uimenu(m,'label','Paste','Callback',@(~,~)obj.cb_pmd_lb_measures_pastedown);
+            obj.pmd.deleteprotocol = uimenu(m,'label','Delete','Callback',@(~,~)obj.cb_pmd_lb_measures_del);
+            obj.pmd.suffixprotocol = uimenu(m,'label','Add Suffix','Callback',@(~,~)obj.cb_measure_suffix);
             mu5 = uimenu(m,'label','Move Up','Callback',@(~,~)obj.cb_pmd_lb_measures_moveup);
             mu6 = uimenu(m,'label','Move Down','Callback',@(~,~)obj.cb_pmd_lb_measures_movedown);
             obj.pmd.lb_measure_menu_loadresults=uimenu(m,'label','Load Results','Callback',@(~,~)obj.cb_pmd_lb_measure_menu_loadresult);
-            mu8 = uimenu(m,'label','Rename Protocol','Callback',@(~,~)obj.cb_measure_rename);
+            obj.pmd.renameprotocol = uimenu(m,'label','Rename Protocol','Callback',@(~,~)obj.cb_measure_rename);
             
             obj.pmd.lb_measures.listbox=uicontrol( 'Style','listbox','Parent', ProtocolListBox ,'KeyPressFcn',@(~,~)obj.cb_pmd_lb_measure_keypressfcn,'FontSize',11,'String',obj.pmd.lb_measures.string,'uicontextmenu',m,'Callback',@(~,~)obj.cb_measure_listbox);
             obj.pmd.ProtocolStatus.listbox=uicontrol( 'Style','listbox','Parent', ProtocolListBox ,'FontAngle','italic','KeyPressFcn',@(~,~)obj.cb_pmd_lb_measure_keypressfcn,'FontSize',11,'String',obj.pmd.lb_measures.string,'uicontextmenu',m,'Callback',@(~,~)obj.cb_measure_listbox);
@@ -262,7 +261,7 @@ classdef best_application < handle
                     obj.pmd.PauseUnpauseButton.Enable='on';
                     obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).ProtocolStatus={'Executing'};
                     obj.pmd.ProtocolStatus.listbox.String(obj.pmd.ProtocolStatus.listbox.Value)={'Executing'};
-                    obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).Enable{1,1}='off';
+                    %                     obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).Enable{1,1}='off';
                     obj.disable_listboxes;
                     %search for all the handles and make their enable off uicontrols, table and the interactive axes  %https://www.mathworks.com/help/matlab/ref/disabledefaultinteractivity.html
                     %make enable off in the listboxes and all pmd fields
@@ -302,12 +301,17 @@ classdef best_application < handle
                                 case 2 %Manual
                                     obj.bst.best_tephs_manual
                             end
+                        case 'ERP Measurement Protocol'
+                            obj.bst.best_erp;
+                        case 'TMS fMRI Protocol'
+                            obj.tmsfmri_run
                     end
                     obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).ProtocolStatus={'Successful'};
                     obj.pmd.ProtocolStatus.listbox.String(obj.pmd.ProtocolStatus.listbox.Value)={'Successful'};
                 end
             catch e
-                errordlg('This Protcol has been stopped due to an error. Check your input parameters and MATLAB command line.','BEST Toolbox');
+                %                 if isempty(obj.info.ErrorMessage), obj.info.ErrorMessage='This Protcol has been stopped due to an error. Check your input parameters and MATLAB command line.'; end
+                %                 errordlg(obj.info.ErrorMessage,'BEST Toolbox');
                 fprintf(1,'The identifier was:\n%s',e.identifier);
                 fprintf(1,'\nThere was an error! The message was:\n%s',e.message);
                 obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).ProtocolStatus={'Error'};
@@ -990,14 +994,21 @@ classdef best_application < handle
                         obj.pr_RunningAmplitude;
                     case 'AmplitudeDistribution'
                         obj.pr_AmplitudeDistribution;
-                    case 'Psychometric Threshold Hunting'
+                    case 'Sensory Threshold Hunting'
                         obj.pr_PsychometricThresholdHunting;
                     case 'rsEEGMeasurement'
                         obj.pr_rsEEGMeasurement;
                     case 'StatusTable'
                         obj.pr_StatusTable;
                     case 'TEP Measurement'
-                        obj.pr_TEPMeasurement;
+                        %                             obj.pr_TEPMeasurement;
+                        obj.pr_TriggerLockedEEG;
+                    case 'ERPTriggerLockedEEG'
+                        obj.pr_TriggerLockedEEG;
+                    case 'ERPTopoPlot'
+                        obj.pr_ERPTopoPlot;
+                    case 'TotalITIDistribution'
+                        obj.pr_TotalITIDistributionPlot;
                         
                 end
             end
@@ -1073,7 +1084,7 @@ classdef best_application < handle
             uimenu(ui_menu,'label','export as MATLAB Figure','Callback',@obj.pr_FigureExport,'Tag',obj.pr.ax_no);
             % %             uimenu(ui_menu,'label','reset Mean MEP Amplitude status','Callback',@obj.pr_ResetMEPMeanAmp,'Tag',obj.pr.ax_no);
             % %             uimenu(ui_menu,'label','set trials for Mean MEP Amplitude calculation','Callback',@obj.pr_setMEPMeanTrials,'Tag',obj.pr.ax_no);
-            AxesTitle=['MEP Measurement ' obj.pr.ax_ChannelLabels{1,obj.pr.axesno}];
+            AxesTitle=[obj.pr.ax_ChannelLabels{1,obj.pr.axesno} ' - MEP Measurement'];
             obj.pr.clab.(obj.pr.ax_no)=uix.Panel( 'Parent', obj.pr.grid, 'Padding', 0 ,'Units','normalized','Title', AxesTitle,'FontWeight','bold','FontSize',12,'TitlePosition','centertop' );
             obj.pr.ax.(obj.pr.ax_no)=axes(uicontainer( 'Parent',  obj.pr.clab.(obj.pr.ax_no)),'Units','normalized','uicontextmenu',ui_menu);
             text(obj.pr.ax.(obj.pr.ax_no),1,1,'YLim-','units','normalized','HorizontalAlignment','right','VerticalAlignment','bottom','ButtonDownFcn',@obj.pr_YLimZoomIn,'Tag',obj.pr.ax_no,'color',[0.55 0.55 0.55]);
@@ -1085,7 +1096,8 @@ classdef best_application < handle
                 1 0 0;0 1 0;0 0 1;0 1 1;1 0 1;0.7529 0.7529 0.7529;0.5020 0.5020 0.5020;0.4706 0 0;0.5020 0.5020 0;0 0.5020 0;0.5020 0 0.5020;0 0.5020 0.5020;0 0 0.5020;1 0.4980 0.3137;
                 1 0 0;0 1 0;0 0 1;0 1 1;1 0 1;0.7529 0.7529 0.7529;0.5020 0.5020 0.5020;0.4706 0 0;0.5020 0.5020 0;0 0.5020 0;0.5020 0 0.5020;0 0.5020 0.5020;0 0 0.5020;1 0.4980 0.3137];
             obj.pr.ax.(obj.pr.ax_no).UserData.ColorsIndex=0;
-            
+            %% testing feature
+            try text(obj.pr.ax.(obj.pr.ax_no),0,0,flip(obj.pr.ax_AxesAnnotation{obj.pr.axesno}),'units','normalized','HorizontalAlignment','left','VerticalAlignment','bottom','color',[0.55 0.55 0.55],'FontSize',8); catch, end
         end
         function pr_YLimZoomIn(obj,source,~)
             
@@ -1598,7 +1610,8 @@ classdef best_application < handle
             uimenu(ui_menu,'label','X auto-fit','Callback',@obj.pr_EEGXAutoFit,'Tag',obj.pr.ax_no);
             uimenu(ui_menu,'label','export as MATLAB Figure','Callback',@obj.pr_FigureExport,'Tag',obj.pr.ax_no);
             obj.pr.clab.(obj.pr.ax_no)=uix.Panel( 'Parent', obj.pr.grid, 'Padding', 5 ,'Units','normalized','Title', 'Trigger Locked EEG','FontWeight','bold','FontSize',12,'TitlePosition','centertop' );
-            obj.pr.ax.(obj.pr.ax_no)=axes( uicontainer('Parent',   obj.pr.clab.(obj.pr.ax_no)),'Units','normalized','uicontextmenu',ui_menu);
+            obj.pr.container.(obj.pr.ax_no)=uicontainer('Parent',   obj.pr.clab.(obj.pr.ax_no));
+            obj.pr.ax.(obj.pr.ax_no)=axes( 'Parent',obj.pr.container.(obj.pr.ax_no),'Units','normalized','uicontextmenu',ui_menu);
             xlabel('Time (ms)'); ylabel('EEG Potential (\mu V)');
             text(obj.pr.ax.(obj.pr.ax_no),1,1,'YLim-','units','normalized','HorizontalAlignment','right','VerticalAlignment','bottom','ButtonDownFcn',@obj.pr_EEGYLimZoomIn,'Tag',obj.pr.ax_no,'color',[0.55 0.55 0.55]);
             text(obj.pr.ax.(obj.pr.ax_no),0.1,1,'YLim+','units','normalized','HorizontalAlignment','left','VerticalAlignment','bottom','ButtonDownFcn',@obj.pr_EEGYLimZoomOut,'Tag',obj.pr.ax_no,'color',[0.55 0.55 0.55]);
@@ -1722,6 +1735,30 @@ classdef best_application < handle
             obj.pr.clab.(obj.pr.ax_no)=uix.Panel( 'Parent', obj.pr.grid, 'Padding', 5 ,'Units','normalized','Title',AxesTitle,'FontWeight','bold','FontSize',12,'TitlePosition','centertop' );
             obj.pr.container.(obj.pr.ax_no)=uicontainer('Parent',   obj.pr.clab.(obj.pr.ax_no),'uicontextmenu',ui_menu);
             %             obj.pr.ax.(obj.pr.ax_no)=axes('Parent',   obj.pr.container.(obj.pr.ax_no),'Units','normalized','uicontextmenu',ui_menu);
+        end
+        function pr_ERPTopoPlot (obj)
+            obj.pr.ax_no=['ax' num2str(obj.pr.axesno)];
+            AxesTitle=[obj.pr.ax_ChannelLabels{1,obj.pr.axesno} ' - Topography'];
+            ui_menu=uicontextmenu(obj.fig.handle);
+            uimenu(ui_menu,'label','set Font size','Callback',@cbFontSize,'Tag',obj.pr.ax_no);
+            uimenu(ui_menu,'label','export as MATLAB Figure','Callback',@obj.pr_FigureExport,'Tag',obj.pr.ax_no);
+            obj.pr.clab.(obj.pr.ax_no)=uix.Panel( 'Parent', obj.pr.grid, 'Padding', 5 ,'Units','normalized','Title',AxesTitle,'FontWeight','bold','FontSize',12,'TitlePosition','centertop' );
+            obj.pr.container.(obj.pr.ax_no)=uicontainer('Parent',   obj.pr.clab.(obj.pr.ax_no),'uicontextmenu',ui_menu);
+        end
+        function pr_TotalITIDistributionPlot(obj)
+            obj.pr.ax_no=['ax' num2str(obj.pr.axesno)];
+            AxesTitle='ITI Distribution';
+            ui_menu=uicontextmenu(obj.fig.handle);
+            uimenu(ui_menu,'label','set Font size','Callback',@cbFontSize,'Tag',obj.pr.ax_no);
+            uimenu(ui_menu,'label','export as MATLAB Figure','Callback',@obj.pr_FigureExport,'Tag',obj.pr.ax_no);
+            obj.pr.clab.(obj.pr.ax_no)=uix.Panel( 'Parent', obj.pr.grid, 'Padding', 5 ,'Units','normalized','Title',AxesTitle,'FontWeight','bold','FontSize',12,'TitlePosition','centertop' );
+            obj.pr.ax.(obj.pr.ax_no).UserData.Colors=[1 0 0;0 1 0;0 0 1;0 1 1;1 0 1;0.7529 0.7529 0.7529;0.5020 0.5020 0.5020;0.4706 0 0;0.5020 0.5020 0;0 0.5020 0;0.5020 0 0.5020;0 0.5020 0.5020;0 0 0.5020;1 0.4980 0.3137;
+                1 0 0;0 1 0;0 0 1;0 1 1;1 0 1;0.7529 0.7529 0.7529;0.5020 0.5020 0.5020;0.4706 0 0;0.5020 0.5020 0;0 0.5020 0;0.5020 0 0.5020;0 0.5020 0.5020;0 0 0.5020;1 0.4980 0.3137;
+                1 0 0;0 1 0;0 0 1;0 1 1;1 0 1;0.7529 0.7529 0.7529;0.5020 0.5020 0.5020;0.4706 0 0;0.5020 0.5020 0;0 0.5020 0;0.5020 0 0.5020;0 0.5020 0.5020;0 0 0.5020;1 0.4980 0.3137;
+                1 0 0;0 1 0;0 0 1;0 1 1;1 0 1;0.7529 0.7529 0.7529;0.5020 0.5020 0.5020;0.4706 0 0;0.5020 0.5020 0;0 0.5020 0;0.5020 0 0.5020;0 0.5020 0.5020;0 0 0.5020;1 0.4980 0.3137];
+            obj.pr.ax.(obj.pr.ax_no).UserData.ColorsIndex=0;
+            obj.pr.container.(obj.pr.ax_no)=uicontainer('Parent',   obj.pr.clab.(obj.pr.ax_no),'uicontextmenu',ui_menu);
+            obj.pr.ax.(obj.pr.ax_no)=axes('Parent',   obj.pr.container.(obj.pr.ax_no),'Units','normalized','uicontextmenu',ui_menu);
         end
         %% MEP Hotspot Search Section
         function pi_hotspot(obj)
@@ -1855,6 +1892,7 @@ classdef best_application < handle
                 obj.info.defaults.condsAll.(cond).st1.stim_device={'Select'};
                 obj.info.defaults.condsAll.(cond).st1.stim_mode='single_pulse';
                 obj.info.defaults.condsAll.(cond).st1.stim_timing=num2cell(0);
+                obj.info.defaults.condsAll.(cond).st1.stim_timing_units={'ms'};
                 obj.info.defaults.condsAll.(cond).st1.si=si(idefaults);
                 obj.info.defaults.condsAll.(cond).st1.si_units=1;
                 obj.info.defaults.condsAll.(cond).st1.threshold='';
@@ -1884,7 +1922,7 @@ classdef best_application < handle
             
             r0=uiextras.HBox( 'Parent', obj.pi.mep.r0v1,'Spacing', 5, 'Padding', 5 );
             uicontrol( 'Style','text','Parent', r0,'String','Brain State:','FontSize',11,'HorizontalAlignment','left','Units','normalized'); % Inter Trial Inteval (s)
-            obj.pi.mep.BrainState=uicontrol( 'Style','popupmenu','Parent', r0 ,'FontSize',11,'String',{'Independent','Dependent'},'Callback',@cb_UniversalPanelAdaptation);
+            obj.pi.BrainState=uicontrol( 'Style','popupmenu','Parent', r0 ,'FontSize',11,'String',{'Independent','Dependent'},'Callback',@cb_UniversalPanelAdaptation);
             set( r0, 'Widths', [150 -2]);
             BrainStateParametersPanel=uix.Panel( 'Parent', obj.pi.mep.r0v1,'Padding',5,'Units','normalized','FontSize',8 ,'Units','normalized','Title','Brain State Parameters' ,'FontWeight','normal','TitlePosition','centertop');
             cb_BrainStateParametersPanel
@@ -1897,35 +1935,33 @@ classdef best_application < handle
             
             %row4
             r4=uiextras.HBox( 'Parent', obj.pi.mep.r0v1,'Spacing', 5, 'Padding', 5 );
-            obj.pi.mep.cond.btn=uicontrol( 'Parent', r4 ,'Style','PushButton','String','+','FontSize',16,'FontWeight','Bold','HorizontalAlignment','center','Tooltip','Click to Add a new Condition','Callback',@(~,~)obj.cb_pi_mep_conditions);%add condition
-            obj.pi.mep.stim.btn=uicontrol( 'Parent', r4 ,'Style','PushButton','String','','FontWeight','Bold','HorizontalAlignment','center','Position',[0 0 1 1],'units','normalized','CData',obj.icons.stimulator,'Tooltip','Click to Add a new Stimulator on this Condition','Callback',@(~,~)obj.cb_pi_mep_stim); %add stimulator
-            obj.pi.mep.sp.btn=uicontrol( 'Parent', r4 ,'Style','PushButton','String','','FontWeight','Bold','HorizontalAlignment','center','CData',obj.icons.single_pulse,'Tooltip','Click to Add a Single-Pulse on selected stimulator (selected stimulator is highlighted in blue colour)','Tag','single_pulse','Callback',@obj.cb_pi_mep_pulse); %add single pulse
-            obj.pi.mep.pp.btn=uicontrol( 'Parent', r4 ,'Style','PushButton','String','','FontWeight','Bold','HorizontalAlignment','center','CData',obj.icons.paired_pulse,'Tooltip','Click to Add a Paired-Pulse on selected stimulator (selected stimulator is highlighted in blue colour)','Tag','paired_pulse','Callback',@obj.cb_pi_mep_pulse);%add burst or train
-            obj.pi.mep.train.btn=uicontrol( 'Parent', r4 ,'Style','PushButton','String','','FontWeight','Bold','HorizontalAlignment','center','CData',obj.icons.train,'Tooltip','Click to Add a Train or Burst on selected stimulator (selected stimulator is highlighted in blue colour)','Tag','train','Callback',@obj.cb_pi_mep_pulse);%add paired pulse
+            obj.pi.mep.cond.btn=uicontrol( 'Parent', r4 ,'Style','PushButton','String','+','FontSize',16,'FontWeight','Bold','HorizontalAlignment','center','Tooltip','Click to Add a new Condition','Callback',@(~,~)obj.cb_cm_conditions);%add condition
+            obj.pi.mep.stim.btn=uicontrol( 'Parent', r4 ,'Style','PushButton','String','','FontWeight','Bold','HorizontalAlignment','center','Position',[0 0 1 1],'units','normalized','CData',obj.icons.stimulator,'Tooltip','Click to Add a new Stimulator on this Condition','Callback',@(~,~)obj.cb_cm_stim); %add stimulator
+            obj.pi.mep.sp.btn=uicontrol( 'Parent', r4 ,'Style','PushButton','String','','FontWeight','Bold','HorizontalAlignment','center','CData',obj.icons.single_pulse,'Tooltip','Click to Add a Single-Pulse on selected stimulator (selected stimulator is highlighted in blue colour)','Tag','single_pulse','Callback',@obj.cb_cm_pulse); %add single pulse
+            obj.pi.mep.pp.btn=uicontrol( 'Parent', r4 ,'Style','PushButton','String','','FontWeight','Bold','HorizontalAlignment','center','CData',obj.icons.paired_pulse,'Tooltip','Click to Add a Paired-Pulse on selected stimulator (selected stimulator is highlighted in blue colour)','Tag','paired_pulse','Callback',@obj.cb_cm_pulse);%add burst or train
+            obj.pi.mep.train.btn=uicontrol( 'Parent', r4 ,'Style','PushButton','String','','FontWeight','Bold','HorizontalAlignment','center','CData',obj.icons.train,'Tooltip','Click to Add a Train or Burst on selected stimulator (selected stimulator is highlighted in blue colour)','Tag','train','Callback',@obj.cb_cm_pulse);%add paired pulse
             set( r4, 'Widths', [55 55 55 55 55]);
             
-            cb_SetHeights;
+            
             
             
             obj.pi.mep.r0v2 = uix.VBox( 'Parent', obj.pi.mep.r0, 'Spacing', 5, 'Padding', 0); %uicontext menu to duplicate or delete a condition goes here
             obj.pi.mm.r0v2r1=uix.Panel( 'Parent', obj.pi.mep.r0v2,'Padding',0,'Units','normalized','FontSize',8 ,'Units','normalized','Title','Stimulation Parameters' ,'FontWeight','normal','TitlePosition','centertop');
-            table = obj.cb_pi_mep_StimulationParametersTable;
+            table = obj.cb_cm_StimulationParametersTable;
             
             obj.pi.mm.tab = uiextras.TabPanel( 'Parent', obj.pi.mep.r0v2, 'Padding', 5 );
             obj.pi.mep.r0v2.Heights=[200 -1];
             set(obj.pi.mep.r0,'Widths',[-1.45 -3]);
             obj.pi.mep.cond.no=0;
-            obj.cb_pi_mep_Nconditions;
+            obj.cb_cm_Nconditions;
             Interactivity;
+            cb_SetHeights;
             function cb_UniversalPanelAdaptation(~,~)
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).BrainState=obj.pi.mep.BrainState.Value;
-                cb_BrainStateParametersPanel
-                cb_DisplayParametersPanel
-                cb_SetHeights
-                obj.func_load_mep_par;
+                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).BrainState=obj.pi.BrainState.Value;
+                obj.RefreshProtocol;
             end
             function cb_BrainStateParametersPanel(~,~)
-                switch obj.pi.mep.BrainState.Value
+                switch obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).BrainState
                     case 1
                         expModvBox=uix.VBox( 'Parent', BrainStateParametersPanel, 'Spacing', 0, 'Padding', 0  );
                         
@@ -1937,12 +1973,7 @@ classdef best_application < handle
                         obj.pi.mep.InputDevice=uicontrol( 'Style','popupmenu','Parent', expModr1 ,'FontSize',11,'String',str_in_device,'Tag','InputDevice','callback',@cb_par_saving);
                         expModr1.Widths=[150 -2];
                         
-                        expModr2c=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
-                        uicontrol( 'Style','text','Parent', expModr2c,'String','Inter Trial Interval (s):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-                        obj.pi.mep.ITI=uicontrol( 'Style','edit','Parent', expModr2c ,'FontSize',11,'Tag','ITI','callback',@cb_par_saving);
-                        expModr2c.Widths=[150 -2];
-                        
-                        expModvBox.Heights=[30 35];
+                        expModvBox.Heights=[30];
                     case 2
                         expModvBox=uix.VBox( 'Parent', BrainStateParametersPanel, 'Spacing', 0, 'Padding', 0  );
                         %row1
@@ -1972,8 +2003,8 @@ classdef best_application < handle
                         mep_panel_row8z = uix.HBox( 'Parent', expModvBox, 'Spacing',  0, 'Padding', 2 );
                         uicontrol( 'Style','text','Parent', mep_panel_row8z,'String','Peak Frequency (Hz):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
                         obj.pi.mep.PeakFrequency=uicontrol( 'Style','edit','Parent', mep_panel_row8z ,'FontSize',11,'Tag','PeakFrequency','Callback',@cb_par_saving);
-                        obj.pi.mep.ImportPeakFrequencyFromProtocols=uicontrol( 'Style','popupmenu','Parent', mep_panel_row8z ,'String',{'Select'},'FontSize',11,'Tag','Bin','Callback',@set_PeakFrequency);
-                        obj.pi.mep.ImportPeakFrequencyFromProtocols.String=getPeakFrequencyProtocols;
+                        obj.pi.mep.ImportPeakFrequencyFromProtocols=uicontrol( 'Style','popupmenu','Parent', mep_panel_row8z ,'String',{'Select'},'FontSize',11,'Tag','Bin','Callback',@obj.cb_ImportPeakFrequency);%@set_PeakFrequency);
+                        obj.pi.mep.ImportPeakFrequencyFromProtocols.String={'Hz','Import from Protocol'};%getPeakFrequencyProtocols;
                         set( mep_panel_row8z, 'Widths', [150 -2 -2]);
                         
                         % row 2
@@ -1989,35 +2020,26 @@ classdef best_application < handle
                         set( mep_panel_row2, 'Widths', [150 -2]);
                         
                         
-                        mep_panel_13 = uix.HBox( 'Parent', expModvBox, 'Spacing',  0, 'Padding', 2 );
-                        uicontrol( 'Style','text','Parent', mep_panel_13,'String','Amplitude Threshold:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-                        obj.pi.mep.AmplitudeThreshold=uicontrol( 'Style','edit','Parent', mep_panel_13 ,'FontSize',11,'Tag','AmplitudeThreshold','Callback',@cb_par_saving);
-                        obj.pi.mep.AmplitudeUnits=uicontrol( 'Style','popupmenu','Parent', mep_panel_13 ,'FontSize',11,'String',{'Percentile','Absolute (micro Volts)'},'Tag','AmplitudeUnits','Callback',@cb_par_saving);
-                        set( mep_panel_13, 'Widths', [150 -3 -1]);
-                        
                         
                         mep_panel_row2z = uix.HBox( 'Parent', expModvBox, 'Spacing',  0, 'Padding', 2 );
                         uicontrol( 'Style','text','Parent', mep_panel_row2z,'String','Amp Assignment Period(minutes):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
                         obj.pi.mep.AmplitudeAssignmentPeriod=uicontrol( 'Style','edit','Parent', mep_panel_row2z ,'FontSize',11,'Tag','AmplitudeAssignmentPeriod','Callback',@cb_par_saving);
                         set( mep_panel_row2z, 'Widths', [150 -2]);
                         
-                        expModr2c=uiextras.HBox( 'Parent', expModvBox,'Spacing',  0, 'Padding', 2 );
-                        uicontrol( 'Style','text','Parent', expModr2c,'String','Minimum ITI (s):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-                        obj.pi.mep.ITI=uicontrol( 'Style','edit','Parent', expModr2c ,'FontSize',11,'Tag','ITI','callback',@cb_par_saving);
-                        expModr2c.Widths=[150 -2];
-                        expModvBox.Heights=[30 35 35 35 35 35 35 35 42 35];
+                        mep_panel_row2z = uix.HBox( 'Parent', expModvBox, 'Spacing',  0, 'Padding', 2 );
+                        uicontrol( 'Style','text','Parent', mep_panel_row2z,'String','Protocol Onset(s):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                        obj.pi.mep.ProtocolOnset=uicontrol( 'Style','edit','Parent', mep_panel_row2z ,'FontSize',11,'Tag','ProtocolOnset','Callback',@cb_par_saving);
+                        set( mep_panel_row2z, 'Widths', [150 -2]);
+                        
+                        expModvBox.Heights=[30 35 35 35 35 35 35 42 35];
                 end
                 
             end
             function cb_DisplayParametersPanel
-                switch obj.pi.mep.BrainState.Value
+                switch obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).BrainState
                     case 1
                         expModvBox=uix.VBox( 'Parent', DisplayParametersPanel, 'Spacing', 0, 'Padding', 0  );
                         
-                        expModr2=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
-                        uicontrol( 'Style','text','Parent', expModr2,'String','Trials Per Condition:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-                        obj.pi.mep.TrialsPerCondition=uicontrol( 'Style','edit','Parent', expModr2 ,'FontSize',11,'Tag','TrialsPerCondition','callback',@cb_par_saving);
-                        expModr2.Widths=[150 -2];
                         
                         expModr2=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
                         uicontrol( 'Style','text','Parent', expModr2,'String','EMG Display Channels:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
@@ -2039,14 +2061,10 @@ classdef best_application < handle
                         obj.pi.mep.EMGXLimit=uicontrol( 'Style','edit','Parent', expModr2 ,'FontSize',11,'Tag','EMGXLimit','callback',@cb_par_saving);
                         expModr2.Widths=[150 -2];
                         
-                        expModvBox.Heights=[ 35 45 45 45 45];
+                        expModvBox.Heights=[ 45 45 45 45];
                     case 2
                         expModvBox=uix.VBox( 'Parent', DisplayParametersPanel, 'Spacing', 0, 'Padding', 0  );
                         
-                        expModr2=uiextras.HBox( 'Parent', expModvBox,'Spacing', 0, 'Padding', 2 );
-                        uicontrol( 'Style','text','Parent', expModr2,'String','Trials Per Condition:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-                        obj.pi.mep.TrialsPerCondition=uicontrol( 'Style','edit','Parent', expModr2 ,'FontSize',11,'Tag','TrialsPerCondition','callback',@cb_par_saving);
-                        expModr2.Widths=[150 -2];
                         
                         expModr2=uiextras.HBox( 'Parent', expModvBox,'Spacing',  0, 'Padding', 2 );
                         uicontrol( 'Style','text','Parent', expModr2,'String','EMG Display Channels:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
@@ -2059,18 +2077,13 @@ classdef best_application < handle
                         expModr2.Widths=[200 -2];
                         
                         expModr2=uiextras.HBox( 'Parent', expModvBox,'Spacing',  0, 'Padding', 2 );
-                        uicontrol( 'Style','text','Parent', expModr2,'String','EMG Extraction Period (ms):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                        uicontrol( 'Style','text','Parent', expModr2,'String','Data Extraction Period (ms):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
                         obj.pi.mep.EMGExtractionPeriod=uicontrol( 'Style','edit','Parent', expModr2 ,'FontSize',11,'Tag','EMGExtractionPeriod','callback',@cb_par_saving);
                         expModr2.Widths=[200 -2];
                         
                         expModr2=uiextras.HBox( 'Parent', expModvBox,'Spacing',  0, 'Padding', 2 );
                         uicontrol( 'Style','text','Parent', expModr2,'String','EMG Display Period (ms):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
                         obj.pi.mep.EMGXLimit=uicontrol( 'Style','edit','Parent', expModr2 ,'FontSize',11,'Tag','EMGXLimit','callback',@cb_par_saving);
-                        expModr2.Widths=[200 -2];
-                        
-                        expModr2=uiextras.HBox( 'Parent', expModvBox,'Spacing',  0, 'Padding', 2 );
-                        uicontrol( 'Style','text','Parent', expModr2,'String','EEG Extraction Period (ms):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-                        obj.pi.mep.EEGExtractionPeriod=uicontrol( 'Style','edit','Parent', expModr2 ,'FontSize',11,'Tag','EEGExtractionPeriod','callback',@cb_par_saving);
                         expModr2.Widths=[200 -2];
                         
                         expModr2=uiextras.HBox( 'Parent', expModvBox,'Spacing',  0, 'Padding', 2 );
@@ -2078,21 +2091,22 @@ classdef best_application < handle
                         obj.pi.mep.EEGXLimit=uicontrol( 'Style','edit','Parent', expModr2 ,'FontSize',11,'Tag','EEGXLimit','callback',@cb_par_saving);
                         expModr2.Widths=[200 -2];
                         
-                        expModvBox.Heights=[-1 -1 -1 -1 -1 -1 -1];%[35 42 42 42 42 42 42];
+                        expModvBox.Heights=[-1 -1 -1 -1 -1];%[35 42 42 42 42 42 42];
                 end
             end
             function cb_SetHeights
-                switch obj.pi.mep.BrainState.Value
+                switch obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).BrainState
                     case 1
-                        set(obj.pi.mep.r0v1,'Heights',[40 90 250 -1 55]);
+                        set(obj.pi.mep.r0v1,'Heights',[40 60 220 -1 55]);
                     case 2
-                        set(obj.pi.mep.r0v1,'Heights',[-0.6 -9 -6 0 -1.1]);
+                        set(obj.pi.mep.r0v1,'Heights',[-0.6 -6 -5 -2 -1.1]);
                         set(obj.pi.mep.r0,'Widths',[-2 -3]);
                 end
             end
             
             
             function cb_par_saving(source,~)
+                if obj.par.GlobalSettings.Protect==1, obj.RefreshProtocol; return; end
                 if strcmp(source.Tag,'InputDevice') || strcmp(source.Tag,'AmplitudeUnits') || strcmp(source.Tag,'FrequencyBand')
                     obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(source.Tag)=source.Value;
                 else
@@ -2150,1098 +2164,6 @@ classdef best_application < handle
             end
             
         end
-        function table= cb_pi_mep_StimulationParametersTable(obj)
-            % create the Data from pars
-            iData=0;
-            for iTableCondition=1:numel(fieldnames(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll))
-                TableCond=['cond' num2str(iTableCondition)];
-                for iTableStimulator=1:numel(fieldnames(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond)))-1 %numel(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond))-1
-                    iData=iData+1;
-                    TableStim=['st' num2str(iTableStimulator)];
-                    TableData{iData,1}=num2str(iTableCondition);
-                    TableData{iData,8}='          -';
-                    TableData{iData,9}='          -';
-                    TableData{iData,10}='          -';
-                    TableData{iData,11}='          -';
-                    if( isfield(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim),'si'))
-                        TableData{iData,2}=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).si_pckt{1,1});
-                        
-                        %check here what has been saved and use that
-                        if(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).si_units==1)
-                            TableData{iData,3}='%MSO';
-                            TableData{iData,12}='          -';
-                        else
-                            TableData{iData,3}='%MT';
-                            TableData{iData,12}=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).threshold;
-                        end
-                    end
-                    
-                    if( isfield(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim),'stim_device'))
-                        TableData{iData,4}=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).stim_device{1,1}; end
-                    
-                    if( isfield(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim),'pulse_count'))
-                        TableData{iData,6}=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).pulse_count); end
-                    if( isfield(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim),'stim_mode'))
-                        
-                        switch obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).stim_mode
-                            case 'single_pulse'
-                                TableData{iData,5}='Single Pulse';
-                            case 'paired_pulse'
-                                TableData{iData,5}='Paired Pulse';
-                                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).si_pckt{1,2};
-                                TableData{iData,8}=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).si_pckt{1,2});
-                                TableData{iData,9}=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).si_pckt{1,3});
-                            case 'train'
-                                TableData{iData,5}='Train';
-                                TableData{iData,10}=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).si_pckt{1,2});
-                                TableData{iData,11}=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).pulse_count);
-                                TableData{iData,6}=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).si_pckt{1,3});
-                        end
-                    end
-                    if( isfield(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim),'stim_timing'))
-                        TableData{iData,7}=mat2str(cell2mat(horzcat((obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).stim_timing(1,:))))); end
-                    %%                   TableData{iData,8}=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).targetChannel{1,1};
-                end
-                %%                 if numel(fieldnames(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond)))==1
-                %%                     TableData{iData+1,1}=num2str(iTableCondition);
-                %%                     TableData{iData+1,8}=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).targetChannel{1,1};
-                %%                 end
-            end
-            if (isempty(obj.hw.device_added2_listbox.string))
-                obj.hw.device_added2_listbox.string={'Select'};
-            end
-            % create the table and load the data
-            table=uitable( 'Parent', obj.pi.mm.r0v2r1,'Tag','MEP Table');
-            table.Data=TableData;%cell(6,12); % the row number comes from above
-            table.FontSize=10;
-            table.ColumnName = {'Condition #','TS Intensity','Intensity Units','Stimulator','Pulse Mode','# of Pulses','Timing Onset (ms)','CS Intensity','ISI (ms)','Train Freq','# of Trains','Motor Threshold (%MSO)'};
-            table.ColumnFormat={[],[],{'%MSO','%MT','mA','%ST','%MSO coupled','%MT coupled','mA coupled','%ST coupled'},obj.hw.device_added2_listbox.string,{'Single Pulse','Paired Pulse', 'Train'},[],[],[],[],[],[],[]};
-            table.ColumnWidth = {100,100,100,100,100,100,100,100,90,90,90,120};
-            table.ColumnEditable =true(1,numel(table.ColumnName));
-            table.RowStriping='on';
-            table.RearrangeableColumns='on';
-            table.CellEditCallback =@CellEditCallback ;
-            
-            function CellEditCallback (~,CellEditData)
-                AdditionInCondition=['cond' num2str(table.Data{CellEditData.Indices(1),1})];
-                %                     table.Data{:,1}
-                % num2str(table.Data{CellEditData.Indices(1),1})
-                % gp=cellfun(@str2double ,table.Data(:,1))
-                % str2double(table.Data{CellEditData.Indices(1),1})
-                %                     ggg=find(gp==str2double(table.Data{CellEditData.Indices(1),1}))
-                % %                     find(table.Data{:,1}==table.Data{CellEditData.Indices(1),1})
-                AdditionInStimulatorNum=find(find(cellfun(@str2double ,table.Data(:,1))==str2double(table.Data{CellEditData.Indices(1),1}))==CellEditData.Indices(1));
-                AdditionInStimulator=['st' num2str(AdditionInStimulatorNum)];
-                opts               =    [];
-                opts.WindowStyle   =    'modal';
-                opts.Interpreter   =    'none';
-                switch CellEditData.Indices(2)
-                    case 2 %TS Intensity
-                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).si_pckt{1,1}=str2double(CellEditData.NewData);
-                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).si=CellEditData.NewData;
-                    case 3 %Intensity Units
-                        switch CellEditData.NewData
-                            case '%MSO'
-                                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).si_units=1;
-                            case '%MT'
-                                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).si_units=0;
-                                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).threshold='NaN';
-                            case 'mA'
-                                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).si_units='mA';
-                            case '%ST'
-                                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).si_units='%ST';
-                            case '%MSO coupled'
-                                
-                                % open the selector
-                                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).si_units='%MSO coupled';
-                                
-                            case '%MT coupled'
-                                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).si_units='%MT coupled';
-                            case 'mA coupled'
-                                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).si_units='mA coupled';
-                            case '%ST coupled'
-                                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).si_units='%ST coupled';
-                        end
-                        
-                    case 4 %Stimulator
-                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).stim_device=cellstr(CellEditData.NewData);
-                        
-                    case 5 %Pulse Mode
-                        switch CellEditData.NewData
-                            case 'Single Pulse'
-                                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).stim_mode='single_pulse';
-                            case 'Paired Pulse'
-                                
-                                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).stim_mode='paired_pulse';
-                                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).si_pckt{1,2}=NaN;
-                                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).si_pckt{1,3}=NaN;
-                                
-                            case 'Train'
-                                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).stim_mode='train';
-                                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).si_pckt{1,2}=NaN;
-                                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).si_pckt{1,3}=NaN;
-                        end
-                        
-                    case 6 % # of Pulses
-                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).pulse_count=str2double(CellEditData.NewData);
-                        %AAJ: idher add kero k Stimulation Mode bhi nill ho jaye units bhi Nill ho
-                        %jaye intensity bhi khtam ho jaye matlab jese he pulse 0 zero ho to sirf vo
-                        %reh jaye to jab only stimulator add kerty hein to ata he
-                        if(str2double(CellEditData.NewData)==0)
-                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).stim_timing{1,1}=[];
-                        else
-                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).stim_timing{1,str2double(CellEditData.NewData)}=NaN;
-                        end
-                        
-                    case 7 %Timing Onset (ms)
-                        CellEditDataTimingOnset=[];
-                        CellEditDataTimingOnset=num2cell(eval(CellEditData.NewData));
-                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).stim_timing=CellEditDataTimingOnset;
-                        
-                        %%                     case 8 %Target EMG Ch
-                        %%                         obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).targetChannel=cellstr(CellEditData.NewData);
-                        %
-                    case {10,11} %Train Freq, # of Trians
-                        if ~(strcmp(table.Data{CellEditData.Indices(1),5},'Train'))
-                            table.Data(CellEditData.Indices(1),CellEditData.Indices(2))=cellstr('          -');
-                            errordlg('Train Frequency and # of Trians are only Editable for the "Train" Pulse Mode, change Pulse Mode respectively if you desire to set this parameter','Warning | BEST Toolbox',opts);
-                        else
-                            switch CellEditData.Indices(2)
-                                case 10
-                                    obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).si_pckt{1,2}=str2double(CellEditData.NewData);
-                                    obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).freq=CellEditData.NewData;
-                                case 11
-                                    obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).si_pckt{1,3}=str2double(CellEditData.NewData);
-                                    obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).pulsesNo=CellEditData.NewData;
-                            end
-                            
-                        end
-                    case {8,9} % CS Intensity, ISI (ms)
-                        if ~(strcmp(table.Data{CellEditData.Indices(1),5},'Paired Pulse'))
-                            table.Data(CellEditData.Indices(1),CellEditData.Indices(2))=cellstr('          -');
-                            errordlg('CS Intensity and ISI are only Editable for the "Paired Pulse" Pulse Mode, change Pulse Mode respectively if you desire to set this parameter','Warning | BEST Toolbox',opts);
-                        else
-                            switch CellEditData.Indices(2)
-                                case 8
-                                    obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).si_pckt{1,2}=str2double(CellEditData.NewData);
-                                    obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).cs=CellEditData.NewData;
-                                case 9
-                                    obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).si_pckt{1,3}=str2double(CellEditData.NewData);
-                                    obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).isi=CellEditData.NewData;
-                            end
-                            
-                        end
-                    case 12
-                        if ~(strcmp(table.Data{CellEditData.Indices(1),3},'%MT'))
-                            table.Data(CellEditData.Indices(1),CellEditData.Indices(2))=cellstr('          -');
-                            errordlg('The selected Stimulation Intensity Units are %MSO, change it to %MT from its dropdown menu if you desire to update this value to a specific threshold','Warning | BEST Toolbox',opts);
-                        else
-                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).threshold=CellEditData.NewData;
-                            
-                        end
-                end
-                %Improvement Note :Requirement 96
-                %                 obj.pi_mep;
-                %cb_pulse_update
-                %cb_condition_addition
-                %cb_condition_deletion
-                %cb_stimulator_addition
-                %cb_stimulator_deletion
-                cb_pulse_update
-                function cb_pulse_update
-                    cd=[];
-                    st=[];
-                    condStr=[];
-                    obj.pi.mm.tab.SelectedChild=str2double(table.Data{CellEditData.Indices(1),1});
-                    
-                    cd=['cd' num2str(table.Data{CellEditData.Indices(1),1})];
-                    condStr=['cond' num2str(table.Data{CellEditData.Indices(1),1})];
-                    obj.pi.mm.stim.(cd).slctd=AdditionInStimulatorNum;
-                    st=['st' num2str(obj.pi.mm.stim.(cd).slctd)];
-                    obj.pi.mm.stim.(cd).(st).pulse_count=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).pulse_count;
-                    axes(obj.pi.mm.cond.(cd).ax)
-                    cla;
-                    hold on;
-                    contextMenu_condition=uicontextmenu(obj.fig.handle);
-                    uimenu(contextMenu_condition,'label','Duplicate Condition','Callback',@cb_pr_mm_duplicateCondition);
-                    uimenu(contextMenu_condition,'label','Delete Condition','Callback',@cb_pr_mm_deleteCondition);
-                    obj.pi.mm.cond.(cd).ax.YLim=[-1 1];
-                    obj.pi.mm.cond.(cd).ax.XLim=[0 5];
-                    xticks(obj.pi.mm.cond.(cd).ax,[100 101]);
-                    yticks(obj.pi.mm.cond.(cd).ax,-1:1:1)
-                    obj.pi.mm.cond.(cd).ax.YTickLabel={'','MEP Search Window',''};
-                    plot(0:0.01:10,rand(1,1001)*0.30-0.15,'Color','k','parent',obj.pi.mm.cond.(cd).ax,'LineWidth',2,'Tag','empty'); % 12-Mar-2020 07:37:17
-                    %%                 text(2.5,0+0.20,['Channel Name:[' char(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).targetChannel) ']'],'VerticalAlignment','bottom','HorizontalAlignment','center','Color',[0.50 0.50 0.50],'FontSize',9,'FontAngle','italic','ButtonDownFcn',@obj.cb_pi_mep_targetChannel) % 11-Mar-2020 14:49:00
-                    obj.pi.mm.stim.(cd).no=0;
-                    
-                    %make stimulators
-                    for istimulators=1:(length(fieldnames(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr)))-1)
-                        obj.pi.mm.stim.(cd).no=istimulators;
-                        st=['st' num2str(obj.pi.mm.stim.(cd).no)];
-                        axes(obj.pi.mm.cond.(cd).ax)
-                        hold on;
-                        obj.pi.mm.stim.(cd).(st).plt=plot([-45 45],[-1*obj.pi.mm.stim.(cd).no -1*obj.pi.mm.stim.(cd).no],'Color','k','parent',obj.pi.mm.cond.(cd).ax,'LineWidth',2,'Tag',num2str(obj.pi.mm.stim.(cd).no),'ButtonDownFcn',@cb_stimulatorSelector); %line
-                        %                     obj.pi.mm.stim.(cd).(st).pulse_count=0;
-                        %                     obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).pulse_count=obj.pi.mm.stim.(cd).(st).pulse_count;
-                        obj.pi.mm.cond.(cd).ax.YLim=[(-1-obj.pi.mm.stim.(cd).no) 1];
-                        yticks(obj.pi.mm.cond.(cd).ax,[-1-obj.pi.mm.stim.(cd).no:1:1])
-                        for i=1:obj.pi.mm.stim.(cd).no
-                            yticklab{1,i}=cellstr(['Stimulator ' num2str(i)]);
-                        end
-                        yticklab=flip(horzcat(yticklab{1,:}));
-                        obj.pi.mm.cond.(cd).ax.YTickLabel={'',char(yticklab),'MEP Search Channel',''};
-                        text(0,-1*obj.pi.mm.stim.(cd).no,char(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).stim_device),'VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',9,'FontAngle','italic','Tag',num2str(obj.pi.mm.stim.(cd).no),'ButtonDownFcn',@obj.cb_pi_mep_output_device)
-                        for ipulses=1:obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).pulse_count
-                            
-                            % 11-Mar-2020 18:13:21
-                            obj.pi.mm.stim.(cd).slctd=istimulators;
-                            obj.pi.mm.stim.(cd).(st).pulse_count=ipulses;
-                            %                         obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).pulse_count=obj.pi.mm.stim.(cd).(st).pulse_count;
-                            
-                            switch char(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).stim_mode)
-                                case 'single_pulse'
-                                    obj.pi.mm.stim.(cd).(st).pulse_types{1,obj.pi.mm.stim.(cd).(st).pulse_count}=cellstr('single_pulse');
-                                    %make the string here
-                                    SinglePulseAnnotation=[];
-                                    if (obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_units==1)
-                                        
-                                        SinglePulseAnnotation=['TS: [' num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt{1,1}) '] %MSO'];
-                                    else
-                                        SinglePulseAnnotation=['TS: [' num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt{1,1}) '] %MT'];
-                                    end
-                                    %AAJ: idher ye banao jese oper hehehehehe
-                                    %vala bnaya he pp aur train dono k lye
-                                    text(obj.pi.mm.stim.(cd).(st).pulse_count-0.25,-obj.pi.mm.stim.(cd).slctd+0.41,SinglePulseAnnotation,'VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',7,'FontAngle','italic','UserData',[obj.pi.mm.stim.(cd).(st).pulse_count,obj.pi.mm.stim.(cd).slctd],'ButtonDownFcn',@obj.cb_pi_mep_sp_inputfig) % 11-Mar-2020 14:49:00
-                                case 'paired_pulse'
-                                    obj.pi.mm.stim.(cd).(st).pulse_types{1,obj.pi.mm.stim.(cd).(st).pulse_count}=cellstr('paired_pulse');
-                                    % % %                                 text(obj.pi.mm.stim.(cd).(st).pulse_count-0.25,-obj.pi.mm.stim.(cd).slctd+0.4,{'TS:[?], CS:[?] %MSO', 'ISI:[?] ms'},'VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',7,'FontAngle','italic','UserData',[obj.pi.mm.stim.(cd).(st).pulse_count,obj.pi.mm.stim.(cd).slctd],'ButtonDownFcn',@obj.cb_pi_mep_pp_inputfig) % 11-Mar-2020 14:49:00
-                                    TS=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt{1,1});
-                                    CS=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt{1,2});
-                                    ISI=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt{1,3});
-                                    if obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_units==1
-                                        UnitString='%MSO';
-                                    elseif obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_units==0
-                                        UnitString='%MT';
-                                    end
-                                    text(obj.pi.mm.stim.(cd).(st).pulse_count-0.25,-obj.pi.mm.stim.(cd).slctd+0.4,{['TS:' TS ', CS:' CS ' ' UnitString], ['ISI:' ISI 'ms']},'VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',7,'FontAngle','italic','UserData',[obj.pi.mm.stim.(cd).(st).pulse_count,obj.pi.mm.stim.(cd).slctd],'ButtonDownFcn',@obj.cb_pi_mep_pp_inputfig) % 11-Mar-2020 14:49:00
-                                    
-                                case 'train'
-                                    obj.pi.mm.stim.(cd).(st).pulse_types{1,obj.pi.mm.stim.(cd).(st).pulse_count}=cellstr('train');
-                                    %                                 obj.pi.mm.stim.(st).pulse_specs=text(obj.pi.mm.stim.(cd).(st).pulse_count,-obj.pi.mm.stim.(cd).slctd+0.4,{'Pulses:[?], f:[?] Hz', 'TS:[?] %MSO'},'VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',7,'FontAngle','italic','UserData',[obj.pi.mm.stim.(cd).(st).pulse_count,obj.pi.mm.stim.(cd).slctd],'ButtonDownFcn',@obj.cb_pi_mep_train_inputfig); % 11-Mar-2020 14:49:00
-                                    TS=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt{1,1});
-                                    F=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt{1,2});
-                                    PULSES=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt{1,3});
-                                    if obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_units==1
-                                        UnitString='%MSO';
-                                    elseif obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_units==0
-                                        UnitString='%MT';
-                                    end
-                                    obj.pi.mm.stim.(st).pulse_specs=text(obj.pi.mm.stim.(cd).(st).pulse_count,-obj.pi.mm.stim.(cd).slctd+0.4,{['Pulses:' PULSES ', f:' F 'Hz'], ['TS:' TS UnitString]},'VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',7,'FontAngle','italic','UserData',[obj.pi.mm.stim.(cd).(st).pulse_count,obj.pi.mm.stim.(cd).slctd],'ButtonDownFcn',@obj.cb_pi_mep_train_inputfig); % 11-Mar-2020 14:49:00
-                                    
-                            end
-                            
-                            
-                            % delete the previous plot
-                            delete(obj.pi.mm.stim.(cd).(st).plt)
-                            % make the x and y vector for new one
-                            x=[];
-                            y=[];
-                            for i=1:obj.pi.mm.stim.(cd).(st).pulse_count
-                                switch char(obj.pi.mm.stim.(cd).(st).pulse_types{1,i})
-                                    case 'single_pulse'
-                                        
-                                        x{i}=([i i i+0.15 i+0.15]);
-                                        y{i}=[-obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd+0.4 -obj.pi.mm.stim.(cd).slctd+0.4 -obj.pi.mm.stim.(cd).slctd];
-                                    case 'paired_pulse'
-                                        
-                                        x{i}=[i i i+0.15 i+0.15 i+0.25 i+0.25 i+0.40 i+0.40];
-                                        y{i}=[-obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd+0.20 -obj.pi.mm.stim.(cd).slctd+0.20 -obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd+0.4 -obj.pi.mm.stim.(cd).slctd+0.4 -obj.pi.mm.stim.(cd).slctd];
-                                    case 'train'
-                                        
-                                        %                         x(i)=[i i i+0.20 i+0.20 i+0.30 i+0.30 i+0.50 i+0.50 i+0.60 i+0.60 i+0.80 i+0.80];
-                                        x{i}=[i i i+0.15 i+0.15 i+0.25 i+0.25 i+0.40 i+0.40 i+0.50 i+0.50 i+0.65 i+0.65];
-                                        %                         y{i}={[-obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd+0.5 -obj.pi.mm.stim.(cd).slctd+0.5 -obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd+0.5 -obj.pi.mm.stim.(cd).slctd+0.5 -obj.pi.mm.stim.(cd).slctd]};
-                                        
-                                        y{i}=-obj.pi.mm.stim.(cd).slctd+[0 0.4 0.4 0 0 0.4 0.4 0 0 0.4 0.4 0];
-                                end
-                            end
-                            
-                            x=[-45 cell2mat(x) 45];
-                            y=[-obj.pi.mm.stim.(cd).slctd cell2mat(y) -obj.pi.mm.stim.(cd).slctd];
-                            
-                            obj.pi.mm.stim.(cd).(st).plt=plot(x,y,'Color','k','parent',obj.pi.mm.cond.(cd).ax,'LineWidth',2,'Tag',num2str(obj.pi.mm.stim.(cd).slctd),'ButtonDownFcn',@cb_stimulatorSelector); %line
-                            
-                            drawArrow = @(x,y) quiver( x(1),y(1),x(2)-x(1),y(2)-y(1),0,'color','k' );
-                            num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).stim_timing{1,ipulses})
-                            obj.pi.mm.stim.(st).pulse_time=text(obj.pi.mm.stim.(cd).(st).pulse_count-1+0.5,-obj.pi.mm.stim.(cd).slctd-0.05,['t:' num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).stim_timing{1,ipulses}) 'ms'],'VerticalAlignment','top','Color',[0.50 0.50 0.50],'FontSize',9,'FontAngle','italic','UserData',[obj.pi.mm.stim.(cd).(st).pulse_count,obj.pi.mm.stim.(cd).slctd],'ButtonDownFcn',@obj.cb_pi_mep_timing);
-                            
-                            obj.pi.mm.stim.(st).pulse_arrow1=drawArrow([obj.pi.mm.stim.(cd).(st).pulse_count-1 obj.pi.mm.stim.(cd).(st).pulse_count-1+1],[-obj.pi.mm.stim.(cd).slctd-0.05 -obj.pi.mm.stim.(cd).slctd-0.05]);
-                            obj.pi.mm.stim.(st).pulse_arrow2=drawArrow([obj.pi.mm.stim.(cd).(st).pulse_count-1+1 obj.pi.mm.stim.(cd).(st).pulse_count-1],[-obj.pi.mm.stim.(cd).slctd-0.05 -obj.pi.mm.stim.(cd).slctd-0.05]);
-                            
-                            
-                            if(obj.pi.mm.cond.(cd).ax.XLim(2)<obj.pi.mm.stim.(cd).(st).pulse_count+1)
-                                obj.pi.mm.cond.(cd).ax.XLim(2)=obj.pi.mm.stim.(cd).(st).pulse_count+1;
-                            end
-                            
-                        end
-                        
-                    end
-                    function cb_stimulatorSelector(source,~)
-                        if(isfield(obj.pi.mm,'stimulatorSelector'))
-                            if(isvalid(obj.pi.mm.stimulatorSelector))
-                                obj.pi.mm.stimulatorSelector.Color='k';
-                            end
-                        end
-                        obj.pi.mm.stim.(cd).slctd=str2double(source.Tag);
-                        source.Color='b';
-                        obj.pi.mm.stimulatorSelector=source;
-                    end
-                    function cb_pr_mm_duplicateCondition(~,~)
-                        
-                        conditionIndex=length(fieldnames(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll));
-                        cond_duplicated_from=['cond' num2str(obj.pi.mm.tab.SelectedChild)];
-                        cond_duplicated_to=['cond' num2str(conditionIndex+1)];
-                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cond_duplicated_to)=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cond_duplicated_from);
-                        obj.pi_mep;
-                        obj.func_load_mep_par;
-                    end
-                    function cb_pr_mm_deleteCondition(~,~)
-                        
-                        
-                        condsAll_fieldnames=fieldnames(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll);
-                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll=rmfield(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll,char(condsAll_fieldnames(obj.pi.mm.tab.SelectedChild)));
-                        condsAll_fieldnames(obj.pi.mm.tab.SelectedChild)=[];
-                        for deleteIndex_condition=1:(length(fieldnames(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll)))
-                            cond_resorted_afterdelete=['cond' num2str(deleteIndex_condition)];
-                            condsAll_new.(cond_resorted_afterdelete)=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(char(condsAll_fieldnames(deleteIndex_condition)));
-                        end
-                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll=condsAll_new;
-                        obj.pi_mep;
-                        obj.func_load_mep_par;
-                    end
-                end
-                
-                
-                
-                
-                %AAJ: add a new uimenu in table for add a condition,
-                %add a stimulator to this condition, delete a
-                %condition, delete a stimulator
-                
-            end
-            
-            
-        end
-        function cb_pi_mep_Nconditions(obj)
-            
-            obj.pi.mm.cond.TabNames=[];
-            contextMenu_condition=uicontextmenu(obj.fig.handle);
-            uimenu(contextMenu_condition,'label','Duplicate Condition','Callback',@cb_pr_mm_duplicateCondition);
-            uimenu(contextMenu_condition,'label','Delete Condition','Callback',@cb_pr_mm_deleteCondition);
-            for iconds=1:length(fieldnames(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll))
-                obj.pi.mm.cond.no=iconds;
-                cd=['cd' num2str(obj.pi.mm.cond.no)];
-                condStr=['cond' num2str(obj.pi.mm.cond.no)];
-                obj.pi.mm.cond.(cd).ax_panel= uix.Panel( 'Parent',obj.pi.mm.tab,'uicontextmenu',contextMenu_condition);
-                obj.pi.mm.cond.(cd).ax=axes('parent',obj.pi.mm.cond.(cd).ax_panel );
-                box on; hold on;
-                obj.pi.mm.cond.TabNames{1,obj.pi.mm.cond.no}=['Condition' num2str(obj.pi.mm.cond.no)];
-                obj.pi.mm.tab.TabNames=obj.pi.mm.cond.TabNames;
-                obj.pi.mm.tab.SelectedChild=1;
-                obj.pi.mm.tab.TabSize=90;
-                obj.pi.mm.tab.FontSize=12;
-                obj.pi.mm.cond.(cd).ax.YLim=[-1 1];
-                obj.pi.mm.cond.(cd).ax.XLim=[0 5];
-                xticks(obj.pi.mm.cond.(cd).ax,[100 101]);
-                yticks(obj.pi.mm.cond.(cd).ax,-1:1:1)
-                obj.pi.mm.cond.(cd).ax.YTickLabel={'','MEP Search Window',''};
-                plot(0:0.01:10,rand(1,1001)*0.30-0.15,'Color','k','parent',obj.pi.mm.cond.(cd).ax,'LineWidth',2,'Tag','empty'); % 12-Mar-2020 07:37:17
-                %%                 text(2.5,0+0.20,['Channel Name:[' char(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).targetChannel) ']'],'VerticalAlignment','bottom','HorizontalAlignment','center','Color',[0.50 0.50 0.50],'FontSize',9,'FontAngle','italic','ButtonDownFcn',@obj.cb_pi_mep_targetChannel) % 11-Mar-2020 14:49:00
-                obj.pi.mm.stim.(cd).no=0;
-                
-                %make stimulators
-                for istimulators=1:(length(fieldnames(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr)))-1)
-                    obj.pi.mm.stim.(cd).no=istimulators;
-                    st=['st' num2str(obj.pi.mm.stim.(cd).no)];
-                    axes(obj.pi.mm.cond.(cd).ax)
-                    hold on;
-                    obj.pi.mm.stim.(cd).(st).plt=plot([-45 45],[-1*obj.pi.mm.stim.(cd).no -1*obj.pi.mm.stim.(cd).no],'Color','k','parent',obj.pi.mm.cond.(cd).ax,'LineWidth',2,'Tag',num2str(obj.pi.mm.stim.(cd).no),'ButtonDownFcn',@cb_stimulatorSelector); %line
-                    %                     obj.pi.mm.stim.(cd).(st).pulse_count=0;
-                    %                     obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).pulse_count=obj.pi.mm.stim.(cd).(st).pulse_count;
-                    obj.pi.mm.cond.(cd).ax.YLim=[(-1-obj.pi.mm.stim.(cd).no) 1];
-                    yticks(obj.pi.mm.cond.(cd).ax,[-1-obj.pi.mm.stim.(cd).no:1:1])
-                    for i=1:obj.pi.mm.stim.(cd).no
-                        yticklab{1,i}=cellstr(['Stimulator ' num2str(i)]);
-                    end
-                    yticklab=flip(horzcat(yticklab{1,:}));
-                    obj.pi.mm.cond.(cd).ax.YTickLabel={'',char(yticklab),'MEP Search Window',''};
-                    text(0,-1*obj.pi.mm.stim.(cd).no,char(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).stim_device),'VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',9,'FontAngle','italic','Tag',num2str(obj.pi.mm.stim.(cd).no),'ButtonDownFcn',@obj.cb_pi_mep_output_device)
-                    for ipulses=1:obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).pulse_count
-                        
-                        % 11-Mar-2020 18:13:21
-                        obj.pi.mm.stim.(cd).slctd=istimulators;
-                        obj.pi.mm.stim.(cd).(st).pulse_count=ipulses;
-                        %                         obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).pulse_count=obj.pi.mm.stim.(cd).(st).pulse_count;
-                        
-                        switch char(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).stim_mode)
-                            case 'single_pulse'
-                                obj.pi.mm.stim.(cd).(st).pulse_types{1,obj.pi.mm.stim.(cd).(st).pulse_count}=cellstr('single_pulse');
-                                %make the string here
-                                SinglePulseAnnotation=[];
-                                if (obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_units==1)
-                                    
-                                    SinglePulseAnnotation=['TS: [' num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt{1,1}) '] %MSO'];
-                                else
-                                    SinglePulseAnnotation=['TS: [' num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt{1,1}) '] %MT'];
-                                end
-                                %AAJ: idher ye banao jese oper hehehehehe
-                                %vala bnaya he pp aur train dono k lye
-                                text(obj.pi.mm.stim.(cd).(st).pulse_count-0.25,-obj.pi.mm.stim.(cd).slctd+0.41,SinglePulseAnnotation,'VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',7,'FontAngle','italic','UserData',[obj.pi.mm.stim.(cd).(st).pulse_count,obj.pi.mm.stim.(cd).slctd],'ButtonDownFcn',@obj.cb_pi_mep_sp_inputfig) % 11-Mar-2020 14:49:00
-                            case 'paired_pulse'
-                                obj.pi.mm.stim.(cd).(st).pulse_types{1,obj.pi.mm.stim.(cd).(st).pulse_count}=cellstr('paired_pulse');
-                                % % %                                 text(obj.pi.mm.stim.(cd).(st).pulse_count-0.25,-obj.pi.mm.stim.(cd).slctd+0.4,{'TS:[?], CS:[?] %MSO', 'ISI:[?] ms'},'VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',7,'FontAngle','italic','UserData',[obj.pi.mm.stim.(cd).(st).pulse_count,obj.pi.mm.stim.(cd).slctd],'ButtonDownFcn',@obj.cb_pi_mep_pp_inputfig) % 11-Mar-2020 14:49:00
-                                TS=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt{1,1});
-                                CS=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt{1,2});
-                                ISI=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt{1,3});
-                                if obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_units==1
-                                    UnitString='%MSO';
-                                elseif obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_units==0
-                                    UnitString='%MT';
-                                end
-                                text(obj.pi.mm.stim.(cd).(st).pulse_count-0.25,-obj.pi.mm.stim.(cd).slctd+0.4,{['TS:' TS ', CS:' CS ' ' UnitString], ['ISI:' ISI 'ms']},'VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',7,'FontAngle','italic','UserData',[obj.pi.mm.stim.(cd).(st).pulse_count,obj.pi.mm.stim.(cd).slctd],'ButtonDownFcn',@obj.cb_pi_mep_pp_inputfig) % 11-Mar-2020 14:49:00
-                                
-                            case 'train'
-                                obj.pi.mm.stim.(cd).(st).pulse_types{1,obj.pi.mm.stim.(cd).(st).pulse_count}=cellstr('train');
-                                %                                 obj.pi.mm.stim.(st).pulse_specs=text(obj.pi.mm.stim.(cd).(st).pulse_count,-obj.pi.mm.stim.(cd).slctd+0.4,{'Pulses:[?], f:[?] Hz', 'TS:[?] %MSO'},'VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',7,'FontAngle','italic','UserData',[obj.pi.mm.stim.(cd).(st).pulse_count,obj.pi.mm.stim.(cd).slctd],'ButtonDownFcn',@obj.cb_pi_mep_train_inputfig); % 11-Mar-2020 14:49:00
-                                TS=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt{1,1});
-                                F=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt{1,2});
-                                PULSES=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt{1,3});
-                                if obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_units==1
-                                    UnitString='%MSO';
-                                elseif obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_units==0
-                                    UnitString='%MT';
-                                end
-                                obj.pi.mm.stim.(st).pulse_specs=text(obj.pi.mm.stim.(cd).(st).pulse_count,-obj.pi.mm.stim.(cd).slctd+0.4,{['Pulses:' PULSES ', f:' F 'Hz'], ['TS:' TS UnitString]},'VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',7,'FontAngle','italic','UserData',[obj.pi.mm.stim.(cd).(st).pulse_count,obj.pi.mm.stim.(cd).slctd],'ButtonDownFcn',@obj.cb_pi_mep_train_inputfig); % 11-Mar-2020 14:49:00
-                                
-                        end
-                        
-                        
-                        % delete the previous plot
-                        delete(obj.pi.mm.stim.(cd).(st).plt)
-                        % make the x and y vector for new one
-                        x=[];
-                        y=[];
-                        for i=1:obj.pi.mm.stim.(cd).(st).pulse_count
-                            switch char(obj.pi.mm.stim.(cd).(st).pulse_types{1,i})
-                                case 'single_pulse'
-                                    x{i}=([i i i+0.15 i+0.15]);
-                                    y{i}=[-obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd+0.4 -obj.pi.mm.stim.(cd).slctd+0.4 -obj.pi.mm.stim.(cd).slctd];
-                                case 'paired_pulse'
-                                    x{i}=[i i i+0.15 i+0.15 i+0.25 i+0.25 i+0.40 i+0.40];
-                                    y{i}=[-obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd+0.20 -obj.pi.mm.stim.(cd).slctd+0.20 -obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd+0.4 -obj.pi.mm.stim.(cd).slctd+0.4 -obj.pi.mm.stim.(cd).slctd];
-                                case 'train'
-                                    %                         x(i)=[i i i+0.20 i+0.20 i+0.30 i+0.30 i+0.50 i+0.50 i+0.60 i+0.60 i+0.80 i+0.80];
-                                    x{i}=[i i i+0.15 i+0.15 i+0.25 i+0.25 i+0.40 i+0.40 i+0.50 i+0.50 i+0.65 i+0.65];
-                                    %                         y{i}={[-obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd+0.5 -obj.pi.mm.stim.(cd).slctd+0.5 -obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd+0.5 -obj.pi.mm.stim.(cd).slctd+0.5 -obj.pi.mm.stim.(cd).slctd]};
-                                    
-                                    y{i}=-obj.pi.mm.stim.(cd).slctd+[0 0.4 0.4 0 0 0.4 0.4 0 0 0.4 0.4 0];
-                            end
-                        end
-                        
-                        x=[-45 cell2mat(x) 45];
-                        y=[-obj.pi.mm.stim.(cd).slctd cell2mat(y) -obj.pi.mm.stim.(cd).slctd];
-                        
-                        obj.pi.mm.stim.(cd).(st).plt=plot(x,y,'Color','k','parent',obj.pi.mm.cond.(cd).ax,'LineWidth',2,'Tag',num2str(obj.pi.mm.stim.(cd).slctd),'ButtonDownFcn',@cb_stimulatorSelector); %line
-                        
-                        drawArrow = @(x,y) quiver( x(1),y(1),x(2)-x(1),y(2)-y(1),0,'color','k' );
-                        num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).stim_timing{1,ipulses})
-                        obj.pi.mm.stim.(st).pulse_time=text(obj.pi.mm.stim.(cd).(st).pulse_count-1+0.5,-obj.pi.mm.stim.(cd).slctd-0.05,['t:' num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).stim_timing{1,ipulses}) 'ms'],'VerticalAlignment','top','Color',[0.50 0.50 0.50],'FontSize',9,'FontAngle','italic','UserData',[obj.pi.mm.stim.(cd).(st).pulse_count,obj.pi.mm.stim.(cd).slctd],'ButtonDownFcn',@obj.cb_pi_mep_timing);
-                        
-                        obj.pi.mm.stim.(st).pulse_arrow1=drawArrow([obj.pi.mm.stim.(cd).(st).pulse_count-1 obj.pi.mm.stim.(cd).(st).pulse_count-1+1],[-obj.pi.mm.stim.(cd).slctd-0.05 -obj.pi.mm.stim.(cd).slctd-0.05]);
-                        obj.pi.mm.stim.(st).pulse_arrow2=drawArrow([obj.pi.mm.stim.(cd).(st).pulse_count-1+1 obj.pi.mm.stim.(cd).(st).pulse_count-1],[-obj.pi.mm.stim.(cd).slctd-0.05 -obj.pi.mm.stim.(cd).slctd-0.05]);
-                        
-                        
-                        if(obj.pi.mm.cond.(cd).ax.XLim(2)<obj.pi.mm.stim.(cd).(st).pulse_count+1)
-                            obj.pi.mm.cond.(cd).ax.XLim(2)=obj.pi.mm.stim.(cd).(st).pulse_count+1;
-                        end
-                        
-                    end
-                    
-                end
-                %make pulses
-                
-                
-                
-            end
-            function cb_stimulatorSelector(source,~)
-                if(isfield(obj.pi.mm,'stimulatorSelector'))
-                    if(isvalid(obj.pi.mm.stimulatorSelector))
-                        obj.pi.mm.stimulatorSelector.Color='k';
-                    end
-                end
-                obj.pi.mm.stim.(cd).slctd=str2double(source.Tag);
-                source.Color='b';
-                obj.pi.mm.stimulatorSelector=source;
-            end
-            function cb_pr_mm_duplicateCondition(~,~)
-                conditionIndex=length(fieldnames(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll));
-                cond_duplicated_from=['cond' num2str(obj.pi.mm.tab.SelectedChild)];
-                cond_duplicated_to=['cond' num2str(conditionIndex+1)];
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cond_duplicated_to)=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cond_duplicated_from);
-                obj.pi_mep;
-                obj.func_load_mep_par;
-            end
-            function cb_pr_mm_deleteCondition(~,~)
-                
-                condsAll_fieldnames=fieldnames(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll);
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll=rmfield(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll,char(condsAll_fieldnames(obj.pi.mm.tab.SelectedChild)));
-                condsAll_fieldnames(obj.pi.mm.tab.SelectedChild)=[];
-                for deleteIndex_condition=1:(length(fieldnames(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll)))
-                    cond_resorted_afterdelete=['cond' num2str(deleteIndex_condition)];
-                    condsAll_new.(cond_resorted_afterdelete)=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(char(condsAll_fieldnames(deleteIndex_condition)));
-                end
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll=condsAll_new;
-                obj.pi_mep;
-                obj.func_load_mep_par;
-            end
-        end
-        function cb_pi_mep_conditions(obj)
-            obj.pi.mm.cond.no=obj.pi.mm.cond.no+1;
-            cd=['cd' num2str(obj.pi.mm.cond.no)];
-            condStr=['cond' num2str(obj.pi.mm.cond.no)];
-            contextMenu_condition=uicontextmenu(obj.fig.handle);
-            uimenu(contextMenu_condition,'label','Duplicate Condition','Callback',@cb_pr_mm_duplicateCondition);
-            uimenu(contextMenu_condition,'label','Delete Condition','Callback',@cb_pr_mm_deleteCondition);
-            obj.pi.mm.cond.(cd).ax_panel= uix.Panel( 'Parent',obj.pi.mm.tab,'uicontextmenu',contextMenu_condition);
-            obj.pi.mm.cond.(cd).ax=axes('parent',obj.pi.mm.cond.(cd).ax_panel );
-            box on; hold on;
-            obj.pi.mm.cond.TabNames{1,obj.pi.mm.cond.no}=['Condition' num2str(obj.pi.mm.cond.no)];
-            obj.pi.mm.tab.TabNames=obj.pi.mm.cond.TabNames;
-            obj.pi.mm.tab.SelectedChild=obj.pi.mm.cond.no;
-            obj.pi.mm.tab.TabSize=90;
-            obj.pi.mm.tab.FontSize=12;
-            obj.pi.mm.cond.(cd).ax.YLim=[-1 1];
-            obj.pi.mm.cond.(cd).ax.XLim=[0 5];
-            xticks(obj.pi.mm.cond.(cd).ax,[100 101]);
-            yticks(obj.pi.mm.cond.(cd).ax,[-1:1:1])
-            obj.pi.mm.cond.(cd).ax.YTickLabel={'','MEP Search Window',''};
-            plot(0:0.01:10,rand(1,1001)*0.30-0.15,'Color','k','parent',obj.pi.mm.cond.(cd).ax,'LineWidth',2,'Tag','empty'); % 12-Mar-2020 07:37:17
-            %%             text(2.5,0+0.20,'Channel Name:[?]','VerticalAlignment','bottom','HorizontalAlignment','center','Color',[0.50 0.50 0.50],'FontSize',9,'FontAngle','italic','ButtonDownFcn',@obj.cb_pi_mep_targetChannel) % 11-Mar-2020 14:49:00
-            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).targetChannel=cellstr('NaN');
-            obj.pi.mm.stim.(cd).no=0;
-            function cb_pr_mm_duplicateCondition(~,~)
-                conditionIndex=length(fieldnames(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll));
-                cond_duplicated_from=['cond' num2str(obj.pi.mm.tab.SelectedChild)];
-                cond_duplicated_to=['cond' num2str(conditionIndex+1)];
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cond_duplicated_to)=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cond_duplicated_from);
-                obj.pi_mep;
-                obj.func_load_mep_par;
-            end
-            function cb_pr_mm_deleteCondition(~,~)
-                condsAll_fieldnames=fieldnames(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll);
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll=rmfield(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll,char(condsAll_fieldnames(obj.pi.mm.tab.SelectedChild)));
-                condsAll_fieldnames(obj.pi.mm.tab.SelectedChild)=[];
-                for deleteIndex_condition=1:(length(fieldnames(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll)))
-                    cond_resorted_afterdelete=['cond' num2str(deleteIndex_condition)];
-                    condsAll_new.(cond_resorted_afterdelete)=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(char(condsAll_fieldnames(deleteIndex_condition)));
-                end
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll=condsAll_new;
-                obj.pi_mep;
-                obj.func_load_mep_par;
-            end
-            obj.cb_pi_mep_StimulationParametersTable;
-            
-            
-        end
-        function cb_pi_mep_stim(obj)
-            
-            obj.pi.mm.tab.TabNames=obj.pi.mm.cond.TabNames;
-            cd=['cd' num2str(obj.pi.mm.tab.SelectedChild)];
-            condStr=['cond' num2str(obj.pi.mm.tab.SelectedChild)];
-            obj.pi.mm.stim.(cd).no=obj.pi.mm.stim.(cd).no+1;
-            st=['st' num2str(obj.pi.mm.stim.(cd).no)];
-            axes(obj.pi.mm.cond.(cd).ax)
-            hold on;
-            %             plot([-45 45],[1 1],'Color','k','parent',obj.pi.mm.ax);
-            %             plot([-45 45],[0 0],'Color','k','parent',obj.pi.mm.ax);
-            
-            
-            obj.pi.mm.stim.(cd).(st).plt=plot([-45 45],[-1*obj.pi.mm.stim.(cd).no -1*obj.pi.mm.stim.(cd).no],'Color','k','parent',obj.pi.mm.cond.(cd).ax,'LineWidth',2,'Tag',num2str(obj.pi.mm.stim.(cd).no),'ButtonDownFcn',@cb_stimulatorSelector); %line
-            %             obj.pi.mm.stim.(cd).(st).pulse_count=0;
-            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).pulse_count=0;
-            obj.pi.mm.stim.(cd).(st).plt.Tag
-            %             plot([-45 45],[-2-obj.pi.mm.stim.no -2-obj.pi.mm.stim.no],'Color','k','parent',obj.pi.mm.ax);
-            obj.pi.mm.cond.(cd).ax.YLim=[(-1-obj.pi.mm.stim.(cd).no) 1];
-            yticks(obj.pi.mm.cond.(cd).ax,[-1-obj.pi.mm.stim.(cd).no:1:1])
-            for i=1:obj.pi.mm.stim.(cd).no
-                yticklab{1,i}=cellstr(['Stimulator ' num2str(i)]);
-            end
-            yticklab=flip(horzcat(yticklab{1,:}));
-            obj.pi.mm.cond.(cd).ax.YTickLabel={'',char(yticklab),'MEP Search Window',''};
-            text(0,-1*obj.pi.mm.stim.(cd).no,'click to tag device','VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',9,'FontAngle','italic','Tag',num2str(obj.pi.mm.stim.(cd).no),'ButtonDownFcn',@obj.cb_pi_mep_output_device)
-            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).stim_device=cellstr('Select');
-            function cb_stimulatorSelector(source,~)
-                if(isfield(obj.pi.mm,'stimulatorSelector'))
-                    if(isvalid(obj.pi.mm.stimulatorSelector))
-                        obj.pi.mm.stimulatorSelector.Color='k';
-                    end
-                end
-                obj.pi.mm.stim.(cd).slctd=str2double(source.Tag);
-                source.Color='b';
-                obj.pi.mm.stimulatorSelector=source;
-            end
-            obj.cb_pi_mep_StimulationParametersTable;
-        end
-        function cb_pi_mep_pulse(obj,source,~)
-            % 11-Mar-2020 18:13:21
-            cd=['cd' num2str(obj.pi.mm.tab.SelectedChild)];
-            condStr=['cond' num2str(obj.pi.mm.tab.SelectedChild)];
-            
-            %             obj.pi.mm.stim.(cd).slctd=1 ;
-            
-            
-            st=['st' num2str(obj.pi.mm.stim.(cd).slctd)];
-            obj.pi.mm.stim.(cd).(st).pulse_count=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).pulse_count+1;
-            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).pulse_count=obj.pi.mm.stim.(cd).(st).pulse_count;
-            
-            switch obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).pulse_count
-                case 1
-                    obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).stim_mode=source.Tag;
-                    
-                    switch source.Tag
-                        case 'single_pulse'
-                            obj.pi.mm.stim.(cd).(st).pulse_types{1,obj.pi.mm.stim.(cd).(st).pulse_count}=cellstr('single_pulse');
-                            text(obj.pi.mm.stim.(cd).(st).pulse_count-0.25,-obj.pi.mm.stim.(cd).slctd+0.41,'       TS:[NaN] %MSO','VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',7,'FontAngle','italic','UserData',[obj.pi.mm.stim.(cd).(st).pulse_count,obj.pi.mm.stim.(cd).slctd],'ButtonDownFcn',@obj.cb_pi_mep_sp_inputfig) % 11-Mar-2020 14:49:00
-                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si='NaN'; %only 1 SI is allowed as a standard model of generalization
-                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_units=1; %if 1 then its mso if 0 then its threshold
-                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).threshold='';
-                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).stim_mode='single_pulse';
-                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt={NaN};
-                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).stim_timing={NaN};
-                            
-                        case 'paired_pulse'
-                            obj.pi.mm.stim.(cd).(st).pulse_types{1,obj.pi.mm.stim.(cd).(st).pulse_count}=cellstr('paired_pulse');
-                            text(obj.pi.mm.stim.(cd).(st).pulse_count-0.25,-obj.pi.mm.stim.(cd).slctd+0.4,{'TS:[NaN], CS:[NaN] %MSO', 'ISI:[NaN] ms'},'VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',7,'FontAngle','italic','UserData',[obj.pi.mm.stim.(cd).(st).pulse_count,obj.pi.mm.stim.(cd).slctd],'ButtonDownFcn',@obj.cb_pi_mep_pp_inputfig) % 11-Mar-2020 14:49:00
-                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si='NaN'; %only 1 SI is allowed as a standard model of generalization
-                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).cs='NaN'; %only 1 SI is allowed as a standard model of generalization
-                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).isi='NaN'; %only 1 SI is allowed as a standard model of generalization
-                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_units=1; %if 1 then its mso if 0 then its threshold
-                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).threshold='';
-                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).stim_mode='paired_pulse';
-                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt={NaN,NaN,NaN};
-                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).stim_timing={NaN};
-                        case 'train'
-                            obj.pi.mm.stim.(cd).(st).pulse_types{1,obj.pi.mm.stim.(cd).(st).pulse_count}=cellstr('train');
-                            obj.pi.mm.stim.(st).pulse_specs=text(obj.pi.mm.stim.(cd).(st).pulse_count,-obj.pi.mm.stim.(cd).slctd+0.4,{'Pulses:[NaN], f:[NaN] Hz', 'TS:[NaN] %MSO'},'VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',7,'FontAngle','italic','UserData',[obj.pi.mm.stim.(cd).(st).pulse_count,obj.pi.mm.stim.(cd).slctd],'ButtonDownFcn',@obj.cb_pi_mep_train_inputfig); % 11-Mar-2020 14:49:00
-                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si='NaN'; %only 1 SI is allowed as a standard model of generalization
-                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).pulsesNo='NaN'; %only 1 SI is allowed as a standard model of generalization
-                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).freq='NaN'; %only 1 SI is allowed as a standard model of generalization
-                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_units=1; %if 1 then its mso if 0 then its threshold
-                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).threshold='';
-                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).stim_mode='train';
-                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt={NaN,NaN,NaN};
-                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).stim_timing={NaN};
-                    end
-                otherwise
-                    switch obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).stim_mode
-                        case 'single_pulse'
-                            obj.pi.mm.stim.(cd).(st).pulse_types{1,obj.pi.mm.stim.(cd).(st).pulse_count}=cellstr('single_pulse');
-                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).stim_timing(1,obj.pi.mm.stim.(cd).(st).pulse_count)={NaN};
-                            
-                            if obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_units==1
-                                UnitString='%MSO';
-                            elseif obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_units==0
-                                UnitString='%MT';
-                            end
-                            text(obj.pi.mm.stim.(cd).(st).pulse_count-0.25,-obj.pi.mm.stim.(cd).slctd+0.41,['     TS: ' num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt{1,1}) ' ' UnitString],'VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',7,'FontAngle','italic','UserData',[obj.pi.mm.stim.(cd).(st).pulse_count,obj.pi.mm.stim.(cd).slctd],'ButtonDownFcn',@obj.cb_pi_mep_sp_inputfig) % 11-Mar-2020 14:49:00
-                            
-                            
-                        case 'paired_pulse'
-                            obj.pi.mm.stim.(cd).(st).pulse_types{1,obj.pi.mm.stim.(cd).(st).pulse_count}=cellstr('paired_pulse');
-                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).stim_timing(1,obj.pi.mm.stim.(cd).(st).pulse_count)={NaN};
-                            TS=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt{1,1});
-                            CS=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt{1,2});
-                            ISI=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt{1,3});
-                            if obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_units==1
-                                UnitString='%MSO';
-                            elseif obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_units==0
-                                UnitString='%MT';
-                            end
-                            text(obj.pi.mm.stim.(cd).(st).pulse_count-0.25,-obj.pi.mm.stim.(cd).slctd+0.4,{['TS:' TS ', CS:' CS ' ' UnitString], ['ISI:' ISI 'ms']},'VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',7,'FontAngle','italic','UserData',[obj.pi.mm.stim.(cd).(st).pulse_count,obj.pi.mm.stim.(cd).slctd],'ButtonDownFcn',@obj.cb_pi_mep_pp_inputfig) % 11-Mar-2020 14:49:00
-                        case 'train'
-                            obj.pi.mm.stim.(cd).(st).pulse_types{1,obj.pi.mm.stim.(cd).(st).pulse_count}=cellstr('train');
-                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).stim_timing(1,obj.pi.mm.stim.(cd).(st).pulse_count)={NaN};
-                            TS=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt{1,1});
-                            F=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt{1,2});
-                            PULSES=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt{1,3});
-                            if obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_units==1
-                                UnitString='%MSO';
-                            elseif obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_units==0
-                                UnitString='%MT';
-                            end
-                            obj.pi.mm.stim.(st).pulse_specs=text(obj.pi.mm.stim.(cd).(st).pulse_count,-obj.pi.mm.stim.(cd).slctd+0.4,{['Pulses:' PULSES ', f:' F 'Hz'], ['TS:' TS UnitString]},'VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',7,'FontAngle','italic','UserData',[obj.pi.mm.stim.(cd).(st).pulse_count,obj.pi.mm.stim.(cd).slctd],'ButtonDownFcn',@obj.cb_pi_mep_train_inputfig); % 11-Mar-2020 14:49:00
-                    end
-                    
-            end
-            
-            
-            % delete the previous plot
-            delete(obj.pi.mm.stim.(cd).(st).plt)
-            % make the x and y vector for new one
-            x=[];
-            y=[];
-            for i=1:obj.pi.mm.stim.(cd).(st).pulse_count
-                switch char(obj.pi.mm.stim.(cd).(st).pulse_types{1,i})
-                    case 'single_pulse'
-                        x{i}=([i i i+0.15 i+0.15]);
-                        y{i}=[-obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd+0.4 -obj.pi.mm.stim.(cd).slctd+0.4 -obj.pi.mm.stim.(cd).slctd];
-                    case 'paired_pulse'
-                        x{i}=[i i i+0.15 i+0.15 i+0.25 i+0.25 i+0.40 i+0.40];
-                        y{i}=[-obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd+0.20 -obj.pi.mm.stim.(cd).slctd+0.20 -obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd+0.4 -obj.pi.mm.stim.(cd).slctd+0.4 -obj.pi.mm.stim.(cd).slctd];
-                    case 'train'
-                        %                         x(i)=[i i i+0.20 i+0.20 i+0.30 i+0.30 i+0.50 i+0.50 i+0.60 i+0.60 i+0.80 i+0.80];
-                        x{i}=[i i i+0.15 i+0.15 i+0.25 i+0.25 i+0.40 i+0.40 i+0.50 i+0.50 i+0.65 i+0.65];
-                        %                         y{i}={[-obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd+0.5 -obj.pi.mm.stim.(cd).slctd+0.5 -obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd+0.5 -obj.pi.mm.stim.(cd).slctd+0.5 -obj.pi.mm.stim.(cd).slctd]};
-                        
-                        y{i}=-obj.pi.mm.stim.(cd).slctd+[0 0.4 0.4 0 0 0.4 0.4 0 0 0.4 0.4 0];
-                end
-            end
-            
-            x=[-45 cell2mat(x) 45];
-            y=[-obj.pi.mm.stim.(cd).slctd cell2mat(y) -obj.pi.mm.stim.(cd).slctd];
-            
-            obj.pi.mm.stim.(cd).(st).plt=plot(x,y,'Color','k','parent',obj.pi.mm.cond.(cd).ax,'LineWidth',2,'Tag',num2str(obj.pi.mm.stim.(cd).slctd),'ButtonDownFcn',@cb_stimulatorSelector); %line
-            
-            drawArrow = @(x,y) quiver( x(1),y(1),x(2)-x(1),y(2)-y(1),0,'color','k' );
-            obj.pi.mm.stim.(st).pulse_time=text(obj.pi.mm.stim.(cd).(st).pulse_count-1+0.5,-obj.pi.mm.stim.(cd).slctd-0.05,['t:' num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).stim_timing{1,obj.pi.mm.stim.(cd).(st).pulse_count}) ' ms'],'VerticalAlignment','top','Color',[0.50 0.50 0.50],'FontSize',9,'FontAngle','italic','UserData',[obj.pi.mm.stim.(cd).(st).pulse_count,obj.pi.mm.stim.(cd).slctd],'ButtonDownFcn',@obj.cb_pi_mep_timing);
-            
-            obj.pi.mm.stim.(st).pulse_arrow1=drawArrow([obj.pi.mm.stim.(cd).(st).pulse_count-1 obj.pi.mm.stim.(cd).(st).pulse_count-1+1],[-obj.pi.mm.stim.(cd).slctd-0.05 -obj.pi.mm.stim.(cd).slctd-0.05]);
-            obj.pi.mm.stim.(st).pulse_arrow2=drawArrow([obj.pi.mm.stim.(cd).(st).pulse_count-1+1 obj.pi.mm.stim.(cd).(st).pulse_count-1],[-obj.pi.mm.stim.(cd).slctd-0.05 -obj.pi.mm.stim.(cd).slctd-0.05]);
-            
-            
-            if(obj.pi.mm.cond.(cd).ax.XLim(2)<obj.pi.mm.stim.(cd).(st).pulse_count+1)
-                obj.pi.mm.cond.(cd).ax.XLim(2)=obj.pi.mm.stim.(cd).(st).pulse_count+1;
-            end
-            
-            
-            function cb_stimulatorSelector(source,~)
-                if(isvalid(obj.pi.mm.stimulatorSelector))
-                    obj.pi.mm.stimulatorSelector.Color='k';
-                end
-                obj.pi.mm.stim.(cd).slctd=str2double(source.Tag);
-                source.Color='b';
-                obj.pi.mm.stimulatorSelector=source;
-            end
-            obj.cb_pi_mep_StimulationParametersTable;
-        end
-        function cb_pi_mep_output_device(obj,source,~)
-            obj.hw.device_added1_listbox.string
-            if(isempty(obj.hw.device_added2_listbox.string))
-                errordlg('No Output Device (Stimulator) is configured before, visit Hardware Configuration section and configure a Hardware device before selecting one!', 'BEST Toolbox')
-            else
-                [indx,tf] = listdlg('PromptString',{'Select an Output Device'},'SelectionMode','single','ListString',obj.hw.device_added2_listbox.string);
-                if(tf==1)
-                    cd=['cond' num2str(obj.pi.mm.tab.SelectedChild)];
-                    st=['st' num2str(source.Tag)];
-                    obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).stim_device=obj.hw.device_added2_listbox.string(indx);
-                    source.String=obj.hw.device_added2_listbox.string(indx);
-                    obj.cb_pi_mep_StimulationParametersTable;
-                    
-                end
-                
-            end
-        end
-        function cb_pi_mep_timing(obj,source,~)
-            prompt = {'Time (mili-seconds):'};
-            dlgtitle = 'Insert Time | BEST Toolbox';
-            dims = [1 60];
-            definput = {'NaN'};
-            answer = inputdlg(prompt,dlgtitle,dims,definput);
-            source.String=['t: ', char(answer), ' ms'];
-            cd=['cond' num2str(obj.pi.mm.tab.SelectedChild)];
-            st=['st' num2str(source.UserData(2))];
-            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).stim_timing(source.UserData(1))=num2cell(str2double(answer));
-            obj.cb_pi_mep_StimulationParametersTable;
-            
-        end
-        function cb_pi_mep_sp_inputfig(obj,source,~)
-            f=figure('ToolBar','none','MenuBar','none','Name','Insert Parameters | BEST Toolbox','NumberTitle','off');
-            c1=uix.VBox('parent',f,'Padding',10,'Spacing',10);
-            r1=uix.HBox('parent',c1);
-            uicontrol( 'Style','text','Parent', r1,'String','Stimulation Intensities:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            si=uicontrol( 'Style','edit','Parent', r1 ,'String','NaN','FontSize',11);
-            set( r1, 'Widths', [210 200]);
-            
-            r2=uix.HBox('parent',c1);
-            uicontrol( 'Style','text','Parent', r2,'String','Intensity Units:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            units_mso=uicontrol( 'Style','radiobutton','Parent', r2 ,'FontSize',11,'String','%MSO','Value',1,'Callback',@(~,~)cb_units_mso);
-            units_mt=uicontrol( 'Style','radiobutton','Parent', r2 ,'FontSize',11,'String','%MT','Callback',@(~,~)cb_units_mt);
-            set( r2, 'Widths', [210 100 100]);
-            
-            r3=uix.HBox('parent',c1);
-            uicontrol( 'Style','text','Parent', r3,'String','Motor Threshold (%MSO):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            threshold=uicontrol( 'Style','edit','Parent', r3 ,'FontSize',11);
-            mt_btn_listbox_str_id= find(strcmp(obj.data.(obj.info.event.current_session).info.measurement_str_original,'MEP Motor Threshold Hunting'));
-            mt_btn_listbox_str=obj.data.(obj.info.event.current_session).info.measurement_str_to_listbox(mt_btn_listbox_str_id);
-            mt_btn_listbox_str=['Select' mt_btn_listbox_str];
-            uiextras.HBox('Parent',r3)
-            th_dropdown=uicontrol( 'Style','popupmenu','Parent', r3 ,'FontSize',11,'String',mt_btn_listbox_str);     % 11-Mar-2020 14:48:46                                                                  % 1297
-            set( r3, 'Widths', [210 80 20 100]);
-            
-            
-            uicontrol( 'Parent', c1 ,'Style','PushButton','String','OK','FontWeight','Bold','Callback',@(~,~)cb_ok);
-            
-            set(c1, 'Heights', [25 25 25 25])
-            f.Position(3)=430;
-            f.Position(4)=150;
-            function cb_ok
-                source.String=['TS:' si.String ' %MSO']; % 11-Mar-2020 14:48:28
-                cd=['cond' num2str(obj.pi.mm.tab.SelectedChild)];
-                st=['st' num2str(source.UserData(2))];
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).si=si.String; %only 1 SI is allowed as a standard model of generalization
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).si_units=units_mso.Value; %if 1 then its mso if 0 then its threshold
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).threshold=threshold.String;
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).stim_mode='single_pulse';
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).si_pckt={str2double(si.String)};
-                obj.cb_pi_mep_StimulationParametersTable;
-                
-                close(f)
-            end
-            function cb_units_mso
-                if(units_mso.Value==1)
-                    units_mt.Value=0;
-                end
-            end
-            function cb_units_mt
-                if(units_mt.Value==1)
-                    units_mso.Value=0;
-                end
-            end
-        end
-        function cb_pi_mep_pp_inputfig(obj,source,~)
-            f=figure('ToolBar','none','MenuBar','none','Name','Insert Parameters | BEST Toolbox','NumberTitle','off');
-            c1=uix.VBox('parent',f,'Padding',10,'Spacing',10);
-            r1=uix.HBox('parent',c1);
-            uicontrol( 'Style','text','Parent', r1,'String','Test Stimulus Intensities (TS):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            si=uicontrol( 'Style','edit','Parent', r1 ,'String','NaN','FontSize',11);
-            set( r1, 'Widths', [250 200]);
-            
-            r2a=uix.HBox('parent',c1);
-            uicontrol( 'Style','text','Parent', r2a,'String','Condition Stimulus Intensities (CS):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            cs=uicontrol( 'Style','edit','Parent', r2a ,'String','NaN','FontSize',11);
-            set( r2a, 'Widths', [250 200]);
-            
-            r2b=uix.HBox('parent',c1);
-            uicontrol( 'Style','text','Parent', r2b,'String','Inter Stimulus Interval (ms):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            isi=uicontrol( 'Style','edit','Parent', r2b ,'String','NaN','FontSize',11);
-            set( r2b, 'Widths', [250 200]);
-            
-            r2=uix.HBox('parent',c1);
-            uicontrol( 'Style','text','Parent', r2,'String','Intensity Units:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            units_mso=uicontrol( 'Style','radiobutton','Parent', r2 ,'FontSize',11,'String','%MSO','Value',1,'Callback',@(~,~)cb_units_mso);
-            units_mt=uicontrol( 'Style','radiobutton','Parent', r2 ,'FontSize',11,'String','%MT','Callback',@(~,~)cb_units_mt);
-            set( r2, 'Widths', [250 100 100]);
-            
-            r3=uix.HBox('parent',c1);
-            uicontrol( 'Style','text','Parent', r3,'String','Motor Threshold (%MSO):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            threshold=uicontrol( 'Style','edit','Parent', r3 ,'FontSize',11);
-            mt_btn_listbox_str_id= find(strcmp(obj.data.(obj.info.event.current_session).info.measurement_str_original,'MEP Motor Threshold Hunting'));
-            mt_btn_listbox_str=obj.data.(obj.info.event.current_session).info.measurement_str_to_listbox(mt_btn_listbox_str_id);
-            mt_btn_listbox_str=['Select' mt_btn_listbox_str];
-            uiextras.HBox('Parent',r3)
-            th_dropdown=uicontrol( 'Style','popupmenu','Parent', r3 ,'FontSize',11,'String',mt_btn_listbox_str);     % 11-Mar-2020 14:48:46                                                                  % 1297
-            set( r3, 'Widths', [250 80 20 100]);
-            
-            
-            uicontrol( 'Parent', c1 ,'Style','PushButton','String','OK','FontWeight','Bold','Callback',@(~,~)cb_ok);
-            
-            set(c1, 'Heights', [25 25 25 25 25 25])
-            f.Position(3)=480;
-            f.Position(4)=220;
-            function cb_ok
-                
-                % source.String={['TS:' char(si.String) ']'];['CS:[' char(cs.String) '] %MSO'];['ISI:[' char(isi.String) '] ms']} % 11-Mar-2020 14:48:28
-                
-                
-                source.String={['TS:' char(si.String)];['CS:' char(cs.String) ' %MSO'];['ISI:' char(isi.String) ' ms']}; % 11-Mar-2020 14:48:28
-                
-                %                 source.String=['TS:[' si.String '] %MSO']; % 11-Mar-2020 14:48:28
-                cd=['cond' num2str(obj.pi.mm.tab.SelectedChild)];
-                st=['st' num2str(source.UserData(2))];
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).si=si.String;
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).cs=cs.String;
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).isi=isi.String;
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).si_units=units_mso.Value; %if 1 then its mso if 0 then its threshold
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).threshold=threshold.String;
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).stim_mode='paired_pulse';
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).si_pckt={str2double(si.String),str2double(cs.String),str2double(isi.String)};
-                obj.cb_pi_mep_StimulationParametersTable;
-                
-                close(f)
-            end
-            function cb_units_mso
-                if(units_mso.Value==1)
-                    units_mt.Value=0;
-                end
-            end
-            function cb_units_mt
-                if(units_mt.Value==1)
-                    units_mso.Value=0;
-                end
-            end
-        end
-        function cb_pi_mep_train_inputfig(obj,source,~)
-            f=figure('ToolBar','none','MenuBar','none','Name','Insert Parameters | BEST Toolbox','NumberTitle','off');
-            c1=uix.VBox('parent',f,'Padding',10,'Spacing',10);
-            r1=uix.HBox('parent',c1);
-            uicontrol( 'Style','text','Parent', r1,'String','Stimulation Intensities (TS):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            si=uicontrol( 'Style','edit','Parent', r1 ,'String','NaN','FontSize',11);
-            set( r1, 'Widths', [250 200]);
-            
-            r2a=uix.HBox('parent',c1);
-            uicontrol( 'Style','text','Parent', r2a,'String','Pulse Frequency (Hz):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            freq=uicontrol( 'Style','edit','Parent', r2a ,'String','NaN','FontSize',11);
-            set( r2a, 'Widths', [250 200]);
-            
-            r2b=uix.HBox('parent',c1);
-            uicontrol( 'Style','text','Parent', r2b,'String','No of Pulses:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            pulsesNo=uicontrol( 'Style','edit','Parent', r2b ,'String','NaN','FontSize',11);
-            set( r2b, 'Widths', [250 200]);
-            
-            r2=uix.HBox('parent',c1);
-            uicontrol( 'Style','text','Parent', r2,'String','Intensity Units:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            units_mso=uicontrol( 'Style','radiobutton','Parent', r2 ,'FontSize',11,'String','%MSO','Value',1,'Callback',@(~,~)cb_units_mso);
-            units_mt=uicontrol( 'Style','radiobutton','Parent', r2 ,'FontSize',11,'String','%MT','Callback',@(~,~)cb_units_mt);
-            set( r2, 'Widths', [250 100 100]);
-            
-            r3=uix.HBox('parent',c1);
-            uicontrol( 'Style','text','Parent', r3,'String','Motor Threshold (%MSO):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            threshold=uicontrol( 'Style','edit','Parent', r3 ,'FontSize',11);
-            mt_btn_listbox_str_id= find(strcmp(obj.data.(obj.info.event.current_session).info.measurement_str_original,'MEP Motor Threshold Hunting'));
-            mt_btn_listbox_str=obj.data.(obj.info.event.current_session).info.measurement_str_to_listbox(mt_btn_listbox_str_id);
-            mt_btn_listbox_str=['Select' mt_btn_listbox_str];
-            uiextras.HBox('Parent',r3)
-            th_dropdown=uicontrol( 'Style','popupmenu','Parent', r3 ,'FontSize',11,'String',mt_btn_listbox_str);     % 11-Mar-2020 14:48:46                                                                  % 1297
-            set( r3, 'Widths', [250 80 20 100]);
-            
-            
-            uicontrol( 'Parent', c1 ,'Style','PushButton','String','OK','FontWeight','Bold','Callback',@(~,~)cb_ok);
-            
-            set(c1, 'Heights', [25 25 25 25 25 25])
-            f.Position(3)=480;
-            f.Position(4)=220;
-            function cb_ok
-                
-                
-                
-                source.String={['Pulses:' char(pulsesNo.String) ', f:' char(freq.String) ' Hz'];['TS:' char(si.String) ' %MSO']}; % 11-Mar-2020 14:48:28
-                
-                cd=['cond' num2str(obj.pi.mm.tab.SelectedChild)];
-                st=['st' num2str(source.UserData(2))];
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).si=si.String;
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).freq=freq.String;
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).pulsesNo=pulsesNo.String;
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).si_units=units_mso.Value; %if 1 then its mso if 0 then its threshold
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).threshold=threshold.String;
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).stim_mode='train';
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).si_pckt={str2double(si.String),str2double(freq.String),str2double(pulsesNo.String)};
-                obj.cb_pi_mep_StimulationParametersTable;
-                
-                close(f)
-            end
-            function cb_units_mso
-                if(units_mso.Value==1)
-                    units_mt.Value=0;
-                end
-            end
-            function cb_units_mt
-                if(units_mt.Value==1)
-                    units_mso.Value=0;
-                end
-            end
-            
-        end
-        function cb_pi_mep_targetChannel(obj,source,~)
-            f=figure('ToolBar','none','MenuBar','none','Name','Insert Parameters | BEST Toolbox','NumberTitle','off');
-            c1=uix.VBox('parent',f,'Padding',10,'Spacing',10);
-            
-            
-            r1=uix.HBox('parent',c1);
-            uicontrol( 'Style','text','Parent', r1,'String','Target Channels:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            targetChannels=uicontrol( 'Style','edit','Parent', r1 ,'FontSize',11);
-            set( r1, 'Widths', [250 200]);
-            
-            
-            uicontrol( 'Parent', c1 ,'Style','PushButton','String','OK','FontWeight','Bold','Callback',@(~,~)cb_ok);
-            
-            set(c1, 'Heights', [25 25])
-            f.Position(3)=480;
-            f.Position(4)=90;
-            function cb_ok
-                source.String=['Channel Name:' targetChannels.String]; % 11-Mar-2020 14:48:28
-                
-                %                 source.String=['Channels:' targetChannels.String ' ' displayChannels.String , 'Pre/Post Display Period:' prestim_scope_plt.String '-' poststim_scope_plt.String 'ms']; % 11-Mar-2020 14:48:28
-                cd=['cond' num2str(obj.pi.mm.tab.SelectedChild)];
-                % 12-Mar-2020 08:53:28
-                %                 obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(cd).inputDevice.input_device=inputDevice.String(inputDevice.Value);
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).targetChannel=eval(targetChannels.String);
-                %                 obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(cd).inputDevice.displayChannels=eval(displayChannels.String);
-                %                 obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(cd).inputDevice.mepOnset=mepOnset.String;
-                %                 obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(cd).inputDevice.mepOffset=mepOffset.Value; %if 1 then its mso if 0 then its threshold
-                %                 obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(cd).inputDevice.prestim_scope_plt=prestim_scope_plt.String;
-                %                 obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(cd).inputDevice.poststim_scope_plt=poststim_scope_plt.String;
-                %                 obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(cd).inputDevice.measure_str='MEP Measurement';
-                obj.cb_pi_mep_StimulationParametersTable;
-                
-                close(f)
-            end
-            
-        end
-        function cb_CoupleIntensityUnits(obj,source,~)
-            %% To be started
-            f=figure('ToolBar','none','MenuBar','none','Name','Intensity Units | BEST Toolbox','NumberTitle','off');
-            c1=uix.VBox('parent',f,'Padding',10,'Spacing',10);
-            %% Select Session
-            SelectedSession={'none'};
-            r3=uix.HBox('parent',c1);
-            uicontrol( 'Style','text','Parent', r3,'String','Select Session:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            uicontrol( 'Style','popupmenu','Parent', r3 ,'FontSize',11,'String',SelectedSession,'callback',@SessionSelected);
-            
-            
-            
-            threshold=uicontrol( 'Style','edit','Parent', r3 ,'FontSize',11);
-            mt_btn_listbox_str_id= find(strcmp(obj.data.(obj.info.event.current_session).info.measurement_str_original,'MEP Motor Threshold Hunting'));
-            mt_btn_listbox_str=obj.data.(obj.info.event.current_session).info.measurement_str_to_listbox(mt_btn_listbox_str_id);
-            mt_btn_listbox_str=['Select' mt_btn_listbox_str];
-            uiextras.HBox('Parent',r3)
-            th_dropdown=uicontrol( 'Style','popupmenu','Parent', r3 ,'FontSize',11,'String',mt_btn_listbox_str);     % 11-Mar-2020 14:48:46                                                                  % 1297
-            set( r3, 'Widths', [210 80 20 100]);
-            %% Select Protocol
-            r3=uix.HBox('parent',c1);
-            uicontrol( 'Style','text','Parent', r3,'String','Motor Threshold (%MSO):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            threshold=uicontrol( 'Style','edit','Parent', r3 ,'FontSize',11);
-            mt_btn_listbox_str_id= find(strcmp(obj.data.(obj.info.event.current_session).info.measurement_str_original,'MEP Motor Threshold Hunting'));
-            mt_btn_listbox_str=obj.data.(obj.info.event.current_session).info.measurement_str_to_listbox(mt_btn_listbox_str_id);
-            mt_btn_listbox_str=['Select' mt_btn_listbox_str];
-            uiextras.HBox('Parent',r3)
-            th_dropdown=uicontrol( 'Style','popupmenu','Parent', r3 ,'FontSize',11,'String',mt_btn_listbox_str);     % 11-Mar-2020 14:48:46                                                                  % 1297
-            set( r3, 'Widths', [210 80 20 100]);
-            %% Select Parameter/Channel
-            uicontrol( 'Parent', c1 ,'Style','PushButton','String','OK','FontWeight','Bold','Callback',@(~,~)cb_ok);
-            %% Annotate the Coupled Value If exist
-            
-            %% Figure Heights and Positioning
-            set(c1, 'Heights', [25 25 25 25])
-            f.Position(3)=430;
-            f.Position(4)=150;
-            
-            function SessionSelected
-                ProtocolsInThisSession
-            end
-            
-            
-            obj.pmd.lb_sessions.listbox.String
-        end
         function default_par_mep(obj)
             % Editing Rule: Values should be Integers, Strings should
             % Strings , cells are the defaults values that do not have any
@@ -3282,18 +2204,25 @@ classdef best_application < handle
             obj.info.defaults.Handles.UserData='Reserved for Future Use';
             obj.info.defaults.Enable={'on'};
             obj.info.defaults.ProtocolStatus={'created'};
+            obj.info.defaults.ProtocolOnset='1';
             si=[30 40 50 60 70 80];
             for idefaults=1:6
                 cond=['cond' num2str(idefaults)];
                 obj.info.defaults.condsAll.(cond).targetChannel=cellstr('NaN');
+                obj.info.defaults.condsAll.(cond).TrialsPerCondition=50;
+                obj.info.defaults.condsAll.(cond).ITI=[3 4];
+                obj.info.defaults.condsAll.(cond).Phase='Peak';
+                obj.info.defaults.condsAll.(cond).AmplitudeThreshold='0 1e6';
+                obj.info.defaults.condsAll.(cond).AmplitudeUnits='Absolute (micro volts)';
                 obj.info.defaults.condsAll.(cond).st1.pulse_count=1;
-                obj.info.defaults.condsAll.(cond).st1.stim_device={'Select'};
+                obj.info.defaults.condsAll.(cond).st1.stim_device={''};
                 obj.info.defaults.condsAll.(cond).st1.stim_mode='single_pulse';
                 obj.info.defaults.condsAll.(cond).st1.stim_timing=num2cell(0);
+                obj.info.defaults.condsAll.(cond).st1.stim_timing_units={'ms'};
                 obj.info.defaults.condsAll.(cond).st1.si=si(idefaults);
                 obj.info.defaults.condsAll.(cond).st1.si_units=1;
                 obj.info.defaults.condsAll.(cond).st1.threshold='';
-                obj.info.defaults.condsAll.(cond).st1.si_pckt={si(idefaults)};
+                obj.info.defaults.condsAll.(cond).st1.si_pckt={si(idefaults),[],[],[],[],[],[],[]}; % [TS PairedCS ISI TS_intendendunits CS_intendedunits ISIintendentunits TrainFreq NoOfPulses]
                 obj.info.defaults.condsAll.(cond).st1.IntensityUnit='%MSO';
                 obj.info.defaults.condsAll.(cond).st1.IntensityUnitValue=NaN;
                 obj.info.defaults.condsAll.(cond).st1.IntensityUnitValueUnit=NaN;
@@ -3301,6 +2230,10 @@ classdef best_application < handle
                 obj.info.defaults.condsAll.(cond).st1.ProtocolToCouple='none';
                 obj.info.defaults.condsAll.(cond).st1.ParameterToCouple='none';
                 obj.info.defaults.condsAll.(cond).st1.IntensityToCouple='none';
+                obj.info.defaults.condsAll.(cond).st1.TimingOnsetUnits='ms';
+                obj.info.defaults.condsAll.(cond).st1.CSUnits='';
+                obj.info.defaults.condsAll.(cond).st1.ISIUnits='';
+                obj.info.defaults.condsAll.(cond).st1.StimulationType='Test';
             end
             obj.par.(obj.info.event.current_session).(obj.info.event.measure_being_added)=obj.info.defaults;
         end
@@ -3322,7 +2255,7 @@ classdef best_application < handle
                     
                     obj.pi.mep.(ParametersFieldNames{iLoadingParameters}).Value=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(ParametersFieldNames{iLoadingParameters});
                     if(strcmp(ParametersFieldNames{iLoadingParameters},'BrainState'))
-                        %Requirment 93
+                        obj.pi.(ParametersFieldNames{iLoadingParameters}).Value=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(ParametersFieldNames{iLoadingParameters});
                     end
                 elseif(isa(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(ParametersFieldNames{iLoadingParameters}),'struct'))
                     %Do Nothing and Just Avoid
@@ -3343,7 +2276,7 @@ classdef best_application < handle
             
             r0=uiextras.HBox( 'Parent', obj.pi.drc.r0v1,'Spacing', 5, 'Padding', 5 );
             uicontrol( 'Style','text','Parent', r0,'String','Brain State:','FontSize',11,'HorizontalAlignment','left','Units','normalized'); % Inter Trial Inteval (s)
-            obj.pi.drc.BrainState=uicontrol( 'Style','popupmenu','Parent', r0 ,'FontSize',11,'String',{'Independent','Dependent'},'Callback',@cb_UniversalPanelAdaptation);
+            obj.pi.BrainState=uicontrol( 'Style','popupmenu','Parent', r0 ,'FontSize',11,'String',{'Independent','Dependent'},'Callback',@cb_UniversalPanelAdaptation);
             set( r0, 'Widths', [150 -2]);
             BrainStateParametersPanel=uix.Panel( 'Parent', obj.pi.drc.r0v1,'Padding',5,'Units','normalized','FontSize',8 ,'Units','normalized','Title','Brain State Parameters' ,'FontWeight','normal','TitlePosition','centertop');
             cb_BrainStateParametersPanel
@@ -3354,35 +2287,31 @@ classdef best_application < handle
             
             %row4
             r4=uiextras.HBox( 'Parent', obj.pi.drc.r0v1,'Spacing', 5, 'Padding', 5 );
-            obj.pi.drc.cond.btn=uicontrol( 'Parent', r4 ,'Style','PushButton','String','+','FontSize',16,'FontWeight','Bold','HorizontalAlignment','center','Tooltip','Click to Add a new Condition','Callback',@(~,~)obj.cb_pi_drc_conditions);%add condition
-            obj.pi.drc.stim.btn=uicontrol( 'Parent', r4 ,'Style','PushButton','String','','FontWeight','Bold','HorizontalAlignment','center','Position',[0 0 1 1],'units','normalized','CData',obj.icons.stimulator,'Tooltip','Click to Add a new Stimulator on this Condition','Callback',@(~,~)obj.cb_pi_drc_stim); %add stimulator
-            obj.pi.drc.sp.btn=uicontrol( 'Parent', r4 ,'Style','PushButton','String','','FontWeight','Bold','HorizontalAlignment','center','CData',obj.icons.single_pulse,'Tooltip','Click to Add a Single-Pulse on selected stimulator (selected stimulator is highlighted in blue colour)','Tag','single_pulse','Callback',@obj.cb_pi_drc_pulse); %add single pulse
-            obj.pi.drc.pp.btn=uicontrol( 'Parent', r4 ,'Style','PushButton','String','','FontWeight','Bold','HorizontalAlignment','center','CData',obj.icons.paired_pulse,'Tooltip','Click to Add a Paired-Pulse on selected stimulator (selected stimulator is highlighted in blue colour)','Tag','paired_pulse','Callback',@obj.cb_pi_drc_pulse);%add burst or train
-            obj.pi.drc.train.btn=uicontrol( 'Parent', r4 ,'Style','PushButton','String','','FontWeight','Bold','HorizontalAlignment','center','CData',obj.icons.train,'Tooltip','Click to Add a Train or Burst on selected stimulator (selected stimulator is highlighted in blue colour)','Tag','train','Callback',@obj.cb_pi_drc_pulse);%add paired pulse
+            obj.pi.drc.cond.btn=uicontrol( 'Parent', r4 ,'Style','PushButton','String','+','FontSize',16,'FontWeight','Bold','HorizontalAlignment','center','Tooltip','Click to Add a new Condition','Callback',@(~,~)obj.cb_cm_conditions);%add condition
+            obj.pi.drc.stim.btn=uicontrol( 'Parent', r4 ,'Style','PushButton','String','','FontWeight','Bold','HorizontalAlignment','center','Position',[0 0 1 1],'units','normalized','CData',obj.icons.stimulator,'Tooltip','Click to Add a new Stimulator on this Condition','Callback',@(~,~)obj.cb_cm_stim); %add stimulator
+            obj.pi.drc.sp.btn=uicontrol( 'Parent', r4 ,'Style','PushButton','String','','FontWeight','Bold','HorizontalAlignment','center','CData',obj.icons.single_pulse,'Tooltip','Click to Add a Single-Pulse on selected stimulator (selected stimulator is highlighted in blue colour)','Tag','single_pulse','Callback',@obj.cb_cm_pulse); %add single pulse
+            obj.pi.drc.pp.btn=uicontrol( 'Parent', r4 ,'Style','PushButton','String','','FontWeight','Bold','HorizontalAlignment','center','CData',obj.icons.paired_pulse,'Tooltip','Click to Add a Paired-Pulse on selected stimulator (selected stimulator is highlighted in blue colour)','Tag','paired_pulse','Callback',@obj.cb_cm_pulse);%add burst or train
+            obj.pi.drc.train.btn=uicontrol( 'Parent', r4 ,'Style','PushButton','String','','FontWeight','Bold','HorizontalAlignment','center','CData',obj.icons.train,'Tooltip','Click to Add a Train or Burst on selected stimulator (selected stimulator is highlighted in blue colour)','Tag','train','Callback',@obj.cb_cm_pulse);%add paired pulse
             set( r4, 'Widths', [55 55 55 55 55]);
             
-            cb_SetHeights;
             
             
             obj.pi.drc.r0v2 = uix.VBox( 'Parent', obj.pi.drc.r0, 'Spacing', 5, 'Padding', 0); %uicontext menu to duplicate or delete a condition goes here
             obj.pi.mm.r0v2r1=uix.Panel( 'Parent', obj.pi.drc.r0v2,'Padding',0,'Units','normalized','FontSize',8 ,'Units','normalized','Title','Stimulation Parameters' ,'FontWeight','normal','TitlePosition','centertop');
-            obj.cb_pi_drc_StimulationParametersTable;
+            obj.cb_cm_StimulationParametersTable;
             
             obj.pi.mm.tab = uiextras.TabPanel( 'Parent', obj.pi.drc.r0v2, 'Padding', 5 );
             obj.pi.drc.r0v2.Heights=[200 -1];
             set(obj.pi.drc.r0,'Widths',[-2 -3]);
             obj.pi.drc.cond.no=0;
-            obj.cb_pi_drc_Nconditions;
-            
+            obj.cb_cm_Nconditions;
+            cb_SetHeights
             function cb_UniversalPanelAdaptation(~,~)
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).BrainState=obj.pi.drc.BrainState.Value;
-                cb_BrainStateParametersPanel
-                cb_DisplayParametersPanel
-                cb_SetHeights
-                obj.func_load_mepdrc_par;
+                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).BrainState=obj.pi.BrainState.Value;
+                obj.RefreshProtocol;
             end
             function cb_BrainStateParametersPanel(~,~)
-                switch obj.pi.drc.BrainState.Value
+                switch obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).BrainState
                     case 1
                         expModvBox=uix.VBox( 'Parent', BrainStateParametersPanel, 'Spacing', 0, 'Padding', 0  );
                         
@@ -3394,12 +2323,7 @@ classdef best_application < handle
                         obj.pi.drc.InputDevice=uicontrol( 'Style','popupmenu','Parent', expModr1 ,'FontSize',11,'String',str_in_device,'Tag','InputDevice','callback',@cb_par_saving);
                         expModr1.Widths=[150 -2];
                         
-                        expModr2c=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
-                        uicontrol( 'Style','text','Parent', expModr2c,'String','Inter Trial Interval (s):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-                        obj.pi.drc.ITI=uicontrol( 'Style','edit','Parent', expModr2c ,'FontSize',11,'Tag','ITI','callback',@cb_par_saving);
-                        expModr2c.Widths=[150 -2];
-                        
-                        expModvBox.Heights=[30 35];
+                        expModvBox.Heights=[30];
                     case 2
                         expModvBox=uix.VBox( 'Parent', BrainStateParametersPanel, 'Spacing', 0, 'Padding', 0  );
                         %row1
@@ -3429,8 +2353,8 @@ classdef best_application < handle
                         mep_panel_row8z = uix.HBox( 'Parent', expModvBox, 'Spacing', 0, 'Padding', 2  );
                         uicontrol( 'Style','text','Parent', mep_panel_row8z,'String','Peak Frequency (Hz):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
                         obj.pi.drc.PeakFrequency=uicontrol( 'Style','edit','Parent', mep_panel_row8z ,'FontSize',11,'Tag','PeakFrequency','Callback',@cb_par_saving);
-                        obj.pi.drc.ImportPeakFrequencyFromProtocols=uicontrol( 'Style','popupmenu','Parent', mep_panel_row8z ,'String',{'Select'},'FontSize',11,'Tag','Bin','Callback',@set_PeakFrequency);
-                        obj.pi.drc.ImportPeakFrequencyFromProtocols.String=getPeakFrequencyProtocols;
+                        obj.pi.drc.ImportPeakFrequencyFromProtocols=uicontrol( 'Style','popupmenu','Parent', mep_panel_row8z ,'String',{'Select'},'FontSize',11,'Tag','Bin','Callback',@(~,~)obj.cb_ImportPeakFrequency);
+                        obj.pi.drc.ImportPeakFrequencyFromProtocols.String={'Select','Import from Protocol'};
                         set( mep_panel_row8z, 'Widths', [150 -2 -2]);
                         
                         % row 2
@@ -3456,23 +2380,14 @@ classdef best_application < handle
                         obj.pi.drc.AmplitudeAssignmentPeriod=uicontrol( 'Style','edit','Parent', mep_panel_row2z ,'FontSize',11,'Tag','AmplitudeAssignmentPeriod','Callback',@cb_par_saving);
                         set( mep_panel_row2z, 'Widths', [200 -2]);
                         
-                        expModr2c=uiextras.HBox( 'Parent', expModvBox,'Spacing', 0, 'Padding', 2 );
-                        uicontrol( 'Style','text','Parent', expModr2c,'String','Minimum ITI (s):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-                        obj.pi.drc.ITI=uicontrol( 'Style','edit','Parent', expModr2c ,'FontSize',11,'Tag','ITI','callback',@cb_par_saving);
-                        expModr2c.Widths=[150 -2];
-                        expModvBox.Heights=[-1 -1 -1 -1 -1 -1 -1 -1 -1 -1];%[30 35 35 35 35 35 35 35 42 35];
+                        expModvBox.Heights=[-1 -1 -1 -1 -1 -1 -1 -1 -1];%[30 35 35 35 35 35 35 35 42 35];
                 end
                 
             end
             function cb_DisplayParametersPanel
-                switch obj.pi.drc.BrainState.Value
+                switch obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).BrainState
                     case 1
                         expModvBox=uix.VBox( 'Parent', DisplayParametersPanel, 'Spacing', 0, 'Padding', 0  );
-                        
-                        expModr2=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
-                        uicontrol( 'Style','text','Parent', expModr2,'String','Trials Per Condition:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-                        obj.pi.drc.TrialsPerCondition=uicontrol( 'Style','edit','Parent', expModr2 ,'FontSize',11,'Tag','TrialsPerCondition','callback',@cb_par_saving);
-                        expModr2.Widths=[150 -2];
                         
                         expModr2=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
                         uicontrol( 'Style','text','Parent', expModr2,'String','EMG Target  Channels:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
@@ -3508,18 +2423,13 @@ classdef best_application < handle
                         expModr4=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
                         uicontrol( 'Style','text','Parent', expModr4,'String','Response Function:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
                         obj.pi.drc.ResponseFunctionNumerator=uicontrol( 'Style','edit','Parent', expModr4 ,'FontSize',11,'Tag','ResponseFunctionNumerator','callback',@cb_par_saving);
-                        uicontrol( 'Style','text','Parent', expModr4,'String','÷','FontSize',13,'HorizontalAlignment','center','Units','normalized');
+                        uicontrol( 'Style','text','Parent', expModr4,'String','/','FontSize',13,'HorizontalAlignment','center','Units','normalized');
                         obj.pi.drc.ResponseFunctionDenominator=uicontrol( 'Style','edit','Parent', expModr4 ,'FontSize',11,'Tag','ResponseFunctionDenominator','callback',@cb_par_saving);
                         expModr4.Widths=[150 -2 30 -2];
                         
-                        expModvBox.Heights=[35 45 45 45 45 45 30 35];
+                        expModvBox.Heights=[45 45 45 45 45 30 35];
                     case 2
                         expModvBox=uix.VBox( 'Parent', DisplayParametersPanel, 'Spacing', 0, 'Padding', 0  );
-                        
-                        expModr2=uiextras.HBox( 'Parent', expModvBox,'Spacing', 0, 'Padding', 2 );
-                        uicontrol( 'Style','text','Parent', expModr2,'String','Trials Per Condition:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-                        obj.pi.drc.TrialsPerCondition=uicontrol( 'Style','edit','Parent', expModr2 ,'FontSize',11,'Tag','TrialsPerCondition','callback',@cb_par_saving);
-                        expModr2.Widths=[150 -2];
                         
                         expModr2=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
                         uicontrol( 'Style','text','Parent', expModr2,'String','EMG Target  Channels:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
@@ -3537,18 +2447,13 @@ classdef best_application < handle
                         expModr2.Widths=[200 -2];
                         
                         expModr2=uiextras.HBox( 'Parent', expModvBox,'Spacing', 0, 'Padding', 2 );
-                        uicontrol( 'Style','text','Parent', expModr2,'String','EMG Extraction Period (ms):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                        uicontrol( 'Style','text','Parent', expModr2,'String','Data Extraction Period (ms):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
                         obj.pi.drc.EMGExtractionPeriod=uicontrol( 'Style','edit','Parent', expModr2 ,'FontSize',11,'Tag','EMGExtractionPeriod','callback',@cb_par_saving);
                         expModr2.Widths=[200 -2];
                         
                         expModr2=uiextras.HBox( 'Parent', expModvBox,'Spacing', 0, 'Padding', 2 );
                         uicontrol( 'Style','text','Parent', expModr2,'String','EMG Display Period (ms):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
                         obj.pi.drc.EMGXLimit=uicontrol( 'Style','edit','Parent', expModr2 ,'FontSize',11,'Tag','EMGXLimit','callback',@cb_par_saving);
-                        expModr2.Widths=[200 -2];
-                        
-                        expModr2=uiextras.HBox( 'Parent', expModvBox,'Spacing', 0, 'Padding', 2 );
-                        uicontrol( 'Style','text','Parent', expModr2,'String','EEG Extraction Period (ms):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-                        obj.pi.drc.EEGExtractionPeriod=uicontrol( 'Style','edit','Parent', expModr2 ,'FontSize',11,'Tag','EEGExtractionPeriod','callback',@cb_par_saving);
                         expModr2.Widths=[200 -2];
                         
                         expModr2=uiextras.HBox( 'Parent', expModvBox,'Spacing', 0, 'Padding', 2 );
@@ -3565,24 +2470,25 @@ classdef best_application < handle
                         expModr4=uiextras.HBox( 'Parent', expModvBox,'Spacing', 0, 'Padding', 2 );
                         uicontrol( 'Style','text','Parent', expModr4,'String','Response Function:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
                         obj.pi.drc.ResponseFunctionNumerator=uicontrol( 'Style','edit','Parent', expModr4 ,'FontSize',11,'Tag','ResponseFunctionNumerator','callback',@cb_par_saving);
-                        uicontrol( 'Style','text','Parent', expModr4,'String','÷','FontSize',13,'HorizontalAlignment','center','Units','normalized');
+                        uicontrol( 'Style','text','Parent', expModr4,'String','/','FontSize',13,'HorizontalAlignment','center','Units','normalized');
                         obj.pi.drc.ResponseFunctionDenominator=uicontrol( 'Style','edit','Parent', expModr4 ,'FontSize',11,'Tag','ResponseFunctionDenominator','callback',@cb_par_saving);
                         expModr4.Widths=[150 -2 30 -2];
                         
-                        expModvBox.Heights=[-1 -1 -1 -1 -1 -1 -1 -1 -1 -1];%[35 35 45 45 45 45 45 30 35];
+                        expModvBox.Heights=[-1 -1 -1 -1 -1 -1 -1 -1];%[35 35 45 45 45 45 45 30 35];
                 end
             end
             function cb_SetHeights
-                switch obj.pi.drc.BrainState.Value
+                switch obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).BrainState
                     case 1
-                        set(obj.pi.drc.r0v1,'Heights',[40 90 370 -1 55])
+                        set(obj.pi.drc.r0v1,'Heights',[40 60 340 -1 55])
                     case 2
-                        set(obj.pi.drc.r0v1,'Heights',[-0.6 -9 -7 0 -1]);
+                        set(obj.pi.drc.r0v1,'Heights',[-0.6 -7 -7 0 -1]);
                 end
             end
             
             
             function cb_par_saving(source,~)
+                if obj.par.GlobalSettings.Protect==1, return; end
                 if strcmp(source.Tag,'InputDevice') || strcmp(source.Tag,'AmplitudeUnits') || strcmp(source.Tag,'FrequencyBand') || strcmp(source.Tag,'DoseFunction')
                     obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(source.Tag)=source.Value;
                 else
@@ -3628,1043 +2534,6 @@ classdef best_application < handle
             end
             
         end %% END obj.pi_drc
-        function cb_pi_drc_StimulationParametersTable(obj)
-            % create the Data from pars
-            iData=0;
-            for iTableCondition=1:numel(fieldnames(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll))
-                TableCond=['cond' num2str(iTableCondition)];
-                for iTableStimulator=1:numel(fieldnames(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond)))-1 %numel(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond))-1
-                    iData=iData+1;
-                    TableStim=['st' num2str(iTableStimulator)];
-                    TableData{iData,1}=num2str(iTableCondition);
-                    TableData{iData,8}='          -';
-                    TableData{iData,9}='          -';
-                    TableData{iData,10}='          -';
-                    TableData{iData,11}='          -';
-                    if( isfield(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim),'si'))
-                        TableData{iData,2}=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).si_pckt{1,1});
-                        
-                        %check here what has been saved and use that
-                        if(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).si_units==1)
-                            TableData{iData,3}='%MSO';
-                            TableData{iData,12}='          -';
-                        else
-                            TableData{iData,3}='%MT';
-                            TableData{iData,12}=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).threshold;
-                        end
-                    end
-                    
-                    if( isfield(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim),'stim_device'))
-                        TableData{iData,4}=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).stim_device{1,1}; end
-                    
-                    if( isfield(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim),'pulse_count'))
-                        TableData{iData,6}=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).pulse_count); end
-                    if( isfield(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim),'stim_mode'))
-                        
-                        switch obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).stim_mode
-                            case 'single_pulse'
-                                TableData{iData,5}='Single Pulse';
-                            case 'paired_pulse'
-                                TableData{iData,5}='Paired Pulse';
-                                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).si_pckt{1,2};
-                                TableData{iData,8}=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).si_pckt{1,2});
-                                TableData{iData,9}=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).si_pckt{1,3});
-                            case 'train'
-                                TableData{iData,5}='Train';
-                                TableData{iData,10}=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).si_pckt{1,2});
-                                TableData{iData,11}=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).pulse_count);
-                                TableData{iData,6}=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).si_pckt{1,3});
-                        end
-                    end
-                    if( isfield(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim),'stim_timing'))
-                        TableData{iData,7}=mat2str(cell2mat(horzcat((obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).stim_timing(1,:))))); end
-                    %%                   TableData{iData,8}=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).targetChannel{1,1};
-                end
-                %%                 if numel(fieldnames(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond)))==1
-                %%                     TableData{iData+1,1}=num2str(iTableCondition);
-                %%                     TableData{iData+1,8}=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).targetChannel{1,1};
-                %%                 end
-            end
-            if (isempty(obj.hw.device_added2_listbox.string))
-                obj.hw.device_added2_listbox.string={'Select'};
-            end
-            % create the table and load the data
-            table=uitable( 'Parent', obj.pi.mm.r0v2r1);
-            table.Data=TableData;%cell(6,12); % the row number comes from above
-            table.FontSize=10;
-            table.ColumnName = {'Condition #','TS Intensity','Intensity Units','Stimulator','Pulse Mode','# of Pulses','Timing Onset (ms)','CS Intensity','ISI (ms)','Train Freq','# of Trains','Motor Threshold (%MSO)'};
-            table.ColumnFormat={[],[],{'%MSO','%MT'},obj.hw.device_added2_listbox.string,{'Single Pulse','Paired Pulse', 'Train'},[],[],[],[],[],[],[]};
-            table.ColumnWidth = {100,100,100,100,100,100,100,100,90,90,90,120};
-            table.ColumnEditable =true(1,numel(table.ColumnName));
-            table.RowStriping='on';
-            table.RearrangeableColumns='on';
-            table.CellEditCallback =@CellEditCallback ;
-            
-            function CellEditCallback (~,CellEditData)
-                AdditionInCondition=['cond' num2str(table.Data{CellEditData.Indices(1),1})];
-                %                     table.Data{:,1}
-                % num2str(table.Data{CellEditData.Indices(1),1})
-                % gp=cellfun(@str2double ,table.Data(:,1))
-                % str2double(table.Data{CellEditData.Indices(1),1})
-                %                     ggg=find(gp==str2double(table.Data{CellEditData.Indices(1),1}))
-                % %                     find(table.Data{:,1}==table.Data{CellEditData.Indices(1),1})
-                AdditionInStimulatorNum=find(find(cellfun(@str2double ,table.Data(:,1))==str2double(table.Data{CellEditData.Indices(1),1}))==CellEditData.Indices(1));
-                AdditionInStimulator=['st' num2str(AdditionInStimulatorNum)];
-                opts               =    [];
-                opts.WindowStyle   =    'modal';
-                opts.Interpreter   =    'none';
-                switch CellEditData.Indices(2)
-                    case 2 %TS Intensity
-                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).si_pckt{1,1}=str2double(CellEditData.NewData);
-                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).si=CellEditData.NewData;
-                    case 3 %Intensity Units
-                        switch CellEditData.NewData
-                            case '%MSO'
-                                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).si_units=1;
-                            case '%MT'
-                                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).si_units=0;
-                                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).threshold='NaN';
-                                
-                        end
-                        
-                    case 4 %Stimulator
-                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).stim_device=cellstr(CellEditData.NewData);
-                        
-                    case 5 %Pulse Mode
-                        switch CellEditData.NewData
-                            case 'Single Pulse'
-                                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).stim_mode='single_pulse';
-                            case 'Paired Pulse'
-                                
-                                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).stim_mode='paired_pulse';
-                                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).si_pckt{1,2}=NaN;
-                                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).si_pckt{1,3}=NaN;
-                                
-                            case 'Train'
-                                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).stim_mode='train';
-                                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).si_pckt{1,2}=NaN;
-                                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).si_pckt{1,3}=NaN;
-                        end
-                        
-                    case 6 % # of Pulses
-                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).pulse_count=str2double(CellEditData.NewData);
-                        %AAJ: idher add kero k Stimulation Mode bhi nill ho jaye units bhi Nill ho
-                        %jaye intensity bhi khtam ho jaye matlab jese he pulse 0 zero ho to sirf vo
-                        %reh jaye to jab only stimulator add kerty hein to ata he
-                        if(str2double(CellEditData.NewData)==0)
-                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).stim_timing{1,1}=[];
-                        else
-                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).stim_timing{1,str2double(CellEditData.NewData)}=NaN;
-                        end
-                        
-                    case 7 %Timing Onset (ms)
-                        CellEditDataTimingOnset=[];
-                        CellEditDataTimingOnset=num2cell(eval(CellEditData.NewData));
-                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).stim_timing=CellEditDataTimingOnset;
-                        
-                        %%                     case 8 %Target EMG Ch
-                        %%                         obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).targetChannel=cellstr(CellEditData.NewData);
-                        %
-                    case {10,11} %Train Freq, # of Trians
-                        if ~(strcmp(table.Data{CellEditData.Indices(1),5},'Train'))
-                            table.Data(CellEditData.Indices(1),CellEditData.Indices(2))=cellstr('          -');
-                            errordlg('Train Frequency and # of Trians are only Editable for the "Train" Pulse Mode, change Pulse Mode respectively if you desire to set this parameter','Warning | BEST Toolbox',opts);
-                        else
-                            switch CellEditData.Indices(2)
-                                case 10
-                                    obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).si_pckt{1,2}=str2double(CellEditData.NewData);
-                                    obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).freq=CellEditData.NewData;
-                                case 10
-                                    obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).si_pckt{1,3}=str2double(CellEditData.NewData);
-                                    obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).pulsesNo=CellEditData.NewData;
-                            end
-                            
-                        end
-                    case {8,9} % CS Intensity, ISI (ms)
-                        if ~(strcmp(table.Data{CellEditData.Indices(1),5},'Paired Pulse'))
-                            table.Data(CellEditData.Indices(1),CellEditData.Indices(2))=cellstr('          -');
-                            errordlg('CS Intensity and ISI are only Editable for the "Paired Pulse" Pulse Mode, change Pulse Mode respectively if you desire to set this parameter','Warning | BEST Toolbox',opts);
-                        else
-                            switch CellEditData.Indices(2)
-                                case 8
-                                    obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).si_pckt{1,2}=str2double(CellEditData.NewData);
-                                    obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).cs=CellEditData.NewData;
-                                case 9
-                                    obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).si_pckt{1,3}=str2double(CellEditData.NewData);
-                                    obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).isi=CellEditData.NewData;
-                            end
-                            
-                        end
-                    case 12
-                        if ~(strcmp(table.Data{CellEditData.Indices(1),3},'%MT'))
-                            table.Data(CellEditData.Indices(1),CellEditData.Indices(2))=cellstr('          -');
-                            errordlg('The selected Stimulation Intensity Units are %MSO, change it to %MT from its dropdown menu if you desire to update this value to a specific threshold','Warning | BEST Toolbox',opts);
-                        else
-                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).threshold=CellEditData.NewData;
-                            
-                        end
-                end
-                %Improvement Note :Requirement 96
-                %                 obj.pi_drc;
-                %cb_pulse_update
-                %cb_condition_addition
-                %cb_condition_deletion
-                %cb_stimulator_addition
-                %cb_stimulator_deletion
-                cb_pulse_update
-                function cb_pulse_update
-                    cd=[];
-                    st=[];
-                    condStr=[];
-                    obj.pi.mm.tab.SelectedChild=str2double(table.Data{CellEditData.Indices(1),1});
-                    
-                    cd=['cd' num2str(table.Data{CellEditData.Indices(1),1})];
-                    condStr=['cond' num2str(table.Data{CellEditData.Indices(1),1})];
-                    obj.pi.mm.stim.(cd).slctd=AdditionInStimulatorNum;
-                    st=['st' num2str(obj.pi.mm.stim.(cd).slctd)];
-                    obj.pi.mm.stim.(cd).(st).pulse_count=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).pulse_count;
-                    axes(obj.pi.mm.cond.(cd).ax)
-                    cla;
-                    hold on;
-                    contextMenu_condition=uicontextmenu(obj.fig.handle);
-                    uimenu(contextMenu_condition,'label','Duplicate Condition','Callback',@cb_pr_mm_duplicateCondition);
-                    uimenu(contextMenu_condition,'label','Delete Condition','Callback',@cb_pr_mm_deleteCondition);
-                    obj.pi.mm.cond.(cd).ax.YLim=[-1 1];
-                    obj.pi.mm.cond.(cd).ax.XLim=[0 5];
-                    xticks(obj.pi.mm.cond.(cd).ax,[100 101]);
-                    yticks(obj.pi.mm.cond.(cd).ax,-1:1:1)
-                    obj.pi.mm.cond.(cd).ax.YTickLabel={'','MEP Search Window',''};
-                    plot(0:0.01:10,rand(1,1001)*0.30-0.15,'Color','k','parent',obj.pi.mm.cond.(cd).ax,'LineWidth',2,'Tag','empty'); % 12-Mar-2020 07:37:17
-                    %%                 text(2.5,0+0.20,['Channel Name:[' char(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).targetChannel) ']'],'VerticalAlignment','bottom','HorizontalAlignment','center','Color',[0.50 0.50 0.50],'FontSize',9,'FontAngle','italic','ButtonDownFcn',@obj.cb_pi_drc_targetChannel) % 11-Mar-2020 14:49:00
-                    obj.pi.mm.stim.(cd).no=0;
-                    
-                    %make stimulators
-                    for istimulators=1:(length(fieldnames(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr)))-1)
-                        obj.pi.mm.stim.(cd).no=istimulators;
-                        st=['st' num2str(obj.pi.mm.stim.(cd).no)];
-                        axes(obj.pi.mm.cond.(cd).ax)
-                        hold on;
-                        obj.pi.mm.stim.(cd).(st).plt=plot([-45 45],[-1*obj.pi.mm.stim.(cd).no -1*obj.pi.mm.stim.(cd).no],'Color','k','parent',obj.pi.mm.cond.(cd).ax,'LineWidth',2,'Tag',num2str(obj.pi.mm.stim.(cd).no),'ButtonDownFcn',@cb_stimulatorSelector); %line
-                        %                     obj.pi.mm.stim.(cd).(st).pulse_count=0;
-                        %                     obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).pulse_count=obj.pi.mm.stim.(cd).(st).pulse_count;
-                        obj.pi.mm.cond.(cd).ax.YLim=[(-1-obj.pi.mm.stim.(cd).no) 1];
-                        yticks(obj.pi.mm.cond.(cd).ax,[-1-obj.pi.mm.stim.(cd).no:1:1])
-                        for i=1:obj.pi.mm.stim.(cd).no
-                            yticklab{1,i}=cellstr(['Stimulator ' num2str(i)]);
-                        end
-                        yticklab=flip(horzcat(yticklab{1,:}));
-                        obj.pi.mm.cond.(cd).ax.YTickLabel={'',char(yticklab),'MEP Search Channel',''};
-                        text(0,-1*obj.pi.mm.stim.(cd).no,char(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).stim_device),'VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',9,'FontAngle','italic','Tag',num2str(obj.pi.mm.stim.(cd).no),'ButtonDownFcn',@obj.cb_pi_drc_output_device)
-                        for ipulses=1:obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).pulse_count
-                            
-                            % 11-Mar-2020 18:13:21
-                            obj.pi.mm.stim.(cd).slctd=istimulators;
-                            obj.pi.mm.stim.(cd).(st).pulse_count=ipulses;
-                            %                         obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).pulse_count=obj.pi.mm.stim.(cd).(st).pulse_count;
-                            
-                            switch char(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).stim_mode)
-                                case 'single_pulse'
-                                    obj.pi.mm.stim.(cd).(st).pulse_types{1,obj.pi.mm.stim.(cd).(st).pulse_count}=cellstr('single_pulse');
-                                    %make the string here
-                                    SinglePulseAnnotation=[];
-                                    if (obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_units==1)
-                                        
-                                        SinglePulseAnnotation=['TS: [' num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt{1,1}) '] %MSO'];
-                                    else
-                                        SinglePulseAnnotation=['TS: [' num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt{1,1}) '] %MT'];
-                                    end
-                                    %AAJ: idher ye banao jese oper hehehehehe
-                                    %vala bnaya he pp aur train dono k lye
-                                    text(obj.pi.mm.stim.(cd).(st).pulse_count-0.25,-obj.pi.mm.stim.(cd).slctd+0.41,SinglePulseAnnotation,'VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',7,'FontAngle','italic','UserData',[obj.pi.mm.stim.(cd).(st).pulse_count,obj.pi.mm.stim.(cd).slctd],'ButtonDownFcn',@obj.cb_pi_drc_sp_inputfig) % 11-Mar-2020 14:49:00
-                                case 'paired_pulse'
-                                    obj.pi.mm.stim.(cd).(st).pulse_types{1,obj.pi.mm.stim.(cd).(st).pulse_count}=cellstr('paired_pulse');
-                                    % % %                                 text(obj.pi.mm.stim.(cd).(st).pulse_count-0.25,-obj.pi.mm.stim.(cd).slctd+0.4,{'TS:[?], CS:[?] %MSO', 'ISI:[?] ms'},'VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',7,'FontAngle','italic','UserData',[obj.pi.mm.stim.(cd).(st).pulse_count,obj.pi.mm.stim.(cd).slctd],'ButtonDownFcn',@obj.cb_pi_drc_pp_inputfig) % 11-Mar-2020 14:49:00
-                                    TS=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt{1,1});
-                                    CS=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt{1,2});
-                                    ISI=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt{1,3});
-                                    if obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_units==1
-                                        UnitString='%MSO';
-                                    elseif obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_units==0
-                                        UnitString='%MT';
-                                    end
-                                    text(obj.pi.mm.stim.(cd).(st).pulse_count-0.25,-obj.pi.mm.stim.(cd).slctd+0.4,{['TS:' TS ', CS:' CS ' ' UnitString], ['ISI:' ISI 'ms']},'VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',7,'FontAngle','italic','UserData',[obj.pi.mm.stim.(cd).(st).pulse_count,obj.pi.mm.stim.(cd).slctd],'ButtonDownFcn',@obj.cb_pi_drc_pp_inputfig) % 11-Mar-2020 14:49:00
-                                    
-                                case 'train'
-                                    obj.pi.mm.stim.(cd).(st).pulse_types{1,obj.pi.mm.stim.(cd).(st).pulse_count}=cellstr('train');
-                                    %                                 obj.pi.mm.stim.(st).pulse_specs=text(obj.pi.mm.stim.(cd).(st).pulse_count,-obj.pi.mm.stim.(cd).slctd+0.4,{'Pulses:[?], f:[?] Hz', 'TS:[?] %MSO'},'VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',7,'FontAngle','italic','UserData',[obj.pi.mm.stim.(cd).(st).pulse_count,obj.pi.mm.stim.(cd).slctd],'ButtonDownFcn',@obj.cb_pi_drc_train_inputfig); % 11-Mar-2020 14:49:00
-                                    TS=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt{1,1});
-                                    F=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt{1,2});
-                                    PULSES=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt{1,3});
-                                    if obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_units==1
-                                        UnitString='%MSO';
-                                    elseif obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_units==0
-                                        UnitString='%MT';
-                                    end
-                                    obj.pi.mm.stim.(st).pulse_specs=text(obj.pi.mm.stim.(cd).(st).pulse_count,-obj.pi.mm.stim.(cd).slctd+0.4,{['Pulses:' PULSES ', f:' F 'Hz'], ['TS:' TS UnitString]},'VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',7,'FontAngle','italic','UserData',[obj.pi.mm.stim.(cd).(st).pulse_count,obj.pi.mm.stim.(cd).slctd],'ButtonDownFcn',@obj.cb_pi_drc_train_inputfig); % 11-Mar-2020 14:49:00
-                                    
-                            end
-                            
-                            
-                            % delete the previous plot
-                            delete(obj.pi.mm.stim.(cd).(st).plt)
-                            % make the x and y vector for new one
-                            x=[];
-                            y=[];
-                            for i=1:obj.pi.mm.stim.(cd).(st).pulse_count
-                                switch char(obj.pi.mm.stim.(cd).(st).pulse_types{1,i})
-                                    case 'single_pulse'
-                                        
-                                        x{i}=([i i i+0.15 i+0.15]);
-                                        y{i}=[-obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd+0.4 -obj.pi.mm.stim.(cd).slctd+0.4 -obj.pi.mm.stim.(cd).slctd];
-                                    case 'paired_pulse'
-                                        
-                                        x{i}=[i i i+0.15 i+0.15 i+0.25 i+0.25 i+0.40 i+0.40];
-                                        y{i}=[-obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd+0.20 -obj.pi.mm.stim.(cd).slctd+0.20 -obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd+0.4 -obj.pi.mm.stim.(cd).slctd+0.4 -obj.pi.mm.stim.(cd).slctd];
-                                    case 'train'
-                                        
-                                        %                         x(i)=[i i i+0.20 i+0.20 i+0.30 i+0.30 i+0.50 i+0.50 i+0.60 i+0.60 i+0.80 i+0.80];
-                                        x{i}=[i i i+0.15 i+0.15 i+0.25 i+0.25 i+0.40 i+0.40 i+0.50 i+0.50 i+0.65 i+0.65];
-                                        %                         y{i}={[-obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd+0.5 -obj.pi.mm.stim.(cd).slctd+0.5 -obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd+0.5 -obj.pi.mm.stim.(cd).slctd+0.5 -obj.pi.mm.stim.(cd).slctd]};
-                                        
-                                        y{i}=-obj.pi.mm.stim.(cd).slctd+[0 0.4 0.4 0 0 0.4 0.4 0 0 0.4 0.4 0];
-                                end
-                            end
-                            
-                            x=[-45 cell2mat(x) 45];
-                            y=[-obj.pi.mm.stim.(cd).slctd cell2mat(y) -obj.pi.mm.stim.(cd).slctd];
-                            
-                            obj.pi.mm.stim.(cd).(st).plt=plot(x,y,'Color','k','parent',obj.pi.mm.cond.(cd).ax,'LineWidth',2,'Tag',num2str(obj.pi.mm.stim.(cd).slctd),'ButtonDownFcn',@cb_stimulatorSelector); %line
-                            
-                            drawArrow = @(x,y) quiver( x(1),y(1),x(2)-x(1),y(2)-y(1),0,'color','k' );
-                            num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).stim_timing{1,ipulses})
-                            obj.pi.mm.stim.(st).pulse_time=text(obj.pi.mm.stim.(cd).(st).pulse_count-1+0.5,-obj.pi.mm.stim.(cd).slctd-0.05,['t:' num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).stim_timing{1,ipulses}) 'ms'],'VerticalAlignment','top','Color',[0.50 0.50 0.50],'FontSize',9,'FontAngle','italic','UserData',[obj.pi.mm.stim.(cd).(st).pulse_count,obj.pi.mm.stim.(cd).slctd],'ButtonDownFcn',@obj.cb_pi_drc_timing)
-                            
-                            obj.pi.mm.stim.(st).pulse_arrow1=drawArrow([obj.pi.mm.stim.(cd).(st).pulse_count-1 obj.pi.mm.stim.(cd).(st).pulse_count-1+1],[-obj.pi.mm.stim.(cd).slctd-0.05 -obj.pi.mm.stim.(cd).slctd-0.05])
-                            obj.pi.mm.stim.(st).pulse_arrow2=drawArrow([obj.pi.mm.stim.(cd).(st).pulse_count-1+1 obj.pi.mm.stim.(cd).(st).pulse_count-1],[-obj.pi.mm.stim.(cd).slctd-0.05 -obj.pi.mm.stim.(cd).slctd-0.05])
-                            
-                            
-                            if(obj.pi.mm.cond.(cd).ax.XLim(2)<obj.pi.mm.stim.(cd).(st).pulse_count+1)
-                                obj.pi.mm.cond.(cd).ax.XLim(2)=obj.pi.mm.stim.(cd).(st).pulse_count+1;
-                            end
-                            
-                        end
-                        
-                    end
-                    function cb_stimulatorSelector(source,~)
-                        if(isfield(obj.pi.mm,'stimulatorSelector'))
-                            if(isvalid(obj.pi.mm.stimulatorSelector))
-                                obj.pi.mm.stimulatorSelector.Color='k';
-                            end
-                        end
-                        obj.pi.mm.stim.(cd).slctd=str2double(source.Tag);
-                        source.Color='b';
-                        obj.pi.mm.stimulatorSelector=source;
-                    end
-                    function cb_pr_mm_duplicateCondition(~,~)
-                        
-                        conditionIndex=length(fieldnames(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll));
-                        cond_duplicated_from=['cond' num2str(obj.pi.mm.tab.SelectedChild)];
-                        cond_duplicated_to=['cond' num2str(conditionIndex+1)];
-                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cond_duplicated_to)=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cond_duplicated_from);
-                        obj.pi_drc;
-                        obj.func_load_mep_par;
-                    end
-                    function cb_pr_mm_deleteCondition(~,~)
-                        
-                        
-                        condsAll_fieldnames=fieldnames(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll);
-                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll=rmfield(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll,char(condsAll_fieldnames(obj.pi.mm.tab.SelectedChild)));
-                        condsAll_fieldnames(obj.pi.mm.tab.SelectedChild)=[];
-                        for deleteIndex_condition=1:(length(fieldnames(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll)))
-                            cond_resorted_afterdelete=['cond' num2str(deleteIndex_condition)];
-                            condsAll_new.(cond_resorted_afterdelete)=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(char(condsAll_fieldnames(deleteIndex_condition)));
-                        end
-                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll=condsAll_new;
-                        obj.pi_drc;
-                        obj.func_load_mep_par;
-                    end
-                end
-                
-                
-                
-                
-                %AAJ: add a new uimenu in table for add a condition,
-                %add a stimulator to this condition, delete a
-                %condition, delete a stimulator
-                
-            end
-            
-            
-        end
-        function cb_pi_drc_Nconditions(obj)
-            
-            obj.pi.mm.cond.TabNames=[];
-            contextMenu_condition=uicontextmenu(obj.fig.handle);
-            uimenu(contextMenu_condition,'label','Duplicate Condition','Callback',@cb_pr_mm_duplicateCondition);
-            uimenu(contextMenu_condition,'label','Delete Condition','Callback',@cb_pr_mm_deleteCondition);
-            for iconds=1:length(fieldnames(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll))
-                obj.pi.mm.cond.no=iconds;
-                cd=['cd' num2str(obj.pi.mm.cond.no)];
-                condStr=['cond' num2str(obj.pi.mm.cond.no)];
-                obj.pi.mm.cond.(cd).ax_panel= uix.Panel( 'Parent',obj.pi.mm.tab,'uicontextmenu',contextMenu_condition);
-                obj.pi.mm.cond.(cd).ax=axes('parent',obj.pi.mm.cond.(cd).ax_panel );
-                box on; hold on;
-                obj.pi.mm.cond.TabNames{1,obj.pi.mm.cond.no}=['Condition' num2str(obj.pi.mm.cond.no)];
-                obj.pi.mm.tab.TabNames=obj.pi.mm.cond.TabNames;
-                obj.pi.mm.tab.SelectedChild=1;
-                obj.pi.mm.tab.TabSize=90;
-                obj.pi.mm.tab.FontSize=12;
-                obj.pi.mm.cond.(cd).ax.YLim=[-1 1];
-                obj.pi.mm.cond.(cd).ax.XLim=[0 5];
-                xticks(obj.pi.mm.cond.(cd).ax,[100 101]);
-                yticks(obj.pi.mm.cond.(cd).ax,-1:1:1)
-                obj.pi.mm.cond.(cd).ax.YTickLabel={'','MEP Search Window',''};
-                plot(0:0.01:10,rand(1,1001)*0.30-0.15,'Color','k','parent',obj.pi.mm.cond.(cd).ax,'LineWidth',2,'Tag','empty'); % 12-Mar-2020 07:37:17
-                %%                 text(2.5,0+0.20,['Channel Name:[' char(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).targetChannel) ']'],'VerticalAlignment','bottom','HorizontalAlignment','center','Color',[0.50 0.50 0.50],'FontSize',9,'FontAngle','italic','ButtonDownFcn',@obj.cb_pi_drc_targetChannel) % 11-Mar-2020 14:49:00
-                obj.pi.mm.stim.(cd).no=0;
-                
-                %make stimulators
-                for istimulators=1:(length(fieldnames(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr)))-1)
-                    obj.pi.mm.stim.(cd).no=istimulators;
-                    st=['st' num2str(obj.pi.mm.stim.(cd).no)];
-                    axes(obj.pi.mm.cond.(cd).ax)
-                    hold on;
-                    obj.pi.mm.stim.(cd).(st).plt=plot([-45 45],[-1*obj.pi.mm.stim.(cd).no -1*obj.pi.mm.stim.(cd).no],'Color','k','parent',obj.pi.mm.cond.(cd).ax,'LineWidth',2,'Tag',num2str(obj.pi.mm.stim.(cd).no),'ButtonDownFcn',@cb_stimulatorSelector); %line
-                    %                     obj.pi.mm.stim.(cd).(st).pulse_count=0;
-                    %                     obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).pulse_count=obj.pi.mm.stim.(cd).(st).pulse_count;
-                    obj.pi.mm.cond.(cd).ax.YLim=[(-1-obj.pi.mm.stim.(cd).no) 1];
-                    yticks(obj.pi.mm.cond.(cd).ax,[-1-obj.pi.mm.stim.(cd).no:1:1])
-                    for i=1:obj.pi.mm.stim.(cd).no
-                        yticklab{1,i}=cellstr(['Stimulator ' num2str(i)]);
-                    end
-                    yticklab=flip(horzcat(yticklab{1,:}));
-                    obj.pi.mm.cond.(cd).ax.YTickLabel={'',char(yticklab),'MEP Search Window',''};
-                    text(0,-1*obj.pi.mm.stim.(cd).no,char(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).stim_device),'VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',9,'FontAngle','italic','Tag',num2str(obj.pi.mm.stim.(cd).no),'ButtonDownFcn',@obj.cb_pi_drc_output_device)
-                    for ipulses=1:obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).pulse_count
-                        
-                        % 11-Mar-2020 18:13:21
-                        obj.pi.mm.stim.(cd).slctd=istimulators;
-                        obj.pi.mm.stim.(cd).(st).pulse_count=ipulses;
-                        %                         obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).pulse_count=obj.pi.mm.stim.(cd).(st).pulse_count;
-                        
-                        switch char(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).stim_mode)
-                            case 'single_pulse'
-                                obj.pi.mm.stim.(cd).(st).pulse_types{1,obj.pi.mm.stim.(cd).(st).pulse_count}=cellstr('single_pulse');
-                                %make the string here
-                                SinglePulseAnnotation=[];
-                                if (obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_units==1)
-                                    
-                                    
-                                    SinglePulseAnnotation=['TS: [' num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt{1,1}) '] %MSO'];
-                                else
-                                    SinglePulseAnnotation=['TS: [' num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt{1,1}) '] %MT'];
-                                end
-                                %AAJ: idher ye banao jese oper hehehehehe
-                                %vala bnaya he pp aur train dono k lye
-                                text(obj.pi.mm.stim.(cd).(st).pulse_count-0.25,-obj.pi.mm.stim.(cd).slctd+0.41,SinglePulseAnnotation,'VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',7,'FontAngle','italic','UserData',[obj.pi.mm.stim.(cd).(st).pulse_count,obj.pi.mm.stim.(cd).slctd],'ButtonDownFcn',@obj.cb_pi_drc_sp_inputfig) % 11-Mar-2020 14:49:00
-                            case 'paired_pulse'
-                                obj.pi.mm.stim.(cd).(st).pulse_types{1,obj.pi.mm.stim.(cd).(st).pulse_count}=cellstr('paired_pulse');
-                                % % %                                 text(obj.pi.mm.stim.(cd).(st).pulse_count-0.25,-obj.pi.mm.stim.(cd).slctd+0.4,{'TS:[?], CS:[?] %MSO', 'ISI:[?] ms'},'VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',7,'FontAngle','italic','UserData',[obj.pi.mm.stim.(cd).(st).pulse_count,obj.pi.mm.stim.(cd).slctd],'ButtonDownFcn',@obj.cb_pi_drc_pp_inputfig) % 11-Mar-2020 14:49:00
-                                TS=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt{1,1});
-                                CS=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt{1,2});
-                                ISI=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt{1,3});
-                                if obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_units==1
-                                    UnitString='%MSO';
-                                elseif obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_units==0
-                                    UnitString='%MT';
-                                end
-                                text(obj.pi.mm.stim.(cd).(st).pulse_count-0.25,-obj.pi.mm.stim.(cd).slctd+0.4,{['TS:' TS ', CS:' CS ' ' UnitString], ['ISI:' ISI 'ms']},'VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',7,'FontAngle','italic','UserData',[obj.pi.mm.stim.(cd).(st).pulse_count,obj.pi.mm.stim.(cd).slctd],'ButtonDownFcn',@obj.cb_pi_drc_pp_inputfig) % 11-Mar-2020 14:49:00
-                                
-                            case 'train'
-                                obj.pi.mm.stim.(cd).(st).pulse_types{1,obj.pi.mm.stim.(cd).(st).pulse_count}=cellstr('train');
-                                %                                 obj.pi.mm.stim.(st).pulse_specs=text(obj.pi.mm.stim.(cd).(st).pulse_count,-obj.pi.mm.stim.(cd).slctd+0.4,{'Pulses:[?], f:[?] Hz', 'TS:[?] %MSO'},'VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',7,'FontAngle','italic','UserData',[obj.pi.mm.stim.(cd).(st).pulse_count,obj.pi.mm.stim.(cd).slctd],'ButtonDownFcn',@obj.cb_pi_drc_train_inputfig); % 11-Mar-2020 14:49:00
-                                TS=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt{1,1});
-                                F=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt{1,2});
-                                PULSES=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt{1,3});
-                                if obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_units==1
-                                    UnitString='%MSO';
-                                elseif obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_units==0
-                                    UnitString='%MT';
-                                end
-                                obj.pi.mm.stim.(st).pulse_specs=text(obj.pi.mm.stim.(cd).(st).pulse_count,-obj.pi.mm.stim.(cd).slctd+0.4,{['Pulses:' PULSES ', f:' F 'Hz'], ['TS:' TS UnitString]},'VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',7,'FontAngle','italic','UserData',[obj.pi.mm.stim.(cd).(st).pulse_count,obj.pi.mm.stim.(cd).slctd],'ButtonDownFcn',@obj.cb_pi_drc_train_inputfig); % 11-Mar-2020 14:49:00
-                                
-                        end
-                        
-                        
-                        % delete the previous plot
-                        delete(obj.pi.mm.stim.(cd).(st).plt)
-                        % make the x and y vector for new one
-                        x=[];
-                        y=[];
-                        for i=1:obj.pi.mm.stim.(cd).(st).pulse_count
-                            switch char(obj.pi.mm.stim.(cd).(st).pulse_types{1,i})
-                                case 'single_pulse'
-                                    
-                                    x{i}=([i i i+0.15 i+0.15]);
-                                    y{i}=[-obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd+0.4 -obj.pi.mm.stim.(cd).slctd+0.4 -obj.pi.mm.stim.(cd).slctd];
-                                case 'paired_pulse'
-                                    
-                                    x{i}=[i i i+0.15 i+0.15 i+0.25 i+0.25 i+0.40 i+0.40];
-                                    y{i}=[-obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd+0.20 -obj.pi.mm.stim.(cd).slctd+0.20 -obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd+0.4 -obj.pi.mm.stim.(cd).slctd+0.4 -obj.pi.mm.stim.(cd).slctd];
-                                case 'train'
-                                    
-                                    %                         x(i)=[i i i+0.20 i+0.20 i+0.30 i+0.30 i+0.50 i+0.50 i+0.60 i+0.60 i+0.80 i+0.80];
-                                    x{i}=[i i i+0.15 i+0.15 i+0.25 i+0.25 i+0.40 i+0.40 i+0.50 i+0.50 i+0.65 i+0.65];
-                                    %                         y{i}={[-obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd+0.5 -obj.pi.mm.stim.(cd).slctd+0.5 -obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd+0.5 -obj.pi.mm.stim.(cd).slctd+0.5 -obj.pi.mm.stim.(cd).slctd]};
-                                    
-                                    y{i}=-obj.pi.mm.stim.(cd).slctd+[0 0.4 0.4 0 0 0.4 0.4 0 0 0.4 0.4 0];
-                            end
-                        end
-                        
-                        x=[-45 cell2mat(x) 45];
-                        y=[-obj.pi.mm.stim.(cd).slctd cell2mat(y) -obj.pi.mm.stim.(cd).slctd];
-                        
-                        obj.pi.mm.stim.(cd).(st).plt=plot(x,y,'Color','k','parent',obj.pi.mm.cond.(cd).ax,'LineWidth',2,'Tag',num2str(obj.pi.mm.stim.(cd).slctd),'ButtonDownFcn',@cb_stimulatorSelector); %line
-                        
-                        drawArrow = @(x,y) quiver( x(1),y(1),x(2)-x(1),y(2)-y(1),0,'color','k' );
-                        num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).stim_timing{1,ipulses})
-                        obj.pi.mm.stim.(st).pulse_time=text(obj.pi.mm.stim.(cd).(st).pulse_count-1+0.5,-obj.pi.mm.stim.(cd).slctd-0.05,['t:' num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).stim_timing{1,ipulses}) 'ms'],'VerticalAlignment','top','Color',[0.50 0.50 0.50],'FontSize',9,'FontAngle','italic','UserData',[obj.pi.mm.stim.(cd).(st).pulse_count,obj.pi.mm.stim.(cd).slctd],'ButtonDownFcn',@obj.cb_pi_drc_timing)
-                        
-                        obj.pi.mm.stim.(st).pulse_arrow1=drawArrow([obj.pi.mm.stim.(cd).(st).pulse_count-1 obj.pi.mm.stim.(cd).(st).pulse_count-1+1],[-obj.pi.mm.stim.(cd).slctd-0.05 -obj.pi.mm.stim.(cd).slctd-0.05])
-                        obj.pi.mm.stim.(st).pulse_arrow2=drawArrow([obj.pi.mm.stim.(cd).(st).pulse_count-1+1 obj.pi.mm.stim.(cd).(st).pulse_count-1],[-obj.pi.mm.stim.(cd).slctd-0.05 -obj.pi.mm.stim.(cd).slctd-0.05])
-                        
-                        
-                        if(obj.pi.mm.cond.(cd).ax.XLim(2)<obj.pi.mm.stim.(cd).(st).pulse_count+1)
-                            obj.pi.mm.cond.(cd).ax.XLim(2)=obj.pi.mm.stim.(cd).(st).pulse_count+1;
-                        end
-                        
-                    end
-                    
-                end
-                %make pulses
-                
-                
-                
-            end
-            function cb_stimulatorSelector(source,~)
-                if(isfield(obj.pi.mm,'stimulatorSelector'))
-                    if(isvalid(obj.pi.mm.stimulatorSelector))
-                        obj.pi.mm.stimulatorSelector.Color='k';
-                    end
-                end
-                obj.pi.mm.stim.(cd).slctd=str2double(source.Tag);
-                source.Color='b';
-                obj.pi.mm.stimulatorSelector=source;
-            end
-            function cb_pr_mm_duplicateCondition(~,~)
-                conditionIndex=length(fieldnames(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll));
-                cond_duplicated_from=['cond' num2str(obj.pi.mm.tab.SelectedChild)];
-                cond_duplicated_to=['cond' num2str(conditionIndex+1)];
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cond_duplicated_to)=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cond_duplicated_from);
-                obj.pi_drc;
-                obj.func_load_mep_par;
-            end
-            function cb_pr_mm_deleteCondition(~,~)
-                
-                condsAll_fieldnames=fieldnames(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll);
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll=rmfield(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll,char(condsAll_fieldnames(obj.pi.mm.tab.SelectedChild)));
-                condsAll_fieldnames(obj.pi.mm.tab.SelectedChild)=[];
-                for deleteIndex_condition=1:(length(fieldnames(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll)))
-                    cond_resorted_afterdelete=['cond' num2str(deleteIndex_condition)];
-                    condsAll_new.(cond_resorted_afterdelete)=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(char(condsAll_fieldnames(deleteIndex_condition)));
-                end
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll=condsAll_new;
-                obj.pi_drc;
-                obj.func_load_mep_par;
-            end
-        end
-        function cb_pi_drc_conditions(obj)
-            obj.pi.mm.cond.no=obj.pi.mm.cond.no+1;
-            cd=['cd' num2str(obj.pi.mm.cond.no)];
-            condStr=['cond' num2str(obj.pi.mm.cond.no)];
-            contextMenu_condition=uicontextmenu(obj.fig.handle);
-            uimenu(contextMenu_condition,'label','Duplicate Condition','Callback',@cb_pr_mm_duplicateCondition);
-            uimenu(contextMenu_condition,'label','Delete Condition','Callback',@cb_pr_mm_deleteCondition);
-            obj.pi.mm.cond.(cd).ax_panel= uix.Panel( 'Parent',obj.pi.mm.tab,'uicontextmenu',contextMenu_condition);
-            obj.pi.mm.cond.(cd).ax=axes('parent',obj.pi.mm.cond.(cd).ax_panel );
-            box on; hold on;
-            obj.pi.mm.cond.TabNames{1,obj.pi.mm.cond.no}=['Condition' num2str(obj.pi.mm.cond.no)];
-            obj.pi.mm.tab.TabNames=obj.pi.mm.cond.TabNames;
-            obj.pi.mm.tab.SelectedChild=obj.pi.mm.cond.no;
-            obj.pi.mm.tab.TabSize=90;
-            obj.pi.mm.tab.FontSize=12;
-            obj.pi.mm.cond.(cd).ax.YLim=[-1 1];
-            obj.pi.mm.cond.(cd).ax.XLim=[0 5];
-            xticks(obj.pi.mm.cond.(cd).ax,[100 101]);
-            yticks(obj.pi.mm.cond.(cd).ax,[-1:1:1])
-            obj.pi.mm.cond.(cd).ax.YTickLabel={'','MEP Search Window',''};
-            plot(0:0.01:10,rand(1,1001)*0.30-0.15,'Color','k','parent',obj.pi.mm.cond.(cd).ax,'LineWidth',2,'Tag','empty'); % 12-Mar-2020 07:37:17
-            %%             text(2.5,0+0.20,'Channel Name:[?]','VerticalAlignment','bottom','HorizontalAlignment','center','Color',[0.50 0.50 0.50],'FontSize',9,'FontAngle','italic','ButtonDownFcn',@obj.cb_pi_drc_targetChannel) % 11-Mar-2020 14:49:00
-            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).targetChannel=cellstr('NaN');
-            obj.pi.mm.stim.(cd).no=0;
-            function cb_pr_mm_duplicateCondition(~,~)
-                conditionIndex=length(fieldnames(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll));
-                cond_duplicated_from=['cond' num2str(obj.pi.mm.tab.SelectedChild)];
-                cond_duplicated_to=['cond' num2str(conditionIndex+1)];
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cond_duplicated_to)=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cond_duplicated_from);
-                obj.pi_drc;
-                obj.func_load_mep_par;
-            end
-            function cb_pr_mm_deleteCondition(~,~)
-                condsAll_fieldnames=fieldnames(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll);
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll=rmfield(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll,char(condsAll_fieldnames(obj.pi.mm.tab.SelectedChild)));
-                condsAll_fieldnames(obj.pi.mm.tab.SelectedChild)=[];
-                for deleteIndex_condition=1:(length(fieldnames(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll)))
-                    cond_resorted_afterdelete=['cond' num2str(deleteIndex_condition)];
-                    condsAll_new.(cond_resorted_afterdelete)=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(char(condsAll_fieldnames(deleteIndex_condition)));
-                end
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll=condsAll_new;
-                obj.pi_drc;
-                obj.func_load_mep_par;
-            end
-            obj.cb_pi_drc_StimulationParametersTable;
-            
-            
-        end
-        function cb_pi_drc_stim(obj)
-            
-            obj.pi.mm.tab.TabNames=obj.pi.mm.cond.TabNames;
-            cd=['cd' num2str(obj.pi.mm.tab.SelectedChild)];
-            condStr=['cond' num2str(obj.pi.mm.tab.SelectedChild)];
-            obj.pi.mm.stim.(cd).no=obj.pi.mm.stim.(cd).no+1;
-            st=['st' num2str(obj.pi.mm.stim.(cd).no)];
-            axes(obj.pi.mm.cond.(cd).ax)
-            hold on;
-            %             plot([-45 45],[1 1],'Color','k','parent',obj.pi.mm.ax);
-            %             plot([-45 45],[0 0],'Color','k','parent',obj.pi.mm.ax);
-            
-            
-            obj.pi.mm.stim.(cd).(st).plt=plot([-45 45],[-1*obj.pi.mm.stim.(cd).no -1*obj.pi.mm.stim.(cd).no],'Color','k','parent',obj.pi.mm.cond.(cd).ax,'LineWidth',2,'Tag',num2str(obj.pi.mm.stim.(cd).no),'ButtonDownFcn',@cb_stimulatorSelector); %line
-            %             obj.pi.mm.stim.(cd).(st).pulse_count=0;
-            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).pulse_count=0;
-            obj.pi.mm.stim.(cd).(st).plt.Tag
-            %             plot([-45 45],[-2-obj.pi.mm.stim.no -2-obj.pi.mm.stim.no],'Color','k','parent',obj.pi.mm.ax);
-            obj.pi.mm.cond.(cd).ax.YLim=[(-1-obj.pi.mm.stim.(cd).no) 1];
-            yticks(obj.pi.mm.cond.(cd).ax,[-1-obj.pi.mm.stim.(cd).no:1:1])
-            for i=1:obj.pi.mm.stim.(cd).no
-                yticklab{1,i}=cellstr(['Stimulator ' num2str(i)]);
-            end
-            yticklab=flip(horzcat(yticklab{1,:}));
-            obj.pi.mm.cond.(cd).ax.YTickLabel={'',char(yticklab),'MEP Search Window',''};
-            text(0,-1*obj.pi.mm.stim.(cd).no,'click to tag device','VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',9,'FontAngle','italic','Tag',num2str(obj.pi.mm.stim.(cd).no),'ButtonDownFcn',@obj.cb_pi_drc_output_device)
-            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).stim_device=cellstr('Select');
-            function cb_stimulatorSelector(source,~)
-                if(isfield(obj.pi.mm,'stimulatorSelector'))
-                    if(isvalid(obj.pi.mm.stimulatorSelector))
-                        obj.pi.mm.stimulatorSelector.Color='k';
-                    end
-                end
-                obj.pi.mm.stim.(cd).slctd=str2double(source.Tag);
-                source.Color='b';
-                obj.pi.mm.stimulatorSelector=source;
-            end
-            obj.cb_pi_drc_StimulationParametersTable;
-        end
-        function cb_pi_drc_pulse(obj,source,~)
-            % 11-Mar-2020 18:13:21
-            cd=['cd' num2str(obj.pi.mm.tab.SelectedChild)];
-            condStr=['cond' num2str(obj.pi.mm.tab.SelectedChild)];
-            
-            %             obj.pi.mm.stim.(cd).slctd=1 ;
-            
-            
-            st=['st' num2str(obj.pi.mm.stim.(cd).slctd)];
-            obj.pi.mm.stim.(cd).(st).pulse_count=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).pulse_count+1;
-            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).pulse_count=obj.pi.mm.stim.(cd).(st).pulse_count;
-            
-            switch obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).pulse_count
-                case 1
-                    obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).stim_mode=source.Tag;
-                    
-                    switch source.Tag
-                        case 'single_pulse'
-                            obj.pi.mm.stim.(cd).(st).pulse_types{1,obj.pi.mm.stim.(cd).(st).pulse_count}=cellstr('single_pulse');
-                            text(obj.pi.mm.stim.(cd).(st).pulse_count-0.25,-obj.pi.mm.stim.(cd).slctd+0.41,'       TS:[NaN] %MSO','VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',7,'FontAngle','italic','UserData',[obj.pi.mm.stim.(cd).(st).pulse_count,obj.pi.mm.stim.(cd).slctd],'ButtonDownFcn',@obj.cb_pi_drc_sp_inputfig) % 11-Mar-2020 14:49:00
-                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si='NaN'; %only 1 SI is allowed as a standard model of generalization
-                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_units=1; %if 1 then its mso if 0 then its threshold
-                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).threshold='';
-                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).stim_mode='single_pulse';
-                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt={NaN};
-                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).stim_timing={NaN};
-                            
-                        case 'paired_pulse'
-                            obj.pi.mm.stim.(cd).(st).pulse_types{1,obj.pi.mm.stim.(cd).(st).pulse_count}=cellstr('paired_pulse');
-                            text(obj.pi.mm.stim.(cd).(st).pulse_count-0.25,-obj.pi.mm.stim.(cd).slctd+0.4,{'TS:[NaN], CS:[NaN] %MSO', 'ISI:[NaN] ms'},'VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',7,'FontAngle','italic','UserData',[obj.pi.mm.stim.(cd).(st).pulse_count,obj.pi.mm.stim.(cd).slctd],'ButtonDownFcn',@obj.cb_pi_drc_pp_inputfig) % 11-Mar-2020 14:49:00
-                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si='NaN'; %only 1 SI is allowed as a standard model of generalization
-                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).cs='NaN'; %only 1 SI is allowed as a standard model of generalization
-                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).isi='NaN'; %only 1 SI is allowed as a standard model of generalization
-                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_units=1; %if 1 then its mso if 0 then its threshold
-                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).threshold='';
-                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).stim_mode='paired_pulse';
-                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt={NaN,NaN,NaN};
-                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).stim_timing={NaN};
-                        case 'train'
-                            obj.pi.mm.stim.(cd).(st).pulse_types{1,obj.pi.mm.stim.(cd).(st).pulse_count}=cellstr('train');
-                            obj.pi.mm.stim.(st).pulse_specs=text(obj.pi.mm.stim.(cd).(st).pulse_count,-obj.pi.mm.stim.(cd).slctd+0.4,{'Pulses:[NaN], f:[NaN] Hz', 'TS:[NaN] %MSO'},'VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',7,'FontAngle','italic','UserData',[obj.pi.mm.stim.(cd).(st).pulse_count,obj.pi.mm.stim.(cd).slctd],'ButtonDownFcn',@obj.cb_pi_drc_train_inputfig); % 11-Mar-2020 14:49:00
-                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si='NaN'; %only 1 SI is allowed as a standard model of generalization
-                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).pulsesNo='NaN'; %only 1 SI is allowed as a standard model of generalization
-                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).freq='NaN'; %only 1 SI is allowed as a standard model of generalization
-                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_units=1; %if 1 then its mso if 0 then its threshold
-                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).threshold='';
-                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).stim_mode='train';
-                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt={NaN,NaN,NaN};
-                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).stim_timing={NaN};
-                    end
-                otherwise
-                    switch obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).stim_mode
-                        case 'single_pulse'
-                            obj.pi.mm.stim.(cd).(st).pulse_types{1,obj.pi.mm.stim.(cd).(st).pulse_count}=cellstr('single_pulse');
-                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).stim_timing(1,obj.pi.mm.stim.(cd).(st).pulse_count)={NaN};
-                            
-                            if obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_units==1
-                                UnitString='%MSO';
-                            elseif obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_units==0
-                                UnitString='%MT';
-                            end
-                            text(obj.pi.mm.stim.(cd).(st).pulse_count-0.25,-obj.pi.mm.stim.(cd).slctd+0.41,['     TS: ' num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt{1,1}) ' ' UnitString],'VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',7,'FontAngle','italic','UserData',[obj.pi.mm.stim.(cd).(st).pulse_count,obj.pi.mm.stim.(cd).slctd],'ButtonDownFcn',@obj.cb_pi_drc_sp_inputfig) % 11-Mar-2020 14:49:00
-                            
-                            
-                        case 'paired_pulse'
-                            obj.pi.mm.stim.(cd).(st).pulse_types{1,obj.pi.mm.stim.(cd).(st).pulse_count}=cellstr('paired_pulse');
-                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).stim_timing(1,obj.pi.mm.stim.(cd).(st).pulse_count)={NaN};
-                            TS=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt{1,1});
-                            CS=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt{1,2});
-                            ISI=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt{1,3});
-                            if obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_units==1
-                                UnitString='%MSO';
-                            elseif obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_units==0
-                                UnitString='%MT';
-                            end
-                            text(obj.pi.mm.stim.(cd).(st).pulse_count-0.25,-obj.pi.mm.stim.(cd).slctd+0.4,{['TS:' TS ', CS:' CS ' ' UnitString], ['ISI:' ISI 'ms']},'VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',7,'FontAngle','italic','UserData',[obj.pi.mm.stim.(cd).(st).pulse_count,obj.pi.mm.stim.(cd).slctd],'ButtonDownFcn',@obj.cb_pi_drc_pp_inputfig) % 11-Mar-2020 14:49:00
-                        case 'train'
-                            obj.pi.mm.stim.(cd).(st).pulse_types{1,obj.pi.mm.stim.(cd).(st).pulse_count}=cellstr('train');
-                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).stim_timing(1,obj.pi.mm.stim.(cd).(st).pulse_count)={NaN};
-                            TS=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt{1,1});
-                            F=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt{1,2});
-                            PULSES=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt{1,3});
-                            if obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_units==1
-                                UnitString='%MSO';
-                            elseif obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_units==0
-                                UnitString='%MT';
-                            end
-                            obj.pi.mm.stim.(st).pulse_specs=text(obj.pi.mm.stim.(cd).(st).pulse_count,-obj.pi.mm.stim.(cd).slctd+0.4,{['Pulses:' PULSES ', f:' F 'Hz'], ['TS:' TS UnitString]},'VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',7,'FontAngle','italic','UserData',[obj.pi.mm.stim.(cd).(st).pulse_count,obj.pi.mm.stim.(cd).slctd],'ButtonDownFcn',@obj.cb_pi_drc_train_inputfig); % 11-Mar-2020 14:49:00
-                    end
-                    
-            end
-            
-            
-            % delete the previous plot
-            delete(obj.pi.mm.stim.(cd).(st).plt)
-            % make the x and y vector for new one
-            x=[];
-            y=[];
-            for i=1:obj.pi.mm.stim.(cd).(st).pulse_count
-                switch char(obj.pi.mm.stim.(cd).(st).pulse_types{1,i})
-                    case 'single_pulse'
-                        x{i}=([i i i+0.15 i+0.15]);
-                        y{i}=[-obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd+0.4 -obj.pi.mm.stim.(cd).slctd+0.4 -obj.pi.mm.stim.(cd).slctd];
-                    case 'paired_pulse'
-                        x{i}=[i i i+0.15 i+0.15 i+0.25 i+0.25 i+0.40 i+0.40];
-                        y{i}=[-obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd+0.20 -obj.pi.mm.stim.(cd).slctd+0.20 -obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd+0.4 -obj.pi.mm.stim.(cd).slctd+0.4 -obj.pi.mm.stim.(cd).slctd];
-                    case 'train'
-                        %                         x(i)=[i i i+0.20 i+0.20 i+0.30 i+0.30 i+0.50 i+0.50 i+0.60 i+0.60 i+0.80 i+0.80];
-                        x{i}=[i i i+0.15 i+0.15 i+0.25 i+0.25 i+0.40 i+0.40 i+0.50 i+0.50 i+0.65 i+0.65];
-                        %                         y{i}={[-obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd+0.5 -obj.pi.mm.stim.(cd).slctd+0.5 -obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd+0.5 -obj.pi.mm.stim.(cd).slctd+0.5 -obj.pi.mm.stim.(cd).slctd]};
-                        
-                        y{i}=-obj.pi.mm.stim.(cd).slctd+[0 0.4 0.4 0 0 0.4 0.4 0 0 0.4 0.4 0];
-                end
-            end
-            
-            x=[-45 cell2mat(x) 45];
-            y=[-obj.pi.mm.stim.(cd).slctd cell2mat(y) -obj.pi.mm.stim.(cd).slctd];
-            
-            obj.pi.mm.stim.(cd).(st).plt=plot(x,y,'Color','k','parent',obj.pi.mm.cond.(cd).ax,'LineWidth',2,'Tag',num2str(obj.pi.mm.stim.(cd).slctd),'ButtonDownFcn',@cb_stimulatorSelector); %line
-            
-            drawArrow = @(x,y) quiver( x(1),y(1),x(2)-x(1),y(2)-y(1),0,'color','k' )
-            obj.pi.mm.stim.(st).pulse_time=text(obj.pi.mm.stim.(cd).(st).pulse_count-1+0.5,-obj.pi.mm.stim.(cd).slctd-0.05,['t:' num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).stim_timing{1,obj.pi.mm.stim.(cd).(st).pulse_count}) ' ms'],'VerticalAlignment','top','Color',[0.50 0.50 0.50],'FontSize',9,'FontAngle','italic','UserData',[obj.pi.mm.stim.(cd).(st).pulse_count,obj.pi.mm.stim.(cd).slctd],'ButtonDownFcn',@obj.cb_pi_drc_timing)
-            
-            obj.pi.mm.stim.(st).pulse_arrow1=drawArrow([obj.pi.mm.stim.(cd).(st).pulse_count-1 obj.pi.mm.stim.(cd).(st).pulse_count-1+1],[-obj.pi.mm.stim.(cd).slctd-0.05 -obj.pi.mm.stim.(cd).slctd-0.05])
-            obj.pi.mm.stim.(st).pulse_arrow2=drawArrow([obj.pi.mm.stim.(cd).(st).pulse_count-1+1 obj.pi.mm.stim.(cd).(st).pulse_count-1],[-obj.pi.mm.stim.(cd).slctd-0.05 -obj.pi.mm.stim.(cd).slctd-0.05])
-            
-            
-            if(obj.pi.mm.cond.(cd).ax.XLim(2)<obj.pi.mm.stim.(cd).(st).pulse_count+1)
-                obj.pi.mm.cond.(cd).ax.XLim(2)=obj.pi.mm.stim.(cd).(st).pulse_count+1;
-            end
-            
-            
-            function cb_stimulatorSelector(source,~)
-                if(isvalid(obj.pi.mm.stimulatorSelector))
-                    obj.pi.mm.stimulatorSelector.Color='k';
-                end
-                obj.pi.mm.stim.(cd).slctd=str2double(source.Tag);
-                source.Color='b';
-                obj.pi.mm.stimulatorSelector=source;
-            end
-            obj.cb_pi_drc_StimulationParametersTable;
-        end
-        function cb_pi_drc_output_device(obj,source,~)
-            obj.hw.device_added1_listbox.string
-            if(isempty(obj.hw.device_added2_listbox.string))
-                errordlg('No Output Device (Stimulator) is configured before, visit Hardware Configuration section and configure a Hardware device before selecting one!', 'BEST Toolbox')
-            else
-                [indx,tf] = listdlg('PromptString',{'Select an Output Device'},'SelectionMode','single','ListString',obj.hw.device_added2_listbox.string);
-                if(tf==1)
-                    cd=['cond' num2str(obj.pi.mm.tab.SelectedChild)];
-                    st=['st' num2str(source.Tag)];
-                    obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).stim_device=obj.hw.device_added2_listbox.string(indx);
-                    source.String=obj.hw.device_added2_listbox.string(indx);
-                    obj.cb_pi_drc_StimulationParametersTable;
-                    
-                end
-                
-            end
-        end
-        function cb_pi_drc_timing(obj,source,~)
-            prompt = {'Time (mili-seconds):'};
-            dlgtitle = 'Insert Time | BEST Toolbox';
-            dims = [1 60];
-            definput = {'NaN'};
-            answer = inputdlg(prompt,dlgtitle,dims,definput);
-            source.String=['t: ', char(answer), ' ms'];
-            cd=['cond' num2str(obj.pi.mm.tab.SelectedChild)];
-            st=['st' num2str(source.UserData(2))];
-            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).stim_timing(source.UserData(1))=num2cell(str2double(answer));
-            obj.cb_pi_drc_StimulationParametersTable;
-            
-        end
-        function cb_pi_drc_sp_inputfig(obj,source,~)
-            f=figure('ToolBar','none','MenuBar','none','Name','Insert Parameters | BEST Toolbox','NumberTitle','off');
-            c1=uix.VBox('parent',f,'Padding',10,'Spacing',10);
-            r1=uix.HBox('parent',c1);
-            uicontrol( 'Style','text','Parent', r1,'String','Stimulation Intensities:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            si=uicontrol( 'Style','edit','Parent', r1 ,'String','NaN','FontSize',11);
-            set( r1, 'Widths', [210 200]);
-            
-            r2=uix.HBox('parent',c1);
-            uicontrol( 'Style','text','Parent', r2,'String','Intensity Units:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            units_mso=uicontrol( 'Style','radiobutton','Parent', r2 ,'FontSize',11,'String','%MSO','Value',1,'Callback',@(~,~)cb_units_mso);
-            units_mt=uicontrol( 'Style','radiobutton','Parent', r2 ,'FontSize',11,'String','%MT','Callback',@(~,~)cb_units_mt);
-            set( r2, 'Widths', [210 100 100]);
-            
-            r3=uix.HBox('parent',c1);
-            uicontrol( 'Style','text','Parent', r3,'String','Motor Threshold (%MSO):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            threshold=uicontrol( 'Style','edit','Parent', r3 ,'FontSize',11);
-            mt_btn_listbox_str_id= find(strcmp(obj.data.(obj.info.event.current_session).info.measurement_str_original,'MEP Motor Threshold Hunting'));
-            mt_btn_listbox_str=obj.data.(obj.info.event.current_session).info.measurement_str_to_listbox(mt_btn_listbox_str_id);
-            mt_btn_listbox_str=['Select' mt_btn_listbox_str];
-            uiextras.HBox('Parent',r3)
-            th_dropdown=uicontrol( 'Style','popupmenu','Parent', r3 ,'FontSize',11,'String',mt_btn_listbox_str);     % 11-Mar-2020 14:48:46                                                                  % 1297
-            set( r3, 'Widths', [210 80 20 100]);
-            
-            
-            uicontrol( 'Parent', c1 ,'Style','PushButton','String','OK','FontWeight','Bold','Callback',@(~,~)cb_ok);
-            
-            set(c1, 'Heights', [25 25 25 25])
-            f.Position(3)=430;
-            f.Position(4)=150;
-            function cb_ok
-                source.String=['TS:' si.String ' %MSO']; % 11-Mar-2020 14:48:28
-                cd=['cond' num2str(obj.pi.mm.tab.SelectedChild)];
-                st=['st' num2str(source.UserData(2))];
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).si=si.String; %only 1 SI is allowed as a standard model of generalization
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).si_units=units_mso.Value; %if 1 then its mso if 0 then its threshold
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).threshold=threshold.String;
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).stim_mode='single_pulse';
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).si_pckt={str2double(si.String)};
-                obj.cb_pi_drc_StimulationParametersTable;
-                
-                close(f)
-            end
-            function cb_units_mso
-                if(units_mso.Value==1)
-                    units_mt.Value=0;
-                end
-            end
-            function cb_units_mt
-                if(units_mt.Value==1)
-                    units_mso.Value=0;
-                end
-            end
-        end
-        function cb_pi_drc_pp_inputfig(obj,source,~)
-            f=figure('ToolBar','none','MenuBar','none','Name','Insert Parameters | BEST Toolbox','NumberTitle','off');
-            c1=uix.VBox('parent',f,'Padding',10,'Spacing',10);
-            r1=uix.HBox('parent',c1);
-            uicontrol( 'Style','text','Parent', r1,'String','Test Stimulus Intensities (TS):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            si=uicontrol( 'Style','edit','Parent', r1 ,'String','NaN','FontSize',11);
-            set( r1, 'Widths', [250 200]);
-            
-            r2a=uix.HBox('parent',c1);
-            uicontrol( 'Style','text','Parent', r2a,'String','Condition Stimulus Intensities (CS):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            cs=uicontrol( 'Style','edit','Parent', r2a ,'String','NaN','FontSize',11);
-            set( r2a, 'Widths', [250 200]);
-            
-            r2b=uix.HBox('parent',c1);
-            uicontrol( 'Style','text','Parent', r2b,'String','Inter Stimulus Interval (ms):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            isi=uicontrol( 'Style','edit','Parent', r2b ,'String','NaN','FontSize',11);
-            set( r2b, 'Widths', [250 200]);
-            
-            r2=uix.HBox('parent',c1);
-            uicontrol( 'Style','text','Parent', r2,'String','Intensity Units:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            units_mso=uicontrol( 'Style','radiobutton','Parent', r2 ,'FontSize',11,'String','%MSO','Value',1,'Callback',@(~,~)cb_units_mso);
-            units_mt=uicontrol( 'Style','radiobutton','Parent', r2 ,'FontSize',11,'String','%MT','Callback',@(~,~)cb_units_mt);
-            set( r2, 'Widths', [250 100 100]);
-            
-            r3=uix.HBox('parent',c1);
-            uicontrol( 'Style','text','Parent', r3,'String','Motor Threshold (%MSO):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            threshold=uicontrol( 'Style','edit','Parent', r3 ,'FontSize',11);
-            mt_btn_listbox_str_id= find(strcmp(obj.data.(obj.info.event.current_session).info.measurement_str_original,'MEP Motor Threshold Hunting'));
-            mt_btn_listbox_str=obj.data.(obj.info.event.current_session).info.measurement_str_to_listbox(mt_btn_listbox_str_id);
-            mt_btn_listbox_str=['Select' mt_btn_listbox_str];
-            uiextras.HBox('Parent',r3)
-            th_dropdown=uicontrol( 'Style','popupmenu','Parent', r3 ,'FontSize',11,'String',mt_btn_listbox_str);     % 11-Mar-2020 14:48:46                                                                  % 1297
-            set( r3, 'Widths', [250 80 20 100]);
-            
-            
-            uicontrol( 'Parent', c1 ,'Style','PushButton','String','OK','FontWeight','Bold','Callback',@(~,~)cb_ok);
-            
-            set(c1, 'Heights', [25 25 25 25 25 25])
-            f.Position(3)=480;
-            f.Position(4)=220;
-            function cb_ok
-                
-                % source.String={['TS:' char(si.String) ']'];['CS:[' char(cs.String) '] %MSO'];['ISI:[' char(isi.String) '] ms']} % 11-Mar-2020 14:48:28
-                
-                
-                source.String={['TS:' char(si.String)];['CS:' char(cs.String) ' %MSO'];['ISI:' char(isi.String) ' ms']} % 11-Mar-2020 14:48:28
-                
-                %                 source.String=['TS:[' si.String '] %MSO']; % 11-Mar-2020 14:48:28
-                cd=['cond' num2str(obj.pi.mm.tab.SelectedChild)];
-                st=['st' num2str(source.UserData(2))];
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).si=si.String;
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).cs=cs.String;
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).isi=isi.String;
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).si_units=units_mso.Value; %if 1 then its mso if 0 then its threshold
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).threshold=threshold.String;
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).stim_mode='paired_pulse';
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).si_pckt={str2double(si.String),str2double(cs.String),str2double(isi.String)};
-                obj.cb_pi_drc_StimulationParametersTable;
-                
-                close(f)
-            end
-            function cb_units_mso
-                if(units_mso.Value==1)
-                    units_mt.Value=0;
-                end
-            end
-            function cb_units_mt
-                if(units_mt.Value==1)
-                    units_mso.Value=0;
-                end
-            end
-        end
-        function cb_pi_drc_train_inputfig(obj,source,~)
-            f=figure('ToolBar','none','MenuBar','none','Name','Insert Parameters | BEST Toolbox','NumberTitle','off');
-            c1=uix.VBox('parent',f,'Padding',10,'Spacing',10);
-            r1=uix.HBox('parent',c1);
-            uicontrol( 'Style','text','Parent', r1,'String','Stimulation Intensities (TS):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            si=uicontrol( 'Style','edit','Parent', r1 ,'String','NaN','FontSize',11);
-            set( r1, 'Widths', [250 200]);
-            
-            r2a=uix.HBox('parent',c1);
-            uicontrol( 'Style','text','Parent', r2a,'String','Pulse Frequency (Hz):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            freq=uicontrol( 'Style','edit','Parent', r2a ,'String','NaN','FontSize',11);
-            set( r2a, 'Widths', [250 200]);
-            
-            r2b=uix.HBox('parent',c1);
-            uicontrol( 'Style','text','Parent', r2b,'String','No of Pulses:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            pulsesNo=uicontrol( 'Style','edit','Parent', r2b ,'String','NaN','FontSize',11);
-            set( r2b, 'Widths', [250 200]);
-            
-            r2=uix.HBox('parent',c1);
-            uicontrol( 'Style','text','Parent', r2,'String','Intensity Units:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            units_mso=uicontrol( 'Style','radiobutton','Parent', r2 ,'FontSize',11,'String','%MSO','Value',1,'Callback',@(~,~)cb_units_mso);
-            units_mt=uicontrol( 'Style','radiobutton','Parent', r2 ,'FontSize',11,'String','%MT','Callback',@(~,~)cb_units_mt);
-            set( r2, 'Widths', [250 100 100]);
-            
-            r3=uix.HBox('parent',c1);
-            uicontrol( 'Style','text','Parent', r3,'String','Motor Threshold (%MSO):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            threshold=uicontrol( 'Style','edit','Parent', r3 ,'FontSize',11);
-            mt_btn_listbox_str_id= find(strcmp(obj.data.(obj.info.event.current_session).info.measurement_str_original,'MEP Motor Threshold Hunting'));
-            mt_btn_listbox_str=obj.data.(obj.info.event.current_session).info.measurement_str_to_listbox(mt_btn_listbox_str_id);
-            mt_btn_listbox_str=['Select' mt_btn_listbox_str];
-            uiextras.HBox('Parent',r3)
-            th_dropdown=uicontrol( 'Style','popupmenu','Parent', r3 ,'FontSize',11,'String',mt_btn_listbox_str);     % 11-Mar-2020 14:48:46                                                                  % 1297
-            set( r3, 'Widths', [250 80 20 100]);
-            
-            
-            uicontrol( 'Parent', c1 ,'Style','PushButton','String','OK','FontWeight','Bold','Callback',@(~,~)cb_ok);
-            
-            set(c1, 'Heights', [25 25 25 25 25 25])
-            f.Position(3)=480;
-            f.Position(4)=220;
-            function cb_ok
-                
-                
-                
-                source.String={['Pulses:' char(pulsesNo.String) ', f:' char(freq.String) ' Hz'];['TS:' char(si.String) ' %MSO']}; % 11-Mar-2020 14:48:28
-                
-                cd=['cond' num2str(obj.pi.mm.tab.SelectedChild)];
-                st=['st' num2str(source.UserData(2))];
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).si=si.String;
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).freq=freq.String;
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).pulsesNo=pulsesNo.String;
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).si_units=units_mso.Value; %if 1 then its mso if 0 then its threshold
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).threshold=threshold.String;
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).stim_mode='train';
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).si_pckt={str2double(si.String),str2double(freq.String),str2double(pulsesNo.String)}
-                obj.cb_pi_drc_StimulationParametersTable;
-                
-                close(f)
-            end
-            function cb_units_mso
-                if(units_mso.Value==1)
-                    units_mt.Value=0;
-                end
-            end
-            function cb_units_mt
-                if(units_mt.Value==1)
-                    units_mso.Value=0;
-                end
-            end
-            
-        end
-        function cb_pi_drc_targetChannel(obj,source,~)
-            f=figure('ToolBar','none','MenuBar','none','Name','Insert Parameters | BEST Toolbox','NumberTitle','off');
-            c1=uix.VBox('parent',f,'Padding',10,'Spacing',10);
-            
-            
-            r1=uix.HBox('parent',c1);
-            uicontrol( 'Style','text','Parent', r1,'String','Target Channels:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            targetChannels=uicontrol( 'Style','edit','Parent', r1 ,'FontSize',11);
-            set( r1, 'Widths', [250 200]);
-            
-            
-            uicontrol( 'Parent', c1 ,'Style','PushButton','String','OK','FontWeight','Bold','Callback',@(~,~)cb_ok);
-            
-            set(c1, 'Heights', [25 25])
-            f.Position(3)=480;
-            f.Position(4)=90;
-            function cb_ok
-                source.String=['Channel Name:' targetChannels.String]; % 11-Mar-2020 14:48:28
-                
-                %                 source.String=['Channels:' targetChannels.String ' ' displayChannels.String , 'Pre/Post Display Period:' prestim_scope_plt.String '-' poststim_scope_plt.String 'ms']; % 11-Mar-2020 14:48:28
-                cd=['cond' num2str(obj.pi.mm.tab.SelectedChild)];
-                % 12-Mar-2020 08:53:28
-                %                 obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(cd).inputDevice.input_device=inputDevice.String(inputDevice.Value);
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).targetChannel=eval(targetChannels.String);
-                %                 obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(cd).inputDevice.displayChannels=eval(displayChannels.String);
-                %                 obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(cd).inputDevice.mepOnset=mepOnset.String;
-                %                 obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(cd).inputDevice.mepOffset=mepOffset.Value; %if 1 then its mso if 0 then its threshold
-                %                 obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(cd).inputDevice.prestim_scope_plt=prestim_scope_plt.String;
-                %                 obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(cd).inputDevice.poststim_scope_plt=poststim_scope_plt.String;
-                %                 obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(cd).inputDevice.measure_str='MEP Measurement';
-                obj.cb_pi_drc_StimulationParametersTable;
-                
-                close(f)
-            end
-            
-        end
         function default_par_mepdrc(obj)
             % Editing Rule: Values should be Integers, Strings should
             % Strings , cells are the defaults values that do not have any
@@ -4713,14 +2582,32 @@ classdef best_application < handle
             for idefaults=1:6
                 cond=['cond' num2str(idefaults)];
                 obj.info.defaults.condsAll.(cond).targetChannel=cellstr('NaN');
+                obj.info.defaults.condsAll.(cond).TrialsPerCondition=50;
+                obj.info.defaults.condsAll.(cond).ITI=[3 4];
+                obj.info.defaults.condsAll.(cond).Phase='Peak';
+                obj.info.defaults.condsAll.(cond).AmplitudeThreshold='0 1e6';
+                obj.info.defaults.condsAll.(cond).AmplitudeUnits='Absolute (micro volts)';
                 obj.info.defaults.condsAll.(cond).st1.pulse_count=1;
-                obj.info.defaults.condsAll.(cond).st1.stim_device={'Select'};
+                obj.info.defaults.condsAll.(cond).st1.stim_device={''};
                 obj.info.defaults.condsAll.(cond).st1.stim_mode='single_pulse';
                 obj.info.defaults.condsAll.(cond).st1.stim_timing=num2cell(0);
+                obj.info.defaults.condsAll.(cond).st1.stim_timing_units={'ms'};
                 obj.info.defaults.condsAll.(cond).st1.si=si(idefaults);
                 obj.info.defaults.condsAll.(cond).st1.si_units=1;
                 obj.info.defaults.condsAll.(cond).st1.threshold='';
-                obj.info.defaults.condsAll.(cond).st1.si_pckt={si(idefaults)};
+                obj.info.defaults.condsAll.(cond).st1.si_pckt={si(idefaults),[],[],[],[],[],[],[]}; % [TS PairedCS ISI TS_intendendunits CS_intendedunits ISIintendentunits TrainFreq NoOfPulses]
+                obj.info.defaults.condsAll.(cond).st1.IntensityUnit='%MSO';
+                obj.info.defaults.condsAll.(cond).st1.IntensityUnitValue=NaN;
+                obj.info.defaults.condsAll.(cond).st1.IntensityUnitValueUnit=NaN;
+                obj.info.defaults.condsAll.(cond).st1.SessionToCouple='none';
+                obj.info.defaults.condsAll.(cond).st1.ProtocolToCouple='none';
+                obj.info.defaults.condsAll.(cond).st1.ParameterToCouple='none';
+                obj.info.defaults.condsAll.(cond).st1.IntensityToCouple='none';
+                obj.info.defaults.condsAll.(cond).st1.TimingOnsetUnits='ms';
+                obj.info.defaults.condsAll.(cond).st1.CSUnits='';
+                obj.info.defaults.condsAll.(cond).st1.ISIUnits='';
+                obj.info.defaults.condsAll.(cond).st1.StimulationType='Test';
+                
             end
             obj.par.(obj.info.event.current_session).(obj.info.event.measure_being_added)=obj.info.defaults;
         end
@@ -4742,7 +2629,7 @@ classdef best_application < handle
                     
                     obj.pi.drc.(ParametersFieldNames{iLoadingParameters}).Value=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(ParametersFieldNames{iLoadingParameters});
                     if(strcmp(ParametersFieldNames{iLoadingParameters},'BrainState'))
-                        %Requirment 93
+                        obj.pi.(ParametersFieldNames{iLoadingParameters}).Value=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(ParametersFieldNames{iLoadingParameters});
                     end
                 elseif(isa(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(ParametersFieldNames{iLoadingParameters}),'struct'))
                     %Do Nothing and Just Avoid
@@ -4761,7 +2648,7 @@ classdef best_application < handle
             
             r0=uiextras.HBox( 'Parent', obj.pi.mth.r0v1,'Spacing', 5, 'Padding', 5 );
             uicontrol( 'Style','text','Parent', r0,'String','Brain State:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            obj.pi.mth.BrainState=uicontrol( 'Style','popupmenu','Parent', r0 ,'FontSize',11,'String',{'Independent','Dependent'},'Callback',@cb_UniversalPanelAdaptation);
+            obj.pi.BrainState=uicontrol( 'Style','popupmenu','Parent', r0 ,'FontSize',11,'String',{'Independent','Dependent'},'Callback',@cb_UniversalPanelAdaptation);
             set( r0, 'Widths', [150 -2]);
             
             BrainStateParametersPanel=uix.Panel( 'Parent', obj.pi.mth.r0v1,'Padding',5,'Units','normalized','FontSize',8 ,'Units','normalized','Title','Brain State Parameters' ,'FontWeight','normal','TitlePosition','centertop');
@@ -4773,35 +2660,31 @@ classdef best_application < handle
             
             %row4
             r4=uiextras.HBox( 'Parent', obj.pi.mth.r0v1,'Spacing', 5, 'Padding', 5 );
-            obj.pi.mth.cond.btn=uicontrol( 'Parent', r4 ,'Style','PushButton','String','+','FontSize',16,'FontWeight','Bold','HorizontalAlignment','center','Tooltip','Click to Add a new Condition','Callback',@(~,~)obj.cb_pr_mth_conditions);%add condition
-            obj.pi.mth.stim.btn=uicontrol( 'Parent', r4 ,'Style','PushButton','String','','FontWeight','Bold','HorizontalAlignment','center','Position',[0 0 1 1],'units','normalized','CData',obj.icons.stimulator,'Tooltip','Click to Add a new Stimulator on this Condition','Callback',@(~,~)obj.cb_pr_mth_stim); %add stimulator
-            obj.pi.mth.sp.btn=uicontrol( 'Parent', r4 ,'Style','PushButton','String','','FontWeight','Bold','HorizontalAlignment','center','CData',obj.icons.single_pulse,'Tooltip','Click to Add a Single-Pulse on selected stimulator (selected stimulator is highlighted in blue colour)','Tag','single_pulse','Callback',@obj.cb_pr_mth_pulse); %add single pulse
-            obj.pi.mth.pp.btn=uicontrol( 'Parent', r4 ,'Style','PushButton','String','','FontWeight','Bold','HorizontalAlignment','center','CData',obj.icons.paired_pulse,'Tooltip','Click to Add a Paired-Pulse on selected stimulator (selected stimulator is highlighted in blue colour)','Tag','paired_pulse','Callback',@obj.cb_pr_mth_pulse);%add burst or train
-            obj.pi.mth.train.btn=uicontrol( 'Parent', r4 ,'Style','PushButton','String','','FontWeight','Bold','HorizontalAlignment','center','CData',obj.icons.train,'Tooltip','Click to Add a Train or Burst on selected stimulator (selected stimulator is highlighted in blue colour)','Tag','train','Callback',@obj.cb_pr_mth_pulse);%add paired pulse
+            obj.pi.mth.cond.btn=uicontrol( 'Parent', r4 ,'Style','PushButton','String','+','FontSize',16,'FontWeight','Bold','HorizontalAlignment','center','Tooltip','Click to Add a new Condition','Callback',@(~,~)obj.cb_cm_conditions);%add condition
+            obj.pi.mth.stim.btn=uicontrol( 'Parent', r4 ,'Style','PushButton','String','','FontWeight','Bold','HorizontalAlignment','center','Position',[0 0 1 1],'units','normalized','CData',obj.icons.stimulator,'Tooltip','Click to Add a new Stimulator on this Condition','Callback',@(~,~)obj.cb_cm_stim); %add stimulator
+            obj.pi.mth.sp.btn=uicontrol( 'Parent', r4 ,'Style','PushButton','String','','FontWeight','Bold','HorizontalAlignment','center','CData',obj.icons.single_pulse,'Tooltip','Click to Add a Single-Pulse on selected stimulator (selected stimulator is highlighted in blue colour)','Tag','single_pulse','Callback',@obj.cb_cm_pulse); %add single pulse
+            obj.pi.mth.pp.btn=uicontrol( 'Parent', r4 ,'Style','PushButton','String','','FontWeight','Bold','HorizontalAlignment','center','CData',obj.icons.paired_pulse,'Tooltip','Click to Add a Paired-Pulse on selected stimulator (selected stimulator is highlighted in blue colour)','Tag','paired_pulse','Callback',@obj.cb_cm_pulse);%add burst or train
+            obj.pi.mth.train.btn=uicontrol( 'Parent', r4 ,'Style','PushButton','String','','FontWeight','Bold','HorizontalAlignment','center','CData',obj.icons.train,'Tooltip','Click to Add a Train or Burst on selected stimulator (selected stimulator is highlighted in blue colour)','Tag','train','Callback',@obj.cb_cm_pulse);%add paired pulse
             set( r4, 'Widths', [55 55 55 55 55]);
             
-            cb_SetHeights;
             
             
             obj.pi.mth.r0v2 = uix.VBox( 'Parent', obj.pi.mth.r0, 'Spacing', 5, 'Padding', 0);
             obj.pi.mm.r0v2r1=uix.Panel( 'Parent', obj.pi.mth.r0v2,'Padding',0,'Units','normalized','FontSize',8 ,'Units','normalized','Title','Stimulation Parameters' ,'FontWeight','normal','TitlePosition','centertop');
-            obj.cb_pr_mth_StimulationParametersTable;
+            obj.cb_cm_StimulationParametersTable;
             
             obj.pi.mm.tab = uiextras.TabPanel( 'Parent', obj.pi.mth.r0v2, 'Padding', 5 );
             obj.pi.mth.r0v2.Heights=[200 -1];
             set(obj.pi.mth.r0,'Widths',[-1.45 -3]);
             obj.pi.mth.cond.no=0;
-            obj.cb_pr_mth_Nconditions;
-            
+            obj.cb_cm_Nconditions;
+            cb_SetHeights
             function cb_UniversalPanelAdaptation(~,~)
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).BrainState=obj.pi.mth.BrainState.Value;
-                cb_BrainStateParametersPanel
-                cb_DisplayParametersPanel
-                cb_SetHeights
-                obj.func_load_mth_par;
+                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).BrainState=obj.pi.BrainState.Value;
+                obj.RefreshProtocol;
             end
             function cb_BrainStateParametersPanel(~,~)
-                switch obj.pi.mth.BrainState.Value
+                switch obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).BrainState
                     case 1
                         expModvBox=uix.VBox( 'Parent', BrainStateParametersPanel, 'Spacing', 0, 'Padding', 0  );
                         
@@ -4813,12 +2696,7 @@ classdef best_application < handle
                         obj.pi.mth.InputDevice=uicontrol( 'Style','popupmenu','Parent', expModr1 ,'FontSize',11,'String',str_in_device,'Tag','InputDevice','callback',@cb_par_saving);
                         expModr1.Widths=[150 -2];
                         
-                        expModr2c=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
-                        uicontrol( 'Style','text','Parent', expModr2c,'String','Inter Trial Interval (s):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-                        obj.pi.mth.ITI=uicontrol( 'Style','edit','Parent', expModr2c ,'FontSize',11,'Tag','ITI','callback',@cb_par_saving);
-                        expModr2c.Widths=[150 -2];
-                        
-                        expModvBox.Heights=[30 35];
+                        expModvBox.Heights=[30];
                     case 2
                         expModvBox=uix.VBox( 'Parent', BrainStateParametersPanel, 'Spacing', 0, 'Padding', 0  );
                         %row1
@@ -4848,8 +2726,8 @@ classdef best_application < handle
                         mep_panel_row8z = uix.HBox( 'Parent', expModvBox, 'Spacing', 5, 'Padding', 2  );
                         uicontrol( 'Style','text','Parent', mep_panel_row8z,'String','Peak Frequency (Hz):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
                         obj.pi.mth.PeakFrequency=uicontrol( 'Style','edit','Parent', mep_panel_row8z ,'FontSize',11,'Tag','PeakFrequency','Callback',@cb_par_saving);
-                        obj.pi.mth.ImportPeakFrequencyFromProtocols=uicontrol( 'Style','popupmenu','Parent', mep_panel_row8z ,'String',{'Select'},'FontSize',11,'Tag','Bin','Callback',@set_PeakFrequency);
-                        obj.pi.mth.ImportPeakFrequencyFromProtocols.String=getPeakFrequencyProtocols;
+                        obj.pi.mth.ImportPeakFrequencyFromProtocols=uicontrol( 'Style','popupmenu','Parent', mep_panel_row8z ,'String',{'Select'},'FontSize',11,'Tag','Bin','Callback',@(~,~)obj.cb_ImportPeakFrequency);
+                        obj.pi.mth.ImportPeakFrequencyFromProtocols.String={'Select','Import from Protocol'};
                         set( mep_panel_row8z, 'Widths', [150 -2 -2]);
                         
                         % row 2
@@ -4875,26 +2753,17 @@ classdef best_application < handle
                         obj.pi.mth.AmplitudeAssignmentPeriod=uicontrol( 'Style','edit','Parent', mep_panel_row2z ,'FontSize',11,'Tag','AmplitudeAssignmentPeriod','Callback',@cb_par_saving);
                         set( mep_panel_row2z, 'Widths', [200 -2]);
                         
-                        expModr2c=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 2 );
-                        uicontrol( 'Style','text','Parent', expModr2c,'String','Minimum ITI (s):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-                        obj.pi.mth.ITI=uicontrol( 'Style','edit','Parent', expModr2c ,'FontSize',11,'Tag','ITI','callback',@cb_par_saving);
-                        expModr2c.Widths=[150 -2];
-                        expModvBox.Heights=[-1 -1 -1 -1 -1 -1 -1 -1 -1 -1];%[30 42 42 35 35 35 35 35 42 35];
+                        expModvBox.Heights=[-1 -1 -1 -1 -1 -1 -1 -1 -1];%[30 42 42 35 35 35 35 35 42 35];
                 end
             end
             function cb_DisplayParametersPanel
-                switch obj.pi.mth.BrainState.Value
+                switch obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).BrainState
                     case 1
                         expModvBox=uix.VBox( 'Parent', DisplayParametersPanel, 'Spacing', 0, 'Padding', 0  );
                         
                         expModr2=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
                         uicontrol( 'Style','text','Parent', expModr2,'String','Threshold Method:','FontSize',11,'HorizontalAlignment','left','Units','normalized'); % Inter Trial Inteval (s)
                         obj.pi.mth.ThresholdMethod=uicontrol( 'Style','popupmenu','Parent', expModr2 ,'FontSize',11,'Tag','ThresholdMethod','String',{'Adaptive Staircase Estimation', 'Maximum Likelihood Estimation'},'Callback',@cb_par_saving);
-                        expModr2.Widths=[150 -2];
-                        
-                        expModr2=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
-                        uicontrol( 'Style','text','Parent', expModr2,'String','Trials Per Condition:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-                        obj.pi.mth.TrialsPerCondition=uicontrol( 'Style','edit','Parent', expModr2 ,'FontSize',11,'Tag','TrialsPerCondition','callback',@cb_par_saving);
                         expModr2.Widths=[150 -2];
                         
                         expModr2=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
@@ -4922,18 +2791,13 @@ classdef best_application < handle
                         obj.pi.mth.NoOfTrialsToAverage=uicontrol( 'Style','edit','Parent', expModr4 ,'FontSize',11,'Tag','NoOfTrialsToAverage','callback',@cb_par_saving);
                         expModr4.Widths=[150 -2];
                         
-                        expModvBox.Heights=[30 35 45 45 45 45 45];
+                        expModvBox.Heights=[30 45 45 45 45 45];
                     case 2
                         expModvBox=uix.VBox( 'Parent', DisplayParametersPanel, 'Spacing', 0, 'Padding', 0  );
                         
                         expModr2=uiextras.HBox( 'Parent', expModvBox,'Spacing', 0, 'Padding', 2 );
                         uicontrol( 'Style','text','Parent', expModr2,'String','Threshold Method:','FontSize',11,'HorizontalAlignment','left','Units','normalized'); % Inter Trial Inteval (s)
                         obj.pi.mth.ThresholdMethod=uicontrol( 'Style','popupmenu','Parent', expModr2 ,'FontSize',11,'Tag','ThresholdMethod','String',{'Adaptive Staircase Estimation', 'Maximum Likelihood Estimation'},'Callback',@cb_par_saving);
-                        expModr2.Widths=[150 -2];
-                        
-                        expModr2=uiextras.HBox( 'Parent', expModvBox,'Spacing', 0, 'Padding', 2 );
-                        uicontrol( 'Style','text','Parent', expModr2,'String','Trials Per Condition:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-                        obj.pi.mth.TrialsPerCondition=uicontrol( 'Style','edit','Parent', expModr2 ,'FontSize',11,'Tag','TrialsPerCondition','callback',@cb_par_saving);
                         expModr2.Widths=[150 -2];
                         
                         expModr2=uiextras.HBox( 'Parent', expModvBox,'Spacing', 0, 'Padding', 2 );
@@ -4947,7 +2811,7 @@ classdef best_application < handle
                         expModr2.Widths=[200 -2];
                         
                         expModr2=uiextras.HBox( 'Parent', expModvBox,'Spacing', 0, 'Padding', 2 );
-                        uicontrol( 'Style','text','Parent', expModr2,'String','EMG Extraction Period (ms):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                        uicontrol( 'Style','text','Parent', expModr2,'String','Data Extraction Period (ms):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
                         obj.pi.mth.EMGExtractionPeriod=uicontrol( 'Style','edit','Parent', expModr2 ,'FontSize',11,'Tag','EMGExtractionPeriod','callback',@cb_par_saving);
                         expModr2.Widths=[200 -2];
                         
@@ -4961,31 +2825,27 @@ classdef best_application < handle
                         obj.pi.mth.EEGExtractionPeriod=uicontrol( 'Style','edit','Parent', expModr2 ,'FontSize',11,'Tag','EEGExtractionPeriod','callback',@cb_par_saving);
                         expModr2.Widths=[200 -2];
                         
-                        expModr2=uiextras.HBox( 'Parent', expModvBox,'Spacing', 0, 'Padding', 2 );
-                        uicontrol( 'Style','text','Parent', expModr2,'String','EEG Display Period (ms):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-                        obj.pi.mth.EEGXLimit=uicontrol( 'Style','edit','Parent', expModr2 ,'FontSize',11,'Tag','EEGXLimit','callback',@cb_par_saving);
-                        expModr2.Widths=[200 -2];
-                        
                         expModr4=uiextras.HBox( 'Parent', expModvBox,'Spacing', 0, 'Padding', 2 );
                         uicontrol( 'Style','text','Parent', expModr4,'String','Trials to Average:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
                         obj.pi.mth.NoOfTrialsToAverage=uicontrol( 'Style','edit','Parent', expModr4 ,'FontSize',11,'Tag','NoOfTrialsToAverage','callback',@cb_par_saving);
                         expModr4.Widths=[200 -2];
                         
-                        expModvBox.Heights=[-1 -1 -1 -1 -1 -1 -1 -1 -1];%[30 35 42 42 42 42 42 42 42];
+                        expModvBox.Heights=[-1 -1 -1 -1 -1 -1 -1];%[30 35 42 42 42 42 42 42 42];
                 end
             end
             function cb_SetHeights
-                switch obj.pi.mth.BrainState.Value
+                switch obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).BrainState
                     case 1
-                        set(obj.pi.mth.r0v1,'Heights',[40 90 320 -1 55]);
+                        set(obj.pi.mth.r0v1,'Heights',[40 60 290 -1 55]);
                     case 2
-                        set(obj.pi.mth.r0v1,'Heights',[-0.7 -8 -6 -0 -1.2])%[40 390 390 -1 55])
+                        set(obj.pi.mth.r0v1,'Heights',[-0.7 -7 -5 -0 -1.2])%[40 390 390 -1 55])
                         set(obj.pi.mth.r0,'Widths',[-2 -3]);
                 end
             end
             
             
             function cb_par_saving(source,~)
+                if obj.par.GlobalSettings.Protect==1, return; end
                 if strcmp(source.Tag,'InputDevice') || strcmp(source.Tag,'AmplitudeUnits') || strcmp(source.Tag,'FrequencyBand') || strcmp(source.Tag,'DoseFunction') || strcmp(source.Tag,'ThresholdMethod')
                     obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(source.Tag)=source.Value;
                 else
@@ -5031,1166 +2891,6 @@ classdef best_application < handle
             end
             
         end %% END obj.pr_mth
-        function cb_pr_mth_StimulationParametersTable(obj)
-            % create the Data from pars
-            iData=0;
-            for iTableCondition=1:numel(fieldnames(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll))
-                TableCond=['cond' num2str(iTableCondition)];
-                ColCondition=1;
-                ColTS=2;
-                ColThresholdLevel=3;
-                ColIntensityUnits=4;
-                ColStimulator=5;
-                ColPulseMode=6;
-                ColNoOfPulses=7;
-                ColTimingOnset=8;
-                ColTargetChannel=9;
-                ColCS=10;
-                ColISI=11;
-                ColTrainFreq=12;
-                ColNoOfTrains=13;
-                ColMotorThreshold=14;
-                
-                for iTableStimulator=1:numel(fieldnames(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond)))-1 %numel(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond))-1
-                    iData=iData+1;
-                    TableStim=['st' num2str(iTableStimulator)];
-                    TableData{iData,ColCondition}=num2str(iTableCondition);
-                    TableData{iData,ColCS}='          -';
-                    TableData{iData,ColISI}='          -';
-                    TableData{iData,ColTrainFreq}='          -';
-                    TableData{iData,ColNoOfTrains}='          -';
-                    if( isfield(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim),'si'))
-                        TableData{iData,ColTS}=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).si_pckt{1,1});
-                        
-                        if( isfield(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim),'threshold_level'))
-                            TableData{iData,ColThresholdLevel}=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).threshold_level); end
-                        
-                        %check here what has been saved and use that
-                        if(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).si_units==1)
-                            TableData{iData,ColIntensityUnits}='%MSO';
-                            TableData{iData,ColMotorThreshold}='          -';
-                        else
-                            TableData{iData,ColIntensityUnits}='%MT';
-                            TableData{iData,ColMotorThreshold}=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).threshold;
-                        end
-                    end
-                    
-                    if( isfield(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim),'stim_device'))
-                        TableData{iData,ColStimulator}=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).stim_device{1,1}; end
-                    
-                    if( isfield(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim),'pulse_count'))
-                        TableData{iData,ColNoOfPulses}=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).pulse_count); end
-                    if( isfield(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim),'stim_mode'))
-                        
-                        switch obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).stim_mode
-                            case 'single_pulse'
-                                TableData{iData,ColPulseMode}='Single Pulse';
-                            case 'paired_pulse'
-                                TableData{iData,ColPulseMode}='Paired Pulse';
-                                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).si_pckt{1,2};
-                                TableData{iData,ColCS}=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).si_pckt{1,2});
-                                TableData{iData,ColISI}=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).si_pckt{1,3});
-                            case 'train'
-                                TableData{iData,ColPulseMode}='Train';
-                                TableData{iData,ColTrainFreq}=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).si_pckt{1,2});
-                                TableData{iData,ColNoOfTrains}=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).pulse_count);
-                                TableData{iData,ColNoOfPulses}=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).si_pckt{1,3});
-                        end
-                    end
-                    if( isfield(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim),'stim_timing'))
-                        TableData{iData,ColTimingOnset}=mat2str(cell2mat(horzcat((obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).stim_timing(1,:))))); end
-                    TableData{iData,ColTargetChannel}=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).targetChannel{1,1};
-                end
-                if numel(fieldnames(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond)))==1
-                    TableData{iData+1,1}=num2str(iTableCondition);
-                    TableData{iData+1,ColTargetChannel}=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).targetChannel{1,1};
-                end
-            end
-            if (isempty(obj.hw.device_added2_listbox.string))
-                obj.hw.device_added2_listbox.string={'Select'};
-            end
-            % create the table and load the data
-            table=uitable( 'Parent', obj.pi.mm.r0v2r1);
-            table.Data=TableData;%cell(6,12); % the row number comes from above
-            table.FontSize=10;
-            table.ColumnName = {'Condition #','TS Intensity','Threshold Level (mV)','Intensity Units','Stimulator','Pulse Mode','# of Pulses','Timing Onset (ms)','Target EMG Channel','CS Intensity','ISI (ms)','Train Freq','# of Trains','Motor Threshold (%MSO)'};
-            table.ColumnFormat={[],[],[],{'%MSO','%MT'},obj.hw.device_added2_listbox.string,{'Single Pulse','Paired Pulse', 'Train'},[],[],[],[],[],[],[],[]};
-            table.ColumnWidth = {100,100,100, 100,100,100,100,100,100,100,90,90,90,120};
-            table.ColumnEditable =true(1,numel(table.ColumnName));
-            table.RowStriping='on';
-            table.RearrangeableColumns='on';
-            table.CellEditCallback =@CellEditCallback ;
-            
-            function CellEditCallback (~,CellEditData)
-                AdditionInCondition=['cond' num2str(table.Data{CellEditData.Indices(1),1})];
-                %                     table.Data{:,1}
-                % num2str(table.Data{CellEditData.Indices(1),1})
-                % gp=cellfun(@str2double ,table.Data(:,1))
-                % str2double(table.Data{CellEditData.Indices(1),1})
-                %                     ggg=find(gp==str2double(table.Data{CellEditData.Indices(1),1}))
-                % %                     find(table.Data{:,1}==table.Data{CellEditData.Indices(1),1})
-                AdditionInStimulatorNum=find(find(cellfun(@str2double ,table.Data(:,1))==str2double(table.Data{CellEditData.Indices(1),1}))==CellEditData.Indices(1));
-                AdditionInStimulator=['st' num2str(AdditionInStimulatorNum)];
-                opts               =    [];
-                opts.WindowStyle   =    'modal';
-                opts.Interpreter   =    'none';
-                switch CellEditData.Indices(2)
-                    case ColTS %TS Intensity
-                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).si_pckt{1,1}=str2double(CellEditData.NewData);
-                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).si=CellEditData.NewData;
-                    case ColThresholdLevel
-                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).threshold_level=str2double(CellEditData.NewData);
-                    case ColIntensityUnits %Intensity Units
-                        switch CellEditData.NewData
-                            case '%MSO'
-                                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).si_units=1;
-                            case '%MT'
-                                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).si_units=0;
-                                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).threshold='NaN';
-                                
-                        end
-                        
-                    case ColStimulator %Stimulator
-                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).stim_device=cellstr(CellEditData.NewData);
-                        
-                    case ColPulseMode %Pulse Mode
-                        switch CellEditData.NewData
-                            case 'Single Pulse'
-                                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).stim_mode='single_pulse';
-                            case 'Paired Pulse'
-                                
-                                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).stim_mode='paired_pulse';
-                                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).si_pckt{1,2}=NaN;
-                                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).si_pckt{1,3}=NaN;
-                                
-                            case 'Train'
-                                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).stim_mode='train';
-                                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).si_pckt{1,2}=NaN;
-                                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).si_pckt{1,3}=NaN;
-                        end
-                        
-                    case ColNoOfPulses % # of Pulses
-                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).pulse_count=str2double(CellEditData.NewData);
-                        %AAJ: idher add kero k Stimulation Mode bhi nill ho jaye units bhi Nill ho
-                        %jaye intensity bhi khtam ho jaye matlab jese he pulse 0 zero ho to sirf vo
-                        %reh jaye to jab only stimulator add kerty hein to ata he
-                        if(str2double(CellEditData.NewData)==0)
-                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).stim_timing{1,1}=[];
-                        else
-                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).stim_timing{1,str2double(CellEditData.NewData)}=NaN;
-                        end
-                        
-                    case ColTimingOnset %Timing Onset (ms)
-                        CellEditDataTimingOnset=[];
-                        CellEditDataTimingOnset=num2cell(eval(CellEditData.NewData));
-                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).stim_timing=CellEditDataTimingOnset;
-                        
-                    case ColTargetChannel %Target EMG Ch
-                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).targetChannel=cellstr(CellEditData.NewData);
-                        
-                    case {ColTrainFreq,ColNoOfTrains} %Train Freq, # of Trians
-                        if ~(strcmp(table.Data{CellEditData.Indices(1),5},'Train'))
-                            table.Data(CellEditData.Indices(1),CellEditData.Indices(2))=cellstr('          -');
-                            errordlg('Train Frequency and # of Trians are only Editable for the "Train" Pulse Mode, change Pulse Mode respectively if you desire to set this parameter','Warning | BEST Toolbox',opts);
-                        else
-                            switch CellEditData.Indices(2)
-                                case ColTrainFreq
-                                    obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).si_pckt{1,2}=str2double(CellEditData.NewData);
-                                    obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).freq=CellEditData.NewData;
-                                case ColNoOfTrains
-                                    obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).si_pckt{1,3}=str2double(CellEditData.NewData);
-                                    obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).pulsesNo=CellEditData.NewData;
-                            end
-                            
-                        end
-                    case {ColCS,ColISI} % CS Intensity, ISI (ms)
-                        if ~(strcmp(table.Data{CellEditData.Indices(1),5},'Paired Pulse'))
-                            table.Data(CellEditData.Indices(1),CellEditData.Indices(2))=cellstr('          -');
-                            errordlg('CS Intensity and ISI are only Editable for the "Paired Pulse" Pulse Mode, change Pulse Mode respectively if you desire to set this parameter','Warning | BEST Toolbox',opts);
-                        else
-                            switch CellEditData.Indices(2)
-                                case ColCS
-                                    obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).si_pckt{1,2}=str2double(CellEditData.NewData);
-                                    obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).cs=CellEditData.NewData;
-                                case ColISI
-                                    obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).si_pckt{1,3}=str2double(CellEditData.NewData);
-                                    obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).isi=CellEditData.NewData;
-                            end
-                            
-                        end
-                    case ColMotorThreshold
-                        if ~(strcmp(table.Data{CellEditData.Indices(1),3},'%MT'))
-                            table.Data(CellEditData.Indices(1),CellEditData.Indices(2))=cellstr('          -');
-                            errordlg('The selected Stimulation Intensity Units are %MSO, change it to %MT from its dropdown menu if you desire to update this value to a specific threshold','Warning | BEST Toolbox',opts);
-                        else
-                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).threshold=CellEditData.NewData;
-                            
-                        end
-                end
-                %Improvement Note :Requirement 96
-                %                 obj.pr_mth;
-                %cb_pulse_update
-                %cb_condition_addition
-                %cb_condition_deletion
-                %cb_stimulator_addition
-                %cb_stimulator_deletion
-                cb_pulse_update
-                function cb_pulse_update
-                    cd=[];
-                    st=[];
-                    condStr=[];
-                    obj.pi.mm.tab.SelectedChild=str2double(table.Data{CellEditData.Indices(1),1});
-                    
-                    cd=['cd' num2str(table.Data{CellEditData.Indices(1),1})];
-                    condStr=['cond' num2str(table.Data{CellEditData.Indices(1),1})];
-                    obj.pi.mm.stim.(cd).slctd=AdditionInStimulatorNum;
-                    st=['st' num2str(obj.pi.mm.stim.(cd).slctd)];
-                    obj.pi.mm.stim.(cd).(st).pulse_count=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).pulse_count;
-                    axes(obj.pi.mm.cond.(cd).ax)
-                    cla;
-                    hold on;
-                    contextMenu_condition=uicontextmenu(obj.fig.handle);
-                    uimenu(contextMenu_condition,'label','Duplicate Condition','Callback',@cb_pr_mm_duplicateCondition);
-                    uimenu(contextMenu_condition,'label','Delete Condition','Callback',@cb_pr_mm_deleteCondition);
-                    obj.pi.mm.cond.(cd).ax.YLim=[-1 1];
-                    obj.pi.mm.cond.(cd).ax.XLim=[0 5];
-                    xticks(obj.pi.mm.cond.(cd).ax,[100 101]);
-                    yticks(obj.pi.mm.cond.(cd).ax,-1:1:1)
-                    obj.pi.mm.cond.(cd).ax.YTickLabel={'','MEP Search Window',''};
-                    plot(0:0.01:10,rand(1,1001)*0.30-0.15,'Color','k','parent',obj.pi.mm.cond.(cd).ax,'LineWidth',2,'Tag','empty'); % 12-Mar-2020 07:37:17
-                    text(2.5,0+0.20,['Channel Name:[' char(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).targetChannel) ']'],'VerticalAlignment','bottom','HorizontalAlignment','center','Color',[0.50 0.50 0.50],'FontSize',9,'FontAngle','italic','ButtonDownFcn',@obj.cb_pr_mth_targetChannel) % 11-Mar-2020 14:49:00
-                    obj.pi.mm.stim.(cd).no=0;
-                    
-                    %make stimulators
-                    for istimulators=1:(length(fieldnames(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr)))-1)
-                        obj.pi.mm.stim.(cd).no=istimulators;
-                        st=['st' num2str(obj.pi.mm.stim.(cd).no)];
-                        axes(obj.pi.mm.cond.(cd).ax)
-                        hold on;
-                        obj.pi.mm.stim.(cd).(st).plt=plot([-45 45],[-1*obj.pi.mm.stim.(cd).no -1*obj.pi.mm.stim.(cd).no],'Color','k','parent',obj.pi.mm.cond.(cd).ax,'LineWidth',2,'Tag',num2str(obj.pi.mm.stim.(cd).no),'ButtonDownFcn',@cb_stimulatorSelector); %line
-                        %                     obj.pi.mm.stim.(cd).(st).pulse_count=0;
-                        %                     obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).pulse_count=obj.pi.mm.stim.(cd).(st).pulse_count;
-                        obj.pi.mm.cond.(cd).ax.YLim=[(-1-obj.pi.mm.stim.(cd).no) 1];
-                        yticks(obj.pi.mm.cond.(cd).ax,[-1-obj.pi.mm.stim.(cd).no:1:1])
-                        for i=1:obj.pi.mm.stim.(cd).no
-                            yticklab{1,i}=cellstr(['Stimulator ' num2str(i)]);
-                        end
-                        yticklab=flip(horzcat(yticklab{1,:}));
-                        obj.pi.mm.cond.(cd).ax.YTickLabel={'',char(yticklab),'MEP Search Window',''};
-                        text(0,-1*obj.pi.mm.stim.(cd).no,char(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).stim_device),'VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',9,'FontAngle','italic','Tag',num2str(obj.pi.mm.stim.(cd).no),'ButtonDownFcn',@obj.cb_pr_mth_output_device)
-                        for ipulses=1:obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).pulse_count
-                            
-                            % 11-Mar-2020 18:13:21
-                            obj.pi.mm.stim.(cd).slctd=istimulators;
-                            obj.pi.mm.stim.(cd).(st).pulse_count=ipulses;
-                            %                         obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).pulse_count=obj.pi.mm.stim.(cd).(st).pulse_count;
-                            
-                            switch char(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).stim_mode)
-                                case 'single_pulse'
-                                    obj.pi.mm.stim.(cd).(st).pulse_types{1,obj.pi.mm.stim.(cd).(st).pulse_count}=cellstr('single_pulse');
-                                    %make the string here
-                                    SinglePulseAnnotation=[];
-                                    if (obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_units==1)
-                                        
-                                        
-                                        SinglePulseAnnotation=['TS: [' num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt{1,1}) '] %MSO'];
-                                    else
-                                        SinglePulseAnnotation=['TS: [' num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt{1,1}) '] %MT'];
-                                    end
-                                    %AAJ: idher ye banao jese oper hehehehehe
-                                    %vala bnaya he pp aur train dono k lye
-                                    text(obj.pi.mm.stim.(cd).(st).pulse_count-0.25,-obj.pi.mm.stim.(cd).slctd+0.41,SinglePulseAnnotation,'VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',7,'FontAngle','italic','UserData',[obj.pi.mm.stim.(cd).(st).pulse_count,obj.pi.mm.stim.(cd).slctd],'ButtonDownFcn',@obj.cb_pr_mth_sp_inputfig) % 11-Mar-2020 14:49:00
-                                case 'paired_pulse'
-                                    obj.pi.mm.stim.(cd).(st).pulse_types{1,obj.pi.mm.stim.(cd).(st).pulse_count}=cellstr('paired_pulse');
-                                    % % %                                 text(obj.pi.mm.stim.(cd).(st).pulse_count-0.25,-obj.pi.mm.stim.(cd).slctd+0.4,{'TS:[?], CS:[?] %MSO', 'ISI:[?] ms'},'VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',7,'FontAngle','italic','UserData',[obj.pi.mm.stim.(cd).(st).pulse_count,obj.pi.mm.stim.(cd).slctd],'ButtonDownFcn',@obj.cb_pr_mth_pp_inputfig) % 11-Mar-2020 14:49:00
-                                    TS=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt{1,1});
-                                    CS=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt{1,2});
-                                    ISI=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt{1,3});
-                                    if obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_units==1
-                                        UnitString='%MSO';
-                                    elseif obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_units==0
-                                        UnitString='%MT';
-                                    end
-                                    text(obj.pi.mm.stim.(cd).(st).pulse_count-0.25,-obj.pi.mm.stim.(cd).slctd+0.4,{['TS:' TS ', CS:' CS ' ' UnitString], ['ISI:' ISI 'ms']},'VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',7,'FontAngle','italic','UserData',[obj.pi.mm.stim.(cd).(st).pulse_count,obj.pi.mm.stim.(cd).slctd],'ButtonDownFcn',@obj.cb_pr_mth_pp_inputfig) % 11-Mar-2020 14:49:00
-                                    
-                                case 'train'
-                                    obj.pi.mm.stim.(cd).(st).pulse_types{1,obj.pi.mm.stim.(cd).(st).pulse_count}=cellstr('train');
-                                    %                                 obj.pi.mm.stim.(st).pulse_specs=text(obj.pi.mm.stim.(cd).(st).pulse_count,-obj.pi.mm.stim.(cd).slctd+0.4,{'Pulses:[?], f:[?] Hz', 'TS:[?] %MSO'},'VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',7,'FontAngle','italic','UserData',[obj.pi.mm.stim.(cd).(st).pulse_count,obj.pi.mm.stim.(cd).slctd],'ButtonDownFcn',@obj.cb_pr_mth_train_inputfig); % 11-Mar-2020 14:49:00
-                                    TS=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt{1,1});
-                                    F=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt{1,2});
-                                    PULSES=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt{1,3});
-                                    if obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_units==1
-                                        UnitString='%MSO';
-                                    elseif obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_units==0
-                                        UnitString='%MT';
-                                    end
-                                    obj.pi.mm.stim.(st).pulse_specs=text(obj.pi.mm.stim.(cd).(st).pulse_count,-obj.pi.mm.stim.(cd).slctd+0.4,{['Pulses:' PULSES ', f:' F 'Hz'], ['TS:' TS UnitString]},'VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',7,'FontAngle','italic','UserData',[obj.pi.mm.stim.(cd).(st).pulse_count,obj.pi.mm.stim.(cd).slctd],'ButtonDownFcn',@obj.cb_pr_mth_train_inputfig); % 11-Mar-2020 14:49:00
-                                    
-                            end
-                            
-                            
-                            % delete the previous plot
-                            delete(obj.pi.mm.stim.(cd).(st).plt)
-                            % make the x and y vector for new one
-                            x=[];
-                            y=[];
-                            for i=1:obj.pi.mm.stim.(cd).(st).pulse_count
-                                switch char(obj.pi.mm.stim.(cd).(st).pulse_types{1,i})
-                                    case 'single_pulse'
-                                        
-                                        x{i}=([i i i+0.15 i+0.15]);
-                                        y{i}=[-obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd+0.4 -obj.pi.mm.stim.(cd).slctd+0.4 -obj.pi.mm.stim.(cd).slctd];
-                                    case 'paired_pulse'
-                                        
-                                        x{i}=[i i i+0.15 i+0.15 i+0.25 i+0.25 i+0.40 i+0.40];
-                                        y{i}=[-obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd+0.20 -obj.pi.mm.stim.(cd).slctd+0.20 -obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd+0.4 -obj.pi.mm.stim.(cd).slctd+0.4 -obj.pi.mm.stim.(cd).slctd];
-                                    case 'train'
-                                        
-                                        %                         x(i)=[i i i+0.20 i+0.20 i+0.30 i+0.30 i+0.50 i+0.50 i+0.60 i+0.60 i+0.80 i+0.80];
-                                        x{i}=[i i i+0.15 i+0.15 i+0.25 i+0.25 i+0.40 i+0.40 i+0.50 i+0.50 i+0.65 i+0.65];
-                                        %                         y{i}={[-obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd+0.5 -obj.pi.mm.stim.(cd).slctd+0.5 -obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd+0.5 -obj.pi.mm.stim.(cd).slctd+0.5 -obj.pi.mm.stim.(cd).slctd]};
-                                        
-                                        y{i}=-obj.pi.mm.stim.(cd).slctd+[0 0.4 0.4 0 0 0.4 0.4 0 0 0.4 0.4 0];
-                                end
-                            end
-                            
-                            x=[-45 cell2mat(x) 45];
-                            y=[-obj.pi.mm.stim.(cd).slctd cell2mat(y) -obj.pi.mm.stim.(cd).slctd];
-                            
-                            obj.pi.mm.stim.(cd).(st).plt=plot(x,y,'Color','k','parent',obj.pi.mm.cond.(cd).ax,'LineWidth',2,'Tag',num2str(obj.pi.mm.stim.(cd).slctd),'ButtonDownFcn',@cb_stimulatorSelector); %line
-                            
-                            drawArrow = @(x,y) quiver( x(1),y(1),x(2)-x(1),y(2)-y(1),0,'color','k' );
-                            num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).stim_timing{1,ipulses})
-                            obj.pi.mm.stim.(st).pulse_time=text(obj.pi.mm.stim.(cd).(st).pulse_count-1+0.5,-obj.pi.mm.stim.(cd).slctd-0.05,['t:' num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).stim_timing{1,ipulses}) 'ms'],'VerticalAlignment','top','Color',[0.50 0.50 0.50],'FontSize',9,'FontAngle','italic','UserData',[obj.pi.mm.stim.(cd).(st).pulse_count,obj.pi.mm.stim.(cd).slctd],'ButtonDownFcn',@obj.cb_pr_mth_timing)
-                            
-                            obj.pi.mm.stim.(st).pulse_arrow1=drawArrow([obj.pi.mm.stim.(cd).(st).pulse_count-1 obj.pi.mm.stim.(cd).(st).pulse_count-1+1],[-obj.pi.mm.stim.(cd).slctd-0.05 -obj.pi.mm.stim.(cd).slctd-0.05])
-                            obj.pi.mm.stim.(st).pulse_arrow2=drawArrow([obj.pi.mm.stim.(cd).(st).pulse_count-1+1 obj.pi.mm.stim.(cd).(st).pulse_count-1],[-obj.pi.mm.stim.(cd).slctd-0.05 -obj.pi.mm.stim.(cd).slctd-0.05])
-                            
-                            
-                            if(obj.pi.mm.cond.(cd).ax.XLim(2)<obj.pi.mm.stim.(cd).(st).pulse_count+1)
-                                obj.pi.mm.cond.(cd).ax.XLim(2)=obj.pi.mm.stim.(cd).(st).pulse_count+1;
-                            end
-                            
-                        end
-                        
-                    end
-                    function cb_stimulatorSelector(source,~)
-                        if(isfield(obj.pi.mm,'stimulatorSelector'))
-                            if(isvalid(obj.pi.mm.stimulatorSelector))
-                                obj.pi.mm.stimulatorSelector.Color='k';
-                            end
-                        end
-                        obj.pi.mm.stim.(cd).slctd=str2double(source.Tag);
-                        source.Color='b';
-                        obj.pi.mm.stimulatorSelector=source;
-                    end
-                    function cb_pr_mm_duplicateCondition(~,~)
-                        
-                        conditionIndex=length(fieldnames(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll));
-                        cond_duplicated_from=['cond' num2str(obj.pi.mm.tab.SelectedChild)];
-                        cond_duplicated_to=['cond' num2str(conditionIndex+1)];
-                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cond_duplicated_to)=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cond_duplicated_from);
-                        obj.pr_mth;
-                        obj.func_load_mep_par;
-                    end
-                    function cb_pr_mm_deleteCondition(~,~)
-                        
-                        
-                        condsAll_fieldnames=fieldnames(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll);
-                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll=rmfield(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll,char(condsAll_fieldnames(obj.pi.mm.tab.SelectedChild)));
-                        condsAll_fieldnames(obj.pi.mm.tab.SelectedChild)=[];
-                        for deleteIndex_condition=1:(length(fieldnames(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll)))
-                            cond_resorted_afterdelete=['cond' num2str(deleteIndex_condition)];
-                            condsAll_new.(cond_resorted_afterdelete)=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(char(condsAll_fieldnames(deleteIndex_condition)));
-                        end
-                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll=condsAll_new;
-                        obj.pr_mth;
-                        obj.func_load_mep_par;
-                    end
-                end
-                
-                
-                
-                
-                %AAJ: add a new uimenu in table for add a condition,
-                %add a stimulator to this condition, delete a
-                %condition, delete a stimulator
-                
-            end
-            
-            
-        end
-        function cb_pr_mth_Nconditions(obj)
-            
-            obj.pi.mm.cond.TabNames=[];
-            contextMenu_condition=uicontextmenu(obj.fig.handle);
-            uimenu(contextMenu_condition,'label','Duplicate Condition','Callback',@cb_pr_mm_duplicateCondition);
-            uimenu(contextMenu_condition,'label','Delete Condition','Callback',@cb_pr_mm_deleteCondition);
-            for iconds=1:length(fieldnames(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll))
-                obj.pi.mm.cond.no=iconds;
-                cd=['cd' num2str(obj.pi.mm.cond.no)];
-                condStr=['cond' num2str(obj.pi.mm.cond.no)];
-                obj.pi.mm.cond.(cd).ax_panel= uix.Panel( 'Parent',obj.pi.mm.tab,'uicontextmenu',contextMenu_condition);
-                obj.pi.mm.cond.(cd).ax=axes('parent',obj.pi.mm.cond.(cd).ax_panel );
-                box on; hold on;
-                obj.pi.mm.cond.TabNames{1,obj.pi.mm.cond.no}=['Condition' num2str(obj.pi.mm.cond.no)];
-                obj.pi.mm.tab.TabNames=obj.pi.mm.cond.TabNames;
-                obj.pi.mm.tab.SelectedChild=1;
-                obj.pi.mm.tab.TabSize=90;
-                obj.pi.mm.tab.FontSize=12;
-                obj.pi.mm.cond.(cd).ax.YLim=[-1 1];
-                obj.pi.mm.cond.(cd).ax.XLim=[0 5];
-                xticks(obj.pi.mm.cond.(cd).ax,[100 101]);
-                yticks(obj.pi.mm.cond.(cd).ax,-1:1:1)
-                obj.pi.mm.cond.(cd).ax.YTickLabel={'','MEP Search Window',''};
-                plot(0:0.01:10,rand(1,1001)*0.30-0.15,'Color','k','parent',obj.pi.mm.cond.(cd).ax,'LineWidth',2,'Tag','empty'); % 12-Mar-2020 07:37:17
-                text(2.5,0+0.20,['Channel Name:[' char(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).targetChannel) ']'],'VerticalAlignment','bottom','HorizontalAlignment','center','Color',[0.50 0.50 0.50],'FontSize',9,'FontAngle','italic','ButtonDownFcn',@obj.cb_pr_mth_targetChannel) % 11-Mar-2020 14:49:00
-                obj.pi.mm.stim.(cd).no=0;
-                
-                %                 make stimulators
-                for istimulators=1:(length(fieldnames(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr)))-1)
-                    obj.pi.mm.stim.(cd).no=istimulators;
-                    st=['st' num2str(obj.pi.mm.stim.(cd).no)];
-                    axes(obj.pi.mm.cond.(cd).ax)
-                    hold on;
-                    obj.pi.mm.stim.(cd).(st).plt=plot([-45 45],[-1*obj.pi.mm.stim.(cd).no -1*obj.pi.mm.stim.(cd).no],'Color','k','parent',obj.pi.mm.cond.(cd).ax,'LineWidth',2,'Tag',num2str(obj.pi.mm.stim.(cd).no),'ButtonDownFcn',@cb_stimulatorSelector); %line
-                    
-                    obj.pi.mm.cond.(cd).ax.YLim=[(-1-obj.pi.mm.stim.(cd).no) 1];
-                    yticks(obj.pi.mm.cond.(cd).ax,[-1-obj.pi.mm.stim.(cd).no:1:1])
-                    for i=1:obj.pi.mm.stim.(cd).no
-                        yticklab{1,i}=cellstr(['Stimulator ' num2str(i)]);
-                    end
-                    yticklab=flip(horzcat(yticklab{1,:}));
-                    obj.pi.mm.cond.(cd).ax.YTickLabel={'',char(yticklab),'MEP Search Window',''};
-                    text(0,-1*obj.pi.mm.stim.(cd).no,char(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).stim_device),'VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',9,'FontAngle','italic','Tag',num2str(obj.pi.mm.stim.(cd).no),'ButtonDownFcn',@obj.cb_pr_mth_output_device)
-                    for ipulses=1:obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).pulse_count
-                        
-                        %                         11-Mar-2020 18:13:21
-                        obj.pi.mm.stim.(cd).slctd=istimulators;
-                        obj.pi.mm.stim.(cd).(st).pulse_count=ipulses;
-                        
-                        switch char(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).stim_mode)
-                            case 'single_pulse'
-                                obj.pi.mm.stim.(cd).(st).pulse_types{1,obj.pi.mm.stim.(cd).(st).pulse_count}=cellstr('single_pulse');
-                                %                                 make the string here
-                                SinglePulseAnnotation=[];
-                                if (obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_units==1)
-                                    
-                                    
-                                    SinglePulseAnnotation=['TS: [' num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt{1,1}) '] %MSO'];
-                                else
-                                    SinglePulseAnnotation=['TS: [' num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt{1,1}) '] %MT'];
-                                end
-                                %                                 AAJ: idher ye banao jese oper hehehehehe
-                                %                                 vala bnaya he pp aur train dono k lye
-                                text(obj.pi.mm.stim.(cd).(st).pulse_count-0.25,-obj.pi.mm.stim.(cd).slctd+0.41,SinglePulseAnnotation,'VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',7,'FontAngle','italic','UserData',[obj.pi.mm.stim.(cd).(st).pulse_count,obj.pi.mm.stim.(cd).slctd],'ButtonDownFcn',@obj.cb_pr_mth_sp_inputfig) % 11-Mar-2020 14:49:00
-                            case 'paired_pulse'
-                                obj.pi.mm.stim.(cd).(st).pulse_types{1,obj.pi.mm.stim.(cd).(st).pulse_count}=cellstr('paired_pulse');
-                                % %                                 text(obj.pi.mm.stim.(cd).(st).pulse_count-0.25,-obj.pi.mm.stim.(cd).slctd+0.4,{'TS:[?], CS:[?] %MSO', 'ISI:[?] ms'},'VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',7,'FontAngle','italic','UserData',[obj.pi.mm.stim.(cd).(st).pulse_count,obj.pi.mm.stim.(cd).slctd],'ButtonDownFcn',@obj.cb_pr_mth_pp_inputfig) % 11-Mar-2020 14:49:00
-                                TS=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt{1,1});
-                                CS=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt{1,2});
-                                ISI=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt{1,3});
-                                if obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_units==1
-                                    UnitString='%MSO';
-                                elseif obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_units==0
-                                    UnitString='%MT';
-                                end
-                                text(obj.pi.mm.stim.(cd).(st).pulse_count-0.25,-obj.pi.mm.stim.(cd).slctd+0.4,{['TS:' TS ', CS:' CS ' ' UnitString], ['ISI:' ISI 'ms']},'VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',7,'FontAngle','italic','UserData',[obj.pi.mm.stim.(cd).(st).pulse_count,obj.pi.mm.stim.(cd).slctd],'ButtonDownFcn',@obj.cb_pr_mth_pp_inputfig) % 11-Mar-2020 14:49:00
-                                
-                            case 'train'
-                                obj.pi.mm.stim.(cd).(st).pulse_types{1,obj.pi.mm.stim.(cd).(st).pulse_count}=cellstr('train');
-                                % %                                                                 obj.pi.mm.stim.(st).pulse_specs=text(obj.pi.mm.stim.(cd).(st).pulse_count,-obj.pi.mm.stim.(cd).slctd+0.4,{'Pulses:[?], f:[?] Hz', 'TS:[?] %MSO'},'VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',7,'FontAngle','italic','UserData',[obj.pi.mm.stim.(cd).(st).pulse_count,obj.pi.mm.stim.(cd).slctd],'ButtonDownFcn',@obj.cb_pr_mth_train_inputfig); % 11-Mar-2020 14:49:00
-                                TS=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt{1,1});
-                                F=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt{1,2});
-                                PULSES=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt{1,3});
-                                if obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_units==1
-                                    UnitString='%MSO';
-                                elseif obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_units==0
-                                    UnitString='%MT';
-                                end
-                                obj.pi.mm.stim.(st).pulse_specs=text(obj.pi.mm.stim.(cd).(st).pulse_count,-obj.pi.mm.stim.(cd).slctd+0.4,{['Pulses:' PULSES ', f:' F 'Hz'], ['TS:' TS UnitString]},'VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',7,'FontAngle','italic','UserData',[obj.pi.mm.stim.(cd).(st).pulse_count,obj.pi.mm.stim.(cd).slctd],'ButtonDownFcn',@obj.cb_pr_mth_train_inputfig); % 11-Mar-2020 14:49:00
-                                
-                        end
-                        
-                        
-                        %                         delete the previous plot
-                        delete(obj.pi.mm.stim.(cd).(st).plt)
-                        %                         make the x and y vector for new one
-                        x=[];
-                        y=[];
-                        for i=1:obj.pi.mm.stim.(cd).(st).pulse_count
-                            switch char(obj.pi.mm.stim.(cd).(st).pulse_types{1,i})
-                                case 'single_pulse'
-                                    x{i}=([i i i+0.15 i+0.15]);
-                                    y{i}=[-obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd+0.4 -obj.pi.mm.stim.(cd).slctd+0.4 -obj.pi.mm.stim.(cd).slctd];
-                                case 'paired_pulse'
-                                    x{i}=[i i i+0.15 i+0.15 i+0.25 i+0.25 i+0.40 i+0.40];
-                                    y{i}=[-obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd+0.20 -obj.pi.mm.stim.(cd).slctd+0.20 -obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd+0.4 -obj.pi.mm.stim.(cd).slctd+0.4 -obj.pi.mm.stim.(cd).slctd];
-                                case 'train'
-                                    x(i)=[i i i+0.20 i+0.20 i+0.30 i+0.30 i+0.50 i+0.50 i+0.60 i+0.60 i+0.80 i+0.80];
-                                    x{i}=[i i i+0.15 i+0.15 i+0.25 i+0.25 i+0.40 i+0.40 i+0.50 i+0.50 i+0.65 i+0.65];
-                                    y{i}={[-obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd+0.5 -obj.pi.mm.stim.(cd).slctd+0.5 -obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd+0.5 -obj.pi.mm.stim.(cd).slctd+0.5 -obj.pi.mm.stim.(cd).slctd]};
-                                    
-                                    y{i}=-obj.pi.mm.stim.(cd).slctd+[0 0.4 0.4 0 0 0.4 0.4 0 0 0.4 0.4 0];
-                            end
-                        end
-                        
-                        x=[-45 cell2mat(x) 45];
-                        y=[-obj.pi.mm.stim.(cd).slctd cell2mat(y) -obj.pi.mm.stim.(cd).slctd];
-                        
-                        obj.pi.mm.stim.(cd).(st).plt=plot(x,y,'Color','k','parent',obj.pi.mm.cond.(cd).ax,'LineWidth',2,'Tag',num2str(obj.pi.mm.stim.(cd).slctd),'ButtonDownFcn',@cb_stimulatorSelector); %line
-                        
-                        drawArrow = @(x,y) quiver( x(1),y(1),x(2)-x(1),y(2)-y(1),0,'color','k' );
-                        num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).stim_timing{1,ipulses})
-                        obj.pi.mm.stim.(st).pulse_time=text(obj.pi.mm.stim.(cd).(st).pulse_count-1+0.5,-obj.pi.mm.stim.(cd).slctd-0.05,['t:' num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).stim_timing{1,ipulses}) 'ms'],'VerticalAlignment','top','Color',[0.50 0.50 0.50],'FontSize',9,'FontAngle','italic','UserData',[obj.pi.mm.stim.(cd).(st).pulse_count,obj.pi.mm.stim.(cd).slctd],'ButtonDownFcn',@obj.cb_pr_mth_timing)
-                        
-                        obj.pi.mm.stim.(st).pulse_arrow1=drawArrow([obj.pi.mm.stim.(cd).(st).pulse_count-1 obj.pi.mm.stim.(cd).(st).pulse_count-1+1],[-obj.pi.mm.stim.(cd).slctd-0.05 -obj.pi.mm.stim.(cd).slctd-0.05])
-                        obj.pi.mm.stim.(st).pulse_arrow2=drawArrow([obj.pi.mm.stim.(cd).(st).pulse_count-1+1 obj.pi.mm.stim.(cd).(st).pulse_count-1],[-obj.pi.mm.stim.(cd).slctd-0.05 -obj.pi.mm.stim.(cd).slctd-0.05])
-                        
-                        
-                        if(obj.pi.mm.cond.(cd).ax.XLim(2)<obj.pi.mm.stim.(cd).(st).pulse_count+1)
-                            obj.pi.mm.cond.(cd).ax.XLim(2)=obj.pi.mm.stim.(cd).(st).pulse_count+1;
-                        end
-                        
-                    end
-                    
-                end
-                %                 make pulses
-                
-                
-                
-            end
-            function cb_stimulatorSelector(source,~)
-                if(isfield(obj.pi.mm,'stimulatorSelector'))
-                    if(isvalid(obj.pi.mm.stimulatorSelector))
-                        obj.pi.mm.stimulatorSelector.Color='k';
-                    end
-                end
-                obj.pi.mm.stim.(cd).slctd=str2double(source.Tag);
-                source.Color='b';
-                obj.pi.mm.stimulatorSelector=source;
-            end
-            function cb_pr_mm_duplicateCondition(~,~)
-                conditionIndex=length(fieldnames(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll));
-                cond_duplicated_from=['cond' num2str(obj.pi.mm.tab.SelectedChild)];
-                cond_duplicated_to=['cond' num2str(conditionIndex+1)];
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cond_duplicated_to)=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cond_duplicated_from);
-                obj.pr_mth;
-                obj.func_load_mep_par;
-            end
-            function cb_pr_mm_deleteCondition(~,~)
-                
-                condsAll_fieldnames=fieldnames(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll);
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll=rmfield(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll,char(condsAll_fieldnames(obj.pi.mm.tab.SelectedChild)));
-                condsAll_fieldnames(obj.pi.mm.tab.SelectedChild)=[];
-                for deleteIndex_condition=1:(length(fieldnames(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll)))
-                    cond_resorted_afterdelete=['cond' num2str(deleteIndex_condition)];
-                    condsAll_new.(cond_resorted_afterdelete)=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(char(condsAll_fieldnames(deleteIndex_condition)));
-                end
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll=condsAll_new;
-                obj.pr_mth;
-                obj.func_load_mep_par;
-            end
-        end
-        function cb_pr_mth_conditions(obj)
-            obj.pi.mm.cond.no=obj.pi.mm.cond.no+1;
-            cd=['cd' num2str(obj.pi.mm.cond.no)];
-            condStr=['cond' num2str(obj.pi.mm.cond.no)];
-            contextMenu_condition=uicontextmenu(obj.fig.handle);
-            uimenu(contextMenu_condition,'label','Duplicate Condition','Callback',@cb_pr_mm_duplicateCondition);
-            uimenu(contextMenu_condition,'label','Delete Condition','Callback',@cb_pr_mm_deleteCondition);
-            obj.pi.mm.cond.(cd).ax_panel= uix.Panel( 'Parent',obj.pi.mm.tab,'uicontextmenu',contextMenu_condition);
-            obj.pi.mm.cond.(cd).ax=axes('parent',obj.pi.mm.cond.(cd).ax_panel );
-            box on; hold on;
-            obj.pi.mm.cond.TabNames{1,obj.pi.mm.cond.no}=['Condition' num2str(obj.pi.mm.cond.no)];
-            obj.pi.mm.tab.TabNames=obj.pi.mm.cond.TabNames;
-            obj.pi.mm.tab.SelectedChild=obj.pi.mm.cond.no;
-            obj.pi.mm.tab.TabSize=90;
-            obj.pi.mm.tab.FontSize=12;
-            obj.pi.mm.cond.(cd).ax.YLim=[-1 1];
-            obj.pi.mm.cond.(cd).ax.XLim=[0 5];
-            xticks(obj.pi.mm.cond.(cd).ax,[100 101]);
-            yticks(obj.pi.mm.cond.(cd).ax,[-1:1:1])
-            obj.pi.mm.cond.(cd).ax.YTickLabel={'','MEP Search Window',''};
-            plot(0:0.01:10,rand(1,1001)*0.30-0.15,'Color','k','parent',obj.pi.mm.cond.(cd).ax,'LineWidth',2,'Tag','empty'); % 12-Mar-2020 07:37:17
-            text(2.5,0+0.20,'Channel Name:[?]','VerticalAlignment','bottom','HorizontalAlignment','center','Color',[0.50 0.50 0.50],'FontSize',9,'FontAngle','italic','ButtonDownFcn',@obj.cb_pr_mth_targetChannel) % 11-Mar-2020 14:49:00
-            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).targetChannel=cellstr('NaN');
-            obj.pi.mm.stim.(cd).no=0;
-            function cb_pr_mm_duplicateCondition(~,~)
-                conditionIndex=length(fieldnames(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll));
-                cond_duplicated_from=['cond' num2str(obj.pi.mm.tab.SelectedChild)];
-                cond_duplicated_to=['cond' num2str(conditionIndex+1)];
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cond_duplicated_to)=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cond_duplicated_from);
-                obj.pr_mth;
-                obj.func_load_mep_par;
-            end
-            function cb_pr_mm_deleteCondition(~,~)
-                condsAll_fieldnames=fieldnames(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll);
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll=rmfield(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll,char(condsAll_fieldnames(obj.pi.mm.tab.SelectedChild)));
-                condsAll_fieldnames(obj.pi.mm.tab.SelectedChild)=[];
-                for deleteIndex_condition=1:(length(fieldnames(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll)))
-                    cond_resorted_afterdelete=['cond' num2str(deleteIndex_condition)];
-                    condsAll_new.(cond_resorted_afterdelete)=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(char(condsAll_fieldnames(deleteIndex_condition)));
-                end
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll=condsAll_new;
-                obj.pr_mth;
-                obj.func_load_mep_par;
-            end
-            obj.cb_pr_mth_StimulationParametersTable;
-            
-            
-        end
-        function cb_pr_mth_stim(obj)
-            
-            obj.pi.mm.tab.TabNames=obj.pi.mm.cond.TabNames;
-            cd=['cd' num2str(obj.pi.mm.tab.SelectedChild)];
-            condStr=['cond' num2str(obj.pi.mm.tab.SelectedChild)];
-            obj.pi.mm.stim.(cd).no=obj.pi.mm.stim.(cd).no+1;
-            st=['st' num2str(obj.pi.mm.stim.(cd).no)];
-            axes(obj.pi.mm.cond.(cd).ax)
-            hold on;
-            %             plot([-45 45],[1 1],'Color','k','parent',obj.pi.mm.ax);
-            %             plot([-45 45],[0 0],'Color','k','parent',obj.pi.mm.ax);
-            
-            
-            obj.pi.mm.stim.(cd).(st).plt=plot([-45 45],[-1*obj.pi.mm.stim.(cd).no -1*obj.pi.mm.stim.(cd).no],'Color','k','parent',obj.pi.mm.cond.(cd).ax,'LineWidth',2,'Tag',num2str(obj.pi.mm.stim.(cd).no),'ButtonDownFcn',@cb_stimulatorSelector); %line
-            %             obj.pi.mm.stim.(cd).(st).pulse_count=0;
-            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).pulse_count=0;
-            obj.pi.mm.stim.(cd).(st).plt.Tag
-            %             plot([-45 45],[-2-obj.pi.mm.stim.no -2-obj.pi.mm.stim.no],'Color','k','parent',obj.pi.mm.ax);
-            obj.pi.mm.cond.(cd).ax.YLim=[(-1-obj.pi.mm.stim.(cd).no) 1];
-            yticks(obj.pi.mm.cond.(cd).ax,[-1-obj.pi.mm.stim.(cd).no:1:1])
-            for i=1:obj.pi.mm.stim.(cd).no
-                yticklab{1,i}=cellstr(['Stimulator ' num2str(i)]);
-            end
-            yticklab=flip(horzcat(yticklab{1,:}));
-            obj.pi.mm.cond.(cd).ax.YTickLabel={'',char(yticklab),'MEP Search Window',''};
-            text(0,-1*obj.pi.mm.stim.(cd).no,'click to tag device','VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',9,'FontAngle','italic','Tag',num2str(obj.pi.mm.stim.(cd).no),'ButtonDownFcn',@obj.cb_pr_mth_output_device)
-            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).stim_device=cellstr('Select');
-            function cb_stimulatorSelector(source,~)
-                if(isfield(obj.pi.mm,'stimulatorSelector'))
-                    if(isvalid(obj.pi.mm.stimulatorSelector))
-                        obj.pi.mm.stimulatorSelector.Color='k';
-                    end
-                end
-                obj.pi.mm.stim.(cd).slctd=str2double(source.Tag);
-                source.Color='b';
-                obj.pi.mm.stimulatorSelector=source;
-            end
-            obj.cb_pr_mth_StimulationParametersTable;
-        end
-        function cb_pr_mth_pulse(obj,source,~)
-            % 11-Mar-2020 18:13:21
-            cd=['cd' num2str(obj.pi.mm.tab.SelectedChild)];
-            condStr=['cond' num2str(obj.pi.mm.tab.SelectedChild)];
-            
-            %             obj.pi.mm.stim.(cd).slctd=1 ;
-            
-            
-            st=['st' num2str(obj.pi.mm.stim.(cd).slctd)];
-            obj.pi.mm.stim.(cd).(st).pulse_count=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).pulse_count+1;
-            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).pulse_count=obj.pi.mm.stim.(cd).(st).pulse_count;
-            
-            switch obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).pulse_count
-                case 1
-                    obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).stim_mode=source.Tag;
-                    
-                    switch source.Tag
-                        case 'single_pulse'
-                            obj.pi.mm.stim.(cd).(st).pulse_types{1,obj.pi.mm.stim.(cd).(st).pulse_count}=cellstr('single_pulse');
-                            text(obj.pi.mm.stim.(cd).(st).pulse_count-0.25,-obj.pi.mm.stim.(cd).slctd+0.41,'       TS:[NaN] %MSO','VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',7,'FontAngle','italic','UserData',[obj.pi.mm.stim.(cd).(st).pulse_count,obj.pi.mm.stim.(cd).slctd],'ButtonDownFcn',@obj.cb_pr_mth_sp_inputfig) % 11-Mar-2020 14:49:00
-                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si='NaN'; %only 1 SI is allowed as a standard model of generalization
-                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_units=1; %if 1 then its mso if 0 then its threshold
-                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).threshold='';
-                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).stim_mode='single_pulse';
-                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt={NaN};
-                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).stim_timing={NaN};
-                            
-                        case 'paired_pulse'
-                            obj.pi.mm.stim.(cd).(st).pulse_types{1,obj.pi.mm.stim.(cd).(st).pulse_count}=cellstr('paired_pulse');
-                            text(obj.pi.mm.stim.(cd).(st).pulse_count-0.25,-obj.pi.mm.stim.(cd).slctd+0.4,{'TS:[NaN], CS:[NaN] %MSO', 'ISI:[NaN] ms'},'VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',7,'FontAngle','italic','UserData',[obj.pi.mm.stim.(cd).(st).pulse_count,obj.pi.mm.stim.(cd).slctd],'ButtonDownFcn',@obj.cb_pr_mth_pp_inputfig) % 11-Mar-2020 14:49:00
-                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si='NaN'; %only 1 SI is allowed as a standard model of generalization
-                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).cs='NaN'; %only 1 SI is allowed as a standard model of generalization
-                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).isi='NaN'; %only 1 SI is allowed as a standard model of generalization
-                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_units=1; %if 1 then its mso if 0 then its threshold
-                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).threshold='';
-                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).stim_mode='paired_pulse';
-                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt={NaN,NaN,NaN};
-                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).stim_timing={NaN};
-                        case 'train'
-                            obj.pi.mm.stim.(cd).(st).pulse_types{1,obj.pi.mm.stim.(cd).(st).pulse_count}=cellstr('train');
-                            obj.pi.mm.stim.(st).pulse_specs=text(obj.pi.mm.stim.(cd).(st).pulse_count,-obj.pi.mm.stim.(cd).slctd+0.4,{'Pulses:[NaN], f:[NaN] Hz', 'TS:[NaN] %MSO'},'VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',7,'FontAngle','italic','UserData',[obj.pi.mm.stim.(cd).(st).pulse_count,obj.pi.mm.stim.(cd).slctd],'ButtonDownFcn',@obj.cb_pr_mth_train_inputfig); % 11-Mar-2020 14:49:00
-                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si='NaN'; %only 1 SI is allowed as a standard model of generalization
-                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).pulsesNo='NaN'; %only 1 SI is allowed as a standard model of generalization
-                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).freq='NaN'; %only 1 SI is allowed as a standard model of generalization
-                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_units=1; %if 1 then its mso if 0 then its threshold
-                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).threshold='';
-                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).stim_mode='train';
-                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt={NaN,NaN,NaN};
-                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).stim_timing={NaN};
-                    end
-                otherwise
-                    switch obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).stim_mode
-                        case 'single_pulse'
-                            obj.pi.mm.stim.(cd).(st).pulse_types{1,obj.pi.mm.stim.(cd).(st).pulse_count}=cellstr('single_pulse');
-                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).stim_timing(1,obj.pi.mm.stim.(cd).(st).pulse_count)={NaN};
-                            
-                            if obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_units==1
-                                UnitString='%MSO';
-                            elseif obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_units==0
-                                UnitString='%MT';
-                            end
-                            text(obj.pi.mm.stim.(cd).(st).pulse_count-0.25,-obj.pi.mm.stim.(cd).slctd+0.41,['     TS: ' num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt{1,1}) ' ' UnitString],'VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',7,'FontAngle','italic','UserData',[obj.pi.mm.stim.(cd).(st).pulse_count,obj.pi.mm.stim.(cd).slctd],'ButtonDownFcn',@obj.cb_pr_mth_sp_inputfig) % 11-Mar-2020 14:49:00
-                            
-                            
-                        case 'paired_pulse'
-                            obj.pi.mm.stim.(cd).(st).pulse_types{1,obj.pi.mm.stim.(cd).(st).pulse_count}=cellstr('paired_pulse');
-                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).stim_timing(1,obj.pi.mm.stim.(cd).(st).pulse_count)={NaN};
-                            TS=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt{1,1});
-                            CS=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt{1,2});
-                            ISI=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt{1,3});
-                            if obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_units==1
-                                UnitString='%MSO';
-                            elseif obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_units==0
-                                UnitString='%MT';
-                            end
-                            text(obj.pi.mm.stim.(cd).(st).pulse_count-0.25,-obj.pi.mm.stim.(cd).slctd+0.4,{['TS:' TS ', CS:' CS ' ' UnitString], ['ISI:' ISI 'ms']},'VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',7,'FontAngle','italic','UserData',[obj.pi.mm.stim.(cd).(st).pulse_count,obj.pi.mm.stim.(cd).slctd],'ButtonDownFcn',@obj.cb_pr_mth_pp_inputfig) % 11-Mar-2020 14:49:00
-                        case 'train'
-                            obj.pi.mm.stim.(cd).(st).pulse_types{1,obj.pi.mm.stim.(cd).(st).pulse_count}=cellstr('train');
-                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).stim_timing(1,obj.pi.mm.stim.(cd).(st).pulse_count)={NaN};
-                            TS=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt{1,1});
-                            F=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt{1,2});
-                            PULSES=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt{1,3});
-                            if obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_units==1
-                                UnitString='%MSO';
-                            elseif obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_units==0
-                                UnitString='%MT';
-                            end
-                            obj.pi.mm.stim.(st).pulse_specs=text(obj.pi.mm.stim.(cd).(st).pulse_count,-obj.pi.mm.stim.(cd).slctd+0.4,{['Pulses:' PULSES ', f:' F 'Hz'], ['TS:' TS UnitString]},'VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',7,'FontAngle','italic','UserData',[obj.pi.mm.stim.(cd).(st).pulse_count,obj.pi.mm.stim.(cd).slctd],'ButtonDownFcn',@obj.cb_pr_mth_train_inputfig); % 11-Mar-2020 14:49:00
-                    end
-                    
-            end
-            
-            
-            % delete the previous plot
-            delete(obj.pi.mm.stim.(cd).(st).plt)
-            % make the x and y vector for new one
-            x=[];
-            y=[];
-            for i=1:obj.pi.mm.stim.(cd).(st).pulse_count
-                switch char(obj.pi.mm.stim.(cd).(st).pulse_types{1,i})
-                    case 'single_pulse'
-                        x{i}=([i i i+0.15 i+0.15]);
-                        y{i}=[-obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd+0.4 -obj.pi.mm.stim.(cd).slctd+0.4 -obj.pi.mm.stim.(cd).slctd];
-                    case 'paired_pulse'
-                        x{i}=[i i i+0.15 i+0.15 i+0.25 i+0.25 i+0.40 i+0.40];
-                        y{i}=[-obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd+0.20 -obj.pi.mm.stim.(cd).slctd+0.20 -obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd+0.4 -obj.pi.mm.stim.(cd).slctd+0.4 -obj.pi.mm.stim.(cd).slctd];
-                    case 'train'
-                        %                         x(i)=[i i i+0.20 i+0.20 i+0.30 i+0.30 i+0.50 i+0.50 i+0.60 i+0.60 i+0.80 i+0.80];
-                        x{i}=[i i i+0.15 i+0.15 i+0.25 i+0.25 i+0.40 i+0.40 i+0.50 i+0.50 i+0.65 i+0.65];
-                        %                         y{i}={[-obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd+0.5 -obj.pi.mm.stim.(cd).slctd+0.5 -obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd+0.5 -obj.pi.mm.stim.(cd).slctd+0.5 -obj.pi.mm.stim.(cd).slctd]};
-                        
-                        y{i}=-obj.pi.mm.stim.(cd).slctd+[0 0.4 0.4 0 0 0.4 0.4 0 0 0.4 0.4 0];
-                end
-            end
-            
-            x=[-45 cell2mat(x) 45];
-            y=[-obj.pi.mm.stim.(cd).slctd cell2mat(y) -obj.pi.mm.stim.(cd).slctd];
-            
-            obj.pi.mm.stim.(cd).(st).plt=plot(x,y,'Color','k','parent',obj.pi.mm.cond.(cd).ax,'LineWidth',2,'Tag',num2str(obj.pi.mm.stim.(cd).slctd),'ButtonDownFcn',@cb_stimulatorSelector); %line
-            
-            drawArrow = @(x,y) quiver( x(1),y(1),x(2)-x(1),y(2)-y(1),0,'color','k' )
-            obj.pi.mm.stim.(st).pulse_time=text(obj.pi.mm.stim.(cd).(st).pulse_count-1+0.5,-obj.pi.mm.stim.(cd).slctd-0.05,['t:' num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).stim_timing{1,obj.pi.mm.stim.(cd).(st).pulse_count}) ' ms'],'VerticalAlignment','top','Color',[0.50 0.50 0.50],'FontSize',9,'FontAngle','italic','UserData',[obj.pi.mm.stim.(cd).(st).pulse_count,obj.pi.mm.stim.(cd).slctd],'ButtonDownFcn',@obj.cb_pr_mth_timing)
-            
-            obj.pi.mm.stim.(st).pulse_arrow1=drawArrow([obj.pi.mm.stim.(cd).(st).pulse_count-1 obj.pi.mm.stim.(cd).(st).pulse_count-1+1],[-obj.pi.mm.stim.(cd).slctd-0.05 -obj.pi.mm.stim.(cd).slctd-0.05])
-            obj.pi.mm.stim.(st).pulse_arrow2=drawArrow([obj.pi.mm.stim.(cd).(st).pulse_count-1+1 obj.pi.mm.stim.(cd).(st).pulse_count-1],[-obj.pi.mm.stim.(cd).slctd-0.05 -obj.pi.mm.stim.(cd).slctd-0.05])
-            
-            
-            if(obj.pi.mm.cond.(cd).ax.XLim(2)<obj.pi.mm.stim.(cd).(st).pulse_count+1)
-                obj.pi.mm.cond.(cd).ax.XLim(2)=obj.pi.mm.stim.(cd).(st).pulse_count+1;
-            end
-            
-            
-            function cb_stimulatorSelector(source,~)
-                if(isvalid(obj.pi.mm.stimulatorSelector))
-                    obj.pi.mm.stimulatorSelector.Color='k';
-                end
-                obj.pi.mm.stim.(cd).slctd=str2double(source.Tag);
-                source.Color='b';
-                obj.pi.mm.stimulatorSelector=source;
-            end
-            obj.cb_pr_mth_StimulationParametersTable;
-        end
-        function cb_pr_mth_output_device(obj,source,~)
-            obj.hw.device_added1_listbox.string
-            if(isempty(obj.hw.device_added2_listbox.string))
-                errordlg('No Output Device (Stimulator) is configured before, visit Hardware Configuration section and configure a Hardware device before selecting one!', 'BEST Toolbox')
-            else
-                [indx,tf] = listdlg('PromptString',{'Select an Output Device'},'SelectionMode','single','ListString',obj.hw.device_added2_listbox.string);
-                if(tf==1)
-                    cd=['cond' num2str(obj.pi.mm.tab.SelectedChild)];
-                    st=['st' num2str(source.Tag)];
-                    obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).stim_device=obj.hw.device_added2_listbox.string(indx);
-                    source.String=obj.hw.device_added2_listbox.string(indx);
-                    obj.cb_pr_mth_StimulationParametersTable;
-                    
-                end
-                
-            end
-        end
-        function cb_pr_mth_timing(obj,source,~)
-            prompt = {'Time (mili-seconds):'};
-            dlgtitle = 'Insert Time | BEST Toolbox';
-            dims = [1 60];
-            definput = {'NaN'};
-            answer = inputdlg(prompt,dlgtitle,dims,definput);
-            source.String=['t: ', char(answer), ' ms'];
-            cd=['cond' num2str(obj.pi.mm.tab.SelectedChild)];
-            st=['st' num2str(source.UserData(2))];
-            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).stim_timing(source.UserData(1))=num2cell(str2double(answer));
-            obj.cb_pr_mth_StimulationParametersTable;
-            
-        end
-        function cb_pr_mth_sp_inputfig(obj,source,~)
-            if (source.UserData(2)==1)
-                f=figure('ToolBar','none','MenuBar','none','Name','Insert Parameters | BEST Toolbox','NumberTitle','off');
-                c1=uix.VBox('parent',f,'Padding',10,'Spacing',10);
-                
-                r1=uix.HBox('parent',c1);
-                uicontrol( 'Style','text','Parent', r1,'String','Threshold Variable:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-                uicontrol( 'Style','edit','Parent', r1 ,'String','TS Intensity','FontSize',11,'Enable','off');
-                set( r1, 'Widths', [210 200]);
-                
-                r1=uix.HBox('parent',c1);
-                uicontrol( 'Style','text','Parent', r1,'String','Threshold Level (mV):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-                threshold_level=uicontrol( 'Style','edit','Parent', r1 ,'String','0.05','FontSize',11);
-                set( r1, 'Widths', [210 200]);
-                
-                r1=uix.HBox('parent',c1);
-                uicontrol( 'Style','text','Parent', r1,'String','Starting TS Intensity (%MSO):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-                si=uicontrol( 'Style','edit','Parent', r1 ,'String','NaN','FontSize',11);
-                set( r1, 'Widths', [210 200]);
-                
-                uicontrol( 'Parent', c1 ,'Style','PushButton','String','OK','FontWeight','Bold','Callback',@(~,~)cb_ok);
-                
-                set(c1, 'Heights', [25 25 25 25])
-                f.Position(3)=430;
-                f.Position(4)=150;
-            else
-                f=figure('ToolBar','none','MenuBar','none','Name','Insert Parameters | BEST Toolbox','NumberTitle','off');
-                c1=uix.VBox('parent',f,'Padding',10,'Spacing',10);
-                r1=uix.HBox('parent',c1);
-                uicontrol( 'Style','text','Parent', r1,'String','Stimulation Intensities:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-                si=uicontrol( 'Style','edit','Parent', r1 ,'String','NaN','FontSize',11);
-                set( r1, 'Widths', [210 200]);
-                
-                r2=uix.HBox('parent',c1);
-                uicontrol( 'Style','text','Parent', r2,'String','Intensity Units:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-                units_mso=uicontrol( 'Style','radiobutton','Parent', r2 ,'FontSize',11,'String','%MSO','Value',1,'Callback',@(~,~)cb_units_mso);
-                units_mt=uicontrol( 'Style','radiobutton','Parent', r2 ,'FontSize',11,'String','%MT','Callback',@(~,~)cb_units_mt);
-                set( r2, 'Widths', [210 100 100]);
-                
-                r3=uix.HBox('parent',c1);
-                uicontrol( 'Style','text','Parent', r3,'String','Motor Threshold (%MSO):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-                MotorThreshold=uicontrol( 'Style','edit','Parent', r3 ,'FontSize',11);
-                uiextras.HBox('Parent',r3)
-                ImportMotorThresholdFromProtocols=uicontrol( 'Style','popupmenu','Parent', r3 ,'FontSize',11,'String',{'Select'},'Callback',@setMotorThreshold);     % 11-Mar-2020 14:48:46                                                                  % 1297
-                ImportMotorThresholdFromProtocols.String=getMotorThresholdProtocols;
-                set( r3, 'Widths', [210 80 20 100]);
-                
-                
-                uicontrol( 'Parent', c1 ,'Style','PushButton','String','OK','FontWeight','Bold','Callback',@(~,~)cb_ok);
-                
-                set(c1, 'Heights', [25 25 25 25])
-                f.Position(3)=430;
-                f.Position(4)=150;
-            end
-            function cb_ok
-                source.String=['TS:' si.String ' %MSO']; % 11-Mar-2020 14:48:28
-                cd=['cond' num2str(obj.pi.mm.tab.SelectedChild)];
-                st=['st' num2str(source.UserData(2))];
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).si=si.String; %only 1 SI is allowed as a standard model of generalization
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).si_units=1; %if 1 then its mso if 0 then its threshold
-                try
-                    obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).threshold=MotorThreshold.String;
-                catch
-                    obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).threshold='';
-                end
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).stim_mode='single_pulse';
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).si_pckt={str2double(si.String)};
-                if (source.UserData(2)==1)
-                    obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).threshold_level=str2double(threshold_level.String);
-                end
-                obj.cb_pr_mth_StimulationParametersTable;
-                close(f)
-            end
-            function cb_units_mso
-                if(units_mso.Value==1)
-                    units_mt.Value=0;
-                end
-            end
-            function cb_units_mt
-                if(units_mt.Value==1)
-                    units_mso.Value=0;
-                end
-            end
-            function MotorThresholdProtocols=getMotorThresholdProtocols
-                mt_btn_listbox_str_id= find(strcmp(obj.data.(obj.info.event.current_session).info.measurement_str_original,'MEP Motor Threshold Hunting'));
-                MotorThresholdProtocols=obj.data.(obj.info.event.current_session).info.measurement_str_to_listbox(mt_btn_listbox_str_id);
-                if isempty(MotorThresholdProtocols)
-                    MotorThresholdProtocols={'Select'};
-                end
-            end
-            function setMotorThreshold(Thissource,~)
-                cd=['cond' num2str(obj.pi.mm.tab.SelectedChild)];
-                st=['st' num2str(source.UserData(2))];
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).ImportMotorThresholdFromProtocol=regexprep((Thissource.String{Thissource.Value}),' ','_');
-                ImportMotorThresholdFromProtocol=regexprep((Thissource.String{Thissource.Value}),' ','_');
-                if ~strcmpi(Thissource.String,'Select')
-                    TargetConditions=numel(fieldnames(obj.par.(obj.info.event.current_session).(ImportMotorThresholdFromProtocol).condsAll));
-                    if TargetConditions>1
-                        for condtn=1:TargetConditions
-                            cdd=['cond' num2str(condtn)];
-                            TargetChannelforThreshold=obj.par.(obj.info.event.current_session).(ImportMotorThresholdFromProtocol).condsAll.(cdd).targetChannel{1};
-                            AllConditions{condtn}=TargetChannelforThreshold;
-                        end
-                        [indx,tf] = listdlg('PromptString',{'Multiple Target Channels were found in your selection','Select one Target Channel.',''},'SelectionMode','single','ListString',AllConditions);
-                        if tf==1
-                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).ImportMotorThresholdFromChannel=AllConditions{indx};
-                            ImportMotorThresholdFromChannel=AllConditions{indx};
-                        elseif tf==0
-                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).ImportMotorThresholdFromChannel=AllConditions{1};
-                            ImportMotorThresholdFromChannel=AllConditions{1};
-                        end
-                    else
-                        ImportMotorThresholdFromChannel=obj.par.(obj.info.event.current_session).(ImportMotorThresholdFromProtocol).condsAll.cond1.targetChannel{1};
-                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).ImportMotorThresholdFromChannel=ImportMotorThresholdFromChannel;
-                    end
-                    try
-                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).threshold=obj.bst.sessions.(obj.info.event.current_session).(ImportMotorThresholdFromProtocol).results.(ImportMotorThresholdFromChannel).MotorThreshold;
-                    catch
-                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).threshold='Not Found';
-                    end
-                    MotorThreshold.String=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).threshold;
-                end
-            end
-        end
-        function cb_pr_mth_pp_inputfig(obj,source,~)
-            if (source.UserData(2)==1)
-                f=figure('ToolBar','none','MenuBar','none','Name','Insert Parameters | BEST Toolbox','NumberTitle','off');
-                c1=uix.VBox('parent',f,'Padding',10,'Spacing',10);
-                
-                r1=uix.HBox('parent',c1);
-                uicontrol( 'Style','text','Parent', r1,'String','Threshold Variable:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-                uicontrol( 'Style','edit','Parent', r1 ,'String','TS Intensity','FontSize',11,'Enable','off');
-                set( r1, 'Widths', [250 200]);
-                
-                r1=uix.HBox('parent',c1);
-                uicontrol( 'Style','text','Parent', r1,'String','Threshold Level (mV):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-                uicontrol( 'Style','edit','Parent', r1 ,'String','0.05','FontSize',11);
-                set( r1, 'Widths', [250 200]);
-                
-                r1=uix.HBox('parent',c1);
-                uicontrol( 'Style','text','Parent', r1,'String','Starting TS Intensity:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-                si=uicontrol( 'Style','edit','Parent', r1 ,'String','NaN','FontSize',11);
-                set( r1, 'Widths', [250 200]);
-                
-                r2a=uix.HBox('parent',c1);
-                uicontrol( 'Style','text','Parent', r2a,'String','Condition Stimulus (CS) Intensity:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-                cs=uicontrol( 'Style','edit','Parent', r2a ,'String','NaN','FontSize',11);
-                set( r2a, 'Widths', [250 200]);
-                
-                r2b=uix.HBox('parent',c1);
-                uicontrol( 'Style','text','Parent', r2b,'String','Inter Stimulus Interval (ms):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-                isi=uicontrol( 'Style','edit','Parent', r2b ,'String','NaN','FontSize',11);
-                set( r2b, 'Widths', [250 200]);
-                
-                uicontrol( 'Parent', c1 ,'Style','PushButton','String','OK','FontWeight','Bold','Callback',@(~,~)cb_ok);
-                
-                set(c1, 'Heights', [25 25 25 25 25 25])
-                f.Position(3)=480;
-                f.Position(4)=220;
-            else
-                f=figure('ToolBar','none','MenuBar','none','Name','Insert Parameters | BEST Toolbox','NumberTitle','off');
-                c1=uix.VBox('parent',f,'Padding',10,'Spacing',10);
-                r1=uix.HBox('parent',c1);
-                uicontrol( 'Style','text','Parent', r1,'String','Test Stimulus Intensity (TS):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-                si=uicontrol( 'Style','edit','Parent', r1 ,'String','NaN','FontSize',11);
-                set( r1, 'Widths', [250 200]);
-                
-                r2a=uix.HBox('parent',c1);
-                uicontrol( 'Style','text','Parent', r2a,'String','Condition Stimulus Intensity (CS):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-                cs=uicontrol( 'Style','edit','Parent', r2a ,'String','NaN','FontSize',11);
-                set( r2a, 'Widths', [250 200]);
-                
-                r2b=uix.HBox('parent',c1);
-                uicontrol( 'Style','text','Parent', r2b,'String','Inter Stimulus Interval (ms):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-                isi=uicontrol( 'Style','edit','Parent', r2b ,'String','NaN','FontSize',11);
-                set( r2b, 'Widths', [250 200]);
-                
-                r2=uix.HBox('parent',c1);
-                uicontrol( 'Style','text','Parent', r2,'String','Intensity Units:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-                units_mso=uicontrol( 'Style','radiobutton','Parent', r2 ,'FontSize',11,'String','%MSO','Value',1,'Callback',@(~,~)cb_units_mso);
-                units_mt=uicontrol( 'Style','radiobutton','Parent', r2 ,'FontSize',11,'String','%MT','Callback',@(~,~)cb_units_mt);
-                set( r2, 'Widths', [250 100 100]);
-                
-                r3=uix.HBox('parent',c1);
-                uicontrol( 'Style','text','Parent', r3,'String','Motor Threshold (%MSO):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-                threshold=uicontrol( 'Style','edit','Parent', r3 ,'FontSize',11);
-                mt_btn_listbox_str_id= find(strcmp(obj.data.(obj.info.event.current_session).info.measurement_str_original,'MEP Motor Threshold Hunting'));
-                mt_btn_listbox_str=obj.data.(obj.info.event.current_session).info.measurement_str_to_listbox(mt_btn_listbox_str_id);
-                mt_btn_listbox_str=['Select' mt_btn_listbox_str];
-                uiextras.HBox('Parent',r3)
-                th_dropdown=uicontrol( 'Style','popupmenu','Parent', r3 ,'FontSize',11,'String',mt_btn_listbox_str);     % 11-Mar-2020 14:48:46                                                                  % 1297
-                set( r3, 'Widths', [250 80 20 100]);
-                
-                
-                uicontrol( 'Parent', c1 ,'Style','PushButton','String','OK','FontWeight','Bold','Callback',@(~,~)cb_ok);
-                
-                set(c1, 'Heights', [25 25 25 25 25 25])
-                f.Position(3)=480;
-                f.Position(4)=220;
-            end
-            function cb_ok
-                
-                % source.String={['TS:' char(si.String) ']'];['CS:[' char(cs.String) '] %MSO'];['ISI:[' char(isi.String) '] ms']} % 11-Mar-2020 14:48:28
-                
-                
-                source.String={['TS:' char(si.String)];['CS:' char(cs.String) ' %MSO'];['ISI:' char(isi.String) ' ms']} % 11-Mar-2020 14:48:28
-                
-                %                 source.String=['TS:[' si.String '] %MSO']; % 11-Mar-2020 14:48:28
-                cd=['cond' num2str(obj.pi.mm.tab.SelectedChild)];
-                st=['st' num2str(source.UserData(2))];
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).si=si.String;
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).cs=cs.String;
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).isi=isi.String;
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).si_units=units_mso.Value; %if 1 then its mso if 0 then its threshold
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).threshold=threshold.String;
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).stim_mode='paired_pulse';
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).si_pckt={str2double(si.String),str2double(cs.String),str2double(isi.String)};
-                obj.cb_pr_mth_StimulationParametersTable;
-                
-                close(f)
-            end
-            function cb_units_mso
-                if(units_mso.Value==1)
-                    units_mt.Value=0;
-                end
-            end
-            function cb_units_mt
-                if(units_mt.Value==1)
-                    units_mso.Value=0;
-                end
-            end
-        end
-        function cb_pr_mth_train_inputfig(obj,source,~)
-            f=figure('ToolBar','none','MenuBar','none','Name','Insert Parameters | BEST Toolbox','NumberTitle','off');
-            c1=uix.VBox('parent',f,'Padding',10,'Spacing',10);
-            r1=uix.HBox('parent',c1);
-            uicontrol( 'Style','text','Parent', r1,'String','Stimulation Intensities (TS):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            si=uicontrol( 'Style','edit','Parent', r1 ,'String','NaN','FontSize',11);
-            set( r1, 'Widths', [250 200]);
-            
-            r2a=uix.HBox('parent',c1);
-            uicontrol( 'Style','text','Parent', r2a,'String','Pulse Frequency (Hz):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            freq=uicontrol( 'Style','edit','Parent', r2a ,'String','NaN','FontSize',11);
-            set( r2a, 'Widths', [250 200]);
-            
-            r2b=uix.HBox('parent',c1);
-            uicontrol( 'Style','text','Parent', r2b,'String','No of Pulses:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            pulsesNo=uicontrol( 'Style','edit','Parent', r2b ,'String','NaN','FontSize',11);
-            set( r2b, 'Widths', [250 200]);
-            
-            r2=uix.HBox('parent',c1);
-            uicontrol( 'Style','text','Parent', r2,'String','Intensity Units:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            units_mso=uicontrol( 'Style','radiobutton','Parent', r2 ,'FontSize',11,'String','%MSO','Value',1,'Callback',@(~,~)cb_units_mso);
-            units_mt=uicontrol( 'Style','radiobutton','Parent', r2 ,'FontSize',11,'String','%MT','Callback',@(~,~)cb_units_mt);
-            set( r2, 'Widths', [250 100 100]);
-            
-            r3=uix.HBox('parent',c1);
-            uicontrol( 'Style','text','Parent', r3,'String','Motor Threshold (%MSO):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            threshold=uicontrol( 'Style','edit','Parent', r3 ,'FontSize',11);
-            mt_btn_listbox_str_id= find(strcmp(obj.data.(obj.info.event.current_session).info.measurement_str_original,'MEP Motor Threshold Hunting'));
-            mt_btn_listbox_str=obj.data.(obj.info.event.current_session).info.measurement_str_to_listbox(mt_btn_listbox_str_id);
-            mt_btn_listbox_str=['Select' mt_btn_listbox_str];
-            uiextras.HBox('Parent',r3)
-            th_dropdown=uicontrol( 'Style','popupmenu','Parent', r3 ,'FontSize',11,'String',mt_btn_listbox_str);     % 11-Mar-2020 14:48:46                                                                  % 1297
-            set( r3, 'Widths', [250 80 20 100]);
-            
-            
-            uicontrol( 'Parent', c1 ,'Style','PushButton','String','OK','FontWeight','Bold','Callback',@(~,~)cb_ok);
-            
-            set(c1, 'Heights', [25 25 25 25 25 25])
-            f.Position(3)=480;
-            f.Position(4)=220;
-            function cb_ok
-                
-                
-                
-                source.String={['Pulses:' char(pulsesNo.String) ', f:' char(freq.String) ' Hz'];['TS:' char(si.String) ' %MSO']}; % 11-Mar-2020 14:48:28
-                
-                cd=['cond' num2str(obj.pi.mm.tab.SelectedChild)];
-                st=['st' num2str(source.UserData(2))];
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).si=si.String;
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).freq=freq.String;
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).pulsesNo=pulsesNo.String;
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).si_units=units_mso.Value; %if 1 then its mso if 0 then its threshold
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).threshold=threshold.String;
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).stim_mode='train';
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).si_pckt={str2double(si.String),str2double(freq.String),str2double(pulsesNo.String)}
-                obj.cb_pr_mth_StimulationParametersTable;
-                
-                close(f)
-            end
-            function cb_units_mso
-                if(units_mso.Value==1)
-                    units_mt.Value=0;
-                end
-            end
-            function cb_units_mt
-                if(units_mt.Value==1)
-                    units_mso.Value=0;
-                end
-            end
-            
-        end
-        function cb_pr_mth_targetChannel(obj,source,~)
-            f=figure('ToolBar','none','MenuBar','none','Name','Insert Parameters | BEST Toolbox','NumberTitle','off');
-            c1=uix.VBox('parent',f,'Padding',10,'Spacing',10);
-            
-            
-            
-            r1=uix.HBox('parent',c1);
-            uicontrol( 'Style','text','Parent', r1,'String','Target Channels:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            targetChannels=uicontrol( 'Style','edit','Parent', r1 ,'FontSize',11);
-            set( r1, 'Widths', [250 200]);
-            
-            
-            uicontrol( 'Parent', c1 ,'Style','PushButton','String','OK','FontWeight','Bold','Callback',@(~,~)cb_ok);
-            
-            set(c1, 'Heights', [25 25])
-            f.Position(3)=480;
-            f.Position(4)=90;
-            function cb_ok
-                source.String=['Channel Name:' targetChannels.String]; % 11-Mar-2020 14:48:28
-                
-                %                 source.String=['Channels:' targetChannels.String ' ' displayChannels.String , 'Pre/Post Display Period:' prestim_scope_plt.String '-' poststim_scope_plt.String 'ms']; % 11-Mar-2020 14:48:28
-                cd=['cond' num2str(obj.pi.mm.tab.SelectedChild)];
-                % 12-Mar-2020 08:53:28
-                %                 obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(cd).inputDevice.input_device=inputDevice.String(inputDevice.Value);
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).targetChannel=eval(targetChannels.String);
-                %                 obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(cd).inputDevice.displayChannels=eval(displayChannels.String);
-                %                 obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(cd).inputDevice.mepOnset=mepOnset.String;
-                %                 obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(cd).inputDevice.mepOffset=mepOffset.Value; %if 1 then its mso if 0 then its threshold
-                %                 obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(cd).inputDevice.prestim_scope_plt=prestim_scope_plt.String;
-                %                 obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(cd).inputDevice.poststim_scope_plt=poststim_scope_plt.String;
-                %                 obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(cd).inputDevice.measure_str='MEP Measurement';
-                obj.cb_pr_mth_StimulationParametersTable;
-                
-                close(f)
-            end
-            
-        end
         function default_par_mth(obj)
             % Editing Rule: Values should be Integers, Strings should
             % Strings , cells are the defaults values that do not have any
@@ -6233,20 +2933,41 @@ classdef best_application < handle
             obj.info.defaults.NoOfTrialsToAverage='10';
             obj.info.defaults.MotorThreshold='NaN';
             obj.info.defaults.ThresholdMethod=1;
+            %             obj.info.defaults.ColThresholdLevelUnits='uV';
             obj.info.defaults.ProtocolStatus={'created'};
+            %             obj.info.defaults.condsAll.cond1.ColThresholdLevelUnits='uV';
             si=[30];
             for idefaults=1:numel(si)
                 cond=['cond' num2str(idefaults)];
                 obj.info.defaults.condsAll.(cond).targetChannel=cellstr('NaN');
+                obj.info.defaults.condsAll.(cond).TrialsPerCondition=40;
+                obj.info.defaults.condsAll.(cond).ITI=[3 4];
+                obj.info.defaults.condsAll.(cond).Phase='Peak';
+                obj.info.defaults.condsAll.(cond).AmplitudeThreshold='0 1e6';
+                obj.info.defaults.condsAll.(cond).AmplitudeUnits='Absolute (micro volts)';
                 obj.info.defaults.condsAll.(cond).st1.pulse_count=1;
-                obj.info.defaults.condsAll.(cond).st1.stim_device={'Select'};
+                obj.info.defaults.condsAll.(cond).st1.stim_device={''};
                 obj.info.defaults.condsAll.(cond).st1.stim_mode='single_pulse';
                 obj.info.defaults.condsAll.(cond).st1.stim_timing=num2cell(0);
+                obj.info.defaults.condsAll.(cond).st1.stim_timing_units={'ms'};
                 obj.info.defaults.condsAll.(cond).st1.si=si(idefaults);
                 obj.info.defaults.condsAll.(cond).st1.si_units=1;
                 obj.info.defaults.condsAll.(cond).st1.threshold='';
                 obj.info.defaults.condsAll.(cond).st1.si_pckt={si(idefaults)};
                 obj.info.defaults.condsAll.(cond).st1.threshold_level=0.05;
+                obj.info.defaults.condsAll.(cond).st1.si_pckt={si(idefaults),[],[],[],[],[],[],[]}; % [TS PairedCS ISI TS_intendendunits CS_intendedunits ISIintendentunits TrainFreq NoOfPulses]
+                obj.info.defaults.condsAll.(cond).st1.IntensityUnit='%MSO';
+                obj.info.defaults.condsAll.(cond).st1.IntensityUnitValue=NaN;
+                obj.info.defaults.condsAll.(cond).st1.IntensityUnitValueUnit=NaN;
+                obj.info.defaults.condsAll.(cond).st1.SessionToCouple='none';
+                obj.info.defaults.condsAll.(cond).st1.ProtocolToCouple='none';
+                obj.info.defaults.condsAll.(cond).st1.ParameterToCouple='none';
+                obj.info.defaults.condsAll.(cond).st1.IntensityToCouple='none';
+                obj.info.defaults.condsAll.(cond).st1.TimingOnsetUnits='ms';
+                obj.info.defaults.condsAll.(cond).st1.CSUnits='';
+                obj.info.defaults.condsAll.(cond).st1.ISIUnits='';
+                obj.info.defaults.condsAll.(cond).st1.StimulationType='Test';
+                %                 obj.info.defaults.condsAll.(cond).st1.ColThresholdLevelUnits='uV';
             end
             obj.par.(obj.info.event.current_session).(obj.info.event.measure_being_added)=obj.info.defaults;
         end
@@ -6268,7 +2989,7 @@ classdef best_application < handle
                     
                     obj.pi.mth.(ParametersFieldNames{iLoadingParameters}).Value=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(ParametersFieldNames{iLoadingParameters});
                     if(strcmp(ParametersFieldNames{iLoadingParameters},'BrainState'))
-                        %Requirment 93
+                        obj.pi.(ParametersFieldNames{iLoadingParameters}).Value=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(ParametersFieldNames{iLoadingParameters});
                     end
                 elseif(isa(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(ParametersFieldNames{iLoadingParameters}),'struct'))
                     %Do Nothing and Just Avoid
@@ -6277,19 +2998,19 @@ classdef best_application < handle
             
             
         end
-        %% Psychometric Threshold Hunting
+        %% Sensory Threshold Hunting
         function pr_psychmth(obj)
             obj.fig.main.Widths(1)=-1.15;
             obj.fig.main.Widths(2)=-3.35;
             obj.fig.main.Widths(3)=-0;
-            obj.pi.psychmth.panel=uix.Panel( 'Parent', obj.pi.empty_panel,'FontSize',14 ,'Units','normalized','Title','Psychometric Threshold Hunting' ,'FontWeight','Bold','TitlePosition','centertop');
+            obj.pi.psychmth.panel=uix.Panel( 'Parent', obj.pi.empty_panel,'FontSize',14 ,'Units','normalized','Title','Sensory Threshold Hunting' ,'FontWeight','Bold','TitlePosition','centertop');
             obj.pi.psychmth.r0=uix.HBox( 'Parent', obj.pi.psychmth.panel,'Spacing', 5, 'Padding', 5 );
             obj.pi.psychmth.r0p1=uix.Panel( 'Parent', obj.pi.psychmth.r0 ,'Units','normalized');
             obj.pi.psychmth.r0v1 = uix.VBox( 'Parent', obj.pi.psychmth.r0p1, 'Spacing', 5, 'Padding', 5  );
             
             r0=uiextras.HBox( 'Parent', obj.pi.psychmth.r0v1,'Spacing', 5, 'Padding', 5 );
             uicontrol( 'Style','text','Parent', r0,'String','Brain State:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            obj.pi.psychmth.BrainState=uicontrol( 'Style','popupmenu','Parent', r0 ,'FontSize',11,'String',{'Independent','Dependent'},'Callback',@cb_UniversalPanelAdaptation);
+            obj.pi.BrainState=uicontrol( 'Style','popupmenu','Parent', r0 ,'FontSize',11,'String',{'Independent','Dependent'},'Callback',@cb_UniversalPanelAdaptation);
             set( r0, 'Widths', [150 -2]);
             
             BrainStateParametersPanel=uix.Panel( 'Parent', obj.pi.psychmth.r0v1,'Padding',5,'Units','normalized','FontSize',8 ,'Units','normalized','Title','Brain State Parameters' ,'FontWeight','normal','TitlePosition','centertop');
@@ -6301,36 +3022,33 @@ classdef best_application < handle
             
             %row4
             r4=uiextras.HBox( 'Parent', obj.pi.psychmth.r0v1,'Spacing', 5, 'Padding', 5 );
-            obj.pi.psychmth.cond.btn=uicontrol( 'Parent', r4 ,'Style','PushButton','String','+','FontSize',16,'FontWeight','Bold','HorizontalAlignment','center','Tooltip','Click to Add a new Condition','Callback',@(~,~)obj.cb_pr_psychmth_conditions);%add condition
-            obj.pi.psychmth.stim.btn=uicontrol( 'Parent', r4 ,'Style','PushButton','String','','FontWeight','Bold','HorizontalAlignment','center','Position',[0 0 1 1],'units','normalized','CData',obj.icons.stimulator,'Tooltip','Click to Add a new Stimulator on this Condition','Callback',@(~,~)obj.cb_pr_psychmth_stim); %add stimulator
-            obj.pi.psychmth.sp.btn=uicontrol( 'Parent', r4 ,'Style','PushButton','String','','FontWeight','Bold','HorizontalAlignment','center','CData',obj.icons.single_pulse,'Tooltip','Click to Add a Single-Pulse on selected stimulator (selected stimulator is highlighted in blue colour)','Tag','single_pulse','Callback',@obj.cb_pr_psychmth_pulse); %add single pulse
-            obj.pi.psychmth.pp.btn=uicontrol( 'Parent', r4 ,'Style','PushButton','String','','FontWeight','Bold','HorizontalAlignment','center','CData',obj.icons.paired_pulse,'Tooltip','Click to Add a Paired-Pulse on selected stimulator (selected stimulator is highlighted in blue colour)','Tag','paired_pulse','Callback',@obj.cb_pr_psychmth_pulse);%add burst or train
-            obj.pi.psychmth.train.btn=uicontrol( 'Parent', r4 ,'Style','PushButton','String','','FontWeight','Bold','HorizontalAlignment','center','CData',obj.icons.train,'Tooltip','Click to Add a Train or Burst on selected stimulator (selected stimulator is highlighted in blue colour)','Tag','train','Callback',@obj.cb_pr_psychmth_pulse);%add paired pulse
+            obj.pi.psychmth.cond.btn=uicontrol( 'Parent', r4 ,'Style','PushButton','String','+','FontSize',16,'FontWeight','Bold','HorizontalAlignment','center','Tooltip','Click to Add a new Condition','Callback',@(~,~)obj.cb_cm_conditions);%add condition
+            obj.pi.psychmth.stim.btn=uicontrol( 'Parent', r4 ,'Style','PushButton','String','','FontWeight','Bold','HorizontalAlignment','center','Position',[0 0 1 1],'units','normalized','CData',obj.icons.stimulator,'Tooltip','Click to Add a new Stimulator on this Condition','Callback',@(~,~)obj.cb_cm_stim); %add stimulator
+            obj.pi.psychmth.sp.btn=uicontrol( 'Parent', r4 ,'Style','PushButton','String','','FontWeight','Bold','HorizontalAlignment','center','CData',obj.icons.single_pulse,'Tooltip','Click to Add a Single-Pulse on selected stimulator (selected stimulator is highlighted in blue colour)','Tag','single_pulse','Callback',@obj.cb_cm_pulse); %add single pulse
+            obj.pi.psychmth.pp.btn=uicontrol( 'Parent', r4 ,'Style','PushButton','String','','FontWeight','Bold','HorizontalAlignment','center','CData',obj.icons.paired_pulse,'Tooltip','Click to Add a Paired-Pulse on selected stimulator (selected stimulator is highlighted in blue colour)','Tag','paired_pulse','Callback',@obj.cb_cm_pulse);%add burst or train
+            obj.pi.psychmth.train.btn=uicontrol( 'Parent', r4 ,'Style','PushButton','String','','FontWeight','Bold','HorizontalAlignment','center','CData',obj.icons.train,'Tooltip','Click to Add a Train or Burst on selected stimulator (selected stimulator is highlighted in blue colour)','Tag','train','Callback',@obj.cb_cm_pulse);%add paired pulse
             set( r4, 'Widths', [55 55 55 55 55]);
             
             
-            cb_SetHeights;
+            
             
             
             obj.pi.psychmth.r0v2 = uix.VBox( 'Parent', obj.pi.psychmth.r0, 'Spacing', 5, 'Padding', 0); %uicontext menu to duplicate or delete a condition goes here
             obj.pi.mm.r0v2r1=uix.Panel( 'Parent', obj.pi.psychmth.r0v2,'Padding',0,'Units','normalized','FontSize',8 ,'Units','normalized','Title','Stimulation Parameters' ,'FontWeight','normal','TitlePosition','centertop');
-            obj.cb_pr_psychmth_StimulationParametersTable;
+            obj.cb_cm_StimulationParametersTable;
             
             obj.pi.mm.tab = uiextras.TabPanel( 'Parent', obj.pi.psychmth.r0v2, 'Padding', 5 );
             obj.pi.psychmth.r0v2.Heights=[200 -1];
             set(obj.pi.psychmth.r0,'Widths',[-1.45 -3]);
             obj.pi.psychmth.cond.no=0;
-            obj.cb_pr_psychmth_Nconditions;
-            
+            obj.cb_cm_Nconditions;
+            cb_SetHeights;
             function cb_UniversalPanelAdaptation(~,~)
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).BrainState=obj.pi.psychmth.BrainState.Value;
-                cb_BrainStateParametersPanel
-                cb_DisplayParametersPanel
-                cb_SetHeights
-                obj.func_load_psychmth_par;
+                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).BrainState=obj.pi.BrainState.Value;
+                obj.RefreshProtocol;
             end
             function cb_BrainStateParametersPanel(~,~)
-                switch obj.pi.psychmth.BrainState.Value
+                switch obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).BrainState
                     case 1
                         expModvBox=uix.VBox( 'Parent', BrainStateParametersPanel, 'Spacing', 0, 'Padding', 0  );
                         
@@ -6377,8 +3095,8 @@ classdef best_application < handle
                         mep_panel_row8z = uix.HBox( 'Parent', expModvBox, 'Spacing', 5, 'Padding', 5  );
                         uicontrol( 'Style','text','Parent', mep_panel_row8z,'String','Peak Frequency (Hz):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
                         obj.pi.psychmth.PeakFrequency=uicontrol( 'Style','edit','Parent', mep_panel_row8z ,'FontSize',11,'Tag','PeakFrequency','Callback',@cb_par_saving);
-                        obj.pi.psychmth.ImportPeakFrequencyFromProtocols=uicontrol( 'Style','popupmenu','Parent', mep_panel_row8z ,'String',{'Select'},'FontSize',11,'Tag','Bin','Callback',@set_PeakFrequency);
-                        obj.pi.psychmth.ImportPeakFrequencyFromProtocols.String=getPeakFrequencyProtocols;
+                        obj.pi.psychmth.ImportPeakFrequencyFromProtocols=uicontrol( 'Style','popupmenu','Parent', mep_panel_row8z ,'String',{'Select'},'FontSize',11,'Tag','Bin','Callback',@(~,~)obj.cb_ImportPeakFrequency);
+                        obj.pi.psychmth.ImportPeakFrequencyFromProtocols.String={'Select','Import from Protocol'};
                         set( mep_panel_row8z, 'Widths', [150 -2 -2]);
                         
                         % row 2
@@ -6413,7 +3131,7 @@ classdef best_application < handle
                 
             end
             function cb_DisplayParametersPanel
-                switch obj.pi.psychmth.BrainState.Value
+                switch obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).BrainState
                     case 1
                         expModvBox=uix.VBox( 'Parent', DisplayParametersPanel, 'Spacing', 0, 'Padding', 0  );
                         
@@ -6427,7 +3145,13 @@ classdef best_application < handle
                         obj.pi.psychmth.TrialsPerCondition=uicontrol( 'Style','edit','Parent', expModr2 ,'FontSize',11,'Tag','TrialsPerCondition','callback',@cb_par_saving);
                         expModr2.Widths=[150 -2];
                         
-                        expModvBox.Heights=[30 35];
+                        expModr2=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
+                        uicontrol( 'Style','text','Parent', expModr2,'String','Response Period (ms):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                        obj.pi.psychmth.ResponsePeriod=uicontrol( 'Style','edit','Parent', expModr2 ,'FontSize',11,'Tag','ResponsePeriod','callback',@cb_par_saving);
+                        expModr2.Widths=[150 -2];
+                        
+                        
+                        expModvBox.Heights=[30 35 45];
                     case 2
                         expModvBox=uix.VBox( 'Parent', DisplayParametersPanel, 'Spacing', 0, 'Padding', 0  );
                         
@@ -6442,8 +3166,8 @@ classdef best_application < handle
                         expModr2.Widths=[150 -2];
                         
                         expModr2=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
-                        uicontrol( 'Style','text','Parent', expModr2,'String','EEG Extraction Period (ms):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-                        obj.pi.psychmth.EEGExtractionPeriod=uicontrol( 'Style','edit','Parent', expModr2 ,'FontSize',11,'Tag','EEGExtractionPeriod','callback',@cb_par_saving);
+                        uicontrol( 'Style','text','Parent', expModr2,'String','Data Extraction Period (ms):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                        obj.pi.psychmth.EMGExtractionPeriod=uicontrol( 'Style','edit','Parent', expModr2 ,'FontSize',11,'Tag','EMGExtractionPeriod','callback',@cb_par_saving);
                         expModr2.Widths=[150 -2];
                         
                         expModr2=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
@@ -6451,16 +3175,21 @@ classdef best_application < handle
                         obj.pi.psychmth.EEGXLimit=uicontrol( 'Style','edit','Parent', expModr2 ,'FontSize',11,'Tag','EEGXLimit','callback',@cb_par_saving);
                         expModr2.Widths=[150 -2];
                         
+                        expModr2=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
+                        uicontrol( 'Style','text','Parent', expModr2,'String','Response Period (ms):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                        obj.pi.psychmth.ResponsePeriod=uicontrol( 'Style','edit','Parent', expModr2 ,'FontSize',11,'Tag','ResponsePeriod','callback',@cb_par_saving);
+                        expModr2.Widths=[150 -2];
                         
-                        expModvBox.Heights=[30 35 45 45];
+                        
+                        expModvBox.Heights=[30 35 45 45 45];
                 end
             end
             function cb_SetHeights
-                switch obj.pi.psychmth.BrainState.Value
+                switch obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).BrainState
                     case 1
-                        set(obj.pi.psychmth.r0v1,'Heights',[40 90 100 -1 55])
+                        set(obj.pi.psychmth.r0v1,'Heights',[40 90 140 -1 55])
                     case 2
-                        set(obj.pi.psychmth.r0v1,'Heights',[-0.6 -9.4 -4.25 -0 -1.2]);
+                        set(obj.pi.psychmth.r0v1,'Heights',[-0.6 -9.4 -5.25 -0 -1.2]);
                         set(obj.pi.psychmth.r0,'Widths',[-2 -3]);
                 end
             end
@@ -6512,1143 +3241,6 @@ classdef best_application < handle
             end
             
         end
-        function cb_pr_psychmth_StimulationParametersTable(obj)
-            % create the Data from pars
-            iData=0;
-            for iTableCondition=1:numel(fieldnames(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll))
-                TableCond=['cond' num2str(iTableCondition)];
-                ColCondition=1;
-                ColTS=2;
-                ColIntensityUnits=3;
-                ColStimulator=4;
-                ColPulseMode=5;
-                ColNoOfPulses=6;
-                ColTimingOnset=7;
-                ColTargetChannel=8;
-                ColCS=9;
-                ColISI=10;
-                ColTrainFreq=11;
-                ColNoOfTrains=12;
-                
-                for iTableStimulator=1:numel(fieldnames(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond)))-1 %numel(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond))-1
-                    iData=iData+1;
-                    TableStim=['st' num2str(iTableStimulator)];
-                    TableData{iData,ColCondition}=num2str(iTableCondition);
-                    TableData{iData,ColCS}='          -';
-                    TableData{iData,ColISI}='          -';
-                    TableData{iData,ColTrainFreq}='          -';
-                    TableData{iData,ColNoOfTrains}='          -';
-                    if( isfield(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim),'si'))
-                        TableData{iData,ColTS}=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).si_pckt{1,1});
-                        
-                        %                         if( isfield(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim),'threshold_level'))
-                        %                         TableData{iData,ColThresholdLevel}=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).threshold_level); end
-                        %
-                        %check here what has been saved and use that
-                        if(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).si_units==1)
-                            TableData{iData,ColIntensityUnits}='mA';
-                        else
-                            TableData{iData,ColIntensityUnits}='mA';
-                        end
-                    end
-                    
-                    if( isfield(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim),'stim_device'))
-                        TableData{iData,ColStimulator}=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).stim_device{1,1}; end
-                    
-                    if( isfield(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim),'pulse_count'))
-                        TableData{iData,ColNoOfPulses}=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).pulse_count); end
-                    if( isfield(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim),'stim_mode'))
-                        
-                        switch obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).stim_mode
-                            case 'single_pulse'
-                                TableData{iData,ColPulseMode}='Single Pulse';
-                            case 'paired_pulse'
-                                TableData{iData,ColPulseMode}='Paired Pulse';
-                                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).si_pckt{1,2};
-                                TableData{iData,ColCS}=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).si_pckt{1,2});
-                                TableData{iData,ColISI}=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).si_pckt{1,3});
-                            case 'train'
-                                TableData{iData,ColPulseMode}='Train';
-                                TableData{iData,ColTrainFreq}=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).si_pckt{1,2});
-                                TableData{iData,ColNoOfTrains}=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).pulse_count);
-                                TableData{iData,ColNoOfPulses}=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).si_pckt{1,3});
-                        end
-                    end
-                    if( isfield(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim),'stim_timing'))
-                        TableData{iData,ColTimingOnset}=mat2str(cell2mat(horzcat((obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).stim_timing(1,:))))); end
-                    TableData{iData,ColTargetChannel}=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).targetChannel{1,1};
-                end
-                if numel(fieldnames(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond)))==1
-                    TableData{iData+1,1}=num2str(iTableCondition);
-                    TableData{iData+1,ColTargetChannel}=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).targetChannel{1,1};
-                end
-            end
-            if (isempty(obj.hw.device_added2_listbox.string))
-                obj.hw.device_added2_listbox.string={'Select'};
-            end
-            % create the table and load the data
-            table=uitable( 'Parent', obj.pi.mm.r0v2r1);
-            table.Data=TableData;%cell(6,12); % the row number comes from above
-            table.FontSize=10;
-            table.ColumnName = {'Condition #','Starting TS Intensity','Intensity Units','Stimulator','Pulse Mode','# of Pulses','Timing Onset (ms)','Target Location','CS Intensity','ISI (ms)','Train Freq','# of Trains'};
-            table.ColumnFormat={[],[],{'mA'},obj.hw.device_added2_listbox.string,{'Single Pulse','Paired Pulse', 'Train'},[],[],[],[],[],[],[]};
-            table.ColumnWidth = {100,110,100, 100,100,100,100,100,100,100,90,90,90};
-            table.ColumnEditable =true(1,numel(table.ColumnName));
-            table.RowStriping='on';
-            table.RearrangeableColumns='on';
-            table.CellEditCallback =@CellEditCallback ;
-            
-            function CellEditCallback (~,CellEditData)
-                AdditionInCondition=['cond' num2str(table.Data{CellEditData.Indices(1),1})];
-                %                     table.Data{:,1}
-                % num2str(table.Data{CellEditData.Indices(1),1})
-                % gp=cellfun(@str2double ,table.Data(:,1))
-                % str2double(table.Data{CellEditData.Indices(1),1})
-                %                     ggg=find(gp==str2double(table.Data{CellEditData.Indices(1),1}))
-                % %                     find(table.Data{:,1}==table.Data{CellEditData.Indices(1),1})
-                AdditionInStimulatorNum=find(find(cellfun(@str2double ,table.Data(:,1))==str2double(table.Data{CellEditData.Indices(1),1}))==CellEditData.Indices(1));
-                AdditionInStimulator=['st' num2str(AdditionInStimulatorNum)];
-                opts               =    [];
-                opts.WindowStyle   =    'modal';
-                opts.Interpreter   =    'none';
-                switch CellEditData.Indices(2)
-                    case ColTS %TS Intensity
-                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).si_pckt{1,1}=str2double(CellEditData.NewData);
-                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).si=CellEditData.NewData;
-                        
-                    case ColIntensityUnits %Intensity Units
-                        switch CellEditData.NewData
-                            case '%MSO'
-                                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).si_units=1;
-                            case '%MT'
-                                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).si_units=0;
-                                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).threshold='NaN';
-                                
-                        end
-                        
-                    case ColStimulator %Stimulator
-                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).stim_device=cellstr(CellEditData.NewData);
-                        
-                    case ColPulseMode %Pulse Mode
-                        switch CellEditData.NewData
-                            case 'Single Pulse'
-                                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).stim_mode='single_pulse';
-                            case 'Paired Pulse'
-                                
-                                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).stim_mode='paired_pulse';
-                                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).si_pckt{1,2}=NaN;
-                                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).si_pckt{1,3}=NaN;
-                                
-                            case 'Train'
-                                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).stim_mode='train';
-                                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).si_pckt{1,2}=NaN;
-                                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).si_pckt{1,3}=NaN;
-                        end
-                        
-                    case ColNoOfPulses % # of Pulses
-                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).pulse_count=str2double(CellEditData.NewData);
-                        %AAJ: idher add kero k Stimulation Mode bhi nill ho jaye units bhi Nill ho
-                        %jaye intensity bhi khtam ho jaye matlab jese he pulse 0 zero ho to sirf vo
-                        %reh jaye to jab only stimulator add kerty hein to ata he
-                        if(str2double(CellEditData.NewData)==0)
-                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).stim_timing{1,1}=[];
-                        else
-                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).stim_timing{1,str2double(CellEditData.NewData)}=NaN;
-                        end
-                        
-                    case ColTimingOnset %Timing Onset (ms)
-                        CellEditDataTimingOnset=[];
-                        CellEditDataTimingOnset=num2cell(eval(CellEditData.NewData));
-                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).stim_timing=CellEditDataTimingOnset;
-                        
-                    case ColTargetChannel %Target EMG Ch
-                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).targetChannel=cellstr(CellEditData.NewData);
-                        
-                    case {ColTrainFreq,ColNoOfTrains} %Train Freq, # of Trians
-                        if ~(strcmp(table.Data{CellEditData.Indices(1),5},'Train'))
-                            table.Data(CellEditData.Indices(1),CellEditData.Indices(2))=cellstr('          -');
-                            errordlg('Train Frequency and # of Trians are only Editable for the "Train" Pulse Mode, change Pulse Mode respectively if you desire to set this parameter','Warning | BEST Toolbox',opts);
-                        else
-                            switch CellEditData.Indices(2)
-                                case ColTrainFreq
-                                    obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).si_pckt{1,2}=str2double(CellEditData.NewData);
-                                    obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).freq=CellEditData.NewData;
-                                case ColNoOfTrains
-                                    obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).si_pckt{1,3}=str2double(CellEditData.NewData);
-                                    obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).pulsesNo=CellEditData.NewData;
-                            end
-                            
-                        end
-                    case {ColCS,ColISI} % CS Intensity, ISI (ms)
-                        if ~(strcmp(table.Data{CellEditData.Indices(1),5},'Paired Pulse'))
-                            table.Data(CellEditData.Indices(1),CellEditData.Indices(2))=cellstr('          -');
-                            errordlg('CS Intensity and ISI are only Editable for the "Paired Pulse" Pulse Mode, change Pulse Mode respectively if you desire to set this parameter','Warning | BEST Toolbox',opts);
-                        else
-                            switch CellEditData.Indices(2)
-                                case ColCS
-                                    obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).si_pckt{1,2}=str2double(CellEditData.NewData);
-                                    obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).cs=CellEditData.NewData;
-                                case ColISI
-                                    obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).si_pckt{1,3}=str2double(CellEditData.NewData);
-                                    obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).isi=CellEditData.NewData;
-                            end
-                            
-                        end
-                        
-                end
-                %Improvement Note :Requirement 96
-                %                 obj.pr_psychmth;
-                %cb_pulse_update
-                %cb_condition_addition
-                %cb_condition_deletion
-                %cb_stimulator_addition
-                %cb_stimulator_deletion
-                cb_pulse_update
-                function cb_pulse_update
-                    cd=[];
-                    st=[];
-                    condStr=[];
-                    obj.pi.mm.tab.SelectedChild=str2double(table.Data{CellEditData.Indices(1),1});
-                    
-                    cd=['cd' num2str(table.Data{CellEditData.Indices(1),1})];
-                    condStr=['cond' num2str(table.Data{CellEditData.Indices(1),1})];
-                    obj.pi.mm.stim.(cd).slctd=AdditionInStimulatorNum;
-                    st=['st' num2str(obj.pi.mm.stim.(cd).slctd)];
-                    obj.pi.mm.stim.(cd).(st).pulse_count=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).pulse_count;
-                    axes(obj.pi.mm.cond.(cd).ax)
-                    cla;
-                    hold on;
-                    contextMenu_condition=uicontextmenu(obj.fig.handle);
-                    uimenu(contextMenu_condition,'label','Duplicate Condition','Callback',@cb_pr_mm_duplicateCondition);
-                    uimenu(contextMenu_condition,'label','Delete Condition','Callback',@cb_pr_mm_deleteCondition);
-                    obj.pi.mm.cond.(cd).ax.YLim=[-1 1];
-                    obj.pi.mm.cond.(cd).ax.XLim=[0 5];
-                    xticks(obj.pi.mm.cond.(cd).ax,[100 101]);
-                    yticks(obj.pi.mm.cond.(cd).ax,-1:1:1)
-                    obj.pi.mm.cond.(cd).ax.YTickLabel={'','Search Channel',''};
-                    plot(0:0.01:10,rand(1,1001)*0.30-0.15,'Color','k','parent',obj.pi.mm.cond.(cd).ax,'LineWidth',2,'Tag','empty'); % 12-Mar-2020 07:37:17
-                    text(2.5,0+0.20,['Channel Name:[' char(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).targetChannel) ']'],'VerticalAlignment','bottom','HorizontalAlignment','center','Color',[0.50 0.50 0.50],'FontSize',9,'FontAngle','italic','ButtonDownFcn',@obj.cb_pr_psychmth_targetChannel) % 11-Mar-2020 14:49:00
-                    obj.pi.mm.stim.(cd).no=0;
-                    
-                    %make stimulators
-                    for istimulators=1:(length(fieldnames(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr)))-1)
-                        obj.pi.mm.stim.(cd).no=istimulators;
-                        st=['st' num2str(obj.pi.mm.stim.(cd).no)];
-                        axes(obj.pi.mm.cond.(cd).ax)
-                        hold on;
-                        obj.pi.mm.stim.(cd).(st).plt=plot([-45 45],[-1*obj.pi.mm.stim.(cd).no -1*obj.pi.mm.stim.(cd).no],'Color','k','parent',obj.pi.mm.cond.(cd).ax,'LineWidth',2,'Tag',num2str(obj.pi.mm.stim.(cd).no),'ButtonDownFcn',@cb_stimulatorSelector); %line
-                        %                     obj.pi.mm.stim.(cd).(st).pulse_count=0;
-                        %                     obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).pulse_count=obj.pi.mm.stim.(cd).(st).pulse_count;
-                        obj.pi.mm.cond.(cd).ax.YLim=[(-1-obj.pi.mm.stim.(cd).no) 1];
-                        yticks(obj.pi.mm.cond.(cd).ax,[-1-obj.pi.mm.stim.(cd).no:1:1])
-                        for i=1:obj.pi.mm.stim.(cd).no
-                            yticklab{1,i}=cellstr(['Stimulator ' num2str(i)]);
-                        end
-                        yticklab=flip(horzcat(yticklab{1,:}));
-                        obj.pi.mm.cond.(cd).ax.YTickLabel={'',char(yticklab),'Search Channel',''};
-                        text(0,-1*obj.pi.mm.stim.(cd).no,char(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).stim_device),'VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',9,'FontAngle','italic','Tag',num2str(obj.pi.mm.stim.(cd).no),'ButtonDownFcn',@obj.cb_pr_psychmth_output_device)
-                        for ipulses=1:obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).pulse_count
-                            
-                            % 11-Mar-2020 18:13:21
-                            obj.pi.mm.stim.(cd).slctd=istimulators;
-                            obj.pi.mm.stim.(cd).(st).pulse_count=ipulses;
-                            %                         obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).pulse_count=obj.pi.mm.stim.(cd).(st).pulse_count;
-                            
-                            switch char(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).stim_mode)
-                                case 'single_pulse'
-                                    obj.pi.mm.stim.(cd).(st).pulse_types{1,obj.pi.mm.stim.(cd).(st).pulse_count}=cellstr('single_pulse');
-                                    %make the string here
-                                    SinglePulseAnnotation=[];
-                                    if (obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_units==1)
-                                        
-                                        
-                                        SinglePulseAnnotation=['TS: [' num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt{1,1}) '] mA'];
-                                    else
-                                        SinglePulseAnnotation=['TS: [' num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt{1,1}) '] %MT'];
-                                    end
-                                    %AAJ: idher ye banao jese oper hehehehehe
-                                    %vala bnaya he pp aur train dono k lye
-                                    text(obj.pi.mm.stim.(cd).(st).pulse_count-0.25,-obj.pi.mm.stim.(cd).slctd+0.41,SinglePulseAnnotation,'VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',7,'FontAngle','italic','UserData',[obj.pi.mm.stim.(cd).(st).pulse_count,obj.pi.mm.stim.(cd).slctd],'ButtonDownFcn',@obj.cb_pr_psychmth_sp_inputfig) % 11-Mar-2020 14:49:00
-                                case 'paired_pulse'
-                                    obj.pi.mm.stim.(cd).(st).pulse_types{1,obj.pi.mm.stim.(cd).(st).pulse_count}=cellstr('paired_pulse');
-                                    % % %                                 text(obj.pi.mm.stim.(cd).(st).pulse_count-0.25,-obj.pi.mm.stim.(cd).slctd+0.4,{'TS:[?], CS:[?] mA', 'ISI:[?] ms'},'VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',7,'FontAngle','italic','UserData',[obj.pi.mm.stim.(cd).(st).pulse_count,obj.pi.mm.stim.(cd).slctd],'ButtonDownFcn',@obj.cb_pr_psychmth_pp_inputfig) % 11-Mar-2020 14:49:00
-                                    TS=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt{1,1});
-                                    CS=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt{1,2});
-                                    ISI=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt{1,3});
-                                    if obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_units==1
-                                        UnitString='mA';
-                                    elseif obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_units==0
-                                        UnitString='%MT';
-                                    end
-                                    text(obj.pi.mm.stim.(cd).(st).pulse_count-0.25,-obj.pi.mm.stim.(cd).slctd+0.4,{['TS:' TS ', CS:' CS ' ' UnitString], ['ISI:' ISI 'ms']},'VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',7,'FontAngle','italic','UserData',[obj.pi.mm.stim.(cd).(st).pulse_count,obj.pi.mm.stim.(cd).slctd],'ButtonDownFcn',@obj.cb_pr_psychmth_pp_inputfig) % 11-Mar-2020 14:49:00
-                                    
-                                case 'train'
-                                    obj.pi.mm.stim.(cd).(st).pulse_types{1,obj.pi.mm.stim.(cd).(st).pulse_count}=cellstr('train');
-                                    %                                 obj.pi.mm.stim.(st).pulse_specs=text(obj.pi.mm.stim.(cd).(st).pulse_count,-obj.pi.mm.stim.(cd).slctd+0.4,{'Pulses:[?], f:[?] Hz', 'TS:[?] %MSO'},'VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',7,'FontAngle','italic','UserData',[obj.pi.mm.stim.(cd).(st).pulse_count,obj.pi.mm.stim.(cd).slctd],'ButtonDownFcn',@obj.cb_pr_psychmth_train_inputfig); % 11-Mar-2020 14:49:00
-                                    TS=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt{1,1});
-                                    F=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt{1,2});
-                                    PULSES=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt{1,3});
-                                    if obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_units==1
-                                        UnitString='%mA';
-                                    elseif obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_units==0
-                                        UnitString='%MT';
-                                    end
-                                    obj.pi.mm.stim.(st).pulse_specs=text(obj.pi.mm.stim.(cd).(st).pulse_count,-obj.pi.mm.stim.(cd).slctd+0.4,{['Pulses:' PULSES ', f:' F 'Hz'], ['TS:' TS UnitString]},'VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',7,'FontAngle','italic','UserData',[obj.pi.mm.stim.(cd).(st).pulse_count,obj.pi.mm.stim.(cd).slctd],'ButtonDownFcn',@obj.cb_pr_psychmth_train_inputfig); % 11-Mar-2020 14:49:00
-                                    
-                            end
-                            
-                            
-                            % delete the previous plot
-                            delete(obj.pi.mm.stim.(cd).(st).plt)
-                            % make the x and y vector for new one
-                            x=[];
-                            y=[];
-                            for i=1:obj.pi.mm.stim.(cd).(st).pulse_count
-                                switch char(obj.pi.mm.stim.(cd).(st).pulse_types{1,i})
-                                    case 'single_pulse'
-                                        x{i}=([i i i+0.15 i+0.15]);
-                                        y{i}=[-obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd+0.4 -obj.pi.mm.stim.(cd).slctd+0.4 -obj.pi.mm.stim.(cd).slctd];
-                                    case 'paired_pulse'
-                                        x{i}=[i i i+0.15 i+0.15 i+0.25 i+0.25 i+0.40 i+0.40];
-                                        y{i}=[-obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd+0.20 -obj.pi.mm.stim.(cd).slctd+0.20 -obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd+0.4 -obj.pi.mm.stim.(cd).slctd+0.4 -obj.pi.mm.stim.(cd).slctd];
-                                    case 'train'
-                                        %                         x(i)=[i i i+0.20 i+0.20 i+0.30 i+0.30 i+0.50 i+0.50 i+0.60 i+0.60 i+0.80 i+0.80];
-                                        x{i}=[i i i+0.15 i+0.15 i+0.25 i+0.25 i+0.40 i+0.40 i+0.50 i+0.50 i+0.65 i+0.65];
-                                        %                         y{i}={[-obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd+0.5 -obj.pi.mm.stim.(cd).slctd+0.5 -obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd+0.5 -obj.pi.mm.stim.(cd).slctd+0.5 -obj.pi.mm.stim.(cd).slctd]};
-                                        
-                                        y{i}=-obj.pi.mm.stim.(cd).slctd+[0 0.4 0.4 0 0 0.4 0.4 0 0 0.4 0.4 0];
-                                end
-                            end
-                            
-                            x=[-45 cell2mat(x) 45];
-                            y=[-obj.pi.mm.stim.(cd).slctd cell2mat(y) -obj.pi.mm.stim.(cd).slctd];
-                            
-                            obj.pi.mm.stim.(cd).(st).plt=plot(x,y,'Color','k','parent',obj.pi.mm.cond.(cd).ax,'LineWidth',2,'Tag',num2str(obj.pi.mm.stim.(cd).slctd),'ButtonDownFcn',@cb_stimulatorSelector); %line
-                            
-                            drawArrow = @(x,y) quiver( x(1),y(1),x(2)-x(1),y(2)-y(1),0,'color','k' );
-                            num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).stim_timing{1,ipulses})
-                            obj.pi.mm.stim.(st).pulse_time=text(obj.pi.mm.stim.(cd).(st).pulse_count-1+0.5,-obj.pi.mm.stim.(cd).slctd-0.05,['t:' num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).stim_timing{1,ipulses}) 'ms'],'VerticalAlignment','top','Color',[0.50 0.50 0.50],'FontSize',9,'FontAngle','italic','UserData',[obj.pi.mm.stim.(cd).(st).pulse_count,obj.pi.mm.stim.(cd).slctd],'ButtonDownFcn',@obj.cb_pr_psychmth_timing)
-                            
-                            obj.pi.mm.stim.(st).pulse_arrow1=drawArrow([obj.pi.mm.stim.(cd).(st).pulse_count-1 obj.pi.mm.stim.(cd).(st).pulse_count-1+1],[-obj.pi.mm.stim.(cd).slctd-0.05 -obj.pi.mm.stim.(cd).slctd-0.05])
-                            obj.pi.mm.stim.(st).pulse_arrow2=drawArrow([obj.pi.mm.stim.(cd).(st).pulse_count-1+1 obj.pi.mm.stim.(cd).(st).pulse_count-1],[-obj.pi.mm.stim.(cd).slctd-0.05 -obj.pi.mm.stim.(cd).slctd-0.05])
-                            
-                            
-                            if(obj.pi.mm.cond.(cd).ax.XLim(2)<obj.pi.mm.stim.(cd).(st).pulse_count+1)
-                                obj.pi.mm.cond.(cd).ax.XLim(2)=obj.pi.mm.stim.(cd).(st).pulse_count+1;
-                            end
-                            
-                        end
-                        
-                    end
-                    function cb_stimulatorSelector(source,~)
-                        if(isfield(obj.pi.mm,'stimulatorSelector'))
-                            if(isvalid(obj.pi.mm.stimulatorSelector))
-                                obj.pi.mm.stimulatorSelector.Color='k';
-                            end
-                        end
-                        obj.pi.mm.stim.(cd).slctd=str2double(source.Tag);
-                        source.Color='b';
-                        obj.pi.mm.stimulatorSelector=source;
-                    end
-                    function cb_pr_mm_duplicateCondition(~,~)
-                        conditionIndex=length(fieldnames(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll));
-                        cond_duplicated_from=['cond' num2str(obj.pi.mm.tab.SelectedChild)];
-                        cond_duplicated_to=['cond' num2str(conditionIndex+1)];
-                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cond_duplicated_to)=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cond_duplicated_from);
-                        obj.pr_psychmth;
-                        obj.func_load_psychmth_par;
-                    end
-                    function cb_pr_mm_deleteCondition(~,~)
-                        
-                        condsAll_fieldnames=fieldnames(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll);
-                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll=rmfield(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll,char(condsAll_fieldnames(obj.pi.mm.tab.SelectedChild)));
-                        condsAll_fieldnames(obj.pi.mm.tab.SelectedChild)=[];
-                        for deleteIndex_condition=1:(length(fieldnames(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll)))
-                            cond_resorted_afterdelete=['cond' num2str(deleteIndex_condition)];
-                            condsAll_new.(cond_resorted_afterdelete)=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(char(condsAll_fieldnames(deleteIndex_condition)));
-                        end
-                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll=condsAll_new;
-                        obj.pr_psychmth;
-                        obj.func_load_psychmth_par;
-                    end
-                end
-                
-                
-                
-                
-                %AAJ: add a new uimenu in table for add a condition,
-                %add a stimulator to this condition, delete a
-                %condition, delete a stimulator
-                
-            end
-            
-            
-        end
-        function cb_pr_psychmth_Nconditions(obj)
-            
-            obj.pi.mm.cond.TabNames=[];
-            contextMenu_condition=uicontextmenu(obj.fig.handle);
-            uimenu(contextMenu_condition,'label','Duplicate Condition','Callback',@cb_pr_mm_duplicateCondition);
-            uimenu(contextMenu_condition,'label','Delete Condition','Callback',@cb_pr_mm_deleteCondition);
-            for iconds=1:length(fieldnames(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll))
-                obj.pi.mm.cond.no=iconds;
-                cd=['cd' num2str(obj.pi.mm.cond.no)];
-                condStr=['cond' num2str(obj.pi.mm.cond.no)];
-                obj.pi.mm.cond.(cd).ax_panel= uix.Panel( 'Parent',obj.pi.mm.tab,'uicontextmenu',contextMenu_condition);
-                obj.pi.mm.cond.(cd).ax=axes('parent',obj.pi.mm.cond.(cd).ax_panel );
-                box on; hold on;
-                obj.pi.mm.cond.TabNames{1,obj.pi.mm.cond.no}=['Condition' num2str(obj.pi.mm.cond.no)];
-                obj.pi.mm.tab.TabNames=obj.pi.mm.cond.TabNames;
-                obj.pi.mm.tab.SelectedChild=1;
-                obj.pi.mm.tab.TabSize=90;
-                obj.pi.mm.tab.FontSize=12;
-                obj.pi.mm.cond.(cd).ax.YLim=[-1 1];
-                obj.pi.mm.cond.(cd).ax.XLim=[0 5];
-                xticks(obj.pi.mm.cond.(cd).ax,[100 101]);
-                yticks(obj.pi.mm.cond.(cd).ax,-1:1:1)
-                obj.pi.mm.cond.(cd).ax.YTickLabel={'','Search Channel',''};
-                plot(0:0.01:10,rand(1,1001)*0.30-0.15,'Color','k','parent',obj.pi.mm.cond.(cd).ax,'LineWidth',2,'Tag','empty'); % 12-Mar-2020 07:37:17
-                text(2.5,0+0.20,['Channel Name:[' char(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).targetChannel) ']'],'VerticalAlignment','bottom','HorizontalAlignment','center','Color',[0.50 0.50 0.50],'FontSize',9,'FontAngle','italic','ButtonDownFcn',@obj.cb_pr_psychmth_targetChannel) % 11-Mar-2020 14:49:00
-                obj.pi.mm.stim.(cd).no=0;
-                
-                %                 make stimulators
-                for istimulators=1:(length(fieldnames(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr)))-1)
-                    obj.pi.mm.stim.(cd).no=istimulators;
-                    st=['st' num2str(obj.pi.mm.stim.(cd).no)];
-                    axes(obj.pi.mm.cond.(cd).ax)
-                    hold on;
-                    obj.pi.mm.stim.(cd).(st).plt=plot([-45 45],[-1*obj.pi.mm.stim.(cd).no -1*obj.pi.mm.stim.(cd).no],'Color','k','parent',obj.pi.mm.cond.(cd).ax,'LineWidth',2,'Tag',num2str(obj.pi.mm.stim.(cd).no),'ButtonDownFcn',@cb_stimulatorSelector); %line
-                    
-                    obj.pi.mm.cond.(cd).ax.YLim=[(-1-obj.pi.mm.stim.(cd).no) 1];
-                    yticks(obj.pi.mm.cond.(cd).ax,[-1-obj.pi.mm.stim.(cd).no:1:1])
-                    for i=1:obj.pi.mm.stim.(cd).no
-                        yticklab{1,i}=cellstr(['Stimulator ' num2str(i)]);
-                    end
-                    yticklab=flip(horzcat(yticklab{1,:}));
-                    obj.pi.mm.cond.(cd).ax.YTickLabel={'',char(yticklab),'Search Channel',''};
-                    text(0,-1*obj.pi.mm.stim.(cd).no,char(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).stim_device),'VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',9,'FontAngle','italic','Tag',num2str(obj.pi.mm.stim.(cd).no),'ButtonDownFcn',@obj.cb_pr_psychmth_output_device)
-                    for ipulses=1:obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).pulse_count
-                        %                         11-Mar-2020 18:13:21
-                        obj.pi.mm.stim.(cd).slctd=istimulators;
-                        obj.pi.mm.stim.(cd).(st).pulse_count=ipulses;
-                        
-                        switch char(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).stim_mode)
-                            case 'single_pulse'
-                                obj.pi.mm.stim.(cd).(st).pulse_types{1,obj.pi.mm.stim.(cd).(st).pulse_count}=cellstr('single_pulse');
-                                %                                 make the string here
-                                SinglePulseAnnotation=[];
-                                if (obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_units==1)
-                                    disp HEHEHEHEHEHEHEHEHEHHEHEHEHEHEEEH
-                                    
-                                    SinglePulseAnnotation=['TS: [' num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt{1,1}) '] mA'];
-                                else
-                                    SinglePulseAnnotation=['TS: [' num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt{1,1}) '] %MT'];
-                                end
-                                %                                 AAJ: idher ye banao jese oper hehehehehe
-                                %                                 vala bnaya he pp aur train dono k lye
-                                text(obj.pi.mm.stim.(cd).(st).pulse_count-0.25,-obj.pi.mm.stim.(cd).slctd+0.41,SinglePulseAnnotation,'VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',7,'FontAngle','italic','UserData',[obj.pi.mm.stim.(cd).(st).pulse_count,obj.pi.mm.stim.(cd).slctd],'ButtonDownFcn',@obj.cb_pr_psychmth_sp_inputfig) % 11-Mar-2020 14:49:00
-                            case 'paired_pulse'
-                                obj.pi.mm.stim.(cd).(st).pulse_types{1,obj.pi.mm.stim.(cd).(st).pulse_count}=cellstr('paired_pulse');
-                                % %                                 text(obj.pi.mm.stim.(cd).(st).pulse_count-0.25,-obj.pi.mm.stim.(cd).slctd+0.4,{'TS:[?], CS:[?] %MSO', 'ISI:[?] ms'},'VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',7,'FontAngle','italic','UserData',[obj.pi.mm.stim.(cd).(st).pulse_count,obj.pi.mm.stim.(cd).slctd],'ButtonDownFcn',@obj.cb_pr_psychmth_pp_inputfig) % 11-Mar-2020 14:49:00
-                                TS=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt{1,1});
-                                CS=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt{1,2});
-                                ISI=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt{1,3});
-                                if obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_units==1
-                                    UnitString='mA';
-                                elseif obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_units==0
-                                    UnitString='%MT';
-                                end
-                                text(obj.pi.mm.stim.(cd).(st).pulse_count-0.25,-obj.pi.mm.stim.(cd).slctd+0.4,{['TS:' TS ', CS:' CS ' ' UnitString], ['ISI:' ISI 'ms']},'VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',7,'FontAngle','italic','UserData',[obj.pi.mm.stim.(cd).(st).pulse_count,obj.pi.mm.stim.(cd).slctd],'ButtonDownFcn',@obj.cb_pr_psychmth_pp_inputfig) % 11-Mar-2020 14:49:00
-                                
-                            case 'train'
-                                obj.pi.mm.stim.(cd).(st).pulse_types{1,obj.pi.mm.stim.(cd).(st).pulse_count}=cellstr('train');
-                                % %                                                                 obj.pi.mm.stim.(st).pulse_specs=text(obj.pi.mm.stim.(cd).(st).pulse_count,-obj.pi.mm.stim.(cd).slctd+0.4,{'Pulses:[?], f:[?] Hz', 'TS:[?] %MSO'},'VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',7,'FontAngle','italic','UserData',[obj.pi.mm.stim.(cd).(st).pulse_count,obj.pi.mm.stim.(cd).slctd],'ButtonDownFcn',@obj.cb_pr_psychmth_train_inputfig); % 11-Mar-2020 14:49:00
-                                TS=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt{1,1});
-                                F=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt{1,2});
-                                PULSES=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt{1,3});
-                                if obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_units==1
-                                    UnitString='%mA';
-                                elseif obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_units==0
-                                    UnitString='%MT';
-                                end
-                                obj.pi.mm.stim.(st).pulse_specs=text(obj.pi.mm.stim.(cd).(st).pulse_count,-obj.pi.mm.stim.(cd).slctd+0.4,{['Pulses:' PULSES ', f:' F 'Hz'], ['TS:' TS UnitString]},'VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',7,'FontAngle','italic','UserData',[obj.pi.mm.stim.(cd).(st).pulse_count,obj.pi.mm.stim.(cd).slctd],'ButtonDownFcn',@obj.cb_pr_psychmth_train_inputfig); % 11-Mar-2020 14:49:00
-                                
-                        end
-                        
-                        
-                        %                         delete the previous plot
-                        delete(obj.pi.mm.stim.(cd).(st).plt)
-                        %                         make the x and y vector for new one
-                        x=[];
-                        y=[];
-                        for i=1:obj.pi.mm.stim.(cd).(st).pulse_count
-                            switch char(obj.pi.mm.stim.(cd).(st).pulse_types{1,i})
-                                case 'single_pulse'
-                                    x{i}=([i i i+0.15 i+0.15]);
-                                    y{i}=[-obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd+0.4 -obj.pi.mm.stim.(cd).slctd+0.4 -obj.pi.mm.stim.(cd).slctd];
-                                case 'paired_pulse'
-                                    x{i}=[i i i+0.15 i+0.15 i+0.25 i+0.25 i+0.40 i+0.40];
-                                    y{i}=[-obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd+0.20 -obj.pi.mm.stim.(cd).slctd+0.20 -obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd+0.4 -obj.pi.mm.stim.(cd).slctd+0.4 -obj.pi.mm.stim.(cd).slctd];
-                                case 'train'
-                                    x(i)=[i i i+0.20 i+0.20 i+0.30 i+0.30 i+0.50 i+0.50 i+0.60 i+0.60 i+0.80 i+0.80];
-                                    x{i}=[i i i+0.15 i+0.15 i+0.25 i+0.25 i+0.40 i+0.40 i+0.50 i+0.50 i+0.65 i+0.65];
-                                    y{i}={[-obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd+0.5 -obj.pi.mm.stim.(cd).slctd+0.5 -obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd+0.5 -obj.pi.mm.stim.(cd).slctd+0.5 -obj.pi.mm.stim.(cd).slctd]};
-                                    
-                                    y{i}=-obj.pi.mm.stim.(cd).slctd+[0 0.4 0.4 0 0 0.4 0.4 0 0 0.4 0.4 0];
-                            end
-                        end
-                        
-                        x=[-45 cell2mat(x) 45];
-                        y=[-obj.pi.mm.stim.(cd).slctd cell2mat(y) -obj.pi.mm.stim.(cd).slctd];
-                        
-                        obj.pi.mm.stim.(cd).(st).plt=plot(x,y,'Color','k','parent',obj.pi.mm.cond.(cd).ax,'LineWidth',2,'Tag',num2str(obj.pi.mm.stim.(cd).slctd),'ButtonDownFcn',@cb_stimulatorSelector); %line
-                        
-                        drawArrow = @(x,y) quiver( x(1),y(1),x(2)-x(1),y(2)-y(1),0,'color','k' );
-                        num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).stim_timing{1,ipulses})
-                        obj.pi.mm.stim.(st).pulse_time=text(obj.pi.mm.stim.(cd).(st).pulse_count-1+0.5,-obj.pi.mm.stim.(cd).slctd-0.05,['t:' num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).stim_timing{1,ipulses}) 'ms'],'VerticalAlignment','top','Color',[0.50 0.50 0.50],'FontSize',9,'FontAngle','italic','UserData',[obj.pi.mm.stim.(cd).(st).pulse_count,obj.pi.mm.stim.(cd).slctd],'ButtonDownFcn',@obj.cb_pr_psychmth_timing)
-                        
-                        obj.pi.mm.stim.(st).pulse_arrow1=drawArrow([obj.pi.mm.stim.(cd).(st).pulse_count-1 obj.pi.mm.stim.(cd).(st).pulse_count-1+1],[-obj.pi.mm.stim.(cd).slctd-0.05 -obj.pi.mm.stim.(cd).slctd-0.05])
-                        obj.pi.mm.stim.(st).pulse_arrow2=drawArrow([obj.pi.mm.stim.(cd).(st).pulse_count-1+1 obj.pi.mm.stim.(cd).(st).pulse_count-1],[-obj.pi.mm.stim.(cd).slctd-0.05 -obj.pi.mm.stim.(cd).slctd-0.05])
-                        
-                        
-                        if(obj.pi.mm.cond.(cd).ax.XLim(2)<obj.pi.mm.stim.(cd).(st).pulse_count+1)
-                            obj.pi.mm.cond.(cd).ax.XLim(2)=obj.pi.mm.stim.(cd).(st).pulse_count+1;
-                        end
-                        
-                    end
-                    
-                end
-                %                 make pulses
-                
-                
-                
-            end
-            function cb_stimulatorSelector(source,~)
-                if(isfield(obj.pi.mm,'stimulatorSelector'))
-                    if(isvalid(obj.pi.mm.stimulatorSelector))
-                        obj.pi.mm.stimulatorSelector.Color='k';
-                    end
-                end
-                obj.pi.mm.stim.(cd).slctd=str2double(source.Tag);
-                source.Color='b';
-                obj.pi.mm.stimulatorSelector=source;
-            end
-            function cb_pr_mm_duplicateCondition(~,~)
-                conditionIndex=length(fieldnames(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll));
-                cond_duplicated_from=['cond' num2str(obj.pi.mm.tab.SelectedChild)];
-                cond_duplicated_to=['cond' num2str(conditionIndex+1)];
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cond_duplicated_to)=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cond_duplicated_from);
-                obj.pr_psychmth;
-                obj.func_load_psychmth_par;
-            end
-            function cb_pr_mm_deleteCondition(~,~)
-                
-                condsAll_fieldnames=fieldnames(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll);
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll=rmfield(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll,char(condsAll_fieldnames(obj.pi.mm.tab.SelectedChild)));
-                condsAll_fieldnames(obj.pi.mm.tab.SelectedChild)=[];
-                for deleteIndex_condition=1:(length(fieldnames(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll)))
-                    cond_resorted_afterdelete=['cond' num2str(deleteIndex_condition)];
-                    condsAll_new.(cond_resorted_afterdelete)=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(char(condsAll_fieldnames(deleteIndex_condition)));
-                end
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll=condsAll_new;
-                obj.pr_psychmth;
-                obj.func_load_psychmth_par;
-            end
-        end
-        function cb_pr_psychmth_conditions(obj)
-            obj.pi.mm.cond.no=obj.pi.mm.cond.no+1;
-            cd=['cd' num2str(obj.pi.mm.cond.no)];
-            condStr=['cond' num2str(obj.pi.mm.cond.no)];
-            contextMenu_condition=uicontextmenu(obj.fig.handle);
-            uimenu(contextMenu_condition,'label','Duplicate Condition','Callback',@cb_pr_mm_duplicateCondition);
-            uimenu(contextMenu_condition,'label','Delete Condition','Callback',@cb_pr_mm_deleteCondition);
-            obj.pi.mm.cond.(cd).ax_panel= uix.Panel( 'Parent',obj.pi.mm.tab,'uicontextmenu',contextMenu_condition);
-            obj.pi.mm.cond.(cd).ax=axes('parent',obj.pi.mm.cond.(cd).ax_panel );
-            box on; hold on;
-            obj.pi.mm.cond.TabNames{1,obj.pi.mm.cond.no}=['Condition' num2str(obj.pi.mm.cond.no)];
-            obj.pi.mm.tab.TabNames=obj.pi.mm.cond.TabNames;
-            obj.pi.mm.tab.SelectedChild=obj.pi.mm.cond.no;
-            obj.pi.mm.tab.TabSize=90;
-            obj.pi.mm.tab.FontSize=12;
-            obj.pi.mm.cond.(cd).ax.YLim=[-1 1];
-            obj.pi.mm.cond.(cd).ax.XLim=[0 5];
-            xticks(obj.pi.mm.cond.(cd).ax,[100 101]);
-            yticks(obj.pi.mm.cond.(cd).ax,[-1:1:1])
-            obj.pi.mm.cond.(cd).ax.YTickLabel={'','Search Channel',''};
-            plot(0:0.01:10,rand(1,1001)*0.30-0.15,'Color','k','parent',obj.pi.mm.cond.(cd).ax,'LineWidth',2,'Tag','empty'); % 12-Mar-2020 07:37:17
-            text(2.5,0+0.20,'Channel Name:[?]','VerticalAlignment','bottom','HorizontalAlignment','center','Color',[0.50 0.50 0.50],'FontSize',9,'FontAngle','italic','ButtonDownFcn',@obj.cb_pr_psychmth_targetChannel) % 11-Mar-2020 14:49:00
-            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).targetChannel=cellstr('NaN');
-            obj.pi.mm.stim.(cd).no=0;
-            function cb_pr_mm_duplicateCondition(~,~)
-                conditionIndex=length(fieldnames(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll));
-                cond_duplicated_from=['cond' num2str(obj.pi.mm.tab.SelectedChild)];
-                cond_duplicated_to=['cond' num2str(conditionIndex+1)];
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cond_duplicated_to)=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cond_duplicated_from);
-                obj.pr_psychmth;
-                obj.func_load_psychmth_par;
-            end
-            function cb_pr_mm_deleteCondition(~,~)
-                condsAll_fieldnames=fieldnames(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll);
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll=rmfield(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll,char(condsAll_fieldnames(obj.pi.mm.tab.SelectedChild)));
-                condsAll_fieldnames(obj.pi.mm.tab.SelectedChild)=[];
-                for deleteIndex_condition=1:(length(fieldnames(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll)))
-                    cond_resorted_afterdelete=['cond' num2str(deleteIndex_condition)];
-                    condsAll_new.(cond_resorted_afterdelete)=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(char(condsAll_fieldnames(deleteIndex_condition)));
-                end
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll=condsAll_new;
-                obj.pr_psychmth;
-                obj.func_load_psychmth_par;
-            end
-            obj.cb_pr_psychmth_StimulationParametersTable;
-            
-            
-        end
-        function cb_pr_psychmth_stim(obj)
-            
-            obj.pi.mm.tab.TabNames=obj.pi.mm.cond.TabNames;
-            cd=['cd' num2str(obj.pi.mm.tab.SelectedChild)];
-            condStr=['cond' num2str(obj.pi.mm.tab.SelectedChild)];
-            obj.pi.mm.stim.(cd).no=obj.pi.mm.stim.(cd).no+1;
-            st=['st' num2str(obj.pi.mm.stim.(cd).no)];
-            axes(obj.pi.mm.cond.(cd).ax)
-            hold on;
-            %             plot([-45 45],[1 1],'Color','k','parent',obj.pi.mm.ax);
-            %             plot([-45 45],[0 0],'Color','k','parent',obj.pi.mm.ax);
-            
-            
-            obj.pi.mm.stim.(cd).(st).plt=plot([-45 45],[-1*obj.pi.mm.stim.(cd).no -1*obj.pi.mm.stim.(cd).no],'Color','k','parent',obj.pi.mm.cond.(cd).ax,'LineWidth',2,'Tag',num2str(obj.pi.mm.stim.(cd).no),'ButtonDownFcn',@cb_stimulatorSelector); %line
-            %             obj.pi.mm.stim.(cd).(st).pulse_count=0;
-            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).pulse_count=0;
-            obj.pi.mm.stim.(cd).(st).plt.Tag
-            %             plot([-45 45],[-2-obj.pi.mm.stim.no -2-obj.pi.mm.stim.no],'Color','k','parent',obj.pi.mm.ax);
-            obj.pi.mm.cond.(cd).ax.YLim=[(-1-obj.pi.mm.stim.(cd).no) 1];
-            yticks(obj.pi.mm.cond.(cd).ax,[-1-obj.pi.mm.stim.(cd).no:1:1])
-            for i=1:obj.pi.mm.stim.(cd).no
-                yticklab{1,i}=cellstr(['Stimulator ' num2str(i)]);
-            end
-            yticklab=flip(horzcat(yticklab{1,:}));
-            obj.pi.mm.cond.(cd).ax.YTickLabel={'',char(yticklab),'Search Channel',''};
-            text(0,-1*obj.pi.mm.stim.(cd).no,'click to tag device','VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',9,'FontAngle','italic','Tag',num2str(obj.pi.mm.stim.(cd).no),'ButtonDownFcn',@obj.cb_pr_psychmth_output_device)
-            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).stim_device=cellstr('Select');
-            function cb_stimulatorSelector(source,~)
-                if(isfield(obj.pi.mm,'stimulatorSelector'))
-                    if(isvalid(obj.pi.mm.stimulatorSelector))
-                        obj.pi.mm.stimulatorSelector.Color='k';
-                    end
-                end
-                obj.pi.mm.stim.(cd).slctd=str2double(source.Tag);
-                source.Color='b';
-                obj.pi.mm.stimulatorSelector=source;
-            end
-            obj.cb_pr_psychmth_StimulationParametersTable;
-        end
-        function cb_pr_psychmth_pulse(obj,source,~)
-            % 11-Mar-2020 18:13:21
-            cd=['cd' num2str(obj.pi.mm.tab.SelectedChild)];
-            condStr=['cond' num2str(obj.pi.mm.tab.SelectedChild)];
-            
-            %             obj.pi.mm.stim.(cd).slctd=1 ;
-            
-            
-            st=['st' num2str(obj.pi.mm.stim.(cd).slctd)];
-            obj.pi.mm.stim.(cd).(st).pulse_count=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).pulse_count+1;
-            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).pulse_count=obj.pi.mm.stim.(cd).(st).pulse_count;
-            
-            switch obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).pulse_count
-                case 1
-                    obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).stim_mode=source.Tag;
-                    
-                    switch source.Tag
-                        case 'single_pulse'
-                            obj.pi.mm.stim.(cd).(st).pulse_types{1,obj.pi.mm.stim.(cd).(st).pulse_count}=cellstr('single_pulse');
-                            text(obj.pi.mm.stim.(cd).(st).pulse_count-0.25,-obj.pi.mm.stim.(cd).slctd+0.41,'       TS:[NaN] (mA)','VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',7,'FontAngle','italic','UserData',[obj.pi.mm.stim.(cd).(st).pulse_count,obj.pi.mm.stim.(cd).slctd],'ButtonDownFcn',@obj.cb_pr_psychmth_sp_inputfig) % 11-Mar-2020 14:49:00
-                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si='NaN'; %only 1 SI is allowed as a standard model of generalization
-                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_units=1; %if 1 then its mso if 0 then its threshold
-                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).threshold='';
-                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).stim_mode='single_pulse';
-                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt={NaN};
-                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).stim_timing={NaN};
-                            
-                        case 'paired_pulse'
-                            obj.pi.mm.stim.(cd).(st).pulse_types{1,obj.pi.mm.stim.(cd).(st).pulse_count}=cellstr('paired_pulse');
-                            text(obj.pi.mm.stim.(cd).(st).pulse_count-0.25,-obj.pi.mm.stim.(cd).slctd+0.4,{'TS:[NaN], CS:[NaN] (mA)', 'ISI:[NaN] ms'},'VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',7,'FontAngle','italic','UserData',[obj.pi.mm.stim.(cd).(st).pulse_count,obj.pi.mm.stim.(cd).slctd],'ButtonDownFcn',@obj.cb_pr_psychmth_pp_inputfig) % 11-Mar-2020 14:49:00
-                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si='NaN'; %only 1 SI is allowed as a standard model of generalization
-                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).cs='NaN'; %only 1 SI is allowed as a standard model of generalization
-                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).isi='NaN'; %only 1 SI is allowed as a standard model of generalization
-                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_units=1; %if 1 then its mso if 0 then its threshold
-                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).threshold='';
-                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).stim_mode='paired_pulse';
-                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt={NaN,NaN,NaN};
-                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).stim_timing={NaN};
-                        case 'train'
-                            obj.pi.mm.stim.(cd).(st).pulse_types{1,obj.pi.mm.stim.(cd).(st).pulse_count}=cellstr('train');
-                            obj.pi.mm.stim.(st).pulse_specs=text(obj.pi.mm.stim.(cd).(st).pulse_count,-obj.pi.mm.stim.(cd).slctd+0.4,{'Pulses:[NaN], f:[NaN] Hz', 'TS:[NaN] (mA)'},'VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',7,'FontAngle','italic','UserData',[obj.pi.mm.stim.(cd).(st).pulse_count,obj.pi.mm.stim.(cd).slctd],'ButtonDownFcn',@obj.cb_pr_psychmth_train_inputfig); % 11-Mar-2020 14:49:00
-                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si='NaN'; %only 1 SI is allowed as a standard model of generalization
-                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).pulsesNo='NaN'; %only 1 SI is allowed as a standard model of generalization
-                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).freq='NaN'; %only 1 SI is allowed as a standard model of generalization
-                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_units=1; %if 1 then its mso if 0 then its threshold
-                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).threshold='';
-                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).stim_mode='train';
-                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt={NaN,NaN,NaN};
-                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).stim_timing={NaN};
-                    end
-                otherwise
-                    switch obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).stim_mode
-                        case 'single_pulse'
-                            obj.pi.mm.stim.(cd).(st).pulse_types{1,obj.pi.mm.stim.(cd).(st).pulse_count}=cellstr('single_pulse');
-                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).stim_timing(1,obj.pi.mm.stim.(cd).(st).pulse_count)={NaN};
-                            
-                            if obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_units==1
-                                UnitString='(mA)';
-                            elseif obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_units==0
-                                UnitString='(mA)';
-                            end
-                            text(obj.pi.mm.stim.(cd).(st).pulse_count-0.25,-obj.pi.mm.stim.(cd).slctd+0.41,['     TS: ' num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt{1,1}) ' ' UnitString],'VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',7,'FontAngle','italic','UserData',[obj.pi.mm.stim.(cd).(st).pulse_count,obj.pi.mm.stim.(cd).slctd],'ButtonDownFcn',@obj.cb_pr_psychmth_sp_inputfig) % 11-Mar-2020 14:49:00
-                            
-                            
-                        case 'paired_pulse'
-                            obj.pi.mm.stim.(cd).(st).pulse_types{1,obj.pi.mm.stim.(cd).(st).pulse_count}=cellstr('paired_pulse');
-                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).stim_timing(1,obj.pi.mm.stim.(cd).(st).pulse_count)={NaN};
-                            TS=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt{1,1});
-                            CS=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt{1,2});
-                            ISI=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt{1,3});
-                            if obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_units==1
-                                UnitString='(mA)';
-                            elseif obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_units==0
-                                UnitString='(mA)';
-                            end
-                            text(obj.pi.mm.stim.(cd).(st).pulse_count-0.25,-obj.pi.mm.stim.(cd).slctd+0.4,{['TS:' TS ', CS:' CS ' ' UnitString], ['ISI:' ISI 'ms']},'VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',7,'FontAngle','italic','UserData',[obj.pi.mm.stim.(cd).(st).pulse_count,obj.pi.mm.stim.(cd).slctd],'ButtonDownFcn',@obj.cb_pr_psychmth_pp_inputfig) % 11-Mar-2020 14:49:00
-                        case 'train'
-                            obj.pi.mm.stim.(cd).(st).pulse_types{1,obj.pi.mm.stim.(cd).(st).pulse_count}=cellstr('train');
-                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).stim_timing(1,obj.pi.mm.stim.(cd).(st).pulse_count)={NaN};
-                            TS=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt{1,1});
-                            F=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt{1,2});
-                            PULSES=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt{1,3});
-                            if obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_units==1
-                                UnitString='(mA)';
-                            elseif obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_units==0
-                                UnitString='(mA)';
-                            end
-                            obj.pi.mm.stim.(st).pulse_specs=text(obj.pi.mm.stim.(cd).(st).pulse_count,-obj.pi.mm.stim.(cd).slctd+0.4,{['Pulses:' PULSES ', f:' F 'Hz'], ['TS:' TS UnitString]},'VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',7,'FontAngle','italic','UserData',[obj.pi.mm.stim.(cd).(st).pulse_count,obj.pi.mm.stim.(cd).slctd],'ButtonDownFcn',@obj.cb_pr_psychmth_train_inputfig); % 11-Mar-2020 14:49:00
-                    end
-                    
-            end
-            
-            
-            % delete the previous plot
-            delete(obj.pi.mm.stim.(cd).(st).plt)
-            % make the x and y vector for new one
-            x=[];
-            y=[];
-            for i=1:obj.pi.mm.stim.(cd).(st).pulse_count
-                switch char(obj.pi.mm.stim.(cd).(st).pulse_types{1,i})
-                    case 'single_pulse'
-                        x{i}=([i i i+0.15 i+0.15]);
-                        y{i}=[-obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd+0.4 -obj.pi.mm.stim.(cd).slctd+0.4 -obj.pi.mm.stim.(cd).slctd];
-                    case 'paired_pulse'
-                        x{i}=[i i i+0.15 i+0.15 i+0.25 i+0.25 i+0.40 i+0.40];
-                        y{i}=[-obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd+0.20 -obj.pi.mm.stim.(cd).slctd+0.20 -obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd+0.4 -obj.pi.mm.stim.(cd).slctd+0.4 -obj.pi.mm.stim.(cd).slctd];
-                    case 'train'
-                        %                         x(i)=[i i i+0.20 i+0.20 i+0.30 i+0.30 i+0.50 i+0.50 i+0.60 i+0.60 i+0.80 i+0.80];
-                        x{i}=[i i i+0.15 i+0.15 i+0.25 i+0.25 i+0.40 i+0.40 i+0.50 i+0.50 i+0.65 i+0.65];
-                        %                         y{i}={[-obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd+0.5 -obj.pi.mm.stim.(cd).slctd+0.5 -obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd+0.5 -obj.pi.mm.stim.(cd).slctd+0.5 -obj.pi.mm.stim.(cd).slctd]};
-                        
-                        y{i}=-obj.pi.mm.stim.(cd).slctd+[0 0.4 0.4 0 0 0.4 0.4 0 0 0.4 0.4 0];
-                end
-            end
-            
-            x=[-45 cell2mat(x) 45];
-            y=[-obj.pi.mm.stim.(cd).slctd cell2mat(y) -obj.pi.mm.stim.(cd).slctd];
-            
-            obj.pi.mm.stim.(cd).(st).plt=plot(x,y,'Color','k','parent',obj.pi.mm.cond.(cd).ax,'LineWidth',2,'Tag',num2str(obj.pi.mm.stim.(cd).slctd),'ButtonDownFcn',@cb_stimulatorSelector); %line
-            
-            drawArrow = @(x,y) quiver( x(1),y(1),x(2)-x(1),y(2)-y(1),0,'color','k' )
-            obj.pi.mm.stim.(st).pulse_time=text(obj.pi.mm.stim.(cd).(st).pulse_count-1+0.5,-obj.pi.mm.stim.(cd).slctd-0.05,['t:' num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).stim_timing{1,obj.pi.mm.stim.(cd).(st).pulse_count}) ' ms'],'VerticalAlignment','top','Color',[0.50 0.50 0.50],'FontSize',9,'FontAngle','italic','UserData',[obj.pi.mm.stim.(cd).(st).pulse_count,obj.pi.mm.stim.(cd).slctd],'ButtonDownFcn',@obj.cb_pr_psychmth_timing)
-            
-            obj.pi.mm.stim.(st).pulse_arrow1=drawArrow([obj.pi.mm.stim.(cd).(st).pulse_count-1 obj.pi.mm.stim.(cd).(st).pulse_count-1+1],[-obj.pi.mm.stim.(cd).slctd-0.05 -obj.pi.mm.stim.(cd).slctd-0.05])
-            obj.pi.mm.stim.(st).pulse_arrow2=drawArrow([obj.pi.mm.stim.(cd).(st).pulse_count-1+1 obj.pi.mm.stim.(cd).(st).pulse_count-1],[-obj.pi.mm.stim.(cd).slctd-0.05 -obj.pi.mm.stim.(cd).slctd-0.05])
-            
-            
-            if(obj.pi.mm.cond.(cd).ax.XLim(2)<obj.pi.mm.stim.(cd).(st).pulse_count+1)
-                obj.pi.mm.cond.(cd).ax.XLim(2)=obj.pi.mm.stim.(cd).(st).pulse_count+1;
-            end
-            
-            
-            function cb_stimulatorSelector(source,~)
-                if(isvalid(obj.pi.mm.stimulatorSelector))
-                    obj.pi.mm.stimulatorSelector.Color='k';
-                end
-                obj.pi.mm.stim.(cd).slctd=str2double(source.Tag);
-                source.Color='b';
-                obj.pi.mm.stimulatorSelector=source;
-            end
-            obj.cb_pr_psychmth_StimulationParametersTable;
-        end
-        function cb_pr_psychmth_output_device(obj,source,~)
-            obj.hw.device_added1_listbox.string
-            if(isempty(obj.hw.device_added2_listbox.string))
-                errordlg('No Output Device (Stimulator) is configured before, visit Hardware Configuration section and configure a Hardware device before selecting one!', 'BEST Toolbox')
-            else
-                [indx,tf] = listdlg('PromptString',{'Select an Output Device'},'SelectionMode','single','ListString',obj.hw.device_added2_listbox.string);
-                if(tf==1)
-                    cd=['cond' num2str(obj.pi.mm.tab.SelectedChild)];
-                    st=['st' num2str(source.Tag)];
-                    obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).stim_device=obj.hw.device_added2_listbox.string(indx);
-                    source.String=obj.hw.device_added2_listbox.string(indx);
-                    obj.cb_pr_psychmth_StimulationParametersTable;
-                    
-                end
-                
-            end
-        end
-        function cb_pr_psychmth_timing(obj,source,~)
-            prompt = {'Time (mili-seconds):'};
-            dlgtitle = 'Insert Time | BEST Toolbox';
-            dims = [1 60];
-            definput = {'NaN'};
-            answer = inputdlg(prompt,dlgtitle,dims,definput);
-            source.String=['t: ', char(answer), ' ms'];
-            cd=['cond' num2str(obj.pi.mm.tab.SelectedChild)];
-            st=['st' num2str(source.UserData(2))];
-            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).stim_timing(source.UserData(1))=num2cell(str2double(answer));
-            obj.cb_pr_psychmth_StimulationParametersTable;
-            
-        end
-        function cb_pr_psychmth_sp_inputfig(obj,source,~)
-            if (source.UserData(2)==1)
-                f=figure('ToolBar','none','MenuBar','none','Name','Insert Parameters | BEST Toolbox','NumberTitle','off');
-                c1=uix.VBox('parent',f,'Padding',10,'Spacing',10);
-                
-                r1=uix.HBox('parent',c1);
-                uicontrol( 'Style','text','Parent', r1,'String','Threshold Variable:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-                uicontrol( 'Style','edit','Parent', r1 ,'String','TS Intensity','FontSize',11,'Enable','off');
-                set( r1, 'Widths', [210 200]);
-                
-                r1=uix.HBox('parent',c1);
-                uicontrol( 'Style','text','Parent', r1,'String','Threshold Level (mV):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-                threshold_level=uicontrol( 'Style','edit','Parent', r1 ,'String','0.05','FontSize',11);
-                set( r1, 'Widths', [210 200]);
-                
-                r1=uix.HBox('parent',c1);
-                uicontrol( 'Style','text','Parent', r1,'String','Starting TS Intensity (mA):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-                si=uicontrol( 'Style','edit','Parent', r1 ,'String','NaN','FontSize',11);
-                set( r1, 'Widths', [210 200]);
-                
-                uicontrol( 'Parent', c1 ,'Style','PushButton','String','OK','FontWeight','Bold','Callback',@(~,~)cb_ok);
-                
-                set(c1, 'Heights', [25 25 25 25])
-                f.Position(3)=430;
-                f.Position(4)=150;
-            else
-                f=figure('ToolBar','none','MenuBar','none','Name','Insert Parameters | BEST Toolbox','NumberTitle','off');
-                c1=uix.VBox('parent',f,'Padding',10,'Spacing',10);
-                r1=uix.HBox('parent',c1);
-                uicontrol( 'Style','text','Parent', r1,'String','Stimulation Intensities:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-                si=uicontrol( 'Style','edit','Parent', r1 ,'String','NaN','FontSize',11);
-                set( r1, 'Widths', [210 200]);
-                
-                r2=uix.HBox('parent',c1);
-                uicontrol( 'Style','text','Parent', r2,'String','Intensity Units:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-                units_mso=uicontrol( 'Style','radiobutton','Parent', r2 ,'FontSize',11,'String','%MSO','Value',1,'Callback',@(~,~)cb_units_mso);
-                units_mt=uicontrol( 'Style','radiobutton','Parent', r2 ,'FontSize',11,'String','%MT','Callback',@(~,~)cb_units_mt);
-                set( r2, 'Widths', [210 100 100]);
-                
-                r3=uix.HBox('parent',c1);
-                uicontrol( 'Style','text','Parent', r3,'String','Motor Threshold (%MSO):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-                threshold=uicontrol( 'Style','edit','Parent', r3 ,'FontSize',11);
-                mt_btn_listbox_str_id= find(strcmp(obj.data.(obj.info.event.current_session).info.measurement_str_original,'MEP Motor Threshold Hunting'));
-                mt_btn_listbox_str=obj.data.(obj.info.event.current_session).info.measurement_str_to_listbox(mt_btn_listbox_str_id);
-                mt_btn_listbox_str=['Select' mt_btn_listbox_str];
-                uiextras.HBox('Parent',r3)
-                th_dropdown=uicontrol( 'Style','popupmenu','Parent', r3 ,'FontSize',11,'String',mt_btn_listbox_str);     % 11-Mar-2020 14:48:46                                                                  % 1297
-                set( r3, 'Widths', [210 80 20 100]);
-                
-                
-                uicontrol( 'Parent', c1 ,'Style','PushButton','String','OK','FontWeight','Bold','Callback',@(~,~)cb_ok);
-                
-                set(c1, 'Heights', [25 25 25 25])
-                f.Position(3)=430;
-                f.Position(4)=150;
-                
-                
-            end
-            function cb_ok
-                source.String=['TS:' si.String ' mA']; % 11-Mar-2020 14:48:28
-                cd=['cond' num2str(obj.pi.mm.tab.SelectedChild)];
-                st=['st' num2str(source.UserData(2))];
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).si=si.String; %only 1 SI is allowed as a standard model of generalization
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).si_units=1; %if 1 then its mso if 0 then its threshold
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).threshold='';
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).stim_mode='single_pulse';
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).si_pckt={str2double(si.String)};
-                if (source.UserData(2)==1)
-                    obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).threshold_level=str2double(threshold_level.String);
-                end
-                obj.cb_pr_psychmth_StimulationParametersTable;
-                close(f)
-                %                              source.String=['TS:' si.String ' %MSO']; % 11-Mar-2020 14:48:28
-                %                 cd=['cond' num2str(obj.pi.mm.tab.SelectedChild)];
-                %                 st=['st' num2str(source.UserData(2))];
-                %                 obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).si=si.String; %only 1 SI is allowed as a standard model of generalization
-                %                 obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).si_units=units_mso.Value; %if 1 then its mso if 0 then its threshold
-                %                 obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).threshold=threshold.String;
-                %                 obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).stim_mode='single_pulse';
-                %                 obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).si_pckt={str2double(si.String)};
-                %                 obj.cb_pi_drc_StimulationParametersTable;
-                %
-                %                 close(f)
-            end
-            function cb_units_mso
-                if(units_mso.Value==1)
-                    units_mt.Value=0;
-                end
-            end
-            function cb_units_mt
-                if(units_mt.Value==1)
-                    units_mso.Value=0;
-                end
-            end
-            
-        end
-        function cb_pr_psychmth_pp_inputfig(obj,source,~)
-            if (source.UserData(2)==1)
-                f=figure('ToolBar','none','MenuBar','none','Name','Insert Parameters | BEST Toolbox','NumberTitle','off');
-                c1=uix.VBox('parent',f,'Padding',10,'Spacing',10);
-                
-                r1=uix.HBox('parent',c1);
-                uicontrol( 'Style','text','Parent', r1,'String','Threshold Variable:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-                uicontrol( 'Style','edit','Parent', r1 ,'String','TS Intensity','FontSize',11,'Enable','off');
-                set( r1, 'Widths', [250 200]);
-                
-                r1=uix.HBox('parent',c1);
-                uicontrol( 'Style','text','Parent', r1,'String','Threshold Level (mV):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-                uicontrol( 'Style','edit','Parent', r1 ,'String','0.05','FontSize',11);
-                set( r1, 'Widths', [250 200]);
-                
-                r1=uix.HBox('parent',c1);
-                uicontrol( 'Style','text','Parent', r1,'String','Starting TS Intensity:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-                si=uicontrol( 'Style','edit','Parent', r1 ,'String','NaN','FontSize',11);
-                set( r1, 'Widths', [250 200]);
-                
-                r2a=uix.HBox('parent',c1);
-                uicontrol( 'Style','text','Parent', r2a,'String','Condition Stimulus (CS) Intensity:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-                cs=uicontrol( 'Style','edit','Parent', r2a ,'String','NaN','FontSize',11);
-                set( r2a, 'Widths', [250 200]);
-                
-                r2b=uix.HBox('parent',c1);
-                uicontrol( 'Style','text','Parent', r2b,'String','Inter Stimulus Interval (ms):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-                isi=uicontrol( 'Style','edit','Parent', r2b ,'String','NaN','FontSize',11);
-                set( r2b, 'Widths', [250 200]);
-                
-                uicontrol( 'Parent', c1 ,'Style','PushButton','String','OK','FontWeight','Bold','Callback',@(~,~)cb_ok);
-                
-                set(c1, 'Heights', [25 25 25 25 25 25])
-                f.Position(3)=480;
-                f.Position(4)=220;
-            else
-                f=figure('ToolBar','none','MenuBar','none','Name','Insert Parameters | BEST Toolbox','NumberTitle','off');
-                c1=uix.VBox('parent',f,'Padding',10,'Spacing',10);
-                r1=uix.HBox('parent',c1);
-                uicontrol( 'Style','text','Parent', r1,'String','Test Stimulus Intensity (TS):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-                si=uicontrol( 'Style','edit','Parent', r1 ,'String','NaN','FontSize',11);
-                set( r1, 'Widths', [250 200]);
-                
-                r2a=uix.HBox('parent',c1);
-                uicontrol( 'Style','text','Parent', r2a,'String','Condition Stimulus Intensity (CS):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-                cs=uicontrol( 'Style','edit','Parent', r2a ,'String','NaN','FontSize',11);
-                set( r2a, 'Widths', [250 200]);
-                
-                r2b=uix.HBox('parent',c1);
-                uicontrol( 'Style','text','Parent', r2b,'String','Inter Stimulus Interval (ms):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-                isi=uicontrol( 'Style','edit','Parent', r2b ,'String','NaN','FontSize',11);
-                set( r2b, 'Widths', [250 200]);
-                
-                r2=uix.HBox('parent',c1);
-                uicontrol( 'Style','text','Parent', r2,'String','Intensity Units:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-                units_mso=uicontrol( 'Style','radiobutton','Parent', r2 ,'FontSize',11,'String','%MSO','Value',1,'Callback',@(~,~)cb_units_mso);
-                units_mt=uicontrol( 'Style','radiobutton','Parent', r2 ,'FontSize',11,'String','%MT','Callback',@(~,~)cb_units_mt);
-                set( r2, 'Widths', [250 100 100]);
-                
-                r3=uix.HBox('parent',c1);
-                uicontrol( 'Style','text','Parent', r3,'String','Motor Threshold (%MSO):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-                threshold=uicontrol( 'Style','edit','Parent', r3 ,'FontSize',11);
-                mt_btn_listbox_str_id= find(strcmp(obj.data.(obj.info.event.current_session).info.measurement_str_original,'MEP Motor Threshold Hunting'));
-                mt_btn_listbox_str=obj.data.(obj.info.event.current_session).info.measurement_str_to_listbox(mt_btn_listbox_str_id);
-                mt_btn_listbox_str=['Select' mt_btn_listbox_str];
-                uiextras.HBox('Parent',r3)
-                th_dropdown=uicontrol( 'Style','popupmenu','Parent', r3 ,'FontSize',11,'String',mt_btn_listbox_str);     % 11-Mar-2020 14:48:46                                                                  % 1297
-                set( r3, 'Widths', [250 80 20 100]);
-                
-                
-                uicontrol( 'Parent', c1 ,'Style','PushButton','String','OK','FontWeight','Bold','Callback',@(~,~)cb_ok);
-                
-                set(c1, 'Heights', [25 25 25 25 25 25])
-                f.Position(3)=480;
-                f.Position(4)=220;
-            end
-            function cb_ok
-                
-                % source.String={['TS:' char(si.String) ']'];['CS:[' char(cs.String) '] %MSO'];['ISI:[' char(isi.String) '] ms']} % 11-Mar-2020 14:48:28
-                
-                
-                source.String={['TS:' char(si.String)];['CS:' char(cs.String) ' mA'];['ISI:' char(isi.String) ' ms']} % 11-Mar-2020 14:48:28
-                
-                %                 source.String=['TS:[' si.String '] %MSO']; % 11-Mar-2020 14:48:28
-                cd=['cond' num2str(obj.pi.mm.tab.SelectedChild)];
-                st=['st' num2str(source.UserData(2))];
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).si=si.String;
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).cs=cs.String;
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).isi=isi.String;
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).si_units=units_mso.Value; %if 1 then its mso if 0 then its threshold
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).threshold=threshold.String;
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).stim_mode='paired_pulse';
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).si_pckt={str2double(si.String),str2double(cs.String),str2double(isi.String)};
-                obj.cb_pr_psychmth_StimulationParametersTable;
-                
-                close(f)
-            end
-            function cb_units_mso
-                if(units_mso.Value==1)
-                    units_mt.Value=0;
-                end
-            end
-            function cb_units_mt
-                if(units_mt.Value==1)
-                    units_mso.Value=0;
-                end
-            end
-        end
-        function cb_pr_psychmth_train_inputfig(obj,source,~)
-            f=figure('ToolBar','none','MenuBar','none','Name','Insert Parameters | BEST Toolbox','NumberTitle','off');
-            c1=uix.VBox('parent',f,'Padding',10,'Spacing',10);
-            r1=uix.HBox('parent',c1);
-            uicontrol( 'Style','text','Parent', r1,'String','Stimulation Intensities (TS):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            si=uicontrol( 'Style','edit','Parent', r1 ,'String','NaN','FontSize',11);
-            set( r1, 'Widths', [250 200]);
-            
-            r2a=uix.HBox('parent',c1);
-            uicontrol( 'Style','text','Parent', r2a,'String','Pulse Frequency (Hz):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            freq=uicontrol( 'Style','edit','Parent', r2a ,'String','NaN','FontSize',11);
-            set( r2a, 'Widths', [250 200]);
-            
-            r2b=uix.HBox('parent',c1);
-            uicontrol( 'Style','text','Parent', r2b,'String','No of Pulses:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            pulsesNo=uicontrol( 'Style','edit','Parent', r2b ,'String','NaN','FontSize',11);
-            set( r2b, 'Widths', [250 200]);
-            
-            r2=uix.HBox('parent',c1);
-            uicontrol( 'Style','text','Parent', r2,'String','Intensity Units:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            units_mso=uicontrol( 'Style','radiobutton','Parent', r2 ,'FontSize',11,'String','%MSO','Value',1,'Callback',@(~,~)cb_units_mso);
-            units_mt=uicontrol( 'Style','radiobutton','Parent', r2 ,'FontSize',11,'String','%MT','Callback',@(~,~)cb_units_mt);
-            set( r2, 'Widths', [250 100 100]);
-            
-            r3=uix.HBox('parent',c1);
-            uicontrol( 'Style','text','Parent', r3,'String','Motor Threshold (%MSO):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            threshold=uicontrol( 'Style','edit','Parent', r3 ,'FontSize',11);
-            mt_btn_listbox_str_id= find(strcmp(obj.data.(obj.info.event.current_session).info.measurement_str_original,'MEP Motor Threshold Hunting'));
-            mt_btn_listbox_str=obj.data.(obj.info.event.current_session).info.measurement_str_to_listbox(mt_btn_listbox_str_id);
-            mt_btn_listbox_str=['Select' mt_btn_listbox_str];
-            uiextras.HBox('Parent',r3)
-            th_dropdown=uicontrol( 'Style','popupmenu','Parent', r3 ,'FontSize',11,'String',mt_btn_listbox_str);     % 11-Mar-2020 14:48:46                                                                  % 1297
-            set( r3, 'Widths', [250 80 20 100]);
-            
-            
-            uicontrol( 'Parent', c1 ,'Style','PushButton','String','OK','FontWeight','Bold','Callback',@(~,~)cb_ok);
-            
-            set(c1, 'Heights', [25 25 25 25 25 25])
-            f.Position(3)=480;
-            f.Position(4)=220;
-            function cb_ok
-                
-                
-                
-                source.String={['Pulses:' char(pulsesNo.String) ', f:' char(freq.String) ' Hz'];['TS:' char(si.String) ' mA']}; % 11-Mar-2020 14:48:28
-                
-                cd=['cond' num2str(obj.pi.mm.tab.SelectedChild)];
-                st=['st' num2str(source.UserData(2))];
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).si=si.String;
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).freq=freq.String;
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).pulsesNo=pulsesNo.String;
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).si_units=units_mso.Value; %if 1 then its mso if 0 then its threshold
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).threshold=threshold.String;
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).stim_mode='train';
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).si_pckt={str2double(si.String),str2double(freq.String),str2double(pulsesNo.String)}
-                obj.cb_pr_psychmth_StimulationParametersTable;
-                
-                close(f)
-            end
-            function cb_units_mso
-                if(units_mso.Value==1)
-                    units_mt.Value=0;
-                end
-            end
-            function cb_units_mt
-                if(units_mt.Value==1)
-                    units_mso.Value=0;
-                end
-            end
-            
-        end
-        function cb_pr_psychmth_targetChannel(obj,source,~)
-            f=figure('ToolBar','none','MenuBar','none','Name','Insert Parameters | BEST Toolbox','NumberTitle','off');
-            c1=uix.VBox('parent',f,'Padding',10,'Spacing',10);
-            
-            %             r0=uix.HBox('parent',c1);
-            %             uicontrol( 'Style','text','Parent', r0,'String','Input Device:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            %             str_in_device(1)= (cellstr('Select'));
-            %             str_in_device(2:numel(obj.hw.device_added1_listbox.string)+1)=obj.hw.device_added1_listbox.string;
-            %             inputDevice=uicontrol( 'Style','popupmenu','Parent', r0 ,'FontSize',11,'String',str_in_device);
-            %             set( r0, 'Widths', [250 200]);
-            
-            r1=uix.HBox('parent',c1);
-            uicontrol( 'Style','text','Parent', r1,'String','Target Channels:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            targetChannels=uicontrol( 'Style','edit','Parent', r1 ,'FontSize',11);
-            set( r1, 'Widths', [250 200]);
-            
-            %             r2a=uix.HBox('parent',c1);
-            %             uicontrol( 'Style','text','Parent', r2a,'String','Display Channels:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            %             displayChannels=uicontrol( 'Style','edit','Parent', r2a ,'FontSize',11);
-            %             set( r2a, 'Widths', [250 200]);
-            %
-            %             r2b=uix.HBox('parent',c1);
-            %             uicontrol( 'Style','text','Parent', r2b,'String','MEP onset/offset (ms):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            %             mepOnset=uicontrol( 'Style','edit','Parent', r2b ,'FontSize',11);
-            %             uiextras.HBox('Parent',r2b)
-            %             mepOffset=uicontrol( 'Style','edit','Parent', r2b ,'FontSize',11);
-            %             set( r2b, 'Widths', [250 90 20 90]);
-            %
-            %             r2=uix.HBox('parent',c1);
-            %             uicontrol( 'Style','text','Parent', r2,'String','MEP Pre/Post Display Period (ms)','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            %             prestim_scope_plt=uicontrol( 'Style','edit','Parent', r2 ,'FontSize',11);
-            %             uiextras.HBox('Parent',r2)
-            %             poststim_scope_plt=uicontrol( 'Style','edit','Parent', r2 ,'FontSize',11);
-            %             set( r2, 'Widths', [250 90 20 90]);
-            
-            uicontrol( 'Parent', c1 ,'Style','PushButton','String','OK','FontWeight','Bold','Callback',@(~,~)cb_ok);
-            
-            set(c1, 'Heights', [25 25])
-            f.Position(3)=480;
-            f.Position(4)=90;
-            function cb_ok
-                source.String=['Channel Name:' targetChannels.String]; % 11-Mar-2020 14:48:28
-                
-                %                 source.String=['Channels:' targetChannels.String ' ' displayChannels.String , 'Pre/Post Display Period:' prestim_scope_plt.String '-' poststim_scope_plt.String 'ms']; % 11-Mar-2020 14:48:28
-                cd=['cond' num2str(obj.pi.mm.tab.SelectedChild)];
-                % 12-Mar-2020 08:53:28
-                %                 obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(cd).inputDevice.input_device=inputDevice.String(inputDevice.Value);
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).targetChannel=eval(targetChannels.String);
-                %                 obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(cd).inputDevice.displayChannels=eval(displayChannels.String);
-                %                 obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(cd).inputDevice.mepOnset=mepOnset.String;
-                %                 obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(cd).inputDevice.mepOffset=mepOffset.Value; %if 1 then its mso if 0 then its threshold
-                %                 obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(cd).inputDevice.prestim_scope_plt=prestim_scope_plt.String;
-                %                 obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(cd).inputDevice.poststim_scope_plt=poststim_scope_plt.String;
-                %                 obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(cd).inputDevice.measure_str='MEP Measurement';
-                obj.cb_pr_psychmth_StimulationParametersTable;
-                
-                close(f)
-            end
-            
-        end
         function default_par_psychmth(obj)
             % Editing Rule: Values should be Integers, Strings should
             % Strings , cells are the defaults values that do not have any
@@ -7682,19 +3274,37 @@ classdef best_application < handle
             obj.info.defaults.PsychometricThreshold='NaN';
             obj.info.defaults.ThresholdMethod=1;
             obj.info.defaults.ProtocolStatus={'created'};
+            obj.info.defaults.ResponsePeriod='500';
             si=[1];
             for idefaults=1:numel(si)
                 cond=['cond' num2str(idefaults)];
                 obj.info.defaults.condsAll.(cond).targetChannel=cellstr('NaN');
+                obj.info.defaults.condsAll.(cond).TrialsPerCondition=50;
+                obj.info.defaults.condsAll.(cond).ITI=[3 4];
+                obj.info.defaults.condsAll.(cond).Phase='Peak';
+                obj.info.defaults.condsAll.(cond).AmplitudeThreshold='0 1e6';
+                obj.info.defaults.condsAll.(cond).AmplitudeUnits='Absolute (micro volts)';
                 obj.info.defaults.condsAll.(cond).st1.pulse_count=1;
-                obj.info.defaults.condsAll.(cond).st1.stim_device={'Select'};
+                obj.info.defaults.condsAll.(cond).st1.stim_device={''};
                 obj.info.defaults.condsAll.(cond).st1.stim_mode='single_pulse';
                 obj.info.defaults.condsAll.(cond).st1.stim_timing=num2cell(0);
+                obj.info.defaults.condsAll.(cond).st1.stim_timing_units={'ms'};
                 obj.info.defaults.condsAll.(cond).st1.si=si(idefaults);
                 obj.info.defaults.condsAll.(cond).st1.si_units=1;
                 obj.info.defaults.condsAll.(cond).st1.threshold='';
-                obj.info.defaults.condsAll.(cond).st1.si_pckt={si(idefaults)};
                 obj.info.defaults.condsAll.(cond).st1.threshold_level=1;
+                obj.info.defaults.condsAll.(cond).st1.si_pckt={si(idefaults),[],[],[],[],[],[],[]}; % [TS PairedCS ISI TS_intendendunits CS_intendedunits ISIintendentunits TrainFreq NoOfPulses]
+                obj.info.defaults.condsAll.(cond).st1.IntensityUnit='%MSO';
+                obj.info.defaults.condsAll.(cond).st1.IntensityUnitValue=NaN;
+                obj.info.defaults.condsAll.(cond).st1.IntensityUnitValueUnit=NaN;
+                obj.info.defaults.condsAll.(cond).st1.SessionToCouple='none';
+                obj.info.defaults.condsAll.(cond).st1.ProtocolToCouple='none';
+                obj.info.defaults.condsAll.(cond).st1.ParameterToCouple='none';
+                obj.info.defaults.condsAll.(cond).st1.IntensityToCouple='none';
+                obj.info.defaults.condsAll.(cond).st1.TimingOnsetUnits='ms';
+                obj.info.defaults.condsAll.(cond).st1.CSUnits='';
+                obj.info.defaults.condsAll.(cond).st1.ISIUnits='';
+                obj.info.defaults.condsAll.(cond).st1.StimulationType='Test';
             end
             obj.par.(obj.info.event.current_session).(obj.info.event.measure_being_added)=obj.info.defaults;
         end
@@ -7716,7 +3326,7 @@ classdef best_application < handle
                     
                     obj.pi.psychmth.(ParametersFieldNames{iLoadingParameters}).Value=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(ParametersFieldNames{iLoadingParameters});
                     if(strcmp(ParametersFieldNames{iLoadingParameters},'BrainState'))
-                        %Requirment 93
+                        obj.pi.(ParametersFieldNames{iLoadingParameters}).Value=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(ParametersFieldNames{iLoadingParameters});
                     end
                 elseif(isa(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(ParametersFieldNames{iLoadingParameters}),'struct'))
                     %Do Nothing and Just Avoid
@@ -7737,7 +3347,7 @@ classdef best_application < handle
             
             r0=uiextras.HBox( 'Parent', obj.pi.rtms.r0v1,'Spacing', 5, 'Padding', 5 );
             uicontrol( 'Style','text','Parent', r0,'String','Brain State:','FontSize',11,'HorizontalAlignment','left','Units','normalized'); % Inter Trial Inteval (s)
-            obj.pi.rtms.BrainState=uicontrol( 'Style','popupmenu','Parent', r0 ,'FontSize',11,'String',{'Independent','Dependent'},'Callback',@cb_UniversalPanelAdaptation);
+            obj.pi.BrainState=uicontrol( 'Style','popupmenu','Parent', r0 ,'FontSize',11,'String',{'Independent','Dependent'},'Callback',@cb_UniversalPanelAdaptation);
             set( r0, 'Widths', [150 -2]);
             BrainStateParametersPanel=uix.Panel( 'Parent', obj.pi.rtms.r0v1,'Padding',5,'Units','normalized','FontSize',8 ,'Units','normalized','Title','Brain State Parameters' ,'FontWeight','normal','TitlePosition','centertop');
             cb_BrainStateParametersPanel
@@ -7756,27 +3366,25 @@ classdef best_application < handle
             obj.pi.rtms.train.btn=uicontrol( 'Parent', r4 ,'Style','PushButton','String','','FontWeight','Bold','HorizontalAlignment','center','CData',obj.icons.train,'Tooltip','Click to Add a Train or Burst on selected stimulator (selected stimulator is highlighted in blue colour)','Tag','train','Callback',@obj.cb_pi_rtms_pulse);%add paired pulse
             set( r4, 'Widths', [55 55 55 55 55]);
             
-            cb_SetHeights;
+            
             
             
             obj.pi.rtms.r0v2 = uix.VBox( 'Parent', obj.pi.rtms.r0, 'Spacing', 5, 'Padding', 0); %uicontext menu to duplicate or delete a condition goes here
             obj.pi.mm.r0v2r1=uix.Panel( 'Parent', obj.pi.rtms.r0v2,'Padding',0,'Units','normalized','FontSize',8 ,'Units','normalized','Title','Stimulation Parameters' ,'FontWeight','normal','TitlePosition','centertop');
-            obj.cb_pi_rtms_StimulationParametersTable;
+            obj.cb_cm_StimulationParametersTable;
             
             obj.pi.mm.tab = uiextras.TabPanel( 'Parent', obj.pi.rtms.r0v2, 'Padding', 5 );
             obj.pi.rtms.r0v2.Heights=[200 -1];
             set(obj.pi.rtms.r0,'Widths',[-1.45 -3]);
             obj.pi.rtms.cond.no=0;
-            obj.cb_pi_rtms_Nconditions;
+            obj.cb_cm_Nconditions;
+            cb_SetHeights;
             function cb_UniversalPanelAdaptation(~,~)
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).BrainState=obj.pi.rtms.BrainState.Value;
-                cb_BrainStateParametersPanel
-                cb_DisplayParametersPanel
-                cb_SetHeights
-                obj.func_load_rtms_par;
+                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).BrainState=obj.pi.BrainState.Value;
+                obj.RefreshProtocol;
             end
             function cb_BrainStateParametersPanel(~,~)
-                switch obj.pi.rtms.BrainState.Value
+                switch obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).BrainState
                     case 1
                         expModvBox=uix.VBox( 'Parent', BrainStateParametersPanel, 'Spacing', 0, 'Padding', 0  );
                         
@@ -7849,7 +3457,7 @@ classdef best_application < handle
                 end
             end
             function cb_DisplayParametersPanel
-                switch obj.pi.rtms.BrainState.Value
+                switch obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).BrainState
                     case 1
                         expModvBox=uix.VBox( 'Parent', DisplayParametersPanel, 'Spacing', 0, 'Padding', 0  );
                         
@@ -7871,7 +3479,7 @@ classdef best_application < handle
                 end
             end
             function cb_SetHeights
-                switch obj.pi.rtms.BrainState.Value
+                switch obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).BrainState
                     case 1
                         set(obj.pi.rtms.r0v1,'Heights',[40 75 75 -3 55])
                     case 2
@@ -7886,1073 +3494,6 @@ classdef best_application < handle
                 end
                 
             end
-        end
-        function cb_pi_rtms_StimulationParametersTable(obj)
-            iData=0;
-            for iTableCondition=1:numel(fieldnames(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll))
-                TableCond=['cond' num2str(iTableCondition)];
-                ColCondition=1;
-                ColTS=2;
-                ColIntensityUnits=3;
-                ColStimulator=4;
-                ColPulseMode=5;
-                ColNoOfPulses=6;
-                ColTimingOnset=7;
-                ColCS=10;
-                ColISI=11;
-                ColTrainFreq=8;
-                ColNoOfTrains=9;
-                ColMotorThreshold=12;
-                
-                for iTableStimulator=1:numel(fieldnames(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond)))-1 %numel(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond))-1
-                    iData=iData+1;
-                    TableStim=['st' num2str(iTableStimulator)];
-                    TableData{iData,ColCondition}=num2str(iTableCondition);
-                    TableData{iData,ColCS}='          -';
-                    TableData{iData,ColISI}='          -';
-                    TableData{iData,ColTrainFreq}='          -';
-                    TableData{iData,ColNoOfTrains}='          -';
-                    if( isfield(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim),'si'))
-                        TableData{iData,ColTS}=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).si_pckt{1,1});
-                        
-                        %check here what has been saved and use that
-                        if(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).si_units==1)
-                            TableData{iData,ColIntensityUnits}='%MSO';
-                            TableData{iData,ColMotorThreshold}='          -';
-                        else
-                            TableData{iData,ColIntensityUnits}='%MT';
-                            TableData{iData,ColMotorThreshold}=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).threshold;
-                        end
-                    end
-                    
-                    if( isfield(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim),'stim_device'))
-                        TableData{iData,ColStimulator}=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).stim_device{1,1}; end
-                    
-                    if( isfield(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim),'pulse_count'))
-                        TableData{iData,ColNoOfPulses}=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).pulse_count); end
-                    if( isfield(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim),'stim_mode'))
-                        
-                        switch obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).stim_mode
-                            case 'single_pulse'
-                                TableData{iData,ColPulseMode}='Single Pulse';
-                            case 'paired_pulse'
-                                TableData{iData,ColPulseMode}='Paired Pulse';
-                                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).si_pckt{1,2};
-                                TableData{iData,ColCS}=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).si_pckt{1,2});
-                                TableData{iData,ColISI}=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).si_pckt{1,3});
-                            case 'train'
-                                TableData{iData,ColPulseMode}='Train';
-                                TableData{iData,ColTrainFreq}=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).si_pckt{1,2});
-                                TableData{iData,ColNoOfTrains}=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).si_pckt{1,3});
-                                TableData{iData,ColNoOfPulses}=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).pulse_count);
-                        end
-                    end
-                    if( isfield(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim),'stim_timing'))
-                        TableData{iData,ColTimingOnset}=mat2str(cell2mat(horzcat((obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).stim_timing(1,:))))); end
-                end
-            end
-            if (isempty(obj.hw.device_added2_listbox.string))
-                obj.hw.device_added2_listbox.string={'Select'};
-            end
-            % create the table and load the data
-            table=uitable( 'Parent', obj.pi.mm.r0v2r1);
-            table.Data=TableData;%cell(6,12); % the row number comes from above
-            table.FontSize=10;
-            table.ColumnName = {'Condition #','TS Intensity','Intensity Units','Stimulator','Pulse Mode','# of Trains','Timing Onset (ms)','Train Freq (Hz)','# of Pulses','CS Intensity','ISI (ms)','Motor Threshold (%MSO)'};
-            table.ColumnFormat={[],[],{'%MSO','%MT'},obj.hw.device_added2_listbox.string,{'Single Pulse','Paired Pulse', 'Train'},[],[],[],[],[],[],[]};
-            table.ColumnWidth = {100,100, 100,100,100,100,100,100,90,90,90,120};
-            table.ColumnEditable =true(1,numel(table.ColumnName));
-            table.RowStriping='on';
-            table.RearrangeableColumns='on';
-            table.CellEditCallback =@CellEditCallback ;
-            
-            function CellEditCallback (~,CellEditData)
-                AdditionInCondition=['cond' num2str(table.Data{CellEditData.Indices(1),1})];
-                AdditionInStimulatorNum=find(find(cellfun(@str2double ,table.Data(:,1))==str2double(table.Data{CellEditData.Indices(1),1}))==CellEditData.Indices(1));
-                AdditionInStimulator=['st' num2str(AdditionInStimulatorNum)];
-                opts               =    [];
-                opts.WindowStyle   =    'modal';
-                opts.Interpreter   =    'none';
-                switch CellEditData.Indices(2)
-                    case ColTS %TS Intensity
-                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).si_pckt{1,1}=str2double(CellEditData.NewData);
-                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).si=CellEditData.NewData;
-                    case ColIntensityUnits %Intensity Units
-                        switch CellEditData.NewData
-                            case '%MSO'
-                                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).si_units=1;
-                            case '%MT'
-                                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).si_units=0;
-                                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).threshold='NaN';
-                                
-                        end
-                        
-                    case ColStimulator %Stimulator
-                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).stim_device=cellstr(CellEditData.NewData);
-                        
-                    case ColPulseMode %Pulse Mode
-                        switch CellEditData.NewData
-                            case 'Single Pulse'
-                                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).stim_mode='single_pulse';
-                            case 'Paired Pulse'
-                                disp ????????????????????????????????????????????????????
-                                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).stim_mode='paired_pulse';
-                                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).si_pckt{1,2}=NaN;
-                                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).si_pckt{1,3}=NaN;
-                                
-                            case 'Train'
-                                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).stim_mode='train';
-                                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).si_pckt{1,2}=NaN;
-                                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).si_pckt{1,3}=NaN;
-                        end
-                        
-                    case ColNoOfPulses % # of Pulses
-                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).pulse_count=str2double(CellEditData.NewData);
-                        %AAJ: idher add kero k Stimulation Mode bhi nill ho jaye units bhi Nill ho
-                        %jaye intensity bhi khtam ho jaye matlab jese he pulse 0 zero ho to sirf vo
-                        %reh jaye to jab only stimulator add kerty hein to ata he
-                        if(str2double(CellEditData.NewData)==0)
-                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).stim_timing{1,1}=[];
-                        else
-                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).stim_timing{1,str2double(CellEditData.NewData)}=NaN;
-                        end
-                        
-                    case ColTimingOnset %Timing Onset (ms)
-                        CellEditDataTimingOnset=[];
-                        CellEditDataTimingOnset=num2cell(eval(CellEditData.NewData));
-                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).stim_timing=CellEditDataTimingOnset;
-                        
-                    case {ColTrainFreq,ColNoOfTrains} %Train Freq, # of Trians
-                        if ~(strcmp(table.Data{CellEditData.Indices(1),5},'Train'))
-                            table.Data(CellEditData.Indices(1),CellEditData.Indices(2))=cellstr('          -');
-                            errordlg('Train Frequency and # of Trians are only Editable for the "Train" Pulse Mode, change Pulse Mode respectively if you desire to set this parameter','Warning | BEST Toolbox',opts);
-                        else
-                            switch CellEditData.Indices(2)
-                                case ColTrainFreq
-                                    obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).si_pckt{1,2}=str2double(CellEditData.NewData);
-                                    obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).freq=CellEditData.NewData;
-                                case ColNoOfTrains
-                                    obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).si_pckt{1,3}=str2double(CellEditData.NewData);
-                                    obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).pulsesNo=CellEditData.NewData;
-                            end
-                            
-                        end
-                    case {ColCS,ColISI} % CS Intensity, ISI (ms)
-                        if ~(strcmp(table.Data{CellEditData.Indices(1),5},'Paired Pulse'))
-                            table.Data(CellEditData.Indices(1),CellEditData.Indices(2))=cellstr('          -');
-                            errordlg('CS Intensity and ISI are only Editable for the "Paired Pulse" Pulse Mode, change Pulse Mode respectively if you desire to set this parameter','Warning | BEST Toolbox',opts);
-                        else
-                            switch CellEditData.Indices(2)
-                                case ColCS
-                                    obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).si_pckt{1,2}=str2double(CellEditData.NewData);
-                                    obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).cs=CellEditData.NewData;
-                                case ColISI
-                                    obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).si_pckt{1,3}=str2double(CellEditData.NewData);
-                                    obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).isi=CellEditData.NewData;
-                            end
-                            
-                        end
-                    case ColMotorThreshold
-                        if ~(strcmp(table.Data{CellEditData.Indices(1),3},'%MT'))
-                            table.Data(CellEditData.Indices(1),CellEditData.Indices(2))=cellstr('          -');
-                            errordlg('The selected Stimulation Intensity Units are %MSO, change it to %MT from its dropdown menu if you desire to update this value to a specific threshold','Warning | BEST Toolbox',opts);
-                        else
-                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).threshold=CellEditData.NewData;
-                            
-                        end
-                end
-                %Improvement Note :Requirement 96
-                %                 obj.pr_rtms;
-                %cb_pulse_update
-                %cb_condition_addition
-                %cb_condition_deletion
-                %cb_stimulator_addition
-                %cb_stimulator_deletion
-                cb_pulse_update
-                function cb_pulse_update
-                    cd=[];
-                    st=[];
-                    condStr=[];
-                    obj.pi.mm.tab.SelectedChild=str2double(table.Data{CellEditData.Indices(1),1});
-                    
-                    cd=['cd' num2str(table.Data{CellEditData.Indices(1),1})];
-                    condStr=['cond' num2str(table.Data{CellEditData.Indices(1),1})];
-                    obj.pi.mm.stim.(cd).slctd=AdditionInStimulatorNum;
-                    st=['st' num2str(obj.pi.mm.stim.(cd).slctd)];
-                    obj.pi.mm.stim.(cd).(st).pulse_count=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).pulse_count;
-                    axes(obj.pi.mm.cond.(cd).ax)
-                    cla;
-                    hold on;
-                    contextMenu_condition=uicontextmenu(obj.fig.handle);
-                    uimenu(contextMenu_condition,'label','Duplicate Condition','Callback',@cb_pr_mm_duplicateCondition);
-                    uimenu(contextMenu_condition,'label','Delete Condition','Callback',@cb_pr_mm_deleteCondition);
-                    obj.pi.mm.cond.(cd).ax.YLim=[-1 1];
-                    obj.pi.mm.cond.(cd).ax.XLim=[0 5];
-                    xticks(obj.pi.mm.cond.(cd).ax,[100 101]);
-                    yticks(obj.pi.mm.cond.(cd).ax,-1:1:1)
-                    obj.pi.mm.cond.(cd).ax.YTickLabel={'','',''};
-                    plot(0:0.01:10,rand(1,1001)*0.30-0.15,'Color','k','parent',obj.pi.mm.cond.(cd).ax,'LineWidth',2,'Tag','empty'); % 12-Mar-2020 07:37:17
-                    text(2.5,0+0.20,['Channel Name:[' char(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).targetChannel) ']'],'VerticalAlignment','bottom','HorizontalAlignment','center','Color',[0.50 0.50 0.50],'FontSize',9,'FontAngle','italic','ButtonDownFcn',@obj.cb_pi_rtms_targetChannel) % 11-Mar-2020 14:49:00
-                    obj.pi.mm.stim.(cd).no=0;
-                    
-                    %make stimulators
-                    for istimulators=1:(length(fieldnames(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr)))-1)
-                        obj.pi.mm.stim.(cd).no=istimulators;
-                        st=['st' num2str(obj.pi.mm.stim.(cd).no)];
-                        axes(obj.pi.mm.cond.(cd).ax)
-                        hold on;
-                        obj.pi.mm.stim.(cd).(st).plt=plot([-45 45],[-1*obj.pi.mm.stim.(cd).no -1*obj.pi.mm.stim.(cd).no],'Color','k','parent',obj.pi.mm.cond.(cd).ax,'LineWidth',2,'Tag',num2str(obj.pi.mm.stim.(cd).no),'ButtonDownFcn',@cb_stimulatorSelector); %line
-                        %                     obj.pi.mm.stim.(cd).(st).pulse_count=0;
-                        %                     obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).pulse_count=obj.pi.mm.stim.(cd).(st).pulse_count;
-                        obj.pi.mm.cond.(cd).ax.YLim=[(-1-obj.pi.mm.stim.(cd).no) 1];
-                        yticks(obj.pi.mm.cond.(cd).ax,[-1-obj.pi.mm.stim.(cd).no:1:1])
-                        for i=1:obj.pi.mm.stim.(cd).no
-                            yticklab{1,i}=cellstr(['Stimulator ' num2str(i)]);
-                        end
-                        yticklab=flip(horzcat(yticklab{1,:}));
-                        obj.pi.mm.cond.(cd).ax.YTickLabel={'',char(yticklab),'',''};
-                        text(0,-1*obj.pi.mm.stim.(cd).no,char(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).stim_device),'VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',9,'FontAngle','italic','Tag',num2str(obj.pi.mm.stim.(cd).no),'ButtonDownFcn',@obj.cb_pi_rtms_output_device)
-                        sprintf('here it is %d ----------------------------------------------------',obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).pulse_count)
-                        for ipulses=1:obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).pulse_count
-                            disp NOTENTERED=============================================================
-                            % 11-Mar-2020 18:13:21
-                            obj.pi.mm.stim.(cd).slctd=istimulators;
-                            obj.pi.mm.stim.(cd).(st).pulse_count=ipulses;
-                            %                         obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).pulse_count=obj.pi.mm.stim.(cd).(st).pulse_count;
-                            
-                            switch char(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).stim_mode)
-                                case 'single_pulse'
-                                    obj.pi.mm.stim.(cd).(st).pulse_types{1,obj.pi.mm.stim.(cd).(st).pulse_count}=cellstr('single_pulse');
-                                    %make the string here
-                                    SinglePulseAnnotation=[];
-                                    if (obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_units==1)
-                                        disp HEHEHEHEHEHEHEHEHEHHEHEHEHEHEEEH
-                                        
-                                        SinglePulseAnnotation=['TS: [' num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt{1,1}) '] %MSO'];
-                                    else
-                                        SinglePulseAnnotation=['TS: [' num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt{1,1}) '] %MT'];
-                                    end
-                                    %AAJ: idher ye banao jese oper hehehehehe
-                                    %vala bnaya he pp aur train dono k lye
-                                    text(obj.pi.mm.stim.(cd).(st).pulse_count-0.25,-obj.pi.mm.stim.(cd).slctd+0.41,SinglePulseAnnotation,'VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',7,'FontAngle','italic','UserData',[obj.pi.mm.stim.(cd).(st).pulse_count,obj.pi.mm.stim.(cd).slctd],'ButtonDownFcn',@obj.cb_pi_rtms_sp_inputfig) % 11-Mar-2020 14:49:00
-                                case 'paired_pulse'
-                                    obj.pi.mm.stim.(cd).(st).pulse_types{1,obj.pi.mm.stim.(cd).(st).pulse_count}=cellstr('paired_pulse');
-                                    % % %                                 text(obj.pi.mm.stim.(cd).(st).pulse_count-0.25,-obj.pi.mm.stim.(cd).slctd+0.4,{'TS:[?], CS:[?] %MSO', 'ISI:[?] ms'},'VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',7,'FontAngle','italic','UserData',[obj.pi.mm.stim.(cd).(st).pulse_count,obj.pi.mm.stim.(cd).slctd],'ButtonDownFcn',@obj.cb_pi_rtms_pp_inputfig) % 11-Mar-2020 14:49:00
-                                    TS=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt{1,1});
-                                    CS=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt{1,2});
-                                    ISI=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt{1,3});
-                                    if obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_units==1
-                                        UnitString='%MSO';
-                                    elseif obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_units==0
-                                        UnitString='%MT';
-                                    end
-                                    text(obj.pi.mm.stim.(cd).(st).pulse_count-0.25,-obj.pi.mm.stim.(cd).slctd+0.4,{['TS:' TS ', CS:' CS ' ' UnitString], ['ISI:' ISI 'ms']},'VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',7,'FontAngle','italic','UserData',[obj.pi.mm.stim.(cd).(st).pulse_count,obj.pi.mm.stim.(cd).slctd],'ButtonDownFcn',@obj.cb_pi_rtms_pp_inputfig) % 11-Mar-2020 14:49:00
-                                    
-                                case 'train'
-                                    obj.pi.mm.stim.(cd).(st).pulse_types{1,obj.pi.mm.stim.(cd).(st).pulse_count}=cellstr('train');
-                                    %                                 obj.pi.mm.stim.(st).pulse_specs=text(obj.pi.mm.stim.(cd).(st).pulse_count,-obj.pi.mm.stim.(cd).slctd+0.4,{'Pulses:[?], f:[?] Hz', 'TS:[?] %MSO'},'VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',7,'FontAngle','italic','UserData',[obj.pi.mm.stim.(cd).(st).pulse_count,obj.pi.mm.stim.(cd).slctd],'ButtonDownFcn',@obj.cb_pi_rtms_train_inputfig); % 11-Mar-2020 14:49:00
-                                    TS=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt{1,1});
-                                    F=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt{1,2});
-                                    PULSES=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt{1,3});
-                                    if obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_units==1
-                                        UnitString='%MSO';
-                                    elseif obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_units==0
-                                        UnitString='%MT';
-                                    end
-                                    obj.pi.mm.stim.(st).pulse_specs=text(obj.pi.mm.stim.(cd).(st).pulse_count,-obj.pi.mm.stim.(cd).slctd+0.4,{['Pulses:' PULSES ', f:' F 'Hz'], ['TS:' TS UnitString]},'VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',7,'FontAngle','italic','UserData',[obj.pi.mm.stim.(cd).(st).pulse_count,obj.pi.mm.stim.(cd).slctd],'ButtonDownFcn',@obj.cb_pi_rtms_train_inputfig); % 11-Mar-2020 14:49:00
-                                    
-                            end
-                            
-                            
-                            % delete the previous plot
-                            delete(obj.pi.mm.stim.(cd).(st).plt)
-                            % make the x and y vector for new one
-                            x=[];
-                            y=[];
-                            for i=1:obj.pi.mm.stim.(cd).(st).pulse_count
-                                switch char(obj.pi.mm.stim.(cd).(st).pulse_types{1,i})
-                                    case 'single_pulse'
-                                        disp sp
-                                        x{i}=([i i i+0.15 i+0.15]);
-                                        y{i}=[-obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd+0.4 -obj.pi.mm.stim.(cd).slctd+0.4 -obj.pi.mm.stim.(cd).slctd];
-                                    case 'paired_pulse'
-                                        disp pp
-                                        x{i}=[i i i+0.15 i+0.15 i+0.25 i+0.25 i+0.40 i+0.40];
-                                        y{i}=[-obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd+0.20 -obj.pi.mm.stim.(cd).slctd+0.20 -obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd+0.4 -obj.pi.mm.stim.(cd).slctd+0.4 -obj.pi.mm.stim.(cd).slctd];
-                                    case 'train'
-                                        disp train
-                                        %                         x(i)=[i i i+0.20 i+0.20 i+0.30 i+0.30 i+0.50 i+0.50 i+0.60 i+0.60 i+0.80 i+0.80];
-                                        x{i}=[i i i+0.15 i+0.15 i+0.25 i+0.25 i+0.40 i+0.40 i+0.50 i+0.50 i+0.65 i+0.65];
-                                        %                         y{i}={[-obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd+0.5 -obj.pi.mm.stim.(cd).slctd+0.5 -obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd+0.5 -obj.pi.mm.stim.(cd).slctd+0.5 -obj.pi.mm.stim.(cd).slctd]};
-                                        
-                                        y{i}=-obj.pi.mm.stim.(cd).slctd+[0 0.4 0.4 0 0 0.4 0.4 0 0 0.4 0.4 0];
-                                end
-                            end
-                            
-                            x=[-45 cell2mat(x) 45];
-                            y=[-obj.pi.mm.stim.(cd).slctd cell2mat(y) -obj.pi.mm.stim.(cd).slctd];
-                            
-                            obj.pi.mm.stim.(cd).(st).plt=plot(x,y,'Color','k','parent',obj.pi.mm.cond.(cd).ax,'LineWidth',2,'Tag',num2str(obj.pi.mm.stim.(cd).slctd),'ButtonDownFcn',@cb_stimulatorSelector); %line
-                            
-                            drawArrow = @(x,y) quiver( x(1),y(1),x(2)-x(1),y(2)-y(1),0,'color','k' );
-                            num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).stim_timing{1,ipulses})
-                            obj.pi.mm.stim.(st).pulse_time=text(obj.pi.mm.stim.(cd).(st).pulse_count-1+0.5,-obj.pi.mm.stim.(cd).slctd-0.05,['t:' num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).stim_timing{1,ipulses}) 'ms'],'VerticalAlignment','top','Color',[0.50 0.50 0.50],'FontSize',9,'FontAngle','italic','UserData',[obj.pi.mm.stim.(cd).(st).pulse_count,obj.pi.mm.stim.(cd).slctd],'ButtonDownFcn',@obj.cb_pi_rtms_timing)
-                            
-                            obj.pi.mm.stim.(st).pulse_arrow1=drawArrow([obj.pi.mm.stim.(cd).(st).pulse_count-1 obj.pi.mm.stim.(cd).(st).pulse_count-1+1],[-obj.pi.mm.stim.(cd).slctd-0.05 -obj.pi.mm.stim.(cd).slctd-0.05])
-                            obj.pi.mm.stim.(st).pulse_arrow2=drawArrow([obj.pi.mm.stim.(cd).(st).pulse_count-1+1 obj.pi.mm.stim.(cd).(st).pulse_count-1],[-obj.pi.mm.stim.(cd).slctd-0.05 -obj.pi.mm.stim.(cd).slctd-0.05])
-                            
-                            
-                            if(obj.pi.mm.cond.(cd).ax.XLim(2)<obj.pi.mm.stim.(cd).(st).pulse_count+1)
-                                obj.pi.mm.cond.(cd).ax.XLim(2)=obj.pi.mm.stim.(cd).(st).pulse_count+1;
-                            end
-                            
-                        end
-                        
-                    end
-                    function cb_stimulatorSelector(source,~)
-                        if(isfield(obj.pi.mm,'stimulatorSelector'))
-                            if(isvalid(obj.pi.mm.stimulatorSelector))
-                                obj.pi.mm.stimulatorSelector.Color='k';
-                            end
-                        end
-                        obj.pi.mm.stim.(cd).slctd=str2double(source.Tag);
-                        source.Color='b';
-                        obj.pi.mm.stimulatorSelector=source;
-                    end
-                    function cb_pr_mm_duplicateCondition(~,~)
-                        disp PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP
-                        conditionIndex=length(fieldnames(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll));
-                        cond_duplicated_from=['cond' num2str(obj.pi.mm.tab.SelectedChild)];
-                        cond_duplicated_to=['cond' num2str(conditionIndex+1)];
-                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cond_duplicated_to)=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cond_duplicated_from);
-                        obj.pr_rtms;
-                        obj.func_load_rtms_par;
-                    end
-                    function cb_pr_mm_deleteCondition(~,~)
-                        disp PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP
-                        
-                        condsAll_fieldnames=fieldnames(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll);
-                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll=rmfield(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll,char(condsAll_fieldnames(obj.pi.mm.tab.SelectedChild)));
-                        condsAll_fieldnames(obj.pi.mm.tab.SelectedChild)=[];
-                        for deleteIndex_condition=1:(length(fieldnames(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll)))
-                            cond_resorted_afterdelete=['cond' num2str(deleteIndex_condition)];
-                            condsAll_new.(cond_resorted_afterdelete)=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(char(condsAll_fieldnames(deleteIndex_condition)));
-                        end
-                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll=condsAll_new;
-                        obj.pr_rtms;
-                        obj.func_load_rtms_par;
-                    end
-                end
-                
-                
-                
-                
-                %AAJ: add a new uimenu in table for add a condition,
-                %add a stimulator to this condition, delete a
-                %condition, delete a stimulator
-                
-            end
-            
-            
-        end
-        function cb_pi_rtms_Nconditions(obj)
-            
-            obj.pi.mm.cond.TabNames=[];
-            contextMenu_condition=uicontextmenu(obj.fig.handle);
-            uimenu(contextMenu_condition,'label','Duplicate Condition','Callback',@cb_pr_mm_duplicateCondition);
-            uimenu(contextMenu_condition,'label','Delete Condition','Callback',@cb_pr_mm_deleteCondition);
-            for iconds=1:length(fieldnames(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll))
-                obj.pi.mm.cond.no=iconds;
-                cd=['cd' num2str(obj.pi.mm.cond.no)];
-                condStr=['cond' num2str(obj.pi.mm.cond.no)];
-                obj.pi.mm.cond.(cd).ax_panel= uix.Panel( 'Parent',obj.pi.mm.tab,'uicontextmenu',contextMenu_condition);
-                obj.pi.mm.cond.(cd).ax=axes('parent',obj.pi.mm.cond.(cd).ax_panel );
-                box on; hold on;
-                obj.pi.mm.cond.TabNames{1,obj.pi.mm.cond.no}=['Condition' num2str(obj.pi.mm.cond.no)];
-                obj.pi.mm.tab.TabNames=obj.pi.mm.cond.TabNames;
-                obj.pi.mm.tab.SelectedChild=1;
-                obj.pi.mm.tab.TabSize=90;
-                obj.pi.mm.tab.FontSize=12;
-                obj.pi.mm.cond.(cd).ax.YLim=[-1 1];
-                obj.pi.mm.cond.(cd).ax.XLim=[0 5];
-                xticks(obj.pi.mm.cond.(cd).ax,[100 101]);
-                yticks(obj.pi.mm.cond.(cd).ax,-1:1:1)
-                obj.pi.mm.cond.(cd).ax.YTickLabel={'','',''};
-                plot(0:0.01:10,rand(1,1001)*0.30-0.15,'Color','k','parent',obj.pi.mm.cond.(cd).ax,'LineWidth',2,'Tag','empty'); % 12-Mar-2020 07:37:17
-                %%                 text(2.5,0+0.20,['Channel Name:[' char(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).targetChannel) ']'],'VerticalAlignment','bottom','HorizontalAlignment','center','Color',[0.50 0.50 0.50],'FontSize',9,'FontAngle','italic','ButtonDownFcn',@obj.cb_pi_rtms_targetChannel) % 11-Mar-2020 14:49:00
-                obj.pi.mm.stim.(cd).no=0;
-                
-                %make stimulators
-                for istimulators=1:(length(fieldnames(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr)))-1)
-                    obj.pi.mm.stim.(cd).no=istimulators;
-                    st=['st' num2str(obj.pi.mm.stim.(cd).no)];
-                    axes(obj.pi.mm.cond.(cd).ax)
-                    hold on;
-                    obj.pi.mm.stim.(cd).(st).plt=plot([-45 45],[-1*obj.pi.mm.stim.(cd).no -1*obj.pi.mm.stim.(cd).no],'Color','k','parent',obj.pi.mm.cond.(cd).ax,'LineWidth',2,'Tag',num2str(obj.pi.mm.stim.(cd).no),'ButtonDownFcn',@cb_stimulatorSelector); %line
-                    %                     obj.pi.mm.stim.(cd).(st).pulse_count=0;
-                    %                     obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).pulse_count=obj.pi.mm.stim.(cd).(st).pulse_count;
-                    obj.pi.mm.cond.(cd).ax.YLim=[(-1-obj.pi.mm.stim.(cd).no) 1];
-                    yticks(obj.pi.mm.cond.(cd).ax,[-1-obj.pi.mm.stim.(cd).no:1:1])
-                    for i=1:obj.pi.mm.stim.(cd).no
-                        yticklab{1,i}=cellstr(['Stimulator ' num2str(i)]);
-                    end
-                    yticklab=flip(horzcat(yticklab{1,:}));
-                    obj.pi.mm.cond.(cd).ax.YTickLabel={'',char(yticklab),'',''};
-                    text(0,-1*obj.pi.mm.stim.(cd).no,char(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).stim_device),'VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',9,'FontAngle','italic','Tag',num2str(obj.pi.mm.stim.(cd).no),'ButtonDownFcn',@obj.cb_pi_rtms_output_device)
-                    sprintf('here it is %d ----------------------------------------------------',obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).pulse_count)
-                    for ipulses=1:obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).pulse_count
-                        disp NOTENTERED=============================================================
-                        % 11-Mar-2020 18:13:21
-                        obj.pi.mm.stim.(cd).slctd=istimulators;
-                        obj.pi.mm.stim.(cd).(st).pulse_count=ipulses;
-                        %                         obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).pulse_count=obj.pi.mm.stim.(cd).(st).pulse_count;
-                        
-                        switch char(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).stim_mode)
-                            case 'single_pulse'
-                                obj.pi.mm.stim.(cd).(st).pulse_types{1,obj.pi.mm.stim.(cd).(st).pulse_count}=cellstr('single_pulse');
-                                %make the string here
-                                SinglePulseAnnotation=[];
-                                if (obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_units==1)
-                                    disp HEHEHEHEHEHEHEHEHEHHEHEHEHEHEEEH
-                                    
-                                    SinglePulseAnnotation=['TS: [' num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt{1,1}) '] %MSO'];
-                                else
-                                    SinglePulseAnnotation=['TS: [' num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt{1,1}) '] %MT'];
-                                end
-                                %AAJ: idher ye banao jese oper hehehehehe
-                                %vala bnaya he pp aur train dono k lye
-                                text(obj.pi.mm.stim.(cd).(st).pulse_count-0.25,-obj.pi.mm.stim.(cd).slctd+0.41,SinglePulseAnnotation,'VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',7,'FontAngle','italic','UserData',[obj.pi.mm.stim.(cd).(st).pulse_count,obj.pi.mm.stim.(cd).slctd],'ButtonDownFcn',@obj.cb_pi_rtms_sp_inputfig) % 11-Mar-2020 14:49:00
-                            case 'paired_pulse'
-                                obj.pi.mm.stim.(cd).(st).pulse_types{1,obj.pi.mm.stim.(cd).(st).pulse_count}=cellstr('paired_pulse');
-                                % % %                                 text(obj.pi.mm.stim.(cd).(st).pulse_count-0.25,-obj.pi.mm.stim.(cd).slctd+0.4,{'TS:[?], CS:[?] %MSO', 'ISI:[?] ms'},'VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',7,'FontAngle','italic','UserData',[obj.pi.mm.stim.(cd).(st).pulse_count,obj.pi.mm.stim.(cd).slctd],'ButtonDownFcn',@obj.cb_pi_rtms_pp_inputfig) % 11-Mar-2020 14:49:00
-                                TS=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt{1,1});
-                                CS=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt{1,2});
-                                ISI=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt{1,3});
-                                if obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_units==1
-                                    UnitString='%MSO';
-                                elseif obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_units==0
-                                    UnitString='%MT';
-                                end
-                                text(obj.pi.mm.stim.(cd).(st).pulse_count-0.25,-obj.pi.mm.stim.(cd).slctd+0.4,{['TS:' TS ', CS:' CS ' ' UnitString], ['ISI:' ISI 'ms']},'VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',7,'FontAngle','italic','UserData',[obj.pi.mm.stim.(cd).(st).pulse_count,obj.pi.mm.stim.(cd).slctd],'ButtonDownFcn',@obj.cb_pi_rtms_pp_inputfig) % 11-Mar-2020 14:49:00
-                                
-                            case 'train'
-                                obj.pi.mm.stim.(cd).(st).pulse_types{1,obj.pi.mm.stim.(cd).(st).pulse_count}=cellstr('train');
-                                %                                 obj.pi.mm.stim.(st).pulse_specs=text(obj.pi.mm.stim.(cd).(st).pulse_count,-obj.pi.mm.stim.(cd).slctd+0.4,{'Pulses:[?], f:[?] Hz', 'TS:[?] %MSO'},'VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',7,'FontAngle','italic','UserData',[obj.pi.mm.stim.(cd).(st).pulse_count,obj.pi.mm.stim.(cd).slctd],'ButtonDownFcn',@obj.cb_pi_rtms_train_inputfig); % 11-Mar-2020 14:49:00
-                                TS=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt{1,1});
-                                F=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt{1,2});
-                                PULSES=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt{1,3});
-                                if obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_units==1
-                                    UnitString='%MSO';
-                                elseif obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_units==0
-                                    UnitString='%MT';
-                                end
-                                obj.pi.mm.stim.(st).pulse_specs=text(obj.pi.mm.stim.(cd).(st).pulse_count,-obj.pi.mm.stim.(cd).slctd+0.4,{['Pulses:' PULSES ', f:' F 'Hz'], ['TS:' TS UnitString]},'VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',7,'FontAngle','italic','UserData',[obj.pi.mm.stim.(cd).(st).pulse_count,obj.pi.mm.stim.(cd).slctd],'ButtonDownFcn',@obj.cb_pi_rtms_train_inputfig); % 11-Mar-2020 14:49:00
-                                
-                        end
-                        
-                        
-                        % delete the previous plot
-                        delete(obj.pi.mm.stim.(cd).(st).plt)
-                        % make the x and y vector for new one
-                        x=[];
-                        y=[];
-                        for i=1:obj.pi.mm.stim.(cd).(st).pulse_count
-                            switch char(obj.pi.mm.stim.(cd).(st).pulse_types{1,i})
-                                case 'single_pulse'
-                                    disp sp
-                                    x{i}=([i i i+0.15 i+0.15]);
-                                    y{i}=[-obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd+0.4 -obj.pi.mm.stim.(cd).slctd+0.4 -obj.pi.mm.stim.(cd).slctd];
-                                case 'paired_pulse'
-                                    disp pp
-                                    x{i}=[i i i+0.15 i+0.15 i+0.25 i+0.25 i+0.40 i+0.40];
-                                    y{i}=[-obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd+0.20 -obj.pi.mm.stim.(cd).slctd+0.20 -obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd+0.4 -obj.pi.mm.stim.(cd).slctd+0.4 -obj.pi.mm.stim.(cd).slctd];
-                                case 'train'
-                                    disp train
-                                    %                         x(i)=[i i i+0.20 i+0.20 i+0.30 i+0.30 i+0.50 i+0.50 i+0.60 i+0.60 i+0.80 i+0.80];
-                                    x{i}=[i i i+0.15 i+0.15 i+0.25 i+0.25 i+0.40 i+0.40 i+0.50 i+0.50 i+0.65 i+0.65];
-                                    %                         y{i}={[-obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd+0.5 -obj.pi.mm.stim.(cd).slctd+0.5 -obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd+0.5 -obj.pi.mm.stim.(cd).slctd+0.5 -obj.pi.mm.stim.(cd).slctd]};
-                                    
-                                    y{i}=-obj.pi.mm.stim.(cd).slctd+[0 0.4 0.4 0 0 0.4 0.4 0 0 0.4 0.4 0];
-                            end
-                        end
-                        
-                        x=[-45 cell2mat(x) 45];
-                        y=[-obj.pi.mm.stim.(cd).slctd cell2mat(y) -obj.pi.mm.stim.(cd).slctd];
-                        
-                        obj.pi.mm.stim.(cd).(st).plt=plot(x,y,'Color','k','parent',obj.pi.mm.cond.(cd).ax,'LineWidth',2,'Tag',num2str(obj.pi.mm.stim.(cd).slctd),'ButtonDownFcn',@cb_stimulatorSelector); %line
-                        
-                        drawArrow = @(x,y) quiver( x(1),y(1),x(2)-x(1),y(2)-y(1),0,'color','k' );
-                        num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).stim_timing{1,ipulses})
-                        obj.pi.mm.stim.(st).pulse_time=text(obj.pi.mm.stim.(cd).(st).pulse_count-1+0.5,-obj.pi.mm.stim.(cd).slctd-0.05,['t:' num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).stim_timing{1,ipulses}) 'ms'],'VerticalAlignment','top','Color',[0.50 0.50 0.50],'FontSize',9,'FontAngle','italic','UserData',[obj.pi.mm.stim.(cd).(st).pulse_count,obj.pi.mm.stim.(cd).slctd],'ButtonDownFcn',@obj.cb_pi_rtms_timing)
-                        
-                        obj.pi.mm.stim.(st).pulse_arrow1=drawArrow([obj.pi.mm.stim.(cd).(st).pulse_count-1 obj.pi.mm.stim.(cd).(st).pulse_count-1+1],[-obj.pi.mm.stim.(cd).slctd-0.05 -obj.pi.mm.stim.(cd).slctd-0.05])
-                        obj.pi.mm.stim.(st).pulse_arrow2=drawArrow([obj.pi.mm.stim.(cd).(st).pulse_count-1+1 obj.pi.mm.stim.(cd).(st).pulse_count-1],[-obj.pi.mm.stim.(cd).slctd-0.05 -obj.pi.mm.stim.(cd).slctd-0.05])
-                        
-                        
-                        if(obj.pi.mm.cond.(cd).ax.XLim(2)<obj.pi.mm.stim.(cd).(st).pulse_count+1)
-                            obj.pi.mm.cond.(cd).ax.XLim(2)=obj.pi.mm.stim.(cd).(st).pulse_count+1;
-                        end
-                        
-                    end
-                    
-                end
-                %make pulses
-                
-                
-                
-            end
-            function cb_stimulatorSelector(source,~)
-                if(isfield(obj.pi.mm,'stimulatorSelector'))
-                    if(isvalid(obj.pi.mm.stimulatorSelector))
-                        obj.pi.mm.stimulatorSelector.Color='k';
-                    end
-                end
-                obj.pi.mm.stim.(cd).slctd=str2double(source.Tag);
-                source.Color='b';
-                obj.pi.mm.stimulatorSelector=source;
-            end
-            function cb_pr_mm_duplicateCondition(~,~)
-                disp PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP
-                conditionIndex=length(fieldnames(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll));
-                cond_duplicated_from=['cond' num2str(obj.pi.mm.tab.SelectedChild)];
-                cond_duplicated_to=['cond' num2str(conditionIndex+1)];
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cond_duplicated_to)=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cond_duplicated_from);
-                obj.pi_rtms;
-                obj.func_load_rtms_par;
-            end
-            function cb_pr_mm_deleteCondition(~,~)
-                disp PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP
-                
-                condsAll_fieldnames=fieldnames(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll);
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll=rmfield(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll,char(condsAll_fieldnames(obj.pi.mm.tab.SelectedChild)));
-                condsAll_fieldnames(obj.pi.mm.tab.SelectedChild)=[];
-                for deleteIndex_condition=1:(length(fieldnames(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll)))
-                    cond_resorted_afterdelete=['cond' num2str(deleteIndex_condition)];
-                    condsAll_new.(cond_resorted_afterdelete)=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(char(condsAll_fieldnames(deleteIndex_condition)));
-                end
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll=condsAll_new;
-                obj.pi_rtms;
-                obj.func_load_rtms_par;
-            end
-        end
-        function cb_pi_rtms_conditions(obj)
-            obj.pi.mm.cond.no=obj.pi.mm.cond.no+1;
-            cd=['cd' num2str(obj.pi.mm.cond.no)];
-            condStr=['cond' num2str(obj.pi.mm.cond.no)];
-            contextMenu_condition=uicontextmenu(obj.fig.handle);
-            uimenu(contextMenu_condition,'label','Duplicate Condition','Callback',@cb_pr_mm_duplicateCondition);
-            uimenu(contextMenu_condition,'label','Delete Condition','Callback',@cb_pr_mm_deleteCondition);
-            obj.pi.mm.cond.(cd).ax_panel= uix.Panel( 'Parent',obj.pi.mm.tab,'uicontextmenu',contextMenu_condition);
-            obj.pi.mm.cond.(cd).ax=axes('parent',obj.pi.mm.cond.(cd).ax_panel );
-            box on; hold on;
-            obj.pi.mm.cond.TabNames{1,obj.pi.mm.cond.no}=['Condition' num2str(obj.pi.mm.cond.no)];
-            obj.pi.mm.tab.TabNames=obj.pi.mm.cond.TabNames;
-            obj.pi.mm.tab.SelectedChild=obj.pi.mm.cond.no;
-            obj.pi.mm.tab.TabSize=90;
-            obj.pi.mm.tab.FontSize=12;
-            obj.pi.mm.cond.(cd).ax.YLim=[-1 1];
-            obj.pi.mm.cond.(cd).ax.XLim=[0 5];
-            xticks(obj.pi.mm.cond.(cd).ax,[100 101]);
-            yticks(obj.pi.mm.cond.(cd).ax,[-1:1:1])
-            obj.pi.mm.cond.(cd).ax.YTickLabel={'','',''};
-            plot(0:0.01:10,rand(1,1001)*0.30-0.15,'Color','k','parent',obj.pi.mm.cond.(cd).ax,'LineWidth',2,'Tag','empty'); % 12-Mar-2020 07:37:17
-            %%             text(2.5,0+0.20,'Channel Name:[?]','VerticalAlignment','bottom','HorizontalAlignment','center','Color',[0.50 0.50 0.50],'FontSize',9,'FontAngle','italic','ButtonDownFcn',@obj.cb_pi_rtms_targetChannel) % 11-Mar-2020 14:49:00
-            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).targetChannel=cellstr('NaN');
-            obj.pi.mm.stim.(cd).no=0;
-            function cb_pr_mm_duplicateCondition(~,~)
-                conditionIndex=length(fieldnames(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll));
-                cond_duplicated_from=['cond' num2str(obj.pi.mm.tab.SelectedChild)];
-                cond_duplicated_to=['cond' num2str(conditionIndex+1)];
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cond_duplicated_to)=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cond_duplicated_from);
-                obj.pi_rtms;
-                obj.func_load_rtms_par;
-            end
-            function cb_pr_mm_deleteCondition(~,~)
-                condsAll_fieldnames=fieldnames(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll);
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll=rmfield(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll,char(condsAll_fieldnames(obj.pi.mm.tab.SelectedChild)));
-                condsAll_fieldnames(obj.pi.mm.tab.SelectedChild)=[];
-                for deleteIndex_condition=1:(length(fieldnames(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll)))
-                    cond_resorted_afterdelete=['cond' num2str(deleteIndex_condition)];
-                    condsAll_new.(cond_resorted_afterdelete)=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(char(condsAll_fieldnames(deleteIndex_condition)));
-                end
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll=condsAll_new;
-                obj.pi_rtms;
-                obj.func_load_rtms_par;
-            end
-            obj.cb_pi_rtms_StimulationParametersTable;
-            
-            
-        end
-        function cb_pi_rtms_stim(obj)
-            
-            obj.pi.mm.tab.TabNames=obj.pi.mm.cond.TabNames;
-            cd=['cd' num2str(obj.pi.mm.tab.SelectedChild)];
-            condStr=['cond' num2str(obj.pi.mm.tab.SelectedChild)];
-            obj.pi.mm.stim.(cd).no=obj.pi.mm.stim.(cd).no+1;
-            st=['st' num2str(obj.pi.mm.stim.(cd).no)];
-            axes(obj.pi.mm.cond.(cd).ax)
-            hold on;
-            %             plot([-45 45],[1 1],'Color','k','parent',obj.pi.mm.ax);
-            %             plot([-45 45],[0 0],'Color','k','parent',obj.pi.mm.ax);
-            
-            
-            obj.pi.mm.stim.(cd).(st).plt=plot([-45 45],[-1*obj.pi.mm.stim.(cd).no -1*obj.pi.mm.stim.(cd).no],'Color','k','parent',obj.pi.mm.cond.(cd).ax,'LineWidth',2,'Tag',num2str(obj.pi.mm.stim.(cd).no),'ButtonDownFcn',@cb_stimulatorSelector); %line
-            %             obj.pi.mm.stim.(cd).(st).pulse_count=0;
-            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).pulse_count=0;
-            obj.pi.mm.stim.(cd).(st).plt.Tag
-            %             plot([-45 45],[-2-obj.pi.mm.stim.no -2-obj.pi.mm.stim.no],'Color','k','parent',obj.pi.mm.ax);
-            obj.pi.mm.cond.(cd).ax.YLim=[(-1-obj.pi.mm.stim.(cd).no) 1];
-            yticks(obj.pi.mm.cond.(cd).ax,[-1-obj.pi.mm.stim.(cd).no:1:1])
-            for i=1:obj.pi.mm.stim.(cd).no
-                yticklab{1,i}=cellstr(['Stimulator ' num2str(i)]);
-            end
-            yticklab=flip(horzcat(yticklab{1,:}));
-            obj.pi.mm.cond.(cd).ax.YTickLabel={'',char(yticklab),'',''};
-            text(0,-1*obj.pi.mm.stim.(cd).no,'click to tag device','VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',9,'FontAngle','italic','Tag',num2str(obj.pi.mm.stim.(cd).no),'ButtonDownFcn',@obj.cb_pi_rtms_output_device)
-            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).stim_device=cellstr('Select');
-            function cb_stimulatorSelector(source,~)
-                if(isfield(obj.pi.mm,'stimulatorSelector'))
-                    if(isvalid(obj.pi.mm.stimulatorSelector))
-                        obj.pi.mm.stimulatorSelector.Color='k';
-                    end
-                end
-                obj.pi.mm.stim.(cd).slctd=str2double(source.Tag);
-                source.Color='b';
-                obj.pi.mm.stimulatorSelector=source;
-            end
-            obj.cb_pi_rtms_StimulationParametersTable;
-        end
-        function cb_pi_rtms_pulse(obj,source,~)
-            % 11-Mar-2020 18:13:21
-            cd=['cd' num2str(obj.pi.mm.tab.SelectedChild)];
-            condStr=['cond' num2str(obj.pi.mm.tab.SelectedChild)];
-            
-            %             obj.pi.mm.stim.(cd).slctd=1 ;
-            
-            
-            st=['st' num2str(obj.pi.mm.stim.(cd).slctd)];
-            obj.pi.mm.stim.(cd).(st).pulse_count=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).pulse_count+1;
-            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).pulse_count=obj.pi.mm.stim.(cd).(st).pulse_count;
-            
-            switch obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).pulse_count
-                case 1
-                    obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).stim_mode=source.Tag;
-                    
-                    switch source.Tag
-                        case 'single_pulse'
-                            obj.pi.mm.stim.(cd).(st).pulse_types{1,obj.pi.mm.stim.(cd).(st).pulse_count}=cellstr('single_pulse');
-                            text(obj.pi.mm.stim.(cd).(st).pulse_count-0.25,-obj.pi.mm.stim.(cd).slctd+0.41,'       TS:[NaN] %MSO','VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',7,'FontAngle','italic','UserData',[obj.pi.mm.stim.(cd).(st).pulse_count,obj.pi.mm.stim.(cd).slctd],'ButtonDownFcn',@obj.cb_pi_rtms_sp_inputfig) % 11-Mar-2020 14:49:00
-                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si='NaN'; %only 1 SI is allowed as a standard model of generalization
-                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_units=1; %if 1 then its mso if 0 then its threshold
-                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).threshold='';
-                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).stim_mode='single_pulse';
-                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt={NaN};
-                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).stim_timing={NaN};
-                            
-                        case 'paired_pulse'
-                            obj.pi.mm.stim.(cd).(st).pulse_types{1,obj.pi.mm.stim.(cd).(st).pulse_count}=cellstr('paired_pulse');
-                            text(obj.pi.mm.stim.(cd).(st).pulse_count-0.25,-obj.pi.mm.stim.(cd).slctd+0.4,{'TS:[NaN], CS:[NaN] %MSO', 'ISI:[NaN] ms'},'VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',7,'FontAngle','italic','UserData',[obj.pi.mm.stim.(cd).(st).pulse_count,obj.pi.mm.stim.(cd).slctd],'ButtonDownFcn',@obj.cb_pi_rtms_pp_inputfig) % 11-Mar-2020 14:49:00
-                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si='NaN'; %only 1 SI is allowed as a standard model of generalization
-                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).cs='NaN'; %only 1 SI is allowed as a standard model of generalization
-                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).isi='NaN'; %only 1 SI is allowed as a standard model of generalization
-                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_units=1; %if 1 then its mso if 0 then its threshold
-                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).threshold='';
-                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).stim_mode='paired_pulse';
-                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt={NaN,NaN,NaN};
-                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).stim_timing={NaN};
-                        case 'train'
-                            obj.pi.mm.stim.(cd).(st).pulse_types{1,obj.pi.mm.stim.(cd).(st).pulse_count}=cellstr('train');
-                            obj.pi.mm.stim.(st).pulse_specs=text(obj.pi.mm.stim.(cd).(st).pulse_count,-obj.pi.mm.stim.(cd).slctd+0.4,{'Pulses:[NaN], f:[NaN] Hz', 'TS:[NaN] %MSO'},'VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',7,'FontAngle','italic','UserData',[obj.pi.mm.stim.(cd).(st).pulse_count,obj.pi.mm.stim.(cd).slctd],'ButtonDownFcn',@obj.cb_pi_rtms_train_inputfig); % 11-Mar-2020 14:49:00
-                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si='NaN'; %only 1 SI is allowed as a standard model of generalization
-                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).pulsesNo='NaN'; %only 1 SI is allowed as a standard model of generalization
-                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).freq='NaN'; %only 1 SI is allowed as a standard model of generalization
-                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_units=1; %if 1 then its mso if 0 then its threshold
-                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).threshold='';
-                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).stim_mode='train';
-                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt={NaN,NaN,NaN};
-                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).stim_timing={NaN};
-                    end
-                otherwise
-                    switch obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).stim_mode
-                        case 'single_pulse'
-                            obj.pi.mm.stim.(cd).(st).pulse_types{1,obj.pi.mm.stim.(cd).(st).pulse_count}=cellstr('single_pulse');
-                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).stim_timing(1,obj.pi.mm.stim.(cd).(st).pulse_count)={NaN};
-                            
-                            if obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_units==1
-                                UnitString='%MSO';
-                            elseif obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_units==0
-                                UnitString='%MT';
-                            end
-                            text(obj.pi.mm.stim.(cd).(st).pulse_count-0.25,-obj.pi.mm.stim.(cd).slctd+0.41,['     TS: ' num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt{1,1}) ' ' UnitString],'VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',7,'FontAngle','italic','UserData',[obj.pi.mm.stim.(cd).(st).pulse_count,obj.pi.mm.stim.(cd).slctd],'ButtonDownFcn',@obj.cb_pi_rtms_sp_inputfig) % 11-Mar-2020 14:49:00
-                            
-                            
-                        case 'paired_pulse'
-                            obj.pi.mm.stim.(cd).(st).pulse_types{1,obj.pi.mm.stim.(cd).(st).pulse_count}=cellstr('paired_pulse');
-                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).stim_timing(1,obj.pi.mm.stim.(cd).(st).pulse_count)={NaN};
-                            TS=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt{1,1});
-                            CS=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt{1,2});
-                            ISI=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt{1,3});
-                            if obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_units==1
-                                UnitString='%MSO';
-                            elseif obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_units==0
-                                UnitString='%MT';
-                            end
-                            text(obj.pi.mm.stim.(cd).(st).pulse_count-0.25,-obj.pi.mm.stim.(cd).slctd+0.4,{['TS:' TS ', CS:' CS ' ' UnitString], ['ISI:' ISI 'ms']},'VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',7,'FontAngle','italic','UserData',[obj.pi.mm.stim.(cd).(st).pulse_count,obj.pi.mm.stim.(cd).slctd],'ButtonDownFcn',@obj.cb_pi_rtms_pp_inputfig) % 11-Mar-2020 14:49:00
-                        case 'train'
-                            obj.pi.mm.stim.(cd).(st).pulse_types{1,obj.pi.mm.stim.(cd).(st).pulse_count}=cellstr('train');
-                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).stim_timing(1,obj.pi.mm.stim.(cd).(st).pulse_count)={NaN};
-                            TS=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt{1,1});
-                            F=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt{1,2});
-                            PULSES=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt{1,3});
-                            if obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_units==1
-                                UnitString='%MSO';
-                            elseif obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_units==0
-                                UnitString='%MT';
-                            end
-                            obj.pi.mm.stim.(st).pulse_specs=text(obj.pi.mm.stim.(cd).(st).pulse_count,-obj.pi.mm.stim.(cd).slctd+0.4,{['Pulses:' PULSES ', f:' F 'Hz'], ['TS:' TS UnitString]},'VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',7,'FontAngle','italic','UserData',[obj.pi.mm.stim.(cd).(st).pulse_count,obj.pi.mm.stim.(cd).slctd],'ButtonDownFcn',@obj.cb_pi_rtms_train_inputfig); % 11-Mar-2020 14:49:00
-                    end
-                    
-            end
-            
-            
-            % delete the previous plot
-            delete(obj.pi.mm.stim.(cd).(st).plt)
-            % make the x and y vector for new one
-            x=[];
-            y=[];
-            for i=1:obj.pi.mm.stim.(cd).(st).pulse_count
-                switch char(obj.pi.mm.stim.(cd).(st).pulse_types{1,i})
-                    case 'single_pulse'
-                        disp sp
-                        x{i}=([i i i+0.15 i+0.15]);
-                        y{i}=[-obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd+0.4 -obj.pi.mm.stim.(cd).slctd+0.4 -obj.pi.mm.stim.(cd).slctd];
-                    case 'paired_pulse'
-                        disp pp
-                        x{i}=[i i i+0.15 i+0.15 i+0.25 i+0.25 i+0.40 i+0.40];
-                        y{i}=[-obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd+0.20 -obj.pi.mm.stim.(cd).slctd+0.20 -obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd+0.4 -obj.pi.mm.stim.(cd).slctd+0.4 -obj.pi.mm.stim.(cd).slctd];
-                    case 'train'
-                        disp train
-                        %                         x(i)=[i i i+0.20 i+0.20 i+0.30 i+0.30 i+0.50 i+0.50 i+0.60 i+0.60 i+0.80 i+0.80];
-                        x{i}=[i i i+0.15 i+0.15 i+0.25 i+0.25 i+0.40 i+0.40 i+0.50 i+0.50 i+0.65 i+0.65];
-                        %                         y{i}={[-obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd+0.5 -obj.pi.mm.stim.(cd).slctd+0.5 -obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd+0.5 -obj.pi.mm.stim.(cd).slctd+0.5 -obj.pi.mm.stim.(cd).slctd]};
-                        
-                        y{i}=-obj.pi.mm.stim.(cd).slctd+[0 0.4 0.4 0 0 0.4 0.4 0 0 0.4 0.4 0];
-                end
-            end
-            
-            x=[-45 cell2mat(x) 45];
-            y=[-obj.pi.mm.stim.(cd).slctd cell2mat(y) -obj.pi.mm.stim.(cd).slctd];
-            
-            obj.pi.mm.stim.(cd).(st).plt=plot(x,y,'Color','k','parent',obj.pi.mm.cond.(cd).ax,'LineWidth',2,'Tag',num2str(obj.pi.mm.stim.(cd).slctd),'ButtonDownFcn',@cb_stimulatorSelector); %line
-            
-            drawArrow = @(x,y) quiver( x(1),y(1),x(2)-x(1),y(2)-y(1),0,'color','k' )
-            obj.pi.mm.stim.(st).pulse_time=text(obj.pi.mm.stim.(cd).(st).pulse_count-1+0.5,-obj.pi.mm.stim.(cd).slctd-0.05,['t:' num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).stim_timing{1,obj.pi.mm.stim.(cd).(st).pulse_count}) ' ms'],'VerticalAlignment','top','Color',[0.50 0.50 0.50],'FontSize',9,'FontAngle','italic','UserData',[obj.pi.mm.stim.(cd).(st).pulse_count,obj.pi.mm.stim.(cd).slctd],'ButtonDownFcn',@obj.cb_pi_rtms_timing)
-            
-            obj.pi.mm.stim.(st).pulse_arrow1=drawArrow([obj.pi.mm.stim.(cd).(st).pulse_count-1 obj.pi.mm.stim.(cd).(st).pulse_count-1+1],[-obj.pi.mm.stim.(cd).slctd-0.05 -obj.pi.mm.stim.(cd).slctd-0.05])
-            obj.pi.mm.stim.(st).pulse_arrow2=drawArrow([obj.pi.mm.stim.(cd).(st).pulse_count-1+1 obj.pi.mm.stim.(cd).(st).pulse_count-1],[-obj.pi.mm.stim.(cd).slctd-0.05 -obj.pi.mm.stim.(cd).slctd-0.05])
-            
-            
-            if(obj.pi.mm.cond.(cd).ax.XLim(2)<obj.pi.mm.stim.(cd).(st).pulse_count+1)
-                obj.pi.mm.cond.(cd).ax.XLim(2)=obj.pi.mm.stim.(cd).(st).pulse_count+1;
-            end
-            
-            
-            function cb_stimulatorSelector(source,~)
-                if(isvalid(obj.pi.mm.stimulatorSelector))
-                    obj.pi.mm.stimulatorSelector.Color='k';
-                end
-                obj.pi.mm.stim.(cd).slctd=str2double(source.Tag);
-                source.Color='b';
-                obj.pi.mm.stimulatorSelector=source;
-            end
-            obj.cb_pi_rtms_StimulationParametersTable;
-        end
-        function cb_pi_rtms_output_device(obj,source,~)
-            obj.hw.device_added1_listbox.string
-            if(isempty(obj.hw.device_added2_listbox.string))
-                errordlg('No Output Device (Stimulator) is configured before, visit Hardware Configuration section and configure a Hardware device before selecting one!', 'BEST Toolbox')
-            else
-                [indx,tf] = listdlg('PromptString',{'Select an Output Device'},'SelectionMode','single','ListString',obj.hw.device_added2_listbox.string);
-                if(tf==1)
-                    cd=['cond' num2str(obj.pi.mm.tab.SelectedChild)];
-                    st=['st' num2str(source.Tag)];
-                    obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).stim_device=obj.hw.device_added2_listbox.string(indx);
-                    source.String=obj.hw.device_added2_listbox.string(indx);
-                    obj.cb_pi_rtms_StimulationParametersTable;
-                    
-                end
-                
-            end
-        end
-        function cb_pi_rtms_timing(obj,source,~)
-            prompt = {'Time (mili-seconds):'};
-            dlgtitle = 'Insert Time | BEST Toolbox';
-            dims = [1 60];
-            definput = {'NaN'};
-            answer = inputdlg(prompt,dlgtitle,dims,definput);
-            source.String=['t: ', char(answer), ' ms'];
-            cd=['cond' num2str(obj.pi.mm.tab.SelectedChild)];
-            st=['st' num2str(source.UserData(2))];
-            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).stim_timing(source.UserData(1))=num2cell(str2double(answer));
-            obj.cb_pi_rtms_StimulationParametersTable;
-            
-        end
-        function cb_pi_rtms_sp_inputfig(obj,source,~)
-            f=figure('ToolBar','none','MenuBar','none','Name','Insert Parameters | BEST Toolbox','NumberTitle','off');
-            c1=uix.VBox('parent',f,'Padding',10,'Spacing',10);
-            r1=uix.HBox('parent',c1);
-            uicontrol( 'Style','text','Parent', r1,'String','Stimulation Intensities:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            si=uicontrol( 'Style','edit','Parent', r1 ,'String','NaN','FontSize',11);
-            set( r1, 'Widths', [210 200]);
-            
-            r2=uix.HBox('parent',c1);
-            uicontrol( 'Style','text','Parent', r2,'String','Intensity Units:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            units_mso=uicontrol( 'Style','radiobutton','Parent', r2 ,'FontSize',11,'String','%MSO','Value',1,'Callback',@(~,~)cb_units_mso);
-            units_mt=uicontrol( 'Style','radiobutton','Parent', r2 ,'FontSize',11,'String','%MT','Callback',@(~,~)cb_units_mt);
-            set( r2, 'Widths', [210 100 100]);
-            
-            r3=uix.HBox('parent',c1);
-            uicontrol( 'Style','text','Parent', r3,'String','Motor Threshold (%MSO):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            threshold=uicontrol( 'Style','edit','Parent', r3 ,'FontSize',11);
-            mt_btn_listbox_str_id= find(strcmp(obj.data.(obj.info.event.current_session).info.measurement_str_original,'MEP Motor Threshold Hunting'));
-            mt_btn_listbox_str=obj.data.(obj.info.event.current_session).info.measurement_str_to_listbox(mt_btn_listbox_str_id);
-            mt_btn_listbox_str=['Select' mt_btn_listbox_str];
-            uiextras.HBox('Parent',r3)
-            th_dropdown=uicontrol( 'Style','popupmenu','Parent', r3 ,'FontSize',11,'String',mt_btn_listbox_str);     % 11-Mar-2020 14:48:46                                                                  % 1297
-            set( r3, 'Widths', [210 80 20 100]);
-            
-            
-            uicontrol( 'Parent', c1 ,'Style','PushButton','String','OK','FontWeight','Bold','Callback',@(~,~)cb_ok);
-            
-            set(c1, 'Heights', [25 25 25 25])
-            f.Position(3)=430;
-            f.Position(4)=150;
-            function cb_ok
-                source.String=['TS:' si.String ' %MSO']; % 11-Mar-2020 14:48:28
-                cd=['cond' num2str(obj.pi.mm.tab.SelectedChild)];
-                st=['st' num2str(source.UserData(2))];
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).si=si.String; %only 1 SI is allowed as a standard model of generalization
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).si_units=units_mso.Value; %if 1 then its mso if 0 then its threshold
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).threshold=threshold.String;
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).stim_mode='single_pulse';
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).si_pckt={str2double(si.String)};
-                obj.cb_pi_rtms_StimulationParametersTable;
-                
-                close(f)
-            end
-            function cb_units_mso
-                if(units_mso.Value==1)
-                    units_mt.Value=0;
-                end
-            end
-            function cb_units_mt
-                if(units_mt.Value==1)
-                    units_mso.Value=0;
-                end
-            end
-        end
-        function cb_pi_rtms_pp_inputfig(obj,source,~)
-            f=figure('ToolBar','none','MenuBar','none','Name','Insert Parameters | BEST Toolbox','NumberTitle','off');
-            c1=uix.VBox('parent',f,'Padding',10,'Spacing',10);
-            r1=uix.HBox('parent',c1);
-            uicontrol( 'Style','text','Parent', r1,'String','Test Stimulus Intensities (TS):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            si=uicontrol( 'Style','edit','Parent', r1 ,'String','NaN','FontSize',11);
-            set( r1, 'Widths', [250 200]);
-            
-            r2a=uix.HBox('parent',c1);
-            uicontrol( 'Style','text','Parent', r2a,'String','Condition Stimulus Intensities (CS):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            cs=uicontrol( 'Style','edit','Parent', r2a ,'String','NaN','FontSize',11);
-            set( r2a, 'Widths', [250 200]);
-            
-            r2b=uix.HBox('parent',c1);
-            uicontrol( 'Style','text','Parent', r2b,'String','Inter Stimulus Interval (ms):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            isi=uicontrol( 'Style','edit','Parent', r2b ,'String','NaN','FontSize',11);
-            set( r2b, 'Widths', [250 200]);
-            
-            r2=uix.HBox('parent',c1);
-            uicontrol( 'Style','text','Parent', r2,'String','Intensity Units:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            units_mso=uicontrol( 'Style','radiobutton','Parent', r2 ,'FontSize',11,'String','%MSO','Value',1,'Callback',@(~,~)cb_units_mso);
-            units_mt=uicontrol( 'Style','radiobutton','Parent', r2 ,'FontSize',11,'String','%MT','Callback',@(~,~)cb_units_mt);
-            set( r2, 'Widths', [250 100 100]);
-            
-            r3=uix.HBox('parent',c1);
-            uicontrol( 'Style','text','Parent', r3,'String','Motor Threshold (%MSO):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            threshold=uicontrol( 'Style','edit','Parent', r3 ,'FontSize',11);
-            mt_btn_listbox_str_id= find(strcmp(obj.data.(obj.info.event.current_session).info.measurement_str_original,'MEP Motor Threshold Hunting'));
-            mt_btn_listbox_str=obj.data.(obj.info.event.current_session).info.measurement_str_to_listbox(mt_btn_listbox_str_id);
-            mt_btn_listbox_str=['Select' mt_btn_listbox_str];
-            uiextras.HBox('Parent',r3)
-            th_dropdown=uicontrol( 'Style','popupmenu','Parent', r3 ,'FontSize',11,'String',mt_btn_listbox_str);     % 11-Mar-2020 14:48:46                                                                  % 1297
-            set( r3, 'Widths', [250 80 20 100]);
-            
-            
-            uicontrol( 'Parent', c1 ,'Style','PushButton','String','OK','FontWeight','Bold','Callback',@(~,~)cb_ok);
-            
-            set(c1, 'Heights', [25 25 25 25 25 25])
-            f.Position(3)=480;
-            f.Position(4)=220;
-            function cb_ok
-                
-                % source.String={['TS:' char(si.String) ']'];['CS:[' char(cs.String) '] %MSO'];['ISI:[' char(isi.String) '] ms']} % 11-Mar-2020 14:48:28
-                
-                
-                source.String={['TS:' char(si.String)];['CS:' char(cs.String) ' %MSO'];['ISI:' char(isi.String) ' ms']} % 11-Mar-2020 14:48:28
-                
-                %                 source.String=['TS:[' si.String '] %MSO']; % 11-Mar-2020 14:48:28
-                cd=['cond' num2str(obj.pi.mm.tab.SelectedChild)];
-                st=['st' num2str(source.UserData(2))];
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).si=si.String;
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).cs=cs.String;
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).isi=isi.String;
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).si_units=units_mso.Value; %if 1 then its mso if 0 then its threshold
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).threshold=threshold.String;
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).stim_mode='paired_pulse';
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).si_pckt={str2double(si.String),str2double(cs.String),str2double(isi.String)};
-                obj.cb_pi_rtms_StimulationParametersTable;
-                
-                close(f)
-            end
-            function cb_units_mso
-                if(units_mso.Value==1)
-                    units_mt.Value=0;
-                end
-            end
-            function cb_units_mt
-                if(units_mt.Value==1)
-                    units_mso.Value=0;
-                end
-            end
-        end
-        function cb_pi_rtms_train_inputfig(obj,source,~)
-            f=figure('ToolBar','none','MenuBar','none','Name','Insert Parameters | BEST Toolbox','NumberTitle','off');
-            c1=uix.VBox('parent',f,'Padding',10,'Spacing',10);
-            r1=uix.HBox('parent',c1);
-            uicontrol( 'Style','text','Parent', r1,'String','Stimulation Intensities (TS):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            si=uicontrol( 'Style','edit','Parent', r1 ,'String','NaN','FontSize',11);
-            set( r1, 'Widths', [250 200]);
-            
-            r2a=uix.HBox('parent',c1);
-            uicontrol( 'Style','text','Parent', r2a,'String','Pulse Frequency (Hz):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            freq=uicontrol( 'Style','edit','Parent', r2a ,'String','NaN','FontSize',11);
-            set( r2a, 'Widths', [250 200]);
-            
-            r2b=uix.HBox('parent',c1);
-            uicontrol( 'Style','text','Parent', r2b,'String','No of Pulses:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            pulsesNo=uicontrol( 'Style','edit','Parent', r2b ,'String','NaN','FontSize',11);
-            set( r2b, 'Widths', [250 200]);
-            
-            r2=uix.HBox('parent',c1);
-            uicontrol( 'Style','text','Parent', r2,'String','Intensity Units:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            units_mso=uicontrol( 'Style','radiobutton','Parent', r2 ,'FontSize',11,'String','%MSO','Value',1,'Callback',@(~,~)cb_units_mso);
-            units_mt=uicontrol( 'Style','radiobutton','Parent', r2 ,'FontSize',11,'String','%MT','Callback',@(~,~)cb_units_mt);
-            set( r2, 'Widths', [250 100 100]);
-            
-            r3=uix.HBox('parent',c1);
-            uicontrol( 'Style','text','Parent', r3,'String','Motor Threshold (%MSO):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            threshold=uicontrol( 'Style','edit','Parent', r3 ,'FontSize',11);
-            mt_btn_listbox_str_id= find(strcmp(obj.data.(obj.info.event.current_session).info.measurement_str_original,'MEP Motor Threshold Hunting'));
-            mt_btn_listbox_str=obj.data.(obj.info.event.current_session).info.measurement_str_to_listbox(mt_btn_listbox_str_id);
-            mt_btn_listbox_str=['Select' mt_btn_listbox_str];
-            uiextras.HBox('Parent',r3)
-            th_dropdown=uicontrol( 'Style','popupmenu','Parent', r3 ,'FontSize',11,'String',mt_btn_listbox_str);     % 11-Mar-2020 14:48:46                                                                  % 1297
-            set( r3, 'Widths', [250 80 20 100]);
-            
-            
-            uicontrol( 'Parent', c1 ,'Style','PushButton','String','OK','FontWeight','Bold','Callback',@(~,~)cb_ok);
-            
-            set(c1, 'Heights', [25 25 25 25 25 25])
-            f.Position(3)=480;
-            f.Position(4)=220;
-            function cb_ok
-                
-                
-                
-                source.String={['Pulses:' char(pulsesNo.String) ', f:' char(freq.String) ' Hz'];['TS:' char(si.String) ' %MSO']}; % 11-Mar-2020 14:48:28
-                
-                cd=['cond' num2str(obj.pi.mm.tab.SelectedChild)];
-                st=['st' num2str(source.UserData(2))];
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).si=si.String;
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).freq=freq.String;
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).pulsesNo=pulsesNo.String;
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).si_units=units_mso.Value; %if 1 then its mso if 0 then its threshold
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).threshold=threshold.String;
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).stim_mode='train';
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).si_pckt={str2double(si.String),str2double(freq.String),str2double(pulsesNo.String)}
-                obj.cb_pi_rtms_StimulationParametersTable;
-                
-                close(f)
-            end
-            function cb_units_mso
-                if(units_mso.Value==1)
-                    units_mt.Value=0;
-                end
-            end
-            function cb_units_mt
-                if(units_mt.Value==1)
-                    units_mso.Value=0;
-                end
-            end
-            
-        end
-        function cb_pi_rtms_targetChannel(obj,source,~)
-            f=figure('ToolBar','none','MenuBar','none','Name','Insert Parameters | BEST Toolbox','NumberTitle','off');
-            c1=uix.VBox('parent',f,'Padding',10,'Spacing',10);
-            
-            %             r0=uix.HBox('parent',c1);
-            %             uicontrol( 'Style','text','Parent', r0,'String','Input Device:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            %             str_in_device(1)= (cellstr('Select'));
-            %             str_in_device(2:numel(obj.hw.device_added1_listbox.string)+1)=obj.hw.device_added1_listbox.string;
-            %             inputDevice=uicontrol( 'Style','popupmenu','Parent', r0 ,'FontSize',11,'String',str_in_device);
-            %             set( r0, 'Widths', [250 200]);
-            
-            r1=uix.HBox('parent',c1);
-            uicontrol( 'Style','text','Parent', r1,'String','Target Channels:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            targetChannels=uicontrol( 'Style','edit','Parent', r1 ,'FontSize',11);
-            set( r1, 'Widths', [250 200]);
-            
-            %             r2a=uix.HBox('parent',c1);
-            %             uicontrol( 'Style','text','Parent', r2a,'String','Display Channels:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            %             displayChannels=uicontrol( 'Style','edit','Parent', r2a ,'FontSize',11);
-            %             set( r2a, 'Widths', [250 200]);
-            %
-            %             r2b=uix.HBox('parent',c1);
-            %             uicontrol( 'Style','text','Parent', r2b,'String','MEP onset/offset (ms):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            %             mepOnset=uicontrol( 'Style','edit','Parent', r2b ,'FontSize',11);
-            %             uiextras.HBox('Parent',r2b)
-            %             mepOffset=uicontrol( 'Style','edit','Parent', r2b ,'FontSize',11);
-            %             set( r2b, 'Widths', [250 90 20 90]);
-            %
-            %             r2=uix.HBox('parent',c1);
-            %             uicontrol( 'Style','text','Parent', r2,'String','MEP Pre/Post Display Period (ms)','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            %             prestim_scope_plt=uicontrol( 'Style','edit','Parent', r2 ,'FontSize',11);
-            %             uiextras.HBox('Parent',r2)
-            %             poststim_scope_plt=uicontrol( 'Style','edit','Parent', r2 ,'FontSize',11);
-            %             set( r2, 'Widths', [250 90 20 90]);
-            
-            uicontrol( 'Parent', c1 ,'Style','PushButton','String','OK','FontWeight','Bold','Callback',@(~,~)cb_ok);
-            
-            set(c1, 'Heights', [25 25])
-            f.Position(3)=480;
-            f.Position(4)=90;
-            function cb_ok
-                source.String=['Channel Name:' targetChannels.String]; % 11-Mar-2020 14:48:28
-                
-                %                 source.String=['Channels:' targetChannels.String ' ' displayChannels.String , 'Pre/Post Display Period:' prestim_scope_plt.String '-' poststim_scope_plt.String 'ms']; % 11-Mar-2020 14:48:28
-                cd=['cond' num2str(obj.pi.mm.tab.SelectedChild)];
-                % 12-Mar-2020 08:53:28
-                %                 obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(cd).inputDevice.input_device=inputDevice.String(inputDevice.Value);
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).targetChannel=eval(targetChannels.String);
-                %                 obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(cd).inputDevice.displayChannels=eval(displayChannels.String);
-                %                 obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(cd).inputDevice.mepOnset=mepOnset.String;
-                %                 obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(cd).inputDevice.mepOffset=mepOffset.Value; %if 1 then its mso if 0 then its threshold
-                %                 obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(cd).inputDevice.prestim_scope_plt=prestim_scope_plt.String;
-                %                 obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(cd).inputDevice.poststim_scope_plt=poststim_scope_plt.String;
-                %                 obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(cd).inputDevice.measure_str='MEP Measurement';
-                obj.cb_pi_rtms_StimulationParametersTable;
-                
-                close(f)
-            end
-            
         end
         function default_par_rtms(obj)
             % Editing Rule: Values should be Integers, Strings should
@@ -8985,6 +3526,7 @@ classdef best_application < handle
                 obj.info.defaults.condsAll.(cond).st1.stim_device={'Select'};
                 obj.info.defaults.condsAll.(cond).st1.stim_mode='train';
                 obj.info.defaults.condsAll.(cond).st1.stim_timing=num2cell(0);
+                obj.info.defaults.condsAll.(cond).st1.stim_timing_units={'ms'};
                 obj.info.defaults.condsAll.(cond).st1.si=si(idefaults);
                 obj.info.defaults.condsAll.(cond).st1.si_units=1;
                 obj.info.defaults.condsAll.(cond).st1.threshold='';
@@ -9014,7 +3556,7 @@ classdef best_application < handle
                     
                     obj.pi.rtms.(ParametersFieldNames{iLoadingParameters}).Value=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(ParametersFieldNames{iLoadingParameters});
                     if(strcmp(ParametersFieldNames{iLoadingParameters},'BrainState'))
-                        %Requirment 93
+                        obj.pi.(ParametersFieldNames{iLoadingParameters}).Value=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(ParametersFieldNames{iLoadingParameters});
                     end
                 elseif(isa(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(ParametersFieldNames{iLoadingParameters}),'struct'))
                     %Do Nothing and Just Avoid
@@ -9102,6 +3644,7 @@ classdef best_application < handle
             set(vb,'Heights',[35 35 45 45 45 45 45 45 45 45 45 -1])
             
             function cb_par_saving(source,~)
+                if obj.par.GlobalSettings.Protect==1, return; end
                 source = obj.ExceptionHandling(source);
                 if strcmp(source.Tag,'InputDevice') || strcmp(source.Tag,'OutputDevice') || strcmp(source.Tag,'SpectralAnalysis')
                     obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(source.Tag)=source.Value;
@@ -9295,6 +3838,7 @@ classdef best_application < handle
                 obj.info.defaults.condsAll.(cond).st1.stim_device={'Select'};
                 obj.info.defaults.condsAll.(cond).st1.stim_mode='single_pulse';
                 obj.info.defaults.condsAll.(cond).st1.stim_timing=num2cell(0);
+                obj.info.defaults.condsAll.(cond).st1.stim_timing_units={'ms'};
                 obj.info.defaults.condsAll.(cond).st1.si=si(idefaults);
                 obj.info.defaults.condsAll.(cond).st1.si_units=1;
                 obj.info.defaults.condsAll.(cond).st1.threshold='';
@@ -9324,7 +3868,7 @@ classdef best_application < handle
             
             r0=uiextras.HBox( 'Parent', obj.pi.tep.r0v1,'Spacing', 5, 'Padding', 5 );
             uicontrol( 'Style','text','Parent', r0,'String','Brain State:','FontSize',11,'HorizontalAlignment','left','Units','normalized'); % Inter Trial Inteval (s)
-            obj.pi.tep.BrainState=uicontrol( 'Style','popupmenu','Parent', r0 ,'FontSize',11,'String',{'Independent','Dependent'},'Callback',@cb_UniversalPanelAdaptation);
+            obj.pi.BrainState=uicontrol( 'Style','popupmenu','Parent', r0 ,'FontSize',11,'String',{'Independent','Dependent'},'Callback',@cb_UniversalPanelAdaptation);
             set( r0, 'Widths', [150 -2]);
             BrainStateParametersPanel=uix.Panel( 'Parent', obj.pi.tep.r0v1,'Padding',5,'Units','normalized','FontSize',8 ,'Units','normalized','Title','Brain State Parameters' ,'FontWeight','normal','TitlePosition','centertop');
             cb_BrainStateParametersPanel
@@ -9341,34 +3885,32 @@ classdef best_application < handle
             %row4
             r4=uiextras.HBox( 'Parent', obj.pi.tep.r0v1,'Spacing', 5, 'Padding', 5 );
             obj.pi.tep.cond.btn=uicontrol( 'Parent', r4 ,'Style','PushButton','String','+','FontSize',16,'FontWeight','Bold','HorizontalAlignment','center','Tooltip','Click to Add a new Condition','Callback',@(~,~)obj.cb_pi_tep_conditions);%add condition
-            obj.pi.tep.stim.btn=uicontrol( 'Parent', r4 ,'Style','PushButton','String','','FontWeight','Bold','HorizontalAlignment','center','Position',[0 0 1 1],'units','normalized','CData',obj.icons.stimulator,'Tooltip','Click to Add a new Stimulator on this Condition','Callback',@(~,~)obj.cb_pi_tep_stim); %add stimulator
-            obj.pi.tep.sp.btn=uicontrol( 'Parent', r4 ,'Style','PushButton','String','','FontWeight','Bold','HorizontalAlignment','center','CData',obj.icons.single_pulse,'Tooltip','Click to Add a Single-Pulse on selected stimulator (selected stimulator is highlighted in blue colour)','Tag','single_pulse','Callback',@obj.cb_pi_tep_pulse); %add single pulse
-            obj.pi.tep.pp.btn=uicontrol( 'Parent', r4 ,'Style','PushButton','String','','FontWeight','Bold','HorizontalAlignment','center','CData',obj.icons.paired_pulse,'Tooltip','Click to Add a Paired-Pulse on selected stimulator (selected stimulator is highlighted in blue colour)','Tag','paired_pulse','Callback',@obj.cb_pi_tep_pulse);%add burst or train
-            obj.pi.tep.train.btn=uicontrol( 'Parent', r4 ,'Style','PushButton','String','','FontWeight','Bold','HorizontalAlignment','center','CData',obj.icons.train,'Tooltip','Click to Add a Train or Burst on selected stimulator (selected stimulator is highlighted in blue colour)','Tag','train','Callback',@obj.cb_pi_tep_pulse);%add paired pulse
+            obj.pi.tep.stim.btn=uicontrol( 'Parent', r4 ,'Style','PushButton','String','','FontWeight','Bold','HorizontalAlignment','center','Position',[0 0 1 1],'units','normalized','CData',obj.icons.stimulator,'Tooltip','Click to Add a new Stimulator on this Condition','Callback',@(~,~)obj.cb_cm_stim); %add stimulator
+            obj.pi.tep.sp.btn=uicontrol( 'Parent', r4 ,'Style','PushButton','String','','FontWeight','Bold','HorizontalAlignment','center','CData',obj.icons.single_pulse,'Tooltip','Click to Add a Single-Pulse on selected stimulator (selected stimulator is highlighted in blue colour)','Tag','single_pulse','Callback',@obj.cb_cm_pulse); %add single pulse
+            obj.pi.tep.pp.btn=uicontrol( 'Parent', r4 ,'Style','PushButton','String','','FontWeight','Bold','HorizontalAlignment','center','CData',obj.icons.paired_pulse,'Tooltip','Click to Add a Paired-Pulse on selected stimulator (selected stimulator is highlighted in blue colour)','Tag','paired_pulse','Callback',@obj.cb_cm_pulse);%add burst or train
+            obj.pi.tep.train.btn=uicontrol( 'Parent', r4 ,'Style','PushButton','String','','FontWeight','Bold','HorizontalAlignment','center','CData',obj.icons.train,'Tooltip','Click to Add a Train or Burst on selected stimulator (selected stimulator is highlighted in blue colour)','Tag','train','Callback',@obj.cb_cm_pulse);%add paired pulse
             set( r4, 'Widths', [55 55 55 55 55]);
             
-            cb_SetHeights;
+            
             
             
             obj.pi.tep.r0v2 = uix.VBox( 'Parent', obj.pi.tep.r0, 'Spacing', 5, 'Padding', 0); %uicontext menu to duplicate or delete a condition goes here
             obj.pi.mm.r0v2r1=uix.Panel( 'Parent', obj.pi.tep.r0v2,'Padding',0,'Units','normalized','FontSize',8 ,'Units','normalized','Title','Stimulation Parameters' ,'FontWeight','normal','TitlePosition','centertop');
-            table = obj.cb_pi_tep_StimulationParametersTable;
+            table = obj.cb_cm_StimulationParametersTable;
             
             obj.pi.mm.tab = uiextras.TabPanel( 'Parent', obj.pi.tep.r0v2, 'Padding', 5 );
             obj.pi.tep.r0v2.Heights=[200 -1];
             set(obj.pi.tep.r0,'Widths',[-1.45 -3]);
             obj.pi.tep.cond.no=0;
-            obj.cb_pi_tep_Nconditions;
+            obj.cb_cm_Nconditions;
             Interactivity;
+            cb_SetHeights;
             function cb_UniversalPanelAdaptation(~,~)
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).BrainState=obj.pi.tep.BrainState.Value;
-                cb_BrainStateParametersPanel
-                cb_DisplayParametersPanel
-                cb_SetHeights
-                obj.func_load_tep_par;
+                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).BrainState=obj.pi.BrainState.Value;
+                obj.RefreshProtocol;
             end
             function cb_BrainStateParametersPanel(~,~)
-                switch obj.pi.tep.BrainState.Value
+                switch obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).BrainState
                     case 1
                         expModvBox=uix.VBox( 'Parent', BrainStateParametersPanel, 'Spacing', 0, 'Padding', 0  );
                         
@@ -9456,7 +3998,7 @@ classdef best_application < handle
                 
             end
             function cb_DisplayParametersPanel
-                switch obj.pi.tep.BrainState.Value
+                switch obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).BrainState
                     case 1
                         expModvBox=uix.VBox( 'Parent', DisplayParametersPanel, 'Spacing', 0, 'Padding', 0  );
                         expModr2=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
@@ -9508,7 +4050,7 @@ classdef best_application < handle
                 end
             end
             function cb_SetHeights
-                switch obj.pi.tep.BrainState.Value
+                switch obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).BrainState
                     case 1
                         set(obj.pi.tep.r0v1,'Heights',[40 90 170 40 -3 55])
                     case 2
@@ -9535,1075 +4077,6 @@ classdef best_application < handle
                 end
                 table.Enable=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).Enable{1,1};
                 obj.pi.mm.tab.Enable=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).Enable{1,1};
-            end
-            
-        end
-        function table= cb_pi_tep_StimulationParametersTable(obj)
-            % create the Data from pars
-            iData=0;
-            for iTableCondition=1:numel(fieldnames(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll))
-                TableCond=['cond' num2str(iTableCondition)];
-                for iTableStimulator=1:numel(fieldnames(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond)))-1 %numel(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond))-1
-                    iData=iData+1;
-                    TableStim=['st' num2str(iTableStimulator)];
-                    TableData{iData,1}=num2str(iTableCondition);
-                    TableData{iData,8}='          -';
-                    TableData{iData,9}='          -';
-                    TableData{iData,10}='          -';
-                    TableData{iData,11}='          -';
-                    if( isfield(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim),'si'))
-                        TableData{iData,2}=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).si_pckt{1,1});
-                        
-                        %check here what has been saved and use that
-                        if(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).si_units==1)
-                            TableData{iData,3}='%MSO';
-                            TableData{iData,12}='          -';
-                        else
-                            TableData{iData,3}='%MT';
-                            TableData{iData,12}=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).threshold;
-                        end
-                    end
-                    
-                    if( isfield(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim),'stim_device'))
-                        TableData{iData,4}=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).stim_device{1,1}; end
-                    
-                    if( isfield(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim),'pulse_count'))
-                        TableData{iData,6}=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).pulse_count); end
-                    if( isfield(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim),'stim_mode'))
-                        
-                        switch obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).stim_mode
-                            case 'single_pulse'
-                                TableData{iData,5}='Single Pulse';
-                            case 'paired_pulse'
-                                TableData{iData,5}='Paired Pulse';
-                                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).si_pckt{1,2};
-                                TableData{iData,8}=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).si_pckt{1,2});
-                                TableData{iData,9}=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).si_pckt{1,3});
-                            case 'train'
-                                TableData{iData,5}='Train';
-                                TableData{iData,10}=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).si_pckt{1,2});
-                                TableData{iData,11}=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).pulse_count);
-                                TableData{iData,6}=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).si_pckt{1,3});
-                        end
-                    end
-                    if( isfield(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim),'stim_timing'))
-                        TableData{iData,7}=mat2str(cell2mat(horzcat((obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).stim_timing(1,:))))); end
-                    %%                   TableData{iData,8}=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).targetChannel{1,1};
-                end
-                %%                 if numel(fieldnames(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond)))==1
-                %%                     TableData{iData+1,1}=num2str(iTableCondition);
-                %%                     TableData{iData+1,8}=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).targetChannel{1,1};
-                %%                 end
-            end
-            if (isempty(obj.hw.device_added2_listbox.string))
-                obj.hw.device_added2_listbox.string={'Select'};
-            end
-            % create the table and load the data
-            table=uitable( 'Parent', obj.pi.mm.r0v2r1,'Tag','tep Table');
-            table.Data=TableData;%cell(6,12); % the row number comes from above
-            table.FontSize=10;
-            table.ColumnName = {'Condition #','TS Intensity','Intensity Units','Stimulator','Pulse Mode','# of Pulses','Timing Onset (ms)','CS Intensity','ISI (ms)','Train Freq','# of Trains','Motor Threshold (%MSO)'};
-            table.ColumnFormat={[],[],{'%MSO','%MT'},obj.hw.device_added2_listbox.string,{'Single Pulse','Paired Pulse', 'Train'},[],[],[],[],[],[],[]};
-            table.ColumnWidth = {100,100,100,100,100,100,100,100,90,90,90,120};
-            table.ColumnEditable =true(1,numel(table.ColumnName));
-            table.RowStriping='on';
-            table.RearrangeableColumns='on';
-            table.CellEditCallback =@CellEditCallback ;
-            
-            function CellEditCallback (~,CellEditData)
-                AdditionInCondition=['cond' num2str(table.Data{CellEditData.Indices(1),1})];
-                %                     table.Data{:,1}
-                % num2str(table.Data{CellEditData.Indices(1),1})
-                % gp=cellfun(@str2double ,table.Data(:,1))
-                % str2double(table.Data{CellEditData.Indices(1),1})
-                %                     ggg=find(gp==str2double(table.Data{CellEditData.Indices(1),1}))
-                % %                     find(table.Data{:,1}==table.Data{CellEditData.Indices(1),1})
-                AdditionInStimulatorNum=find(find(cellfun(@str2double ,table.Data(:,1))==str2double(table.Data{CellEditData.Indices(1),1}))==CellEditData.Indices(1));
-                AdditionInStimulator=['st' num2str(AdditionInStimulatorNum)];
-                opts               =    [];
-                opts.WindowStyle   =    'modal';
-                opts.Interpreter   =    'none';
-                switch CellEditData.Indices(2)
-                    case 2 %TS Intensity
-                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).si_pckt{1,1}=str2double(CellEditData.NewData);
-                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).si=CellEditData.NewData;
-                    case 3 %Intensity Units
-                        switch CellEditData.NewData
-                            case '%MSO'
-                                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).si_units=1;
-                            case '%MT'
-                                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).si_units=0;
-                                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).threshold='NaN';
-                                
-                        end
-                        
-                    case 4 %Stimulator
-                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).stim_device=cellstr(CellEditData.NewData);
-                        
-                    case 5 %Pulse Mode
-                        switch CellEditData.NewData
-                            case 'Single Pulse'
-                                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).stim_mode='single_pulse';
-                            case 'Paired Pulse'
-                                disp ????????????????????????????????????????????????????
-                                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).stim_mode='paired_pulse';
-                                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).si_pckt{1,2}=NaN;
-                                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).si_pckt{1,3}=NaN;
-                                
-                            case 'Train'
-                                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).stim_mode='train';
-                                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).si_pckt{1,2}=NaN;
-                                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).si_pckt{1,3}=NaN;
-                        end
-                        
-                    case 6 % # of Pulses
-                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).pulse_count=str2double(CellEditData.NewData);
-                        %AAJ: idher add kero k Stimulation Mode bhi nill ho jaye units bhi Nill ho
-                        %jaye intensity bhi khtam ho jaye matlab jese he pulse 0 zero ho to sirf vo
-                        %reh jaye to jab only stimulator add kerty hein to ata he
-                        if(str2double(CellEditData.NewData)==0)
-                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).stim_timing{1,1}=[];
-                        else
-                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).stim_timing{1,str2double(CellEditData.NewData)}=NaN;
-                        end
-                        
-                    case 7 %Timing Onset (ms)
-                        CellEditDataTimingOnset=[];
-                        CellEditDataTimingOnset=num2cell(eval(CellEditData.NewData));
-                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).stim_timing=CellEditDataTimingOnset;
-                        
-                        %%                     case 8 %Target EMG Ch
-                        %%                         obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).targetChannel=cellstr(CellEditData.NewData);
-                        %
-                    case {10,11} %Train Freq, # of Trians
-                        if ~(strcmp(table.Data{CellEditData.Indices(1),5},'Train'))
-                            table.Data(CellEditData.Indices(1),CellEditData.Indices(2))=cellstr('          -');
-                            errordlg('Train Frequency and # of Trians are only Editable for the "Train" Pulse Mode, change Pulse Mode respectively if you desire to set this parameter','Warning | BEST Toolbox',opts);
-                        else
-                            switch CellEditData.Indices(2)
-                                case 10
-                                    obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).si_pckt{1,2}=str2double(CellEditData.NewData);
-                                    obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).freq=CellEditData.NewData;
-                                case 11
-                                    obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).si_pckt{1,3}=str2double(CellEditData.NewData);
-                                    obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).pulsesNo=CellEditData.NewData;
-                            end
-                            
-                        end
-                    case {8,9} % CS Intensity, ISI (ms)
-                        if ~(strcmp(table.Data{CellEditData.Indices(1),5},'Paired Pulse'))
-                            table.Data(CellEditData.Indices(1),CellEditData.Indices(2))=cellstr('          -');
-                            errordlg('CS Intensity and ISI are only Editable for the "Paired Pulse" Pulse Mode, change Pulse Mode respectively if you desire to set this parameter','Warning | BEST Toolbox',opts);
-                        else
-                            switch CellEditData.Indices(2)
-                                case 8
-                                    obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).si_pckt{1,2}=str2double(CellEditData.NewData);
-                                    obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).cs=CellEditData.NewData;
-                                case 9
-                                    obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).si_pckt{1,3}=str2double(CellEditData.NewData);
-                                    obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).isi=CellEditData.NewData;
-                            end
-                            
-                        end
-                    case 12
-                        if ~(strcmp(table.Data{CellEditData.Indices(1),3},'%MT'))
-                            table.Data(CellEditData.Indices(1),CellEditData.Indices(2))=cellstr('          -');
-                            errordlg('The selected Stimulation Intensity Units are %MSO, change it to %MT from its dropdown menu if you desire to update this value to a specific threshold','Warning | BEST Toolbox',opts);
-                        else
-                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).threshold=CellEditData.NewData;
-                            
-                        end
-                end
-                %Improvement Note :Requirement 96
-                %                 obj.pi_tep;
-                %cb_pulse_update
-                %cb_condition_addition
-                %cb_condition_deletion
-                %cb_stimulator_addition
-                %cb_stimulator_deletion
-                cb_pulse_update
-                function cb_pulse_update
-                    cd=[];
-                    st=[];
-                    condStr=[];
-                    obj.pi.mm.tab.SelectedChild=str2double(table.Data{CellEditData.Indices(1),1});
-                    
-                    cd=['cd' num2str(table.Data{CellEditData.Indices(1),1})];
-                    condStr=['cond' num2str(table.Data{CellEditData.Indices(1),1})];
-                    obj.pi.mm.stim.(cd).slctd=AdditionInStimulatorNum;
-                    st=['st' num2str(obj.pi.mm.stim.(cd).slctd)];
-                    obj.pi.mm.stim.(cd).(st).pulse_count=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).pulse_count;
-                    axes(obj.pi.mm.cond.(cd).ax)
-                    cla;
-                    hold on;
-                    contextMenu_condition=uicontextmenu(obj.fig.handle);
-                    uimenu(contextMenu_condition,'label','Duplicate Condition','Callback',@cb_pr_mm_duplicateCondition);
-                    uimenu(contextMenu_condition,'label','Delete Condition','Callback',@cb_pr_mm_deleteCondition);
-                    obj.pi.mm.cond.(cd).ax.YLim=[-1 1];
-                    obj.pi.mm.cond.(cd).ax.XLim=[0 5];
-                    xticks(obj.pi.mm.cond.(cd).ax,[100 101]);
-                    yticks(obj.pi.mm.cond.(cd).ax,-1:1:1)
-                    obj.pi.mm.cond.(cd).ax.YTickLabel={'','tep Search Window',''};
-                    plot(0:0.01:10,rand(1,1001)*0.30-0.15,'Color','k','parent',obj.pi.mm.cond.(cd).ax,'LineWidth',2,'Tag','empty'); % 12-Mar-2020 07:37:17
-                    %%                 text(2.5,0+0.20,['Channel Name:[' char(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).targetChannel) ']'],'VerticalAlignment','bottom','HorizontalAlignment','center','Color',[0.50 0.50 0.50],'FontSize',9,'FontAngle','italic','ButtonDownFcn',@obj.cb_pi_tep_targetChannel) % 11-Mar-2020 14:49:00
-                    obj.pi.mm.stim.(cd).no=0;
-                    
-                    %make stimulators
-                    for istimulators=1:(length(fieldnames(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr)))-1)
-                        obj.pi.mm.stim.(cd).no=istimulators;
-                        st=['st' num2str(obj.pi.mm.stim.(cd).no)];
-                        axes(obj.pi.mm.cond.(cd).ax)
-                        hold on;
-                        obj.pi.mm.stim.(cd).(st).plt=plot([-45 45],[-1*obj.pi.mm.stim.(cd).no -1*obj.pi.mm.stim.(cd).no],'Color','k','parent',obj.pi.mm.cond.(cd).ax,'LineWidth',2,'Tag',num2str(obj.pi.mm.stim.(cd).no),'ButtonDownFcn',@cb_stimulatorSelector); %line
-                        %                     obj.pi.mm.stim.(cd).(st).pulse_count=0;
-                        %                     obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).pulse_count=obj.pi.mm.stim.(cd).(st).pulse_count;
-                        obj.pi.mm.cond.(cd).ax.YLim=[(-1-obj.pi.mm.stim.(cd).no) 1];
-                        yticks(obj.pi.mm.cond.(cd).ax,[-1-obj.pi.mm.stim.(cd).no:1:1])
-                        for i=1:obj.pi.mm.stim.(cd).no
-                            yticklab{1,i}=cellstr(['Stimulator ' num2str(i)]);
-                        end
-                        yticklab=flip(horzcat(yticklab{1,:}));
-                        obj.pi.mm.cond.(cd).ax.YTickLabel={'',char(yticklab),'tep Search Channel',''};
-                        text(0,-1*obj.pi.mm.stim.(cd).no,char(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).stim_device),'VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',9,'FontAngle','italic','Tag',num2str(obj.pi.mm.stim.(cd).no),'ButtonDownFcn',@obj.cb_pi_tep_output_device)
-                        sprintf('here it is %d ----------------------------------------------------',obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).pulse_count)
-                        for ipulses=1:obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).pulse_count
-                            disp NOTENTERED=============================================================
-                            % 11-Mar-2020 18:13:21
-                            obj.pi.mm.stim.(cd).slctd=istimulators;
-                            obj.pi.mm.stim.(cd).(st).pulse_count=ipulses;
-                            %                         obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).pulse_count=obj.pi.mm.stim.(cd).(st).pulse_count;
-                            
-                            switch char(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).stim_mode)
-                                case 'single_pulse'
-                                    obj.pi.mm.stim.(cd).(st).pulse_types{1,obj.pi.mm.stim.(cd).(st).pulse_count}=cellstr('single_pulse');
-                                    %make the string here
-                                    SinglePulseAnnotation=[];
-                                    if (obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_units==1)
-                                        disp HEHEHEHEHEHEHEHEHEHHEHEHEHEHEEEH
-                                        
-                                        SinglePulseAnnotation=['TS: [' num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt{1,1}) '] %MSO'];
-                                    else
-                                        SinglePulseAnnotation=['TS: [' num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt{1,1}) '] %MT'];
-                                    end
-                                    %AAJ: idher ye banao jese oper hehehehehe
-                                    %vala bnaya he pp aur train dono k lye
-                                    text(obj.pi.mm.stim.(cd).(st).pulse_count-0.25,-obj.pi.mm.stim.(cd).slctd+0.41,SinglePulseAnnotation,'VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',7,'FontAngle','italic','UserData',[obj.pi.mm.stim.(cd).(st).pulse_count,obj.pi.mm.stim.(cd).slctd],'ButtonDownFcn',@obj.cb_pi_tep_sp_inputfig) % 11-Mar-2020 14:49:00
-                                case 'paired_pulse'
-                                    obj.pi.mm.stim.(cd).(st).pulse_types{1,obj.pi.mm.stim.(cd).(st).pulse_count}=cellstr('paired_pulse');
-                                    % % %                                 text(obj.pi.mm.stim.(cd).(st).pulse_count-0.25,-obj.pi.mm.stim.(cd).slctd+0.4,{'TS:[?], CS:[?] %MSO', 'ISI:[?] ms'},'VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',7,'FontAngle','italic','UserData',[obj.pi.mm.stim.(cd).(st).pulse_count,obj.pi.mm.stim.(cd).slctd],'ButtonDownFcn',@obj.cb_pi_tep_pp_inputfig) % 11-Mar-2020 14:49:00
-                                    TS=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt{1,1});
-                                    CS=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt{1,2});
-                                    ISI=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt{1,3});
-                                    if obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_units==1
-                                        UnitString='%MSO';
-                                    elseif obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_units==0
-                                        UnitString='%MT';
-                                    end
-                                    text(obj.pi.mm.stim.(cd).(st).pulse_count-0.25,-obj.pi.mm.stim.(cd).slctd+0.4,{['TS:' TS ', CS:' CS ' ' UnitString], ['ISI:' ISI 'ms']},'VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',7,'FontAngle','italic','UserData',[obj.pi.mm.stim.(cd).(st).pulse_count,obj.pi.mm.stim.(cd).slctd],'ButtonDownFcn',@obj.cb_pi_tep_pp_inputfig) % 11-Mar-2020 14:49:00
-                                    
-                                case 'train'
-                                    obj.pi.mm.stim.(cd).(st).pulse_types{1,obj.pi.mm.stim.(cd).(st).pulse_count}=cellstr('train');
-                                    %                                 obj.pi.mm.stim.(st).pulse_specs=text(obj.pi.mm.stim.(cd).(st).pulse_count,-obj.pi.mm.stim.(cd).slctd+0.4,{'Pulses:[?], f:[?] Hz', 'TS:[?] %MSO'},'VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',7,'FontAngle','italic','UserData',[obj.pi.mm.stim.(cd).(st).pulse_count,obj.pi.mm.stim.(cd).slctd],'ButtonDownFcn',@obj.cb_pi_tep_train_inputfig); % 11-Mar-2020 14:49:00
-                                    TS=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt{1,1});
-                                    F=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt{1,2});
-                                    PULSES=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt{1,3});
-                                    if obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_units==1
-                                        UnitString='%MSO';
-                                    elseif obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_units==0
-                                        UnitString='%MT';
-                                    end
-                                    obj.pi.mm.stim.(st).pulse_specs=text(obj.pi.mm.stim.(cd).(st).pulse_count,-obj.pi.mm.stim.(cd).slctd+0.4,{['Pulses:' PULSES ', f:' F 'Hz'], ['TS:' TS UnitString]},'VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',7,'FontAngle','italic','UserData',[obj.pi.mm.stim.(cd).(st).pulse_count,obj.pi.mm.stim.(cd).slctd],'ButtonDownFcn',@obj.cb_pi_tep_train_inputfig); % 11-Mar-2020 14:49:00
-                                    
-                            end
-                            
-                            
-                            % delete the previous plot
-                            delete(obj.pi.mm.stim.(cd).(st).plt)
-                            % make the x and y vector for new one
-                            x=[];
-                            y=[];
-                            for i=1:obj.pi.mm.stim.(cd).(st).pulse_count
-                                switch char(obj.pi.mm.stim.(cd).(st).pulse_types{1,i})
-                                    case 'single_pulse'
-                                        disp sp
-                                        x{i}=([i i i+0.15 i+0.15]);
-                                        y{i}=[-obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd+0.4 -obj.pi.mm.stim.(cd).slctd+0.4 -obj.pi.mm.stim.(cd).slctd];
-                                    case 'paired_pulse'
-                                        disp pp
-                                        x{i}=[i i i+0.15 i+0.15 i+0.25 i+0.25 i+0.40 i+0.40];
-                                        y{i}=[-obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd+0.20 -obj.pi.mm.stim.(cd).slctd+0.20 -obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd+0.4 -obj.pi.mm.stim.(cd).slctd+0.4 -obj.pi.mm.stim.(cd).slctd];
-                                    case 'train'
-                                        disp train
-                                        %                         x(i)=[i i i+0.20 i+0.20 i+0.30 i+0.30 i+0.50 i+0.50 i+0.60 i+0.60 i+0.80 i+0.80];
-                                        x{i}=[i i i+0.15 i+0.15 i+0.25 i+0.25 i+0.40 i+0.40 i+0.50 i+0.50 i+0.65 i+0.65];
-                                        %                         y{i}={[-obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd+0.5 -obj.pi.mm.stim.(cd).slctd+0.5 -obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd+0.5 -obj.pi.mm.stim.(cd).slctd+0.5 -obj.pi.mm.stim.(cd).slctd]};
-                                        
-                                        y{i}=-obj.pi.mm.stim.(cd).slctd+[0 0.4 0.4 0 0 0.4 0.4 0 0 0.4 0.4 0];
-                                end
-                            end
-                            
-                            x=[-45 cell2mat(x) 45];
-                            y=[-obj.pi.mm.stim.(cd).slctd cell2mat(y) -obj.pi.mm.stim.(cd).slctd];
-                            
-                            obj.pi.mm.stim.(cd).(st).plt=plot(x,y,'Color','k','parent',obj.pi.mm.cond.(cd).ax,'LineWidth',2,'Tag',num2str(obj.pi.mm.stim.(cd).slctd),'ButtonDownFcn',@cb_stimulatorSelector); %line
-                            
-                            drawArrow = @(x,y) quiver( x(1),y(1),x(2)-x(1),y(2)-y(1),0,'color','k' );
-                            num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).stim_timing{1,ipulses})
-                            obj.pi.mm.stim.(st).pulse_time=text(obj.pi.mm.stim.(cd).(st).pulse_count-1+0.5,-obj.pi.mm.stim.(cd).slctd-0.05,['t:' num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).stim_timing{1,ipulses}) 'ms'],'VerticalAlignment','top','Color',[0.50 0.50 0.50],'FontSize',9,'FontAngle','italic','UserData',[obj.pi.mm.stim.(cd).(st).pulse_count,obj.pi.mm.stim.(cd).slctd],'ButtonDownFcn',@obj.cb_pi_tep_timing)
-                            
-                            obj.pi.mm.stim.(st).pulse_arrow1=drawArrow([obj.pi.mm.stim.(cd).(st).pulse_count-1 obj.pi.mm.stim.(cd).(st).pulse_count-1+1],[-obj.pi.mm.stim.(cd).slctd-0.05 -obj.pi.mm.stim.(cd).slctd-0.05])
-                            obj.pi.mm.stim.(st).pulse_arrow2=drawArrow([obj.pi.mm.stim.(cd).(st).pulse_count-1+1 obj.pi.mm.stim.(cd).(st).pulse_count-1],[-obj.pi.mm.stim.(cd).slctd-0.05 -obj.pi.mm.stim.(cd).slctd-0.05])
-                            
-                            
-                            if(obj.pi.mm.cond.(cd).ax.XLim(2)<obj.pi.mm.stim.(cd).(st).pulse_count+1)
-                                obj.pi.mm.cond.(cd).ax.XLim(2)=obj.pi.mm.stim.(cd).(st).pulse_count+1;
-                            end
-                            
-                        end
-                        
-                    end
-                    function cb_stimulatorSelector(source,~)
-                        if(isfield(obj.pi.mm,'stimulatorSelector'))
-                            if(isvalid(obj.pi.mm.stimulatorSelector))
-                                obj.pi.mm.stimulatorSelector.Color='k';
-                            end
-                        end
-                        obj.pi.mm.stim.(cd).slctd=str2double(source.Tag);
-                        source.Color='b';
-                        obj.pi.mm.stimulatorSelector=source;
-                    end
-                    function cb_pr_mm_duplicateCondition(~,~)
-                        disp PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP
-                        conditionIndex=length(fieldnames(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll));
-                        cond_duplicated_from=['cond' num2str(obj.pi.mm.tab.SelectedChild)];
-                        cond_duplicated_to=['cond' num2str(conditionIndex+1)];
-                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cond_duplicated_to)=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cond_duplicated_from);
-                        obj.pi_tep;
-                        obj.func_load_tep_par;
-                    end
-                    function cb_pr_mm_deleteCondition(~,~)
-                        disp PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP
-                        
-                        condsAll_fieldnames=fieldnames(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll);
-                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll=rmfield(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll,char(condsAll_fieldnames(obj.pi.mm.tab.SelectedChild)));
-                        condsAll_fieldnames(obj.pi.mm.tab.SelectedChild)=[];
-                        for deleteIndex_condition=1:(length(fieldnames(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll)))
-                            cond_resorted_afterdelete=['cond' num2str(deleteIndex_condition)];
-                            condsAll_new.(cond_resorted_afterdelete)=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(char(condsAll_fieldnames(deleteIndex_condition)));
-                        end
-                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll=condsAll_new;
-                        obj.pi_tep;
-                        obj.func_load_tep_par;
-                    end
-                end
-                
-                
-                
-                
-                %AAJ: add a new uimenu in table for add a condition,
-                %add a stimulator to this condition, delete a
-                %condition, delete a stimulator
-                
-            end
-            
-            
-        end
-        function cb_pi_tep_Nconditions(obj)
-            
-            obj.pi.mm.cond.TabNames=[];
-            contextMenu_condition=uicontextmenu(obj.fig.handle);
-            uimenu(contextMenu_condition,'label','Duplicate Condition','Callback',@cb_pr_mm_duplicateCondition);
-            uimenu(contextMenu_condition,'label','Delete Condition','Callback',@cb_pr_mm_deleteCondition);
-            for iconds=1:length(fieldnames(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll))
-                obj.pi.mm.cond.no=iconds;
-                cd=['cd' num2str(obj.pi.mm.cond.no)];
-                condStr=['cond' num2str(obj.pi.mm.cond.no)];
-                obj.pi.mm.cond.(cd).ax_panel= uix.Panel( 'Parent',obj.pi.mm.tab,'uicontextmenu',contextMenu_condition);
-                obj.pi.mm.cond.(cd).ax=axes('parent',obj.pi.mm.cond.(cd).ax_panel );
-                box on; hold on;
-                obj.pi.mm.cond.TabNames{1,obj.pi.mm.cond.no}=['Condition' num2str(obj.pi.mm.cond.no)];
-                obj.pi.mm.tab.TabNames=obj.pi.mm.cond.TabNames;
-                obj.pi.mm.tab.SelectedChild=1;
-                obj.pi.mm.tab.TabSize=90;
-                obj.pi.mm.tab.FontSize=12;
-                obj.pi.mm.cond.(cd).ax.YLim=[-1 1];
-                obj.pi.mm.cond.(cd).ax.XLim=[0 5];
-                xticks(obj.pi.mm.cond.(cd).ax,[100 101]);
-                yticks(obj.pi.mm.cond.(cd).ax,-1:1:1)
-                obj.pi.mm.cond.(cd).ax.YTickLabel={'','tep Search Window',''};
-                plot(0:0.01:10,rand(1,1001)*0.30-0.15,'Color','k','parent',obj.pi.mm.cond.(cd).ax,'LineWidth',2,'Tag','empty'); % 12-Mar-2020 07:37:17
-                %%                 text(2.5,0+0.20,['Channel Name:[' char(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).targetChannel) ']'],'VerticalAlignment','bottom','HorizontalAlignment','center','Color',[0.50 0.50 0.50],'FontSize',9,'FontAngle','italic','ButtonDownFcn',@obj.cb_pi_tep_targetChannel) % 11-Mar-2020 14:49:00
-                obj.pi.mm.stim.(cd).no=0;
-                
-                %make stimulators
-                for istimulators=1:(length(fieldnames(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr)))-1)
-                    obj.pi.mm.stim.(cd).no=istimulators;
-                    st=['st' num2str(obj.pi.mm.stim.(cd).no)];
-                    axes(obj.pi.mm.cond.(cd).ax)
-                    hold on;
-                    obj.pi.mm.stim.(cd).(st).plt=plot([-45 45],[-1*obj.pi.mm.stim.(cd).no -1*obj.pi.mm.stim.(cd).no],'Color','k','parent',obj.pi.mm.cond.(cd).ax,'LineWidth',2,'Tag',num2str(obj.pi.mm.stim.(cd).no),'ButtonDownFcn',@cb_stimulatorSelector); %line
-                    %                     obj.pi.mm.stim.(cd).(st).pulse_count=0;
-                    %                     obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).pulse_count=obj.pi.mm.stim.(cd).(st).pulse_count;
-                    obj.pi.mm.cond.(cd).ax.YLim=[(-1-obj.pi.mm.stim.(cd).no) 1];
-                    yticks(obj.pi.mm.cond.(cd).ax,[-1-obj.pi.mm.stim.(cd).no:1:1])
-                    for i=1:obj.pi.mm.stim.(cd).no
-                        yticklab{1,i}=cellstr(['Stimulator ' num2str(i)]);
-                    end
-                    yticklab=flip(horzcat(yticklab{1,:}));
-                    obj.pi.mm.cond.(cd).ax.YTickLabel={'',char(yticklab),'tep Search Window',''};
-                    text(0,-1*obj.pi.mm.stim.(cd).no,char(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).stim_device),'VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',9,'FontAngle','italic','Tag',num2str(obj.pi.mm.stim.(cd).no),'ButtonDownFcn',@obj.cb_pi_tep_output_device)
-                    sprintf('here it is %d ----------------------------------------------------',obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).pulse_count)
-                    for ipulses=1:obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).pulse_count
-                        disp NOTENTERED=============================================================
-                        % 11-Mar-2020 18:13:21
-                        obj.pi.mm.stim.(cd).slctd=istimulators;
-                        obj.pi.mm.stim.(cd).(st).pulse_count=ipulses;
-                        %                         obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).pulse_count=obj.pi.mm.stim.(cd).(st).pulse_count;
-                        
-                        switch char(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).stim_mode)
-                            case 'single_pulse'
-                                obj.pi.mm.stim.(cd).(st).pulse_types{1,obj.pi.mm.stim.(cd).(st).pulse_count}=cellstr('single_pulse');
-                                %make the string here
-                                SinglePulseAnnotation=[];
-                                if (obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_units==1)
-                                    disp HEHEHEHEHEHEHEHEHEHHEHEHEHEHEEEH
-                                    
-                                    SinglePulseAnnotation=['TS: [' num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt{1,1}) '] %MSO'];
-                                else
-                                    SinglePulseAnnotation=['TS: [' num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt{1,1}) '] %MT'];
-                                end
-                                %AAJ: idher ye banao jese oper hehehehehe
-                                %vala bnaya he pp aur train dono k lye
-                                text(obj.pi.mm.stim.(cd).(st).pulse_count-0.25,-obj.pi.mm.stim.(cd).slctd+0.41,SinglePulseAnnotation,'VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',7,'FontAngle','italic','UserData',[obj.pi.mm.stim.(cd).(st).pulse_count,obj.pi.mm.stim.(cd).slctd],'ButtonDownFcn',@obj.cb_pi_tep_sp_inputfig) % 11-Mar-2020 14:49:00
-                            case 'paired_pulse'
-                                obj.pi.mm.stim.(cd).(st).pulse_types{1,obj.pi.mm.stim.(cd).(st).pulse_count}=cellstr('paired_pulse');
-                                % % %                                 text(obj.pi.mm.stim.(cd).(st).pulse_count-0.25,-obj.pi.mm.stim.(cd).slctd+0.4,{'TS:[?], CS:[?] %MSO', 'ISI:[?] ms'},'VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',7,'FontAngle','italic','UserData',[obj.pi.mm.stim.(cd).(st).pulse_count,obj.pi.mm.stim.(cd).slctd],'ButtonDownFcn',@obj.cb_pi_tep_pp_inputfig) % 11-Mar-2020 14:49:00
-                                TS=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt{1,1});
-                                CS=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt{1,2});
-                                ISI=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt{1,3});
-                                if obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_units==1
-                                    UnitString='%MSO';
-                                elseif obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_units==0
-                                    UnitString='%MT';
-                                end
-                                text(obj.pi.mm.stim.(cd).(st).pulse_count-0.25,-obj.pi.mm.stim.(cd).slctd+0.4,{['TS:' TS ', CS:' CS ' ' UnitString], ['ISI:' ISI 'ms']},'VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',7,'FontAngle','italic','UserData',[obj.pi.mm.stim.(cd).(st).pulse_count,obj.pi.mm.stim.(cd).slctd],'ButtonDownFcn',@obj.cb_pi_tep_pp_inputfig) % 11-Mar-2020 14:49:00
-                                
-                            case 'train'
-                                obj.pi.mm.stim.(cd).(st).pulse_types{1,obj.pi.mm.stim.(cd).(st).pulse_count}=cellstr('train');
-                                %                                 obj.pi.mm.stim.(st).pulse_specs=text(obj.pi.mm.stim.(cd).(st).pulse_count,-obj.pi.mm.stim.(cd).slctd+0.4,{'Pulses:[?], f:[?] Hz', 'TS:[?] %MSO'},'VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',7,'FontAngle','italic','UserData',[obj.pi.mm.stim.(cd).(st).pulse_count,obj.pi.mm.stim.(cd).slctd],'ButtonDownFcn',@obj.cb_pi_tep_train_inputfig); % 11-Mar-2020 14:49:00
-                                TS=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt{1,1});
-                                F=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt{1,2});
-                                PULSES=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt{1,3});
-                                if obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_units==1
-                                    UnitString='%MSO';
-                                elseif obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_units==0
-                                    UnitString='%MT';
-                                end
-                                obj.pi.mm.stim.(st).pulse_specs=text(obj.pi.mm.stim.(cd).(st).pulse_count,-obj.pi.mm.stim.(cd).slctd+0.4,{['Pulses:' PULSES ', f:' F 'Hz'], ['TS:' TS UnitString]},'VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',7,'FontAngle','italic','UserData',[obj.pi.mm.stim.(cd).(st).pulse_count,obj.pi.mm.stim.(cd).slctd],'ButtonDownFcn',@obj.cb_pi_tep_train_inputfig); % 11-Mar-2020 14:49:00
-                                
-                        end
-                        
-                        
-                        % delete the previous plot
-                        delete(obj.pi.mm.stim.(cd).(st).plt)
-                        % make the x and y vector for new one
-                        x=[];
-                        y=[];
-                        for i=1:obj.pi.mm.stim.(cd).(st).pulse_count
-                            switch char(obj.pi.mm.stim.(cd).(st).pulse_types{1,i})
-                                case 'single_pulse'
-                                    disp sp
-                                    x{i}=([i i i+0.15 i+0.15]);
-                                    y{i}=[-obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd+0.4 -obj.pi.mm.stim.(cd).slctd+0.4 -obj.pi.mm.stim.(cd).slctd];
-                                case 'paired_pulse'
-                                    disp pp
-                                    x{i}=[i i i+0.15 i+0.15 i+0.25 i+0.25 i+0.40 i+0.40];
-                                    y{i}=[-obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd+0.20 -obj.pi.mm.stim.(cd).slctd+0.20 -obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd+0.4 -obj.pi.mm.stim.(cd).slctd+0.4 -obj.pi.mm.stim.(cd).slctd];
-                                case 'train'
-                                    disp train
-                                    %                         x(i)=[i i i+0.20 i+0.20 i+0.30 i+0.30 i+0.50 i+0.50 i+0.60 i+0.60 i+0.80 i+0.80];
-                                    x{i}=[i i i+0.15 i+0.15 i+0.25 i+0.25 i+0.40 i+0.40 i+0.50 i+0.50 i+0.65 i+0.65];
-                                    %                         y{i}={[-obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd+0.5 -obj.pi.mm.stim.(cd).slctd+0.5 -obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd+0.5 -obj.pi.mm.stim.(cd).slctd+0.5 -obj.pi.mm.stim.(cd).slctd]};
-                                    
-                                    y{i}=-obj.pi.mm.stim.(cd).slctd+[0 0.4 0.4 0 0 0.4 0.4 0 0 0.4 0.4 0];
-                            end
-                        end
-                        
-                        x=[-45 cell2mat(x) 45];
-                        y=[-obj.pi.mm.stim.(cd).slctd cell2mat(y) -obj.pi.mm.stim.(cd).slctd];
-                        
-                        obj.pi.mm.stim.(cd).(st).plt=plot(x,y,'Color','k','parent',obj.pi.mm.cond.(cd).ax,'LineWidth',2,'Tag',num2str(obj.pi.mm.stim.(cd).slctd),'ButtonDownFcn',@cb_stimulatorSelector); %line
-                        
-                        drawArrow = @(x,y) quiver( x(1),y(1),x(2)-x(1),y(2)-y(1),0,'color','k' );
-                        num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).stim_timing{1,ipulses})
-                        obj.pi.mm.stim.(st).pulse_time=text(obj.pi.mm.stim.(cd).(st).pulse_count-1+0.5,-obj.pi.mm.stim.(cd).slctd-0.05,['t:' num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).stim_timing{1,ipulses}) 'ms'],'VerticalAlignment','top','Color',[0.50 0.50 0.50],'FontSize',9,'FontAngle','italic','UserData',[obj.pi.mm.stim.(cd).(st).pulse_count,obj.pi.mm.stim.(cd).slctd],'ButtonDownFcn',@obj.cb_pi_tep_timing)
-                        
-                        obj.pi.mm.stim.(st).pulse_arrow1=drawArrow([obj.pi.mm.stim.(cd).(st).pulse_count-1 obj.pi.mm.stim.(cd).(st).pulse_count-1+1],[-obj.pi.mm.stim.(cd).slctd-0.05 -obj.pi.mm.stim.(cd).slctd-0.05])
-                        obj.pi.mm.stim.(st).pulse_arrow2=drawArrow([obj.pi.mm.stim.(cd).(st).pulse_count-1+1 obj.pi.mm.stim.(cd).(st).pulse_count-1],[-obj.pi.mm.stim.(cd).slctd-0.05 -obj.pi.mm.stim.(cd).slctd-0.05])
-                        
-                        
-                        if(obj.pi.mm.cond.(cd).ax.XLim(2)<obj.pi.mm.stim.(cd).(st).pulse_count+1)
-                            obj.pi.mm.cond.(cd).ax.XLim(2)=obj.pi.mm.stim.(cd).(st).pulse_count+1;
-                        end
-                        
-                    end
-                    
-                end
-                %make pulses
-                
-                
-                
-            end
-            function cb_stimulatorSelector(source,~)
-                if(isfield(obj.pi.mm,'stimulatorSelector'))
-                    if(isvalid(obj.pi.mm.stimulatorSelector))
-                        obj.pi.mm.stimulatorSelector.Color='k';
-                    end
-                end
-                obj.pi.mm.stim.(cd).slctd=str2double(source.Tag);
-                source.Color='b';
-                obj.pi.mm.stimulatorSelector=source;
-            end
-            function cb_pr_mm_duplicateCondition(~,~)
-                disp PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP
-                conditionIndex=length(fieldnames(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll));
-                cond_duplicated_from=['cond' num2str(obj.pi.mm.tab.SelectedChild)];
-                cond_duplicated_to=['cond' num2str(conditionIndex+1)];
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cond_duplicated_to)=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cond_duplicated_from);
-                obj.pi_tep;
-                obj.func_load_tep_par;
-            end
-            function cb_pr_mm_deleteCondition(~,~)
-                disp PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP
-                
-                condsAll_fieldnames=fieldnames(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll);
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll=rmfield(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll,char(condsAll_fieldnames(obj.pi.mm.tab.SelectedChild)));
-                condsAll_fieldnames(obj.pi.mm.tab.SelectedChild)=[];
-                for deleteIndex_condition=1:(length(fieldnames(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll)))
-                    cond_resorted_afterdelete=['cond' num2str(deleteIndex_condition)];
-                    condsAll_new.(cond_resorted_afterdelete)=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(char(condsAll_fieldnames(deleteIndex_condition)));
-                end
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll=condsAll_new;
-                obj.pi_tep;
-                obj.func_load_tep_par;
-            end
-        end
-        function cb_pi_tep_conditions(obj)
-            obj.pi.mm.cond.no=obj.pi.mm.cond.no+1;
-            cd=['cd' num2str(obj.pi.mm.cond.no)];
-            condStr=['cond' num2str(obj.pi.mm.cond.no)];
-            contextMenu_condition=uicontextmenu(obj.fig.handle);
-            uimenu(contextMenu_condition,'label','Duplicate Condition','Callback',@cb_pr_mm_duplicateCondition);
-            uimenu(contextMenu_condition,'label','Delete Condition','Callback',@cb_pr_mm_deleteCondition);
-            obj.pi.mm.cond.(cd).ax_panel= uix.Panel( 'Parent',obj.pi.mm.tab,'uicontextmenu',contextMenu_condition);
-            obj.pi.mm.cond.(cd).ax=axes('parent',obj.pi.mm.cond.(cd).ax_panel );
-            box on; hold on;
-            obj.pi.mm.cond.TabNames{1,obj.pi.mm.cond.no}=['Condition' num2str(obj.pi.mm.cond.no)];
-            obj.pi.mm.tab.TabNames=obj.pi.mm.cond.TabNames;
-            obj.pi.mm.tab.SelectedChild=obj.pi.mm.cond.no;
-            obj.pi.mm.tab.TabSize=90;
-            obj.pi.mm.tab.FontSize=12;
-            obj.pi.mm.cond.(cd).ax.YLim=[-1 1];
-            obj.pi.mm.cond.(cd).ax.XLim=[0 5];
-            xticks(obj.pi.mm.cond.(cd).ax,[100 101]);
-            yticks(obj.pi.mm.cond.(cd).ax,[-1:1:1])
-            obj.pi.mm.cond.(cd).ax.YTickLabel={'','tep Search Window',''};
-            plot(0:0.01:10,rand(1,1001)*0.30-0.15,'Color','k','parent',obj.pi.mm.cond.(cd).ax,'LineWidth',2,'Tag','empty'); % 12-Mar-2020 07:37:17
-            %%             text(2.5,0+0.20,'Channel Name:[?]','VerticalAlignment','bottom','HorizontalAlignment','center','Color',[0.50 0.50 0.50],'FontSize',9,'FontAngle','italic','ButtonDownFcn',@obj.cb_pi_tep_targetChannel) % 11-Mar-2020 14:49:00
-            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).targetChannel=cellstr('NaN');
-            obj.pi.mm.stim.(cd).no=0;
-            function cb_pr_mm_duplicateCondition(~,~)
-                conditionIndex=length(fieldnames(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll));
-                cond_duplicated_from=['cond' num2str(obj.pi.mm.tab.SelectedChild)];
-                cond_duplicated_to=['cond' num2str(conditionIndex+1)];
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cond_duplicated_to)=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cond_duplicated_from);
-                obj.pi_tep;
-                obj.func_load_tep_par;
-            end
-            function cb_pr_mm_deleteCondition(~,~)
-                condsAll_fieldnames=fieldnames(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll);
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll=rmfield(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll,char(condsAll_fieldnames(obj.pi.mm.tab.SelectedChild)));
-                condsAll_fieldnames(obj.pi.mm.tab.SelectedChild)=[];
-                for deleteIndex_condition=1:(length(fieldnames(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll)))
-                    cond_resorted_afterdelete=['cond' num2str(deleteIndex_condition)];
-                    condsAll_new.(cond_resorted_afterdelete)=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(char(condsAll_fieldnames(deleteIndex_condition)));
-                end
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll=condsAll_new;
-                obj.pi_tep;
-                obj.func_load_tep_par;
-            end
-            obj.cb_pi_tep_StimulationParametersTable;
-            
-            
-        end
-        function cb_pi_tep_stim(obj)
-            
-            obj.pi.mm.tab.TabNames=obj.pi.mm.cond.TabNames;
-            cd=['cd' num2str(obj.pi.mm.tab.SelectedChild)];
-            condStr=['cond' num2str(obj.pi.mm.tab.SelectedChild)];
-            obj.pi.mm.stim.(cd).no=obj.pi.mm.stim.(cd).no+1;
-            st=['st' num2str(obj.pi.mm.stim.(cd).no)];
-            axes(obj.pi.mm.cond.(cd).ax)
-            hold on;
-            %             plot([-45 45],[1 1],'Color','k','parent',obj.pi.mm.ax);
-            %             plot([-45 45],[0 0],'Color','k','parent',obj.pi.mm.ax);
-            
-            
-            obj.pi.mm.stim.(cd).(st).plt=plot([-45 45],[-1*obj.pi.mm.stim.(cd).no -1*obj.pi.mm.stim.(cd).no],'Color','k','parent',obj.pi.mm.cond.(cd).ax,'LineWidth',2,'Tag',num2str(obj.pi.mm.stim.(cd).no),'ButtonDownFcn',@cb_stimulatorSelector); %line
-            %             obj.pi.mm.stim.(cd).(st).pulse_count=0;
-            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).pulse_count=0;
-            obj.pi.mm.stim.(cd).(st).plt.Tag
-            %             plot([-45 45],[-2-obj.pi.mm.stim.no -2-obj.pi.mm.stim.no],'Color','k','parent',obj.pi.mm.ax);
-            obj.pi.mm.cond.(cd).ax.YLim=[(-1-obj.pi.mm.stim.(cd).no) 1];
-            yticks(obj.pi.mm.cond.(cd).ax,[-1-obj.pi.mm.stim.(cd).no:1:1])
-            for i=1:obj.pi.mm.stim.(cd).no
-                yticklab{1,i}=cellstr(['Stimulator ' num2str(i)]);
-            end
-            yticklab=flip(horzcat(yticklab{1,:}));
-            obj.pi.mm.cond.(cd).ax.YTickLabel={'',char(yticklab),'tep Search Window',''};
-            text(0,-1*obj.pi.mm.stim.(cd).no,'click to tag device','VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',9,'FontAngle','italic','Tag',num2str(obj.pi.mm.stim.(cd).no),'ButtonDownFcn',@obj.cb_pi_tep_output_device)
-            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).stim_device=cellstr('Select');
-            function cb_stimulatorSelector(source,~)
-                if(isfield(obj.pi.mm,'stimulatorSelector'))
-                    if(isvalid(obj.pi.mm.stimulatorSelector))
-                        obj.pi.mm.stimulatorSelector.Color='k';
-                    end
-                end
-                obj.pi.mm.stim.(cd).slctd=str2double(source.Tag);
-                source.Color='b';
-                obj.pi.mm.stimulatorSelector=source;
-            end
-            obj.cb_pi_tep_StimulationParametersTable;
-        end
-        function cb_pi_tep_pulse(obj,source,~)
-            % 11-Mar-2020 18:13:21
-            cd=['cd' num2str(obj.pi.mm.tab.SelectedChild)];
-            condStr=['cond' num2str(obj.pi.mm.tab.SelectedChild)];
-            
-            %             obj.pi.mm.stim.(cd).slctd=1 ;
-            
-            
-            st=['st' num2str(obj.pi.mm.stim.(cd).slctd)];
-            obj.pi.mm.stim.(cd).(st).pulse_count=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).pulse_count+1;
-            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).pulse_count=obj.pi.mm.stim.(cd).(st).pulse_count;
-            
-            switch obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).pulse_count
-                case 1
-                    obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).stim_mode=source.Tag;
-                    
-                    switch source.Tag
-                        case 'single_pulse'
-                            obj.pi.mm.stim.(cd).(st).pulse_types{1,obj.pi.mm.stim.(cd).(st).pulse_count}=cellstr('single_pulse');
-                            text(obj.pi.mm.stim.(cd).(st).pulse_count-0.25,-obj.pi.mm.stim.(cd).slctd+0.41,'       TS:[NaN] %MSO','VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',7,'FontAngle','italic','UserData',[obj.pi.mm.stim.(cd).(st).pulse_count,obj.pi.mm.stim.(cd).slctd],'ButtonDownFcn',@obj.cb_pi_tep_sp_inputfig) % 11-Mar-2020 14:49:00
-                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si='NaN'; %only 1 SI is allowed as a standard model of generalization
-                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_units=1; %if 1 then its mso if 0 then its threshold
-                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).threshold='';
-                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).stim_mode='single_pulse';
-                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt={NaN};
-                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).stim_timing={NaN};
-                            
-                        case 'paired_pulse'
-                            obj.pi.mm.stim.(cd).(st).pulse_types{1,obj.pi.mm.stim.(cd).(st).pulse_count}=cellstr('paired_pulse');
-                            text(obj.pi.mm.stim.(cd).(st).pulse_count-0.25,-obj.pi.mm.stim.(cd).slctd+0.4,{'TS:[NaN], CS:[NaN] %MSO', 'ISI:[NaN] ms'},'VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',7,'FontAngle','italic','UserData',[obj.pi.mm.stim.(cd).(st).pulse_count,obj.pi.mm.stim.(cd).slctd],'ButtonDownFcn',@obj.cb_pi_tep_pp_inputfig) % 11-Mar-2020 14:49:00
-                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si='NaN'; %only 1 SI is allowed as a standard model of generalization
-                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).cs='NaN'; %only 1 SI is allowed as a standard model of generalization
-                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).isi='NaN'; %only 1 SI is allowed as a standard model of generalization
-                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_units=1; %if 1 then its mso if 0 then its threshold
-                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).threshold='';
-                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).stim_mode='paired_pulse';
-                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt={NaN,NaN,NaN};
-                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).stim_timing={NaN};
-                        case 'train'
-                            obj.pi.mm.stim.(cd).(st).pulse_types{1,obj.pi.mm.stim.(cd).(st).pulse_count}=cellstr('train');
-                            obj.pi.mm.stim.(st).pulse_specs=text(obj.pi.mm.stim.(cd).(st).pulse_count,-obj.pi.mm.stim.(cd).slctd+0.4,{'Pulses:[NaN], f:[NaN] Hz', 'TS:[NaN] %MSO'},'VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',7,'FontAngle','italic','UserData',[obj.pi.mm.stim.(cd).(st).pulse_count,obj.pi.mm.stim.(cd).slctd],'ButtonDownFcn',@obj.cb_pi_tep_train_inputfig); % 11-Mar-2020 14:49:00
-                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si='NaN'; %only 1 SI is allowed as a standard model of generalization
-                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).pulsesNo='NaN'; %only 1 SI is allowed as a standard model of generalization
-                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).freq='NaN'; %only 1 SI is allowed as a standard model of generalization
-                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_units=1; %if 1 then its mso if 0 then its threshold
-                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).threshold='';
-                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).stim_mode='train';
-                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt={NaN,NaN,NaN};
-                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).stim_timing={NaN};
-                    end
-                otherwise
-                    switch obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).stim_mode
-                        case 'single_pulse'
-                            obj.pi.mm.stim.(cd).(st).pulse_types{1,obj.pi.mm.stim.(cd).(st).pulse_count}=cellstr('single_pulse');
-                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).stim_timing(1,obj.pi.mm.stim.(cd).(st).pulse_count)={NaN};
-                            
-                            if obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_units==1
-                                UnitString='%MSO';
-                            elseif obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_units==0
-                                UnitString='%MT';
-                            end
-                            text(obj.pi.mm.stim.(cd).(st).pulse_count-0.25,-obj.pi.mm.stim.(cd).slctd+0.41,['     TS: ' num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt{1,1}) ' ' UnitString],'VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',7,'FontAngle','italic','UserData',[obj.pi.mm.stim.(cd).(st).pulse_count,obj.pi.mm.stim.(cd).slctd],'ButtonDownFcn',@obj.cb_pi_tep_sp_inputfig) % 11-Mar-2020 14:49:00
-                            
-                            
-                        case 'paired_pulse'
-                            obj.pi.mm.stim.(cd).(st).pulse_types{1,obj.pi.mm.stim.(cd).(st).pulse_count}=cellstr('paired_pulse');
-                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).stim_timing(1,obj.pi.mm.stim.(cd).(st).pulse_count)={NaN};
-                            TS=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt{1,1});
-                            CS=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt{1,2});
-                            ISI=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt{1,3});
-                            if obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_units==1
-                                UnitString='%MSO';
-                            elseif obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_units==0
-                                UnitString='%MT';
-                            end
-                            text(obj.pi.mm.stim.(cd).(st).pulse_count-0.25,-obj.pi.mm.stim.(cd).slctd+0.4,{['TS:' TS ', CS:' CS ' ' UnitString], ['ISI:' ISI 'ms']},'VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',7,'FontAngle','italic','UserData',[obj.pi.mm.stim.(cd).(st).pulse_count,obj.pi.mm.stim.(cd).slctd],'ButtonDownFcn',@obj.cb_pi_tep_pp_inputfig) % 11-Mar-2020 14:49:00
-                        case 'train'
-                            obj.pi.mm.stim.(cd).(st).pulse_types{1,obj.pi.mm.stim.(cd).(st).pulse_count}=cellstr('train');
-                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).stim_timing(1,obj.pi.mm.stim.(cd).(st).pulse_count)={NaN};
-                            TS=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt{1,1});
-                            F=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt{1,2});
-                            PULSES=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt{1,3});
-                            if obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_units==1
-                                UnitString='%MSO';
-                            elseif obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_units==0
-                                UnitString='%MT';
-                            end
-                            obj.pi.mm.stim.(st).pulse_specs=text(obj.pi.mm.stim.(cd).(st).pulse_count,-obj.pi.mm.stim.(cd).slctd+0.4,{['Pulses:' PULSES ', f:' F 'Hz'], ['TS:' TS UnitString]},'VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',7,'FontAngle','italic','UserData',[obj.pi.mm.stim.(cd).(st).pulse_count,obj.pi.mm.stim.(cd).slctd],'ButtonDownFcn',@obj.cb_pi_tep_train_inputfig); % 11-Mar-2020 14:49:00
-                    end
-                    
-            end
-            
-            
-            % delete the previous plot
-            delete(obj.pi.mm.stim.(cd).(st).plt)
-            % make the x and y vector for new one
-            x=[];
-            y=[];
-            for i=1:obj.pi.mm.stim.(cd).(st).pulse_count
-                switch char(obj.pi.mm.stim.(cd).(st).pulse_types{1,i})
-                    case 'single_pulse'
-                        disp sp
-                        x{i}=([i i i+0.15 i+0.15]);
-                        y{i}=[-obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd+0.4 -obj.pi.mm.stim.(cd).slctd+0.4 -obj.pi.mm.stim.(cd).slctd];
-                    case 'paired_pulse'
-                        disp pp
-                        x{i}=[i i i+0.15 i+0.15 i+0.25 i+0.25 i+0.40 i+0.40];
-                        y{i}=[-obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd+0.20 -obj.pi.mm.stim.(cd).slctd+0.20 -obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd+0.4 -obj.pi.mm.stim.(cd).slctd+0.4 -obj.pi.mm.stim.(cd).slctd];
-                    case 'train'
-                        disp train
-                        %                         x(i)=[i i i+0.20 i+0.20 i+0.30 i+0.30 i+0.50 i+0.50 i+0.60 i+0.60 i+0.80 i+0.80];
-                        x{i}=[i i i+0.15 i+0.15 i+0.25 i+0.25 i+0.40 i+0.40 i+0.50 i+0.50 i+0.65 i+0.65];
-                        %                         y{i}={[-obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd+0.5 -obj.pi.mm.stim.(cd).slctd+0.5 -obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd+0.5 -obj.pi.mm.stim.(cd).slctd+0.5 -obj.pi.mm.stim.(cd).slctd]};
-                        
-                        y{i}=-obj.pi.mm.stim.(cd).slctd+[0 0.4 0.4 0 0 0.4 0.4 0 0 0.4 0.4 0];
-                end
-            end
-            
-            x=[-45 cell2mat(x) 45];
-            y=[-obj.pi.mm.stim.(cd).slctd cell2mat(y) -obj.pi.mm.stim.(cd).slctd];
-            
-            obj.pi.mm.stim.(cd).(st).plt=plot(x,y,'Color','k','parent',obj.pi.mm.cond.(cd).ax,'LineWidth',2,'Tag',num2str(obj.pi.mm.stim.(cd).slctd),'ButtonDownFcn',@cb_stimulatorSelector); %line
-            
-            drawArrow = @(x,y) quiver( x(1),y(1),x(2)-x(1),y(2)-y(1),0,'color','k' )
-            obj.pi.mm.stim.(st).pulse_time=text(obj.pi.mm.stim.(cd).(st).pulse_count-1+0.5,-obj.pi.mm.stim.(cd).slctd-0.05,['t:' num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).stim_timing{1,obj.pi.mm.stim.(cd).(st).pulse_count}) ' ms'],'VerticalAlignment','top','Color',[0.50 0.50 0.50],'FontSize',9,'FontAngle','italic','UserData',[obj.pi.mm.stim.(cd).(st).pulse_count,obj.pi.mm.stim.(cd).slctd],'ButtonDownFcn',@obj.cb_pi_tep_timing)
-            
-            obj.pi.mm.stim.(st).pulse_arrow1=drawArrow([obj.pi.mm.stim.(cd).(st).pulse_count-1 obj.pi.mm.stim.(cd).(st).pulse_count-1+1],[-obj.pi.mm.stim.(cd).slctd-0.05 -obj.pi.mm.stim.(cd).slctd-0.05])
-            obj.pi.mm.stim.(st).pulse_arrow2=drawArrow([obj.pi.mm.stim.(cd).(st).pulse_count-1+1 obj.pi.mm.stim.(cd).(st).pulse_count-1],[-obj.pi.mm.stim.(cd).slctd-0.05 -obj.pi.mm.stim.(cd).slctd-0.05])
-            
-            
-            if(obj.pi.mm.cond.(cd).ax.XLim(2)<obj.pi.mm.stim.(cd).(st).pulse_count+1)
-                obj.pi.mm.cond.(cd).ax.XLim(2)=obj.pi.mm.stim.(cd).(st).pulse_count+1;
-            end
-            
-            
-            function cb_stimulatorSelector(source,~)
-                if(isvalid(obj.pi.mm.stimulatorSelector))
-                    obj.pi.mm.stimulatorSelector.Color='k';
-                end
-                obj.pi.mm.stim.(cd).slctd=str2double(source.Tag);
-                source.Color='b';
-                obj.pi.mm.stimulatorSelector=source;
-            end
-            obj.cb_pi_tep_StimulationParametersTable;
-        end
-        function cb_pi_tep_output_device(obj,source,~)
-            obj.hw.device_added1_listbox.string
-            if(isempty(obj.hw.device_added2_listbox.string))
-                errordlg('No Output Device (Stimulator) is configured before, visit Hardware Configuration section and configure a Hardware device before selecting one!', 'BEST Toolbox')
-            else
-                [indx,tf] = listdlg('PromptString',{'Select an Output Device'},'SelectionMode','single','ListString',obj.hw.device_added2_listbox.string);
-                if(tf==1)
-                    cd=['cond' num2str(obj.pi.mm.tab.SelectedChild)];
-                    st=['st' num2str(source.Tag)];
-                    obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).stim_device=obj.hw.device_added2_listbox.string(indx);
-                    source.String=obj.hw.device_added2_listbox.string(indx);
-                    obj.cb_pi_tep_StimulationParametersTable;
-                    
-                end
-                
-            end
-        end
-        function cb_pi_tep_timing(obj,source,~)
-            prompt = {'Time (mili-seconds):'};
-            dlgtitle = 'Insert Time | BEST Toolbox';
-            dims = [1 60];
-            definput = {'NaN'};
-            answer = inputdlg(prompt,dlgtitle,dims,definput);
-            source.String=['t: ', char(answer), ' ms'];
-            cd=['cond' num2str(obj.pi.mm.tab.SelectedChild)];
-            st=['st' num2str(source.UserData(2))];
-            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).stim_timing(source.UserData(1))=num2cell(str2double(answer));
-            obj.cb_pi_tep_StimulationParametersTable;
-            
-        end
-        function cb_pi_tep_sp_inputfig(obj,source,~)
-            f=figure('ToolBar','none','MenuBar','none','Name','Insert Parameters | BEST Toolbox','NumberTitle','off');
-            c1=uix.VBox('parent',f,'Padding',10,'Spacing',10);
-            r1=uix.HBox('parent',c1);
-            uicontrol( 'Style','text','Parent', r1,'String','Stimulation Intensities:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            si=uicontrol( 'Style','edit','Parent', r1 ,'String','NaN','FontSize',11);
-            set( r1, 'Widths', [210 200]);
-            
-            r2=uix.HBox('parent',c1);
-            uicontrol( 'Style','text','Parent', r2,'String','Intensity Units:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            units_mso=uicontrol( 'Style','radiobutton','Parent', r2 ,'FontSize',11,'String','%MSO','Value',1,'Callback',@(~,~)cb_units_mso);
-            units_mt=uicontrol( 'Style','radiobutton','Parent', r2 ,'FontSize',11,'String','%MT','Callback',@(~,~)cb_units_mt);
-            set( r2, 'Widths', [210 100 100]);
-            
-            r3=uix.HBox('parent',c1);
-            uicontrol( 'Style','text','Parent', r3,'String','Motor Threshold (%MSO):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            threshold=uicontrol( 'Style','edit','Parent', r3 ,'FontSize',11);
-            mt_btn_listbox_str_id= find(strcmp(obj.data.(obj.info.event.current_session).info.measurement_str_original,'tep Motor Threshold Hunting'));
-            mt_btn_listbox_str=obj.data.(obj.info.event.current_session).info.measurement_str_to_listbox(mt_btn_listbox_str_id);
-            mt_btn_listbox_str=['Select' mt_btn_listbox_str];
-            uiextras.HBox('Parent',r3)
-            th_dropdown=uicontrol( 'Style','popupmenu','Parent', r3 ,'FontSize',11,'String',mt_btn_listbox_str);     % 11-Mar-2020 14:48:46                                                                  % 1297
-            set( r3, 'Widths', [210 80 20 100]);
-            
-            
-            uicontrol( 'Parent', c1 ,'Style','PushButton','String','OK','FontWeight','Bold','Callback',@(~,~)cb_ok);
-            
-            set(c1, 'Heights', [25 25 25 25])
-            f.Position(3)=430;
-            f.Position(4)=150;
-            function cb_ok
-                source.String=['TS:' si.String ' %MSO']; % 11-Mar-2020 14:48:28
-                cd=['cond' num2str(obj.pi.mm.tab.SelectedChild)];
-                st=['st' num2str(source.UserData(2))];
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).si=si.String; %only 1 SI is allowed as a standard model of generalization
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).si_units=units_mso.Value; %if 1 then its mso if 0 then its threshold
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).threshold=threshold.String;
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).stim_mode='single_pulse';
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).si_pckt={str2double(si.String)};
-                obj.cb_pi_tep_StimulationParametersTable;
-                
-                close(f)
-            end
-            function cb_units_mso
-                if(units_mso.Value==1)
-                    units_mt.Value=0;
-                end
-            end
-            function cb_units_mt
-                if(units_mt.Value==1)
-                    units_mso.Value=0;
-                end
-            end
-        end
-        function cb_pi_tep_pp_inputfig(obj,source,~)
-            f=figure('ToolBar','none','MenuBar','none','Name','Insert Parameters | BEST Toolbox','NumberTitle','off');
-            c1=uix.VBox('parent',f,'Padding',10,'Spacing',10);
-            r1=uix.HBox('parent',c1);
-            uicontrol( 'Style','text','Parent', r1,'String','Test Stimulus Intensities (TS):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            si=uicontrol( 'Style','edit','Parent', r1 ,'String','NaN','FontSize',11);
-            set( r1, 'Widths', [250 200]);
-            
-            r2a=uix.HBox('parent',c1);
-            uicontrol( 'Style','text','Parent', r2a,'String','Condition Stimulus Intensities (CS):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            cs=uicontrol( 'Style','edit','Parent', r2a ,'String','NaN','FontSize',11);
-            set( r2a, 'Widths', [250 200]);
-            
-            r2b=uix.HBox('parent',c1);
-            uicontrol( 'Style','text','Parent', r2b,'String','Inter Stimulus Interval (ms):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            isi=uicontrol( 'Style','edit','Parent', r2b ,'String','NaN','FontSize',11);
-            set( r2b, 'Widths', [250 200]);
-            
-            r2=uix.HBox('parent',c1);
-            uicontrol( 'Style','text','Parent', r2,'String','Intensity Units:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            units_mso=uicontrol( 'Style','radiobutton','Parent', r2 ,'FontSize',11,'String','%MSO','Value',1,'Callback',@(~,~)cb_units_mso);
-            units_mt=uicontrol( 'Style','radiobutton','Parent', r2 ,'FontSize',11,'String','%MT','Callback',@(~,~)cb_units_mt);
-            set( r2, 'Widths', [250 100 100]);
-            
-            r3=uix.HBox('parent',c1);
-            uicontrol( 'Style','text','Parent', r3,'String','Motor Threshold (%MSO):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            threshold=uicontrol( 'Style','edit','Parent', r3 ,'FontSize',11);
-            mt_btn_listbox_str_id= find(strcmp(obj.data.(obj.info.event.current_session).info.measurement_str_original,'tep Motor Threshold Hunting'));
-            mt_btn_listbox_str=obj.data.(obj.info.event.current_session).info.measurement_str_to_listbox(mt_btn_listbox_str_id);
-            mt_btn_listbox_str=['Select' mt_btn_listbox_str];
-            uiextras.HBox('Parent',r3)
-            th_dropdown=uicontrol( 'Style','popupmenu','Parent', r3 ,'FontSize',11,'String',mt_btn_listbox_str);     % 11-Mar-2020 14:48:46                                                                  % 1297
-            set( r3, 'Widths', [250 80 20 100]);
-            
-            
-            uicontrol( 'Parent', c1 ,'Style','PushButton','String','OK','FontWeight','Bold','Callback',@(~,~)cb_ok);
-            
-            set(c1, 'Heights', [25 25 25 25 25 25])
-            f.Position(3)=480;
-            f.Position(4)=220;
-            function cb_ok
-                
-                % source.String={['TS:' char(si.String) ']'];['CS:[' char(cs.String) '] %MSO'];['ISI:[' char(isi.String) '] ms']} % 11-Mar-2020 14:48:28
-                
-                
-                source.String={['TS:' char(si.String)];['CS:' char(cs.String) ' %MSO'];['ISI:' char(isi.String) ' ms']} % 11-Mar-2020 14:48:28
-                
-                %                 source.String=['TS:[' si.String '] %MSO']; % 11-Mar-2020 14:48:28
-                cd=['cond' num2str(obj.pi.mm.tab.SelectedChild)];
-                st=['st' num2str(source.UserData(2))];
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).si=si.String;
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).cs=cs.String;
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).isi=isi.String;
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).si_units=units_mso.Value; %if 1 then its mso if 0 then its threshold
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).threshold=threshold.String;
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).stim_mode='paired_pulse';
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).si_pckt={str2double(si.String),str2double(cs.String),str2double(isi.String)};
-                obj.cb_pi_tep_StimulationParametersTable;
-                
-                close(f)
-            end
-            function cb_units_mso
-                if(units_mso.Value==1)
-                    units_mt.Value=0;
-                end
-            end
-            function cb_units_mt
-                if(units_mt.Value==1)
-                    units_mso.Value=0;
-                end
-            end
-        end
-        function cb_pi_tep_train_inputfig(obj,source,~)
-            f=figure('ToolBar','none','MenuBar','none','Name','Insert Parameters | BEST Toolbox','NumberTitle','off');
-            c1=uix.VBox('parent',f,'Padding',10,'Spacing',10);
-            r1=uix.HBox('parent',c1);
-            uicontrol( 'Style','text','Parent', r1,'String','Stimulation Intensities (TS):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            si=uicontrol( 'Style','edit','Parent', r1 ,'String','NaN','FontSize',11);
-            set( r1, 'Widths', [250 200]);
-            
-            r2a=uix.HBox('parent',c1);
-            uicontrol( 'Style','text','Parent', r2a,'String','Pulse Frequency (Hz):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            freq=uicontrol( 'Style','edit','Parent', r2a ,'String','NaN','FontSize',11);
-            set( r2a, 'Widths', [250 200]);
-            
-            r2b=uix.HBox('parent',c1);
-            uicontrol( 'Style','text','Parent', r2b,'String','No of Pulses:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            pulsesNo=uicontrol( 'Style','edit','Parent', r2b ,'String','NaN','FontSize',11);
-            set( r2b, 'Widths', [250 200]);
-            
-            r2=uix.HBox('parent',c1);
-            uicontrol( 'Style','text','Parent', r2,'String','Intensity Units:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            units_mso=uicontrol( 'Style','radiobutton','Parent', r2 ,'FontSize',11,'String','%MSO','Value',1,'Callback',@(~,~)cb_units_mso);
-            units_mt=uicontrol( 'Style','radiobutton','Parent', r2 ,'FontSize',11,'String','%MT','Callback',@(~,~)cb_units_mt);
-            set( r2, 'Widths', [250 100 100]);
-            
-            r3=uix.HBox('parent',c1);
-            uicontrol( 'Style','text','Parent', r3,'String','Motor Threshold (%MSO):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            threshold=uicontrol( 'Style','edit','Parent', r3 ,'FontSize',11);
-            mt_btn_listbox_str_id= find(strcmp(obj.data.(obj.info.event.current_session).info.measurement_str_original,'tep Motor Threshold Hunting'));
-            mt_btn_listbox_str=obj.data.(obj.info.event.current_session).info.measurement_str_to_listbox(mt_btn_listbox_str_id);
-            mt_btn_listbox_str=['Select' mt_btn_listbox_str];
-            uiextras.HBox('Parent',r3)
-            th_dropdown=uicontrol( 'Style','popupmenu','Parent', r3 ,'FontSize',11,'String',mt_btn_listbox_str);     % 11-Mar-2020 14:48:46                                                                  % 1297
-            set( r3, 'Widths', [250 80 20 100]);
-            
-            
-            uicontrol( 'Parent', c1 ,'Style','PushButton','String','OK','FontWeight','Bold','Callback',@(~,~)cb_ok);
-            
-            set(c1, 'Heights', [25 25 25 25 25 25])
-            f.Position(3)=480;
-            f.Position(4)=220;
-            function cb_ok
-                
-                
-                
-                source.String={['Pulses:' char(pulsesNo.String) ', f:' char(freq.String) ' Hz'];['TS:' char(si.String) ' %MSO']}; % 11-Mar-2020 14:48:28
-                
-                cd=['cond' num2str(obj.pi.mm.tab.SelectedChild)];
-                st=['st' num2str(source.UserData(2))];
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).si=si.String;
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).freq=freq.String;
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).pulsesNo=pulsesNo.String;
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).si_units=units_mso.Value; %if 1 then its mso if 0 then its threshold
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).threshold=threshold.String;
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).stim_mode='train';
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).si_pckt={str2double(si.String),str2double(freq.String),str2double(pulsesNo.String)}
-                obj.cb_pi_tep_StimulationParametersTable;
-                
-                close(f)
-            end
-            function cb_units_mso
-                if(units_mso.Value==1)
-                    units_mt.Value=0;
-                end
-            end
-            function cb_units_mt
-                if(units_mt.Value==1)
-                    units_mso.Value=0;
-                end
-            end
-            
-        end
-        function cb_pi_tep_targetChannel(obj,source,~)
-            f=figure('ToolBar','none','MenuBar','none','Name','Insert Parameters | BEST Toolbox','NumberTitle','off');
-            c1=uix.VBox('parent',f,'Padding',10,'Spacing',10);
-            
-            %             r0=uix.HBox('parent',c1);
-            %             uicontrol( 'Style','text','Parent', r0,'String','Input Device:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            %             str_in_device(1)= (cellstr('Select'));
-            %             str_in_device(2:numel(obj.hw.device_added1_listbox.string)+1)=obj.hw.device_added1_listbox.string;
-            %             inputDevice=uicontrol( 'Style','popupmenu','Parent', r0 ,'FontSize',11,'String',str_in_device);
-            %             set( r0, 'Widths', [250 200]);
-            
-            r1=uix.HBox('parent',c1);
-            uicontrol( 'Style','text','Parent', r1,'String','Target Channels:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            targetChannels=uicontrol( 'Style','edit','Parent', r1 ,'FontSize',11);
-            set( r1, 'Widths', [250 200]);
-            
-            %             r2a=uix.HBox('parent',c1);
-            %             uicontrol( 'Style','text','Parent', r2a,'String','Display Channels:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            %             displayChannels=uicontrol( 'Style','edit','Parent', r2a ,'FontSize',11);
-            %             set( r2a, 'Widths', [250 200]);
-            %
-            %             r2b=uix.HBox('parent',c1);
-            %             uicontrol( 'Style','text','Parent', r2b,'String','tep onset/offset (ms):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            %             tepOnset=uicontrol( 'Style','edit','Parent', r2b ,'FontSize',11);
-            %             uiextras.HBox('Parent',r2b)
-            %             tepOffset=uicontrol( 'Style','edit','Parent', r2b ,'FontSize',11);
-            %             set( r2b, 'Widths', [250 90 20 90]);
-            %
-            %             r2=uix.HBox('parent',c1);
-            %             uicontrol( 'Style','text','Parent', r2,'String','tep Pre/Post Display Period (ms)','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            %             prestim_scope_plt=uicontrol( 'Style','edit','Parent', r2 ,'FontSize',11);
-            %             uiextras.HBox('Parent',r2)
-            %             poststim_scope_plt=uicontrol( 'Style','edit','Parent', r2 ,'FontSize',11);
-            %             set( r2, 'Widths', [250 90 20 90]);
-            
-            uicontrol( 'Parent', c1 ,'Style','PushButton','String','OK','FontWeight','Bold','Callback',@(~,~)cb_ok);
-            
-            set(c1, 'Heights', [25 25])
-            f.Position(3)=480;
-            f.Position(4)=90;
-            function cb_ok
-                source.String=['Channel Name:' targetChannels.String]; % 11-Mar-2020 14:48:28
-                
-                %                 source.String=['Channels:' targetChannels.String ' ' displayChannels.String , 'Pre/Post Display Period:' prestim_scope_plt.String '-' poststim_scope_plt.String 'ms']; % 11-Mar-2020 14:48:28
-                cd=['cond' num2str(obj.pi.mm.tab.SelectedChild)];
-                % 12-Mar-2020 08:53:28
-                %                 obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(cd).inputDevice.input_device=inputDevice.String(inputDevice.Value);
-                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).targetChannel=eval(targetChannels.String);
-                %                 obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(cd).inputDevice.displayChannels=eval(displayChannels.String);
-                %                 obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(cd).inputDevice.tepOnset=tepOnset.String;
-                %                 obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(cd).inputDevice.tepOffset=tepOffset.Value; %if 1 then its mso if 0 then its threshold
-                %                 obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(cd).inputDevice.prestim_scope_plt=prestim_scope_plt.String;
-                %                 obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(cd).inputDevice.poststim_scope_plt=poststim_scope_plt.String;
-                %                 obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(cd).inputDevice.measure_str='tep Measurement';
-                obj.cb_pi_tep_StimulationParametersTable;
-                
-                close(f)
             end
             
         end
@@ -10655,14 +4128,31 @@ classdef best_application < handle
             for idefaults=1:6
                 cond=['cond' num2str(idefaults)];
                 obj.info.defaults.condsAll.(cond).targetChannel=cellstr('NaN');
+                obj.info.defaults.condsAll.(cond).TrialsPerCondition=50;
+                obj.info.defaults.condsAll.(cond).ITI=[3 4];
+                obj.info.defaults.condsAll.(cond).Phase='Peak';
+                obj.info.defaults.condsAll.(cond).AmplitudeThreshold='0 1e6';
+                obj.info.defaults.condsAll.(cond).AmplitudeUnits='Absolute (micro volts)';
                 obj.info.defaults.condsAll.(cond).st1.pulse_count=1;
-                obj.info.defaults.condsAll.(cond).st1.stim_device={'Select'};
+                obj.info.defaults.condsAll.(cond).st1.stim_device={''};
                 obj.info.defaults.condsAll.(cond).st1.stim_mode='single_pulse';
                 obj.info.defaults.condsAll.(cond).st1.stim_timing=num2cell(0);
+                obj.info.defaults.condsAll.(cond).st1.stim_timing_units={'ms'};
                 obj.info.defaults.condsAll.(cond).st1.si=si(idefaults);
                 obj.info.defaults.condsAll.(cond).st1.si_units=1;
                 obj.info.defaults.condsAll.(cond).st1.threshold='';
-                obj.info.defaults.condsAll.(cond).st1.si_pckt={si(idefaults)};
+                obj.info.defaults.condsAll.(cond).st1.si_pckt={si(idefaults),[],[],[],[],[],[],[]}; % [TS PairedCS ISI TS_intendendunits CS_intendedunits ISIintendentunits TrainFreq NoOfPulses]
+                obj.info.defaults.condsAll.(cond).st1.IntensityUnit='%MSO';
+                obj.info.defaults.condsAll.(cond).st1.IntensityUnitValue=NaN;
+                obj.info.defaults.condsAll.(cond).st1.IntensityUnitValueUnit=NaN;
+                obj.info.defaults.condsAll.(cond).st1.SessionToCouple='none';
+                obj.info.defaults.condsAll.(cond).st1.ProtocolToCouple='none';
+                obj.info.defaults.condsAll.(cond).st1.ParameterToCouple='none';
+                obj.info.defaults.condsAll.(cond).st1.IntensityToCouple='none';
+                obj.info.defaults.condsAll.(cond).st1.TimingOnsetUnits='ms';
+                obj.info.defaults.condsAll.(cond).st1.CSUnits='';
+                obj.info.defaults.condsAll.(cond).st1.ISIUnits='';
+                obj.info.defaults.condsAll.(cond).st1.StimulationType='Test';
             end
             obj.par.(obj.info.event.current_session).(obj.info.event.measure_being_added)=obj.info.defaults;
         end
@@ -10684,7 +4174,379 @@ classdef best_application < handle
                     
                     obj.pi.tep.(ParametersFieldNames{iLoadingParameters}).Value=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(ParametersFieldNames{iLoadingParameters});
                     if(strcmp(ParametersFieldNames{iLoadingParameters},'BrainState'))
-                        %Requirment 93
+                        obj.pi.(ParametersFieldNames{iLoadingParameters}).Value=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(ParametersFieldNames{iLoadingParameters});
+                    end
+                elseif(isa(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(ParametersFieldNames{iLoadingParameters}),'struct'))
+                    %Do Nothing and Just Avoid
+                end
+            end
+            
+            
+        end
+        %% ERP Measurement
+        function pi_erp(obj)
+            obj.fig.main.Widths(1)=-1.15;
+            obj.fig.main.Widths(2)=-3.35;
+            obj.fig.main.Widths(3)=-0;
+            obj.pi.erp.panel=uix.Panel( 'Parent', obj.pi.empty_panel,'FontSize',14 ,'Units','normalized','Title','Event Related Potentials (ERP) Measurement' ,'FontWeight','Bold','TitlePosition','centertop');
+            obj.pi.erp.r0=uix.HBox( 'Parent', obj.pi.erp.panel,'Spacing', 5, 'Padding', 5 );
+            obj.pi.erp.r0p1=uix.Panel( 'Parent', obj.pi.erp.r0 ,'Units','normalized');
+            obj.pi.erp.r0v1 = uix.VBox( 'Parent', obj.pi.erp.r0p1, 'Spacing', 5, 'Padding', 5  );
+            
+            r0=uiextras.HBox( 'Parent', obj.pi.erp.r0v1,'Spacing', 5, 'Padding', 5 );
+            uicontrol( 'Style','text','Parent', r0,'String','Brain State:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+            obj.pi.BrainState=uicontrol( 'Style','popupmenu','Parent', r0 ,'FontSize',11,'String',{'Independent','Dependent'},'Callback',@cb_UniversalPanelAdaptation);
+            set( r0, 'Widths', [150 -2]);
+            BrainStateParametersPanel=uix.Panel( 'Parent', obj.pi.erp.r0v1,'Padding',5,'Units','normalized','FontSize',8 ,'Units','normalized','Title','Brain State Parameters' ,'FontWeight','normal','TitlePosition','centertop');
+            cb_BrainStateParametersPanel
+            DisplayParametersPanel=uix.Panel( 'Parent', obj.pi.erp.r0v1,'Padding',5,'Units','normalized','FontSize',8 ,'Units','normalized','Title','Display Parameters' ,'FontWeight','normal','TitlePosition','centertop');
+            cb_DisplayParametersPanel
+            
+            %row3
+            uicontrol( 'Style','text','Parent', obj.pi.erp.r0v1,'String','','FontSize',11,'HorizontalAlignment','center','Units','normalized');
+            
+            %row4
+            r4=uiextras.HBox( 'Parent', obj.pi.erp.r0v1,'Spacing', 5, 'Padding', 5 );
+            obj.pi.erp.cond.btn=uicontrol( 'Parent', r4 ,'Style','PushButton','String','+','FontSize',16,'FontWeight','Bold','HorizontalAlignment','center','Tooltip','Click to Add a new Condition','Callback',@(~,~)obj.cb_cm_conditions);%add condition
+            obj.pi.erp.stim.btn=uicontrol( 'Parent', r4 ,'Style','PushButton','String','','FontWeight','Bold','HorizontalAlignment','center','Position',[0 0 1 1],'units','normalized','CData',obj.icons.stimulator,'Tooltip','Click to Add a new Stimulator on this Condition','Callback',@(~,~)obj.cb_cm_stim); %add stimulator
+            obj.pi.erp.sp.btn=uicontrol( 'Parent', r4 ,'Style','PushButton','String','','FontWeight','Bold','HorizontalAlignment','center','CData',obj.icons.single_pulse,'Tooltip','Click to Add a Single-Pulse on selected stimulator (selected stimulator is highlighted in blue colour)','Tag','single_pulse','Callback',@obj.cb_cm_pulse); %add single pulse
+            obj.pi.erp.pp.btn=uicontrol( 'Parent', r4 ,'Style','PushButton','String','','FontWeight','Bold','HorizontalAlignment','center','CData',obj.icons.paired_pulse,'Tooltip','Click to Add a Paired-Pulse on selected stimulator (selected stimulator is highlighted in blue colour)','Tag','paired_pulse','Callback',@obj.cb_cm_pulse);%add burst or train
+            obj.pi.erp.train.btn=uicontrol( 'Parent', r4 ,'Style','PushButton','String','','FontWeight','Bold','HorizontalAlignment','center','CData',obj.icons.train,'Tooltip','Click to Add a Train or Burst on selected stimulator (selected stimulator is highlighted in blue colour)','Tag','train','Callback',@obj.cb_cm_pulse);%add paired pulse
+            set( r4, 'Widths', [55 55 55 55 55]);
+            
+            obj.pi.erp.r0v2 = uix.VBox( 'Parent', obj.pi.erp.r0, 'Spacing', 5, 'Padding', 0); %uicontext menu to duplicate or delete a condition goes here
+            obj.pi.mm.r0v2r1=uix.Panel( 'Parent', obj.pi.erp.r0v2,'Padding',0,'Units','normalized','FontSize',8 ,'Units','normalized','Title','Stimulation Parameters' ,'FontWeight','normal','TitlePosition','centertop');
+            table = obj.cb_cm_StimulationParametersTable;
+            
+            obj.pi.mm.tab = uiextras.TabPanel( 'Parent', obj.pi.erp.r0v2, 'Padding', 5 );
+            obj.pi.erp.r0v2.Heights=[200 -1];
+            set(obj.pi.erp.r0,'Widths',[-1.45 -3]);
+            obj.pi.erp.cond.no=0;
+            obj.cb_cm_Nconditions;
+            Interactivity;
+            cb_SetHeights;
+            function cb_UniversalPanelAdaptation(~,~)
+                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).BrainState=obj.pi.BrainState.Value;
+                obj.RefreshProtocol;
+            end
+            function cb_BrainStateParametersPanel(~,~)
+                switch obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).BrainState
+                    case 1
+                        expModvBox=uix.VBox( 'Parent', BrainStateParametersPanel, 'Spacing', 0, 'Padding', 0  );
+                        
+                        %row1
+                        expModr1=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
+                        uicontrol( 'Style','text','Parent', expModr1,'String','Input Device:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                        str_in_device(1)= (cellstr('Select'));
+                        str_in_device(2:numel(obj.hw.device_added1_listbox.string)+1)=obj.hw.device_added1_listbox.string;
+                        obj.pi.erp.InputDevice=uicontrol( 'Style','popupmenu','Parent', expModr1 ,'FontSize',11,'String',str_in_device,'Tag','InputDevice','callback',@cb_par_saving);
+                        expModr1.Widths=[150 -2];
+                        expModvBox.Heights=30;
+                    case 2
+                        expModvBox=uix.VBox( 'Parent', BrainStateParametersPanel, 'Spacing', 0, 'Padding', 0  );
+                        %row1
+                        expModr1=uiextras.HBox( 'Parent', expModvBox,'Spacing',  0, 'Padding', 2 );
+                        uicontrol( 'Style','text','Parent', expModr1,'String','Input Device:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                        str_in_device(1)= (cellstr('Select'));
+                        str_in_device(2:numel(obj.hw.device_added1_listbox.string)+1)=obj.hw.device_added1_listbox.string;
+                        obj.pi.erp.InputDevice=uicontrol( 'Style','popupmenu','Parent', expModr1 ,'FontSize',11,'String',str_in_device,'Tag','InputDevice','callback',@cb_par_saving);
+                        expModr1.Widths=[150 -2];
+                        
+                        % row 2
+                        erp_panel_row2 = uix.HBox( 'Parent', expModvBox, 'Spacing',  0, 'Padding', 2 );
+                        uicontrol( 'Style','text','Parent', erp_panel_row2,'String','Real-Time Channels Montage:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                        obj.pi.erp.RealTimeChannelsMontage=uicontrol( 'Style','edit','Parent', erp_panel_row2 ,'FontSize',11,'Tag','RealTimeChannelsMontage','Callback',@cb_par_saving); %,'Callback',@obj.cb_eegtms_target_muscle
+                        set( erp_panel_row2, 'Widths', [150 -2]);
+                        
+                        erp_panel_row2 = uix.HBox( 'Parent', expModvBox, 'Spacing',  0, 'Padding', 2 );
+                        uicontrol( 'Style','text','Parent', erp_panel_row2,'String','Real-Time Channels Weights:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                        obj.pi.erp.RealTimeChannelsWeights=uicontrol( 'Style','edit','Parent', erp_panel_row2 ,'FontSize',11,'Tag','RealTimeChannelsWeights','Callback',@cb_par_saving); %,'Callback',@obj.cb_eegtms_target_muscle
+                        set( erp_panel_row2, 'Widths', [150 -2]);
+                        
+                        erp_panel_row8 = uix.HBox( 'Parent', expModvBox, 'Spacing',  0, 'Padding', 2 );
+                        uicontrol( 'Style','text','Parent', erp_panel_row8,'String','Frequency Band:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                        obj.pi.erp.FrequencyBand=uicontrol( 'Style','popupmenu','Parent', erp_panel_row8 ,'FontSize',11,'String',{'Alpha (8-14 Hz)','Theta (4-7 Hz)','Beta  (15-30 Hz)'},'Tag','FrequencyBand','callback',@cb_par_saving);
+                        set( erp_panel_row8, 'Widths', [150 -2]);
+                        
+                        erp_panel_row8z = uix.HBox( 'Parent', expModvBox, 'Spacing',  0, 'Padding', 2 );
+                        uicontrol( 'Style','text','Parent', erp_panel_row8z,'String','Peak Frequency (Hz):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                        obj.pi.erp.PeakFrequency=uicontrol( 'Style','edit','Parent', erp_panel_row8z ,'FontSize',11,'Tag','PeakFrequency','Callback',@cb_par_saving);
+                        obj.pi.erp.ImportPeakFrequencyFromProtocols=uicontrol( 'Style','popupmenu','Parent', erp_panel_row8z ,'String',{'Select'},'FontSize',11,'Tag','Bin','Callback',@obj.cb_ImportPeakFrequency);%@set_PeakFrequency);
+                        obj.pi.erp.ImportPeakFrequencyFromProtocols.String={'Hz','Import from Protocol'};%getPeakFrequencyProtocols;
+                        set( erp_panel_row8z, 'Widths', [150 -2 -2]);
+                        
+                        % row 2
+                        erp_panel_row2 = uix.HBox( 'Parent', expModvBox, 'Spacing',  0, 'Padding', 2 );
+                        uicontrol( 'Style','text','Parent', erp_panel_row2,'String','Phase Tolerance:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                        obj.pi.erp.PhaseTolerance=uicontrol( 'Style','edit','Parent', erp_panel_row2 ,'FontSize',11,'Tag','PhaseTolerance','Callback',@cb_par_saving);
+                        set( erp_panel_row2, 'Widths', [150 -2]);
+                        
+                        erp_panel_row2z = uix.HBox( 'Parent', expModvBox, 'Spacing',  0, 'Padding', 2 );
+                        uicontrol( 'Style','text','Parent', erp_panel_row2z,'String','Amp Assignment Period(minutes):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                        obj.pi.erp.AmplitudeAssignmentPeriod=uicontrol( 'Style','edit','Parent', erp_panel_row2z ,'FontSize',11,'Tag','AmplitudeAssignmentPeriod','Callback',@cb_par_saving);
+                        set( erp_panel_row2z, 'Widths', [150 -2]);
+                        
+                        mep_panel_row2z = uix.HBox( 'Parent', expModvBox, 'Spacing',  0, 'Padding', 2 );
+                        uicontrol( 'Style','text','Parent', mep_panel_row2z,'String','Protocol Onset(s):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                        obj.pi.erp.ProtocolOnset=uicontrol( 'Style','edit','Parent', mep_panel_row2z ,'FontSize',11,'Tag','ProtocolOnset','Callback',@cb_par_saving);
+                        set( mep_panel_row2z, 'Widths', [150 -2]);
+                        
+                        expModvBox.Heights=[30 35 35 35 35 35 42 35];
+                end
+            end
+            function cb_DisplayParametersPanel
+                switch obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).BrainState
+                    case 1
+                        expModvBox=uix.VBox( 'Parent', DisplayParametersPanel, 'Spacing', 0, 'Padding', 0  );
+                        
+                        mep_panel_row2 = uix.HBox( 'Parent', expModvBox, 'Spacing', 5, 'Padding', 5  );
+                        uicontrol( 'Style','text','Parent', mep_panel_row2,'String','EEG Electrodes Layout:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                        CapLayouts={'M1-EASYCAP','64-Chanel actiCAP','r6055 NeuroScan','r6915 NeuroScan','M15-EASYCAP','M11-EASYCAP','M22-EASYCAP','M23-EASYCAP','M24-EASYCAP','M25-EASYCAP','M3-EASYCAP','M7-EASYCAP','M10-EASYCAP','M16-EASYCAP','M14-EASYCAP','M20-EASYCAP','M17-EASYCAP','M19-EASYCAP'};
+                        obj.pi.erp.EEGElectrodesLayout=uicontrol( 'Style','popupmenu','Parent', mep_panel_row2 ,'FontSize',11,'String',CapLayouts,'Tag','EEGElectrodesLayout','callback',@cb_par_saving); %,'Callback',@obj.cb_hotspot_target_muscle
+                        set( mep_panel_row2, 'Widths', [150 -2]);
+                        
+                        % row 2
+                        mep_panel_row2 = uix.HBox( 'Parent', expModvBox, 'Spacing', 5, 'Padding', 5  );
+                        uicontrol( 'Style','text','Parent', mep_panel_row2,'String','Montage Channels:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                        obj.pi.erp.MontageChannels=uicontrol( 'Style','edit','Parent', mep_panel_row2 ,'FontSize',11,'Tag','MontageChannels','callback',@cb_par_saving); %,'Callback',@obj.cb_hotspot_target_muscle
+                        set( mep_panel_row2, 'Widths', [150 -2]);
+                        % row 2
+                        mep_panel_row2 = uix.HBox( 'Parent', expModvBox, 'Spacing', 5, 'Padding', 5  );
+                        uicontrol( 'Style','text','Parent', mep_panel_row2,'String','Montage Weights:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                        obj.pi.erp.MontageWeights=uicontrol( 'Style','edit','Parent', mep_panel_row2 ,'FontSize',11,'Tag','MontageWeights','callback',@cb_par_saving); %,'Callback',@obj.cb_hotspot_target_muscle
+                        set( mep_panel_row2, 'Widths', [150 -2]);
+                        
+                        % row 2
+                        mep_panel_row2 = uix.HBox( 'Parent', expModvBox, 'Spacing', 5, 'Padding', 5  );
+                        uicontrol( 'Style','text','Parent', mep_panel_row2,'String','Reference Channels:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                        obj.pi.erp.ReferenceChannels=uicontrol( 'Style','edit','Parent', mep_panel_row2 ,'FontSize',11,'Tag','ReferenceChannels','callback',@cb_par_saving); %,'Callback',@obj.cb_hotspot_target_musc
+                        set( mep_panel_row2, 'Widths', [150 -2]);
+                        
+                        % row 2
+                        mep_panel_row2 = uix.HBox( 'Parent', expModvBox, 'Spacing', 5, 'Padding', 5  );
+                        uicontrol( 'Style','text','Parent', mep_panel_row2,'String','Recording Reference:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                        obj.pi.erp.RecordingReference=uicontrol( 'Style','edit','Parent', mep_panel_row2 ,'FontSize',11,'Tag','RecordingReference','callback',@cb_par_saving); %,'Callback',@obj.cb_hotspot_target_mu
+                        set( mep_panel_row2, 'Widths', [150 -2]);
+                        
+                        % row 2
+                        mep_panel_row2 = uix.HBox( 'Parent', expModvBox, 'Spacing', 5, 'Padding', 5  );
+                        uicontrol( 'Style','text','Parent', mep_panel_row2,'String','High Pass Frequency (Hz):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                        obj.pi.erp.HighPassFrequency=uicontrol( 'Style','edit','Parent', mep_panel_row2 ,'FontSize',11,'Tag','HighPassFrequency','callback',@cb_par_saving); %,'Callback',@obj.cb_hotspot_target_musc
+                        set( mep_panel_row2, 'Widths', [150 -2]);
+                        
+                        % row 2
+                        mep_panel_row2 = uix.HBox( 'Parent', expModvBox, 'Spacing', 5, 'Padding', 5  );
+                        uicontrol( 'Style','text','Parent', mep_panel_row2,'String','Band Stop Frequency (Hz):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                        obj.pi.erp.BandStopFrequency=uicontrol( 'Style','edit','Parent', mep_panel_row2 ,'FontSize',11,'Tag','BandStopFrequency','callback',@cb_par_saving); %,'Callback',@obj.cb_hotspot_target_musc
+                        set( mep_panel_row2, 'Widths', [150 -2]);
+                        
+                        expModr2=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
+                        uicontrol( 'Style','text','Parent', expModr2,'String','ERP Search Window (ms):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                        obj.pi.erp.SEPSearchWindow=uicontrol( 'Style','edit','Parent', expModr2 ,'FontSize',11,'Tag','SEPSearchWindow','callback',@cb_par_saving);
+                        expModr2.Widths=[150 -2];
+                        
+                        expModr2=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
+                        uicontrol( 'Style','text','Parent', expModr2,'String','EEG Extraction Period (ms):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                        obj.pi.erp.EEGExtractionPeriod=uicontrol( 'Style','edit','Parent', expModr2 ,'FontSize',11,'Tag','EEGExtractionPeriod','callback',@cb_par_saving);
+                        expModr2.Widths=[150 -2];
+                        
+                        expModr2=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
+                        uicontrol( 'Style','text','Parent', expModr2,'String','EEG Display Period (ms):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                        obj.pi.erp.EEGXLimit=uicontrol( 'Style','edit','Parent', expModr2 ,'FontSize',11,'Tag','EEGXLimit','callback',@cb_par_saving);
+                        expModr2.Widths=[150 -2];
+                        
+                        expModr2=uiextras.HBox( 'Parent', expModvBox,'Spacing',  0, 'Padding', 2 );
+                        uicontrol( 'Style','text','Parent', expModr2,'String','ERP Latency Offset (ms):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                        obj.pi.erp.ERPLatencyOffset=uicontrol( 'Style','edit','Parent', expModr2 ,'FontSize',11,'Tag','ERPLatencyOffset','callback',@cb_par_saving);
+                        expModr2.Widths=[150 -2];
+                        
+                        expModvBox.Heights=[ 45 45 45 45 45 45 45 45 45 45 45];
+                    case 2
+                        expModvBox=uix.VBox( 'Parent', DisplayParametersPanel, 'Spacing', 0, 'Padding', 0  );
+                        
+                        mep_panel_row2 = uix.HBox( 'Parent', expModvBox, 'Spacing', 5, 'Padding', 5  );
+                        uicontrol( 'Style','text','Parent', mep_panel_row2,'String','EEG Electrodes Layout:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                        CapLayouts={'M1-EASYCAP','64-Chanel actiCAP','r6055 NeuroScan','r6915 NeuroScan','M15-EASYCAP','M11-EASYCAP','M22-EASYCAP','M23-EASYCAP','M24-EASYCAP','M25-EASYCAP','M3-EASYCAP','M7-EASYCAP','M10-EASYCAP','M16-EASYCAP','M14-EASYCAP','M20-EASYCAP','M17-EASYCAP','M19-EASYCAP'};
+                        obj.pi.erp.EEGElectrodesLayout=uicontrol( 'Style','popupmenu','Parent', mep_panel_row2 ,'FontSize',11,'String',CapLayouts,'Tag','EEGElectrodesLayout','callback',@cb_par_saving); %,'Callback',@obj.cb_hotspot_target_muscle
+                        set( mep_panel_row2, 'Widths', [150 -2]);
+                        
+                        % row 2
+                        mep_panel_row2 = uix.HBox( 'Parent', expModvBox, 'Spacing', 5, 'Padding', 5  );
+                        uicontrol( 'Style','text','Parent', mep_panel_row2,'String','Montage Channels:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                        obj.pi.erp.MontageChannels=uicontrol( 'Style','edit','Parent', mep_panel_row2 ,'FontSize',11,'Tag','MontageChannels','callback',@cb_par_saving); %,'Callback',@obj.cb_hotspot_target_muscle
+                        set( mep_panel_row2, 'Widths', [150 -2]);
+                        % row 2
+                        mep_panel_row2 = uix.HBox( 'Parent', expModvBox, 'Spacing', 5, 'Padding', 5  );
+                        uicontrol( 'Style','text','Parent', mep_panel_row2,'String','Montage Weights:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                        obj.pi.erp.MontageWeights=uicontrol( 'Style','edit','Parent', mep_panel_row2 ,'FontSize',11,'Tag','MontageWeights','callback',@cb_par_saving); %,'Callback',@obj.cb_hotspot_target_muscle
+                        set( mep_panel_row2, 'Widths', [150 -2]);
+                        
+                        % row 2
+                        mep_panel_row2 = uix.HBox( 'Parent', expModvBox, 'Spacing', 5, 'Padding', 5  );
+                        uicontrol( 'Style','text','Parent', mep_panel_row2,'String','Reference Channels:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                        obj.pi.erp.ReferenceChannels=uicontrol( 'Style','edit','Parent', mep_panel_row2 ,'FontSize',11,'Tag','ReferenceChannels','callback',@cb_par_saving); %,'Callback',@obj.cb_hotspot_target_musc
+                        set( mep_panel_row2, 'Widths', [150 -2]);
+                        
+                        % row 2
+                        mep_panel_row2 = uix.HBox( 'Parent', expModvBox, 'Spacing', 5, 'Padding', 5  );
+                        uicontrol( 'Style','text','Parent', mep_panel_row2,'String','Recording Reference:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                        obj.pi.erp.RecordingReference=uicontrol( 'Style','edit','Parent', mep_panel_row2 ,'FontSize',11,'Tag','RecordingReference','callback',@cb_par_saving); %,'Callback',@obj.cb_hotspot_target_mu
+                        set( mep_panel_row2, 'Widths', [150 -2]);
+                        
+                        % row 2
+                        mep_panel_row2 = uix.HBox( 'Parent', expModvBox, 'Spacing', 5, 'Padding', 5  );
+                        uicontrol( 'Style','text','Parent', mep_panel_row2,'String','High Pass Frequency (Hz):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                        obj.pi.erp.HighPassFrequency=uicontrol( 'Style','edit','Parent', mep_panel_row2 ,'FontSize',11,'Tag','HighPassFrequency','callback',@cb_par_saving); %,'Callback',@obj.cb_hotspot_target_musc
+                        set( mep_panel_row2, 'Widths', [150 -2]);
+                        
+                        % row 2
+                        mep_panel_row2 = uix.HBox( 'Parent', expModvBox, 'Spacing', 5, 'Padding', 5  );
+                        uicontrol( 'Style','text','Parent', mep_panel_row2,'String','Band Stop Frequency (Hz):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                        obj.pi.erp.BandStopFrequency=uicontrol( 'Style','edit','Parent', mep_panel_row2 ,'FontSize',11,'Tag','BandStopFrequency','callback',@cb_par_saving); %,'Callback',@obj.cb_hotspot_target_musc
+                        set( mep_panel_row2, 'Widths', [150 -2]);
+                        
+                        expModr2=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
+                        uicontrol( 'Style','text','Parent', expModr2,'String','ERP Search Window (ms):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                        obj.pi.erp.SEPSearchWindow=uicontrol( 'Style','edit','Parent', expModr2 ,'FontSize',11,'Tag','SEPSearchWindow','callback',@cb_par_saving);
+                        expModr2.Widths=[150 -2];
+                        
+                        expModr2=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
+                        uicontrol( 'Style','text','Parent', expModr2,'String','Data Extraction Period (ms):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                        obj.pi.erp.EMGExtractionPeriod=uicontrol( 'Style','edit','Parent', expModr2 ,'FontSize',11,'Tag','EMGExtractionPeriod','callback',@cb_par_saving);
+                        expModr2.Widths=[150 -2];
+                        
+                        expModr2=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
+                        uicontrol( 'Style','text','Parent', expModr2,'String','EEG Display Period (ms):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                        obj.pi.erp.EEGXLimit=uicontrol( 'Style','edit','Parent', expModr2 ,'FontSize',11,'Tag','EEGXLimit','callback',@cb_par_saving);
+                        expModr2.Widths=[150 -2];
+                        
+                        expModr2=uiextras.HBox( 'Parent', expModvBox,'Spacing',  0, 'Padding', 2 );
+                        uicontrol( 'Style','text','Parent', expModr2,'String','ERP Latency Offset (ms):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                        obj.pi.erp.ERPLatencyOffset=uicontrol( 'Style','edit','Parent', expModr2 ,'FontSize',11,'Tag','ERPLatencyOffset','callback',@cb_par_saving);
+                        expModr2.Widths=[150 -2];
+                        
+                        expModvBox.Heights=[ 45 35 35 35 35 45 45 45 45 45 45];
+                end
+            end
+            function cb_SetHeights
+                switch obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).BrainState
+                    case 1
+                        set(obj.pi.erp.r0v1,'Heights',[40 60 525 -3 55])
+                    case 2
+                        set(obj.pi.erp.r0v1,'Heights',[40 310 470 0 55])
+                end
+            end
+            function cb_par_saving(source,~)
+                if strcmp(source.Tag,'InputDevice') || strcmp(source.Tag,'AmplitudeUnits') || strcmp(source.Tag,'FrequencyBand')
+                    obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(source.Tag)=source.Value;
+                else
+                    obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(source.Tag)=source.String;
+                end
+            end
+            function Interactivity
+                ParametersFieldNames=fieldnames(obj.pi.erp);
+                for iLoadingParameters=1:numel(ParametersFieldNames)
+                    try
+                        obj.pi.erp.(ParametersFieldNames{iLoadingParameters}).Enable=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).Enable{1,1};
+                    catch
+                    end
+                end
+                table.Enable=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).Enable{1,1};
+                obj.pi.mm.tab.Enable=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).Enable{1,1};
+            end
+        end
+        function default_par_erp(obj)
+            % Editing Rule: Values should be Integers, Strings should
+            % Strings , cells are the defaults values that do not have any
+            % uicontroller
+            obj.info.defaults                                 = [];
+            obj.info.defaults.BrainState                      = 1;
+            obj.info.defaults.TrialsPerCondition              = '200';
+            obj.info.defaults.InputDevice                     = 1;
+            obj.info.defaults.ITI                             = '4 6';
+            obj.info.defaults.ReferenceChannels               = '';
+            obj.info.defaults.RecordingReference              = '';
+            obj.info.defaults.MontageChannels                 = '';
+            obj.info.defaults.MontageWeights                  = '';
+            obj.info.defaults.HighPassFilterOrder             = '3';
+            obj.info.defaults.HighPassFrequency               = '1';
+            obj.info.defaults.BandStopFilterOrder             = '3';
+            obj.info.defaults.BandStopFrequency               = '49 51';
+            obj.info.defaults.Protocol                        = {'ERP Measurement Protocol'};
+            obj.info.defaults.Handles.UserData                = 'Reserved for Future Use';
+            obj.info.defaults.Enable                          = {'on'};
+            obj.info.defaults.ProtocolStatus                  = {'created'};
+            obj.info.defaults.RealTimeChannelsMontage         = ['{' ' ''C3'',' ' ''FC1'',' ' ''FC5'',' ' ''CP1'',' ' ''CP5''}'];
+            obj.info.defaults.RealTimeChannelsWeights         = '1 -0.25 -0.25 -0.25 -0.25';
+            obj.info.defaults.FrequencyBand                   = 1;
+            obj.info.defaults.PeakFrequency                   = '';
+            obj.info.defaults.ImportPeakFrequencyFromProtocol = '';
+            obj.info.defaults.ImportPeakFrequencyFromMontage  = '';
+            obj.info.defaults.BandPassFilterOrder             = '80';
+            obj.info.defaults.Phase                           = '0';
+            obj.info.defaults.PhaseTolerance                  = 'pi/40';
+            obj.info.defaults.AmplitudeThreshold              = '0 1e6';
+            obj.info.defaults.AmplitudeUnits                  = 2;
+            obj.info.defaults.AmplitudeAssignmentPeriod       = '4';
+            obj.info.defaults.SEPOnset                        = '15';
+            obj.info.defaults.SEPOffset                       = '25';
+            obj.info.defaults.EEGDisplayPeriodPre             = '100';
+            obj.info.defaults.EEGDisplayPeriodPost            = '100';
+            obj.info.defaults.SEPSearchWindow                 = '15 25';
+            obj.info.defaults.EEGExtractionPeriod             = '-20 100';
+            obj.info.defaults.EEGXLimit                       = '-20 100';
+            obj.info.defaults.EEGYLimit                       = '-100 100';
+            si=[30];
+            for idefaults=1:1
+                cond = ['cond' num2str(idefaults)];
+                obj.info.defaults.condsAll.(cond).targetChannel              = cellstr('');
+                obj.info.defaults.condsAll.(cond).TrialsPerCondition         = 50;
+                obj.info.defaults.condsAll.(cond).ITI                        = [3 4];
+                obj.info.defaults.condsAll.(cond).Phase                      = 'Peak';
+                obj.info.defaults.condsAll.(cond).AmplitudeThreshold         = '0 1e6';
+                obj.info.defaults.condsAll.(cond).AmplitudeUnits             = 'Absolute (micro volts)';
+                obj.info.defaults.condsAll.(cond).st1.pulse_count            = 1;
+                obj.info.defaults.condsAll.(cond).st1.stim_device            = {''};
+                obj.info.defaults.condsAll.(cond).st1.stim_mode              = 'single_pulse';
+                obj.info.defaults.condsAll.(cond).st1.stim_timing            = num2cell(0);
+                obj.info.defaults.condsAll.(cond).st1.stim_timing_units      = {'ms'};
+                obj.info.defaults.condsAll.(cond).st1.si                     = si(idefaults);
+                obj.info.defaults.condsAll.(cond).st1.si_units               = 1;
+                obj.info.defaults.condsAll.(cond).st1.threshold              = '';
+                obj.info.defaults.condsAll.(cond).st1.si_pckt                = {si(idefaults),[],[],[],[],[],[],[]}; % [TS PairedCS ISI TS_intendendunits CS_intendedunits ISIintendentunits TrainFreq NoOfPulses]
+                obj.info.defaults.condsAll.(cond).st1.IntensityUnit          = '%MSO';
+                obj.info.defaults.condsAll.(cond).st1.IntensityUnitValue     = NaN;
+                obj.info.defaults.condsAll.(cond).st1.IntensityUnitValueUnit = NaN;
+                obj.info.defaults.condsAll.(cond).st1.SessionToCouple        = 'none';
+                obj.info.defaults.condsAll.(cond).st1.ProtocolToCouple       = 'none';
+                obj.info.defaults.condsAll.(cond).st1.ParameterToCouple      = 'none';
+                obj.info.defaults.condsAll.(cond).st1.IntensityToCouple      = 'none';
+                obj.info.defaults.condsAll.(cond).st1.TimingOnsetUnits       = 'ms';
+                obj.info.defaults.condsAll.(cond).st1.CSUnits                = '';
+                obj.info.defaults.condsAll.(cond).st1.ISIUnits               = '';
+                obj.info.defaults.condsAll.(cond).st1.StimulationType        = 'Test';
+            end
+            obj.par.(obj.info.event.current_session).(obj.info.event.measure_being_added)=obj.info.defaults;
+        end
+        function func_load_erp_par(obj)
+            %Improvement Note: for us structuctre ki sari fieldnames k
+            %equal, eik fieldname read kero usko check kero k ye string he
+            %ya nahi, agr string he to assign ker do string ko , agr num he
+            %to value ko assign ker do aur otherwise avoid ker do
+            % run me sary pars ko inputs me pass ker do
+            % factorize functiion me unko bnao jo bhi bnana he jese bhi
+            % bnana he
+            ParametersFieldNames=fieldnames(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr));
+            for iLoadingParameters=1:numel(ParametersFieldNames)
+                if (isa(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(ParametersFieldNames{iLoadingParameters}),'char'))
+                    %                     str=['------------------ STR ' ParametersFieldNames{iLoadingParameters}]
+                    obj.pi.erp.(ParametersFieldNames{iLoadingParameters}).String=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(ParametersFieldNames{iLoadingParameters});
+                elseif(isa(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(ParametersFieldNames{iLoadingParameters}),'double'))
+                    %                                         str=['------------------ VAL ' ParametersFieldNames{iLoadingParameters}]
+                    
+                    obj.pi.erp.(ParametersFieldNames{iLoadingParameters}).Value=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(ParametersFieldNames{iLoadingParameters});
+                    if(strcmp(ParametersFieldNames{iLoadingParameters},'BrainState'))
+                        obj.pi.(ParametersFieldNames{iLoadingParameters}).Value=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(ParametersFieldNames{iLoadingParameters});
                     end
                 elseif(isa(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(ParametersFieldNames{iLoadingParameters}),'struct'))
                     %Do Nothing and Just Avoid
@@ -10743,7 +4605,7 @@ classdef best_application < handle
             mep_panel_row12a = uix.HBox( 'Parent', obj.pi.tmsfmri.vb, 'Spacing', 5, 'Padding', 5  );
             uicontrol( 'Style','text','Parent', mep_panel_row12a,'String','Ignore Automated Updating of Stim. Itensity:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
             
-            obj.pi.tmsfmri.manual_stim_inten=uicontrol( 'Style','checkbox','Parent', mep_panel_row12a ,'FontSize',11,'Value',1,'Callback',@(~,~)obj.cb_pi_tmsfmri_manual_stim_inten);
+            obj.pi.tmsfmri.manual_stim_inten=uicontrol( 'Style','checkbox','Parent', mep_panel_row12a ,'FontSize',11,'Value',0,'Callback',@(~,~)obj.cb_pi_tmsfmri_manual_stim_inten);
             
             set( mep_panel_row12a, 'Widths', [-4 -2]);
             
@@ -10807,7 +4669,7 @@ classdef best_application < handle
         end
         function tmsfmri_run(obj)
             
-            
+            MagVentureCOM='COM7';
             obj.pi.tmsfmri.ta.Enable='off';
             obj.pi.tmsfmri.trigdelay.Enable='off';
             obj.pi.tmsfmri.totalvolumes.Enable='off';
@@ -10837,10 +4699,34 @@ classdef best_application < handle
             obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).volumes_vector_fullEnable=obj.pi.tmsfmri.volumes_vector_full.Enable;
             obj.pi.tmsfmri.block_design.Value
             
-            
+            %% Bossdevice
+            bd=bossdevice;
+            bd.calibration_mode = 'no';
+            bd.armed = 'no';
+            bd.sample_and_hold_period=0;
+            bd.theta.ignore; pause(0.1)
+            bd.beta.ignore; pause(0.1)
+            bd.alpha.ignore; pause(0.1)
+            NumSamples=round((150)*5);
+            NumPrePostSamples=round(50*5);
+            EMGScope = addscope(bd.tg, 'host', 90);
+            AuxSignalID = getsignalid(bd.tg, 'UDP/raw_aux') + int32(0:7);
+            MrkSignalID = getsignalid(bd.tg, 'MRK/mrk_masked');
+            addsignal(EMGScope, AuxSignalID);
+            EMGScope.NumSamples = NumSamples;
+            EMGScope.NumPrePostSamples = -NumPrePostSamples;
+            EMGScope.Decimation = 1;
+            EMGScope.TriggerMode = 'Signal';
+            EMGScope.TriggerSignal = getsignalid(bd.tg, 'gen_running'); %Remove it in Official Use
+            EMGScope.TriggerSignal = MrkSignalID; % 04-Jun-2020 20:00:50
+            EMGScope.TriggerLevel = 0.5;
+            EMGScope.TriggerSlope = 'Rising';
+            start(EMGScope);
+            TrialCounter=0;
+            %% Initializing
             if(obj.pi.tmsfmri.block_design.Value==1)
                 delete(instrfindall);
-                magventureObject = magventure('COM8'); %0808a
+                magventureObject = magventure(MagVentureCOM); %0808a
                 magventureObject.connect;
                 magventureObject.arm
                 a=[];
@@ -10879,14 +4765,14 @@ classdef best_application < handle
                 intensity_vector=intensity_vector(1,1:intensity_cond_rep);
                 
                 trial_vector(2,:)=intensity_vector;
-                save([file_name '_trial_vector.mat'], 'trial_vector');
-                
-                
+                %                 save([file_name '_trial_vector.mat'], 'trial_vector');
+                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).TrialVector=trial_vector;
+                obj.cb_menu_save
                 
             else
                 
                 delete(instrfindall);
-                magventureObject = magventure('COM8'); %0808a
+                magventureObject = magventure(MagVentureCOM); %0808a
                 magventureObject.connect;
                 magventureObject.arm
                 
@@ -10944,7 +4830,10 @@ classdef best_application < handle
                 intensity_vector=intensity_vector(1,1:indexx);
                 
                 trial_vector(2,:)=intensity_vector;
-                save([file_name '_trial_vector.mat'], 'trial_vector');
+                %                 save([file_name '_trial_vector.mat'], 'trial_vector');
+                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).TrialVector=trial_vector;
+                obj.cb_menu_save
+                obj.bst.session.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).Data=cell(1,numel(intensity_vector));
                 
             end
             intensitzcheck=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).manual_stim_inten
@@ -10998,7 +4887,7 @@ classdef best_application < handle
                 set(obj.pi.tmsfmri.status,'String','Completed!');
             else
                 if(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).manual_stim_inten==1)
-                    
+                    % No Intensity Updating
                     %Indicies initilization
                     set(obj.pi.tmsfmri.status,'String','Ready!');
                     i=1;
@@ -11028,10 +4917,12 @@ classdef best_application < handle
                                 
                                 writeDigitalPin(a,'D7',1)
                                 writeDigitalPin(a,'D7',0)
-                                
+                                TrialCounter=TrialCounter+1;
                                 disp('triggered')
-                                
                                 tic
+                                while ~strcmpi(EMGScope.Status,'finished'), end
+                                obj.bst.session.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).Data{1,TrialCounter}=EMGScope.Data(:,[1 2 3])';
+                                start(EMGScope);
                                 while(1)
                                     if(toc>0.30000)
                                         N=N+1
@@ -11132,6 +5023,26 @@ classdef best_application < handle
                 end % (manual stim intensity if flag end)
             end
             
+            exp_name=obj.pmd.exp_title.editfield.String; exp_name(exp_name == ' ') = '_';
+            subj_code=obj.pmd.sub_code.editfield.String; subj_code(subj_code == ' ') = '_';
+            session=obj.info.event.current_session; session(session == '_') = '';
+            measure=obj.info.event.current_measure_fullstr; measure(measure == '_') = '';
+            Date=datestr(now,'yyyy-mm-dd HH:MM:SS'); Date(Date == ' ') = '_'; Date(Date == '-') = ''; Date(Date == ':') = '';
+            FileName=['BESTData_' exp_name '_' subj_code '_' session '_' measure '_' Date '.mat'];
+            try
+                FullFileName=fullfile(obj.par.GlobalSettings.DataBaseDirectory,exp_name,subj_code,session,FileName);
+                if ~exist(fullfile(obj.par.GlobalSettings.DataBaseDirectory,exp_name,subj_code,session), 'dir')
+                    mkdir(fullfile(obj.par.GlobalSettings.DataBaseDirectory,exp_name,subj_code,session));
+                end
+            catch
+                FullFileName=fullfile(eval('cd'),exp_name,subj_code,session,FileName);
+                if ~exist(fullfile(eval('cd'),exp_name,subj_code,session), 'dir')
+                    mkdir(fullfile(eval('cd'),exp_name,subj_code,session));
+                end
+            end
+            BESTData=matfile(FullFileName,'Writable',true);
+            BESTData.RawData=NaN(1,1000); %obj.bst.session.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).Data
+            %             obj.bst.session.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).Data=[];
             
             set(obj.pi.tmsfmri.status,'String','Completed!');
         end % (manual stim intensity if flag end)
@@ -11217,6 +5128,8 @@ classdef best_application < handle
                 
             end
             obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).units_mt=(obj.pi.tmsfmri.units_mt.Value);
+            obj.cb_CoupleIntensityUnits('cond1','st1');
+            obj.pi.tmsfmri.mt.String='%Coupled';
         end
         function cb_pi_tmsfmri_mt(obj)
             obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).mt=str2num(obj.pi.tmsfmri.mt.String);
@@ -11225,26 +5138,26 @@ classdef best_application < handle
             obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).mt_btn=str2num(obj.pi.tmsfmri.mt_btn.String);
         end
         function default_par_tmsfmri(obj)
-            obj.info.defaults.target_muscle='APBr';
+            %             obj.info.defaults.target_muscle='APBr';
             obj.info.defaults.stimulation_intensities=[30 40 50 60 70 80];
-            obj.info.defaults.trials_per_condition=[15];
-            obj.info.defaults.iti=[4 6];
-            obj.info.defaults.mep_onset=15;
-            obj.info.defaults.mep_offset=50;
-            obj.info.defaults.prestim_scope_ext=50;
-            obj.info.defaults.poststim_scope_ext=150;
-            obj.info.defaults.prestim_scope_plt=20;
-            obj.info.defaults.poststim_scope_plt=100;
+            %             obj.info.defaults.trials_per_condition=[15];
+            %             obj.info.defaults.iti=[4 6];
+            %             obj.info.defaults.mep_onset=15;
+            %             obj.info.defaults.mep_offset=50;
+            %             obj.info.defaults.prestim_scope_ext=50;
+            %             obj.info.defaults.poststim_scope_ext=150;
+            %             obj.info.defaults.prestim_scope_plt=20;
+            %             obj.info.defaults.poststim_scope_plt=100;
             obj.info.defaults.units_mso=1;
             obj.info.defaults.units_mt=0;
             obj.info.defaults.mt=[];
             %             obj.info.defaults.mt_btn
-            obj.info.defaults.ylim_max=+5000;
-            obj.info.defaults.ylim_min=-5000;
-            obj.info.defaults.FontSize=14;
-            obj.info.defaults.mt_mv=0.05;
-            obj.info.defaults.thresholding_method=2;
-            obj.info.defaults.trials_to_avg=15;
+            %             obj.info.defaults.ylim_max=+5000;
+            %             obj.info.defaults.ylim_min=-5000;
+            %             obj.info.defaults.FontSize=14;
+            %             obj.info.defaults.mt_mv=0.05;
+            %             obj.info.defaults.thresholding_method=2;
+            %             obj.info.defaults.trials_to_avg=15;
             %specifically for tms-fmri
             obj.info.defaults.ta=916;
             obj.info.defaults.trigdelay=14;
@@ -11253,7 +5166,7 @@ classdef best_application < handle
             obj.info.defaults.trials_for_mean_annotation=5;
             obj.info.defaults.reset_pressed=0;
             obj.info.defaults.plot_reset_pressed=0;
-            obj.info.defaults.manual_stim_inten=1;
+            obj.info.defaults.manual_stim_inten=0;
             obj.info.defaults.save_plt=0;
             obj.info.defaults.result_mt=11;
             obj.info.defaults.mt_starting_stim_inten=25;
@@ -11279,6 +5192,38 @@ classdef best_application < handle
             obj.info.defaults.mt_mvEnable='on';
             obj.info.defaults.mt_starting_stim_intenEnable='on';
             obj.info.defaults.ProtocolStatus={'created'};
+            obj.info.defaults.Protocol={'TMS fMRI Protocol'};
+            obj.info.defaults.Enable={'on'};
+            si=[30 40 50 60 70 80];
+            for idefaults=1:6
+                cond=['cond' num2str(idefaults)];
+                obj.info.defaults.condsAll.(cond).targetChannel=cellstr('NaN');
+                obj.info.defaults.condsAll.(cond).TrialsPerCondition=50;
+                obj.info.defaults.condsAll.(cond).ITI=[3 4];
+                obj.info.defaults.condsAll.(cond).Phase='Peak';
+                obj.info.defaults.condsAll.(cond).AmplitudeThreshold='0 1e6';
+                obj.info.defaults.condsAll.(cond).AmplitudeUnits='Absolute (micro volts)';
+                obj.info.defaults.condsAll.(cond).st1.pulse_count=1;
+                obj.info.defaults.condsAll.(cond).st1.stim_device={''};
+                obj.info.defaults.condsAll.(cond).st1.stim_mode='single_pulse';
+                obj.info.defaults.condsAll.(cond).st1.stim_timing=num2cell(0);
+                obj.info.defaults.condsAll.(cond).st1.stim_timing_units={'ms'};
+                obj.info.defaults.condsAll.(cond).st1.si=si(idefaults);
+                obj.info.defaults.condsAll.(cond).st1.si_units=1;
+                obj.info.defaults.condsAll.(cond).st1.threshold='';
+                obj.info.defaults.condsAll.(cond).st1.si_pckt={si(idefaults),[],[],[],[],[],[],[]}; % [TS PairedCS ISI TS_intendendunits CS_intendedunits ISIintendentunits TrainFreq NoOfPulses]
+                obj.info.defaults.condsAll.(cond).st1.IntensityUnit='%MSO';
+                obj.info.defaults.condsAll.(cond).st1.IntensityUnitValue=NaN;
+                obj.info.defaults.condsAll.(cond).st1.IntensityUnitValueUnit=NaN;
+                obj.info.defaults.condsAll.(cond).st1.SessionToCouple='none';
+                obj.info.defaults.condsAll.(cond).st1.ProtocolToCouple='none';
+                obj.info.defaults.condsAll.(cond).st1.ParameterToCouple='none';
+                obj.info.defaults.condsAll.(cond).st1.IntensityToCouple='none';
+                obj.info.defaults.condsAll.(cond).st1.TimingOnsetUnits='ms';
+                obj.info.defaults.condsAll.(cond).st1.CSUnits='';
+                obj.info.defaults.condsAll.(cond).st1.ISIUnits='';
+                obj.info.defaults.condsAll.(cond).st1.StimulationType='Test';
+            end
             obj.par.(obj.info.event.current_session).(obj.info.event.measure_being_added)=obj.info.defaults;
         end
         %% Exception Handling
@@ -12536,43 +6481,7 @@ classdef best_application < handle
             obj.info.event.current_measure_fullstr
             obj.info.event.current_measure=obj.data.(obj.info.event.current_session).info.measurement_str_original(obj.pmd.lb_measures.listbox.Value);
             obj.info.event.current_measure=obj.info.event.current_measure{1};
-            switch obj.info.event.current_measure
-                case 'MEP Measurement'
-                    obj.pi_mep;
-                    obj.func_load_mep_par;
-                case 'MEP Hotspot Search'
-                    obj.pi_hotspot;
-                    obj.func_load_hotspot_par;
-                case 'MEP Motor Threshold Hunting'
-                    %                     obj.pi_mt_ptc;
-                    %                     obj.func_load_mt_ptc_par;
-                    obj.pr_mth;
-                    obj.func_load_mth_par;
-                case 'TMS fMRI'
-                    obj.pi_tmsfmri;
-                    obj.func_load_tmsfmri_par;
-                case 'MEP Dose Response Curve'
-                    obj.pi_drc;
-                    obj.func_load_mepdrc_par;
-                case 'Psychometric Threshold Hunting'
-                    obj.pr_psychmth;
-                    obj.func_load_psychmth_par;
-                case 'rTMS Intervention'
-                    obj.pi_rtms;
-                    obj.func_load_rtms_par;
-                case 'rsEEG Measurement'
-                    obj.pi_rseeg;
-                    obj.func_load_rseeg_par;
-                case 'ERP Measurement'
-                    obj.pi_tep;
-                    obj.func_load_tep_par;
-                case 'TEP Hotspot Search'
-                    obj.pi_tephs;
-                    obj.func_load_tephs_par;
-                case 'TEP Measurement'
-                    obj.pi_tep;
-                    obj.func_load_tep_par;
-            end
+            obj.RefreshProtocol;
             obj.pmd.RunStopButton.Enable=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).Enable{1,1};
             obj.pmd.CompileButton.Enable=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).Enable{1,1};
             %% Load Protocol Status
@@ -12615,7 +6524,7 @@ classdef best_application < handle
                     obj.default_par_multimodal;
                 case 'MEP Dose Response Curve'
                     obj.default_par_mepdrc;
-                case 'Psychometric Threshold Hunting'
+                case 'Sensory Threshold Hunting'
                     obj.default_par_psychmth;
                 case 'rTMS Intervention'
                     obj.default_par_rtms;
@@ -12625,6 +6534,10 @@ classdef best_application < handle
                     obj.default_par_tephs;
                 case 'TEP Measurement'
                     obj.default_par_tep;
+                case 'ERP Measurement'
+                    obj.default_par_erp;
+                case 'Custom Protocol'
+                    obj.default_par_mep;
             end
         end
         
@@ -12736,11 +6649,17 @@ classdef best_application < handle
             obj.bst.info.matfilstr=['BEST_' save_str '.mat'];
             % % %             obj.bst.info.save_str_runtime=['BEST_' obj.Date '_' save_str '_Autosave.mat'];
             %             obj.bst.info.save_buffer = matfile(obj.bst.info.matfilstr,'Writable',true);
+            
             try
                 save(fullfile(obj.par.GlobalSettings.DataBaseDirectory,exp_name,obj.bst.info.matfilstr),'BESTToolboxParameters','-v7.3','-nocompression');
             catch
-                mkdir(obj.par.GlobalSettings.DataBaseDirectory,exp_name);
-                save(fullfile(obj.par.GlobalSettings.DataBaseDirectory,exp_name,obj.bst.info.matfilstr),'BESTToolboxParameters','-v7.3','-nocompression');
+                if isempty(obj.par) || ~isfield(obj.par,'GlobalSettings')
+                    mkdir(eval('cd'),exp_name);
+                    save(fullfile(eval('cd'),exp_name,obj.bst.info.matfilstr),'BESTToolboxParameters','-v7.3','-nocompression');
+                else
+                    mkdir(obj.par.GlobalSettings.DataBaseDirectory,exp_name);
+                    save(fullfile(obj.par.GlobalSettings.DataBaseDirectory,exp_name,obj.bst.info.matfilstr),'BESTToolboxParameters','-v7.3','-nocompression');
+                end
             end
             %             obj.bst.info.save_buffer.(save_str)=variable_saved.(save_str);
             % % %
@@ -12774,7 +6693,7 @@ classdef best_application < handle
                 [FileName,Path] = uigetfile('*.mat', 'BEST Toolbox: Select a mat file');
                 File=whos('-file',fullfile(Path,FileName));
                 Filevarname=File.name;
-                saved_struct=load(FileName,Filevarname);
+                saved_struct=load(fullfile(Path,FileName),Filevarname);
                 varname=char(fieldnames(saved_struct.BESTToolboxParameters(1)));
                 obj.par=saved_struct.BESTToolboxParameters.(varname).Parameters;
                 obj.info=saved_struct.BESTToolboxParameters.(varname).Utilities.Info;
@@ -12794,6 +6713,7 @@ classdef best_application < handle
                 drawnow
                 pause(1);
                 obj.cb_session_listbox;
+                obj.protect_experiment;
                 drawnow;
                 %% Below Code Works for When Saved is Performed using AMAT File, but it is recommended to depricate that in Future Release because it is too slow
                 %             saved_struct=load(FileName,varname);
@@ -12992,14 +6912,14 @@ classdef best_application < handle
         end
         %% Suffix at Measure
         function cb_measure_suffix(obj)
-            if isempty(obj.pmd.lb_measures.listbox.String), return, end 
+            if isempty(obj.pmd.lb_measures.listbox.String), return, end
             prompt = {'Suffix:'};
             dlgtitle = 'Protocol Suffix | BEST Toolbox';
             dims = [1 70];
             definput = {''};
             answer = inputdlg(prompt,dlgtitle,dims,definput);
             answer=char(answer);
-            if isempty(answer), response=0; else, response=1; end 
+            if isempty(answer), response=0; else, response=1; end
             switch response
                 case 0
                     return
@@ -13030,18 +6950,19 @@ classdef best_application < handle
                         errordlg('Protocol exist already with this name. Please choose a different suffix to create a unique name for this protocol and try again.','BEST Toolbox');
                         return
                     end
+                    
             end
         end
         %% Rename Session
         function cb_session_rename(obj)
-            if isempty(obj.pmd.lb_sessions.listbox.String), return, end 
+            if isempty(obj.pmd.lb_sessions.listbox.String), return, end
             prompt = {'New Name:'};
             dlgtitle = 'Rename Session | BEST Toolbox';
             dims = [1 70];
             definput = {''};
             answer = inputdlg(prompt,dlgtitle,dims,definput);
             answer=char(answer);
-            if isempty(answer), response=0; else, response=1; end 
+            if isempty(answer), response=0; else, response=1; end
             switch response
                 case 0
                     return
@@ -13059,9 +6980,9 @@ classdef best_application < handle
                         obj.info.session_matrix(CurrentSessionValue)={session_name};
                         obj.pmd.lb_sessions.string(CurrentSessionValue)={session_name};
                         obj.pmd.lb_sessions.listbox.String=obj.pmd.lb_sessions.string;
-                        try 
-                        obj.par.(session_name)=obj.par.(obj.info.event.current_session);
-                        obj.par=rmfield(obj.par,obj.info.event.current_session);
+                        try
+                            obj.par.(session_name)=obj.par.(obj.info.event.current_session);
+                            obj.par=rmfield(obj.par,obj.info.event.current_session);
                         catch
                         end
                         try
@@ -13079,14 +7000,14 @@ classdef best_application < handle
         end
         %% Rename Measure
         function cb_measure_rename(obj)
-            if isempty(obj.pmd.lb_measures.listbox.String), return, end 
+            if isempty(obj.pmd.lb_measures.listbox.String), return, end
             prompt = {'New Name:'};
             dlgtitle = 'Rename Protocol | BEST Toolbox';
             dims = [1 70];
             definput = {''};
             answer = inputdlg(prompt,dlgtitle,dims,definput);
             answer=char(answer);
-            if isempty(answer), response=0; else, response=1; end 
+            if isempty(answer), response=0; else, response=1; end
             switch response
                 case 0
                     return
@@ -13131,20 +7052,24 @@ classdef best_application < handle
                 obj.fig.main.Widths([1 2 3])=[-1 -3.35 -0];
                 obj.menu.settings.btn.String='Open Settings';
                 obj.pi.no_measure_slctd_panel.handle=uix.Panel( 'Parent', obj.pi.empty_panel,'FontSize',14 ,'Units','normalized','Title','Protocol Designer','FontWeight','Bold','TitlePosition','centertop' );
-            obj.pi.no_measure_slctd_panel.vbox = uix.VBox( 'Parent', obj.pi.no_measure_slctd_panel.handle, 'Spacing', 5, 'Padding', 5  );
-            uiextras.HBox( 'Parent', obj.pi.no_measure_slctd_panel.vbox)
-            uicontrol( 'Parent', obj.pi.no_measure_slctd_panel.vbox,'Style','text','String','No Protocol is selected','FontSize',11,'HorizontalAlignment','center','Units','normalized' );
-            uiextras.HBox( 'Parent', obj.pi.no_measure_slctd_panel.vbox);
-            %           obj.panel.st=set(obj.pi.no_measure_slctd_panel.vbox,'Heights',[-2 -0.5 -2])
-            set(obj.pi.no_measure_slctd_panel.vbox,'Heights',[-2 -0.5 -2])
+                obj.pi.no_measure_slctd_panel.vbox = uix.VBox( 'Parent', obj.pi.no_measure_slctd_panel.handle, 'Spacing', 5, 'Padding', 5  );
+                uiextras.HBox( 'Parent', obj.pi.no_measure_slctd_panel.vbox)
+                uicontrol( 'Parent', obj.pi.no_measure_slctd_panel.vbox,'Style','text','String','No Protocol is selected','FontSize',11,'HorizontalAlignment','center','Units','normalized' );
+                uiextras.HBox( 'Parent', obj.pi.no_measure_slctd_panel.vbox);
+                %           obj.panel.st=set(obj.pi.no_measure_slctd_panel.vbox,'Heights',[-2 -0.5 -2])
+                set(obj.pi.no_measure_slctd_panel.vbox,'Heights',[-2 -0.5 -2])
             end
         end
         function pi_ToolboxSetings(obj)
             obj.fig.main.Widths([1 2 3])=[0 -3.35 -0];
+            settingsmenu=uicontextmenu(obj.fig.handle);
+            uimenu(settingsmenu,'label','Lock Experiment','Callback',@protect);
+            uimenu(settingsmenu,'label','Unlock Experiment','Callback',@protect);
+            set(obj.pi.empty_panel,'uicontextmenu',settingsmenu);
             Panel=uix.Panel( 'Parent', obj.pi.empty_panel,'FontSize',14 ,'Units','normalized','Title','Toolbox Global Settings' ,'FontWeight','Bold','TitlePosition','centertop');
-            vb = uix.VBox( 'Parent', Panel, 'Spacing', 5, 'Padding', 5  );
-            obj.pi.settings.Apply50HZLineNoiseFilter=uicontrol( 'Style','checkbox','Parent', vb ,'FontSize',11,'String','Apply 50HZ Line Noise Filter to EMG Data:','Tag','NoiseFilter50Hz','callback',@cb_par_saving); 
-            obj.pi.settings.Apply60HZLineNoiseFilter=uicontrol( 'Style','checkbox','Parent', vb ,'FontSize',11,'String','Apply 60HZ Line Noise Filter to EMG Data:','Tag','NoiseFilter60Hz','callback',@cb_par_saving); 
+            vb = uix.VBox( 'Parent', Panel, 'Spacing', 5, 'Padding', 5 );
+            obj.pi.settings.Apply50HZLineNoiseFilter=uicontrol( 'Style','checkbox','Parent', vb ,'FontSize',11,'String','Apply 50HZ Line Noise Filter to EMG Data:','Tag','NoiseFilter50Hz','callback',@cb_par_saving);
+            obj.pi.settings.Apply60HZLineNoiseFilter=uicontrol( 'Style','checkbox','Parent', vb ,'FontSize',11,'String','Apply 60HZ Line Noise Filter to EMG Data:','Tag','NoiseFilter60Hz','callback',@cb_par_saving);
             obj.pi.settings.SaveFiguresofeachProtocol=uicontrol( 'Style','checkbox','Parent', vb ,'FontSize',11,'String','Save Figures of each Protocol:','Tag','SaveFiguresofeachProtocol','callback',@cb_par_saving);
             HBox=uix.HBox('Parent',vb,'Spacing', 5  );
             uicontrol( 'Style','text','Parent', HBox,'String','Database Directory:','FontSize',11,'HorizontalAlignment','left','Units','normalized' );
@@ -13154,6 +7079,7 @@ classdef best_application < handle
             set( vb, 'Heights', [100 100 100 30 -1]);
             CreateDefaultsIfRequired;
             function cb_par_saving(source,~)
+                if obj.par.GlobalSettings.Protect==1, return; end
                 if strcmp(source.Tag,'DataBaseDirectory')
                     if exist(source.String, 'dir')==7
                         obj.par.GlobalSettings.DataBaseDirectory=source.String;
@@ -13171,7 +7097,17 @@ classdef best_application < handle
                     obj.par.GlobalSettings.NoiseFilter60Hz=0;
                     obj.par.GlobalSettings.SaveFigures=1;
                     obj.par.GlobalSettings.DataBaseDirectory=eval('cd');
+                    obj.par.GlobalSettings.Protect=false;
                 end
+            end
+            function protect(source,~)
+                switch source.Text
+                    case 'Lock Experiment'
+                        obj.par.GlobalSettings.Protect=true;
+                    case 'Unlock Experiment'
+                        obj.par.GlobalSettings.Protect=false;
+                end
+                obj.protect_experiment;
             end
         end
         function func_load_ToolboxSetings(obj)
@@ -13189,11 +7125,1607 @@ classdef best_application < handle
                 end
             end
         end
+        %% Notes
+        function cb_notes(obj)
+            d=figure('units','normalized','position',[0.1 0.1 0.8 0.8],'menubar','none','resize','off','numbertitle','off','name','Notes | BEST Toolbox','WindowStyle','modal');
+            editfield=uicontrol('style','edit','units','normalized','position',[0.01 0.01 0.98 0.98],'HorizontalAlign','left','min',1,'max',4,'FontSize',13','CreateFcn',@CreateNotes,'KeyPressFcn',@NotesKeyPress);
+            uicontrol(d);
+            function NotesKeyPress(src,evt)
+                uicontrol(editfield);
+                if strcmp(evt.Key,'delete') || strcmp(evt.Key,'backspace')
+                    if isempty(src.String{end})
+                        idx=size(src.String,1)-1;
+                    else
+                        idx=size(src.String,1);
+                    end
+                    src.String{idx}=src.String{idx}(1:end-1);
+                    src.String(strcmp('',src.String)) = [];
+                elseif strcmp(evt.Key,'return')
+                    datetimevec=char(datetime('now')); datetimevec=[datetimevec '   -   '];
+                    src.String{end+1}=datetimevec;
+                else
+                    src.String{end}=[src.String{end} evt.Character];
+                end
+                obj.par.Notes=src.String;
+            end
+            function CreateNotes(src,~)
+                try
+                    src.String=obj.par.Notes;
+                catch
+                end
+                if isempty(src.String)
+                    datetimevec=char(datetime('now'));
+                    datetimevec=[datetimevec '   -   '];
+                    src.String{1}=[datetimevec src.String];
+                elseif ~isempty(src.String)
+                    datetimevec=char(datetime('now')); datetimevec=[datetimevec '   -   '];
+                    src.String{end+1}=datetimevec;
+                end
+            end
+        end
+        %% Condition Maker
+        function table= cb_cm_StimulationParametersTable(obj)
+            iData=0;
+            ColCondition=1;
+            ColNoOfTrials=ColCondition+1;
+            ColITI=ColNoOfTrials+1;
+            if obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).BrainState==2, ColPhase=ColITI+1; ColAmp=ColPhase+1; ColAmpUnits=ColAmp+1;else, ColPhase=ColITI; ColAmp=ColPhase; ColAmpUnits=ColAmp; end %if
+            ColTS=ColAmpUnits+1;
+            ColStimType=ColTS+1;
+            if strcmp(obj.info.event.current_measure,'MEP Motor Threshold Hunting'), ColThresholdLevel=ColStimType+1; else, ColThresholdLevel=ColStimType; end
+            ColIntensityUnits=ColThresholdLevel+1;
+            if strcmp(obj.info.event.current_measure,'MEP Motor Threshold Hunting'), ColThresholdLevelUnits=ColIntensityUnits+1; else, ColThresholdLevelUnits=ColIntensityUnits; end
+            ColStimulator=ColThresholdLevelUnits+1;
+            ColPulseMode=ColStimulator+1;
+            ColNoOfPulses=ColPulseMode+1;
+            ColTimingOnset=ColNoOfPulses+1;
+            if ~(strcmp(obj.info.event.current_measure,'MEP Dose Response Curve') || strcmp(obj.info.event.current_measure,'ERP Measurement') || strcmp(obj.info.event.current_measure,'TEP Measurement')), ColTargetChannel=ColTimingOnset+1; else, ColTargetChannel=ColTimingOnset; end
+            ColCS=ColTargetChannel+1;
+            ColCSUnits=ColCS+1;
+            ColISI=ColCSUnits+1;
+            ColTrainFreq=ColISI+1;
+            ColNoOfTrains=ColTrainFreq+1;
+            ColFixedThreshold=ColNoOfTrains+1;
+            TableData=cell(1,1);ColumnName=cell(1,1);ColumnFormat=cell(1,1);
+            for iTableCondition=1:numel(fieldnames(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll))
+                TableCond=['cond' num2str(iTableCondition)];
+                for iTableStimulator=1:numel(fieldnames(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond)))-6
+                    iData=iData+1;
+                    TableStim=['st' num2str(iTableStimulator)];
+                    TableData{iData,ColCondition}=num2str(iTableCondition);
+                    TableData{iData,ColNoOfTrials}=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).TrialsPerCondition);
+                    TableData{iData,ColITI}=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).ITI);
+                    ColumnName{ColCondition}='Condition #'; ColumnFormat{ColCondition}=[];
+                    ColumnName{ColNoOfTrials}='No of Trials'; ColumnFormat{ColNoOfTrials}=[];
+                    ColumnName{ColITI}='ITI (s)'; ColumnFormat{ColITI}=[];
+                    if obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).BrainState==2
+                        TableData{iData,ColPhase}=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).Phase;
+                        TableData{iData,ColAmp}=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).AmplitudeThreshold;
+                        TableData{iData,ColAmpUnits}=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).AmplitudeUnits;
+                        ColumnName{ColPhase}='Phase'; ColumnFormat{ColPhase}={'Peak','Trough','RisingFlank','FallingFlank','Random'};
+                        ColumnName{ColAmp}='Amplitude Threshold'; ColumnFormat{ColAmp}=[];
+                        ColumnName{ColAmpUnits}='Amplitude Units'; ColumnFormat{ColAmpUnits}={'Absolute (micro volts)','Percentile'};
+                        ColumnName{ColITI}='Min. ITI (s)';
+                    end
+                    try TableData{iData,ColTS}=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).si_pckt{1,1});catch,end
+                    try TableData{iData,ColStimType}=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).StimulationType;catch, end
+                    try ColumnName{ColTS}='Stim. Intensity'; ColumnFormat{ColTS}=[]; catch,end
+                    ColumnName{ColStimType}='Stim. Type'; ColumnFormat{ColStimType}={'Test','Condition','Other'};
+                    if strcmp(obj.info.event.current_measure,'MEP Motor Threshold Hunting')
+                        try TableData{iData,ColThresholdLevel}=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).threshold_level); catch, end
+                        ColumnName{ColThresholdLevel}='Threshold Level'; ColumnFormat{ColThresholdLevel}=[];
+                        ColumnName{ColTS}='Starting Intensity';
+                        ColumnName{ColThresholdLevelUnits}='Threshold Level Units'; ColumnFormat{ColThresholdLevelUnits}={'uV','Import from Protocol'};
+                        %                         TableData{iData,ColThresholdLevelUnits}=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).ColThresholdLevelUnits;
+                    end
+                    try TableData{iData,ColIntensityUnits}=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).IntensityUnit; catch, end
+                    try TableData{iData,ColStimulator}=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).stim_device{1,1};catch, end
+                    try TableData{iData,ColPulseMode}=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).stim_mode;catch, end
+                    try TableData{iData,ColTimingOnset}=num2str(horzcat(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).stim_timing{:}));catch, end
+                    try TableData{iData,ColNoOfPulses}=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).pulse_count); catch, end
+                    ColumnName{ColIntensityUnits}='Intensity Units'; ColumnFormat{ColIntensityUnits}={'%MSO','%MT','mA','%ST','%Coupled'};
+                    ColumnName{ColStimulator}='Stimulator'; ColumnFormat{ColStimulator}=[{'Select'}, obj.hw.device_added2_listbox.string];
+                    ColumnName{ColPulseMode}='Pulse Mode'; ColumnFormat{ColPulseMode}={'single_pulse','paired_pulse', 'train'};
+                    ColumnName{ColTimingOnset}='Timing Onset'; ColumnFormat{ColTimingOnset}=[];
+                    ColumnName{ColNoOfPulses}='# of Pulses'; ColumnFormat{ColNoOfPulses}=[];
+                    if ~(strcmp(obj.info.event.current_measure,'MEP Dose Response Curve') || strcmp(obj.info.event.current_measure,'ERP Measurement') || strcmp(obj.info.event.current_measure,'TEP Measurement'))
+                        try TableData{iData,ColTargetChannel}=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).targetChannel{1,1};catch, end
+                        ColumnName{ColTargetChannel}='Target Channel'; ColumnFormat{ColTargetChannel}=[];
+                    end
+                    try TableData{iData,ColCS}=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).si_pckt{1,2});catch, end
+                    try TableData{iData,ColCSUnits}=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).CSUnits);catch, end
+                    try TableData{iData,ColISI}=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).si_pckt{1,3});catch, end
+                    try TableData{iData,ColTrainFreq}=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).si_pckt{1,7});catch, end
+                    try TableData{iData,ColNoOfTrains}=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).si_pckt{1,8});catch, end
+                    try TableData{iData,ColFixedThreshold}=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).threshold;catch, end
+                    ColumnName{ColCS}='Paired-CS Intensity'; ColumnFormat{ColCS}=[];
+                    ColumnName{ColCSUnits}='Paired-CS Intensity Units'; ColumnFormat{ColCSUnits}={'%MSO','%MT','mA','%ST','%Coupled'};
+                    ColumnName{ColISI}='ISI'; ColumnFormat{ColISI}=[];
+                    ColumnName{ColTrainFreq}='Train Frequency'; ColumnFormat{ColTrainFreq}=[];
+                    ColumnName{ColNoOfTrains}='# of Trains'; ColumnFormat{ColNoOfTrains}=[];
+                    ColumnName{ColFixedThreshold}='Threshold'; ColumnFormat{ColFixedThreshold}=[];
+                end
+            end
+            % create the table and write data in table
+            ui_menu=uicontextmenu(obj.fig.handle);
+            uimenu(ui_menu,'label','add Trials vector manually','Callback',@ManualTrialsVector);
+            uimenu(ui_menu,'label','add ITI(s) vector manually','Callback',@ManualITIVector);
+            table=uitable( 'Parent', obj.pi.mm.r0v2r1,'uicontextmenu',ui_menu);
+            table.Data=TableData;
+            table.FontSize=10;
+            table.ColumnName = ColumnName;
+            table.ColumnFormat= ColumnFormat;
+            table.ColumnWidth = repmat({100},1,numel(table.ColumnName));
+            table.ColumnEditable =true(1,numel(table.ColumnName));
+            table.RowStriping='on';
+            table.RearrangeableColumns='on';
+            table.CellEditCallback =@CellEditCallback ;
+            
+            %             table.uicontextmenu=ui_menu;
+            function CellEditCallback (~,CellEditData)
+                AdditionInCondition=['cond' num2str(table.Data{CellEditData.Indices(1),1})];
+                AdditionInStimulatorNum=find(find(cellfun(@str2double ,table.Data(:,1))==str2double(table.Data{CellEditData.Indices(1),1}))==CellEditData.Indices(1));
+                AdditionInStimulator=['st' num2str(AdditionInStimulatorNum)];
+                opts=[]; opts.WindowStyle='modal'; opts.Interpreter='none';
+                switch table.ColumnName{CellEditData.Indices(2),1}
+                    case 'No of Trials'
+                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).TrialsPerCondition=str2num(CellEditData.NewData);
+                    case {'ITI (s)','Min. ITI (s)'}
+                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).ITI=str2num(CellEditData.NewData);
+                    case 'Phase'
+                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).Phase=CellEditData.NewData;
+                    case 'Amplitude Threshold'
+                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).AmplitudeThreshold=CellEditData.NewData;
+                    case 'Amplitude Units'
+                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).AmplitudeUnits=CellEditData.NewData;
+                    case {'Stim. Intensity','Starting Intensity'}
+                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).si_pckt{1,1}=str2double(CellEditData.NewData);
+                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).si=CellEditData.NewData;
+                    case 'Stim. Type'
+                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).StimulationType=CellEditData.NewData;
+                    case 'Threshold Level'
+                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).threshold_level=str2num(CellEditData.NewData);
+                    case 'Intensity Units'
+                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).IntensityUnit=CellEditData.NewData;
+                        switch CellEditData.NewData
+                            case '%Coupled'
+                                obj.cb_CoupleIntensityUnits(AdditionInCondition,AdditionInStimulator);
+                        end
+                    case 'Stimulator'
+                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).stim_device=cellstr(CellEditData.NewData);
+                    case 'Pulse Mode'
+                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).stim_mode=CellEditData.NewData;
+                    case '# of Pulses'
+                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).pulse_count=str2num(CellEditData.NewData);
+                        if numel(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).stim_timing)<str2num(CellEditData.NewData)
+                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).stim_timing{str2num(CellEditData.NewData)}=NaN;
+                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).stim_timing_units{str2num(CellEditData.NewData)}={'ms'};
+                        end
+                    case 'Timing Onset'
+                        try
+                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).stim_timing=num2cell(eval(CellEditData.NewData));
+                        catch
+                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).stim_timing=num2cell(eval(['[' CellEditData.NewData ']']));
+                        end
+                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).stim_timing_units=repmat({'ms'},1,numel(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).stim_timing));
+                    case 'Target Channel'
+                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).targetChannel=cellstr(CellEditData.NewData);
+                    case 'Paired-CS Intensity'
+                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).si_pckt{1,2}=str2double(CellEditData.NewData);
+                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).cs=CellEditData.NewData;
+                    case 'Paired-CS Intensity Units'
+                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).CSUnits=CellEditData.NewData;
+                    case 'ISI'
+                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).si_pckt{1,3}=str2double(CellEditData.NewData);
+                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).isi=CellEditData.NewData;
+                    case 'Train Frequency'
+                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).si_pckt{1,7}=str2double(CellEditData.NewData);
+                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).freq=CellEditData.NewData;
+                    case '# of Trains'
+                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).si_pckt{1,8}=str2double(CellEditData.NewData);
+                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).pulsesNo=CellEditData.NewData;
+                    case 'Threshold'
+                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).threshold=CellEditData.NewData;
+                    case 'Threshold Level Units'
+                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).ThresholdLevelUnits=CellEditData.NewData;
+                        switch CellEditData.NewData
+                            case 'Import from Protocol'
+                                obj.cb_CoupleIntensityUnits(AdditionInCondition,AdditionInStimulator);
+                        end
+                end
+                %Improvement Note :Requirement 96
+                %cb_pulse_update
+                %cb_condition_addition
+                %cb_condition_deletion
+                %cb_stimulator_addition
+                %cb_stimulator_deletion
+                obj.cb_cm_StimulationParametersTable;
+                cb_pulse_update
+                function cb_pulse_update
+                    cd=[];
+                    st=[];
+                    condStr=[];
+                    obj.pi.mm.tab.SelectedChild=str2double(table.Data{CellEditData.Indices(1),1});
+                    
+                    cd=['cd' num2str(table.Data{CellEditData.Indices(1),1})];
+                    condStr=['cond' num2str(table.Data{CellEditData.Indices(1),1})];
+                    obj.pi.mm.stim.(cd).slctd=AdditionInStimulatorNum;
+                    st=['st' num2str(obj.pi.mm.stim.(cd).slctd)];
+                    obj.pi.mm.stim.(cd).(st).pulse_count=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).pulse_count;
+                    axes(obj.pi.mm.cond.(cd).ax)
+                    cla;
+                    hold on;
+                    contextMenu_condition=uicontextmenu(obj.fig.handle);
+                    uimenu(contextMenu_condition,'label','Duplicate Condition','Callback',@cb_pr_mm_duplicateCondition);
+                    uimenu(contextMenu_condition,'label','Delete Condition','Callback',@cb_pr_mm_deleteCondition);
+                    obj.pi.mm.cond.(cd).ax.YLim=[-1 1];
+                    obj.pi.mm.cond.(cd).ax.XLim=[0 5];
+                    xticks(obj.pi.mm.cond.(cd).ax,[100 101]);
+                    yticks(obj.pi.mm.cond.(cd).ax,-1:1:1)
+                    obj.pi.mm.cond.(cd).ax.YTickLabel={'','',''};
+                    plot(0:0.01:10,rand(1,1001)*0.30-0.15,'Color','k','parent',obj.pi.mm.cond.(cd).ax,'LineWidth',2,'Tag','empty'); % 12-Mar-2020 07:37:17
+                    text(2.5,0+0.20,['Channel Name:[' char(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).targetChannel) ']'],'VerticalAlignment','bottom','HorizontalAlignment','center','Color',[0.50 0.50 0.50],'FontSize',9,'FontAngle','italic','ButtonDownFcn',@obj.cb_cm_targetChannel) % 11-Mar-2020 14:49:00
+                    obj.pi.mm.stim.(cd).no=0;
+                    
+                    %make stimulators
+                    for istimulators=1:(length(fieldnames(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr)))-6)
+                        obj.pi.mm.stim.(cd).no=istimulators;
+                        st=['st' num2str(obj.pi.mm.stim.(cd).no)];
+                        axes(obj.pi.mm.cond.(cd).ax)
+                        hold on;
+                        obj.pi.mm.stim.(cd).(st).plt=plot([-45 45],[-1*obj.pi.mm.stim.(cd).no -1*obj.pi.mm.stim.(cd).no],'Color','k','parent',obj.pi.mm.cond.(cd).ax,'LineWidth',2,'Tag',num2str(obj.pi.mm.stim.(cd).no),'ButtonDownFcn',@cb_stimulatorSelector); %line
+                        %                     obj.pi.mm.stim.(cd).(st).pulse_count=0;
+                        %                     obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).pulse_count=obj.pi.mm.stim.(cd).(st).pulse_count;
+                        obj.pi.mm.cond.(cd).ax.YLim=[(-1-obj.pi.mm.stim.(cd).no) 1];
+                        yticks(obj.pi.mm.cond.(cd).ax,[-1-obj.pi.mm.stim.(cd).no:1:1])
+                        for i=1:obj.pi.mm.stim.(cd).no
+                            yticklab{1,i}=cellstr(['Stimulator ' num2str(i)]);
+                        end
+                        yticklab=flip(horzcat(yticklab{1,:}));
+                        obj.pi.mm.cond.(cd).ax.YTickLabel={'',char(yticklab),'',''};
+                        text(0,-1*obj.pi.mm.stim.(cd).no,char(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).stim_device),'VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',9,'FontAngle','italic','Tag',num2str(obj.pi.mm.stim.(cd).no),'ButtonDownFcn',@obj.cb_cm_output_device)
+                        for ipulses=1:obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).pulse_count
+                            
+                            % 11-Mar-2020 18:13:21
+                            obj.pi.mm.stim.(cd).slctd=istimulators;
+                            obj.pi.mm.stim.(cd).(st).pulse_count=ipulses;
+                            %                         obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).pulse_count=obj.pi.mm.stim.(cd).(st).pulse_count;
+                            
+                            switch char(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).stim_mode)
+                                case 'single_pulse'
+                                    obj.pi.mm.stim.(cd).(st).pulse_types{1,obj.pi.mm.stim.(cd).(st).pulse_count}=cellstr('single_pulse');
+                                    %make the string here
+                                    SinglePulseAnnotation=[];
+                                    if (obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_units==1)
+                                        
+                                        
+                                        SinglePulseAnnotation=['TS: [' num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt{1,1}) '] %MSO'];
+                                    else
+                                        SinglePulseAnnotation=['TS: [' num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt{1,1}) '] %MT'];
+                                    end
+                                    %AAJ: idher ye banao jese oper hehehehehe
+                                    %vala bnaya he pp aur train dono k lye
+                                    text(obj.pi.mm.stim.(cd).(st).pulse_count-0.25,-obj.pi.mm.stim.(cd).slctd+0.41,SinglePulseAnnotation,'VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',7,'FontAngle','italic','UserData',[obj.pi.mm.stim.(cd).(st).pulse_count,obj.pi.mm.stim.(cd).slctd],'ButtonDownFcn',@obj.cb_cm_sp_inputfig) % 11-Mar-2020 14:49:00
+                                case 'paired_pulse'
+                                    obj.pi.mm.stim.(cd).(st).pulse_types{1,obj.pi.mm.stim.(cd).(st).pulse_count}=cellstr('paired_pulse');
+                                    % % %                                 text(obj.pi.mm.stim.(cd).(st).pulse_count-0.25,-obj.pi.mm.stim.(cd).slctd+0.4,{'TS:[?], CS:[?] %MSO', 'ISI:[?] ms'},'VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',7,'FontAngle','italic','UserData',[obj.pi.mm.stim.(cd).(st).pulse_count,obj.pi.mm.stim.(cd).slctd],'ButtonDownFcn',@obj.cb_cm_pp_inputfig) % 11-Mar-2020 14:49:00
+                                    TS=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt{1,1});
+                                    CS=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt{1,2});
+                                    ISI=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt{1,3});
+                                    if obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_units==1
+                                        UnitString='%MSO';
+                                    elseif obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_units==0
+                                        UnitString='%MT';
+                                    end
+                                    text(obj.pi.mm.stim.(cd).(st).pulse_count-0.25,-obj.pi.mm.stim.(cd).slctd+0.4,{['TS:' TS ', CS:' CS ' ' UnitString], ['ISI:' ISI 'ms']},'VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',7,'FontAngle','italic','UserData',[obj.pi.mm.stim.(cd).(st).pulse_count,obj.pi.mm.stim.(cd).slctd],'ButtonDownFcn',@obj.cb_cm_pp_inputfig) % 11-Mar-2020 14:49:00
+                                    
+                                case 'train'
+                                    obj.pi.mm.stim.(cd).(st).pulse_types{1,obj.pi.mm.stim.(cd).(st).pulse_count}=cellstr('train');
+                                    %                                 obj.pi.mm.stim.(st).pulse_specs=text(obj.pi.mm.stim.(cd).(st).pulse_count,-obj.pi.mm.stim.(cd).slctd+0.4,{'Pulses:[?], f:[?] Hz', 'TS:[?] %MSO'},'VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',7,'FontAngle','italic','UserData',[obj.pi.mm.stim.(cd).(st).pulse_count,obj.pi.mm.stim.(cd).slctd],'ButtonDownFcn',@obj.cb_cm_train_inputfig); % 11-Mar-2020 14:49:00
+                                    TS=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt{1,1});
+                                    F=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt{1,2});
+                                    PULSES=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt{1,3});
+                                    if obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_units==1
+                                        UnitString='%MSO';
+                                    elseif obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_units==0
+                                        UnitString='%MT';
+                                    end
+                                    obj.pi.mm.stim.(st).pulse_specs=text(obj.pi.mm.stim.(cd).(st).pulse_count,-obj.pi.mm.stim.(cd).slctd+0.4,{['Pulses:' PULSES ', f:' F 'Hz'], ['TS:' TS UnitString]},'VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',7,'FontAngle','italic','UserData',[obj.pi.mm.stim.(cd).(st).pulse_count,obj.pi.mm.stim.(cd).slctd],'ButtonDownFcn',@obj.cb_cm_train_inputfig); % 11-Mar-2020 14:49:00
+                                    
+                            end
+                            
+                            
+                            % delete the previous plot
+                            delete(obj.pi.mm.stim.(cd).(st).plt)
+                            % make the x and y vector for new one
+                            x=[];
+                            y=[];
+                            for i=1:obj.pi.mm.stim.(cd).(st).pulse_count
+                                switch char(obj.pi.mm.stim.(cd).(st).pulse_types{1,i})
+                                    case 'single_pulse'
+                                        
+                                        x{i}=([i i i+0.15 i+0.15]);
+                                        y{i}=[-obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd+0.4 -obj.pi.mm.stim.(cd).slctd+0.4 -obj.pi.mm.stim.(cd).slctd];
+                                    case 'paired_pulse'
+                                        
+                                        x{i}=[i i i+0.15 i+0.15 i+0.25 i+0.25 i+0.40 i+0.40];
+                                        y{i}=[-obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd+0.20 -obj.pi.mm.stim.(cd).slctd+0.20 -obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd+0.4 -obj.pi.mm.stim.(cd).slctd+0.4 -obj.pi.mm.stim.(cd).slctd];
+                                    case 'train'
+                                        
+                                        %                         x(i)=[i i i+0.20 i+0.20 i+0.30 i+0.30 i+0.50 i+0.50 i+0.60 i+0.60 i+0.80 i+0.80];
+                                        x{i}=[i i i+0.15 i+0.15 i+0.25 i+0.25 i+0.40 i+0.40 i+0.50 i+0.50 i+0.65 i+0.65];
+                                        %                         y{i}={[-obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd+0.5 -obj.pi.mm.stim.(cd).slctd+0.5 -obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd+0.5 -obj.pi.mm.stim.(cd).slctd+0.5 -obj.pi.mm.stim.(cd).slctd]};
+                                        
+                                        y{i}=-obj.pi.mm.stim.(cd).slctd+[0 0.4 0.4 0 0 0.4 0.4 0 0 0.4 0.4 0];
+                                end
+                            end
+                            
+                            x=[-45 cell2mat(x) 45];
+                            y=[-obj.pi.mm.stim.(cd).slctd cell2mat(y) -obj.pi.mm.stim.(cd).slctd];
+                            
+                            obj.pi.mm.stim.(cd).(st).plt=plot(x,y,'Color','k','parent',obj.pi.mm.cond.(cd).ax,'LineWidth',2,'Tag',num2str(obj.pi.mm.stim.(cd).slctd),'ButtonDownFcn',@cb_stimulatorSelector); %line
+                            
+                            drawArrow = @(x,y) quiver( x(1),y(1),x(2)-x(1),y(2)-y(1),0,'color','k' );
+                            num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).stim_timing{1,ipulses})
+                            obj.pi.mm.stim.(st).pulse_time=text(obj.pi.mm.stim.(cd).(st).pulse_count-1+0.5,-obj.pi.mm.stim.(cd).slctd-0.05,['t:' num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).stim_timing{1,ipulses}) 'ms'],'VerticalAlignment','top','Color',[0.50 0.50 0.50],'FontSize',9,'FontAngle','italic','UserData',[obj.pi.mm.stim.(cd).(st).pulse_count,obj.pi.mm.stim.(cd).slctd],'ButtonDownFcn',@obj.cb_cm_timing)
+                            
+                            obj.pi.mm.stim.(st).pulse_arrow1=drawArrow([obj.pi.mm.stim.(cd).(st).pulse_count-1 obj.pi.mm.stim.(cd).(st).pulse_count-1+1],[-obj.pi.mm.stim.(cd).slctd-0.05 -obj.pi.mm.stim.(cd).slctd-0.05])
+                            obj.pi.mm.stim.(st).pulse_arrow2=drawArrow([obj.pi.mm.stim.(cd).(st).pulse_count-1+1 obj.pi.mm.stim.(cd).(st).pulse_count-1],[-obj.pi.mm.stim.(cd).slctd-0.05 -obj.pi.mm.stim.(cd).slctd-0.05])
+                            
+                            
+                            if(obj.pi.mm.cond.(cd).ax.XLim(2)<obj.pi.mm.stim.(cd).(st).pulse_count+1)
+                                obj.pi.mm.cond.(cd).ax.XLim(2)=obj.pi.mm.stim.(cd).(st).pulse_count+1;
+                            end
+                            
+                        end
+                        
+                    end
+                    function cb_stimulatorSelector(source,~)
+                        if(isfield(obj.pi.mm,'stimulatorSelector'))
+                            if(isvalid(obj.pi.mm.stimulatorSelector))
+                                obj.pi.mm.stimulatorSelector.Color='k';
+                            end
+                        end
+                        obj.pi.mm.stim.(cd).slctd=str2double(source.Tag);
+                        source.Color='b';
+                        obj.pi.mm.stimulatorSelector=source;
+                    end
+                    function cb_pr_mm_duplicateCondition(~,~)
+                        
+                        conditionIndex=length(fieldnames(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll));
+                        cond_duplicated_from=['cond' num2str(obj.pi.mm.tab.SelectedChild)];
+                        cond_duplicated_to=['cond' num2str(conditionIndex+1)];
+                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cond_duplicated_to)=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cond_duplicated_from);
+                        obj.RefreshProtocol;
+                    end
+                    function cb_pr_mm_deleteCondition(~,~)
+                        
+                        
+                        condsAll_fieldnames=fieldnames(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll);
+                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll=rmfield(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll,char(condsAll_fieldnames(obj.pi.mm.tab.SelectedChild)));
+                        condsAll_fieldnames(obj.pi.mm.tab.SelectedChild)=[];
+                        for deleteIndex_condition=1:(length(fieldnames(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll)))
+                            cond_resorted_afterdelete=['cond' num2str(deleteIndex_condition)];
+                            condsAll_new.(cond_resorted_afterdelete)=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(char(condsAll_fieldnames(deleteIndex_condition)));
+                        end
+                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll=condsAll_new;
+                        obj.RefreshProtocol;
+                    end
+                end
+            end
+        end
+        function cb_cm_Nconditions(obj)
+            if strcmp(obj.info.event.current_measure,'MEP Motor Threshold Hunting')
+            end
+            obj.pi.mm.cond.TabNames=[];
+            contextMenu_condition=uicontextmenu(obj.fig.handle);
+            uimenu(contextMenu_condition,'label','Duplicate Condition','Callback',@cb_pr_mm_duplicateCondition);
+            uimenu(contextMenu_condition,'label','Delete Condition','Callback',@cb_pr_mm_deleteCondition);
+            for iconds=1:length(fieldnames(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll))
+                obj.pi.mm.cond.no=iconds;
+                cd=['cd' num2str(obj.pi.mm.cond.no)];
+                condStr=['cond' num2str(obj.pi.mm.cond.no)];
+                obj.pi.mm.cond.(cd).ax_panel= uix.Panel( 'Parent',obj.pi.mm.tab,'uicontextmenu',contextMenu_condition);
+                obj.pi.mm.cond.(cd).ax=axes('parent',obj.pi.mm.cond.(cd).ax_panel );
+                box on; hold on;
+                obj.pi.mm.cond.TabNames{1,obj.pi.mm.cond.no}=['Condition' num2str(obj.pi.mm.cond.no)];
+                obj.pi.mm.tab.TabNames=obj.pi.mm.cond.TabNames;
+                obj.pi.mm.tab.SelectedChild=1;
+                obj.pi.mm.tab.TabSize=90;
+                obj.pi.mm.tab.FontSize=12;
+                obj.pi.mm.cond.(cd).ax.YLim=[-1 1];
+                obj.pi.mm.cond.(cd).ax.XLim=[0 5];
+                xticks(obj.pi.mm.cond.(cd).ax,[100 101]);
+                yticks(obj.pi.mm.cond.(cd).ax,-1:1:1)
+                obj.pi.mm.cond.(cd).ax.YTickLabel={'','Search Window',''};
+                plot(0:0.01:10,rand(1,1001)*0.30-0.15,'Color','k','parent',obj.pi.mm.cond.(cd).ax,'LineWidth',2,'Tag','empty'); % 12-Mar-2020 07:37:17
+                text(2.5,0+0.20,['Channel Name:[' char(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).targetChannel) ']'],'VerticalAlignment','bottom','HorizontalAlignment','center','Color',[0.50 0.50 0.50],'FontSize',9,'FontAngle','italic','ButtonDownFcn',@obj.cb_cm_targetChannel) % 11-Mar-2020 14:49:00
+                obj.pi.mm.stim.(cd).no=0;
+                
+                %                 make stimulators
+                for istimulators=1:(length(fieldnames(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr)))-6)
+                    obj.pi.mm.stim.(cd).no=istimulators;
+                    st=['st' num2str(obj.pi.mm.stim.(cd).no)];
+                    axes(obj.pi.mm.cond.(cd).ax)
+                    hold on;
+                    obj.pi.mm.stim.(cd).(st).plt=plot([-45 45],[-1*obj.pi.mm.stim.(cd).no -1*obj.pi.mm.stim.(cd).no],'Color','k','parent',obj.pi.mm.cond.(cd).ax,'LineWidth',2,'Tag',num2str(obj.pi.mm.stim.(cd).no),'ButtonDownFcn',@cb_stimulatorSelector); %line
+                    
+                    obj.pi.mm.cond.(cd).ax.YLim=[(-1-obj.pi.mm.stim.(cd).no) 1];
+                    yticks(obj.pi.mm.cond.(cd).ax,[-1-obj.pi.mm.stim.(cd).no:1:1])
+                    for i=1:obj.pi.mm.stim.(cd).no
+                        yticklab{1,i}=cellstr(['Stimulator ' num2str(i)]);
+                    end
+                    yticklab=flip(horzcat(yticklab{1,:}));
+                    obj.pi.mm.cond.(cd).ax.YTickLabel={'',char(yticklab),' Search Window',''};
+                    text(0,-1*obj.pi.mm.stim.(cd).no,char(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).stim_device),'VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',9,'FontAngle','italic','Tag',num2str(obj.pi.mm.stim.(cd).no),'ButtonDownFcn',@obj.cb_cm_output_device)
+                    for ipulses=1:obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).pulse_count
+                        
+                        %                         11-Mar-2020 18:13:21
+                        obj.pi.mm.stim.(cd).slctd=istimulators;
+                        obj.pi.mm.stim.(cd).(st).pulse_count=ipulses;
+                        
+                        switch char(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).stim_mode)
+                            case 'single_pulse'
+                                obj.pi.mm.stim.(cd).(st).pulse_types{1,obj.pi.mm.stim.(cd).(st).pulse_count}=cellstr('single_pulse');
+                                %                                 make the string here
+                                SinglePulseAnnotation=[];
+                                if (obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_units==1)
+                                    
+                                    
+                                    SinglePulseAnnotation=['TS: [' num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt{1,1}) '] Inten. Units'];
+                                else
+                                    SinglePulseAnnotation=['TS: [' num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt{1,1}) '] Inten. Units'];
+                                end
+                                %                                 AAJ: idher ye banao jese oper hehehehehe
+                                %                                 vala bnaya he pp aur train dono k lye
+                                text(obj.pi.mm.stim.(cd).(st).pulse_count-0.25,-obj.pi.mm.stim.(cd).slctd+0.41,SinglePulseAnnotation,'VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',7,'FontAngle','italic','UserData',[obj.pi.mm.stim.(cd).(st).pulse_count,obj.pi.mm.stim.(cd).slctd],'ButtonDownFcn',@obj.cb_cm_sp_inputfig) % 11-Mar-2020 14:49:00
+                            case 'paired_pulse'
+                                obj.pi.mm.stim.(cd).(st).pulse_types{1,obj.pi.mm.stim.(cd).(st).pulse_count}=cellstr('paired_pulse');
+                                % %                                 text(obj.pi.mm.stim.(cd).(st).pulse_count-0.25,-obj.pi.mm.stim.(cd).slctd+0.4,{'TS:[?], CS:[?] %MSO', 'ISI:[?] ms'},'VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',7,'FontAngle','italic','UserData',[obj.pi.mm.stim.(cd).(st).pulse_count,obj.pi.mm.stim.(cd).slctd],'ButtonDownFcn',@obj.cb_cm_pp_inputfig) % 11-Mar-2020 14:49:00
+                                TS=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt{1,1});
+                                CS=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt{1,2});
+                                ISI=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt{1,3});
+                                if obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_units==1
+                                    UnitString='%MSO';
+                                elseif obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_units==0
+                                    UnitString='%MT';
+                                end
+                                text(obj.pi.mm.stim.(cd).(st).pulse_count-0.25,-obj.pi.mm.stim.(cd).slctd+0.4,{['TS:' TS ', CS:' CS ' ' UnitString], ['ISI:' ISI 'ms']},'VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',7,'FontAngle','italic','UserData',[obj.pi.mm.stim.(cd).(st).pulse_count,obj.pi.mm.stim.(cd).slctd],'ButtonDownFcn',@obj.cb_cm_pp_inputfig) % 11-Mar-2020 14:49:00
+                                
+                            case 'train'
+                                obj.pi.mm.stim.(cd).(st).pulse_types{1,obj.pi.mm.stim.(cd).(st).pulse_count}=cellstr('train');
+                                % %                                                                 obj.pi.mm.stim.(st).pulse_specs=text(obj.pi.mm.stim.(cd).(st).pulse_count,-obj.pi.mm.stim.(cd).slctd+0.4,{'Pulses:[?], f:[?] Hz', 'TS:[?] %MSO'},'VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',7,'FontAngle','italic','UserData',[obj.pi.mm.stim.(cd).(st).pulse_count,obj.pi.mm.stim.(cd).slctd],'ButtonDownFcn',@obj.cb_cm_train_inputfig); % 11-Mar-2020 14:49:00
+                                TS=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt{1,1});
+                                F=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt{1,2});
+                                PULSES=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt{1,3});
+                                if obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_units==1
+                                    UnitString='%MSO';
+                                elseif obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_units==0
+                                    UnitString='%MT';
+                                end
+                                obj.pi.mm.stim.(st).pulse_specs=text(obj.pi.mm.stim.(cd).(st).pulse_count,-obj.pi.mm.stim.(cd).slctd+0.4,{['Pulses:' PULSES ', f:' F 'Hz'], ['TS:' TS UnitString]},'VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',7,'FontAngle','italic','UserData',[obj.pi.mm.stim.(cd).(st).pulse_count,obj.pi.mm.stim.(cd).slctd],'ButtonDownFcn',@obj.cb_cm_train_inputfig); % 11-Mar-2020 14:49:00
+                                
+                        end
+                        
+                        
+                        %                         delete the previous plot
+                        delete(obj.pi.mm.stim.(cd).(st).plt)
+                        %                         make the x and y vector for new one
+                        x=[];
+                        y=[];
+                        for i=1:obj.pi.mm.stim.(cd).(st).pulse_count
+                            switch char(obj.pi.mm.stim.(cd).(st).pulse_types{1,i})
+                                case 'single_pulse'
+                                    x{i}=([i i i+0.15 i+0.15]);
+                                    y{i}=[-obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd+0.4 -obj.pi.mm.stim.(cd).slctd+0.4 -obj.pi.mm.stim.(cd).slctd];
+                                case 'paired_pulse'
+                                    x{i}=[i i i+0.15 i+0.15 i+0.25 i+0.25 i+0.40 i+0.40];
+                                    y{i}=[-obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd+0.20 -obj.pi.mm.stim.(cd).slctd+0.20 -obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd+0.4 -obj.pi.mm.stim.(cd).slctd+0.4 -obj.pi.mm.stim.(cd).slctd];
+                                case 'train'
+                                    x(i)=[i i i+0.20 i+0.20 i+0.30 i+0.30 i+0.50 i+0.50 i+0.60 i+0.60 i+0.80 i+0.80];
+                                    x{i}=[i i i+0.15 i+0.15 i+0.25 i+0.25 i+0.40 i+0.40 i+0.50 i+0.50 i+0.65 i+0.65];
+                                    y{i}={[-obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd+0.5 -obj.pi.mm.stim.(cd).slctd+0.5 -obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd+0.5 -obj.pi.mm.stim.(cd).slctd+0.5 -obj.pi.mm.stim.(cd).slctd]};
+                                    
+                                    y{i}=-obj.pi.mm.stim.(cd).slctd+[0 0.4 0.4 0 0 0.4 0.4 0 0 0.4 0.4 0];
+                            end
+                        end
+                        
+                        x=[-45 cell2mat(x) 45];
+                        y=[-obj.pi.mm.stim.(cd).slctd cell2mat(y) -obj.pi.mm.stim.(cd).slctd];
+                        
+                        obj.pi.mm.stim.(cd).(st).plt=plot(x,y,'Color','k','parent',obj.pi.mm.cond.(cd).ax,'LineWidth',2,'Tag',num2str(obj.pi.mm.stim.(cd).slctd),'ButtonDownFcn',@cb_stimulatorSelector); %line
+                        
+                        drawArrow = @(x,y) quiver( x(1),y(1),x(2)-x(1),y(2)-y(1),0,'color','k' );
+                        num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).stim_timing{1,ipulses})
+                        obj.pi.mm.stim.(st).pulse_time=text(obj.pi.mm.stim.(cd).(st).pulse_count-1+0.5,-obj.pi.mm.stim.(cd).slctd-0.05,['t:' num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).stim_timing{1,ipulses}) 'ms'],'VerticalAlignment','top','Color',[0.50 0.50 0.50],'FontSize',9,'FontAngle','italic','UserData',[obj.pi.mm.stim.(cd).(st).pulse_count,obj.pi.mm.stim.(cd).slctd],'ButtonDownFcn',@obj.cb_cm_timing)
+                        
+                        obj.pi.mm.stim.(st).pulse_arrow1=drawArrow([obj.pi.mm.stim.(cd).(st).pulse_count-1 obj.pi.mm.stim.(cd).(st).pulse_count-1+1],[-obj.pi.mm.stim.(cd).slctd-0.05 -obj.pi.mm.stim.(cd).slctd-0.05])
+                        obj.pi.mm.stim.(st).pulse_arrow2=drawArrow([obj.pi.mm.stim.(cd).(st).pulse_count-1+1 obj.pi.mm.stim.(cd).(st).pulse_count-1],[-obj.pi.mm.stim.(cd).slctd-0.05 -obj.pi.mm.stim.(cd).slctd-0.05])
+                        
+                        
+                        if(obj.pi.mm.cond.(cd).ax.XLim(2)<obj.pi.mm.stim.(cd).(st).pulse_count+1)
+                            obj.pi.mm.cond.(cd).ax.XLim(2)=obj.pi.mm.stim.(cd).(st).pulse_count+1;
+                        end
+                        
+                    end
+                    
+                end
+                %                 make pulses
+                
+                
+                
+            end
+            function cb_stimulatorSelector(source,~)
+                if(isfield(obj.pi.mm,'stimulatorSelector'))
+                    if(isvalid(obj.pi.mm.stimulatorSelector))
+                        obj.pi.mm.stimulatorSelector.Color='k';
+                    end
+                end
+                obj.pi.mm.stim.(cd).slctd=str2double(source.Tag);
+                source.Color='b';
+                obj.pi.mm.stimulatorSelector=source;
+            end
+            function cb_pr_mm_duplicateCondition(~,~)
+                conditionIndex=length(fieldnames(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll));
+                cond_duplicated_from=['cond' num2str(obj.pi.mm.tab.SelectedChild)];
+                cond_duplicated_to=['cond' num2str(conditionIndex+1)];
+                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cond_duplicated_to)=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cond_duplicated_from);
+                obj.RefreshProtocol;
+            end
+            function cb_pr_mm_deleteCondition(~,~)
+                
+                condsAll_fieldnames=fieldnames(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll);
+                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll=rmfield(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll,char(condsAll_fieldnames(obj.pi.mm.tab.SelectedChild)));
+                condsAll_fieldnames(obj.pi.mm.tab.SelectedChild)=[];
+                for deleteIndex_condition=1:(length(fieldnames(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll)))
+                    cond_resorted_afterdelete=['cond' num2str(deleteIndex_condition)];
+                    condsAll_new.(cond_resorted_afterdelete)=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(char(condsAll_fieldnames(deleteIndex_condition)));
+                end
+                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll=condsAll_new;
+                obj.RefreshProtocol;
+            end
+        end
+        function cb_cm_conditions(obj)
+            obj.pi.mm.cond.no=obj.pi.mm.cond.no+1;
+            cd=['cd' num2str(obj.pi.mm.cond.no)];
+            condStr=['cond' num2str(obj.pi.mm.cond.no)];
+            contextMenu_condition=uicontextmenu(obj.fig.handle);
+            uimenu(contextMenu_condition,'label','Duplicate Condition','Callback',@cb_pr_mm_duplicateCondition);
+            uimenu(contextMenu_condition,'label','Delete Condition','Callback',@cb_pr_mm_deleteCondition);
+            obj.pi.mm.cond.(cd).ax_panel= uix.Panel( 'Parent',obj.pi.mm.tab,'uicontextmenu',contextMenu_condition);
+            obj.pi.mm.cond.(cd).ax=axes('parent',obj.pi.mm.cond.(cd).ax_panel );
+            box on; hold on;
+            obj.pi.mm.cond.TabNames{1,obj.pi.mm.cond.no}=['Condition' num2str(obj.pi.mm.cond.no)];
+            obj.pi.mm.tab.TabNames=obj.pi.mm.cond.TabNames;
+            obj.pi.mm.tab.SelectedChild=obj.pi.mm.cond.no;
+            obj.pi.mm.tab.TabSize=90;
+            obj.pi.mm.tab.FontSize=12;
+            obj.pi.mm.cond.(cd).ax.YLim=[-1 1];
+            obj.pi.mm.cond.(cd).ax.XLim=[0 5];
+            xticks(obj.pi.mm.cond.(cd).ax,[100 101]);
+            yticks(obj.pi.mm.cond.(cd).ax,[-1:1:1])
+            obj.pi.mm.cond.(cd).ax.YTickLabel={'','Search Window',''};
+            plot(0:0.01:10,rand(1,1001)*0.30-0.15,'Color','k','parent',obj.pi.mm.cond.(cd).ax,'LineWidth',2,'Tag','empty'); % 12-Mar-2020 07:37:17
+            text(2.5,0+0.20,'Channel Name:[?]','VerticalAlignment','bottom','HorizontalAlignment','center','Color',[0.50 0.50 0.50],'FontSize',9,'FontAngle','italic','ButtonDownFcn',@obj.cb_cm_targetChannel) % 11-Mar-2020 14:49:00
+            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).targetChannel=cellstr('NaN');
+            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).TrialsPerCondition=50;
+            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).ITI=[3 4];
+            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).Phase='Peak';
+            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).AmplitudeThreshold='0 1e6';
+            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).AmplitudeUnits='Absolute (micro volts)';
+            obj.pi.mm.stim.(cd).no=0;
+            function cb_pr_mm_duplicateCondition(~,~)
+                conditionIndex=length(fieldnames(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll));
+                cond_duplicated_from=['cond' num2str(obj.pi.mm.tab.SelectedChild)];
+                cond_duplicated_to=['cond' num2str(conditionIndex+1)];
+                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cond_duplicated_to)=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cond_duplicated_from);
+                obj.RefreshProtocol;
+            end
+            function cb_pr_mm_deleteCondition(~,~)
+                condsAll_fieldnames=fieldnames(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll);
+                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll=rmfield(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll,char(condsAll_fieldnames(obj.pi.mm.tab.SelectedChild)));
+                condsAll_fieldnames(obj.pi.mm.tab.SelectedChild)=[];
+                for deleteIndex_condition=1:(length(fieldnames(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll)))
+                    cond_resorted_afterdelete=['cond' num2str(deleteIndex_condition)];
+                    condsAll_new.(cond_resorted_afterdelete)=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(char(condsAll_fieldnames(deleteIndex_condition)));
+                end
+                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll=condsAll_new;
+                obj.RefreshProtocol;
+            end
+            obj.cb_cm_StimulationParametersTable;
+            
+            
+        end
+        function cb_cm_stim(obj)
+            
+            obj.pi.mm.tab.TabNames=obj.pi.mm.cond.TabNames;
+            cd=['cd' num2str(obj.pi.mm.tab.SelectedChild)];
+            condStr=['cond' num2str(obj.pi.mm.tab.SelectedChild)];
+            obj.pi.mm.stim.(cd).no=obj.pi.mm.stim.(cd).no+1;
+            st=['st' num2str(obj.pi.mm.stim.(cd).no)];
+            axes(obj.pi.mm.cond.(cd).ax)
+            hold on;
+            %             plot([-45 45],[1 1],'Color','k','parent',obj.pi.mm.ax);
+            %             plot([-45 45],[0 0],'Color','k','parent',obj.pi.mm.ax);
+            
+            
+            obj.pi.mm.stim.(cd).(st).plt=plot([-45 45],[-1*obj.pi.mm.stim.(cd).no -1*obj.pi.mm.stim.(cd).no],'Color','k','parent',obj.pi.mm.cond.(cd).ax,'LineWidth',2,'Tag',num2str(obj.pi.mm.stim.(cd).no),'ButtonDownFcn',@cb_stimulatorSelector); %line
+            %             obj.pi.mm.stim.(cd).(st).pulse_count=0;
+            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).pulse_count=0;
+            obj.pi.mm.stim.(cd).(st).plt.Tag
+            %             plot([-45 45],[-2-obj.pi.mm.stim.no -2-obj.pi.mm.stim.no],'Color','k','parent',obj.pi.mm.ax);
+            obj.pi.mm.cond.(cd).ax.YLim=[(-1-obj.pi.mm.stim.(cd).no) 1];
+            yticks(obj.pi.mm.cond.(cd).ax,[-1-obj.pi.mm.stim.(cd).no:1:1])
+            for i=1:obj.pi.mm.stim.(cd).no
+                yticklab{1,i}=cellstr(['Stimulator ' num2str(i)]);
+            end
+            yticklab=flip(horzcat(yticklab{1,:}));
+            obj.pi.mm.cond.(cd).ax.YTickLabel={'',char(yticklab),'Search Window',''};
+            text(0,-1*obj.pi.mm.stim.(cd).no,'click to tag device','VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',9,'FontAngle','italic','Tag',num2str(obj.pi.mm.stim.(cd).no),'ButtonDownFcn',@obj.cb_cm_output_device)
+            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).stim_device=cellstr('Select');
+            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).StimulationType='';
+            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt={[],[],[],[],[],[],[],[]};
+            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).IntensityUnit='';
+            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).stim_mode='single_pulse';
+            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).stim_timing=num2cell(0);
+            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).CSUnits='';
+            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).threshold='';
+            function cb_stimulatorSelector(source,~)
+                if(isfield(obj.pi.mm,'stimulatorSelector'))
+                    if(isvalid(obj.pi.mm.stimulatorSelector))
+                        obj.pi.mm.stimulatorSelector.Color='k';
+                    end
+                end
+                obj.pi.mm.stim.(cd).slctd=str2double(source.Tag);
+                source.Color='b';
+                obj.pi.mm.stimulatorSelector=source;
+            end
+            obj.cb_cm_StimulationParametersTable;
+        end
+        function cb_cm_pulse(obj,source,~)
+            % 11-Mar-2020 18:13:21
+            cd=['cd' num2str(obj.pi.mm.tab.SelectedChild)];
+            condStr=['cond' num2str(obj.pi.mm.tab.SelectedChild)];
+            
+            %             obj.pi.mm.stim.(cd).slctd=1 ;
+            
+            
+            st=['st' num2str(obj.pi.mm.stim.(cd).slctd)];
+            obj.pi.mm.stim.(cd).(st).pulse_count=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).pulse_count+1;
+            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).pulse_count=obj.pi.mm.stim.(cd).(st).pulse_count;
+            
+            switch obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).pulse_count
+                case 1
+                    obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).stim_mode=source.Tag;
+                    
+                    switch source.Tag
+                        case 'single_pulse'
+                            obj.pi.mm.stim.(cd).(st).pulse_types{1,obj.pi.mm.stim.(cd).(st).pulse_count}=cellstr('single_pulse');
+                            text(obj.pi.mm.stim.(cd).(st).pulse_count-0.25,-obj.pi.mm.stim.(cd).slctd+0.41,'       TS:[NaN] %MSO','VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',7,'FontAngle','italic','UserData',[obj.pi.mm.stim.(cd).(st).pulse_count,obj.pi.mm.stim.(cd).slctd],'ButtonDownFcn',@obj.cb_cm_sp_inputfig) % 11-Mar-2020 14:49:00
+                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si='NaN'; %only 1 SI is allowed as a standard model of generalization
+                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_units=1; %if 1 then its mso if 0 then its threshold
+                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).threshold='';
+                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).stim_mode='single_pulse';
+                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt={NaN};
+                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).stim_timing={NaN};
+                            
+                        case 'paired_pulse'
+                            obj.pi.mm.stim.(cd).(st).pulse_types{1,obj.pi.mm.stim.(cd).(st).pulse_count}=cellstr('paired_pulse');
+                            text(obj.pi.mm.stim.(cd).(st).pulse_count-0.25,-obj.pi.mm.stim.(cd).slctd+0.4,{'TS:[NaN], CS:[NaN] %MSO', 'ISI:[NaN] ms'},'VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',7,'FontAngle','italic','UserData',[obj.pi.mm.stim.(cd).(st).pulse_count,obj.pi.mm.stim.(cd).slctd],'ButtonDownFcn',@obj.cb_cm_pp_inputfig) % 11-Mar-2020 14:49:00
+                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si='NaN'; %only 1 SI is allowed as a standard model of generalization
+                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).cs='NaN'; %only 1 SI is allowed as a standard model of generalization
+                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).isi='NaN'; %only 1 SI is allowed as a standard model of generalization
+                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_units=1; %if 1 then its mso if 0 then its threshold
+                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).threshold='';
+                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).stim_mode='paired_pulse';
+                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt={NaN,NaN,NaN};
+                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).stim_timing={NaN};
+                        case 'train'
+                            obj.pi.mm.stim.(cd).(st).pulse_types{1,obj.pi.mm.stim.(cd).(st).pulse_count}=cellstr('train');
+                            obj.pi.mm.stim.(st).pulse_specs=text(obj.pi.mm.stim.(cd).(st).pulse_count,-obj.pi.mm.stim.(cd).slctd+0.4,{'Pulses:[NaN], f:[NaN] Hz', 'TS:[NaN] %MSO'},'VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',7,'FontAngle','italic','UserData',[obj.pi.mm.stim.(cd).(st).pulse_count,obj.pi.mm.stim.(cd).slctd],'ButtonDownFcn',@obj.cb_cm_train_inputfig); % 11-Mar-2020 14:49:00
+                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si='NaN'; %only 1 SI is allowed as a standard model of generalization
+                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).pulsesNo='NaN'; %only 1 SI is allowed as a standard model of generalization
+                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).freq='NaN'; %only 1 SI is allowed as a standard model of generalization
+                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_units=1; %if 1 then its mso if 0 then its threshold
+                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).threshold='';
+                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).stim_mode='train';
+                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt={NaN,NaN,NaN};
+                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).stim_timing={NaN};
+                    end
+                otherwise
+                    switch obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).stim_mode
+                        case 'single_pulse'
+                            obj.pi.mm.stim.(cd).(st).pulse_types{1,obj.pi.mm.stim.(cd).(st).pulse_count}=cellstr('single_pulse');
+                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).stim_timing(1,obj.pi.mm.stim.(cd).(st).pulse_count)={NaN};
+                            
+                            if obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_units==1
+                                UnitString='Inten. Units';
+                            elseif obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_units==0
+                                UnitString='Inten. Units';
+                            end
+                            text(obj.pi.mm.stim.(cd).(st).pulse_count-0.25,-obj.pi.mm.stim.(cd).slctd+0.41,['     TS: ' num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt{1,1}) ' ' UnitString],'VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',7,'FontAngle','italic','UserData',[obj.pi.mm.stim.(cd).(st).pulse_count,obj.pi.mm.stim.(cd).slctd],'ButtonDownFcn',@obj.cb_cm_sp_inputfig) % 11-Mar-2020 14:49:00
+                            
+                            
+                        case 'paired_pulse'
+                            obj.pi.mm.stim.(cd).(st).pulse_types{1,obj.pi.mm.stim.(cd).(st).pulse_count}=cellstr('paired_pulse');
+                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).stim_timing(1,obj.pi.mm.stim.(cd).(st).pulse_count)={NaN};
+                            TS=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt{1,1});
+                            CS=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt{1,2});
+                            ISI=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt{1,3});
+                            if obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_units==1
+                                UnitString='%MSO';
+                            elseif obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_units==0
+                                UnitString='%MT';
+                            end
+                            text(obj.pi.mm.stim.(cd).(st).pulse_count-0.25,-obj.pi.mm.stim.(cd).slctd+0.4,{['TS:' TS ', CS:' CS ' ' UnitString], ['ISI:' ISI 'ms']},'VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',7,'FontAngle','italic','UserData',[obj.pi.mm.stim.(cd).(st).pulse_count,obj.pi.mm.stim.(cd).slctd],'ButtonDownFcn',@obj.cb_cm_pp_inputfig) % 11-Mar-2020 14:49:00
+                        case 'train'
+                            obj.pi.mm.stim.(cd).(st).pulse_types{1,obj.pi.mm.stim.(cd).(st).pulse_count}=cellstr('train');
+                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).stim_timing(1,obj.pi.mm.stim.(cd).(st).pulse_count)={NaN};
+                            TS=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt{1,1});
+                            F=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt{1,2});
+                            PULSES=num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_pckt{1,3});
+                            if obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_units==1
+                                UnitString='%MSO';
+                            elseif obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).si_units==0
+                                UnitString='%MT';
+                            end
+                            obj.pi.mm.stim.(st).pulse_specs=text(obj.pi.mm.stim.(cd).(st).pulse_count,-obj.pi.mm.stim.(cd).slctd+0.4,{['Pulses:' PULSES ', f:' F 'Hz'], ['TS:' TS UnitString]},'VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',7,'FontAngle','italic','UserData',[obj.pi.mm.stim.(cd).(st).pulse_count,obj.pi.mm.stim.(cd).slctd],'ButtonDownFcn',@obj.cb_cm_train_inputfig); % 11-Mar-2020 14:49:00
+                    end
+                    
+            end
+            
+            
+            % delete the previous plot
+            delete(obj.pi.mm.stim.(cd).(st).plt)
+            % make the x and y vector for new one
+            x=[];
+            y=[];
+            for i=1:obj.pi.mm.stim.(cd).(st).pulse_count
+                switch char(obj.pi.mm.stim.(cd).(st).pulse_types{1,i})
+                    case 'single_pulse'
+                        x{i}=([i i i+0.15 i+0.15]);
+                        y{i}=[-obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd+0.4 -obj.pi.mm.stim.(cd).slctd+0.4 -obj.pi.mm.stim.(cd).slctd];
+                    case 'paired_pulse'
+                        x{i}=[i i i+0.15 i+0.15 i+0.25 i+0.25 i+0.40 i+0.40];
+                        y{i}=[-obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd+0.20 -obj.pi.mm.stim.(cd).slctd+0.20 -obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd+0.4 -obj.pi.mm.stim.(cd).slctd+0.4 -obj.pi.mm.stim.(cd).slctd];
+                    case 'train'
+                        %                         x(i)=[i i i+0.20 i+0.20 i+0.30 i+0.30 i+0.50 i+0.50 i+0.60 i+0.60 i+0.80 i+0.80];
+                        x{i}=[i i i+0.15 i+0.15 i+0.25 i+0.25 i+0.40 i+0.40 i+0.50 i+0.50 i+0.65 i+0.65];
+                        %                         y{i}={[-obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd+0.5 -obj.pi.mm.stim.(cd).slctd+0.5 -obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd -obj.pi.mm.stim.(cd).slctd+0.5 -obj.pi.mm.stim.(cd).slctd+0.5 -obj.pi.mm.stim.(cd).slctd]};
+                        
+                        y{i}=-obj.pi.mm.stim.(cd).slctd+[0 0.4 0.4 0 0 0.4 0.4 0 0 0.4 0.4 0];
+                end
+            end
+            
+            x=[-45 cell2mat(x) 45];
+            y=[-obj.pi.mm.stim.(cd).slctd cell2mat(y) -obj.pi.mm.stim.(cd).slctd];
+            
+            obj.pi.mm.stim.(cd).(st).plt=plot(x,y,'Color','k','parent',obj.pi.mm.cond.(cd).ax,'LineWidth',2,'Tag',num2str(obj.pi.mm.stim.(cd).slctd),'ButtonDownFcn',@cb_stimulatorSelector); %line
+            
+            drawArrow = @(x,y) quiver( x(1),y(1),x(2)-x(1),y(2)-y(1),0,'color','k' )
+            obj.pi.mm.stim.(st).pulse_time=text(obj.pi.mm.stim.(cd).(st).pulse_count-1+0.5,-obj.pi.mm.stim.(cd).slctd-0.05,['t:' num2str(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(condStr).(st).stim_timing{1,obj.pi.mm.stim.(cd).(st).pulse_count}) ' ms'],'VerticalAlignment','top','Color',[0.50 0.50 0.50],'FontSize',9,'FontAngle','italic','UserData',[obj.pi.mm.stim.(cd).(st).pulse_count,obj.pi.mm.stim.(cd).slctd],'ButtonDownFcn',@obj.cb_cm_timing)
+            
+            obj.pi.mm.stim.(st).pulse_arrow1=drawArrow([obj.pi.mm.stim.(cd).(st).pulse_count-1 obj.pi.mm.stim.(cd).(st).pulse_count-1+1],[-obj.pi.mm.stim.(cd).slctd-0.05 -obj.pi.mm.stim.(cd).slctd-0.05])
+            obj.pi.mm.stim.(st).pulse_arrow2=drawArrow([obj.pi.mm.stim.(cd).(st).pulse_count-1+1 obj.pi.mm.stim.(cd).(st).pulse_count-1],[-obj.pi.mm.stim.(cd).slctd-0.05 -obj.pi.mm.stim.(cd).slctd-0.05])
+            
+            
+            if(obj.pi.mm.cond.(cd).ax.XLim(2)<obj.pi.mm.stim.(cd).(st).pulse_count+1)
+                obj.pi.mm.cond.(cd).ax.XLim(2)=obj.pi.mm.stim.(cd).(st).pulse_count+1;
+            end
+            
+            
+            function cb_stimulatorSelector(source,~)
+                if(isvalid(obj.pi.mm.stimulatorSelector))
+                    obj.pi.mm.stimulatorSelector.Color='k';
+                end
+                obj.pi.mm.stim.(cd).slctd=str2double(source.Tag);
+                source.Color='b';
+                obj.pi.mm.stimulatorSelector=source;
+            end
+            obj.cb_cm_StimulationParametersTable;
+        end
+        function cb_cm_output_device(obj,source,~)
+            obj.hw.device_added1_listbox.string
+            if(isempty(obj.hw.device_added2_listbox.string))
+                errordlg('No Output Device (Stimulator) is configured before, visit Hardware Configuration section and configure a Hardware device before selecting one!', 'BEST Toolbox')
+            else
+                [indx,tf] = listdlg('PromptString',{'Select an Output Device'},'SelectionMode','single','ListString',obj.hw.device_added2_listbox.string);
+                if(tf==1)
+                    cd=['cond' num2str(obj.pi.mm.tab.SelectedChild)];
+                    st=['st' num2str(source.Tag)];
+                    obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).stim_device=obj.hw.device_added2_listbox.string(indx);
+                    source.String=obj.hw.device_added2_listbox.string(indx);
+                    obj.cb_cm_StimulationParametersTable;
+                    
+                end
+                
+            end
+        end
+        function cb_cm_timing(obj,source,~)
+            %% Creating Figure
+            f=figure('ToolBar','none','MenuBar','none','Name','Timing Onset | BEST Toolbox','NumberTitle','off','WindowStyle','modal');
+            c1=uix.VBox('parent',f,'Padding',10,'Spacing',10);
+            %% Timing Onset
+            r1=uix.HBox('parent',c1);
+            uicontrol( 'Style','text','Parent', r1,'String','Timing Onset:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+            TimingOnset=uicontrol( 'Style','edit','Parent', r1 ,'FontSize',11,'String','');
+            %% Timing Onset Units
+            r2=uix.HBox('parent',c1);
+            uicontrol( 'Style','text','Parent', r2,'String','Units/Import','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+            TimingOnsetUnits=uicontrol( 'Style','popupmenu','Parent', r2 ,'FontSize',11,'String',{'ms','Import from Protocol'},'callback',@(~,~)cb_TimingOnsetUnits);
+            %% Selecting Timing Onset
+            r6=uix.HBox('parent',c1);
+            uicontrol( 'Style','text','Parent', r6,'String','','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+            uicontrol( 'Parent', r6 ,'Style','pushbutton','String','OK','FontSize',11,'Callback',@(~,~)cb_TimingOnset);
+            %% Figure Heights and Positioning
+            set(c1, 'Heights', [25 25 25]); f.Position([3 4])=[430 120];
+            %% Callbacks
+            function cb_TimingOnset
+                source.String=['t: ', TimingOnset.String, ' ms'];
+                cd=['cond' num2str(obj.pi.mm.tab.SelectedChild)];
+                st=['st' num2str(source.UserData(2))];
+                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).stim_timing(source.UserData(1))=num2cell(str2double(TimingOnset.String));
+                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).stim_timing_units(source.UserData(1))={TimingOnsetUnits.String{TimingOnsetUnits.Value}};
+                close(f); obj.cb_cm_StimulationParametersTable;
+            end
+            function cb_TimingOnsetUnits
+                if TimingOnsetUnits.Value==2, cd=['cond' num2str(obj.pi.mm.tab.SelectedChild)];
+                    st=['st' num2str(source.UserData(2))];obj.cb_ImportERPLatency(cd,st,source.UserData(1)); end
+            end
+        end
+        function cb_cm_sp_inputfig(obj,source,~)
+            if (source.UserData(2)==1)
+                f=figure('ToolBar','none','MenuBar','none','Name','Insert Parameters | BEST Toolbox','NumberTitle','off');
+                c1=uix.VBox('parent',f,'Padding',10,'Spacing',10);
+                
+                r1=uix.HBox('parent',c1);
+                uicontrol( 'Style','text','Parent', r1,'String','Threshold Variable:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                uicontrol( 'Style','edit','Parent', r1 ,'String','TS Intensity','FontSize',11,'Enable','off');
+                set( r1, 'Widths', [210 200]);
+                
+                r1=uix.HBox('parent',c1);
+                uicontrol( 'Style','text','Parent', r1,'String','Threshold Level (mV):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                threshold_level=uicontrol( 'Style','edit','Parent', r1 ,'String','0.05','FontSize',11);
+                set( r1, 'Widths', [210 200]);
+                
+                r1=uix.HBox('parent',c1);
+                uicontrol( 'Style','text','Parent', r1,'String','Starting TS Intensity (%MSO):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                si=uicontrol( 'Style','edit','Parent', r1 ,'String','NaN','FontSize',11);
+                set( r1, 'Widths', [210 200]);
+                
+                uicontrol( 'Parent', c1 ,'Style','PushButton','String','OK','FontWeight','Bold','Callback',@(~,~)cb_ok);
+                
+                set(c1, 'Heights', [25 25 25 25])
+                f.Position(3)=430;
+                f.Position(4)=150;
+            else
+                f=figure('ToolBar','none','MenuBar','none','Name','Insert Parameters | BEST Toolbox','NumberTitle','off');
+                c1=uix.VBox('parent',f,'Padding',10,'Spacing',10);
+                r1=uix.HBox('parent',c1);
+                uicontrol( 'Style','text','Parent', r1,'String','Stimulation Intensities:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                si=uicontrol( 'Style','edit','Parent', r1 ,'String','NaN','FontSize',11);
+                set( r1, 'Widths', [210 200]);
+                
+                r2=uix.HBox('parent',c1);
+                uicontrol( 'Style','text','Parent', r2,'String','Intensity Units:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                units_mso=uicontrol( 'Style','radiobutton','Parent', r2 ,'FontSize',11,'String','%MSO','Value',1,'Callback',@(~,~)cb_units_mso);
+                units_mt=uicontrol( 'Style','radiobutton','Parent', r2 ,'FontSize',11,'String','%MT','Callback',@(~,~)cb_units_mt);
+                set( r2, 'Widths', [210 100 100]);
+                
+                r3=uix.HBox('parent',c1);
+                uicontrol( 'Style','text','Parent', r3,'String','Motor Threshold (%MSO):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                MotorThreshold=uicontrol( 'Style','edit','Parent', r3 ,'FontSize',11);
+                uiextras.HBox('Parent',r3)
+                ImportMotorThresholdFromProtocols=uicontrol( 'Style','popupmenu','Parent', r3 ,'FontSize',11,'String',{'Select'},'Callback',@setMotorThreshold);     % 11-Mar-2020 14:48:46                                                                  % 1297
+                ImportMotorThresholdFromProtocols.String=getMotorThresholdProtocols;
+                set( r3, 'Widths', [210 80 20 100]);
+                
+                
+                uicontrol( 'Parent', c1 ,'Style','PushButton','String','OK','FontWeight','Bold','Callback',@(~,~)cb_ok);
+                
+                set(c1, 'Heights', [25 25 25 25])
+                f.Position(3)=430;
+                f.Position(4)=150;
+            end
+            function cb_ok
+                source.String=['TS:' si.String ' %MSO']; % 11-Mar-2020 14:48:28
+                cd=['cond' num2str(obj.pi.mm.tab.SelectedChild)];
+                st=['st' num2str(source.UserData(2))];
+                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).si=si.String; %only 1 SI is allowed as a standard model of generalization
+                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).si_units=1; %if 1 then its mso if 0 then its threshold
+                try
+                    obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).threshold=MotorThreshold.String;
+                catch
+                    obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).threshold='';
+                end
+                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).stim_mode='single_pulse';
+                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).si_pckt={str2double(si.String)};
+                if (source.UserData(2)==1)
+                    obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).threshold_level=str2double(threshold_level.String);
+                end
+                obj.cb_cm_StimulationParametersTable;
+                close(f)
+            end
+            function cb_units_mso
+                if(units_mso.Value==1)
+                    units_mt.Value=0;
+                end
+            end
+            function cb_units_mt
+                if(units_mt.Value==1)
+                    units_mso.Value=0;
+                end
+            end
+            function MotorThresholdProtocols=getMotorThresholdProtocols
+                mt_btn_listbox_str_id= find(strcmp(obj.data.(obj.info.event.current_session).info.measurement_str_original,'MEP Motor Threshold Hunting'));
+                MotorThresholdProtocols=obj.data.(obj.info.event.current_session).info.measurement_str_to_listbox(mt_btn_listbox_str_id);
+                if isempty(MotorThresholdProtocols)
+                    MotorThresholdProtocols={'Select'};
+                end
+            end
+            function setMotorThreshold(Thissource,~)
+                cd=['cond' num2str(obj.pi.mm.tab.SelectedChild)];
+                st=['st' num2str(source.UserData(2))];
+                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).ImportMotorThresholdFromProtocol=regexprep((Thissource.String{Thissource.Value}),' ','_');
+                ImportMotorThresholdFromProtocol=regexprep((Thissource.String{Thissource.Value}),' ','_');
+                if ~strcmpi(Thissource.String,'Select')
+                    TargetConditions=numel(fieldnames(obj.par.(obj.info.event.current_session).(ImportMotorThresholdFromProtocol).condsAll));
+                    if TargetConditions>1
+                        for condtn=1:TargetConditions
+                            cdd=['cond' num2str(condtn)];
+                            TargetChannelforThreshold=obj.par.(obj.info.event.current_session).(ImportMotorThresholdFromProtocol).condsAll.(cdd).targetChannel{1};
+                            AllConditions{condtn}=TargetChannelforThreshold;
+                        end
+                        [indx,tf] = listdlg('PromptString',{'Multiple Target Channels were found in your selection','Select one Target Channel.',''},'SelectionMode','single','ListString',AllConditions);
+                        if tf==1
+                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).ImportMotorThresholdFromChannel=AllConditions{indx};
+                            ImportMotorThresholdFromChannel=AllConditions{indx};
+                        elseif tf==0
+                            obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).ImportMotorThresholdFromChannel=AllConditions{1};
+                            ImportMotorThresholdFromChannel=AllConditions{1};
+                        end
+                    else
+                        ImportMotorThresholdFromChannel=obj.par.(obj.info.event.current_session).(ImportMotorThresholdFromProtocol).condsAll.cond1.targetChannel{1};
+                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).ImportMotorThresholdFromChannel=ImportMotorThresholdFromChannel;
+                    end
+                    try
+                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).threshold=obj.bst.sessions.(obj.info.event.current_session).(ImportMotorThresholdFromProtocol).results.(ImportMotorThresholdFromChannel).MotorThreshold;
+                    catch
+                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).threshold='Not Found';
+                    end
+                    MotorThreshold.String=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).threshold;
+                end
+            end
+        end
+        function cb_cm_pp_inputfig(obj,source,~)
+            if (source.UserData(2)==1)
+                f=figure('ToolBar','none','MenuBar','none','Name','Insert Parameters | BEST Toolbox','NumberTitle','off');
+                c1=uix.VBox('parent',f,'Padding',10,'Spacing',10);
+                
+                r1=uix.HBox('parent',c1);
+                uicontrol( 'Style','text','Parent', r1,'String','Threshold Variable:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                uicontrol( 'Style','edit','Parent', r1 ,'String','TS Intensity','FontSize',11,'Enable','off');
+                set( r1, 'Widths', [250 200]);
+                
+                r1=uix.HBox('parent',c1);
+                uicontrol( 'Style','text','Parent', r1,'String','Threshold Level (mV):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                uicontrol( 'Style','edit','Parent', r1 ,'String','0.05','FontSize',11);
+                set( r1, 'Widths', [250 200]);
+                
+                r1=uix.HBox('parent',c1);
+                uicontrol( 'Style','text','Parent', r1,'String','Starting TS Intensity:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                si=uicontrol( 'Style','edit','Parent', r1 ,'String','NaN','FontSize',11);
+                set( r1, 'Widths', [250 200]);
+                
+                r2a=uix.HBox('parent',c1);
+                uicontrol( 'Style','text','Parent', r2a,'String','Condition Stimulus (CS) Intensity:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                cs=uicontrol( 'Style','edit','Parent', r2a ,'String','NaN','FontSize',11);
+                set( r2a, 'Widths', [250 200]);
+                
+                r2b=uix.HBox('parent',c1);
+                uicontrol( 'Style','text','Parent', r2b,'String','Inter Stimulus Interval (ms):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                isi=uicontrol( 'Style','edit','Parent', r2b ,'String','NaN','FontSize',11);
+                set( r2b, 'Widths', [250 200]);
+                
+                uicontrol( 'Parent', c1 ,'Style','PushButton','String','OK','FontWeight','Bold','Callback',@(~,~)cb_ok);
+                
+                set(c1, 'Heights', [25 25 25 25 25 25])
+                f.Position(3)=480;
+                f.Position(4)=220;
+            else
+                f=figure('ToolBar','none','MenuBar','none','Name','Insert Parameters | BEST Toolbox','NumberTitle','off');
+                c1=uix.VBox('parent',f,'Padding',10,'Spacing',10);
+                r1=uix.HBox('parent',c1);
+                uicontrol( 'Style','text','Parent', r1,'String','Test Stimulus Intensity (TS):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                si=uicontrol( 'Style','edit','Parent', r1 ,'String','NaN','FontSize',11);
+                set( r1, 'Widths', [250 200]);
+                
+                r2a=uix.HBox('parent',c1);
+                uicontrol( 'Style','text','Parent', r2a,'String','Condition Stimulus Intensity (CS):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                cs=uicontrol( 'Style','edit','Parent', r2a ,'String','NaN','FontSize',11);
+                set( r2a, 'Widths', [250 200]);
+                
+                r2b=uix.HBox('parent',c1);
+                uicontrol( 'Style','text','Parent', r2b,'String','Inter Stimulus Interval (ms):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                isi=uicontrol( 'Style','edit','Parent', r2b ,'String','NaN','FontSize',11);
+                set( r2b, 'Widths', [250 200]);
+                
+                r2=uix.HBox('parent',c1);
+                uicontrol( 'Style','text','Parent', r2,'String','Intensity Units:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                units_mso=uicontrol( 'Style','radiobutton','Parent', r2 ,'FontSize',11,'String','%MSO','Value',1,'Callback',@(~,~)cb_units_mso);
+                units_mt=uicontrol( 'Style','radiobutton','Parent', r2 ,'FontSize',11,'String','%MT','Callback',@(~,~)cb_units_mt);
+                set( r2, 'Widths', [250 100 100]);
+                
+                r3=uix.HBox('parent',c1);
+                uicontrol( 'Style','text','Parent', r3,'String','Motor Threshold (%MSO):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                threshold=uicontrol( 'Style','edit','Parent', r3 ,'FontSize',11);
+                mt_btn_listbox_str_id= find(strcmp(obj.data.(obj.info.event.current_session).info.measurement_str_original,'MEP Motor Threshold Hunting'));
+                mt_btn_listbox_str=obj.data.(obj.info.event.current_session).info.measurement_str_to_listbox(mt_btn_listbox_str_id);
+                mt_btn_listbox_str=['Select' mt_btn_listbox_str];
+                uiextras.HBox('Parent',r3)
+                th_dropdown=uicontrol( 'Style','popupmenu','Parent', r3 ,'FontSize',11,'String',mt_btn_listbox_str);     % 11-Mar-2020 14:48:46                                                                  % 1297
+                set( r3, 'Widths', [250 80 20 100]);
+                
+                
+                uicontrol( 'Parent', c1 ,'Style','PushButton','String','OK','FontWeight','Bold','Callback',@(~,~)cb_ok);
+                
+                set(c1, 'Heights', [25 25 25 25 25 25])
+                f.Position(3)=480;
+                f.Position(4)=220;
+            end
+            function cb_ok
+                
+                % source.String={['TS:' char(si.String) ']'];['CS:[' char(cs.String) '] %MSO'];['ISI:[' char(isi.String) '] ms']} % 11-Mar-2020 14:48:28
+                
+                
+                source.String={['TS:' char(si.String)];['CS:' char(cs.String) ' %MSO'];['ISI:' char(isi.String) ' ms']} % 11-Mar-2020 14:48:28
+                
+                %                 source.String=['TS:[' si.String '] %MSO']; % 11-Mar-2020 14:48:28
+                cd=['cond' num2str(obj.pi.mm.tab.SelectedChild)];
+                st=['st' num2str(source.UserData(2))];
+                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).si=si.String;
+                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).cs=cs.String;
+                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).isi=isi.String;
+                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).si_units=units_mso.Value; %if 1 then its mso if 0 then its threshold
+                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).threshold=threshold.String;
+                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).stim_mode='paired_pulse';
+                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).si_pckt={str2double(si.String),str2double(cs.String),str2double(isi.String)};
+                obj.cb_cm_StimulationParametersTable;
+                
+                close(f)
+            end
+            function cb_units_mso
+                if(units_mso.Value==1)
+                    units_mt.Value=0;
+                end
+            end
+            function cb_units_mt
+                if(units_mt.Value==1)
+                    units_mso.Value=0;
+                end
+            end
+        end
+        function cb_cm_train_inputfig(obj,source,~)
+            f=figure('ToolBar','none','MenuBar','none','Name','Insert Parameters | BEST Toolbox','NumberTitle','off');
+            c1=uix.VBox('parent',f,'Padding',10,'Spacing',10);
+            r1=uix.HBox('parent',c1);
+            uicontrol( 'Style','text','Parent', r1,'String','Stimulation Intensities (TS):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+            si=uicontrol( 'Style','edit','Parent', r1 ,'String','NaN','FontSize',11);
+            set( r1, 'Widths', [250 200]);
+            
+            r2a=uix.HBox('parent',c1);
+            uicontrol( 'Style','text','Parent', r2a,'String','Pulse Frequency (Hz):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+            freq=uicontrol( 'Style','edit','Parent', r2a ,'String','NaN','FontSize',11);
+            set( r2a, 'Widths', [250 200]);
+            
+            r2b=uix.HBox('parent',c1);
+            uicontrol( 'Style','text','Parent', r2b,'String','No of Pulses:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+            pulsesNo=uicontrol( 'Style','edit','Parent', r2b ,'String','NaN','FontSize',11);
+            set( r2b, 'Widths', [250 200]);
+            
+            r2=uix.HBox('parent',c1);
+            uicontrol( 'Style','text','Parent', r2,'String','Intensity Units:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+            units_mso=uicontrol( 'Style','radiobutton','Parent', r2 ,'FontSize',11,'String','%MSO','Value',1,'Callback',@(~,~)cb_units_mso);
+            units_mt=uicontrol( 'Style','radiobutton','Parent', r2 ,'FontSize',11,'String','%MT','Callback',@(~,~)cb_units_mt);
+            set( r2, 'Widths', [250 100 100]);
+            
+            r3=uix.HBox('parent',c1);
+            uicontrol( 'Style','text','Parent', r3,'String','Motor Threshold (%MSO):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+            threshold=uicontrol( 'Style','edit','Parent', r3 ,'FontSize',11);
+            mt_btn_listbox_str_id= find(strcmp(obj.data.(obj.info.event.current_session).info.measurement_str_original,'MEP Motor Threshold Hunting'));
+            mt_btn_listbox_str=obj.data.(obj.info.event.current_session).info.measurement_str_to_listbox(mt_btn_listbox_str_id);
+            mt_btn_listbox_str=['Select' mt_btn_listbox_str];
+            uiextras.HBox('Parent',r3)
+            th_dropdown=uicontrol( 'Style','popupmenu','Parent', r3 ,'FontSize',11,'String',mt_btn_listbox_str);     % 11-Mar-2020 14:48:46                                                                  % 1297
+            set( r3, 'Widths', [250 80 20 100]);
+            
+            
+            uicontrol( 'Parent', c1 ,'Style','PushButton','String','OK','FontWeight','Bold','Callback',@(~,~)cb_ok);
+            
+            set(c1, 'Heights', [25 25 25 25 25 25])
+            f.Position(3)=480;
+            f.Position(4)=220;
+            function cb_ok
+                
+                
+                
+                source.String={['Pulses:' char(pulsesNo.String) ', f:' char(freq.String) ' Hz'];['TS:' char(si.String) ' %MSO']}; % 11-Mar-2020 14:48:28
+                
+                cd=['cond' num2str(obj.pi.mm.tab.SelectedChild)];
+                st=['st' num2str(source.UserData(2))];
+                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).si=si.String;
+                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).freq=freq.String;
+                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).pulsesNo=pulsesNo.String;
+                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).si_units=units_mso.Value; %if 1 then its mso if 0 then its threshold
+                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).threshold=threshold.String;
+                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).stim_mode='train';
+                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).(st).si_pckt={str2double(si.String),str2double(freq.String),str2double(pulsesNo.String)}
+                obj.cb_cm_StimulationParametersTable;
+                
+                close(f)
+            end
+            function cb_units_mso
+                if(units_mso.Value==1)
+                    units_mt.Value=0;
+                end
+            end
+            function cb_units_mt
+                if(units_mt.Value==1)
+                    units_mso.Value=0;
+                end
+            end
+            
+        end
+        function cb_cm_targetChannel(obj,source,~)
+            f=figure('ToolBar','none','MenuBar','none','Name','Insert Parameters | BEST Toolbox','NumberTitle','off');
+            c1=uix.VBox('parent',f,'Padding',10,'Spacing',10);
+            
+            
+            
+            r1=uix.HBox('parent',c1);
+            uicontrol( 'Style','text','Parent', r1,'String','Target Channels:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+            targetChannels=uicontrol( 'Style','edit','Parent', r1 ,'FontSize',11);
+            set( r1, 'Widths', [250 200]);
+            
+            
+            uicontrol( 'Parent', c1 ,'Style','PushButton','String','OK','FontWeight','Bold','Callback',@(~,~)cb_ok);
+            
+            set(c1, 'Heights', [25 25])
+            f.Position(3)=480;
+            f.Position(4)=90;
+            function cb_ok
+                source.String=['Channel Name:' targetChannels.String]; % 11-Mar-2020 14:48:28
+                
+                %                 source.String=['Channels:' targetChannels.String ' ' displayChannels.String , 'Pre/Post Display Period:' prestim_scope_plt.String '-' poststim_scope_plt.String 'ms']; % 11-Mar-2020 14:48:28
+                cd=['cond' num2str(obj.pi.mm.tab.SelectedChild)];
+                % 12-Mar-2020 08:53:28
+                %                 obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(cd).inputDevice.input_device=inputDevice.String(inputDevice.Value);
+                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(cd).targetChannel=eval(targetChannels.String);
+                %                 obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(cd).inputDevice.displayChannels=eval(displayChannels.String);
+                %                 obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(cd).inputDevice.mepOnset=mepOnset.String;
+                %                 obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(cd).inputDevice.mepOffset=mepOffset.Value; %if 1 then its mso if 0 then its threshold
+                %                 obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(cd).inputDevice.prestim_scope_plt=prestim_scope_plt.String;
+                %                 obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(cd).inputDevice.poststim_scope_plt=poststim_scope_plt.String;
+                %                 obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).(cd).inputDevice.measure_str='MEP Measurement';
+                obj.cb_cm_StimulationParametersTable;
+                
+                close(f)
+            end
+            
+        end
+        function cb_CoupleIntensityUnits(obj,AdditionInCondition,AdditionInStimulator)
+            %% Making Buffer
+            if ~isfield(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator),'CoupleIntensityUnits')
+                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).CoupleIntensityUnits=struct;
+                Session=obj.pmd.lb_sessions.listbox.String;
+                Protocol=obj.pmd.lb_measures.listbox.String;
+                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).CoupleIntensityUnits.Session=Session{1,1};
+                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).CoupleIntensityUnits.Protocol=Protocol{1,1};
+                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).CoupleIntensityUnits.Parameter='';
+                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).CoupleIntensityUnits.Channel='';
+                Parameter={''};
+                Channel={''};
+                Value='Not Available';
+            else
+                Session={obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).CoupleIntensityUnits.Session};
+                Protocol={obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).CoupleIntensityUnits.Protocol};
+                Parameter={obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).CoupleIntensityUnits.Parameter};
+                Channel={obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).CoupleIntensityUnits.Channel};
+                Value='Not Available';
+                %                 Value=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).CoupleIntensityUnits.Value;
+            end
+            f=figure('ToolBar','none','MenuBar','none','Name','Intensity Units | BEST Toolbox','NumberTitle','off','WindowStyle','modal');
+            c1=uix.VBox('parent',f,'Padding',10,'Spacing',10);
+            %% Select Session - showing all available sessions
+            r1=uix.HBox('parent',c1);
+            uicontrol( 'Style','text','Parent', r1,'String','Select Session:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+            SessionList=uicontrol( 'Style','popupmenu','Parent', r1 ,'FontSize',11,'String',Session,'callback',@SessionSelected);
+            %% Select Protocols - showing all available protocols
+            % Implications: when the protocol is renamed or suffixed, how to handle that?
+            r2=uix.HBox('parent',c1);
+            uicontrol( 'Style','text','Parent', r2,'String','Select Protocol:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+            ProtocolList=uicontrol( 'Style','popupmenu','Parent', r2 ,'FontSize',11,'String',Protocol,'callback',@ProtocolSelected);
+            %% Select Parameter - protocol selection, prefill relevant Parameters
+            r3=uix.HBox('parent',c1);
+            uicontrol( 'Style','text','Parent', r3,'String','Select Parameter:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+            ProtocolsParameters=uicontrol( 'Parent', r3 ,'Style','popupmenu','FontSize',11,'String',Parameter,'Callback',@ParameterSelected);
+            %% Select Channel
+            r4=uix.HBox('parent',c1);
+            uicontrol( 'Style','text','Parent', r4,'String','Select Channel:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+            SelectedChannel=uicontrol( 'Parent', r4 ,'Style','popupmenu','FontSize',11,'String',Channel,'Callback',@ChannelSelected);
+            %% Annotating Value
+            r5=uix.HBox('parent',c1);
+            uicontrol( 'Style','text','Parent', r5,'String','Selected Value:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+            Value=uicontrol( 'Parent', r5 ,'Style','text','FontSize',11,'String',Value);
+            %% Reset Coupling
+            r6=uix.HBox('parent',c1);
+            uicontrol( 'Style','text','Parent', r6,'String','','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+            uicontrol( 'Parent', r6 ,'Style','pushbutton','String','Reset','FontSize',11,'FontWeight','Bold','Callback',@(~,~)ResetCoupling);
+            %% Figure Heights and Positioning
+            set(c1, 'Heights', [25 25 25 25 25 25])
+            f.Position(3)=430;
+            f.Position(4)=225;
+            %% Callbacks
+            function SessionSelected(source,~)
+                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).CoupleIntensityUnits.Session=regexprep((obj.pmd.lb_sessions.listbox.String{source.Value}),' ','_');
+                sess=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).CoupleIntensityUnits.Session;
+                % obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).CoupleIntensityUnits.Protocol=regexprep((obj.pmd.lb_measures.listbox.String{source.Value}),' ','_');
+                ProtocolList.String=obj.data.(sess).info.measurement_str_to_listbox;
+                ProtocolsParameters.String={''};
+                SelectedChannel.String={''};
+            end
+            function ProtocolSelected(source,~)
+                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).CoupleIntensityUnits.Protocol=regexprep((ProtocolList.String{source.Value}),' ','_');
+                sess=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).CoupleIntensityUnits.Session;
+                prtcl=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).CoupleIntensityUnits.Protocol;
+                switch obj.par.(sess).(prtcl).Protocol{1,1}
+                    case 'Motor Threshold Hunting Protocol' %Motor Thresholds + Channels
+                        ProtocolsParameters.String={'Motor Threshold'};
+                        for TargetChannels=1:numel(fieldnames(obj.par.(sess).(prtcl).condsAll))
+                            cond=['cond' num2str(TargetChannels)];
+                            SelectedChannel.String{1,TargetChannels}=obj.par.(sess).(prtcl).condsAll.(cond).targetChannel{1,1};
+                        end
+                    case 'MEP Dose Response Curve Protocol' %Inflection Point, Plateau, Threshold, Inhibition, Faciliation + Channels
+                        ProtocolsParameters.String={'Inflection Point', 'Inhibition', 'Facilitation', 'Plateau'};
+                        SelectedChannel.String=eval(obj.par.(sess).(prtcl).EMGTargetChannels);
+                    case 'Psychometric Threshold Hunting Protocol' % Sensory Thresholds + Channels
+                        ProtocolsParameters.String={'Sensory Threshold'};
+                        for TargetChannels=1:numel(fieldnames(obj.par.(sess).(prtcl).condsAll))
+                            cond=['cond' num2str(TargetChannels)];
+                            SelectedChannel.String{1,TargetChannels}=obj.par.(sess).(prtcl).condsAll.(cond).targetChannel{1,1};
+                        end
+                end
+                try
+                    obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).CoupleIntensityUnits.Parameter=ProtocolsParameters.String{1,1};
+                catch
+                    obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).CoupleIntensityUnits.Parameter='';
+                end
+                try
+                    obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).CoupleIntensityUnits.Channel=SelectedChannel.String{1,1};
+                catch
+                    obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).CoupleIntensityUnits.Channel='';
+                end
+            end
+            function ParameterSelected(source,~)
+                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).CoupleIntensityUnits.Parameter=ProtocolsParameters.String{source.Value};
+            end
+            function ChannelSelected(source,~)
+                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).CoupleIntensityUnits.Channel=SelectedChannel.String{source.Value};
+            end
+            function ResetCoupling
+                close(f)
+                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator)=rmfield(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator),'CoupleIntensityUnits');
+                obj.cb_CoupleIntensityUnits(AdditionInCondition,AdditionInStimulator);
+            end
+            function ValueExtraction
+            end
+        end
+        function cb_ImportPeakFrequency (obj,source,~)
+            switch source.Value
+                case 1
+                    obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).ImportPeakFrequencyFromProtocols=1;
+                case 2
+                    obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).ImportPeakFrequencyFromProtocols=2;
+                    %% Making Buffer
+                    if ~isfield(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr),'ImportPeakFrequency')
+                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).ImportPeakFrequency=struct;
+                        Session=obj.pmd.lb_sessions.listbox.String;
+                        Protocol=obj.pmd.lb_measures.listbox.String;
+                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).ImportPeakFrequency.Session=Session{1,1};
+                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).ImportPeakFrequency.Protocol=Protocol{1,1};
+                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).ImportPeakFrequency.Parameter='';
+                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).ImportPeakFrequency.Channel='';
+                        Parameter={''};
+                        Channel={''};
+                        Value='Not Available';
+                    else
+                        Session={obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).ImportPeakFrequency.Session};
+                        Protocol={obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).ImportPeakFrequency.Protocol};
+                        Parameter={obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).ImportPeakFrequency.Parameter};
+                        Channel={obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).ImportPeakFrequency.Channel};
+                        Value='Not Available';
+                        %                 Value=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).ImportPeakFrequency.Value;
+                    end
+                    f=figure('ToolBar','none','MenuBar','none','Name','Import Peak Frequency | BEST Toolbox','NumberTitle','off','WindowStyle','modal');
+                    c1=uix.VBox('parent',f,'Padding',10,'Spacing',10);
+                    %% Select Session - showing all available sessions
+                    r1=uix.HBox('parent',c1);
+                    uicontrol( 'Style','text','Parent', r1,'String','Select Session:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                    SessionList=uicontrol( 'Style','popupmenu','Parent', r1 ,'FontSize',11,'String',Session,'callback',@SessionSelected);
+                    %% Select Protocols - showing all available protocols
+                    % Implications: when the protocol is renamed or suffixed, how to handle that?
+                    r2=uix.HBox('parent',c1);
+                    uicontrol( 'Style','text','Parent', r2,'String','Select Protocol:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                    ProtocolList=uicontrol( 'Style','popupmenu','Parent', r2 ,'FontSize',11,'String',Protocol,'callback',@ProtocolSelected);
+                    %% Select Parameter - protocol selection, prefill relevant Parameters
+                    r3=uix.HBox('parent',c1);
+                    uicontrol( 'Style','text','Parent', r3,'String','Select Parameter:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                    ProtocolsParameters=uicontrol( 'Parent', r3 ,'Style','popupmenu','FontSize',11,'String',Parameter,'Callback',@ParameterSelected);
+                    %% Select Channel
+                    r4=uix.HBox('parent',c1);
+                    uicontrol( 'Style','text','Parent', r4,'String','Select Channel:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                    SelectedChannel=uicontrol( 'Parent', r4 ,'Style','popupmenu','FontSize',11,'String',Channel,'Callback',@ChannelSelected);
+                    %% Annotating Value
+                    r5=uix.HBox('parent',c1);
+                    uicontrol( 'Style','text','Parent', r5,'String','Selected Value:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                    Value=uicontrol( 'Parent', r5 ,'Style','text','FontSize',11,'String',Value);
+                    %% Reset Coupling
+                    r6=uix.HBox('parent',c1);
+                    uicontrol( 'Style','text','Parent', r6,'String','','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                    uicontrol( 'Parent', r6 ,'Style','pushbutton','String','Reset','FontSize',11,'FontWeight','Bold','Callback',@(~,~)ResetCoupling);
+                    %% Figure Heights and Positioning
+                    set(c1, 'Heights', [25 25 25 25 25 25])
+                    f.Position(3)=430;
+                    f.Position(4)=225;
+            end
+            %% Callbacks
+            function SessionSelected(source,~)
+                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).ImportPeakFrequency.Session=regexprep((obj.pmd.lb_sessions.listbox.String{source.Value}),' ','_');
+                sess=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).ImportPeakFrequency.Session;
+                % obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).ImportPeakFrequency.Protocol=regexprep((obj.pmd.lb_measures.listbox.String{source.Value}),' ','_');
+                ProtocolList.String=obj.data.(sess).info.measurement_str_to_listbox;
+                ProtocolsParameters.String={''};
+                SelectedChannel.String={''};
+            end
+            function ProtocolSelected(source,~)
+                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).ImportPeakFrequency.Protocol=regexprep((obj.pmd.lb_measures.listbox.String{source.Value}),' ','_');
+                sess=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).ImportPeakFrequency.Session;
+                prtcl=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).ImportPeakFrequency.Protocol;
+                switch obj.par.(sess).(prtcl).Protocol{1,1}
+                    case 'rs EEG Measurement Protocol' %Peak Frequency
+                        ProtocolsParameters.String={'Peak Frequency (Hz)'};
+                        MontageChannels=eval(obj.par.(sess).(prtcl).MontageChannels);
+                        for TargetChannels=1:numel(MontageChannels)
+                            SelectedChannel.String{1,TargetChannels}=erase(char(join(MontageChannels{TargetChannels})),' ');
+                        end
+                end
+                try
+                    obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).ImportPeakFrequency.Parameter=ProtocolsParameters.String{1,1};
+                catch
+                    obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).ImportPeakFrequency.Parameter='';
+                end
+                try
+                    obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).ImportPeakFrequency.Channel=SelectedChannel.String{1,1};
+                catch
+                    obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).ImportPeakFrequency.Channel='';
+                end
+            end
+            function ParameterSelected(source,~)
+                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).ImportPeakFrequency.Parameter=ProtocolsParameters.String{source.Value};
+            end
+            function ChannelSelected(source,~)
+                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).ImportPeakFrequency.Channel=SelectedChannel.String{source.Value};
+            end
+            function ResetCoupling
+                close(f)
+                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr)=rmfield(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr),'ImportPeakFrequency');
+                obj.cb_ImportPeakFrequency(AdditionInCondition,AdditionInStimulator);
+            end
+            function ValueExtraction
+            end
+            
+        end
+        function cb_ImportERPLatency (obj,Condition,Stimulator,Pulse)
+            %% Making Buffer
+            AdditionInCondition=Condition;
+            AdditionInStimulator=Stimulator;
+            AdditionInPulse=['pulse_' num2str(Pulse)];
+            if ~isfield(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator),'ImportERPLatency')
+                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).ImportERPLatency.(AdditionInPulse)=struct;
+                Session=obj.pmd.lb_sessions.listbox.String;
+                Protocol=obj.pmd.lb_measures.listbox.String;
+                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).ImportERPLatency.(AdditionInPulse).Session=Session{1,1};
+                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).ImportERPLatency.(AdditionInPulse).Protocol=Protocol{1,1};
+                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).ImportERPLatency.(AdditionInPulse).Parameter='';
+                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).ImportERPLatency.(AdditionInPulse).Channel='';
+                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).ImportERPLatency.(AdditionInPulse).Condition='';
+                Parameter={''};
+                Channel={''};
+                AvailableConditions={''};
+                Value='Not Available';
+            else
+                Session={obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).ImportERPLatency.(AdditionInPulse).Session};
+                Protocol={obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).ImportERPLatency.(AdditionInPulse).Protocol};
+                Parameter={obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).ImportERPLatency.(AdditionInPulse).Parameter};
+                Channel={obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).ImportERPLatency.(AdditionInPulse).Channel};
+                AvailableConditions={obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).ImportERPLatency.(AdditionInPulse).Condition};
+                Value='Not Available';
+                %                 Value=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).ImportERPLatency.(AdditionInPulse).Value;
+            end
+            f=figure('ToolBar','none','MenuBar','none','Name','Import Timing Onset | BEST Toolbox','NumberTitle','off','WindowStyle','modal');
+            c1=uix.VBox('parent',f,'Padding',10,'Spacing',10);
+            %% Select Session - showing all available sessions
+            r1=uix.HBox('parent',c1);
+            uicontrol( 'Style','text','Parent', r1,'String','Select Session:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+            SessionList=uicontrol( 'Style','popupmenu','Parent', r1 ,'FontSize',11,'String',Session,'callback',@SessionSelected);
+            %% Select Protocols - showing all available protocols
+            % Implications: when the protocol is renamed or suffixed, how to handle that?
+            r2=uix.HBox('parent',c1);
+            uicontrol( 'Style','text','Parent', r2,'String','Select Protocol:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+            ProtocolList=uicontrol( 'Style','popupmenu','Parent', r2 ,'FontSize',11,'String',Protocol,'callback',@ProtocolSelected);
+            %% Select Parameter - protocol selection, prefill relevant Parameters
+            r3=uix.HBox('parent',c1);
+            uicontrol( 'Style','text','Parent', r3,'String','Select Parameter:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+            ProtocolsParameters=uicontrol( 'Parent', r3 ,'Style','popupmenu','FontSize',11,'String',Parameter,'Callback',@ParameterSelected);
+            %% Select Channel
+            r4=uix.HBox('parent',c1);
+            uicontrol( 'Style','text','Parent', r4,'String','Select Channel:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+            SelectedChannel=uicontrol( 'Parent', r4 ,'Style','popupmenu','FontSize',11,'String',Channel,'Callback',@ChannelSelected);
+            %% Select Condition
+            r4=uix.HBox('parent',c1);
+            uicontrol( 'Style','text','Parent', r4,'String','Select Condition:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+            SelectedCondition=uicontrol( 'Parent', r4 ,'Style','popupmenu','FontSize',11,'String',AvailableConditions,'Callback',@ConditionSelected);
+            %% Annotating Value
+            r5=uix.HBox('parent',c1);
+            uicontrol( 'Style','text','Parent', r5,'String','Selected Value:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+            Value=uicontrol( 'Parent', r5 ,'Style','text','FontSize',11,'String',Value);
+            %% Reset Coupling
+            r6=uix.HBox('parent',c1);
+            uicontrol( 'Style','text','Parent', r6,'String','','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+            uicontrol( 'Parent', r6 ,'Style','pushbutton','String','Reset','FontSize',11,'FontWeight','Bold','Callback',@(~,~)ResetCoupling);
+            %% Figure Heights and Positioning
+            set(c1, 'Heights', [25 25 25 25 25 25 25])
+            f.Position(3)=430;
+            f.Position(4)=250;
+            %% Callbacks
+            function SessionSelected(source,~)
+                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).ImportERPLatency.(AdditionInPulse).Session=regexprep((obj.pmd.lb_sessions.listbox.String{source.Value}),' ','_');
+                sess=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).ImportERPLatency.(AdditionInPulse).Session;
+                % obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).ImportERPLatency.(AdditionInPulse).Protocol=regexprep((obj.pmd.lb_measures.listbox.String{source.Value}),' ','_');
+                ProtocolList.String=obj.data.(sess).info.measurement_str_to_listbox;
+                ProtocolsParameters.String={''};
+                SelectedChannel.String={''};
+                SelectedCondition.String={''};
+            end
+            function ProtocolSelected(source,~)
+                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).ImportERPLatency.(AdditionInPulse).Protocol=regexprep((obj.pmd.lb_measures.listbox.String{source.Value}),' ','_');
+                sess=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).ImportERPLatency.(AdditionInPulse).Session;
+                prtcl=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).ImportERPLatency.(AdditionInPulse).Protocol;
+                switch obj.par.(sess).(prtcl).Protocol{1,1}
+                    case 'ERP Measurement Protocol' %Motor Thresholds + Channels
+                        ProtocolsParameters.String={'ERP Latency (ms)'};
+                        MontageChannels=eval(obj.par.(sess).(prtcl).MontageChannels);
+                        for TargetChannels=1:numel(MontageChannels)
+                            SelectedChannel.String{1,TargetChannels}=erase(char(join(MontageChannels{TargetChannels})),' ');
+                        end
+                        for ii=1:numel(fieldnames(obj.par.(sess).(prtcl).condsAll))
+                            SelectedCondition.String{ii}=['Condition' num2str(ii)];
+                        end
+                end
+                try
+                    obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).ImportERPLatency.(AdditionInPulse).Parameter=ProtocolsParameters.String{1,1};
+                catch
+                    obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).ImportERPLatency.(AdditionInPulse).Parameter='';
+                end
+                try
+                    obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).ImportERPLatency.(AdditionInPulse).Channel=SelectedChannel.String{1,1};
+                catch
+                    obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).ImportERPLatency.(AdditionInPulse).Channel='';
+                end
+                try
+                    obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).ImportERPLatency.(AdditionInPulse).Condition=SelectedCondition.String{1,1};
+                catch
+                    obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).ImportERPLatency.(AdditionInPulse).Condition='';
+                end
+            end
+            function ParameterSelected(source,~)
+                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).ImportERPLatency.(AdditionInPulse).Parameter=ProtocolsParameters.String{source.Value};
+            end
+            function ChannelSelected(source,~)
+                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).ImportERPLatency.(AdditionInPulse).Channel=SelectedChannel.String{source.Value};
+            end
+            function ConditionSelected(source,~)
+                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).ImportERPLatency.(AdditionInPulse).Condition=SelectedCondition.String{source.Value};
+            end
+            function ResetCoupling
+                close(f)
+                obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator)=rmfield(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator),'ImportERPLatency');
+                obj.cb_ImportERPLatency(AdditionInCondition,AdditionInStimulator,Pulse);
+            end
+            function ValueExtraction
+            end
+        end
+        %% Helper Function
+        function RefreshProtocol(obj)
+            switch obj.info.event.current_measure
+                case 'MEP Measurement'
+                    obj.pi_mep;
+                    obj.func_load_mep_par;
+                case 'MEP Hotspot Search'
+                    obj.pi_hotspot;
+                    obj.func_load_hotspot_par;
+                case 'MEP Motor Threshold Hunting'
+                    %                     obj.pi_mt_ptc;
+                    %                     obj.func_load_mt_ptc_par;
+                    obj.pr_mth;
+                    obj.func_load_mth_par;
+                case 'TMS fMRI'
+                    obj.pi_tmsfmri;
+                    obj.func_load_tmsfmri_par;
+                case 'MEP Dose Response Curve'
+                    obj.pi_drc;
+                    obj.func_load_mepdrc_par;
+                case 'Sensory Threshold Hunting'
+                    obj.pr_psychmth;
+                    obj.func_load_psychmth_par;
+                case 'rTMS Intervention'
+                    obj.pi_rtms;
+                    obj.func_load_rtms_par;
+                case 'rsEEG Measurement'
+                    obj.pi_rseeg;
+                    obj.func_load_rseeg_par;
+                case 'ERP Measurement'
+                    obj.pi_erp;
+                    obj.func_load_erp_par;
+                case 'TEP Hotspot Search'
+                    obj.pi_tephs;
+                    obj.func_load_tephs_par;
+                case 'TEP Measurement'
+                    obj.pi_tep;
+                    obj.func_load_tep_par;
+                case 'Custom Protocol'
+                    %                    obj.create_inputs_panel;
+            end
+        end
+        function protect_experiment(obj)
+            if isempty(obj.par), obj.par.GlobalSettings.Protect=false; end
+            if ~isfield(obj.par,'GlobalSettings'), obj.par.GlobalSettings.Protect=false; end
+            if ~isfield(obj.par.GlobalSettings,'Protect'), obj.par.GlobalSettings.Protect=false; end
+            switch obj.par.GlobalSettings.Protect
+                case 0
+                    obj.pmd.sess_title.btn.Enable     = 'on';
+                    obj.pmd.select_measure.btn.Enable = 'on';
+                    obj.pmd.copysession.Enable        = 'on';
+                    obj.pmd.pastesession.Enable       = 'on';
+                    obj.pmd.deletesession.Enable      = 'on';
+                    obj.pmd.renamesession.Enable      = 'on';
+                    obj.pmd.copyprotocol.Enable       = 'on';
+                    obj.pmd.pasteprotocol.Enable      = 'on';
+                    obj.pmd.deleteprotocol.Enable     = 'on';
+                    obj.pmd.suffixprotocol.Enable     = 'on';
+                    obj.pmd.renameprotocol.Enable     = 'on';
+                case 1
+                    obj.pmd.sess_title.btn.Enable     = 'off';
+                    obj.pmd.select_measure.btn.Enable = 'off';
+                    obj.pmd.copysession.Enable        = 'off';
+                    obj.pmd.pastesession.Enable       = 'off';
+                    obj.pmd.deletesession.Enable      = 'off';
+                    obj.pmd.renamesession.Enable      = 'off';
+                    obj.pmd.copyprotocol.Enable       = 'off';
+                    obj.pmd.pasteprotocol.Enable      = 'off';
+                    obj.pmd.deleteprotocol.Enable     = 'off';
+                    obj.pmd.suffixprotocol.Enable     = 'off';
+                    obj.pmd.renameprotocol.Enable     = 'off';
+            end
+        end
+        function create_settings(obj)
+            if ~isfield(obj.par,'GlobalSettings') || isempty(obj.par)
+                obj.par.GlobalSettings.NoiseFilter50Hz=0;
+                obj.par.GlobalSettings.NoiseFilter60Hz=0;
+                obj.par.GlobalSettings.SaveFigures=1;
+                obj.par.GlobalSettings.DataBaseDirectory=eval('cd');
+                obj.par.GlobalSettings.Protect=false;
+            end
+        end
     end
 end
-    
-    
-    
-    %main panel is the panel on which measurement designer, inputs panel and results panel are placed
-    % all panels have p infront of their names
-    % md- measurement designer

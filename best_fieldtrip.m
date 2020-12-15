@@ -43,12 +43,10 @@ classdef best_fieldtrip <handle
                 cfg.bsfreq        = obj.best_toolbox.inputs.BandStopFrequency;
             end
             if ~isempty(obj.best_toolbox.inputs.ReferenceChannels)
-                cfg.reref         = 'yes'; % band-stop filter, to take out 50 Hz and its harmonics
-                cfg.refchannel    = obj.best_toolbox.inputs.ReferenceChannels;
-            end
-            if ~isempty(obj.best_toolbox.inputs.ReferenceChannels)
                 cfg.reref         = 'yes'; 
                 cfg.refchannel    = obj.best_toolbox.inputs.ReferenceChannels;
+            end
+            if ~isempty(obj.best_toolbox.inputs.RecordingReference)
                 cfg.implicitref   = obj.best_toolbox.inputs.RecordingReference;
             end
             Data = ft_preprocessing(cfg,obj.best_toolbox.inputs.results.RawEEGData);
