@@ -4161,7 +4161,6 @@ classdef best_toolbox < handle
                     %obj.sessions.(obj.app.info.event.current_session).(obj.app.info.event.current_measure_fullstr).Figures{iaxes}=CopiedAxes;
                     close(Figure)
             end
-            obj.SavingTerminal;
         end
         function SavingTerminal(obj)
             exp_name=obj.app.pmd.exp_title.editfield.String; exp_name(exp_name == ' ') = '_';
@@ -4260,8 +4259,9 @@ classdef best_toolbox < handle
             obj.boot_inputdevice;
             obj.bootTrial;
             obj.stimLoop;
-            obj.save;
             obj.saveFigures;
+            obj.SavingTerminal;
+            obj.save;
             obj.completed;
         end
         function best_hotspot(obj)
@@ -4273,8 +4273,9 @@ classdef best_toolbox < handle
             obj.boot_inputdevice;
             obj.bootTrial;
             obj.stimLoop;
-            obj.save;
             obj.saveFigures;
+            obj.SavingTerminal;
+            obj.save;
             obj.completed;
         end
         function best_hotspot_manual(obj)
@@ -4286,8 +4287,9 @@ classdef best_toolbox < handle
             obj.boot_inputdevice;
             obj.bootTrial;
             stimLoop;
-            obj.save;
             obj.saveFigures;
+            obj.SavingTerminal;
+            obj.save;
             obj.completed;
             function stimLoop
                 while true
@@ -4315,8 +4317,9 @@ classdef best_toolbox < handle
             obj.boot_inputdevice;
             obj.bootTrial;
             obj.stimLoop;
-            obj.save;
             obj.saveFigures;
+            obj.SavingTerminal;
+            obj.save;
             obj.completed;
         end
         function best_mth(obj)
@@ -4328,8 +4331,9 @@ classdef best_toolbox < handle
             obj.boot_inputdevice;
             obj.bootTrial;
             obj.stimLoop;
-            obj.save;
             obj.saveFigures;
+            obj.SavingTerminal;
+            obj.save;
             obj.completed;
         end
         function best_psychmth (obj)
@@ -4341,8 +4345,9 @@ classdef best_toolbox < handle
             obj.boot_inputdevice;
             obj.bootTrial;
             obj.stimLoop;
-            obj.save;
             obj.saveFigures;
+            obj.SavingTerminal;
+            obj.save;
             obj.completed;
         end
         function best_rseeg(obj)
@@ -4351,21 +4356,47 @@ classdef best_toolbox < handle
             obj.rseegInProcess('open');
             obj.boot_bossbox;
             obj.boot_fieldtrip;
-            obj.save;
             obj.bossbox.EEGScopeBoot(0,obj.inputs.EEGAcquisitionPeriod*60*1000);
             obj.bossbox.EEGScopeStart; obj.bossbox.EEGScopeTrigger;
             [obj.inputs.rawData.EEG.Time , obj.inputs.rawData.EEG.Data]=obj.bossbox.EEGScopeRead;
+            obj.rseegInProcess('close');
             switch obj.inputs.SpectralAnalysis
                 case 1 %IRASA
                     obj.fieldtrip.irasa(obj.inputs.rawData.EEG,obj.inputs.input_device);
                 case 2 %FFT
                     obj.fieldtrip.fft(obj.inputs.rawData.EEG,obj.inputs.input_device);
             end
-            obj.rseegInProcess('close');
             PeakFrequency=obj.inputs.results.PeakFrequency;
-            obj.inputs.results=[]; obj.inputs.results.PeakFrequency=PeakFrequency;
+            SavingTerminal;
             obj.saveFigures;
+            obj.save;
             obj.completed;
+            function SavingTerminal
+                exp_name=obj.app.pmd.exp_title.editfield.String; exp_name(exp_name == ' ') = '_';
+                subj_code=obj.app.pmd.sub_code.editfield.String; subj_code(subj_code == ' ') = '_';
+                session=obj.app.info.event.current_session; session(session == '_') = '';
+                measure=obj.app.info.event.current_measure_fullstr; measure(measure == '_') = '';
+                Date=datestr(now,'yyyy-mm-dd HH:MM:SS'); Date(Date == ' ') = '_'; Date(Date == '-') = ''; Date(Date == ':') = '';
+                FileName=['BESTData_' exp_name '_' subj_code '_' session '_' measure '_' Date '.mat'];
+                FullFileName=fullfile(obj.app.par.GlobalSettings.DataBaseDirectory,exp_name,subj_code,session,FileName);
+                if ~exist(fullfile(obj.app.par.GlobalSettings.DataBaseDirectory,exp_name,subj_code,session), 'dir')
+                    mkdir(fullfile(obj.app.par.GlobalSettings.DataBaseDirectory,exp_name,subj_code,session));
+                end
+                BESTData=[];
+                BESTData=obj.inputs.results.RawEEGData;
+                BESTData.ChannelUnits='All Channel units are uV';
+                BESTData.TimeUnits='ms';
+                BESTData.Parameters=obj.app.par.(obj.app.info.event.current_session).(obj.app.info.event.current_measure_fullstr);
+                BESTData.Results=obj.inputs.results.PeakFrequency;
+                BESTData.ExperimentName=obj.app.pmd.exp_title.editfield.String;
+                BESTData.SubjectID=obj.app.pmd.sub_code.editfield.String;
+                BESTData.SessionName=obj.app.info.event.current_session;
+                BESTData.ProtocolName=obj.app.info.event.current_measure_fullstr;
+                BESTData.TimeStamp=clock;
+                save(FullFileName,'BESTData','-v7.3','-nocompression');                
+                obj.inputs.results=[]; obj.inputs.results.PeakFrequency=PeakFrequency;
+                try obj.sessions.(obj.app.info.event.current_session).(obj.app.info.event.current_measure_fullstr).results=obj.inputs.results; catch, end
+            end
         end
         function best_rtms(obj)
             obj.save;
@@ -4377,9 +4408,9 @@ classdef best_toolbox < handle
             if obj.inputs.BrainState==2, obj.bossbox.IAScopeBoot; end % This is bascially an Anomoly which can be generalized in Future Releases
             obj.bootTrial;
             obj.stimLoop;
-            obj.prepSaving;
-            obj.save;
             obj.saveFigures;
+            obj.SavingTerminal;
+            obj.save;
             obj.completed;
         end
         function best_tephs(obj)
@@ -4405,8 +4436,9 @@ classdef best_toolbox < handle
             obj.boot_inputdevice;
             obj.bootTrial;
             obj.stimLoop;
-            obj.save;
             obj.saveFigures;
+            obj.SavingTerminal;
+            obj.save;
             obj.completed;
         end
         function best_compile(obj)

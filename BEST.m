@@ -1,4 +1,5 @@
 function BEST
+disp('--------------------BEST Master Branch ---------------------------');
 %% Introduction
 %% Handle Previously Opened Application
 PreviousSession=findobj('Tag','BESTToolboxApplication');
