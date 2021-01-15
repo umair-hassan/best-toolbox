@@ -1073,7 +1073,7 @@ classdef best_application < handle
         
         
         function pr_mep(obj)
-            obj.pr.ax_no=['ax' num2str(obj.pr.axesno)];BEST
+            obj.pr.ax_no=['ax' num2str(obj.pr.axesno)];
             ui_menu=uicontextmenu(obj.fig.handle);
             uimenu(ui_menu,'label','reset Mean MEP Plot','Callback',@obj.pr_ResetMEPMeanPlot,'Tag',obj.pr.ax_no);
             uimenu(ui_menu,'label','set Y-axis limits','Callback',@obj.pr_SetYAxisLimits,'Tag',obj.pr.ax_no);
@@ -3378,39 +3378,69 @@ classdef best_application < handle
                 ColiPulses=1; ColIPI=2; ColPulseFrequency=3; ColiBurst=4; ColIBI=5; ColBurstFrequency=6; ColiTrain=7; ColITI=8; ColTrainFrequency=9; ColStimulatorStatus=10;
                 ColStimulator=11; ColStimulatorIntensity=12;ColIntensityUnits=13; ColStartOnset=14;
                 TableData=cell(1,1);ColumnName=cell(1,1);ColumnFormat=cell(1,1);
-                TableData{1,ColiPulses}='';ColumnFormat{ColiPulses}=[];ColumnName{ColiPulses}='# Of Pulses';
-                TableData{1,ColIPI}='';ColumnFormat{ColIPI}=[];ColumnName{ColIPI}='IPI (s)(Inter Pulse Interval)';
+                TableData{1,ColiPulses}='3';ColumnFormat{ColiPulses}=[];ColumnName{ColiPulses}='# Of Pulses';
+                TableData{1,ColIPI}='0.2';ColumnFormat{ColIPI}=[];ColumnName{ColIPI}='IPI (s)(Inter Pulse Interval)';
                 TableData{1,ColPulseFrequency}='';ColumnFormat{ColPulseFrequency}=[];ColumnName{ColPulseFrequency}='Pulse Freq (Hz)';
                 TableData{1,ColiBurst}='';ColumnFormat{ColiBurst}=[];ColumnName{ColiBurst}='# of Bursts';
-                TableData{1,ColIBI}='';ColumnFormat{ColIBI}=[];ColumnName{ColIBI}='IPI (s)(Inter Burst Interval)';
+                TableData{1,ColIBI}='';ColumnFormat{ColIBI}=[];ColumnName{ColIBI}='IBI (s)(Inter Burst Interval)';
                 TableData{1,ColBurstFrequency}='';ColumnFormat{ColBurstFrequency}=[];ColumnName{ColBurstFrequency}='Burst Freq (Hz)';
                 TableData{1,ColiTrain}='';ColumnFormat{ColiTrain}=[];ColumnName{ColiTrain}='# of Trains';
                 TableData{1,ColITI}='';ColumnFormat{ColITI}=[];ColumnName{ColITI}='ITI (s)(Inter Train Interval)';
                 TableData{1,ColTrainFrequency}='';ColumnFormat{ColTrainFrequency}=[];ColumnName{ColTrainFrequency}='Train Freq (Hz)';
-                TableData{1,ColStimulatorStatus}='';ColumnFormat{ColStimulatorStatus}=[];ColumnName{ColStimulatorStatus}='Stim. Status';
-                TableData{1,ColStimulator}='';ColumnFormat{ColStimulator}=[];ColumnName{ColStimulator}='Stimulator';
+                TableData{1,ColStimulatorStatus}='Single Pulse';ColumnFormat{ColStimulatorStatus}={'Single Pulse','Burst','Train'};ColumnName{ColStimulatorStatus}='Stim. Status';
+                TableData{1,ColStimulator}='MagProX100';ColumnFormat{ColStimulator}={'MagProX100','DS7A','MagProR30'};ColumnName{ColStimulator}='Stimulator';
                 TableData{1,ColStimulatorIntensity}='';ColumnFormat{ColStimulatorIntensity}=[];ColumnName{ColStimulatorIntensity}='Stim. Intensity';
-                TableData{1,ColIntensityUnits}='';ColumnFormat{ColIntensityUnits}=[];ColumnName{ColIntensityUnits}='Intensity Units';
+                TableData{1,ColIntensityUnits}='%MSO';ColumnFormat{ColIntensityUnits}={'%MSO','%MT','mA','%ST','%Coupled'};ColumnName{ColIntensityUnits}='Intensity Units';
                 TableData{1,ColStartOnset}='';ColumnFormat{ColStartOnset}=[];ColumnName{ColStartOnset}='Start Onset (s)';
                 ui_menu=uicontextmenu(obj.fig.handle);
                 uimenu(ui_menu,'label','add Trials vector manually','Callback',@ManualTrialsVector);
                 uimenu(ui_menu,'label','add ITI(s) vector manually','Callback',@ManualITIVector);
                 table=uitable( 'Parent', obj.pi.rtms.r0v1,'uicontextmenu',ui_menu);
+                if  strcmp(obj.pmd.lb_measures.listbox.String{obj.pmd.lb_measures.listbox.Value},'rTMS Intervention 5 Hz')
+                    TableData={'100','0.2','5','','','','','','','Single Pulse','MagProX100','58','%MSO','0'};
+                elseif strcmp(obj.pmd.lb_measures.listbox.String{obj.pmd.lb_measures.listbox.Value},'rTMS Intervention cTBS')
+                    TableData={'3','0.02','50','30','0.2','5','','','','Single Pulse','MagProX100','58','%MSO','0'};
+                elseif strcmp(obj.pmd.lb_measures.listbox.String{obj.pmd.lb_measures.listbox.Value},'rTMS Intervention iTBS Burst at stimulator')
+                    TableData={"html<font color="blue">'3'</font></html>",'0.02','50','10','0.2','5','3','10','0.1','Single Pulse','MagProX100','58','%MSO','0'};
+                elseif strcmp(obj.pmd.lb_measures.listbox.String{obj.pmd.lb_measures.listbox.Value},'rTMS Intervention iTBS Train at stim')
+                    TableData={'3','0.02','50','10','0.2','5','3','10','0.1','Single Pulse','MagProX100','58','%MSO','0'};
+                elseif strcmp(obj.pmd.lb_measures.listbox.String{obj.pmd.lb_measures.listbox.Value},'rTMS Intervention DualMode')
+                    TableData(1,:)={'3','0.02','50','30','0.2','5','','','','Single Pulse','LeftMagProX100','58','%MSO','0'};
+                    TableData(2,:)={'3','0.02','50','30','0.2','5','','','','Single Pulse','RightMagProX100','58','%MSO','0'};
+                end
+
+                
                 table.Data=TableData;
-                table.FontSize=10;
+                table.FontSize=13;
                 table.ColumnName = ColumnName;
                 table.ColumnFormat= ColumnFormat;
                 table.ColumnWidth = repmat({120},1,numel(table.ColumnName));
                 table.ColumnEditable =true(1,numel(table.ColumnName));
                 table.RowStriping='on';
                 table.RearrangeableColumns='on';
-                table.CellEditCallback =@CellEditCallback ;            
+                obj.pi.rtms.table=table;
+                %table.CellEditCallback =@CellEditCallback ;            
             function CellEditCallback (~,CellEditData)
                 AdditionInCondition=['cond' num2str(table.Data{CellEditData.Indices(1),1})];
                 AdditionInStimulatorNum=find(find(cellfun(@str2double ,table.Data(:,1))==str2double(table.Data{CellEditData.Indices(1),1}))==CellEditData.Indices(1));
                 AdditionInStimulator=['st' num2str(AdditionInStimulatorNum)];
                 opts=[]; opts.WindowStyle='modal'; opts.Interpreter='none';
                 switch table.ColumnName{CellEditData.Indices(2),1}
+                    case '# Of Pulses'
+                    case 'IPI (s)(Inter Pulse Interval)'
+                    case 'Pulse Freq (Hz)'
+                    case '# of Bursts'
+                    case 'Burst Freq (Hz)'
+                    case '# of Trains'
+                    case 'ITI (s)(Inter Train Interval)'
+                    case 'Train Freq (Hz)'
+                    case 'Stim. Status'
+                    case 'Stimulator'
+                    case 'Stim. Intensity'
+                    case 'Intensity Units'
+                    case 'Start Onset (s)'
+                        
+                        
                     case 'No of Trials'
                         obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).TrialsPerCondition=str2num(CellEditData.NewData);
                     case {'ITI (s)','Min. ITI (s)'}
@@ -3657,9 +3687,193 @@ classdef best_application < handle
                 end
             end
             end
-            function PrintGraphicalDesigner 
-                obj.pi.rtms.designer.axes=axes('parent',obj.pi.rtms.r0v1,'units','normalized' );
-                obj.pi.rtms.designer.axes.Position=[0.1 0.1 0.9 0.9];  plot([1 4],[0.5 0.5]);xticks([]); yticks([]);
+            function PrintGraphicalDesigner
+                container=uicontainer( 'Parent',  obj.pi.rtms.r0v1);
+                obj.pi.rtms.designer.axes=axes('parent',container,'units','normalized');
+                obj.pi.rtms.designer.axes.Position=[0.05 0.1 0.9 0.85];  
+                if  strcmp(obj.pmd.lb_measures.listbox.String{obj.pmd.lb_measures.listbox.Value},'rTMS Intervention 5 Hz')
+                    iPulses=100;IPI=0.2;iBursts=0;IBI=0;iTrains=0;ITI=0;pulse_frequency=1;burst_frequency=1;train_frequency=1;
+                    burst=0;
+                    for i=2:iPulses
+                        burst(i)=burst(i-1)+IPI;
+                    end
+                    %creating train
+                    train=burst;
+                    for i=2:iBursts
+                        train(numel(train)+1)=train(end)+IBI;
+                        for j=2:iPulses
+                            train(numel(train)+1)=train(end)+IPI;
+                        end
+                    end
+                    % creating protocol
+                    protocol=train;
+                    for i=2:iTrains
+                        protocol(numel(protocol)+1)=protocol(end)+ITI;
+                        for j=2:iPulses
+                            protocol(numel(protocol)+1)=protocol(end)+IPI;
+                        end
+                        for k=2:iBursts
+                            protocol(numel(protocol)+1)=protocol(end)+IBI;
+                            for l=2:iPulses
+                                protocol(numel(protocol)+1)=protocol(end)+IPI;
+                            end
+                        end
+                    end
+                    X=protocol; Y=ones(1,numel(X))/2;
+                    stem(X,Y,'Marker','none','LineWidth',1.25,'Color','k'); set(gca,'Color','none')
+                    ylim([-0.5 1]); yticks([]); xlim([min(X)-0.1 max(X)+0.2]);
+                    xlabel('Time (s)');
+                    text(0,-0.1,'Stimulator: MagProX100 @ 55 %MSO','VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',12,'FontAngle','italic','HorizontalAlignment','left')
+                    xticks([0:100])
+                elseif strcmp(obj.pmd.lb_measures.listbox.String{obj.pmd.lb_measures.listbox.Value},'rTMS Intervention cTBS')
+                    iPulses=3;IPI=0.02;iBursts=30;IBI=0.2;iTrains=0;ITI=0;pulse_frequency=1;burst_frequency=1;train_frequency=1;
+                    burst=0;
+                    for i=2:iPulses
+                        burst(i)=burst(i-1)+IPI;
+                    end
+                    %creating train
+                    train=burst;
+                    for i=2:iBursts
+                        train(numel(train)+1)=train(end)+IBI;
+                        for j=2:iPulses
+                            train(numel(train)+1)=train(end)+IPI;
+                        end
+                    end
+                    % creating protocol
+                    protocol=train;
+                    for i=2:iTrains
+                        protocol(numel(protocol)+1)=protocol(end)+ITI;
+                        for j=2:iPulses
+                            protocol(numel(protocol)+1)=protocol(end)+IPI;
+                        end
+                        for k=2:iBursts
+                            protocol(numel(protocol)+1)=protocol(end)+IBI;
+                            for l=2:iPulses
+                                protocol(numel(protocol)+1)=protocol(end)+IPI;
+                            end
+                        end
+                    end
+                    X=protocol; Y=ones(1,numel(X))/2;
+                    stem(X,Y,'Marker','none','LineWidth',1.25,'Color','k')
+                    set(gca,'Color','none')
+                    ylim([-0.5 1]); yticks([]); xlim([min(X)-0.1 max(X)+0.2]);
+                    xlabel('Time (s)');
+                    text(0,-0.1,'Stimulator: MagProX100 @ 55 %MSO','VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',12,'FontAngle','italic','HorizontalAlignment','left');
+                    xticks([0:100])
+                elseif strcmp(obj.pmd.lb_measures.listbox.String{obj.pmd.lb_measures.listbox.Value},'rTMS Intervention iTBS Burst at stimulator')
+                    obj.pi.rtms.table.Data{1,10}='Burst';
+                    iPulses=3;IPI=0.02;iBursts=10;IBI=0.16;iTrains=3;ITI=8;pulse_frequency=1;burst_frequency=1;train_frequency=1;
+                    burst=0;
+                    for i=2:iPulses
+                        burst(i)=burst(i-1)+IPI;
+                    end
+                    %creating train
+                    train=burst;
+                    for i=2:iBursts
+                        train(numel(train)+1)=train(end)+IBI;
+                        for j=2:iPulses
+                            train(numel(train)+1)=train(end)+IPI;
+                        end
+                    end
+                    % creating protocol
+                    protocol=train;
+                    for i=2:iTrains
+                        protocol(numel(protocol)+1)=protocol(end)+ITI+IBI;
+                        for j=2:iPulses
+                            protocol(numel(protocol)+1)=protocol(end)+IPI;
+                        end
+                        for k=2:iBursts
+                            protocol(numel(protocol)+1)=protocol(end)+IBI;
+                            for l=2:iPulses
+                                protocol(numel(protocol)+1)=protocol(end)+IPI;
+                            end
+                        end
+                    end
+                    X=protocol; Y=ones(1,numel(X))/2;
+                    stem(X,Y,'Marker','none','LineWidth',1.25,'Color','k'); set(gca,'Color','none')
+                    ylim([-0.5 1]); yticks([]); xlim([min(X)-0.1 max(X)+0.2]);
+                    xlabel('Time (s)');
+                    text(0,-0.1,'Stimulator: MagProX100 @ 55 %MSO','VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',12,'FontAngle','italic','HorizontalAlignment','left')
+                    xticks([0:100])
+                    elseif strcmp(obj.pmd.lb_measures.listbox.String{obj.pmd.lb_measures.listbox.Value},'rTMS Intervention iTBS Train at stim')
+                    obj.pi.rtms.table.Data{1,10}='Train';
+                    iPulses=3;IPI=0.02;iBursts=10;IBI=0.16;iTrains=3;ITI=8;pulse_frequency=1;burst_frequency=1;train_frequency=1;
+                    burst=0;
+                    for i=2:iPulses
+                        burst(i)=burst(i-1)+IPI;
+                    end
+                    %creating train
+                    train=burst;
+                    for i=2:iBursts
+                        train(numel(train)+1)=train(end)+IBI;
+                        for j=2:iPulses
+                            train(numel(train)+1)=train(end)+IPI;
+                        end
+                    end
+                    % creating protocol
+                    protocol=train;
+                    for i=2:iTrains
+                        protocol(numel(protocol)+1)=protocol(end)+ITI+IBI;
+                        for j=2:iPulses
+                            protocol(numel(protocol)+1)=protocol(end)+IPI;
+                        end
+                        for k=2:iBursts
+                            protocol(numel(protocol)+1)=protocol(end)+IBI;
+                            for l=2:iPulses
+                                protocol(numel(protocol)+1)=protocol(end)+IPI;
+                            end
+                        end
+                    end
+                    X=protocol; Y=ones(1,numel(X))/2;
+                    stem(X,Y,'Marker','none','LineWidth',1.25,'Color','k'); set(gca,'Color','none')
+                    ylim([-0.5 1]); yticks([]); xlim([min(X)-0.1 max(X)+0.2]);
+                    xlabel('Time (s)');
+                    text(0,-0.1,'Stimulator: MagProX100 @ 55 %MSO','VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',12,'FontAngle','italic','HorizontalAlignment','left')
+                    xticks([0:100])
+                elseif strcmp(obj.pmd.lb_measures.listbox.String{obj.pmd.lb_measures.listbox.Value},'rTMS Intervention DualMode')
+                    iPulses=3;IPI=0.02;iBursts=30;IBI=0.2;iTrains=0;ITI=0;pulse_frequency=1;burst_frequency=1;train_frequency=1;
+                    burst=0;
+                    for i=2:iPulses
+                        burst(i)=burst(i-1)+IPI;
+                    end
+                    %creating train
+                    train=burst;
+                    for i=2:iBursts
+                        train(numel(train)+1)=train(end)+IBI;
+                        for j=2:iPulses
+                            train(numel(train)+1)=train(end)+IPI;
+                        end
+                    end
+                    % creating protocol
+                    protocol=train;
+                    for i=2:iTrains
+                        protocol(numel(protocol)+1)=protocol(end)+ITI;
+                        for j=2:iPulses
+                            protocol(numel(protocol)+1)=protocol(end)+IPI;
+                        end
+                        for k=2:iBursts
+                            protocol(numel(protocol)+1)=protocol(end)+IBI;
+                            for l=2:iPulses
+                                protocol(numel(protocol)+1)=protocol(end)+IPI;
+                            end
+                        end
+                    end
+                    X=protocol; Y=ones(1,numel(X))/2;
+                    stem(X,Y,'Marker','none','LineWidth',1.25,'Color','k'); set(gca,'Color', 'none')
+                    ylim([-1.5 1]); yticks([]); xlim([min(X)-0.1 max(X)+0.2]);
+                    xlabel('Time (s)');
+                    text(0,-0.1,'Stimulator: LeftMagProX100 @ 55 %MSO','VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',12,'FontAngle','italic','HorizontalAlignment','left')
+                    hold on 
+                    y = axes('parent',container,'units','normalized','position',obj.pi.rtms.designer.axes.Position);
+                    set(y,'Color', 'none')
+                    hold on
+                    stem(X,Y-1,'Marker','none','LineWidth',1.25,'Color','k','BaseValue',-1)
+                    ylim([-1.5 1]); xlim([min(X)-0.1 max(X)+0.2]);
+                    xlabel('Time (s)'); yticks([]);
+                    text(0,-1.1,'Stimulator: RightMagProX100 @ 55 %MSO','VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',12,'FontAngle','italic','HorizontalAlignment','left')
+                    
+
+                end
             end
         end
         function default_par_rtms(obj)
