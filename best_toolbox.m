@@ -4006,6 +4006,10 @@ classdef best_toolbox < handle
                                 EMGChannelIndex=find(strcmp(obj.app.par.hardware_settings.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.inputDevices}).NeurOneProtocolChannelLabels,unique_chLab{1,i}));
                                 EMGChannelIndex=EMGChannelIndex-obj.bossbox.bb.eeg_channels;
                                 [obj.inputs.rawData.(unique_chLab{1,i}).time(obj.inputs.trial,:), obj.inputs.rawData.(unique_chLab{1,i}).data(obj.inputs.trial,:)]=obj.bossbox.EMGScopeRead(EMGChannelIndex);
+                                %% Paired Pulse Trigger Onset Correction
+                                if strcmp(char(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.stimMode}{1,i}),'paired_pulse')
+                                    [obj.inputs.rawData.(unique_chLab{1,i}).time(obj.inputs.trial,:), obj.inputs.rawData.(unique_chLab{1,i}).data(obj.inputs.trial,:)]=circshift(obj.bossbox.EMGScopeRead(EMGChannelIndex),-5*obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,i}{1,6},1,1);
+                                end
                                 %% Simulation Start
 %                                 obj.inputs.rawData.(unique_chLab{1,i}).data(obj.inputs.trial,:)=obj.sim_mep*obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.ConditionMarker};
                                 %% Simuation End
