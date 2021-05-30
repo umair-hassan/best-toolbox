@@ -40,11 +40,9 @@ classdef best_toolbox < handle
         
         function obj= best_toolbox (app)
             %put app in the argument of this above func declreation
-            load simMep.mat;simMep=[simMep(251:500) simMep(1:250) simMep(501:1000)]/5.7; %Reducing simMep amp to 100uV
             obj.app=app;
-            obj.sim_mep=simMep;
-            
-            delete(instrfindall);
+            obj.sim_mep=[];
+            try delete(instrfindall); catch, end
             
             obj.info.method=0;
             %iNITILIZATION FUNCTION COMMANDS CAN COME HERE AND THIS BEST
