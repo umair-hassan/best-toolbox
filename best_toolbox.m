@@ -4238,21 +4238,14 @@ classdef best_toolbox < handle
                                     obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.stimMode}{1,i}
                                     switch char(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.stimMode}{1,i})
                                         case 'single_pulse'
-                                            %obj.magven.arm;
-                                            %obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,i}
-                                            warning('Needs to be optimized');
-%                                             obj.magven.setPage('Main');
-%                                             obj.magven.setMode('Dual','00',2,2,1,1);
-%                                             obj.magven.arm
-%                                             obj.magven.setAmplitude([48 60]);                                            
+                                            obj.magven.arm
                                             obj.magven.setAmplitude(round(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,i}{1,4}));    
                                             if obj.inputs.trial==1,  pause(1), end %This wait is required for first trial only otherwise time is tooshort to set intensity succesfully
                                         case 'paired_pulse'
-                                            obj.magven.arm;
+                                            obj.magven.setPage('Main');
                                             obj.magven.setMode('Dual','00',2,obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,i}{1,6},1,1); %('mode','currentDirection', burstPulses, ipiValue in ms, BARatioValue, varargin);
+                                            obj.magven.arm;
                                             obj.magven.setAmplitude([obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,i}{1,5} obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,i}{1,4}]);
-                                            %obj.magven.setAmplitude(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,i}{1,4});
-                                            %obj.magven.setMode('Twin','Normal', 2, obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,i}{1,3}, obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,i}{1,4}/obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,i}{1,2});
                                             disp('Paired Pulse Trial is Prepared');
                                         case 'train'
                                             obj.magven.arm;
@@ -6434,9 +6427,9 @@ classdef best_toolbox < handle
         function boot_magven(obj)
             obj.magven=magventure(obj.app.par.hardware_settings.(char(obj.inputs.output_device)).comport);
             obj.magven.connect;
+            %obj.magven.setPage('Main');
+            %obj.magven.setMode('Standard','00',2,0,1,1); %Future Release: Desirable but has bugs at the moment from MAGIC side
             obj.magven.arm;
-            obj.magven.setPage('Main');
-            obj.magven.setMode('Standard','00',2,0,1,1);
         end
         function boot_magstim(obj)
             obj.magStim=magstim(obj.app.par.hardware_settings.(obj.inputs.output_device).comport);
