@@ -163,7 +163,7 @@ classdef best_application < handle
             % drop-down select measure: fourth horizontal row on first panel
             pmd_hbox_slct_mes = uix.HBox( 'Parent', pmd_vbox, 'Spacing', 5, 'Padding', 5  );
             uicontrol( 'Style','text','Parent', pmd_hbox_slct_mes,'String','Select Protocol:','FontSize',11,'HorizontalAlignment','left' ,'Units','normalized');
-            obj.pmd.select_measure.string={'MEP Hotspot Search','MEP Motor Threshold Hunting','MEP Dose Response Curve','MEP Measurement','rsEEG Measurement','Sensory Threshold Hunting','rTMS Intervention','TEP Hotspot Search','TEP Measurement','ERP Measurement','TMS fMRI','Custom Protocol'};
+            obj.pmd.select_measure.string={'MEP Hotspot Search','MEP Motor Threshold Hunting','MEP Dose Response Curve','MEP Measurement','rsEEG Measurement','Sensory Threshold Hunting','rTMS Intervention','TEP Measurement','ERP Measurement','TMS fMRI','Custom Protocol'};
             obj.pmd.select_measure.popupmenu=uicontrol( 'Style','popupmenu','Parent', pmd_hbox_slct_mes ,'FontSize',11,'String',obj.pmd.select_measure.string);
             obj.pmd.select_measure.btn=uicontrol( 'Parent', pmd_hbox_slct_mes ,'Style','PushButton','String','+','FontWeight','Bold','Callback',@(~,~)obj.cb_measure_add);
             set( pmd_hbox_slct_mes, 'Widths', [120 -0.7 -0.09]);
@@ -173,7 +173,7 @@ classdef best_application < handle
             uicontrol( 'Style','text','Parent', fifth_row,'String','','FontSize',11,'HorizontalAlignment','left' ,'Units','normalized');
             uicontrol( 'Style','text','Parent', fifth_row ,'FontSize',11,'String','');
             uicontrol( 'Parent', fifth_row ,'Style','text','String','','FontWeight','Bold')
-            set( fifth_row, 'Widths', [120 -0.7 -0.05]);
+            set( fifth_row, 'Widths', [120 -0.7 -0.05]);    
             
             % text session: sixth horizontal row on first panel
             uicontrol( 'Style','text','Parent', pmd_vbox,'String','Sessions','FontSize',12,'HorizontalAlignment','center' ,'Units','normalized','FontWeight','bold');
@@ -305,6 +305,8 @@ classdef best_application < handle
                             obj.bst.best_erp;
                         case 'TMS fMRI Protocol'
                             obj.tmsfmri_run
+                        case 'TEP Measurement Protocol'
+                            obj.bst.best_tep;
                         case 'Custom Protocol'
                             obj.customprotocol_run;
                     end
@@ -1011,6 +1013,12 @@ classdef best_application < handle
                         obj.pr_ERPTopoPlot;
                     case 'TotalITIDistribution'
                         obj.pr_TotalITIDistributionPlot;
+                    case 'TEPButterflyPlot'
+                        obj.pr_TEPButterflyPlot;
+                    case 'TEPTopoplot'
+                        obj.pr_TEPTopoplot;
+                    case 'TEPMultiplot'
+                        obj.pr_TEPMultiplot;
                         
                 end
             end
@@ -1297,7 +1305,11 @@ classdef best_application < handle
             end
             ax=['ax' num2str(iaxes)];
             Figure=figure('Name',FigureFileName,'NumberTitle','off');
-            copyobj(obj.pr.ax.(ax),Figure)
+            try 
+                copyobj(obj.pr.ax.(ax),Figure)
+            catch
+                copyobj(obj.pr.container.(ax),Figure)
+            end
             set( gca, 'Units', 'normalized', 'Position', [0.2 0.2 0.7 0.7] );
         end
         function pr_ResetMEPMeanAmp(obj,source,~)
@@ -1556,7 +1568,550 @@ classdef best_application < handle
             answer = inputdlg(prompt,dlgtitle,dims,definput);
             obj.pr.ax.(selectedAxes).YLim=[str2double(answer{1,1}),str2double(answer{2,1})];
         end
-        
+        function pr_TEPXLim(obj, source,~)
+            %Rule: Limits input syntax [LowLimit HighLimit]
+            selectedAxes=source.Tag;
+            f=figure('Name','X Axis Limits | BEST Toolbox','numbertitle', 'off','ToolBar', 'none','MenuBar', 'none','WindowStyle', 'modal','Units', 'normal', 'Position', [0.5 0.5 .35 .05]);
+            uicontrol( 'Style','text','Parent', f,'String','Enter Y Axis Limits [min max](microV):','FontSize',11,'HorizontalAlignment','center','Units','normalized','Position',[0.05 0.5 0.5 0.4]);
+            limminmax=uicontrol( 'Style','edit','Parent', f,'String','-50','FontSize',11,'HorizontalAlignment','center','Units','normalized','Position',[0.5 0.5 0.2 0.4]);
+            uicontrol( 'Style','pushbutton','Parent', f,'String','Set','FontSize',11,'HorizontalAlignment','center','Units','normalized','Position',[0.1 0.05 0.8 0.4],'Callback',@setLimits);
+            function setLimits(~,~)
+                try
+                    for i=obj.bst.inputs.trial:obj.bst.inputs.totalTrials
+                        obj.bst.inputs.trialMat{obj.bst.inputs.trial,obj.bst.inputs.colLabel.XLim}{i,eval(selectedAxes(3))}{1,1}=[str2num(limminmax.String)];
+                    end                    
+                    close(f);
+                    drawnow;
+                catch
+                    close(f)
+                end
+            end
+        end
+        function pr_TEPYLim(obj, source,~)
+        end
+        function pr_TEPDisplayParameters(obj,source,~)
+            f=figure('Name','Display Parameters | BEST Toolbox','numbertitle', 'off','ToolBar', 'none','MenuBar', 'none','WindowStyle', 'modal','Units', 'normal', 'Position', [0.3 0.3 .30 .20],'CloseRequestFcn',@CloseReq);
+            
+            p= uix.Panel( 'Parent', f ,'Units','normalized');
+            v= uix.VBox( 'Parent', p, 'Spacing', 5, 'Padding', 5  );
+            Widths=[-2 -1.5];
+            
+            r1= uiextras.HBox( 'Parent', v,'Spacing', 5, 'Padding', 5 );
+            uicontrol( 'Style','text','Parent', r1,'String','No of Trials to Average:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+            LastTrialToAverage=uicontrol( 'Style','edit','Parent', r1 ,'FontSize',11,'Tag','TiralsToAverage','String',obj.bst.inputs.LastTrialToAverage);
+            r1.Widths=Widths;
+            
+            r1= uiextras.HBox( 'Parent', v,'Spacing', 5, 'Padding', 5 );
+            uicontrol( 'Style','text','Parent', r1,'String','Butterfly plot Y-Axis Limits [min max](uV):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+            ButterflyPlotYLim=uicontrol( 'Style','edit','Parent', r1 ,'FontSize',11,'Tag','ButterflyPlotYAxis','String',obj.bst.inputs.ButterflyPlotYLim);
+            r1.Widths=Widths;
+            
+%             r1= uiextras.HBox( 'Parent', v,'Spacing', 5, 'Padding', 5 );
+%             uicontrol( 'Style','text','Parent', r1,'String','Butterfly plot X-Axis Limits [min max](ms):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+%             uicontrol( 'Style','edit','Parent', r1 ,'FontSize',11,'Tag','ButterflyPlotXAxis','callback',@cb_par_saving,'String',obj.bst.inputs.ButterflyPlotDisplayPeriod);
+%             r1.Widths=Widths;
+            
+            r1= uiextras.HBox( 'Parent', v,'Spacing', 5, 'Padding', 5 );
+            uicontrol( 'Style','text','Parent', r1,'String','Multiplot Y-Axis Limits [min max](uV):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+            MultiplotYLim=uicontrol( 'Style','edit','Parent', r1 ,'FontSize',11,'Tag','MultiPlotYAxis','String',obj.bst.inputs.MultiplotYLim);
+            r1.Widths=Widths;
+            
+%             r1= uiextras.HBox( 'Parent', v,'Spacing', 5, 'Padding', 5 );
+%             uicontrol( 'Style','text','Parent', r1,'String','Multiplot X-Axis Limits [min max](ms):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+%             uicontrol( 'Style','edit','Parent', r1 ,'FontSize',11,'Tag','MultiPlotXAxis','callback',@cb_par_saving,'String',obj.bst.inputs.MultiplotDisplayPeriod);
+%             r1.Widths=Widths;
+            
+            r1= uiextras.HBox( 'Parent', v,'Spacing', 5, 'Padding', 5 );
+            uicontrol( 'Style','text','Parent', r1,'String','Topoplot Y-Axis Limits [min max](uV):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+            TopoplotYLim=uicontrol( 'Style','edit','Parent', r1 ,'FontSize',11,'Tag','TopoPlotYAxis','String',obj.bst.inputs.TopoplotYLim);
+            r1.Widths=Widths;
+            
+%             r1= uiextras.HBox( 'Parent', v,'Spacing', 5, 'Padding', 5 );
+%             uicontrol( 'Style','text','Parent', r1,'String','Topoplot X-Axis Limits [min max](ms):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+%             uicontrol( 'Style','edit','Parent', r1 ,'FontSize',11,'Tag','TopoPlotXAxis','callback',@cb_par_saving,'String',obj.bst.inputs.TopoplotDisplayPeriod);
+%             r1.Widths=Widths;
+            
+            r1= uiextras.HBox( 'Parent', v,'Spacing', 5, 'Padding', 5 );
+            uicontrol( 'Style','text','Parent', r1,'String','Font Size:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+            FontSize=uicontrol( 'Style','edit','Parent', r1 ,'FontSize',11,'Tag','FontSize','String',11);
+            r1.Widths=Widths;
+            
+            function CloseReq(src,callbackdata)
+                obj.bst.inputs.LastTrialToAverage=str2num(LastTrialToAverage.String);
+                obj.bst.inputs.MultiplotYLim=MultiplotYLim.String;
+                obj.bst.inputs.ButterflyPlotYLim=ButterflyPlotYLim.String;
+                obj.bst.inputs.TopoplotYLim=TopoplotYLim.String;
+                %% Update ButterflyPlotYLim,MultiplotYLim,TopoplotYLim
+                for i=obj.bst.inputs.trial:obj.bst.inputs.totalTrials
+                    for j=1:numel(obj.bst.inputs.trialMat{i,obj.bst.inputs.colLabel.YLim})
+                        switch obj.bst.inputs.trialMat{i,obj.bst.inputs.colLabel.measures}{1,j}
+                            case 'TEPButterflyPlot'
+                                obj.bst.inputs.trialMat{i,obj.bst.inputs.colLabel.YLim}{1,j}{1,1}=str2num(ButterflyPlotYLim.String);
+                            case 'TEPMultiplot'
+                                obj.bst.inputs.trialMat{i,obj.bst.inputs.colLabel.YLim}{1,j}{1,1}=str2num(MultiplotYLim.String);
+                            case 'TEPTopoplot'
+                            obj.bst.inputs.trialMat{i,obj.bst.inputs.colLabel.YLim}{1,j}{1,1}=str2num(TopoplotYLim.String);
+                        end
+                    end
+%                     obj.bst.inputs.trialMat{obj.bst.inputs.trial,obj.inputs.colLabel.YLim}{1,1}{1,1}=str2num(ButterflyPlotYLim.String);
+%                     obj.bst.inputs.trialMat{obj.bst.inputs.trial,obj.inputs.colLabel.YLim}{1,2}{1,1}=str2num(MultiplotYLim.String);
+%                     obj.bst.inputs.trialMat{obj.bst.inputs.trial,obj.inputs.colLabel.YLim}{1,3}{1,1}=str2num(TopoplotYLim.String);
+%                     obj.bst.inputs.trialMat{obj.bst.inputs.trial,obj.inputs.colLabel.YLim}{1,4}{1,1}=str2num(TopoplotYLim.String);
+%                     obj.bst.inputs.trialMat{obj.bst.inputs.trial,obj.inputs.colLabel.YLim}{1,5}{1,1}=str2num(TopoplotYLim.String);
+%                     obj.bst.inputs.trialMat{obj.bst.inputs.trial,obj.inputs.colLabel.YLim}{1,6}{1,1}=str2num(TopoplotYLim.String);
+                end
+                %% Delete Figure
+                delete(f)
+            end
+            
+        end
+        function pr_TEPBadChannels(obj,source,~)
+            f=figure('Name','Mark Bad Channels | BEST Toolbox','numbertitle', 'off','ToolBar', 'none','MenuBar', 'none','Units', 'normal', 'Position', [0.1 0.3 .60 .30]);
+            
+            p= uix.Panel( 'Parent', f ,'Units','normalized');
+            v= uix.VBox( 'Parent', p, 'Spacing', 5, 'Padding', 5  );
+            
+            
+            r1= uiextras.HBox( 'Parent', v,'Spacing', 5, 'Padding', 5 );
+            uicontrol( 'Style','text','Parent', r1,'String','','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            uicontrol( 'Style','text','Parent', r1,'String','','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            uicontrol( 'Style','text','Parent', r1,'String','','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            
+            uicontrol( 'Style','text','Parent', r1,'String','','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            uicontrol( 'Style','text','Parent', r1,'String','','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            uicontrol( 'Style','text','Parent', r1,'String','','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            
+            uicontrol( 'Style','text','Parent', r1,'String','','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            uicontrol( 'Style','text','Parent', r1,'String','','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            uicontrol( 'Style','text','Parent', r1,'String','','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+       
+            uicontrol( 'Style','text','Parent', r1,'String','','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            uicontrol( 'Style','text','Parent', r1,'String','','FontSize',8,'HorizontalAlignment','left','Units','normalized');            
+            uicontrol( 'Style','text','Parent', r1,'String','','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+
+            uicontrol( 'Style','text','Parent', r1,'String','Fp1','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            Fp1=uicontrol( 'Style','checkbox','Parent', r1 ,'FontSize',8,'Units','normalized');
+            uicontrol( 'Style','text','Parent', r1,'String','','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+
+            uicontrol( 'Style','text','Parent', r1,'String','Fpz','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            Fpz=uicontrol( 'Style','checkbox','Parent', r1 ,'FontSize',8,'Units','normalized');
+            uicontrol( 'Style','text','Parent', r1,'String','','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+
+            uicontrol( 'Style','text','Parent', r1,'String','Fp2','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            Fp2=uicontrol( 'Style','checkbox','Parent', r1 ,'FontSize',8,'Units','normalized');
+            uicontrol( 'Style','text','Parent', r1,'String','','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+
+            uicontrol( 'Style','text','Parent', r1,'String','','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            uicontrol( 'Style','text','Parent', r1,'String','','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            uicontrol( 'Style','text','Parent', r1,'String','','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+
+            uicontrol( 'Style','text','Parent', r1,'String','','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            uicontrol( 'Style','text','Parent', r1,'String','','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            uicontrol( 'Style','text','Parent', r1,'String','','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            
+            uicontrol( 'Style','text','Parent', r1,'String','','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            uicontrol( 'Style','text','Parent', r1,'String','','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            uicontrol( 'Style','text','Parent', r1,'String','','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+
+            uicontrol( 'Style','text','Parent', r1,'String','','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            uicontrol( 'Style','text','Parent', r1,'String','','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            uicontrol( 'Style','text','Parent', r1,'String','','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            
+            r1.Widths=ones(1,33).*-1;
+%                         LastTrialToAverage=uicontrol( 'Style','checkbox','Parent', r1 ,'FontSize',8,'String','FP1');
+            %% 2nd row
+r1= uiextras.HBox( 'Parent', v,'Spacing', 5, 'Padding', 5 );
+            uicontrol( 'Style','text','Parent', r1,'String','','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            uicontrol( 'Style','text','Parent', r1,'String','','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            uicontrol( 'Style','text','Parent', r1,'String','','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+
+            uicontrol( 'Style','text','Parent', r1,'String','','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            uicontrol( 'Style','text','Parent', r1,'String','','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            uicontrol( 'Style','text','Parent', r1,'String','','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            
+            uicontrol( 'Style','text','Parent', r1,'String','','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            uicontrol( 'Style','text','Parent', r1,'String','','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            uicontrol( 'Style','text','Parent', r1,'String','','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+                       
+            uicontrol( 'Style','text','Parent', r1,'String','AF7','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            AF7=uicontrol( 'Style','checkbox','Parent', r1 ,'FontSize',8,'Units','normalized');
+            uicontrol( 'Style','text','Parent', r1,'String','','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            
+            uicontrol( 'Style','text','Parent', r1,'String','AF3','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            AF3=uicontrol( 'Style','checkbox','Parent', r1 ,'FontSize',8,'Units','normalized');
+            uicontrol( 'Style','text','Parent', r1,'String','','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            
+            uicontrol( 'Style','text','Parent', r1,'String','AFz','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            AFz=uicontrol( 'Style','checkbox','Parent', r1 ,'FontSize',8,'Units','normalized');
+            uicontrol( 'Style','text','Parent', r1,'String','','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            
+            uicontrol( 'Style','text','Parent', r1,'String','AF4','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            AF4=uicontrol( 'Style','checkbox','Parent', r1 ,'FontSize',8,'Units','normalized');
+            uicontrol( 'Style','text','Parent', r1,'String','','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            
+            uicontrol( 'Style','text','Parent', r1,'String','AF8','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+           AF8=uicontrol( 'Style','checkbox','Parent', r1 ,'FontSize',8,'Units','normalized');
+           uicontrol( 'Style','text','Parent', r1,'String','','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            
+            uicontrol( 'Style','text','Parent', r1,'String','','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            uicontrol( 'Style','text','Parent', r1,'String','','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            uicontrol( 'Style','text','Parent', r1,'String','','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+
+            
+            uicontrol( 'Style','text','Parent', r1,'String','','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            uicontrol( 'Style','text','Parent', r1,'String','','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            uicontrol( 'Style','text','Parent', r1,'String','','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+
+            
+            uicontrol( 'Style','text','Parent', r1,'String','','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            uicontrol( 'Style','text','Parent', r1,'String','','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            uicontrol( 'Style','text','Parent', r1,'String','','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+
+            r1.Widths=ones(1,33).*-1;
+            %% 3rd row
+r1= uiextras.HBox( 'Parent', v,'Spacing', 5, 'Padding', 5 );
+            uicontrol( 'Style','text','Parent', r1,'String','','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            uicontrol( 'Style','text','Parent', r1,'String','','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            uicontrol( 'Style','text','Parent', r1,'String','','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+
+            uicontrol( 'Style','text','Parent', r1,'String','F7','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            F7=uicontrol( 'Style','checkbox','Parent', r1 ,'FontSize',8,'Units','normalized');
+            uicontrol( 'Style','text','Parent', r1,'String','','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            
+            uicontrol( 'Style','text','Parent', r1,'String','F5','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            F5=uicontrol( 'Style','checkbox','Parent', r1 ,'FontSize',8,'Units','normalized');
+            uicontrol( 'Style','text','Parent', r1,'String','','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+                       
+            uicontrol( 'Style','text','Parent', r1,'String','F3','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            F3=uicontrol( 'Style','checkbox','Parent', r1 ,'FontSize',8,'Units','normalized');
+            uicontrol( 'Style','text','Parent', r1,'String','','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            
+            uicontrol( 'Style','text','Parent', r1,'String','F1','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            F1=uicontrol( 'Style','checkbox','Parent', r1 ,'FontSize',8,'Units','normalized');
+            uicontrol( 'Style','text','Parent', r1,'String','','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            
+            uicontrol( 'Style','text','Parent', r1,'String','Fz','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            Fz=uicontrol( 'Style','checkbox','Parent', r1 ,'FontSize',8,'Units','normalized');
+            uicontrol( 'Style','text','Parent', r1,'String','','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            
+            uicontrol( 'Style','text','Parent', r1,'String','F2','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            F2=uicontrol( 'Style','checkbox','Parent', r1 ,'FontSize',8,'Units','normalized');
+            uicontrol( 'Style','text','Parent', r1,'String','','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            
+            uicontrol( 'Style','text','Parent', r1,'String','F4','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+           F4=uicontrol( 'Style','checkbox','Parent', r1 ,'FontSize',8,'Units','normalized');
+           uicontrol( 'Style','text','Parent', r1,'String','','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            
+            uicontrol( 'Style','text','Parent', r1,'String','F6','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            F6=uicontrol( 'Style','checkbox','Parent', r1 ,'FontSize',8,'Units','normalized');
+            uicontrol( 'Style','text','Parent', r1,'String','','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            
+            uicontrol( 'Style','text','Parent', r1,'String','F8','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            F8=uicontrol( 'Style','checkbox','Parent', r1 ,'FontSize',8,'Units','normalized');
+            uicontrol( 'Style','text','Parent', r1,'String','','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            
+            uicontrol( 'Style','text','Parent', r1,'String','','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            uicontrol( 'Style','text','Parent', r1,'String','','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            uicontrol( 'Style','text','Parent', r1,'String','','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            
+            r1.Widths=ones(1,33).*-1;            
+            %% 4th row
+            
+            r1= uiextras.HBox( 'Parent', v,'Spacing', 5, 'Padding', 5 );
+            uicontrol( 'Style','text','Parent', r1,'String','FT9','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            FT9=uicontrol( 'Style','checkbox','Parent', r1,'String','','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            uicontrol( 'Style','text','Parent', r1,'String','','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+
+            uicontrol( 'Style','text','Parent', r1,'String','FT7','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            FT7=uicontrol( 'Style','checkbox','Parent', r1 ,'FontSize',8,'Units','normalized');
+            uicontrol( 'Style','text','Parent', r1,'String','','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            
+            uicontrol( 'Style','text','Parent', r1,'String','FC5','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            FC5=uicontrol( 'Style','checkbox','Parent', r1 ,'FontSize',8,'Units','normalized');
+            uicontrol( 'Style','text','Parent', r1,'String','','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+                       
+            uicontrol( 'Style','text','Parent', r1,'String','FC3','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            FC3=uicontrol( 'Style','checkbox','Parent', r1 ,'FontSize',8,'Units','normalized');
+            uicontrol( 'Style','text','Parent', r1,'String','','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            
+            uicontrol( 'Style','text','Parent', r1,'String','FC1','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            FC1=uicontrol( 'Style','checkbox','Parent', r1 ,'FontSize',8,'Units','normalized');
+            uicontrol( 'Style','text','Parent', r1,'String','','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            
+            uicontrol( 'Style','text','Parent', r1,'String','','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            uicontrol( 'Style','text','Parent', r1 ,'FontSize',8,'Units','normalized');
+            uicontrol( 'Style','text','Parent', r1,'String','','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            
+            uicontrol( 'Style','text','Parent', r1,'String','FC2','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            FC2=uicontrol( 'Style','checkbox','Parent', r1 ,'FontSize',8,'Units','normalized');
+            uicontrol( 'Style','text','Parent', r1,'String','','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            
+            uicontrol( 'Style','text','Parent', r1,'String','FC4','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+           FC4=uicontrol( 'Style','checkbox','Parent', r1 ,'FontSize',8,'Units','normalized');
+           uicontrol( 'Style','text','Parent', r1,'String','','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            
+            uicontrol( 'Style','text','Parent', r1,'String','FC6','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            FC6=uicontrol( 'Style','checkbox','Parent', r1 ,'FontSize',8,'Units','normalized');
+            uicontrol( 'Style','text','Parent', r1,'String','','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            
+            uicontrol( 'Style','text','Parent', r1,'String','FT8','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            FT8=uicontrol( 'Style','checkbox','Parent', r1 ,'FontSize',8,'Units','normalized');
+            uicontrol( 'Style','text','Parent', r1,'String','','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            
+            uicontrol( 'Style','text','Parent', r1,'String','FT10','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            FT10=uicontrol( 'Style','checkbox','Parent', r1,'String','','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            uicontrol( 'Style','text','Parent', r1,'String','','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            
+            r1.Widths=ones(1,33).*-1;
+            
+            %% 5TH ROW
+r1= uiextras.HBox( 'Parent', v,'Spacing', 5, 'Padding', 5 );
+            uicontrol( 'Style','text','Parent', r1,'String','','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            uicontrol( 'Style','text','Parent', r1,'String','','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            uicontrol( 'Style','text','Parent', r1,'String','','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+
+            uicontrol( 'Style','text','Parent', r1,'String','T7','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            T7=uicontrol( 'Style','checkbox','Parent', r1 ,'FontSize',8,'Units','normalized');
+            uicontrol( 'Style','text','Parent', r1,'String','','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            
+            uicontrol( 'Style','text','Parent', r1,'String','C5','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            C5=uicontrol( 'Style','checkbox','Parent', r1 ,'FontSize',8,'Units','normalized');
+            uicontrol( 'Style','text','Parent', r1,'String','','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+                       
+            uicontrol( 'Style','text','Parent', r1,'String','C3','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            C3=uicontrol( 'Style','checkbox','Parent', r1 ,'FontSize',8,'Units','normalized');
+            uicontrol( 'Style','text','Parent', r1,'String','','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            
+            uicontrol( 'Style','text','Parent', r1,'String','C1','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            C1=uicontrol( 'Style','checkbox','Parent', r1 ,'FontSize',8,'Units','normalized');
+            uicontrol( 'Style','text','Parent', r1,'String','','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            
+            uicontrol( 'Style','text','Parent', r1,'String','Cz','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            Cz=uicontrol( 'Style','checkbox','Parent', r1 ,'FontSize',8,'Units','normalized');
+            uicontrol( 'Style','text','Parent', r1,'String','','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            
+            uicontrol( 'Style','text','Parent', r1,'String','C2','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            C2=uicontrol( 'Style','checkbox','Parent', r1 ,'FontSize',8,'Units','normalized');
+            uicontrol( 'Style','text','Parent', r1,'String','','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            
+            uicontrol( 'Style','text','Parent', r1,'String','C4','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+           C4=uicontrol( 'Style','checkbox','Parent', r1 ,'FontSize',8,'Units','normalized');
+           uicontrol( 'Style','text','Parent', r1,'String','','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            
+            uicontrol( 'Style','text','Parent', r1,'String','C6','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            C6=uicontrol( 'Style','checkbox','Parent', r1 ,'FontSize',8,'Units','normalized');
+            uicontrol( 'Style','text','Parent', r1,'String','','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            
+            uicontrol( 'Style','text','Parent', r1,'String','T8','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            T8=uicontrol( 'Style','checkbox','Parent', r1 ,'FontSize',8,'Units','normalized');
+            uicontrol( 'Style','text','Parent', r1,'String','','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            
+            uicontrol( 'Style','text','Parent', r1,'String','','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            uicontrol( 'Style','text','Parent', r1,'String','','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            uicontrol( 'Style','text','Parent', r1,'String','','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            
+            r1.Widths=ones(1,33).*-1;
+            
+            
+            %% 6th row
+            
+            r1= uiextras.HBox( 'Parent', v,'Spacing', 5, 'Padding', 5 );
+            uicontrol( 'Style','text','Parent', r1,'String','TP9','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            TP9=uicontrol( 'Style','checkbox','Parent', r1,'String','','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            uicontrol( 'Style','text','Parent', r1,'String','','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+
+            uicontrol( 'Style','text','Parent', r1,'String','TP7','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            TP7=uicontrol( 'Style','checkbox','Parent', r1 ,'FontSize',8,'Units','normalized');
+            uicontrol( 'Style','text','Parent', r1,'String','','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            
+            uicontrol( 'Style','text','Parent', r1,'String','CP5','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            CP5=uicontrol( 'Style','checkbox','Parent', r1 ,'FontSize',8,'Units','normalized');
+            uicontrol( 'Style','text','Parent', r1,'String','','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+                       
+            uicontrol( 'Style','text','Parent', r1,'String','CP3','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            CP3=uicontrol( 'Style','checkbox','Parent', r1 ,'FontSize',8,'Units','normalized');
+            uicontrol( 'Style','text','Parent', r1,'String','','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            
+            uicontrol( 'Style','text','Parent', r1,'String','CP1','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            CP1=uicontrol( 'Style','checkbox','Parent', r1 ,'FontSize',8,'Units','normalized');
+            uicontrol( 'Style','text','Parent', r1,'String','','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            
+            uicontrol( 'Style','text','Parent', r1,'String','CPz','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            CPz=uicontrol( 'Style','checkbox','Parent', r1 ,'FontSize',8,'Units','normalized');
+            uicontrol( 'Style','text','Parent', r1,'String','','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            
+            uicontrol( 'Style','text','Parent', r1,'String','CP2','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            CP2=uicontrol( 'Style','checkbox','Parent', r1 ,'FontSize',8,'Units','normalized');
+            uicontrol( 'Style','text','Parent', r1,'String','','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            
+            uicontrol( 'Style','text','Parent', r1,'String','CP4','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+           CP4=uicontrol( 'Style','checkbox','Parent', r1 ,'FontSize',8,'Units','normalized');
+           uicontrol( 'Style','text','Parent', r1,'String','','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            
+            uicontrol( 'Style','text','Parent', r1,'String','CP6','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            CP6=uicontrol( 'Style','checkbox','Parent', r1 ,'FontSize',8,'Units','normalized');
+            uicontrol( 'Style','text','Parent', r1,'String','','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            
+            uicontrol( 'Style','text','Parent', r1,'String','TP8','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            TP8=uicontrol( 'Style','checkbox','Parent', r1 ,'FontSize',8,'Units','normalized');
+            uicontrol( 'Style','text','Parent', r1,'String','','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            
+            uicontrol( 'Style','text','Parent', r1,'String','TP10','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            TP10=uicontrol( 'Style','checkbox','Parent', r1,'String','','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            uicontrol( 'Style','text','Parent', r1,'String','','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            
+            r1.Widths=ones(1,33).*-1;
+            
+            %% 5TH ROW
+r1= uiextras.HBox( 'Parent', v,'Spacing', 5, 'Padding', 5 );
+            uicontrol( 'Style','text','Parent', r1,'String','','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            uicontrol( 'Style','text','Parent', r1,'String','','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            uicontrol( 'Style','text','Parent', r1,'String','','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+
+            uicontrol( 'Style','text','Parent', r1,'String','P7','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            P7=uicontrol( 'Style','checkbox','Parent', r1 ,'FontSize',8,'Units','normalized');
+            uicontrol( 'Style','text','Parent', r1,'String','','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            
+            uicontrol( 'Style','text','Parent', r1,'String','P5','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            P5=uicontrol( 'Style','checkbox','Parent', r1 ,'FontSize',8,'Units','normalized');
+            uicontrol( 'Style','text','Parent', r1,'String','','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+                       
+            uicontrol( 'Style','text','Parent', r1,'String','P3','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            P3=uicontrol( 'Style','checkbox','Parent', r1 ,'FontSize',8,'Units','normalized');
+            uicontrol( 'Style','text','Parent', r1,'String','','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            
+            uicontrol( 'Style','text','Parent', r1,'String','P1','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            P1=uicontrol( 'Style','checkbox','Parent', r1 ,'FontSize',8,'Units','normalized');
+            uicontrol( 'Style','text','Parent', r1,'String','','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            
+            uicontrol( 'Style','text','Parent', r1,'String','Pz','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            Pz=uicontrol( 'Style','checkbox','Parent', r1 ,'FontSize',8,'Units','normalized');
+            uicontrol( 'Style','text','Parent', r1,'String','','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            
+            uicontrol( 'Style','text','Parent', r1,'String','P2','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            P2=uicontrol( 'Style','checkbox','Parent', r1 ,'FontSize',8,'Units','normalized');
+            uicontrol( 'Style','text','Parent', r1,'String','','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            
+            uicontrol( 'Style','text','Parent', r1,'String','P4','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+           P4=uicontrol( 'Style','checkbox','Parent', r1 ,'FontSize',8,'Units','normalized');
+           uicontrol( 'Style','text','Parent', r1,'String','','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            
+            uicontrol( 'Style','text','Parent', r1,'String','P6','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            P6=uicontrol( 'Style','checkbox','Parent', r1 ,'FontSize',8,'Units','normalized');
+            uicontrol( 'Style','text','Parent', r1,'String','','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            
+            uicontrol( 'Style','text','Parent', r1,'String','P8','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            P8=uicontrol( 'Style','checkbox','Parent', r1 ,'FontSize',8,'Units','normalized');
+            uicontrol( 'Style','text','Parent', r1,'String','','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            
+            uicontrol( 'Style','text','Parent', r1,'String','','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            uicontrol( 'Style','text','Parent', r1,'String','','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            uicontrol( 'Style','text','Parent', r1,'String','','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            
+            r1.Widths=ones(1,33).*-1;
+            
+            %% 6TH row
+            %% 2nd row
+r1= uiextras.HBox( 'Parent', v,'Spacing', 5, 'Padding', 5 );
+            uicontrol( 'Style','text','Parent', r1,'String','','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            uicontrol( 'Style','text','Parent', r1,'String','','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            uicontrol( 'Style','text','Parent', r1,'String','','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+
+            uicontrol( 'Style','text','Parent', r1,'String','','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            uicontrol( 'Style','text','Parent', r1,'String','','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            uicontrol( 'Style','text','Parent', r1,'String','','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            
+            uicontrol( 'Style','text','Parent', r1,'String','','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            uicontrol( 'Style','text','Parent', r1,'String','','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            uicontrol( 'Style','text','Parent', r1,'String','','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+                       
+            uicontrol( 'Style','text','Parent', r1,'String','PO7','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            PO7=uicontrol( 'Style','checkbox','Parent', r1 ,'FontSize',8,'Units','normalized');
+            uicontrol( 'Style','text','Parent', r1,'String','','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            
+            uicontrol( 'Style','text','Parent', r1,'String','PO3','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            PO3=uicontrol( 'Style','checkbox','Parent', r1 ,'FontSize',8,'Units','normalized');
+            uicontrol( 'Style','text','Parent', r1,'String','','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            
+            uicontrol( 'Style','text','Parent', r1,'String','POz','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            POz=uicontrol( 'Style','checkbox','Parent', r1 ,'FontSize',8,'Units','normalized');
+            uicontrol( 'Style','text','Parent', r1,'String','','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            
+            uicontrol( 'Style','text','Parent', r1,'String','PO4','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            PO4=uicontrol( 'Style','checkbox','Parent', r1 ,'FontSize',8,'Units','normalized');
+            uicontrol( 'Style','text','Parent', r1,'String','','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            
+            uicontrol( 'Style','text','Parent', r1,'String','PO8','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+           PO8=uicontrol( 'Style','checkbox','Parent', r1 ,'FontSize',8,'Units','normalized');
+           uicontrol( 'Style','text','Parent', r1,'String','','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            
+            uicontrol( 'Style','text','Parent', r1,'String','','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            uicontrol( 'Style','text','Parent', r1,'String','','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            uicontrol( 'Style','text','Parent', r1,'String','','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+
+            
+            uicontrol( 'Style','text','Parent', r1,'String','','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            uicontrol( 'Style','text','Parent', r1,'String','','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            uicontrol( 'Style','text','Parent', r1,'String','','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+
+            
+            uicontrol( 'Style','text','Parent', r1,'String','','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            uicontrol( 'Style','text','Parent', r1,'String','','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            uicontrol( 'Style','text','Parent', r1,'String','','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+
+            r1.Widths=ones(1,33).*-1;
+            
+            %% LAST ROW
+            r1= uiextras.HBox( 'Parent', v,'Spacing', 5, 'Padding', 5 );
+            uicontrol( 'Style','text','Parent', r1,'String','','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            uicontrol( 'Style','text','Parent', r1,'String','','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            uicontrol( 'Style','text','Parent', r1,'String','','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            
+            uicontrol( 'Style','text','Parent', r1,'String','','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            uicontrol( 'Style','text','Parent', r1,'String','','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            uicontrol( 'Style','text','Parent', r1,'String','','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            
+            uicontrol( 'Style','text','Parent', r1,'String','','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            uicontrol( 'Style','text','Parent', r1,'String','','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            uicontrol( 'Style','text','Parent', r1,'String','','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+       
+            uicontrol( 'Style','text','Parent', r1,'String','','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            uicontrol( 'Style','text','Parent', r1,'String','','FontSize',8,'HorizontalAlignment','left','Units','normalized');            
+            uicontrol( 'Style','text','Parent', r1,'String','','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+
+            uicontrol( 'Style','text','Parent', r1,'String','O1','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            O1=uicontrol( 'Style','checkbox','Parent', r1 ,'FontSize',8,'Units','normalized');
+            uicontrol( 'Style','text','Parent', r1,'String','','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+
+            uicontrol( 'Style','text','Parent', r1,'String','','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            uicontrol( 'Style','text','Parent', r1,'String','','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            uicontrol( 'Style','text','Parent', r1,'String','','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+
+            uicontrol( 'Style','text','Parent', r1,'String','O2','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            O2=uicontrol( 'Style','checkbox','Parent', r1 ,'FontSize',8,'Units','normalized');
+            uicontrol( 'Style','text','Parent', r1,'String','','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+
+            uicontrol( 'Style','text','Parent', r1,'String','','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            uicontrol( 'Style','text','Parent', r1,'String','','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            uicontrol( 'Style','text','Parent', r1,'String','','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+
+            uicontrol( 'Style','text','Parent', r1,'String','','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            uicontrol( 'Style','text','Parent', r1,'String','','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            uicontrol( 'Style','text','Parent', r1,'String','','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            
+            uicontrol( 'Style','text','Parent', r1,'String','','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            uicontrol( 'Style','text','Parent', r1,'String','','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            uicontrol( 'Style','text','Parent', r1,'String','','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+
+            uicontrol( 'Style','text','Parent', r1,'String','','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            uicontrol( 'Style','text','Parent', r1,'String','','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            uicontrol( 'Style','text','Parent', r1,'String','','FontSize',8,'HorizontalAlignment','left','Units','normalized');
+            
+            r1.Widths=ones(1,33).*-1;
+            
+            
+            
+        end
         function pr_threshold(obj)
             obj.pr.clab.(obj.pr.axesno)=uix.Panel( 'Parent', obj.pr.grid, 'Padding', 5 ,'Units','normalized','Title', 'MEP Threshold Hunting','FontWeight','bold','FontSize',12,'TitlePosition','centertop' );
             
@@ -1762,6 +2317,56 @@ classdef best_application < handle
             obj.pr.container.(obj.pr.ax_no)=uicontainer('Parent',   obj.pr.clab.(obj.pr.ax_no),'uicontextmenu',ui_menu);
             obj.pr.ax.(obj.pr.ax_no)=axes('Parent',   obj.pr.container.(obj.pr.ax_no),'Units','normalized','uicontextmenu',ui_menu);
         end
+        function pr_TEPButterflyPlot(obj)
+            obj.pr.ax_no=['ax' num2str(obj.pr.axesno)];
+            AxesTitle=obj.pr.ax_ChannelLabels{obj.pr.axesno};
+            ui_menu=uicontextmenu(obj.fig.handle);
+            uimenu(ui_menu,'label','X Limits','Callback',@obj.pr_TEPDisplayParameters,'Tag',obj.pr.ax_no);
+            uimenu(ui_menu,'label','Y Limits','Callback',@obj.pr_TEPDisplayParameters,'Tag',obj.pr.ax_no);
+            uimenu(ui_menu,'label','Bad Channels','Callback',@obj.pr_TEPBadChannels,'Tag',obj.pr.ax_no);
+            uimenu(ui_menu,'label','No. of Trials to Average','Callback',@obj.pr_TEPDisplayParameters,'Tag',obj.pr.ax_no);
+            uimenu(ui_menu,'label','set Font size','Callback',@pr_TEPDisplayParameters,'Tag',obj.pr.ax_no);
+            uimenu(ui_menu,'label','export as MATLAB Figure','Callback',@obj.pr_FigureExport,'Tag',obj.pr.ax_no);
+            obj.pr.clab.(obj.pr.ax_no)=uix.Panel( 'Parent', obj.pr.grid, 'Padding', 5 ,'Units','normalized','Title',AxesTitle,'FontWeight','bold','FontSize',12,'TitlePosition','centertop' );
+            obj.pr.container.(obj.pr.ax_no)=uicontainer('Parent',   obj.pr.clab.(obj.pr.ax_no),'uicontextmenu',ui_menu);
+            obj.pr.container.(obj.pr.ax_no).BackgroundColor=[1 1 1];
+            obj.pr.ax.(obj.pr.ax_no)=axes( 'Parent',obj.pr.container.(obj.pr.ax_no),'Units','normalized','uicontextmenu',ui_menu);
+            xlabel('Time (ms)'); ylabel('EEG Potential (\mu V)');
+            text(obj.pr.ax.(obj.pr.ax_no),1,1,'YLim-','units','normalized','HorizontalAlignment','right','VerticalAlignment','bottom','ButtonDownFcn',@obj.pr_EEGYLimZoomIn,'Tag',obj.pr.ax_no,'color',[0.55 0.55 0.55]);
+            text(obj.pr.ax.(obj.pr.ax_no),0.1,1,'YLim+','units','normalized','HorizontalAlignment','left','VerticalAlignment','bottom','ButtonDownFcn',@obj.pr_EEGYLimZoomOut,'Tag',obj.pr.ax_no,'color',[0.55 0.55 0.55]);
+            text(obj.pr.ax.(obj.pr.ax_no),0.7,1,'XLim-','units','normalized','HorizontalAlignment','right','VerticalAlignment','bottom','ButtonDownFcn',@obj.pr_EEGXLimZoomIn,'Tag',obj.pr.ax_no,'color',[0.55 0.55 0.55]);
+            text(obj.pr.ax.(obj.pr.ax_no),0.4,1,'XLim+','units','normalized','HorizontalAlignment','left','VerticalAlignment','bottom','ButtonDownFcn',@obj.pr_EEGXLimZoomOut,'Tag',obj.pr.ax_no,'color',[0.55 0.55 0.55]);
+        end
+        function pr_TEPTopoplot(obj)
+            obj.pr.ax_no=['ax' num2str(obj.pr.axesno)];
+            AxesTitle=obj.pr.ax_ChannelLabels{obj.pr.axesno};
+            ui_menu=uicontextmenu(obj.fig.handle);
+            uimenu(ui_menu,'label','X Limits','Callback',@obj.pr_TEPDisplayParameters,'Tag',obj.pr.ax_no);
+            uimenu(ui_menu,'label','Y Limits','Callback',@obj.pr_TEPDisplayParameters,'Tag',obj.pr.ax_no);
+            uimenu(ui_menu,'label','Bad Channels','Callback',@obj.pr_TEPBadChannels,'Tag',obj.pr.ax_no);
+            uimenu(ui_menu,'label','No. of Trials to Average','Callback',@obj.pr_TEPDisplayParameters,'Tag',obj.pr.ax_no);
+            uimenu(ui_menu,'label','set Font size','Callback',@pr_TEPDisplayParameters,'Tag',obj.pr.ax_no);
+            uimenu(ui_menu,'label','export as MATLAB Figure','Callback',@obj.pr_FigureExport,'Tag',obj.pr.ax_no);
+            obj.pr.clab.(obj.pr.ax_no)=uix.Panel( 'Parent', obj.pr.grid, 'Padding', 5 ,'Units','normalized','Title',AxesTitle,'FontWeight','bold','FontSize',12,'TitlePosition','centertop' );
+            obj.pr.container.(obj.pr.ax_no)=uicontainer('Parent',   obj.pr.clab.(obj.pr.ax_no),'uicontextmenu',ui_menu);
+            obj.pr.container.(obj.pr.ax_no).BackgroundColor=[1 1 1];
+        end
+        function pr_TEPMultiplot(obj)
+            obj.pr.ax_no=['ax' num2str(obj.pr.axesno)];
+            AxesTitle=obj.pr.ax_ChannelLabels{obj.pr.axesno};
+            ui_menu=uicontextmenu(obj.fig.handle);
+            uimenu(ui_menu,'label','X Limits','Callback',@obj.pr_TEPXLim,'Tag',obj.pr.ax_no);
+            uimenu(ui_menu,'label','Y Limits','Callback',@obj.pr_TEPYLim,'Tag',obj.pr.ax_no);
+            uimenu(ui_menu,'label','Bad Channels','Callback',@obj.pr_TEPBadChannels,'Tag',obj.pr.ax_no);
+            uimenu(ui_menu,'label','No. of Trials to Average','Callback',@obj.pr_FigureExport,'Tag',obj.pr.ax_no);
+            uimenu(ui_menu,'label','set Font size','Callback',@cbFontSize,'Tag',obj.pr.ax_no);
+            uimenu(ui_menu,'label','export as MATLAB Figure','Callback',@obj.pr_FigureExport,'Tag',obj.pr.ax_no);
+            obj.pr.clab.(obj.pr.ax_no)=uix.Panel( 'Parent', obj.pr.grid, 'Padding', 5 ,'Units','normalized','Title',AxesTitle,'FontWeight','bold','FontSize',12,'TitlePosition','centertop' );
+            obj.pr.container.(obj.pr.ax_no)=uicontainer('Parent',   obj.pr.clab.(obj.pr.ax_no),'uicontextmenu',ui_menu);
+            obj.pr.container.(obj.pr.ax_no).BackgroundColor=[1 1 1];
+
+        end
+        
         %% MEP Hotspot Search Section
         function pi_hotspot(obj)
             obj.fig.main.Widths([1 2 3])=[-1.15 -3.35 -0];
@@ -3876,10 +4481,6 @@ classdef best_application < handle
             cb_BrainStateParametersPanel
             DisplayParametersPanel=uix.Panel( 'Parent', obj.pi.tep.r0v1,'Padding',5,'Units','normalized','FontSize',8 ,'Units','normalized','Title','Display Parameters' ,'FontWeight','normal','TitlePosition','centertop');
             cb_DisplayParametersPanel
-            expModr2=uiextras.HBox( 'Parent', obj.pi.tep.r0v1,'Spacing', 5, 'Padding', 5 );
-            uicontrol( 'Style','text','Parent', expModr2,'String','Trials Per Condition:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-            obj.pi.tep.TrialsPerCondition=uicontrol( 'Style','edit','Parent', expModr2 ,'FontSize',11,'Tag','TrialsPerCondition','callback',@cb_par_saving);
-            expModr2.Widths=[150 -2];
             
             %row3
             uicontrol( 'Style','text','Parent', obj.pi.tep.r0v1,'String','','FontSize',11,'HorizontalAlignment','center','Units','normalized');
@@ -3924,12 +4525,7 @@ classdef best_application < handle
                         obj.pi.tep.InputDevice=uicontrol( 'Style','popupmenu','Parent', expModr1 ,'FontSize',11,'String',str_in_device,'Tag','InputDevice','callback',@cb_par_saving);
                         expModr1.Widths=[150 -2];
                         
-                        expModr2c=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
-                        uicontrol( 'Style','text','Parent', expModr2c,'String','Inter Trial Interval (s):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-                        obj.pi.tep.ITI=uicontrol( 'Style','edit','Parent', expModr2c ,'FontSize',11,'Tag','ITI','callback',@cb_par_saving);
-                        expModr2c.Widths=[150 -2];
-                        
-                        expModvBox.Heights=[30 35];
+                        expModvBox.Heights=[30];
                     case 2
                         expModvBox=uix.VBox( 'Parent', BrainStateParametersPanel, 'Spacing', 0, 'Padding', 0  );
                         %row1
@@ -4003,24 +4599,79 @@ classdef best_application < handle
                 switch obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).BrainState
                     case 1
                         expModvBox=uix.VBox( 'Parent', DisplayParametersPanel, 'Spacing', 0, 'Padding', 0  );
+                        
                         expModr2=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
-                        uicontrol( 'Style','text','Parent', expModr2,'String','Display Channels:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-                        obj.pi.tep.EMGDisplayChannels=uicontrol( 'Style','edit','Parent', expModr2 ,'FontSize',11,'Tag','EMGDisplayChannels','callback',@cb_par_saving);
+                        uicontrol( 'Style','text','Parent', expModr2,'String','Avg. Rereference:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                        obj.pi.tep.AvgRereference=uicontrol( 'Style','edit','Parent', expModr2 ,'FontSize',11,'Tag','AvgRereference','callback',@cb_par_saving);
                         expModr2.Widths=[150 -2];
                         
-                        expModr3=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
-                        uicontrol( 'Style','text','Parent', expModr3,'String','tep Onset (ms):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-                        obj.pi.tep.tepOnset=uicontrol( 'Style','edit','Parent', expModr3 ,'FontSize',11,'Tag','tepOnset','callback',@cb_par_saving);
-                        obj.pi.tep.tepOffset=uicontrol( 'Style','edit','Parent', expModr3 ,'FontSize',11,'Tag','tepOffset','callback',@cb_par_saving);
-                        expModr3.Widths=[150 -2 -2];
+                        expModr2=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
+                        uicontrol( 'Style','text','Parent', expModr2,'String','Reference Channels:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                        obj.pi.tep.AvgReferenceChannels=uicontrol( 'Style','edit','Parent', expModr2 ,'FontSize',11,'Tag','AvgReferenceChannels','callback',@cb_par_saving);
+                        expModr2.Widths=[150 -2];
                         
-                        expModr4=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
-                        uicontrol( 'Style','text','Parent', expModr4,'String','Display Period (ms):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-                        obj.pi.tep.EMGDisplayPeriodPre=uicontrol( 'Style','edit','Parent', expModr4 ,'FontSize',11,'Tag','EMGDisplayPeriodPre','callback',@cb_par_saving);
-                        obj.pi.tep.EMGDisplayPeriodPost=uicontrol( 'Style','edit','Parent', expModr4 ,'FontSize',11,'Tag','EMGDisplayPeriodPost','callback',@cb_par_saving);
-                        expModr4.Widths=[150 -2 -2];
+                        expModr2=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
+                        uicontrol( 'Style','text','Parent', expModr2,'String','Bad Channels:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                        obj.pi.tep.BadChannels=uicontrol( 'Style','edit','Parent', expModr2 ,'FontSize',11,'Tag','BadChannels','callback',@cb_par_saving);
+                        expModr2.Widths=[150 -2];
                         
-                        expModvBox.Heights=[45 45 45];
+                        expModr2=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
+                        uicontrol( 'Style','text','Parent', expModr2,'String','Implicit Reference:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                        obj.pi.tep.ImplicitReference=uicontrol( 'Style','edit','Parent', expModr2 ,'FontSize',11,'Tag','ImplicitReference','callback',@cb_par_saving);
+                        expModr2.Widths=[150 -2];
+                        
+                        expModr2=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
+                        uicontrol( 'Style','text','Parent', expModr2,'String','Butterfly Plot Montage Channels:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                        obj.pi.tep.ButterflyPlotMontageChannels=uicontrol( 'Style','edit','Parent', expModr2 ,'FontSize',11,'Tag','ButterflyPlotMontageChannels','callback',@cb_par_saving);
+                        expModr2.Widths=[150 -2];
+                        
+                        expModr2=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
+                        uicontrol( 'Style','text','Parent', expModr2,'String','Butterfly Plot Montage Weights:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                        obj.pi.tep.ButterflyPlotMontageWeights=uicontrol( 'Style','edit','Parent', expModr2 ,'FontSize',11,'Tag','ButterflyPlotMontageWeights','callback',@cb_par_saving);
+                        expModr2.Widths=[150 -2];
+                        
+                        expModr2=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
+                        uicontrol( 'Style','text','Parent', expModr2,'String','Butterfly Plot Display Period (ms):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                        obj.pi.tep.ButterflyPlotDisplayPeriod=uicontrol( 'Style','edit','Parent', expModr2 ,'FontSize',11,'Tag','ButterflyPlotDisplayPeriod','callback',@cb_par_saving);
+                        expModr2.Widths=[150 -2];
+                        
+                        expModr2=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
+                        uicontrol( 'Style','text','Parent', expModr2,'String','Topoplot Montage Channels:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                        obj.pi.tep.TopoplotMontageChannels=uicontrol( 'Style','edit','Parent', expModr2 ,'FontSize',11,'Tag','TopoplotMontageChannels','callback',@cb_par_saving);
+                        expModr2.Widths=[150 -2];
+                        
+                        expModr2=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
+                        uicontrol( 'Style','text','Parent', expModr2,'String','Topoplot Montage Weights:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                        obj.pi.tep.TopoplotMontageWeights=uicontrol( 'Style','edit','Parent', expModr2 ,'FontSize',11,'Tag','TopoplotMontageWeights','callback',@cb_par_saving);
+                        expModr2.Widths=[150 -2];
+                        
+                        expModr2=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
+                        uicontrol( 'Style','text','Parent', expModr2,'String','Topoplot Display Period (ms):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                        obj.pi.tep.TopoplotDisplayPeriod=uicontrol( 'Style','edit','Parent', expModr2 ,'FontSize',11,'Tag','TopoplotDisplayPeriod','callback',@cb_par_saving);
+                        expModr2.Widths=[150 -2];
+                        
+                        expModr2=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
+                        uicontrol( 'Style','text','Parent', expModr2,'String','Multiplot Montage Channels:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                        obj.pi.tep.MultiplotMontageChannels=uicontrol( 'Style','edit','Parent', expModr2 ,'FontSize',11,'Tag','MultiplotMontageChannels','callback',@cb_par_saving);
+                        expModr2.Widths=[150 -2];
+                        
+                        expModr2=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
+                        uicontrol( 'Style','text','Parent', expModr2,'String','Multiplot Montage Weights:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                        obj.pi.tep.MultiplotMontageWeights=uicontrol( 'Style','edit','Parent', expModr2 ,'FontSize',11,'Tag','MultiplotMontageWeights','callback',@cb_par_saving);
+                        expModr2.Widths=[150 -2];
+                        
+                        expModr2=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
+                        uicontrol( 'Style','text','Parent', expModr2,'String','Multiplot Display Period (ms):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                        obj.pi.tep.MultiplotDisplayPeriod=uicontrol( 'Style','edit','Parent', expModr2 ,'FontSize',11,'Tag','MultiplotDisplayPeriod','callback',@cb_par_saving);
+                        expModr2.Widths=[150 -2];
+                        
+                        expModr2=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
+                        uicontrol( 'Style','text','Parent', expModr2,'String','EEG Extraction Period (ms):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                        obj.pi.tep.EEGExtractionPeriod=uicontrol( 'Style','edit','Parent', expModr2 ,'FontSize',11,'Tag','EEGExtractionPeriod','callback',@cb_par_saving);
+                        expModr2.Widths=[150 -2];
+                        
+                        
+                        expModvBox.Heights=[35 35 35 42 42 42 42 42 42 42 42 42 42 42];
                         %                         cb_SetHeights
                     case 2
                         expModvBox=uix.VBox( 'Parent', DisplayParametersPanel, 'Spacing', 0, 'Padding', 0  );
@@ -4054,7 +4705,7 @@ classdef best_application < handle
             function cb_SetHeights
                 switch obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).BrainState
                     case 1
-                        set(obj.pi.tep.r0v1,'Heights',[40 90 170 40 -3 55])
+                        set(obj.pi.tep.r0v1,'Heights',[40 -1 -11 0 55])
                     case 2
                         set(obj.pi.tep.r0v1,'Heights',[40 390 220 40 -3 55])
                 end
@@ -4088,8 +4739,26 @@ classdef best_application < handle
             % uicontroller
             obj.info.defaults=[];
             obj.info.defaults.BrainState=1;
-            obj.info.defaults.TrialsPerCondition='10';
             obj.info.defaults.InputDevice=1;
+            obj.info.defaults.AvgRereference='yes';
+            obj.info.defaults.AvgReferenceChannels='all';
+            obj.info.defaults.BadChannels='';
+            obj.info.defaults.ImplicitReference=['{' ' ''FCz''}'];
+            obj.info.defaults.ButterflyPlotMontageChannels=['{{''FC3''}}'];
+            obj.info.defaults.ButterflyPlotMontageWeights=['{{[1]}}'];
+            obj.info.defaults.ButterflyPlotDisplayPeriod=['{{[-100 600]}}'];
+            obj.info.defaults.TopoplotMontageChannels=['{{''FC3''}}'];
+            obj.info.defaults.TopoplotMontageWeights=['{{[1]}}'];
+            obj.info.defaults.TopoplotDisplayPeriod=['{{[-100 600]}}'];
+            obj.info.defaults.MultiplotMontageChannels=['{{''FC3''}}'];
+            obj.info.defaults.MultiplotMontageWeights=['{{[1]}}'];
+            obj.info.defaults.MultiplotDisplayPeriod=['{{[-100 600]}}'];
+            obj.info.defaults.EEGExtractionPeriod='-100 600';
+            obj.info.defaults.LastTrialToAverage=1;
+            obj.info.defaults.ButterflyPlotYLim='-200 200';
+            obj.info.defaults.TopoplotYLim='-20 20';
+            obj.info.defaults.MultiplotYLim='-20 20';
+            obj.info.defaults.TrialsPerCondition='10';
             obj.info.defaults.ITI='4';
             obj.info.defaults.MontageChannels=['{' ' ''C3'',' ' ''FC1'',' ' ''FC5'',' ' ''CP1'',' ' ''CP5''}'];
             obj.info.defaults.MontageWeights='1 -0.25 -0.25 -0.25 -0.25';
@@ -4110,28 +4779,16 @@ classdef best_application < handle
             obj.info.defaults.EEGDisplayPeriodPost='100';
             obj.info.defaults.EMGDisplayYLimMax={3000};
             obj.info.defaults.EMGDisplayYLimMin={-3000};
-            obj.info.defaults.Protocol={'tep Measurement Protocol'};
+            obj.info.defaults.Protocol={'TEP Measurement Protocol'};
             obj.info.defaults.Handles.UserData='Reserved for Future Use';
             obj.info.defaults.Enable={'on'};
             obj.info.defaults.ProtocolStatus={'created'};
-            
-            %             obj.info.defaults.expMode	=	1	;
-            %             obj.info.defaults.inputDevice	=	1	;
-            %             %             obj.info.defaults.displayChannels	=	eval('{''APBr''}')	;
-            %             obj.info.defaults.trials	=	10	;
-            %             obj.info.defaults.iti	=	4	;
-            %             obj.info.defaults.tepOnset	=	15	;
-            %             obj.info.defaults.tepOffset	=	50	;
-            %             obj.info.defaults.prestim_scope_plt	=	50	;
-            %             obj.info.defaults.poststim_scope_plt	=	150	;
-            %             obj.info.defaults.sub_measure_str	=	'tep Measurement'	;
-            %             obj.info.defaults.measure_str   =	'Multimodal Experiment'	;
-            si=[30 40 50 60 70 80];
-            for idefaults=1:6
+            si=[100];
+            for idefaults=1:1
                 cond=['cond' num2str(idefaults)];
-                obj.info.defaults.condsAll.(cond).targetChannel=cellstr('NaN');
-                obj.info.defaults.condsAll.(cond).TrialsPerCondition=50;
-                obj.info.defaults.condsAll.(cond).ITI=[3 4];
+                obj.info.defaults.condsAll.(cond).targetChannel=cellstr('');
+                obj.info.defaults.condsAll.(cond).TrialsPerCondition=100;
+                obj.info.defaults.condsAll.(cond).ITI=[4 6];
                 obj.info.defaults.condsAll.(cond).Phase='Peak';
                 obj.info.defaults.condsAll.(cond).AmplitudeThreshold='0 1e6';
                 obj.info.defaults.condsAll.(cond).AmplitudeUnits='Absolute (micro volts)';

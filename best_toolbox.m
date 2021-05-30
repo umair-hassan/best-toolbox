@@ -3339,6 +3339,161 @@ classdef best_toolbox < handle
                             obj.app.pr.ax_ChannelLabels=[{'OsscillationPhase','OsscillationEEG'},horzcat(ax_ChannelLabels{:}), {'OsscillationAmplitude','AmplitudeDistribution','StatusTable'}] ;
                             obj.app.pr.ax_AxesAnnotation=ax_AxesAnnotation;
                     end
+                case 'TEP Measurement Protocol'
+                    switch obj.inputs.BrainState
+                        case 1
+                            %% Adjusting New Arhictecture to Old Architecture
+                            obj.inputs.output_device=obj.inputs.condsAll.cond1.st1.stim_device;
+                            obj.inputs.stop_event=0;
+                            obj.inputs.ylimMin=-3000;
+                            obj.inputs.ylimMax=+3000;
+                            obj.inputs.TrialNoForMean=1;
+                            obj.inputs.input_device=char(obj.app.pi.tep.InputDevice.String(obj.inputs.InputDevice)); %TODO: the tep, drc or mep on the 4th structure is not a good solution!
+                            obj.inputs.stim_mode='MSO';
+                            obj.inputs.measure_str='TEP Measurement Protocol';
+                            %obj.inputs.ButterflyPlotYLim=[-40 +40];
+                            %obj.inputs.TopoplotYLim=[-40 +40];
+                            %obj.inputs.MultiplotYLim=[-40 +40];
+                            %% Creating Column Labels
+                            obj.inputs.colLabel.inputDevices=1;
+                            obj.inputs.colLabel.outputDevices=2;
+                            obj.inputs.colLabel.si=3;
+                            obj.inputs.colLabel.iti=4;
+                            obj.inputs.colLabel.chLab=5;
+                            obj.inputs.colLabel.trials=9;
+                            obj.inputs.colLabel.axesno=6;
+                            obj.inputs.colLabel.measures=7;
+                            obj.inputs.colLabel.stimMode=8;
+                            obj.inputs.colLabel.tpm=10;
+                            obj.inputs.colLabel.chType=11;
+                            obj.inputs.colLabel.chId=12;
+                            obj.inputs.colLabel.XLim=13;
+                            obj.inputs.colLabel.YLim=14;
+                            obj.inputs.colLabel.ConditionMarker=15;
+                            obj.inputs.colLabel.TotalITI=16;
+                            conds=fieldnames(obj.inputs.condsAll);
+                            %% Creating Channel Types, Axes No, Channel IDs
+                            %Count the No of Plots for Butterfly, Topo, Multiplot
+                            TotalPlotCount=0;
+                            ButterflyPlotCount=numel(obj.inputs.ButterflyPlotMontageChannels);
+                            TopoplotCount=numel(obj.inputs.TopoplotMontageChannels);
+                            MultiplotCount=numel(obj.inputs.MultiplotMontageChannels);
+                            TotalPlotCount=ButterflyPlotCount+TopoplotCount+MultiplotCount;
+                            obj.app.pr.axesno=TotalPlotCount;
+                            obj.app.pr.ax_measures=[repmat({'TEPButterflyPlot'},1,ButterflyPlotCount),repmat({'TEPMultiplot'},1,MultiplotCount),repmat({'TEPTopoplot'},1,TopoplotCount)];
+                            ploti=0;
+                            for i=1:ButterflyPlotCount
+                                ploti=ploti+1;
+                                ax_ChannelLabels{1,ploti}=horzcat(obj.inputs.ButterflyPlotMontageChannels{1,i}{:});
+                                ax_ChannelId{1,ploti}=obj.inputs.ButterflyPlotMontageChannels{1,i};
+                                ax_XLim{1,ploti}=obj.inputs.ButterflyPlotDisplayPeriod{1,i};
+                                ax_YLim{1,ploti}={str2num(obj.inputs.ButterflyPlotYLim)};
+                            end
+                            for i=1:MultiplotCount
+                                ploti=ploti+1;
+                                ax_ChannelLabels{1,ploti}=horzcat(obj.inputs.MultiplotMontageChannels{1,i}{:});
+                                ax_ChannelId{1,ploti}=obj.inputs.MultiplotMontageChannels{1,i};
+                                ax_XLim{1,ploti}=obj.inputs.MultiplotDisplayPeriod{1,i};
+                                ax_YLim{1,ploti}={str2num(obj.inputs.MultiplotYLim)};
+                            end
+                            for i=1:TopoplotCount
+                                ploti=ploti+1;
+                                ax_ChannelLabels{1,ploti}=horzcat(obj.inputs.TopoplotMontageChannels{1,i}{:});
+                                ax_ChannelId{1,ploti}=obj.inputs.TopoplotMontageChannels{1,i};
+                                ax_XLim{1,ploti}=obj.inputs.TopoplotDisplayPeriod{1,i};
+                                ax_YLim{1,ploti}={str2num(obj.inputs.TopoplotYLim)};
+                            end
+                            
+                            
+                            obj.app.pr.ax_ChannelLabels=ax_ChannelLabels;
+                            %% Creating Experimental Conditions
+                            for c=1:numel(fieldnames(obj.inputs.condsAll))
+                                %% Input Device
+                                obj.inputs.condMat{c,obj.inputs.colLabel.inputDevices}=char(obj.app.pi.tep.InputDevice.String(obj.inputs.InputDevice));
+                                %% TrialsPer Condition
+                                obj.inputs.condMat{c,obj.inputs.colLabel.trials}=obj.inputs.condsAll.(conds{c,1}).TrialsPerCondition;
+                                %% ITI
+                                obj.inputs.condMat{c,obj.inputs.colLabel.iti}=obj.inputs.condsAll.(conds{c,1}).ITI;
+                                %% Channel Label, Measure, Axes No, Channel Type, Channel ID for Plots
+                                obj.inputs.condMat{c,obj.inputs.colLabel.chLab}=ax_ChannelId;
+                                obj.inputs.condMat{c,obj.inputs.colLabel.measures}=obj.app.pr.ax_measures;
+                                obj.inputs.condMat{c,obj.inputs.colLabel.axesno}=num2cell(1:TotalPlotCount);
+                                obj.inputs.condMat{c,obj.inputs.colLabel.chType}=repmat({'EEG FieldTrip'},1,TotalPlotCount);
+                                obj.inputs.condMat{c,obj.inputs.colLabel.chId}=ax_ChannelId;
+                                obj.inputs.condMat{c,obj.inputs.colLabel.XLim}=ax_XLim;
+                                obj.inputs.condMat{c,obj.inputs.colLabel.YLim}=ax_YLim;
+                                obj.inputs.condMat{c,obj.inputs.colLabel.ConditionMarker}=c;
+                                %% Stimulator Specific Parameters
+                                TestStimulatorIndex=[]; 
+                                for stno=1:(max(size(fieldnames(obj.inputs.condsAll.(conds{c,1}))))-6)
+                                    st=['st' num2str(stno)];
+                                    condSi{1,stno}=obj.inputs.condsAll.(conds{c,1}).(st).si_pckt;
+                                    condstimMode{1,stno}= obj.inputs.condsAll.(conds{c,1}).(st).stim_mode;
+                                    condoutputDevice{1,stno}=obj.inputs.condsAll.(conds{c,1}).(st).stim_device;
+                                    for i=1:numel(obj.inputs.condsAll.(conds{c,1}).(st).stim_timing)
+                                        condstimTimingStrings{1,i}=num2str(obj.inputs.condsAll.(conds{c,1}).(st).stim_timing{1,i});
+                                    end
+                                    condstimTiming{1,stno}=condstimTimingStrings;
+                                    if strcmpi(obj.inputs.condsAll.(conds{c,1}).(st).StimulationType,'Test')
+                                        TestStimulatorIndex=stno;
+                                    end
+                                end
+                                obj.inputs.condMat(c,obj.inputs.colLabel.si)={condSi};
+                                obj.inputs.condMat(c,obj.inputs.colLabel.outputDevices)={condoutputDevice};
+                                obj.inputs.condMat(c,obj.inputs.colLabel.stimMode)={condstimMode};
+                                for timing=1:numel(condstimTiming)
+                                    for jj=1:numel(condstimTiming{1,timing})
+                                        condstimTiming{2,timing}{1,jj}=condoutputDevice{1,timing};
+                                    end
+                                end
+                                condstimTiming_new{1}=horzcat(condstimTiming{1,:});
+                                condstimTiming_new{2}=horzcat(condstimTiming{2,:});
+                                [condstimTiming_new_sorted{1},sorted_idx]=sort(condstimTiming_new{1});
+                                condstimTiming_new_sorted{2}=condstimTiming_new{1,2}(sorted_idx);
+                                for stimno_tpm=1:numel(condstimTiming_new_sorted{2})
+                                    port_vector{stimno_tpm}=obj.app.par.hardware_settings.(char(condstimTiming_new_sorted{2}{1,stimno_tpm})).bb_outputport;
+                                end
+                                condstimTiming_new_sorted{2}=port_vector;
+                                tpmVect=[condstimTiming_new_sorted{1};condstimTiming_new_sorted{2}];
+                                [tpmVect_unique,ia,ic]=unique(tpmVect(1,:));
+                                a_counts = accumarray(ic,1);
+                                for binportloop=1:numel(tpmVect_unique)
+%                                     buffer{1,binportloop}={(cell2mat(tpmVect(2,ia(binportloop):ia(binportloop)-1+a_counts(binportloop))))};
+%                                     binaryZ='0000';
+%                                     num=cell2mat(buffer{1,binportloop});
+%                                     for binaryID=1:numel(num)
+% 
+%                                         binaryZ(str2num(num(binaryID)))='1';
+%                                     end
+                                    buffer{1,binportloop}=str2num(port_vector{binportloop});%bin2dec(flip(binaryZ));
+                                    markers{1,binportloop}=0;
+                                end
+                                markers{1,1}=c;
+                                condstimTiming_new_sorted=[num2cell((cellfun(@str2num, tpmVect_unique(1,1:end))));buffer;markers];
+                                condstimTiming_new_sorted=cell2mat(condstimTiming_new_sorted)
+                                [condstimTiming_new_sorted(1,:),sorted_idx]=sort(condstimTiming_new_sorted(1,:))
+                                condstimTiming_new_sorted(1,:)=condstimTiming_new_sorted(1,:)/1000;
+                                condstimTiming_new_sorted(2,:)=condstimTiming_new_sorted(2,sorted_idx)
+                                % find the test stimulator number
+                                % if it matches on of the baseline values,
+                                % replace the port numbre on that
+                                % respective counter
+%                                 switch condstimTiming_new_sorted(2,TestStimulatorIndex)
+%                                     case 2
+%                                         condstimTiming_new_sorted(2,TestStimulatorIndex)=10;
+%                                     case 4
+%                                         condstimTiming_new_sorted(2,TestStimulatorIndex)=12;
+%                                 end
+                                condstimTiming_new_sorted(3,:)=0;
+                                condstimTiming_new_sorted(3,TestStimulatorIndex)=c;
+                                
+                                obj.inputs.condMat(c,obj.inputs.colLabel.tpm)={num2cell(condstimTiming_new_sorted)};
+                                condSi=[]; condoutputDevice=[]; condstimMode=[];condstimTiming=[];buffer=[];tpmVect_unique=[];a_counts =[];ia=[];ic=[];port_vector=[];
+                                num=[];condstimTiming_new=[];condstimTiming_new_sorted=[];sorted_idx=[];markers=[];condstimTimingStrings=[];
+                            end
+                            
+                        case 2
+                    end
             end
             %% Conversion from Pars2Inputs
             function cb_Pars2Inputs
@@ -3346,8 +3501,25 @@ classdef best_toolbox < handle
                 InputsFieldNames=fieldnames(obj.inputs);
                 for iInputs=1:numel(InputsFieldNames)
                     if (isa(obj.inputs.(InputsFieldNames{iInputs}),'char'))
+                        switch InputsFieldNames{iInputs}
+                            case 'AvgRereference'
+                                obj.inputs.(InputsFieldNames{iInputs})= obj.inputs.(InputsFieldNames{iInputs}); continue;
+                            case 'AvgReferenceChannels'
+                                if strcmp(obj.inputs.(InputsFieldNames{iInputs}),'all')
+                                    obj.inputs.(InputsFieldNames{iInputs})= obj.inputs.(InputsFieldNames{iInputs}); continue;
+                                else
+                                    obj.inputs.(InputsFieldNames{iInputs})= eval(obj.inputs.(InputsFieldNames{iInputs})); continue;
+                                end
+                            case 'ButterflyPlotYLim'
+                                obj.inputs.(InputsFieldNames{iInputs})= obj.inputs.(InputsFieldNames{iInputs});continue;
+                            case 'TopoplotYLim'
+                                obj.inputs.(InputsFieldNames{iInputs})= obj.inputs.(InputsFieldNames{iInputs});continue;
+                            case 'MultiplotYLim'
+                                obj.inputs.(InputsFieldNames{iInputs})= obj.inputs.(InputsFieldNames{iInputs});continue;
+                        end
                         if (strcmp(InputsFieldNames{iInputs},'ReferenceChannels')) || (strcmp(InputsFieldNames{iInputs},'ITI')) || (strcmp(InputsFieldNames{iInputs},'EMGDisplayChannels')) || (strcmp(InputsFieldNames{iInputs},'EMGTargetChannels')) || (strcmp(InputsFieldNames{iInputs},'Phase')) || (strcmp(InputsFieldNames{iInputs},'PhaseTolerance')) || (strcmp(InputsFieldNames{iInputs},'MontageChannels')) || (strcmp(InputsFieldNames{iInputs},'AmplitudeThreshold'))|| (strcmp(InputsFieldNames{iInputs},'TargetChannels')) || (strcmp(InputsFieldNames{iInputs},'EEGDisplayPeriod')) ...
-                                || (strcmp(InputsFieldNames{iInputs},'RealTimeChannelsMontage')) || (strcmp(InputsFieldNames{iInputs},'MontageWeights')) || (strcmp(InputsFieldNames{iInputs},'RecordingReference'))
+                                || (strcmp(InputsFieldNames{iInputs},'RealTimeChannelsMontage')) || (strcmp(InputsFieldNames{iInputs},'MontageWeights')) || (strcmp(InputsFieldNames{iInputs},'RecordingReference')) || (strcmp(InputsFieldNames{iInputs},'Rereference')) || (strcmp(InputsFieldNames{iInputs},'ReferenceChannels')) || (strcmp(InputsFieldNames{iInputs},'ImplicitReference')) || (strcmp(InputsFieldNames{iInputs},'ButterflyPlotMontageChannels')) || (strcmp(InputsFieldNames{iInputs},'ButterflyPlotMontageWeights')) || (strcmp(InputsFieldNames{iInputs},'ButterflyPlotDisplayPeriod'))...
+                                || (strcmp(InputsFieldNames{iInputs},'TopoplotMontageChannels')) || (strcmp(InputsFieldNames{iInputs},'TopoplotMontageWeights')) || (strcmp(InputsFieldNames{iInputs},'TopoplotDisplayPeriod')) || (strcmp(InputsFieldNames{iInputs},'MultiplotMontageChannels')) || (strcmp(InputsFieldNames{iInputs},'MultiplotMontageWeights'))  || (strcmp(InputsFieldNames{iInputs},'MultiplotDisplayPeriod')) || (strcmp(InputsFieldNames{iInputs},'BadChannels')) || (strcmp(InputsFieldNames{iInputs},'LastTrialToAverage')) 
                             if (isempty(obj.inputs.(InputsFieldNames{iInputs})))
                                 disp donothing
                             else
@@ -3688,6 +3860,8 @@ classdef best_toolbox < handle
                             case 'EEG'
                                 obj.bossbox.EEGScopeBoot(obj.inputs.EEGDisplayPeriodPre,obj.inputs.EEGDisplayPeriodPost);
                                 obj.boot_fieldtrip;
+                            case 'EEG FieldTrip'
+                                obj.bossbox.EEGScopeBoot(obj.inputs.EEGExtractionPeriod(1)*(-1),obj.inputs.EEGExtractionPeriod(2));
                         end
                     end
                 case 2 % fieldtrip
@@ -3817,11 +3991,8 @@ classdef best_toolbox < handle
         end
         function readTrial(obj)
             try if istrue(obj.info.ReturnToTrial), return; end, catch, end
-            %device type
-            %            then read all channels through it, basically a for loop
             disp enteredREAD
             switch obj.app.par.hardware_settings.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.inputDevices}).slct_device
-                
                 case 1 % boss box
                     unique_chLab=obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab};
                     for i=1:numel(unique_chLab)
@@ -3863,12 +4034,16 @@ classdef best_toolbox < handle
 %                                 end
 %                                 obj.fieldtrip.best2ftdata(obj.inputs.rawData,obj.inputs.trial,obj.inputs.input_device);
 %                                 obj.fieldtrip.preprocess(obj.inputs.Configuration, obj.inputs.rawData.ftdata,obj.inputs.trial)
+                            case 'EEG FieldTrip'
+                                obj.inputs.rawdata.label=obj.app.par.hardware_settings.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.inputDevices}).NeurOneProtocolChannelLabels;
+                                [obj.inputs.rawdata.time{1,obj.inputs.trial}, obj.inputs.rawdata.trial{1,obj.inputs.trial}]= obj.bossbox.EEGFieldTripScopeRead;
+                                obj.inputs.rawdata.trialdef=obj.inputs.trial;
                         end
                     end
-                case 2 % fieldtrip
+                case 2 % Fieldtrip
                     % http://www.fieldtriptoolbox.org/faq/how_should_i_get_started_with_the_fieldtrip_realtime_buffer/
-                case 3 %Future: input box
-                case 4  % simulated data
+                case 3 % Future: input box
+                case 4 % Simulated data
                     for i=1:numel(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab})
                         obj.inputs.rawData.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,i}).data(obj.inputs.trial,:)=(rand (1,obj.inputs.sc_samples))+5000000;
                     end
@@ -3988,6 +4163,12 @@ classdef best_toolbox < handle
                         obj.ERPTopoPlot;
                     case 'TotalITIDistribution'
                         obj.TotalITIDistributionPlot;
+                    case 'TEPButterflyPlot'
+                        obj.TEPButterflyPlot;
+                    case 'TEPTopoplot'
+                        obj.TEPTopoplot;
+                    case 'TEPMultiplot'
+                        obj.TEPMultiplot;
                         
                     case 'StatusTable'
                         obj.StatusTable;
@@ -4070,9 +4251,11 @@ classdef best_toolbox < handle
                                             if obj.inputs.trial==1,  pause(1), end %This wait is required for first trial only otherwise time is tooshort to set intensity succesfully
                                         case 'paired_pulse'
                                             obj.magven.arm;
-                                            obj.magven.setAmplitude(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,i}{1,4});
-                                            obj.magven.setMode('Twin','Normal', 2, obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,i}{1,3}, obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,i}{1,4}/obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,i}{1,2});
-                                            disp PAIREDpulseENTERED
+                                            obj.magven.setMode('Dual','00',2,obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,i}{1,6},1,1); %('mode','currentDirection', burstPulses, ipiValue in ms, BARatioValue, varargin);
+                                            obj.magven.setAmplitude([obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,i}{1,5} obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,i}{1,4}]);
+                                            %obj.magven.setAmplitude(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,i}{1,4});
+                                            %obj.magven.setMode('Twin','Normal', 2, obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,i}{1,3}, obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,i}{1,4}/obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,i}{1,2});
+                                            disp('Paired Pulse Trial is Prepared');
                                         case 'train'
                                             obj.magven.arm;
                                             obj.magven.setAmplitude(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,i}{1,4});
@@ -4582,6 +4765,63 @@ classdef best_toolbox < handle
             obj.app.resultsPanel;
             obj.boot_outputdevice;
             obj.boot_inputdevice;
+        end
+        function best_tep(obj)
+            %obj.StartBossdeviceStreaming
+            %obj.StartRecordDataPrompt
+            obj.info.ReturnToTrial=false;
+            obj.factorizeConditionsExtended
+            obj.planTrials
+            obj.app.resultsPanel;
+            %obj.boot_outputdevice;
+            %obj.boot_inputdevice;
+            %obj.bossbox.bb.sample_and_hold_period=5/1000; %5ms
+            %obj.bootTrial;
+            %obj.stimLoop;
+            obj.inputs.trial=1;
+            obj.inputs.ReturnToTrialStatus=0;
+            obj.info.TimerAA=tic;
+            
+            %% comment from here onwards all
+            obj.inputs.veryrawdata=evalin('base','datatms');
+%                 obj.inputs.veryrawdata.label=[obj.app.par.hardware_settings.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.inputDevices}).NeurOneProtocolChannelLabels]';
+%                 for i=1:300
+%                     obj.inputs.veryrawdata.time{1,i}(1,:)=obj.inputs.veryrawdata.time{1,i}(1,:)*1000;
+%                     obj.inputs.veryrawdata.trial{1,i}(62,:)=obj.inputs.veryrawdata.trial{1,i}(61,:);
+%                     obj.inputs.veryrawdata.trial{1,i}(63,:)=obj.inputs.veryrawdata.trial{1,i}(61,:);
+%                     obj.inputs.veryrawdata.trial{1,i}(64,:)=obj.inputs.veryrawdata.trial{1,i}(61,:);
+%                 end
+%                 obj.inputs.veryrawdata=rmfield(obj.inputs.veryrawdata,{'hdr','cfg','sampleinfo','trialinfo','fsample'});
+                    
+            while(obj.inputs.trial<=obj.inputs.totalTrials)
+                %% readTrial
+% % %                 obj.inputs.rawdata.label=[obj.app.par.hardware_settings.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.inputDevices}).NeurOneProtocolChannelLabels]';
+% % %                 obj.inputs.rawdata.time{1,obj.inputs.trial}=[-0.1:1/5000:0.9-(1/5000)]*1000;
+% % %                 obj.inputs.rawdata.trial{1,obj.inputs.trial}=rand(64,5000); 
+%                 obj.inputs.rawdata.trialdef(obj.inputs.trial,1)=obj.inputs.trial;
+
+                obj.inputs.rawdata.label=[obj.app.par.hardware_settings.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.inputDevices}).NeurOneProtocolChannelLabels]';
+                obj.inputs.rawdata.time{1,obj.inputs.trial}=obj.inputs.veryrawdata.time{1,obj.inputs.trial};
+                obj.inputs.rawdata.trial{1,obj.inputs.trial}=obj.inputs.veryrawdata.trial{1,obj.inputs.trial};
+                obj.inputs.rawdata.trialdef=obj.inputs.trial;
+                
+                %% plotTrial
+                obj.plotTrial;
+                obj.inputs.trial=obj.inputs.trial+1;
+                wait_period=obj.inputs.trialMat{obj.inputs.trial-1,obj.inputs.colLabel.iti}-toc(obj.info.TimerAA);
+                if wait_period>0 && wait_period<obj.inputs.trialMat{obj.inputs.trial-1,obj.inputs.colLabel.iti}
+                    pause(wait_period)
+                end
+                obj.inputs.trialMat{obj.inputs.trial-1,obj.inputs.colLabel.TotalITI}=toc(obj.info.TimerAA);
+                obj.info.TimerAA=tic;
+                if(obj.inputs.stop_event==1)
+                    disp('returned after the execution')
+                    obj.inputs.stop_event=0;
+                    break;
+                end
+                drawnow;
+                disp('................................................');
+            end
         end
         
         function mep_plot_OLD_May_Be_Depricated(obj)
@@ -5935,6 +6175,151 @@ classdef best_toolbox < handle
             
             delete(fh); pause(0.1);
         end
+        function TEPButterflyPlot(obj)
+            obj.inputs.LastTrialToAverage=100;
+            try
+                if strcmp(obj.inputs.AvgRereference,'yes')
+                    cfg=[];
+                    cfg.reref=obj.inputs.AvgRereference;
+                    if strcmp(obj.inputs.AvgReferenceChannels,'all')
+                        cfg.refchannel=setdiff(obj.inputs.rawdata.label, obj.inputs.BadChannels');
+                    elseif isa(obj.inputs.AvgReferenceChannels,'cell')
+                        cfg.refchannel=obj.inputs.AvgReferenceChannels;
+                    end
+                    cfg.demean='yes';cfg.baselinewindow=[-100 -5]; %Fieldtrip recommends this to be in seconds if the data.time{1,N}  is in seconds, if thats in ms than this in ms;
+%                     [cfg.trials,~]=find(obj.inputs.trial-obj.inputs.LastTrialToAverage+1:1:obj.inputs.trial>0);
+                    TempData1=ft_preprocessing(cfg,obj.inputs.rawdata);
+                    %cfg.montage='no' or a montage structure, see FT_APPLY_MONTAGE (default = 'no')
+                end
+                ax=['ax' num2str(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.axesno}{1,obj.inputs.chLab_idx})];
+                axes(obj.app.pr.ax.(ax)), hold on,
+                cfg=[];
+                TempTrials=obj.inputs.trial-obj.inputs.LastTrialToAverage+1:1:obj.inputs.trial;
+                cfg.trials=TempTrials(TempTrials>0);
+                TempData=ft_timelockanalysis(cfg,TempData1);
+                %delete the plot child if exist on the axes
+                %Get XLimits
+                xlim(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.XLim}{1,obj.inputs.chLab_idx}{1,1});
+                %Get YLimits
+                ylim(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.YLim}{1,obj.inputs.chLab_idx}{1,1});
+                %plot the data
+                try delete(obj.app.pr.ax.(ax).UserData.h1),delete(obj.app.pr.ax.(ax).UserData.h2); catch, end
+                %Plot All channels
+                obj.app.pr.ax.(ax).UserData.h1=plot(TempData.time,TempData.avg,'LineWidth',0.2);
+                %Plot the Trget Channels with more Line Width
+                hold on;
+                obj.app.pr.ax.(ax).UserData.h2=plot(TempData.time,TempData.avg(find(strcmp(TempData1.label,obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx})),:),'LineWidth',0.9,'Color','k');
+            catch
+                disp('TEPButterflyPlot Exception Handling');
+            end
+        end
+        function TEPTopoplot(obj)
+            try
+                if strcmp(obj.inputs.AvgRereference,'yes')
+%                     obj.inputs.LastTrialToAverage=2;
+%                     cfg=[];
+%                     [cfg.trials,~]=find(obj.inputs.trial-obj.inputs.LastTrialToAverage+1:1:obj.inputs.trial>0);
+%                     TempData1 = ft_selectdata(cfg, obj.inputs.rawdata)
+                    cfg=[];
+                    cfg.reref=obj.inputs.AvgRereference;
+                    if strcmp(obj.inputs.AvgReferenceChannels,'all')
+                        cfg.refchannel=setdiff(obj.inputs.rawdata.label, obj.inputs.BadChannels');
+                    elseif isa(obj.inputs.AvgReferenceChannels,'cell')
+                        cfg.refchannel=obj.inputs.AvgReferenceChannels;
+                    end
+%                     [cfg.trials,~]=find(obj.inputs.trial-obj.inputs.LastTrialToAverage+1:1:obj.inputs.trial>0);
+                    cfg.demean='yes';cfg.baselinewindow=[-100 -10]; %Fieldtrip recommends this to be in seconds if the data.time{1,N}  is in seconds, if thats in ms than this in ms;
+                    TempData1=ft_preprocessing(cfg,obj.inputs.rawdata);
+                    %cfg.montage='no' or a montage structure, see FT_APPLY_MONTAGE (default = 'no')
+                end
+                ax=['ax' num2str(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.axesno}{1,obj.inputs.chLab_idx})];
+                %axes(obj.app.pr.ax.(ax)), hold on,
+                %cfg=[];cfg.trials=obj.inputs.trial-obj.inputs.LastTrialToAverage+1:1:obj.inputs.trial;
+                %TempData=ft_timelockanalysis(cfg,TempData1);
+                %delete the plot child if exist on the axes
+                %Get XLimits
+                %Get YLimits
+                %plot the data
+                %% One Trial Check
+%                 if numel(TempData1.trial)==1
+%                     TempData1.trial{1,2}=TempData1.trial{1,1};
+%                     TempData1.time{1,2}=TempData1.time{1,1};
+%                     TempData1.trialdef=2;
+%                  end
+%                 try delete(obj.app.pr.ax.(ax).UserData.h1);catch, end
+                cfg=[];
+                cfg.layout='easycapM1.mat';
+                layout=ft_prepare_layout(cfg);
+                cfg=[];
+                cfg.xlim=obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.XLim}{1,obj.inputs.chLab_idx}{1,1};
+                cfg.zlim=obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.YLim}{1,obj.inputs.chLab_idx}{1,1};
+                cfg.layout=layout;
+                cfg.colorbar='yes';
+                cfg.comment='xlim';
+                %cfg.marker='labels';
+                TempTrials=obj.inputs.trial-obj.inputs.LastTrialToAverage+1:1:obj.inputs.trial;
+                cfg.trials=TempTrials(TempTrials>0);
+                %Plot All channels
+                figure('Visible','off'); ft_topoplotER(cfg,TempData1);
+                fh=gcf; % fh.Visible='off';
+                delete(allchild(obj.app.pr.container.(ax)))
+                fh.Children(3).Parent=obj.app.pr.container.(ax);
+                %fh.Children(2).Parent=obj.app.pr.container.(ax);
+                delete(fh); pause(0.1);
+                
+            catch
+                disp('TEPTopoplot Exception Handling');
+            end
+        end
+        function TEPMultiplot(obj)
+            try
+                if strcmp(obj.inputs.AvgRereference,'yes')
+                    cfg=[];
+                    cfg.reref=obj.inputs.AvgRereference;
+                    if strcmp(obj.inputs.AvgReferenceChannels,'all')
+                        cfg.refchannel=setdiff(obj.inputs.rawdata.label, obj.inputs.BadChannels');
+                    elseif isa(obj.inputs.AvgReferenceChannels,'cell')
+                        cfg.refchannel=obj.inputs.AvgReferenceChannels;
+                    end
+                    cfg.demean='yes';cfg.baselinewindow=[-100 -5]; %Fieldtrip recommends this to be in seconds if the data.time{1,N}  is in seconds, if thats in ms than this in ms;
+%                     [cfg.trials,~]=find(obj.inputs.trial-obj.inputs.LastTrialToAverage+1:1:obj.inputs.trial>0);
+                    TempData1=ft_preprocessing(cfg,obj.inputs.rawdata);
+                    %cfg.montage='no' or a montage structure, see FT_APPLY_MONTAGE (default = 'no')
+                end
+                ax=['ax' num2str(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.axesno}{1,obj.inputs.chLab_idx})];
+                %axes(obj.app.pr.ax.(ax)), hold on,
+                %cfg=[];cfg.trials=obj.inputs.trial-obj.inputs.LastTrialToAverage+1:1:obj.inputs.trial;
+                %TempData=ft_timelockanalysis(cfg,TempData1);
+                %delete the plot child if exist on the axes
+                %Get XLimits
+                %Get YLimits
+                %plot the data
+% %                 %% One Trial Check
+% %                 if numel(TempData1.trial)==1
+% %                     TempData1.trial{1,2}=TempData1.trial{1,1};
+% %                     TempData1.time{1,2}=TempData1.time{1,1};
+% %                 end
+                cfg=[];
+                cfg.layout='easycapM1.mat';
+                layout=ft_prepare_layout(cfg);
+                cfg=[];
+                cfg.layout=layout;
+                cfg.xlim=obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.XLim}{1,obj.inputs.chLab_idx}{1,1};
+                cfg.ylim=obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.YLim}{1,obj.inputs.chLab_idx}{1,1};
+                TempTrials=obj.inputs.trial-obj.inputs.LastTrialToAverage+1:1:obj.inputs.trial;
+                cfg.trials=TempTrials(TempTrials>0);
+                cfg.comment='   ';
+                cfg.showlabels='yes';
+                %Plot All channels
+                figure('Visible','off'); ft_multiplotER(cfg,TempData1);
+                fh=gcf; 
+                delete(allchild(obj.app.pr.container.(ax)))
+                fh.Children(2).Parent=obj.app.pr.container.(ax);
+                delete(fh); pause(0.1);
+            catch
+                disp('TEPMultiplot Exception Handling');
+            end
+        end
         function StatusTable(obj)
             ax=['ax' num2str(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.axesno}{1,obj.inputs.chLab_idx})];
             if obj.inputs.trial~=obj.inputs.totalTrials
@@ -6052,6 +6437,8 @@ classdef best_toolbox < handle
             obj.magven=magventure(obj.app.par.hardware_settings.(char(obj.inputs.output_device)).comport);
             obj.magven.connect;
             obj.magven.arm;
+            obj.magven.setPage('Main');
+            obj.magven.setMode('Standard','00',2,0,1,1);
         end
         function boot_magstim(obj)
             obj.magStim=magstim(obj.app.par.hardware_settings.(obj.inputs.output_device).comport);

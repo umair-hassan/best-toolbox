@@ -87,6 +87,7 @@ classdef best_sync2brain_bossdevice <handle
                     % the N20 will be 22 ms delayed and will have a 11
                     % samples delay
                     obj.bb.alpha.offset_samples = 11;
+                    %here i have to add the offset and make sure the filter offset is corrected
                 case 2 % Theta
                     obj.bb.theta.phase_target(1) = obj.best_toolbox.inputs.trialMat{obj.best_toolbox.inputs.trial,obj.best_toolbox.inputs.colLabel.phase}{1,1};
                     obj.bb.theta.phase_plusminus(1) = obj.best_toolbox.inputs.trialMat{obj.best_toolbox.inputs.trial,obj.best_toolbox.inputs.colLabel.phase}{1,2};
@@ -462,7 +463,7 @@ classdef best_sync2brain_bossdevice <handle
             obj.EEGScope.NumPrePostSamples = NumPrePostSamples;
             obj.EEGScope.Decimation = 1;
             obj.EEGScope.TriggerMode = 'Signal';
-            obj.EEGScope.TriggerSignal = getsignalid(obj.bb.tg, 'gen_running'); %Remove it in Official Usee
+            obj.EEGScope.TriggerSignal = getsignalid(obj.bb.tg, 'gen_running'); %Remove it in Future Release
             obj.EEGScope.TriggerSignal = MrkSignalID;
             obj.EEGScope.TriggerLevel = 0.5;
             obj.EEGScope.TriggerSlope = 'Rising';
@@ -667,6 +668,16 @@ classdef best_sync2brain_bossdevice <handle
 %                 end
 %             end
             
+            obj.EEGScopeStart;
+        end
+        function [Time, Data]=EEGFieldTripScopeRead(obj)
+            while ~strcmpi(obj.EEGScope.Status,'finished'), drawnow, if obj.best_toolbox.inputs.stop_event==1, break, end ,end
+            Data=obj.EEGScope.Data(:,:)';
+            Time=(obj.EEGScope.Time-obj.EEGScope.Time(1)+(obj.EEGScope.Time(2)-obj.EEGScope.Time(1)))';
+            Time=(Time*1000)+obj.best_toolbox.inputs.EEGExtractionPeriod(1); 
+            %% Interpolating Data to remove pulse artefact
+            %use sample and hold period of bossdevice
+            %% end of interpolation
             obj.EEGScopeStart;
         end
         
