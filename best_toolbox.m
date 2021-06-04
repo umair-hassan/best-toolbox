@@ -4007,8 +4007,8 @@ classdef best_toolbox < handle
                                 EMGChannelIndex=EMGChannelIndex-obj.bossbox.bb.eeg_channels;
                                 [obj.inputs.rawData.(unique_chLab{1,i}).time(obj.inputs.trial,:), obj.inputs.rawData.(unique_chLab{1,i}).data(obj.inputs.trial,:)]=obj.bossbox.EMGScopeRead(EMGChannelIndex);
                                 %% Paired Pulse Trigger Onset Correction
-                                if strcmp(char(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.stimMode}{1,i}),'paired_pulse')
-                                    [obj.inputs.rawData.(unique_chLab{1,i}).time(obj.inputs.trial,:), obj.inputs.rawData.(unique_chLab{1,i}).data(obj.inputs.trial,:)]=circshift(obj.bossbox.EMGScopeRead(EMGChannelIndex),-5*obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,i}{1,6},1,1);
+                                if strcmp(char(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.stimMode}{1,1}),'paired_pulse')
+                                    obj.inputs.rawData.(unique_chLab{1,i}).data(obj.inputs.trial,:)=circshift(obj.inputs.rawData.(unique_chLab{1,i}).data(obj.inputs.trial,:),-5*obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,1}{1,6});
                                 end
                                 %% Simulation Start
 %                                 obj.inputs.rawData.(unique_chLab{1,i}).data(obj.inputs.trial,:)=obj.sim_mep*obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.ConditionMarker};
@@ -4137,7 +4137,7 @@ classdef best_toolbox < handle
                     case 'MEP Scatter Plot'
                         obj.mep_scat_plot;
                     case 'MEP IOC Fit'
-                        obj.ioc_fit_plot;
+                        try obj.ioc_fit_plot; catch, end
                     case 'PhaseHistogram'
                         obj.PlotPhaseHistogram;
                     case 'TriggerLockedEEG'
@@ -4239,7 +4239,6 @@ classdef best_toolbox < handle
                         for i=1:numel(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.outputDevices})
                             switch obj.app.par.hardware_settings.(char(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.outputDevices}{1,i})).slct_device
                                 case {1,5} % pc or bb controlled magven
-                                    obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.stimMode}{1,i}
                                     switch char(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.stimMode}{1,i})
                                         case 'single_pulse'
                                             obj.magven.arm
@@ -4251,6 +4250,8 @@ classdef best_toolbox < handle
                                             obj.magven.arm;
                                             obj.magven.setAmplitude([obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,i}{1,5} obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,i}{1,4}]);
                                             disp('Paired Pulse Trial is Prepared');
+                                            drawnow;
+                                            pause(0.1);
                                         case 'train'
                                             obj.magven.arm;
                                             obj.magven.setAmplitude(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,i}{1,4});
