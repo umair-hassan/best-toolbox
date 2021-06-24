@@ -2840,7 +2840,13 @@ r1= uiextras.HBox( 'Parent', v,'Spacing', 5, 'Padding', 5 );
                 obj.info.defaults.condsAll.(cond).st1.TimingOnsetUnits='ms';
                 obj.info.defaults.condsAll.(cond).st1.CSUnits='';
                 obj.info.defaults.condsAll.(cond).st1.ISIUnits='';
-                obj.info.defaults.condsAll.(cond).st1.StimulationType='Test';
+                obj.info.defaults.condsAll.(cond).st1.GlobalPower=[];
+                obj.info.defaults.condsAll.(cond).st1.GlobalFrequency=[];
+                obj.info.defaults.condsAll.(cond).st1.DutyCycle=[];
+                obj.info.defaults.condsAll.(cond).st1.Period=[];
+                obj.info.defaults.condsAll.(cond).st1.BurstLength=[];
+                obj.info.defaults.condsAll.(cond).st1.TreatmentTime=[];
+                obj.info.defaults.condsAll.(cond).st1.Focus=[];
             end
             obj.par.(obj.info.event.current_session).(obj.info.event.measure_being_added)=obj.info.defaults;
         end
@@ -7810,6 +7816,14 @@ r1= uiextras.HBox( 'Parent', v,'Spacing', 5, 'Padding', 5 );
             ColTrainFreq=ColISI+1;
             ColNoOfTrains=ColTrainFreq+1;
             ColFixedThreshold=ColNoOfTrains+1;
+            ColGlobalPower=ColFixedThreshold+1;
+            ColGlobalFrequency=ColGlobalPower+1;
+            ColDutyCycle=ColGlobalFrequency+1;
+            ColPeriod=ColDutyCycle+1;
+            ColBurstLength=ColPeriod+1;
+            ColTreatmentTime=ColBurstLength+1;
+            ColFocus=ColTreatmentTime+1;
+            
             TableData=cell(1,1);ColumnName=cell(1,1);ColumnFormat=cell(1,1);
             for iTableCondition=1:numel(fieldnames(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll))
                 TableCond=['cond' num2str(iTableCondition)];
@@ -7868,6 +7882,28 @@ r1= uiextras.HBox( 'Parent', v,'Spacing', 5, 'Padding', 5 );
                     ColumnName{ColTrainFreq}='Train Frequency'; ColumnFormat{ColTrainFreq}=[];
                     ColumnName{ColNoOfTrains}='# of Trains'; ColumnFormat{ColNoOfTrains}=[];
                     ColumnName{ColFixedThreshold}='Threshold'; ColumnFormat{ColFixedThreshold}=[];
+                    
+                    try TableData{iData,ColGlobalPower}=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).GlobalPower;catch, end
+                    ColumnName{ColGlobalPower}='Power Global (mW)'; ColumnFormat{ColGlobalPower}=[];                    
+                    
+                    try TableData{iData,ColGlobalFrequency}=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).GlobalFrequency;catch, end
+                    ColumnName{ColGlobalFrequency}='Frequency Global (kHz)'; ColumnFormat{ColGlobalFrequency}=[];
+                    
+                    try TableData{iData,ColDutyCycle}=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).DutyCycle;catch, end
+                    ColumnName{ColDutyCycle}='Duty Cycle (%)'; ColumnFormat{ColDutyCycle}=[];
+                    
+                    try TableData{iData,ColPeriod}=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).Period;catch, end
+                    ColumnName{ColPeriod}='Period (us)'; ColumnFormat{ColPeriod}=[];
+                    
+                    try TableData{iData,ColBurstLength}=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).BurstLength;catch, end
+                    ColumnName{ColBurstLength}='Burst Length (us)'; ColumnFormat{ColBurstLength}=[];
+                    
+                    try TableData{iData,ColTreatmentTime}=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).TreatmentTime;catch, end
+                    ColumnName{ColTreatmentTime}='Treatment Time (us)'; ColumnFormat{ColTreatmentTime}=[];
+                    
+                    try TableData{iData,ColFocus}=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).Focus;catch, end
+                    ColumnName{ColFocus}='Focus (mm)'; ColumnFormat{ColFocus}=[];
+                    
                 end
             end
             % create the table and write data in table
@@ -7956,6 +7992,21 @@ r1= uiextras.HBox( 'Parent', v,'Spacing', 5, 'Padding', 5 );
                             case 'Import from Protocol'
                                 obj.cb_CoupleIntensityUnits(AdditionInCondition,AdditionInStimulator);
                         end
+                    case 'Power Global (mW)'
+                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).GlobalPower=CellEditData.NewData;
+                    case 'Frequency Global (kHz)'
+                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).GlobalFrequency=CellEditData.NewData;
+                    case 'Duty Cycle (%)'
+                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).DutyCycle=CellEditData.NewData;
+                    case 'Period (us)'
+                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).Period=CellEditData.NewData;
+                    case 'Burst Length (us)'
+                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).BurstLength=CellEditData.NewData;
+                    case 'Treatment Time (us)'
+                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).TreatmentTime=CellEditData.NewData;
+                    case 'Focus (mm)'    
+                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).Focus=CellEditData.NewData;
+                        
                 end
                 %Improvement Note :Requirement 96
                 %cb_pulse_update
