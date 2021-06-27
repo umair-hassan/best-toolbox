@@ -151,6 +151,7 @@ classdef neurofus < handle
             focus = obj.focus;
         end
         function obj = set.focus(obj, focus)
+            %obj.extrafield=2;
             % Documentation goes here
             %assert
             carriage        ='CR';
@@ -159,7 +160,8 @@ classdef neurofus < handle
             obj.focus=focus;
             obj.process_command(key,value,carriage);
             errorOrSuccess=1;
-            deviceResponse=[];
+            deviceResponse=[]
+            obj.extrafield=2;
         end
         %% system_state
         function system_state = get.system_state(obj)
@@ -206,6 +208,21 @@ classdef neurofus < handle
             errorOrSuccess=1;
             deviceResponse=[];
         end
+        %% global_frequency
+        function global_frequency = get.global_frequency(obj)
+            global_frequency = obj.global_frequency;
+        end
+        function obj = set.global_frequency(obj, global_frequency)
+            % Documentation goes here
+            %assert
+            carriage        ='CR';
+            key             ='GLOBALFREQ';
+            value           =num2str(global_frequency);
+            obj.global_frequency=global_frequency;
+            obj.process_command(key,value,carriage);
+            errorOrSuccess=1;
+            deviceResponse=[];
+        end
          %% ramp_mode
         function ramp_mode = get.ramp_mode(obj)
             ramp_mode = obj.ramp_mode;
@@ -248,7 +265,21 @@ classdef neurofus < handle
             errorOrSuccess=1;
             deviceResponse=[];
         end
-        
+        %% extrafield
+        function extrafield = get.extrafield(obj)
+            extrafield = obj.extrafield;
+        end
+        function obj = set.extrafield(obj, extrafield)
+            % Documentation goes here
+            %assert
+            carriage        ='CR';
+            key             ='EXTRAFIELD';
+            value           =num2str(extrafield);
+            obj.extrafield=extrafield;
+            obj.process_command(key,value,carriage);
+            errorOrSuccess=1;
+            deviceResponse=[];
+        end
         %% Terminal
         
         function obj=process_command(obj,key,value,carriage)
