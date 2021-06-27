@@ -5933,6 +5933,8 @@ r1= uiextras.HBox( 'Parent', v,'Spacing', 5, 'Padding', 5 );
                     obj.hw_output_neurone;
                 case 9
                     obj.hw_output_Digitimer;
+                case 10
+                    obj.hw_output_neurone;
             end
         end
         function cb_cfg_newdevice(obj)
@@ -6600,7 +6602,7 @@ r1= uiextras.HBox( 'Parent', v,'Spacing', 5, 'Padding', 5 );
             
             row1=uix.HBox( 'Parent', obj.hw.vbox_rightpanel, 'Spacing', 5, 'Padding', 5  );
             uicontrol( 'Style','text','Parent', row1,'String','Select Device','FontSize',12,'HorizontalAlignment','left','Units','normalized');
-            obj.hw.vbox_rp.slct_device2=uicontrol( 'Style','popupmenu','Parent', row1 ,'FontSize',11,'String',{'Host PC controlled MagVenture','Host PC controlled MagStim','Host PC controlled BiStim','Host PC controlled Rapid','BOSS Box controlled MagVenture','BOSS Box controlled MagStim','BOSS Box controlled BiStim','BOSS Box controlled Rapid','Digitimer','Simulation'},'Callback',@(~,~)obj.cb_hw_vbox_rp_slct_device2,'Value',obj.hw.output.slct_device2);
+            obj.hw.vbox_rp.slct_device2=uicontrol( 'Style','popupmenu','Parent', row1 ,'FontSize',11,'String',{'Host PC controlled MagVenture','Host PC controlled MagStim','Host PC controlled BiStim','Host PC controlled Rapid','BOSS Box controlled MagVenture','BOSS Box controlled MagStim','BOSS Box controlled BiStim','BOSS Box controlled Rapid','Digitimer','NeuroFUS','Simulation'},'Callback',@(~,~)obj.cb_hw_vbox_rp_slct_device2,'Value',obj.hw.output.slct_device2);
             set(row1,'Widths',[200 -2]);
             
             
@@ -6808,6 +6810,8 @@ r1= uiextras.HBox( 'Parent', v,'Spacing', 5, 'Padding', 5 );
                         obj.cb_hw_output_neurone_parsaving;
                     case 9
                         obj.cb_hw_output_Digitimer_parsaving;
+                    case 10 
+                        obj.cb_hw_output_NeuroFUS_parsaving;
                 end
             end
         end
@@ -6898,7 +6902,14 @@ r1= uiextras.HBox( 'Parent', v,'Spacing', 5, 'Padding', 5 );
             obj.par.hardware_settings.(obj.hw.vbox_rp.device_name.String).IntensityControl=obj.hw.vbox_rp.IntensityControl.Value;
             obj.par.hardware_settings.(obj.hw.vbox_rp.device_name.String).bb_outputport=obj.hw.vbox_rp.BOSSDevicePort.String;
         end
-        
+        function cb_hw_output_NeuroFUS_parsaving(obj)
+            obj.par.hardware_settings.(obj.hw.vbox_rp.device_name.String).device_type=obj.hw.device_type.listbox.Value;
+            obj.par.hardware_settings.(obj.hw.vbox_rp.device_name.String).slct_device=obj.hw.vbox_rp.slct_device2.Value;
+            obj.par.hardware_settings.(obj.hw.vbox_rp.device_name.String).device_name=obj.hw.vbox_rp.device_name.String;
+            obj.par.hardware_settings.(obj.hw.vbox_rp.device_name.String).comport=obj.hw.vbox_rp.comport.String;
+            obj.par.hardware_settings.(obj.hw.vbox_rp.device_name.String).bb_outputport=obj.hw.vbox_rp.bb_outputport.String;
+            obj.par.hardware_settings.(obj.hw.vbox_rp.device_name.String).bb_inputport=obj.hw.vbox_rp.bb_inputport.String;
+        end
         function cb_hw_listbox_input(obj)
             slctd_input=char(obj.hw.device_added1.listbox.String(obj.hw.device_added1.listbox.Value));
             

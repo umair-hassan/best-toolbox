@@ -28,6 +28,7 @@ classdef best_toolbox < handle
         bistim
         rapid
         digitimer
+        neurofus
         fieldtrip
         app;
         tc
@@ -2527,6 +2528,14 @@ classdef best_toolbox < handle
                             obj.inputs.colLabel.chId=12;
                             obj.inputs.colLabel.ConditionMarker=13;
                             obj.inputs.colLabel.TotalITI=14;
+                            obj.inputs.colLabel.GlobalPower=15;
+                            obj.inputs.colLabel.GlobalFrequency=16;
+                            obj.inputs.colLabel.DutyCycle=17;
+                            obj.inputs.colLabel.Period=18;
+                            obj.inputs.colLabel.BurstLength=19;
+                            obj.inputs.colLabel.TreatmentTime=20;
+                            obj.inputs.colLabel.Focus=21;
+                            
                             conds=fieldnames(obj.inputs.condsAll);
                             %% Creating Channel Types, Axes No, Channel IDs
                             DisplayChannelCounter=0;
@@ -2572,7 +2581,7 @@ classdef best_toolbox < handle
                                 obj.inputs.condMat{c,obj.inputs.colLabel.ConditionMarker}=c;
                                 ax_measures{c}=repmat({'MEP_Measurement'},1,numel(obj.inputs.condsAll.(conds{c,1}).targetChannel));
                                 ax_ChannelLabels{c}=obj.inputs.condsAll.(conds{c,1}).targetChannel;
-                                
+                               
                                 %% Stimulator Specific Parameters
                                 TestStimulatorIndex=[]; 
                                 for stno=1:(max(size(fieldnames(obj.inputs.condsAll.(conds{c,1}))))-6)
@@ -2636,6 +2645,14 @@ classdef best_toolbox < handle
 %                                 end
                                 condstimTiming_new_sorted(3,:)=0;
                                 condstimTiming_new_sorted(3,TestStimulatorIndex)=c;
+                                
+                                obj.inputs.condMat{c,obj.inputs.colLabel.GlobalPower}=obj.inputs.condsAll.(conds{c,1}).(st).GlobalPower;
+                                obj.inputs.condMat{c,obj.inputs.colLabel.GlobalFrequency}=obj.inputs.condsAll.(conds{c,1}).(st).GlobalFrequency;
+                                obj.inputs.condMat{c,obj.inputs.colLabel.DutyCycle}=obj.inputs.condsAll.(conds{c,1}).(st).DutyCycle;
+                                obj.inputs.condMat{c,obj.inputs.colLabel.Period}=obj.inputs.condsAll.(conds{c,1}).(st).Period;
+                                obj.inputs.condMat{c,obj.inputs.colLabel.BurstLength}=obj.inputs.condsAll.(conds{c,1}).(st).BurstLength;
+                                obj.inputs.condMat{c,obj.inputs.colLabel.TreatmentTime}=obj.inputs.condsAll.(conds{c,1}).(st).TreatmentTime;
+                                obj.inputs.condMat{c,obj.inputs.colLabel.Focus}=obj.inputs.condsAll.(conds{c,1}).(st).Focus;
                                 
                                 obj.inputs.condMat(c,obj.inputs.colLabel.tpm)={num2cell(condstimTiming_new_sorted)};
                                 condSi=[]; condoutputDevice=[]; condstimMode=[];condstimTiming=[];buffer=[];tpmVect_unique=[];a_counts =[];ia=[];ic=[];port_vector=[];
@@ -3926,6 +3943,10 @@ classdef best_toolbox < handle
                         if obj.app.par.hardware_settings.(uniqueOutputDevices{i}).TriggerControl==1
                             if isempty(obj.bossbox), obj.boot_bossbox; end
                         end
+                    case 10 %neurofus
+                        obj.inputs.output_device={uniqueOutputDevices{i}};
+                        if isempty(obj.neurofus), obj.boot_neurofus; end
+                        if isempty(obj.bossbox), obj.boot_bossbox; end
                 end
             end
         end
@@ -4298,7 +4319,14 @@ classdef best_toolbox < handle
                                                 obj.digitimer.(OutputDevice).setManualAmplitude(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,i}{1,4},OutputDevice);
                                             end
                                     end
-                                case 10 %simulation
+                                case 10 %neurofus
+                                    obj.neurofus.arm;
+                                    obj.neurofus.global_power=obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.GlobalPower};
+                                    obj.neurofus.burst_length=obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.BurstLength};
+                                    obj.neurofus.period=obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.Period};
+                                    obj.neurofus.timer=obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.TreatmentTime};
+                                    obj.neurofus.focus=obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.Focus};
+                                case 11 %simulation
                                     switch char(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.stimMode}{1,i})
                                         case 'single_pulse'
                                             disp single_pulse_prepared
@@ -6457,6 +6485,11 @@ classdef best_toolbox < handle
         end
         function boot_bossbox(obj)
             obj.bossbox=best_sync2brain_bossdevice(obj);
+        end
+        function boot_neurofus(obj)
+            obj.neurofus=neurofus(obj.app.par.hardware_settings.(char(obj.inputs.output_device)).comport);
+            obj.neurofus.connect;
+            obj.neurofus.arm;
         end
         function boot_fieldtrip(obj)
             obj.fieldtrip=best_fieldtrip(obj);
