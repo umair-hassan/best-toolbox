@@ -86,7 +86,7 @@ classdef best_sync2brain_bossdevice <handle
                     % 6 samples = 12 ms is the delay in the loop due to the low pass Nyquist filters
                     % the N20 will be 22 ms delayed and will have a 11
                     % samples delay
-                    obj.bb.alpha.offset_samples = 11;
+                    obj.bb.alpha.offset_samples = 6+11;
                     %here i have to add the offset and make sure the filter offset is corrected
                 case 2 % Theta
                     obj.bb.theta.phase_target(1) = obj.best_toolbox.inputs.trialMat{obj.best_toolbox.inputs.trial,obj.best_toolbox.inputs.colLabel.phase}{1,1};
@@ -199,11 +199,9 @@ classdef best_sync2brain_bossdevice <handle
 %                 end
                 %% Disarming
                 if obj.best_toolbox.inputs.trial>=2 && (toc(obj.best_toolbox.info.TimerAA)>4.5)
+                    obj.bb.configure_time_port_marker([0 1 12]);
                     obj.bb.disarm;
-                    obj.bb.triggers_remaining = 1;
-                    obj.bb.configure_time_port_marker([0 1 20]);
                     obj.bb.manualTrigger;
-                    obj.bb.triggers_remaining = 1;
                     exit_flag=2;
                     obj.best_toolbox.info.ReturnToTrial=true;
                     obj.best_toolbox.inputs.ReturnToTrialStatus=1;
