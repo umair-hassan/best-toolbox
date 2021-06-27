@@ -7898,7 +7898,7 @@ r1= uiextras.HBox( 'Parent', v,'Spacing', 5, 'Padding', 5 );
                     ColumnName{ColGlobalPower}='Power Global (mW)'; ColumnFormat{ColGlobalPower}=[];                    
                     
                     try TableData{iData,ColGlobalFrequency}=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).GlobalFrequency;catch, end
-                    ColumnName{ColGlobalFrequency}='Frequency Global (kHz)'; ColumnFormat{ColGlobalFrequency}=[];
+                    ColumnName{ColGlobalFrequency}='Frequency Global (Hz)'; ColumnFormat{ColGlobalFrequency}=[];
                     
                     try TableData{iData,ColDutyCycle}=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).DutyCycle;catch, end
                     ColumnName{ColDutyCycle}='Duty Cycle (%)'; ColumnFormat{ColDutyCycle}=[];
@@ -7913,7 +7913,7 @@ r1= uiextras.HBox( 'Parent', v,'Spacing', 5, 'Padding', 5 );
                     ColumnName{ColTreatmentTime}='Treatment Time (us)'; ColumnFormat{ColTreatmentTime}=[];
                     
                     try TableData{iData,ColFocus}=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(TableCond).(TableStim).Focus;catch, end
-                    ColumnName{ColFocus}='Focus (mm)'; ColumnFormat{ColFocus}=[];
+                    ColumnName{ColFocus}='Focus (um)'; ColumnFormat{ColFocus}=[];
                     
                 end
             end
@@ -8005,7 +8005,7 @@ r1= uiextras.HBox( 'Parent', v,'Spacing', 5, 'Padding', 5 );
                         end
                     case 'Power Global (mW)'
                         obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).GlobalPower=CellEditData.NewData;
-                    case 'Frequency Global (kHz)'
+                    case 'Frequency Global (Hz)'
                         obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).GlobalFrequency=CellEditData.NewData;
                     case 'Duty Cycle (%)'
                         obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).DutyCycle=CellEditData.NewData;
@@ -8015,7 +8015,7 @@ r1= uiextras.HBox( 'Parent', v,'Spacing', 5, 'Padding', 5 );
                         obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).BurstLength=CellEditData.NewData;
                     case 'Treatment Time (us)'
                         obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).TreatmentTime=CellEditData.NewData;
-                    case 'Focus (mm)'    
+                    case 'Focus (um)'    
                         obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).condsAll.(AdditionInCondition).(AdditionInStimulator).Focus=CellEditData.NewData;
                         
                 end
