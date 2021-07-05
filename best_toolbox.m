@@ -2646,14 +2646,19 @@ classdef best_toolbox < handle
                                 condstimTiming_new_sorted(3,:)=0;
                                 condstimTiming_new_sorted(3,TestStimulatorIndex)=c;
                                 
-                                obj.inputs.condMat{c,obj.inputs.colLabel.GlobalPower}=obj.inputs.condsAll.(conds{c,1}).(st).GlobalPower;
-                                obj.inputs.condMat{c,obj.inputs.colLabel.GlobalFrequency}=obj.inputs.condsAll.(conds{c,1}).(st).GlobalFrequency;
-                                obj.inputs.condMat{c,obj.inputs.colLabel.DutyCycle}=obj.inputs.condsAll.(conds{c,1}).(st).DutyCycle;
-                                obj.inputs.condMat{c,obj.inputs.colLabel.Period}=obj.inputs.condsAll.(conds{c,1}).(st).Period;
-                                obj.inputs.condMat{c,obj.inputs.colLabel.BurstLength}=obj.inputs.condsAll.(conds{c,1}).(st).BurstLength;
-                                obj.inputs.condMat{c,obj.inputs.colLabel.TreatmentTime}=obj.inputs.condsAll.(conds{c,1}).(st).TreatmentTime;
-                                obj.inputs.condMat{c,obj.inputs.colLabel.Focus}=obj.inputs.condsAll.(conds{c,1}).(st).Focus;
-                                
+                                %NeuroFUS Future Release feature: Make it
+                                %possible on miltiple stimulator with in a
+                                %condition as well
+                                try
+                                obj.inputs.condMat{c,obj.inputs.colLabel.GlobalPower}=str2num(obj.inputs.condsAll.(conds{c,1}).st1.GlobalPower);
+                                obj.inputs.condMat{c,obj.inputs.colLabel.DutyCycle}=str2num(obj.inputs.condsAll.(conds{c,1}).st1.DutyCycle);
+                                obj.inputs.condMat{c,obj.inputs.colLabel.Period}=str2num(obj.inputs.condsAll.(conds{c,1}).st1.Period);
+                                obj.inputs.condMat{c,obj.inputs.colLabel.BurstLength}=str2num(obj.inputs.condsAll.(conds{c,1}).st1.BurstLength);
+                                obj.inputs.condMat{c,obj.inputs.colLabel.TreatmentTime}=str2num(obj.inputs.condsAll.(conds{c,1}).st1.TreatmentTime);
+                                obj.inputs.condMat{c,obj.inputs.colLabel.Focus}=str2num(obj.inputs.condsAll.(conds{c,1}).st1.Focus);
+                                catch
+                                end
+%                                 
                                 obj.inputs.condMat(c,obj.inputs.colLabel.tpm)={num2cell(condstimTiming_new_sorted)};
                                 condSi=[]; condoutputDevice=[]; condstimMode=[];condstimTiming=[];buffer=[];tpmVect_unique=[];a_counts =[];ia=[];ic=[];port_vector=[];
                                 num=[];condstimTiming_new=[];condstimTiming_new_sorted=[];sorted_idx=[];markers=[];condstimTimingStrings=[];
@@ -2912,6 +2917,13 @@ classdef best_toolbox < handle
                             obj.inputs.colLabel.TotalITI=15;
                             obj.inputs.colLabel.stimcdMrk=obj.inputs.colLabel.ConditionMarker;
                             obj.inputs.colLabel.cdMrk=17;
+                            obj.inputs.colLabel.GlobalPower=18;
+                            obj.inputs.colLabel.GlobalFrequency=19;
+                            obj.inputs.colLabel.DutyCycle=20;
+                            obj.inputs.colLabel.Period=21;
+                            obj.inputs.colLabel.BurstLength=22;
+                            obj.inputs.colLabel.TreatmentTime=23;
+                            obj.inputs.colLabel.Focus=24;
                             conds=fieldnames(obj.inputs.condsAll);
                             %% Creating Channel Types, Axes No, Channel IDs
                             DisplayChannelCounter=0;
@@ -3022,6 +3034,20 @@ classdef best_toolbox < handle
 %                                     end
                                     condstimTiming_new_sorted(3,:)=0;
                                     condstimTiming_new_sorted(3,TestStimulatorIndex)=c;
+                                    
+                                    %NeuroFUS Future Release feature: Make it
+                                %possible on miltiple stimulator with in a
+                                %condition as well
+                                try
+                                obj.inputs.condMat{c,obj.inputs.colLabel.GlobalPower}=str2num(obj.inputs.condsAll.(conds{c,1}).st1.GlobalPower);
+                                obj.inputs.condMat{c,obj.inputs.colLabel.DutyCycle}=str2num(obj.inputs.condsAll.(conds{c,1}).st1.DutyCycle);
+                                obj.inputs.condMat{c,obj.inputs.colLabel.Period}=str2num(obj.inputs.condsAll.(conds{c,1}).st1.Period);
+                                obj.inputs.condMat{c,obj.inputs.colLabel.BurstLength}=str2num(obj.inputs.condsAll.(conds{c,1}).st1.BurstLength);
+                                obj.inputs.condMat{c,obj.inputs.colLabel.TreatmentTime}=str2num(obj.inputs.condsAll.(conds{c,1}).st1.TreatmentTime);
+                                obj.inputs.condMat{c,obj.inputs.colLabel.Focus}=str2num(obj.inputs.condsAll.(conds{c,1}).st1.Focus);
+                                catch
+                                end
+                                    
                                 
                                 obj.inputs.condMat(c,obj.inputs.colLabel.tpm)={num2cell(condstimTiming_new_sorted)};
                                 condSi=[]; condoutputDevice=[]; condstimMode=[];condstimTiming=[];buffer=[];tpmVect_unique=[];a_counts =[];ia=[];ic=[];port_vector=[];
@@ -3944,6 +3970,7 @@ classdef best_toolbox < handle
                             if isempty(obj.bossbox), obj.boot_bossbox; end
                         end
                     case 10 %neurofus
+                        obj.neurofus=[];
                         obj.inputs.output_device={uniqueOutputDevices{i}};
                         if isempty(obj.neurofus), obj.boot_neurofus; end
                         if isempty(obj.bossbox), obj.boot_bossbox; end
@@ -3960,7 +3987,7 @@ classdef best_toolbox < handle
                 case 2 % pc controlled magstim
                 case 3 % pc controlled bistim
                 case 4 % pc controlled rapid
-                case {5,6,7,8} %bossbox controlled stimulator
+                case {5,6,7,8,10} %bossbox controlled stimulator
                     switch obj.inputs.BrainState
                         case 1
                             obj.bossbox.multiPulse(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.tpm});
@@ -4004,7 +4031,7 @@ classdef best_toolbox < handle
                         case 6 %Manual
                     end
                     
-                case 10%simulation
+                case 11%simulation
                     disp simulatedTRIGGER
             end
         end
@@ -4320,12 +4347,16 @@ classdef best_toolbox < handle
                                             end
                                     end
                                 case 10 %neurofus
+                                    try 
                                     obj.neurofus.arm;
                                     obj.neurofus.global_power=obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.GlobalPower};
                                     obj.neurofus.burst_length=obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.BurstLength};
                                     obj.neurofus.period=obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.Period};
                                     obj.neurofus.timer=obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.TreatmentTime};
                                     obj.neurofus.focus=obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.Focus};
+                                    catch
+                                        disp('NeuroFUS parameters are out of bound');
+                                    end
                                 case 11 %simulation
                                     switch char(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.stimMode}{1,i})
                                         case 'single_pulse'
