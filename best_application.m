@@ -3220,6 +3220,13 @@ r1= uiextras.HBox( 'Parent', v,'Spacing', 5, 'Padding', 5 );
                 obj.info.defaults.condsAll.(cond).st1.CSUnits='';
                 obj.info.defaults.condsAll.(cond).st1.ISIUnits='';
                 obj.info.defaults.condsAll.(cond).st1.StimulationType='Test';
+                obj.info.defaults.condsAll.(cond).st1.GlobalPower=[];
+                obj.info.defaults.condsAll.(cond).st1.GlobalFrequency=[];
+                obj.info.defaults.condsAll.(cond).st1.DutyCycle=[];
+                obj.info.defaults.condsAll.(cond).st1.Period=[];
+                obj.info.defaults.condsAll.(cond).st1.BurstLength=[];
+                obj.info.defaults.condsAll.(cond).st1.TreatmentTime=[];
+                obj.info.defaults.condsAll.(cond).st1.Focus=[];
                 
             end
             obj.par.(obj.info.event.current_session).(obj.info.event.measure_being_added)=obj.info.defaults;
