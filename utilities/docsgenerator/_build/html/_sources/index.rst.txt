@@ -3,17 +3,16 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-
-
 ============================================
 Introduction to BEST Toolbox
 ============================================
 
-Brain Electrophysiological recording and STimulation (BEST) Toolbox, is a MATLAB based open source software that interfaces with a wide variety of EEG, EMG, TMS and other stimulating devices, and allows to run flexibly configured but fully automated closed-loop Brain Stimulation protocols.
+To facilitate objectivity, reliability, and reproducibility of non-invasive brain stimulation (NIBS) studies and to empower students, researchers, and clinicians alike to conduct state-of-the-art multimodal NIBS studies, an automated but yet flexible tool for data collection and analysis is needed.
 
-BEST Toolbox allows user to run customized Brain Stimulation experiments including basic measures of cortical excitability such as motor hotspot search, motor threshold hunting, motor evoked potential (MEP) and TMS-evoked EEG potential (TEP) measurements, estimation of stimulus-response curves, rTMS intervention protocols, etc., and since recently also Brain State-dependent or real-time EEG-triggered stimulation.
+**B**\rain **E**\lectrophysiological recording and **ST**\imulation (**BEST**\) Toolbox is an easy-to-use MATLAB-based open-source software with a powerful graphical user interface (GUI), which allows the user to flexibly design, run, analyze, and share multi-protocol/multi-session NIBS studies, involving transcranial magnetic, electric, and ultrasound stimulation (TMS, tES, TUS) in combination with EMG, EEG, and fMRI.
 
-Along with its many technical abilities, the toolbox features a state-of-the-art and flexible MATLAB based application – a Graphical User Interface to easily design experiments, online interactions with the data, visualization of data and a standardized format for the data under collection.
+The BEST toolbox interfaces with a large variety of recording and stimulation devices to analyze data and set stimulation parameters on-the-fly, thereby enabling closed-loop protocols and real-time applications. Its growing functionality includes e.g., TMS motor hotspot search, automated motor threshold estimation, measurement of motor evoked potentials (MEP) and TMS-evoked EEG potentials (TEP), dose-response curves, paired-pulse and dual-coil TMS, rTMS interventions, real-time EEG-triggered stimulation, concurrent TMS-fMRI, etc.
+
 
 
 Hardware Interfaces
@@ -98,6 +97,7 @@ BEST Toolbox is integrated with MAGIC toolbox in order to control and interact d
 * DuoMag
 
 In addition, it can also trigger any stimulation devices that can receive a TTL input trigger.
+
 
 .. toctree::
    :numbered:
