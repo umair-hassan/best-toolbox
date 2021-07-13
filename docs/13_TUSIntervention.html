@@ -1,0 +1,346 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>13. TUS Intervention &mdash; BEST Toolbox Wiki 12072021 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="14. TMS fMRI Measurement" href="14_TMSfMRIMeasurement.html" />
+    <link rel="prev" title="12. rTMS Intervention" href="12_rTMSIntervention.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> BEST Toolbox Wiki
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="1_Home.html">1. Introduction to BEST Toolbox</a></li>
+<li class="toctree-l1"><a class="reference internal" href="2_DownloadAndSetup.html">2. Download &amp; Setup</a></li>
+<li class="toctree-l1"><a class="reference internal" href="3_StartBESTToolboxApplication.html">3. Start BEST Toolbox Application</a></li>
+<li class="toctree-l1"><a class="reference internal" href="4_DesignExperiment.html">4. Design Experiment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="5_HardwareConfiguration.html">5. Hardware Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="6_MEPHotspotSearch.html">6. MEP Hotspot Searchh</a></li>
+<li class="toctree-l1"><a class="reference internal" href="7_MEPThresholdHunting.html">7. MEP Threshold Hunting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="8_MEPDoseResponseCurve.html">8. MEP Dose Response Curve</a></li>
+<li class="toctree-l1"><a class="reference internal" href="9_MEPMeasurement.html">9. MEP Measurement</a></li>
+<li class="toctree-l1"><a class="reference internal" href="10_rsEEGMeasurement.html">10. rsEEG Measurement</a></li>
+<li class="toctree-l1"><a class="reference internal" href="11_TEPMeasurement.html">11. TEP Measurement</a></li>
+<li class="toctree-l1"><a class="reference internal" href="12_rTMSIntervention.html">12. rTMS Intervention</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">13. TUS Intervention</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#parameters-syntax">13.1. Parameters Syntax</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#brain-state">13.1.1. Brain State</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#input-device">13.1.2. Input Device</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#inter-trial-interval">13.1.3. Inter Trial Interval</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#trials-per-condition">13.1.4. Trials Per Condition</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#emg-display-channels">13.1.5. EMG Display Channels</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#emg-extraction-period">13.1.6. EMG Extraction Period</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#emg-display-period">13.1.7. EMG Display Period</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#mep-search-window">13.1.8. MEP Search Window</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#trials-to-average">13.1.9. Trials to Average</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#real-time-channels-montage">13.1.10. Real-Time Channels Montage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#real-time-channels-weights">13.1.11. Real-Time Channels Weights</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#frequency-band">13.1.12. Frequency Band</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#peak-frequency">13.1.13. Peak Frequency</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#target-phase">13.1.14. Target Phase</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#phase-tolerance">13.1.15. Phase Tolerance</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#amplitude-threshold">13.1.16. Amplitude Threshold</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#amplitude-assignment-period">13.1.17. Amplitude Assignment Period</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#eeg-extraction-period">13.1.18. EEG Extraction Period</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#eeg-display-period">13.1.19. EEG Display Period</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#creating-conditions-using-stimulation-parameters-designer">13.2. Creating Conditions Using Stimulation Parameters Designer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#starting-the-protocol">13.3. Starting the Protocol</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="14_TMSfMRIMeasurement.html">14. TMS fMRI Measurement</a></li>
+<li class="toctree-l1"><a class="reference internal" href="14_ERPMeasurement.html">15. ERP Measurement</a></li>
+<li class="toctree-l1"><a class="reference internal" href="15_SensoryThresholdHunting.html">16. Sensory Threshold Hunting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="15_IssuesBugsRequests.html">17. Issues, Bugs and Requests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="16_Workshops.html">18. Workshops</a></li>
+<li class="toctree-l1"><a class="reference internal" href="17_About%20Us.html">19. About Us</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">BEST Toolbox Wiki</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li><span class="section-number">13. </span>TUS Intervention</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/13_TUSIntervention.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="tus-intervention">
+<h1><span class="section-number">13. </span>TUS Intervention<a class="headerlink" href="#tus-intervention" title="Permalink to this headline">¶</a></h1>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>This page is not fully ready yet.</p>
+</div>
+<div class="section" id="parameters-syntax">
+<h2><span class="section-number">13.1. </span>Parameters Syntax<a class="headerlink" href="#parameters-syntax" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="brain-state">
+<h3><span class="section-number">13.1.1. </span>Brain State<a class="headerlink" href="#brain-state" title="Permalink to this headline">¶</a></h3>
+<p>In Brain State Independent case, Inter Trial Interval controls the timing of the stimulus whereas in Brain State dependent case, real-time EEG analysis allows to track the ongoing Phase and Amplitude thresholds thereby allowing to determine specific Brain States such as mu-Rhythm Peak Phase etc. and then delivers the stimulus upon a parametric case match.</p>
+</div>
+<div class="section" id="input-device">
+<h3><span class="section-number">13.1.2. </span>Input Device<a class="headerlink" href="#input-device" title="Permalink to this headline">¶</a></h3>
+<p>Select the input device using drop down menu from previously added devices</p>
+</div>
+<div class="section" id="inter-trial-interval">
+<h3><span class="section-number">13.1.3. </span>Inter Trial Interval<a class="headerlink" href="#inter-trial-interval" title="Permalink to this headline">¶</a></h3>
+<p>ITI scalar, or a range in seconds e.g. 4 or [4 6] or a cell array in order to create ITI based experimental conditions e.g. {4,5,6}</p>
+</div>
+<div class="section" id="trials-per-condition">
+<h3><span class="section-number">13.1.4. </span>Trials Per Condition<a class="headerlink" href="#trials-per-condition" title="Permalink to this headline">¶</a></h3>
+<p>Various conditions can be created using ITI, Oscillation Target Phase and/or Amplitude and using the interactive Stimulation Parameters Designer. This field applies to all the created conditions and should be a scalar number e.g. 10 or 20 etc.</p>
+</div>
+<div class="section" id="emg-display-channels">
+<h3><span class="section-number">13.1.5. </span>EMG Display Channels<a class="headerlink" href="#emg-display-channels" title="Permalink to this headline">¶</a></h3>
+<p>Type the channel name as a 1xN cell array in order to visualize its online results e.g. { ‘APBr’}. Note that the channel name must resolve to the name in your streaming data, however Display Channels does not contributes for Threshold Measurement, these channels are merely for visualization e.g. in case when neighboring muscles are also required to be monitored.</p>
+</div>
+<div class="section" id="emg-extraction-period">
+<h3><span class="section-number">13.1.6. </span>EMG Extraction Period<a class="headerlink" href="#emg-extraction-period" title="Permalink to this headline">¶</a></h3>
+<p>[min max] in ms</p>
+</div>
+<div class="section" id="emg-display-period">
+<h3><span class="section-number">13.1.7. </span>EMG Display Period<a class="headerlink" href="#emg-display-period" title="Permalink to this headline">¶</a></h3>
+<p>[min max] in ms</p>
+</div>
+<div class="section" id="mep-search-window">
+<h3><span class="section-number">13.1.8. </span>MEP Search Window<a class="headerlink" href="#mep-search-window" title="Permalink to this headline">¶</a></h3>
+<p>Time window to look for the MEP P2P amplitude. [min max] in ms</p>
+</div>
+<div class="section" id="trials-to-average">
+<h3><span class="section-number">13.1.9. </span>Trials to Average<a class="headerlink" href="#trials-to-average" title="Permalink to this headline">¶</a></h3>
+<p>Both of the threshold methods , average certain number of trials in order to estimate the final threshold value, this parameter is specified as a scalar e.g. 10 and can be updated in run time as well.</p>
+</div>
+<div class="section" id="real-time-channels-montage">
+<h3><span class="section-number">13.1.10. </span>Real-Time Channels Montage<a class="headerlink" href="#real-time-channels-montage" title="Permalink to this headline">¶</a></h3>
+<p>1xN cell array of Channel Names being streamed from the bio signal processor e.g. { ‘C3’, ‘FC1’, ‘FC5’, ‘CP1’, ‘CP5’}</p>
+</div>
+<div class="section" id="real-time-channels-weights">
+<h3><span class="section-number">13.1.11. </span>Real-Time Channels Weights<a class="headerlink" href="#real-time-channels-weights" title="Permalink to this headline">¶</a></h3>
+<p>1xN Numeric array of weights indexed w.r.t. to Channels Montage explained above e.g. 1 -0.25 -0.25 -0.25 -0.25</p>
+</div>
+<div class="section" id="frequency-band">
+<h3><span class="section-number">13.1.12. </span>Frequency Band<a class="headerlink" href="#frequency-band" title="Permalink to this headline">¶</a></h3>
+<p>Choose the respective frequency band from the dropdown (Hz).</p>
+</div>
+<div class="section" id="peak-frequency">
+<h3><span class="section-number">13.1.13. </span>Peak Frequency<a class="headerlink" href="#peak-frequency" title="Permalink to this headline">¶</a></h3>
+<p>Scalar Peak Frequency in Hz. In order to import it from created or successful rsEEG Measurement Protocol, select the respective rsEEG Measurement protocol from the adjacent dropdown menu.</p>
+</div>
+<div class="section" id="target-phase">
+<h3><span class="section-number">13.1.14. </span>Target Phase<a class="headerlink" href="#target-phase" title="Permalink to this headline">¶</a></h3>
+<p>1xN Numeric array of Phase angles in radians. This parameter also creates N experimental conditions crossed over with all the other experimental conditions. If columns in this parameter is balanced with the rows in Amplitude Threshold parameter, then balanced conditions are created otherwise these 2 parameters are also crossed over.</p>
+</div>
+<div class="section" id="phase-tolerance">
+<h3><span class="section-number">13.1.15. </span>Phase Tolerance<a class="headerlink" href="#phase-tolerance" title="Permalink to this headline">¶</a></h3>
+<p>Scalar Tolerance value in radians. Defining absolute target phase angles in order to detect a brain state is often prone to error mainly due to the resolution of data obtained after sampling rate transition. In order to overcome this digitization resolution error another parameter has to be defined such that the vicinities of the target phase shall be made clear to the detection algorithm. For an instance, while detecting a 0 radians phase, the phase vector would probably look like this [-0.001324 -0.00234 0.00243 0.004324], and since none of them are mathematically equivalent to zero therefore in order to not allow to skip such Oscillatory Peak events and to increase the accuracy of the phase detection, a tolerance value is to be provided.</p>
+</div>
+<div class="section" id="amplitude-threshold">
+<h3><span class="section-number">13.1.16. </span>Amplitude Threshold<a class="headerlink" href="#amplitude-threshold" title="Permalink to this headline">¶</a></h3>
+<p>Nx2 Numeric array of Amplitude Thresholds. The 2 column dimensions are minimum and maximum thresholds where as N (number of rows) creates N Amplitude Threshold conditions crossed over with all the other experimental conditions. If columns in this parameter is balanced with the rows in Target Phase parameter, then balanced conditions are created otherwise these 2 parameters are also crossed over. Units are selected from the drop-down adjacent to the parameter.</p>
+</div>
+<div class="section" id="amplitude-assignment-period">
+<h3><span class="section-number">13.1.17. </span>Amplitude Assignment Period<a class="headerlink" href="#amplitude-assignment-period" title="Permalink to this headline">¶</a></h3>
+<p>If the Amplitude Threshold units are percentile, then the percentile is calculated over a certain time period defined in this parameter. This parameter enables the Brain State detection algorithms to cope with the variations in amplitude of large scale oscillatory activity e.g. due to variations in background neuronal activity.</p>
+</div>
+<div class="section" id="eeg-extraction-period">
+<h3><span class="section-number">13.1.18. </span>EEG Extraction Period<a class="headerlink" href="#eeg-extraction-period" title="Permalink to this headline">¶</a></h3>
+<p>[min max] in ms</p>
+</div>
+<div class="section" id="eeg-display-period">
+<h3><span class="section-number">13.1.19. </span>EEG Display Period<a class="headerlink" href="#eeg-display-period" title="Permalink to this headline">¶</a></h3>
+<p>[min max] in ms</p>
+</div>
+</div>
+<div class="section" id="creating-conditions-using-stimulation-parameters-designer">
+<h2><span class="section-number">13.2. </span>Creating Conditions Using Stimulation Parameters Designer<a class="headerlink" href="#creating-conditions-using-stimulation-parameters-designer" title="Permalink to this headline">¶</a></h2>
+<p>The Target Channels and Stimulation Trigger pattern can be defined in an interactive Stimulation Parameters Designer comprising of a tabular and graphical view. Following video illustrates that how conditions can be created using the intuitive designer. Note that the example below is associated to Motor Threshold Hunting however exactly same procedure applies for the MEP Measurement Protocol to create various measuring conditions.</p>
+</div>
+<div class="section" id="starting-the-protocol">
+<h2><span class="section-number">13.3. </span>Starting the Protocol<a class="headerlink" href="#starting-the-protocol" title="Permalink to this headline">¶</a></h2>
+<p>To start this Protocol, just press the “Run” button at the bottom of the “Experiment Controller”. The measurement can be stopped, paused/unpaused. In order to check if all the parameters have been setup correctly, pressing the “Compile” button would prompt the results of compiled code whether its good to go or not.</p>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="14_TMSfMRIMeasurement.html" class="btn btn-neutral float-right" title="14. TMS fMRI Measurement" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="12_rTMSIntervention.html" class="btn btn-neutral float-left" title="12. rTMS Intervention" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, www.best-toolbox.org .
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
