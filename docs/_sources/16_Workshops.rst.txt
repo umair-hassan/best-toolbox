@@ -6,10 +6,10 @@
 
 
 ============================================
-Workshops
+Presentation
 ============================================
 
-We are considering and/or concretely planning to have BEST Toolbox workshops/webinars in
+We are considering and/or concretely planning to have BEST Toolbox workshops/webinars/posters in
 
 * `2021 (Jul), Brain Box Initiative Webinar Series  <https://brainbox-initiative.com/webinars>`_
 * `2021 (Sep), 2nd Focused Ultrasound Neuromodulation (FUN) Conference (Poster) <https://fun.web.ox.ac.uk/>`_
