@@ -102,3 +102,4 @@ BEST Toolbox is integrated with MAGIC toolbox in order to control and interact d
 
 In addition, it can also trigger any stimulation devices that can receive a TTL input trigger.
 
+
