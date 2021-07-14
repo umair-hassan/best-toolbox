@@ -88,17 +88,20 @@ The details about implementation of FieldTrip real-time buffer can be found `her
 Output Devices
 ----------------------------------------------
 
-BEST Toolbox is integrated with MAGIC toolbox in order to control and interact directly with the TMS devices that accepts TTL input for triggering and features API to set the device parameters:
+BEST Toolbox is integrated with `neuroFUS open source APIs <https://github.com/nigelrogasch/MAGIC/>`_ MAGIC toolbox and `neuroFUS open source APIs <https://github.com/umair-hassan/neurofus-api/>`_  in order to control and interact directly with the TMS devices that accepts TTL input for triggering and features API to set the device parameters:
 
-* MagVenture
+* MagVenture (TMS)
 
-* MagStim
+* MagStim (TMS)
 
-* BiStim
+* BiStim (TMS)
 
-* Rapid
+* Rapid (TMS)
 
-* DuoMag
+* DuoMag (TMS)
+
+* neuroFUS (TUS)
+
 
 In addition, it can also trigger any stimulation devices that can receive a TTL input trigger.
 
