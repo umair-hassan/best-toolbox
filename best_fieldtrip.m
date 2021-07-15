@@ -25,7 +25,7 @@ classdef best_fieldtrip <handle
             EEGChanelsLabels=obj.best_toolbox.app.par.hardware_settings.(InputDevice).NeurOneProtocolChannelLabels(EEGChannelsIndex);
             %% Creating RawEEGData
             obj.best_toolbox.inputs.results.RawEEGData.label=EEGChanelsLabels';
-            obj.best_toolbox.inputs.results.RawEEGData.fsample=5000;
+            obj.best_toolbox.inputs.results.RawEEGData.fsample=500;
             obj.best_toolbox.inputs.results.RawEEGData.trial={EEGData.Data};
             obj.best_toolbox.inputs.results.RawEEGData.time={EEGData.Time};
             
@@ -2571,4 +2571,3 @@ h=Parent;
         
     end
 end
-

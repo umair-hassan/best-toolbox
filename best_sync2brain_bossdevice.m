@@ -457,9 +457,9 @@ classdef best_sync2brain_bossdevice <handle
             AuxSignalID = getsignalid(obj.bb.tg, 'UDP/raw_eeg') + int32(0:obj.bb.eeg_channels-1);
             MrkSignalID = getsignalid(obj.bb.tg, 'MRK/mrk_masked');
             addsignal(obj.EEGScope, AuxSignalID);
-            obj.EEGScope.NumSamples = NumSamples;
-            obj.EEGScope.NumPrePostSamples = NumPrePostSamples;
-            obj.EEGScope.Decimation = 1;
+            obj.EEGScope.NumSamples = round(NumSamples/10);
+            obj.EEGScope.NumPrePostSamples = round(NumPrePostSamples/10);
+            obj.EEGScope.Decimation = 10;
             obj.EEGScope.TriggerMode = 'Signal';
             obj.EEGScope.TriggerSignal = getsignalid(obj.bb.tg, 'gen_running'); %Remove it in Future Release
             obj.EEGScope.TriggerSignal = MrkSignalID;
@@ -468,6 +468,8 @@ classdef best_sync2brain_bossdevice <handle
             %% Starting Scope
             obj.EEGScopeStart;
         end
+        
+        
         
         function EMGScopeStart(obj)
             start(obj.EMGScope);
@@ -488,7 +490,7 @@ classdef best_sync2brain_bossdevice <handle
         
         function EEGScopeStart(obj)
             start(obj.EEGScope);
-            while ~strcmpi(obj.EEGScope.Status,'Ready for being Triggered'), disp('EEG Scope is started'); drawnow, end
+            %while ~strcmpi(obj.EEGScope.Status,'Ready for being Triggered'), disp('EEG Scope is started'); drawnow, end
         end
         
         function IAScopeStart(obj)
@@ -669,10 +671,10 @@ classdef best_sync2brain_bossdevice <handle
             obj.EEGScopeStart;
         end
         function [Time, Data]=EEGFieldTripScopeRead(obj)
-            while ~strcmpi(obj.EEGScope.Status,'finished'), drawnow, if obj.best_toolbox.inputs.stop_event==1, break, end ,end
+            while strcmpi(obj.EEGScope.Status,'Acquiring'), drawnow,obj.EEGScope.Status,if obj.best_toolbox.inputs.stop_event==1, break, end ,end
             Data=obj.EEGScope.Data(:,:)';
             Time=(obj.EEGScope.Time-obj.EEGScope.Time(1)+(obj.EEGScope.Time(2)-obj.EEGScope.Time(1)))';
-            Time=(Time*1000)+obj.best_toolbox.inputs.EEGExtractionPeriod(1); 
+            Time=[(Time*1000)+obj.best_toolbox.inputs.EEGExtractionPeriod(1)]; 
             %% Interpolating Data to remove pulse artefact
             %use sample and hold period of bossdevice
             %% end of interpolation
@@ -751,4 +753,3 @@ classdef best_sync2brain_bossdevice <handle
         end
     end
 end
-
