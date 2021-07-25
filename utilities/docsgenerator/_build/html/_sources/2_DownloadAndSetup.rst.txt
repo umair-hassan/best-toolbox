@@ -18,7 +18,7 @@ Download BEST Toolbox Repository
 --------------------------------------------
 
 
-The latest repository of BEST Toolbox prerelase version 0.1 can be downloaded from `here <https://github.com/umair-hassan/BEST-Toolbox/tree/pre-release-0.1>`_
+The latest repository of BEST Toolbox prerelase version 0.1 can be downloaded from `here <https://github.com/umair-hassan/best-toolbox/releases>`_
 
 Required APIs & MATLAB Toolboxes
 -------------------------------------------
