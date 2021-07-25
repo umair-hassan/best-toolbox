@@ -2,7 +2,7 @@
 Brain Electrophysiological recording and STimulation (BEST) Toolbox, is a MATLAB based open source software that interfaces with a wide variety of EEG, EMG, TMS and other stimulating devices, and allows to run flexibly configured but fully automated closed-loop protocols.
 
 # DOWNLOAD
-To download BEST Toolbox, visit the pre-release-0.1 tree: https://github.com/umair-hassan/BEST-Toolbox/tree/pre-release-0.1
+To download BEST Toolbox, visit the pre-release-0.1 tree: https://github.com/umair-hassan/best-toolbox/releases
 
 # WIKI
 Further information on using Toolbox can be found on the Wiki: https://best-toolbox.github.io/wiki/
