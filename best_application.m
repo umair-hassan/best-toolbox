@@ -11,6 +11,7 @@ classdef best_application < handle
     end
     
     properties (Hidden)
+        Version
         pmd %panel_measurement_designer
         %         pi  %panel_inputs
         %         pr %panel_results
@@ -30,6 +31,7 @@ classdef best_application < handle
     methods
         %% BEST
         function obj=best_application()
+            obj.Version=15072021;
             obj.close_previous;
             obj.create_gui;
             
@@ -72,7 +74,9 @@ classdef best_application < handle
             %              obj.bst= best_toolbox_gui_version_inprogress_testinlab_2910_sim (obj);
         end
         function create_figure(obj)
-            obj.fig.handle = figure('Tag','BESTToolboxApplication','ToolBar','none','MenuBar','none','Name','BEST Toolbox','NumberTitle','off','CloseRequestFcn',@obj.close_figure_ioio);
+            version=num2str(obj.Version);
+            Title=['BEST Toolbox - Release ' version];
+            obj.fig.handle = figure('Tag','BESTToolboxApplication','ToolBar','none','MenuBar','none','Name',Title,'NumberTitle','off','CloseRequestFcn',@obj.close_figure_ioio);
             
             obj.info.session_no=0;
             obj.info.measurement_no=0;
