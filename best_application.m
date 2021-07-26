@@ -4462,6 +4462,9 @@ r1= uiextras.HBox( 'Parent', v,'Spacing', 5, 'Padding', 5 );
             obj.pi.BrainState=uicontrol( 'Style','popupmenu','Parent', r0 ,'FontSize',14,'String',{'Independent','Dependent'},'FontWeight','Normal','Callback',@cb_UniversalPanelAdaptation);
             obj.pi.rtms.AddStimulator=uicontrol( 'Parent', r0 ,'Style','PushButton','String','Add Stimulator','FontSize',10,'FontWeight','Normal','HorizontalAlignment','center','Tooltip','Click to Add a new Stimulator');%
             PrintDesignTable;
+            container=uicontainer( 'Parent',  obj.pi.rtms.r0v1);
+            obj.pi.rtms.designer.axes=axes('parent',container,'units','normalized');
+            obj.pi.rtms.designer.axes.Position=[0.05 0.1 0.9 0.85];
             PrintGraphicalDesigner;
             set( r0, 'Widths', [150 -2 -2]);
             cb_SetHeights;
@@ -4518,6 +4521,18 @@ r1= uiextras.HBox( 'Parent', v,'Spacing', 5, 'Padding', 5 );
                 elseif strcmp(obj.pmd.lb_measures.listbox.String{obj.pmd.lb_measures.listbox.Value},'rTMS Intervention DualMode')
                     TableData(1,:)={'3','0.02','50','30','0.2','5','','','','Single Pulse','LeftMagProX100','58','%MSO','0'};
                     TableData(2,:)={'3','0.02','50','30','0.2','5','','','','Single Pulse','RightMagProX100','58','%MSO','0'};
+                    
+                else
+                    iPulses=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).iPulses;
+                    IPI=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).IPI;
+                    iBursts=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).iBursts;
+                    IBI=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).IBI;
+                    iTrains=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).iTrains;
+                    ITI=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).ITI;
+                    pulse_frequency=num2str(1/str2num(IPI));
+                    burst_frequency=num2str(1/str2num(IBI));
+                    train_frequency=num2str(1/str2num(ITI));
+                 TableData(1,:)={iPulses,IPI,pulse_frequency,iBursts,IBI,burst_frequency,iTrains,ITI,train_frequency,'Single Pulse','','50','%MSO','0'};   
                 end
 
                 
@@ -4530,7 +4545,7 @@ r1= uiextras.HBox( 'Parent', v,'Spacing', 5, 'Padding', 5 );
                 table.RowStriping='on';
                 table.RearrangeableColumns='on';
                 obj.pi.rtms.table=table;
-                %table.CellEditCallback =@CellEditCallback ;            
+                table.CellEditCallback =@CellEditCallback ;            
             function CellEditCallback (~,CellEditData)
                 AdditionInCondition=['cond' num2str(table.Data{CellEditData.Indices(1),1})];
                 AdditionInStimulatorNum=find(find(cellfun(@str2double ,table.Data(:,1))==str2double(table.Data{CellEditData.Indices(1),1}))==CellEditData.Indices(1));
@@ -4538,13 +4553,29 @@ r1= uiextras.HBox( 'Parent', v,'Spacing', 5, 'Padding', 5 );
                 opts=[]; opts.WindowStyle='modal'; opts.Interpreter='none';
                 switch table.ColumnName{CellEditData.Indices(2),1}
                     case '# Of Pulses'
+                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).iPulses=(CellEditData.NewData);
                     case 'IPI (s)(Inter Pulse Interval)'
+                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).IPI=(CellEditData.NewData);
+                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).pulse_frequency=num2str(1/str2num(CellEditData.NewData));
                     case 'Pulse Freq (Hz)'
+                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).pulse_frequency=(CellEditData.NewData);
+                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).IPI=num2str(1/str2num(CellEditData.NewData));
                     case '# of Bursts'
+                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).iBursts=(CellEditData.NewData);
+                    case 'IBI (s)(Inter Burst Interval)'
+                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).IBI=(CellEditData.NewData);
+                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).burst_frequency=num2str(1/str2num(CellEditData.NewData));
                     case 'Burst Freq (Hz)'
+                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).burst_frequency=(CellEditData.NewData);
+                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).IBI=num2str(1/str2num(CellEditData.NewData));
                     case '# of Trains'
+                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).iTrains=(CellEditData.NewData);
                     case 'ITI (s)(Inter Train Interval)'
+                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).ITI=(CellEditData.NewData);
+                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).train_frequency=num2str(1/str2num(CellEditData.NewData));
                     case 'Train Freq (Hz)'
+                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).train_frequency=(CellEditData.NewData);
+                        obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).ITI=num2str(1/str2num(CellEditData.NewData));
                     case 'Stim. Status'
                     case 'Stimulator'
                     case 'Stim. Intensity'
@@ -4623,8 +4654,27 @@ r1= uiextras.HBox( 'Parent', v,'Spacing', 5, 'Padding', 5 );
                 %cb_condition_deletion
                 %cb_stimulator_addition
                 %cb_stimulator_deletion
-                obj.cb_cm_StimulationParametersTable;
-                cb_pulse_update
+                %obj.cb_cm_StimulationParametersTable;
+                %cb_pulse_update
+                iPulses=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).iPulses;
+                IPI=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).IPI;
+                iBursts=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).iBursts;
+                IBI=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).IBI;
+                iTrains=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).iTrains;
+                ITI=obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).ITI;
+                pulse_frequency=num2str(1/str2num(IPI));
+                burst_frequency=num2str(1/str2num(IBI));
+                train_frequency=num2str(1/str2num(ITI));
+                table.Data{1,1}=iPulses;
+                table.Data{1,2}=IPI;
+                table.Data{1,3}=pulse_frequency;
+                table.Data{1,4}=iBursts;
+                table.Data{1,5}=IBI;
+                table.Data{1,6}=burst_frequency;
+                table.Data{1,7}=iTrains;
+                table.Data{1,8}=ITI;
+                table.Data{1,9}=train_frequency;
+                PrintGraphicalDesigner;
                 function cb_pulse_update
                     cd=[];
                     st=[];
@@ -4798,10 +4848,7 @@ r1= uiextras.HBox( 'Parent', v,'Spacing', 5, 'Padding', 5 );
                 end
             end
             end
-            function PrintGraphicalDesigner
-                container=uicontainer( 'Parent',  obj.pi.rtms.r0v1);
-                obj.pi.rtms.designer.axes=axes('parent',container,'units','normalized');
-                obj.pi.rtms.designer.axes.Position=[0.05 0.1 0.9 0.85];  
+            function PrintGraphicalDesigner 
                 if  strcmp(obj.pmd.lb_measures.listbox.String{obj.pmd.lb_measures.listbox.Value},'rTMS Intervention 5 Hz')
                     iPulses=100;IPI=0.2;iBursts=0;IBI=0;iTrains=0;ITI=0;pulse_frequency=1;burst_frequency=1;train_frequency=1;
                     burst=0;
@@ -4984,6 +5031,46 @@ r1= uiextras.HBox( 'Parent', v,'Spacing', 5, 'Padding', 5 );
                     text(0,-1.1,'Stimulator: RightMagProX100 @ 55 %MSO','VerticalAlignment','bottom','Color',[0.50 0.50 0.50],'FontSize',12,'FontAngle','italic','HorizontalAlignment','left')
                     
 
+                else
+                    iPulses=str2num(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).iPulses);
+                    IPI=str2num(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).IPI);
+                    iBursts=str2num(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).iBursts);
+                    IBI=str2num(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).IBI);
+                    iTrains=str2num(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).iTrains);
+                    ITI=str2num(obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).ITI);
+                    
+                    %iPulses=3;IPI=0.02;iBursts=30;IBI=0.2;iTrains=0;ITI=0;pulse_frequency=1;burst_frequency=1;train_frequency=1;
+                    burst=0;
+                    for i=2:iPulses
+                        burst(i)=burst(i-1)+IPI;
+                    end
+                    %creating train
+                    train=burst;
+                    for i=2:iBursts
+                        train(numel(train)+1)=train(end)+IBI;
+                        for j=2:iPulses
+                            train(numel(train)+1)=train(end)+IPI;
+                        end
+                    end
+                    % creating protocol
+                    protocol=train;
+                    for i=2:iTrains
+                        protocol(numel(protocol)+1)=protocol(end)+ITI;
+                        for j=2:iPulses
+                            protocol(numel(protocol)+1)=protocol(end)+IPI;
+                        end
+                        for k=2:iBursts
+                            protocol(numel(protocol)+1)=protocol(end)+IBI;
+                            for l=2:iPulses
+                                protocol(numel(protocol)+1)=protocol(end)+IPI;
+                            end
+                        end
+                    end
+                    X=protocol; Y=ones(1,numel(X))/2;
+                    
+                    stem(X,Y,'Marker','none','LineWidth',1.25,'Color','k'); set(gca,'Color', 'none')
+                    ylim([-0.5 1]); yticks([]); xlim([min(X)-0.1 max(X)+0.2]);
+                    xlabel('Time (s)');
                 end
             end
         end
@@ -5010,6 +5097,16 @@ r1= uiextras.HBox( 'Parent', v,'Spacing', 5, 'Padding', 5 );
             obj.info.defaults.Handles.UserData='Reserved for Future Use';
             obj.info.defaults.Enable={'on'};
             obj.info.defaults.ProtocolStatus={'created'};
+            obj.info.defaults.iPulses='3';
+            obj.info.defaults.IPI='0.02';
+            obj.info.defaults.iBursts='3';
+            obj.info.defaults.IBI='0.16';
+            obj.info.defaults.iTrains='5';
+            obj.info.defaults.ITI='0.16';
+            obj.info.defaults.pulse_frequency=num2str(1/str2num(obj.info.defaults.IPI));
+            obj.info.defaults.burst_frequency=num2str(1/str2num(obj.info.defaults.IBI));
+            obj.info.defaults.train_frequency=num2str(1/str2num(obj.info.defaults.ITI));
+            
             si=70;
             for idefaults=1:numel(si)
                 cond=['cond' num2str(idefaults)];
