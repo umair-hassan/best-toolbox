@@ -6952,7 +6952,7 @@ r1= uiextras.HBox( 'Parent', v,'Spacing', 5, 'Padding', 5 );
             
             row1=uix.HBox( 'Parent', obj.hw.vbox_rightpanel, 'Spacing', 5, 'Padding', 5  );
             uicontrol( 'Style','text','Parent', row1,'String','Select Device','FontSize',12,'HorizontalAlignment','left','Units','normalized');
-            obj.hw.vbox_rp.slct_device=uicontrol( 'Style','popupmenu','Parent', row1 ,'FontSize',11,'String',{'BOSS Device connected NeurOne','FieldTrip Real-Time Buffer','BOSS Device connected ActiCHamp System','Button Box','Keyboard and Mouse','BOSS Device connected NeurOne, Keyboard and Mouse','BOSS Device connected ActiCHamp, Keyboard and Mouse','BOSS Device connected NeurOne and Button Box','BOSS Device connected ActiCHamp and Button Box','Data Simulation (Reading from Disk)'},'Callback',@(~,~)obj.cb_hw_vbox_rp_slct_device,'Value',1);
+            obj.hw.vbox_rp.slct_device=uicontrol( 'Style','popupmenu','Parent', row1 ,'FontSize',11,'String',{'BOSS Device connected NeurOne','FieldTrip Real-Time Buffer','BOSS Device connected ActiCHamp System','Button Box','Keyboard and Mouse','BOSS Device connected NeurOne, Keyboard and Mouse','BOSS Device connected ActiCHamp, Keyboard and Mouse','BOSS Device connected NeurOne and Button Box','BOSS Device connected ActiCHamp and Button Box','CED Power or Micro 1401','Data Simulation (Reading from Disk)'},'Callback',@(~,~)obj.cb_hw_vbox_rp_slct_device,'Value',1);
             set(row1,'Widths',[200 -2]);
             
             
@@ -7850,7 +7850,9 @@ r1= uiextras.HBox( 'Parent', v,'Spacing', 5, 'Padding', 5 );
                     obj.hw_input_NeurOneButtonBox;
                 case 9 %ACS Button Box
                     obj.hw_input_ACSButtonBox;
-                case 10 %Reading from BEST Toolbox Disk Mat File
+                case 10 %CED 1401
+                    obj.hw_input_keyboard;
+                case 11 %Reading from BEST Toolbox Disk Mat File
                     obj.hw_bestsimulation;
             end
         end
