@@ -122,9 +122,9 @@ classdef best_application < handle
             obj.menu.md.btn=uicontrol( 'Parent', menu_hbox ,'Style','PushButton','String','Close Controller','FontWeight','Bold' ,'Callback', @(~,~)obj.cb_menu_md);
             obj.menu.ip.btn=uicontrol( 'Parent', menu_hbox ,'Style','PushButton','String','Close Designer','FontWeight','Bold','Callback', @(~,~)obj.cb_menu_ip );
             obj.menu.rp.btn=uicontrol( 'Parent', menu_hbox ,'Style','PushButton','String','Close Results','FontWeight','Bold','Callback', @(~,~)obj.cb_menu_rp );
-            obj.menu.hwcfg.btn=uicontrol( 'Parent', menu_hbox ,'Style','PushButton','String','Open Hardware Config','FontWeight','Bold','Callback', @(~,~)obj.cb_menu_hwcfg ); %TODO1
-            obj.menu.settings.btn=uicontrol( 'Parent', menu_hbox ,'Style','PushButton','String','Open Settings','FontWeight','Bold','Callback', @(~,~)obj.cb_menu_settings ); %TODO1
-            obj.menu.notes.btn=uicontrol( 'Parent', menu_hbox ,'Style','PushButton','String','Notes','FontWeight','Bold','Callback', @(~,~)obj.cb_notes );
+            obj.menu.hwcfg.btn=uicontrol( 'Parent', menu_hbox ,'Style','PushButton','String','Hardware Configuration','FontWeight','Bold','Callback', @(~,~)obj.cb_menu_hwcfg ); %TODO1
+            obj.menu.settings.btn=uicontrol( 'Parent', menu_hbox ,'Style','PushButton','String','General Settings','FontWeight','Bold','Callback', @(~,~)obj.cb_menu_settings ); %TODO1
+            obj.menu.notes.btn=uicontrol( 'Parent', menu_hbox ,'Style','PushButton','String','Lab Book','FontWeight','Bold','Callback', @(~,~)obj.cb_notes );
             uiextras.HBox( 'Parent', menu_hbox,'Spacing', 5, 'Padding', 5 );
             set(menu_hbox,'Widths',[-0.6 -0.6 -1.5 -1.5 -1.5 -1.8 -1.8 -1.5 -12]);
             
@@ -140,7 +140,7 @@ classdef best_application < handle
             obj.fig.main = uix.GridFlex( 'Parent', obj.fig.vbox, 'Spacing', 5 );
             set(obj.fig.vbox,'Heights',[-1 -25]);
             p_measurement_designer = uix.Panel( 'Parent', obj.fig.main, 'Padding', 5,  'Units','normalized','BorderType','none');
-            obj.pmd.panel = uix.Panel( 'Parent', p_measurement_designer, 'Title', 'Experiment Controller', 'Padding', 5,'FontSize',14 ,'Units','normalized','FontWeight','bold','TitlePosition','centertop');
+            obj.pmd.panel = uix.Panel( 'Parent', p_measurement_designer, 'Title', 'Experiment Control Module', 'Padding', 5,'FontSize',14 ,'Units','normalized','FontWeight','bold','TitlePosition','centertop');
             pmd_vbox = uix.VBox( 'Parent', obj.pmd.panel, 'Spacing', 5, 'Padding', 5  );
             
             % experiment title: first horizontal row in measurement designer panel
@@ -968,7 +968,7 @@ classdef best_application < handle
         %% Protocol Designer or input panels
         function create_inputs_panel(obj)
             obj.pi.empty_panel = uix.Panel( 'Parent', obj.fig.main, 'Padding', 5 ,'Units','normalized','BorderType','none' );
-            obj.pi.no_measure_slctd_panel.handle=uix.Panel( 'Parent', obj.pi.empty_panel,'FontSize',14 ,'Units','normalized','Title','Protocol Designer','FontWeight','Bold','TitlePosition','centertop' );
+            obj.pi.no_measure_slctd_panel.handle=uix.Panel( 'Parent', obj.pi.empty_panel,'FontSize',14 ,'Units','normalized','Title','Protocol Design Module','FontWeight','Bold','TitlePosition','centertop' );
             obj.pi.no_measure_slctd_panel.vbox = uix.VBox( 'Parent', obj.pi.no_measure_slctd_panel.handle, 'Spacing', 5, 'Padding', 5  );
             uiextras.HBox( 'Parent', obj.pi.no_measure_slctd_panel.vbox)
             uicontrol( 'Parent', obj.pi.no_measure_slctd_panel.vbox,'Style','text','String','No Protocol is selected','FontSize',11,'HorizontalAlignment','center','Units','normalized' );
@@ -1081,7 +1081,7 @@ classdef best_application < handle
             obj.fig.pr_empty_panel= uix.Panel( 'Parent', obj.fig.main, 'Padding', 5 ,'Units','normalized','BorderType','none' );
             
             %             obj.pr.empty_panel= uix.Panel( 'Parent', obj.fig.main, 'Padding', 5 ,'Units','normalized','BorderType','none' );
-            uix.Panel( 'Parent', obj.fig.pr_empty_panel, 'Padding', 5 ,'Units','normalized','Title', 'Results','FontWeight','bold','FontSize',14,'TitlePosition','centertop' );
+            uix.Panel( 'Parent', obj.fig.pr_empty_panel, 'Padding', 5 ,'Units','normalized','Title', 'Results Window','FontWeight','bold','FontSize',14,'TitlePosition','centertop' );
             %             set( obj.fig.main, 'Widths', [-1.15 -1.35 -2] );
         end
         
