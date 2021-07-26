@@ -6475,7 +6475,7 @@ r1= uiextras.HBox( 'Parent', v,'Spacing', 5, 'Padding', 5 );
             
             row1=uix.HBox( 'Parent', obj.hw.vbox_rightpanel, 'Spacing', 5, 'Padding', 5  );
             uicontrol( 'Style','text','Parent', row1,'String','Select Device','FontSize',12,'HorizontalAlignment','left','Units','normalized');
-            obj.hw.vbox_rp.slct_device=uicontrol( 'Style','popupmenu','Parent', row1 ,'FontSize',11,'String',{'BOSS Device controlled NeurOne','FieldTrip Real-Time Buffer','BOSS Device Controlled ActiCHamp System','Button Box','Keyboard and Mouse','BOSS Device controlled NeurOne, Keyboard and Mouse','BOSS Device controlled ActiCHamp, Keyboard and Mouse','BOSS Device controlled NeurOne and Button Box','BOSS Device controlled ActiCHamp and Button Box','Data Simulation (Reading from Disk)'},'Callback',@(~,~)obj.cb_hw_vbox_rp_slct_device,'Value',1);
+            obj.hw.vbox_rp.slct_device=uicontrol( 'Style','popupmenu','Parent', row1 ,'FontSize',11,'String',{'BOSS Device connected NeurOne','FieldTrip Real-Time Buffer','BOSS Device connected ActiCHamp System','Button Box','Keyboard and Mouse','BOSS Device connected NeurOne, Keyboard and Mouse','BOSS Device connected ActiCHamp, Keyboard and Mouse','BOSS Device connected NeurOne and Button Box','BOSS Device connected ActiCHamp and Button Box','Data Simulation (Reading from Disk)'},'Callback',@(~,~)obj.cb_hw_vbox_rp_slct_device,'Value',1);
             set(row1,'Widths',[200 -2]);
             
             
@@ -7123,7 +7123,7 @@ r1= uiextras.HBox( 'Parent', v,'Spacing', 5, 'Padding', 5 );
             
             row1=uix.HBox( 'Parent', obj.hw.vbox_rightpanel, 'Spacing', 5, 'Padding', 5  );
             uicontrol( 'Style','text','Parent', row1,'String','Select Device','FontSize',12,'HorizontalAlignment','left','Units','normalized');
-            obj.hw.vbox_rp.slct_device2=uicontrol( 'Style','popupmenu','Parent', row1 ,'FontSize',11,'String',{'Host PC controlled MagVenture','Host PC controlled MagStim','Host PC controlled BiStim','Host PC controlled Rapid','BOSS Box controlled MagVenture','BOSS Box controlled MagStim','BOSS Box controlled BiStim','BOSS Box controlled Rapid','Digitimer','NeuroFUS','Simulation'},'Callback',@(~,~)obj.cb_hw_vbox_rp_slct_device2,'Value',obj.hw.output.slct_device2);
+            obj.hw.vbox_rp.slct_device2=uicontrol( 'Style','popupmenu','Parent', row1 ,'FontSize',11,'String',{'Host PC triggered MagVenture','Host PC triggered MagStim','Host PC triggered BiStim','Host PC triggered Rapid','BOSSDevice triggered MagVenture','BOSSDevice triggered MagStim','BOSSDevice triggered BiStim','BOSSDevice triggered Rapid','BOSSDevice triggered Digitimer','BOSSDevice triggered NeuroFUS','BOSSDevice triggered DuoMag','Host PC triggered DuoMag', 'Host PC triggered NeuroFUS', 'Host PC triggered Digitimer','Arduino triggered MagVenture','Arduino triggered MagStim','Arduino triggered BiStim','Arduino triggered Rapid','Arduino triggered Digitimer','Arduino triggered NeuroFUS','Arduino triggered DuoMag','RaspberryPi triggered MagVenture','RaspberryPi triggered MagStim','RaspberryPi triggered BiStim','RaspberryPi triggered Rapid','RaspberryPi triggered Digitimer','RaspberryPi triggered NeuroFUS','RaspberryPi triggered DuoMag'},'Callback',@(~,~)obj.cb_hw_vbox_rp_slct_device2,'Value',obj.hw.output.slct_device2);
             set(row1,'Widths',[200 -2]);
             
             
