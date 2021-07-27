@@ -976,7 +976,7 @@ classdef best_application < handle
         function resultsPanel(obj)
             total_axesno=obj.pr.axesno;
             Title=['Results - ' obj.bst.inputs.Protocol];
-            obj.pr.panel_1= uix.Panel( 'Parent', obj.fig.pr_empty_panel, 'Padding', 5 ,'Units','normalized','Title', Title,'FontWeight','bold','FontSize',14,'TitlePosition','centertop' );
+            obj.pr.panel_1= uix.Panel( 'Parent', obj.fig.pr_empty_panel, 'Padding', 5 ,'Units','normalized','Title', Title,'FontWeight','bold','FontSize',22,'TitlePosition','centertop' );
             obj.pr.grid=uiextras.GridFlex('Parent',obj.pr.panel_1, 'Spacing', 4 );
             
             for i=1:total_axesno
@@ -1021,6 +1021,8 @@ classdef best_application < handle
                         obj.pr_TEPMultiplot;
                     case 'TEPSinglePlot'
                         obj.pr_TEPSinglePlot;
+                    case 'TEPGMFPPlot'
+                        obj.pr_TEPGMFPPlot;
                 end
             end
             switch obj.pr.axesno
@@ -1082,7 +1084,136 @@ classdef best_application < handle
         end
         
         
-        
+        function pr_GMFPYLimZoomIn(obj,source,~)
+            selectedAxes=source.Tag;
+            current_ylimMax=obj.pr.ax.(selectedAxes).YLim(2);
+            current_ylimMin=obj.pr.ax.(selectedAxes).YLim(1);
+            obj.pr.ax.(selectedAxes).YLim(1)=round(current_ylimMin*0.50/10)*10; %50 percent normalized decrement
+            obj.pr.ax.(selectedAxes).YLim(2)=round(current_ylimMax*0.50/10)*10;%50 prcent normalized measure
+            mat3=linspace(obj.pr.ax.(selectedAxes).YLim(1),obj.pr.ax.(selectedAxes).YLim(2),10);
+            mat4=unique(sort([0 mat3]));
+            mat4=unique(sort(round(mat4/10)*10));
+            yticks(obj.pr.ax.(selectedAxes),(mat4));
+            ytickformat('%.0f');
+            delete(findobj('Tag','TriggerLockedEEGZeroLine'))
+            ZeroLine=gridxy(0,'Color','k','linewidth',2,'Parent',obj.pr.ax.(selectedAxes),'Tag','TriggerLockedEEGZeroLine');hold on; ZeroLine.Annotation.LegendInformation.IconDisplayStyle = 'off';
+            try
+            for i=obj.bst.inputs.trial:obj.bst.inputs.totalTrials
+                for j=1:numel(obj.bst.inputs.trialMat{i,obj.bst.inputs.colLabel.YLim})
+                    switch obj.bst.inputs.trialMat{i,obj.bst.inputs.colLabel.measures}{1,j}
+                        case 'TEPGMFPPlot'
+                            obj.bst.inputs.trialMat{i,obj.bst.inputs.colLabel.YLim}{1,j}{1,1}=[floor(current_ylimMin*0.50/10)*10 ceil(current_ylimMax*0.50/10)*10];
+                    end
+                end
+            end
+            catch
+            end
+            drawnow;
+        end
+        function pr_GMFPYLimZoomOut(obj,source,~)
+            selectedAxes=source.Tag;
+            current_ylimMax=obj.pr.ax.(selectedAxes).YLim(2);
+            current_ylimMin=obj.pr.ax.(selectedAxes).YLim(1);
+            obj.pr.ax.(selectedAxes).YLim(1)=floor(current_ylimMin*1.50/10)*10; %50 percent normalized decrement
+            obj.pr.ax.(selectedAxes).YLim(2)=ceil(current_ylimMax*1.50/10)*10;%50 prcent normalized measure
+            mat3=linspace(obj.pr.ax.(selectedAxes).YLim(1),obj.pr.ax.(selectedAxes).YLim(2),10);
+            mat4=unique(sort([0 mat3]));
+            mat4=unique(sort(round(mat4/10)*10));
+            yticks(obj.pr.ax.(selectedAxes),(mat4));
+            ytickformat('%.0f');
+            delete(findobj('Tag','TriggerLockedEEGZeroLine'))
+            ZeroLine=gridxy(0,'Color','k','linewidth',2,'Parent',obj.pr.ax.(selectedAxes),'Tag','TriggerLockedEEGZeroLine');hold on; ZeroLine.Annotation.LegendInformation.IconDisplayStyle = 'off';
+            try
+            for i=obj.bst.inputs.trial:obj.bst.inputs.totalTrials
+                for j=1:numel(obj.bst.inputs.trialMat{i,obj.bst.inputs.colLabel.YLim})
+                    switch obj.bst.inputs.trialMat{i,obj.bst.inputs.colLabel.measures}{1,j}
+                        case 'TEPGMFPPlot'
+                            obj.bst.inputs.trialMat{i,obj.bst.inputs.colLabel.YLim}{1,j}{1,1}=[floor(current_ylimMin*0.50/10)*10 ceil(current_ylimMax*0.50/10)*10];
+                    end
+                end
+            end
+            catch
+            end
+            drawnow;
+        end
+        function pr_GMFPXLimZoomIn(obj,source,~)
+            selectedAxes=source.Tag;
+            current_ylimMax=obj.pr.ax.(selectedAxes).XLim(2);
+            current_ylimMin=obj.pr.ax.(selectedAxes).XLim(1);
+            obj.pr.ax.(selectedAxes).XLim(1)=floor(current_ylimMin*0.50/10)*10; %50 percent normalized decrement
+            obj.pr.ax.(selectedAxes).XLim(2)=ceil(current_ylimMax*0.50/10)*10;%50 prcent normalized measure
+            mat3=linspace(obj.pr.ax.(selectedAxes).XLim(1),obj.pr.ax.(selectedAxes).XLim(2),10);
+            try
+                mat2=[0 obj.bst.inputs.mep_onset*1000 obj.bst.inputs.mep_offset*1000 obj.bst.inputs.EMGXLimit(2)];
+                mat4=unique(sort([0 mat3 mat2]));
+            catch
+                mat4=unique(sort([0 mat3]));
+            end
+            mat4=unique(sort(round(mat4/10)*10));
+            xticks(obj.pr.ax.(selectedAxes),(mat4));
+            xtickformat('%.0f');
+            delete(findobj('Tag','TriggerLockedEEGZeroLine'))
+            ZeroLine=gridxy(0,'Color','k','linewidth',2,'Parent',obj.pr.ax.(selectedAxes),'Tag','TriggerLockedEEGZeroLine');hold on; ZeroLine.Annotation.LegendInformation.IconDisplayStyle = 'off';
+            try
+            for i=obj.bst.inputs.trial:obj.bst.inputs.totalTrials
+                for j=1:numel(obj.bst.inputs.trialMat{i,obj.bst.inputs.colLabel.XLim})
+                    switch obj.bst.inputs.trialMat{i,obj.bst.inputs.colLabel.measures}{1,j}
+                        case 'TEPGMFPPlot'
+                            obj.bst.inputs.trialMat{i,obj.bst.inputs.colLabel.YLim}{1,j}{1,1}=[floor(current_ylimMin*0.50/10)*10 ceil(current_ylimMax*0.50/10)*10];
+                    end
+                end
+            end
+            catch
+            end
+            drawnow;
+        end
+        function pr_GMFPXLimZoomOut(obj,source,~)
+            selectedAxes=source.Tag;
+            current_ylimMax=obj.pr.ax.(selectedAxes).XLim(2);
+            current_ylimMin=obj.pr.ax.(selectedAxes).XLim(1);
+            obj.pr.ax.(selectedAxes).XLim(1)=floor(current_ylimMin*1.50/10)*10; %50 percent normalized decrement
+            obj.pr.ax.(selectedAxes).XLim(2)=ceil(current_ylimMax*1.50/10)*10;%50 prcent normalized measure
+            mat3=linspace(obj.pr.ax.(selectedAxes).XLim(1),obj.pr.ax.(selectedAxes).XLim(2),10);
+            try
+                mat2=[0 obj.bst.inputs.mep_onset*1000 obj.bst.inputs.mep_offset*1000 obj.bst.inputs.EMGXLimit(2)];
+                mat4=unique(sort([0 mat3 mat2]));
+            catch
+                mat4=unique(sort([0 mat3]));
+            end
+            mat4=unique(sort(round(mat4/10)*10));
+            xticks(obj.pr.ax.(selectedAxes),(mat4));
+            xtickformat('%.0f');
+            delete(findobj('Tag','TriggerLockedEEGZeroLine'))
+            ZeroLine=gridxy(0,'Color','k','linewidth',2,'Parent',obj.pr.ax.(selectedAxes),'Tag','TriggerLockedEEGZeroLine');hold on; ZeroLine.Annotation.LegendInformation.IconDisplayStyle = 'off';
+            try
+            for i=obj.bst.inputs.trial:obj.bst.inputs.totalTrials
+                for j=1:numel(obj.bst.inputs.trialMat{i,obj.bst.inputs.colLabel.XLim})
+                    switch obj.bst.inputs.trialMat{i,obj.bst.inputs.colLabel.measures}{1,j}
+                        case 'TEPGMFPPlot'
+                            obj.bst.inputs.trialMat{i,obj.bst.inputs.colLabel.YLim}{1,j}{1,1}=[floor(current_ylimMin*0.50/10)*10 ceil(current_ylimMax*0.50/10)*10];
+                    end
+                end
+            end
+            catch
+            end
+            drawnow;
+        end
+        function pr_TEPOpenFieldTripDataBrowser(obj,~,~)
+            figure;
+            Data=[];
+            %Data.time=cellfun(@(x) x/1000,obj.bst.inputs.rawdata.time,'un',0);
+            Data.time=obj.bst.inputs.rawdata.time;
+            Data.trial=obj.bst.inputs.rawdata.trial;
+            Data.label=obj.bst.inputs.rawdata.label;
+            cfg=[];
+            cfg.demean='yes';
+            cfg.baselinewindow=[Data.time{1,1}(1,1) -5];
+            ft_databrowser(cfg, Data);
+        end
+        function pr_TEPResetMean(obj, ~,~)
+            obj.bst.inputs.LastTrialToAverageRelative=1;
+            drawnow;
+        end
         function pr_mep(obj)
             obj.pr.ax_no=['ax' num2str(obj.pr.axesno)];
             ui_menu=uicontextmenu(obj.fig.handle);
@@ -2456,17 +2587,20 @@ r1= uiextras.HBox( 'Parent', v,'Spacing', 5, 'Padding', 5 );
             obj.pr.ax_no=['ax' num2str(obj.pr.axesno)];
             AxesTitle=obj.pr.ax_ChannelLabels{obj.pr.axesno};
             ui_menu=uicontextmenu(obj.fig.handle);
+            uimenu(ui_menu,'label','Reset Mean','Callback',@obj.pr_TEPResetMean,'Tag',obj.pr.ax_no);
             uimenu(ui_menu,'label','X Limits','Callback',@obj.pr_TEPDisplayParameters,'Tag',obj.pr.ax_no);
             uimenu(ui_menu,'label','Y Limits','Callback',@obj.pr_TEPDisplayParameters,'Tag',obj.pr.ax_no);
             uimenu(ui_menu,'label','Bad Channels','Callback',@obj.pr_TEPBadChannels,'Tag',obj.pr.ax_no);
             uimenu(ui_menu,'label','No. of Trials to Average','Callback',@obj.pr_TEPDisplayParameters,'Tag',obj.pr.ax_no);
-            uimenu(ui_menu,'label','set Font size','Callback',@pr_TEPDisplayParameters,'Tag',obj.pr.ax_no);
+            uimenu(ui_menu,'label','set Font size','Callback',@obj.pr_TEPDisplayParameters,'Tag',obj.pr.ax_no);
+            uimenu(ui_menu,'label','Open FieldTrip Databrowser','Callback',@obj.pr_TEPOpenFieldTripDataBrowser,'Tag',obj.pr.ax_no);
             uimenu(ui_menu,'label','export as MATLAB Figure','Callback',@obj.pr_FigureExport,'Tag',obj.pr.ax_no);
             obj.pr.clab.(obj.pr.ax_no)=uix.Panel( 'Parent', obj.pr.grid, 'Padding', 5 ,'Units','normalized','Title',AxesTitle,'FontWeight','bold','FontSize',12,'TitlePosition','centertop' );
             obj.pr.container.(obj.pr.ax_no)=uicontainer('Parent',   obj.pr.clab.(obj.pr.ax_no),'uicontextmenu',ui_menu);
             obj.pr.container.(obj.pr.ax_no).BackgroundColor=[1 1 1];
-            obj.pr.ax.(obj.pr.ax_no)=axes( 'Parent',obj.pr.container.(obj.pr.ax_no),'Units','normalized','uicontextmenu',ui_menu);
-            xlabel('Time (ms)'); ylabel('EEG Potential (\mu V)');
+            FontSize=12;
+            obj.pr.ax.(obj.pr.ax_no)=axes( 'Parent',obj.pr.container.(obj.pr.ax_no),'Units','normalized','uicontextmenu',ui_menu,'FontSize',FontSize,'FontWeight','bold');
+            xlabel('Time (ms)'); ylabel('EEG (\mu V)');
             text(obj.pr.ax.(obj.pr.ax_no),1,1,'YLim-','units','normalized','HorizontalAlignment','right','VerticalAlignment','bottom','ButtonDownFcn',@obj.pr_EEGYLimZoomIn,'Tag',obj.pr.ax_no,'color',[0.55 0.55 0.55]);
             text(obj.pr.ax.(obj.pr.ax_no),0.1,1,'YLim+','units','normalized','HorizontalAlignment','left','VerticalAlignment','bottom','ButtonDownFcn',@obj.pr_EEGYLimZoomOut,'Tag',obj.pr.ax_no,'color',[0.55 0.55 0.55]);
             text(obj.pr.ax.(obj.pr.ax_no),0.7,1,'XLim-','units','normalized','HorizontalAlignment','right','VerticalAlignment','bottom','ButtonDownFcn',@obj.pr_EEGXLimZoomIn,'Tag',obj.pr.ax_no,'color',[0.55 0.55 0.55]);
@@ -2514,12 +2648,34 @@ r1= uiextras.HBox( 'Parent', v,'Spacing', 5, 'Padding', 5 );
             obj.pr.clab.(obj.pr.ax_no)=uix.Panel( 'Parent', obj.pr.grid, 'Padding', 5 ,'Units','normalized','Title',AxesTitle,'FontWeight','bold','FontSize',12,'TitlePosition','centertop' );
             obj.pr.container.(obj.pr.ax_no)=uicontainer('Parent',   obj.pr.clab.(obj.pr.ax_no),'uicontextmenu',ui_menu);
             obj.pr.container.(obj.pr.ax_no).BackgroundColor=[1 1 1];
-            obj.pr.ax.(obj.pr.ax_no)=axes( 'Parent',obj.pr.container.(obj.pr.ax_no),'Units','normalized','uicontextmenu',ui_menu);
-            xlabel('Time (ms)'); ylabel('EEG Potential (\mu V)');
+            FontSize=12;
+            obj.pr.ax.(obj.pr.ax_no)=axes( 'Parent',obj.pr.container.(obj.pr.ax_no),'Units','normalized','uicontextmenu',ui_menu,'FontSize',FontSize,'FontWeight','bold');
+            xlabel('Time (ms)'); ylabel('EEG (\mu V)');
             text(obj.pr.ax.(obj.pr.ax_no),1,1,'YLim-','units','normalized','HorizontalAlignment','right','VerticalAlignment','bottom','ButtonDownFcn',@obj.pr_EEGYLimZoomIn,'Tag',obj.pr.ax_no,'color',[0.55 0.55 0.55]);
             text(obj.pr.ax.(obj.pr.ax_no),0.1,1,'YLim+','units','normalized','HorizontalAlignment','left','VerticalAlignment','bottom','ButtonDownFcn',@obj.pr_EEGYLimZoomOut,'Tag',obj.pr.ax_no,'color',[0.55 0.55 0.55]);
             text(obj.pr.ax.(obj.pr.ax_no),0.7,1,'XLim-','units','normalized','HorizontalAlignment','right','VerticalAlignment','bottom','ButtonDownFcn',@obj.pr_EEGXLimZoomIn,'Tag',obj.pr.ax_no,'color',[0.55 0.55 0.55]);
             text(obj.pr.ax.(obj.pr.ax_no),0.4,1,'XLim+','units','normalized','HorizontalAlignment','left','VerticalAlignment','bottom','ButtonDownFcn',@obj.pr_EEGXLimZoomOut,'Tag',obj.pr.ax_no,'color',[0.55 0.55 0.55]);
+        end
+        function pr_TEPGMFPPlot(obj)
+            obj.pr.ax_no=['ax' num2str(obj.pr.axesno)];
+            AxesTitle=obj.pr.ax_ChannelLabels{obj.pr.axesno};
+            ui_menu=uicontextmenu(obj.fig.handle);
+            uimenu(ui_menu,'label','X Limits','Callback',@obj.pr_TEPDisplayParameters,'Tag',obj.pr.ax_no);
+            uimenu(ui_menu,'label','Y Limits','Callback',@obj.pr_TEPDisplayParameters,'Tag',obj.pr.ax_no);
+            uimenu(ui_menu,'label','Bad Channels','Callback',@obj.pr_TEPBadChannels,'Tag',obj.pr.ax_no);
+            uimenu(ui_menu,'label','No. of Trials to Average','Callback',@obj.pr_TEPDisplayParameters,'Tag',obj.pr.ax_no);
+            uimenu(ui_menu,'label','set Font size','Callback',@pr_TEPDisplayParameters,'Tag',obj.pr.ax_no);
+            uimenu(ui_menu,'label','export as MATLAB Figure','Callback',@obj.pr_FigureExport,'Tag',obj.pr.ax_no);
+            obj.pr.clab.(obj.pr.ax_no)=uix.Panel( 'Parent', obj.pr.grid, 'Padding', 5 ,'Units','normalized','Title',AxesTitle,'FontWeight','bold','FontSize',12,'TitlePosition','centertop' );
+            obj.pr.container.(obj.pr.ax_no)=uicontainer('Parent',   obj.pr.clab.(obj.pr.ax_no),'uicontextmenu',ui_menu);
+            obj.pr.container.(obj.pr.ax_no).BackgroundColor=[1 1 1];
+            FontSize=12;
+            obj.pr.ax.(obj.pr.ax_no)=axes( 'Parent',obj.pr.container.(obj.pr.ax_no),'Units','normalized','uicontextmenu',ui_menu,'FontSize',FontSize,'FontWeight','bold');
+            xlabel('Time (ms)'); ylabel('GMFP (\mu V)');
+            text(obj.pr.ax.(obj.pr.ax_no),1,1,'YLim-','units','normalized','HorizontalAlignment','right','VerticalAlignment','bottom','ButtonDownFcn',@obj.pr_GMFPYLimZoomIn,'Tag',obj.pr.ax_no,'color',[0.55 0.55 0.55]);
+            text(obj.pr.ax.(obj.pr.ax_no),0.1,1,'YLim+','units','normalized','HorizontalAlignment','left','VerticalAlignment','bottom','ButtonDownFcn',@obj.pr_GMFPYLimZoomOut,'Tag',obj.pr.ax_no,'color',[0.55 0.55 0.55]);
+            text(obj.pr.ax.(obj.pr.ax_no),0.7,1,'XLim-','units','normalized','HorizontalAlignment','right','VerticalAlignment','bottom','ButtonDownFcn',@obj.pr_GMFPXLimZoomIn,'Tag',obj.pr.ax_no,'color',[0.55 0.55 0.55]);
+            text(obj.pr.ax.(obj.pr.ax_no),0.4,1,'XLim+','units','normalized','HorizontalAlignment','left','VerticalAlignment','bottom','ButtonDownFcn',@obj.pr_GMFPXLimZoomOut,'Tag',obj.pr.ax_no,'color',[0.55 0.55 0.55]);
         end
         
         %% MEP Hotspot Search Section
@@ -5135,10 +5291,10 @@ r1= uiextras.HBox( 'Parent', v,'Spacing', 5, 'Padding', 5 );
                         obj.pi.tep.ButterflyPlotMontageChannels=uicontrol( 'Style','edit','Parent', expModr2 ,'FontSize',11,'Tag','ButterflyPlotMontageChannels','callback',@cb_par_saving);
                         expModr2.Widths=[150 -2];
                         
-                        expModr2=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
-                        uicontrol( 'Style','text','Parent', expModr2,'String','Butterfly Plot Montage Weights:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-                        obj.pi.tep.ButterflyPlotMontageWeights=uicontrol( 'Style','edit','Parent', expModr2 ,'FontSize',11,'Tag','ButterflyPlotMontageWeights','callback',@cb_par_saving);
-                        expModr2.Widths=[150 -2];
+%                         expModr2=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
+%                         uicontrol( 'Style','text','Parent', expModr2,'String','Butterfly Plot Montage Weights:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+%                         obj.pi.tep.ButterflyPlotMontageWeights=uicontrol( 'Style','edit','Parent', expModr2 ,'FontSize',11,'Tag','ButterflyPlotMontageWeights','callback',@cb_par_saving);
+%                         expModr2.Widths=[150 -2];
                         
                         expModr2=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
                         uicontrol( 'Style','text','Parent', expModr2,'String','Butterfly Plot Display Period (ms):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
@@ -5160,10 +5316,10 @@ r1= uiextras.HBox( 'Parent', v,'Spacing', 5, 'Padding', 5 );
                         obj.pi.tep.TopoplotMontageChannels=uicontrol( 'Style','edit','Parent', expModr2 ,'FontSize',11,'Tag','TopoplotMontageChannels','callback',@cb_par_saving);
                         expModr2.Widths=[150 -2];
                         
-                        expModr2=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
-                        uicontrol( 'Style','text','Parent', expModr2,'String','Topoplot Montage Weights:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-                        obj.pi.tep.TopoplotMontageWeights=uicontrol( 'Style','edit','Parent', expModr2 ,'FontSize',11,'Tag','TopoplotMontageWeights','callback',@cb_par_saving);
-                        expModr2.Widths=[150 -2];
+%                         expModr2=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
+%                         uicontrol( 'Style','text','Parent', expModr2,'String','Topoplot Montage Weights:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+%                         obj.pi.tep.TopoplotMontageWeights=uicontrol( 'Style','edit','Parent', expModr2 ,'FontSize',11,'Tag','TopoplotMontageWeights','callback',@cb_par_saving);
+%                         expModr2.Widths=[150 -2];
                         
                         expModr2=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
                         uicontrol( 'Style','text','Parent', expModr2,'String','Topoplot Display Period (ms):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
@@ -5175,10 +5331,10 @@ r1= uiextras.HBox( 'Parent', v,'Spacing', 5, 'Padding', 5 );
                         obj.pi.tep.MultiplotMontageChannels=uicontrol( 'Style','edit','Parent', expModr2 ,'FontSize',11,'Tag','MultiplotMontageChannels','callback',@cb_par_saving);
                         expModr2.Widths=[150 -2];
                         
-                        expModr2=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
-                        uicontrol( 'Style','text','Parent', expModr2,'String','Multiplot Montage Weights:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-                        obj.pi.tep.MultiplotMontageWeights=uicontrol( 'Style','edit','Parent', expModr2 ,'FontSize',11,'Tag','MultiplotMontageWeights','callback',@cb_par_saving);
-                        expModr2.Widths=[150 -2];
+%                         expModr2=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
+%                         uicontrol( 'Style','text','Parent', expModr2,'String','Multiplot Montage Weights:','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+%                         obj.pi.tep.MultiplotMontageWeights=uicontrol( 'Style','edit','Parent', expModr2 ,'FontSize',11,'Tag','MultiplotMontageWeights','callback',@cb_par_saving);
+%                         expModr2.Widths=[150 -2];
                         
                         expModr2=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
                         uicontrol( 'Style','text','Parent', expModr2,'String','Multiplot Display Period (ms):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
@@ -5195,7 +5351,7 @@ r1= uiextras.HBox( 'Parent', v,'Spacing', 5, 'Padding', 5 );
                         obj.pi.tep.EEGExtractionPeriod=uicontrol( 'Style','edit','Parent', expModr2 ,'FontSize',11,'Tag','EEGExtractionPeriod','callback',@cb_par_saving);
                         expModr2.Widths=[150 -2];
 
-                        expModvBox.Heights=[35 35 35 42 42 42 42 42 42 42 42 42 42 42 42 42 42 42];
+                        expModvBox.Heights=[35 35 35 42 42 42 42 42 42 42 42 42 42 42 42];
                         %                         cb_SetHeights
                     case 2
                         expModvBox=uix.VBox( 'Parent', DisplayParametersPanel, 'Spacing', 0, 'Padding', 0  );
@@ -5283,6 +5439,7 @@ r1= uiextras.HBox( 'Parent', v,'Spacing', 5, 'Padding', 5 );
             obj.info.defaults.EEGExtractionPeriod='-100 300';
             obj.info.defaults.LastTrialToAverage=1;
             obj.info.defaults.ButterflyPlotYLim='-200 200';
+            obj.info.defaults.GMFPPlotYLim='-200 200';
             obj.info.defaults.TopoplotYLim='-20 20';
             obj.info.defaults.MultiplotYLim='-20 20';
             obj.info.defaults.TrialsPerCondition='10';
