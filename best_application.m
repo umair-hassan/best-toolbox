@@ -5104,9 +5104,9 @@ r1= uiextras.HBox( 'Parent', v,'Spacing', 5, 'Padding', 5 );
             obj.info.defaults.iPulses='3';
             obj.info.defaults.IPI='0.02';
             obj.info.defaults.iBursts='3';
-            obj.info.defaults.IBI='0.16';
-            obj.info.defaults.iTrains='5';
-            obj.info.defaults.ITI='0.16';
+            obj.info.defaults.IBI='0.2';
+            obj.info.defaults.iTrains='4';
+            obj.info.defaults.ITI='2';
             obj.info.defaults.pulse_frequency=num2str(1/str2num(obj.info.defaults.IPI));
             obj.info.defaults.burst_frequency=num2str(1/str2num(obj.info.defaults.IBI));
             obj.info.defaults.train_frequency=num2str(1/str2num(obj.info.defaults.ITI));
@@ -8772,7 +8772,7 @@ r1= uiextras.HBox( 'Parent', v,'Spacing', 5, 'Padding', 5 );
         end
         %% Notes
         function cb_notes(obj)
-            d=figure('units','normalized','position',[0.1 0.1 0.8 0.8],'menubar','none','resize','off','numbertitle','off','name','Notes | BEST Toolbox','WindowStyle','modal');
+            d=figure('units','normalized','position',[0.1 0.1 0.8 0.8],'menubar','none','resize','off','numbertitle','off','name','Lab Book | BEST Toolbox','WindowStyle','modal');
             editfield=uicontrol('style','edit','units','normalized','position',[0.01 0.01 0.98 0.98],'HorizontalAlign','left','min',1,'max',4,'FontSize',13','CreateFcn',@CreateNotes,'KeyPressFcn',@NotesKeyPress);
             uicontrol(d);
             function NotesKeyPress(src,evt)
