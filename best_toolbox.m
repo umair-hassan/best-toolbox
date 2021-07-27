@@ -3420,9 +3420,10 @@ classdef best_toolbox < handle
                             TopoplotCount=numel(obj.inputs.TopoplotMontageChannels);
                             MultiplotCount=numel(obj.inputs.MultiplotMontageChannels);
                             SinglePlotCount=numel(obj.inputs.SinglePlotMontageChannels);
-                            TotalPlotCount=ButterflyPlotCount+TopoplotCount+MultiplotCount+SinglePlotCount;
+                            GMFPPlotCount=numel(obj.inputs.GMFPPlotDisplayPeriod);
+                            TotalPlotCount=ButterflyPlotCount+TopoplotCount+MultiplotCount+SinglePlotCount+GMFPPlotCount;
                             obj.app.pr.axesno=TotalPlotCount;
-                            obj.app.pr.ax_measures=[repmat({'TEPButterflyPlot'},1,ButterflyPlotCount),repmat({'TEPSinglePlot'},1,SinglePlotCount),repmat({'TEPMultiplot'},1,MultiplotCount),repmat({'TEPTopoplot'},1,TopoplotCount)];
+                            obj.app.pr.ax_measures=[repmat({'TEPButterflyPlot'},1,ButterflyPlotCount),repmat({'TEPSinglePlot'},1,SinglePlotCount),repmat({'TEPGMFPPlot'},1,GMFPPlotCount),repmat({'TEPMultiplot'},1,MultiplotCount),repmat({'TEPTopoplot'},1,TopoplotCount)];
                             ploti=0;
                             for i=1:ButterflyPlotCount
                                 ploti=ploti+1;
@@ -3436,6 +3437,13 @@ classdef best_toolbox < handle
                                 ax_ChannelLabels{1,ploti}=horzcat(obj.inputs.SinglePlotMontageChannels{1,i}{:});
                                 ax_ChannelId{1,ploti}=obj.inputs.SinglePlotMontageChannels{1,i};
                                 ax_XLim{1,ploti}=obj.inputs.SinglePlotDisplayPeriod{1,i};
+                                ax_YLim{1,ploti}={str2num(obj.inputs.ButterflyPlotYLim)};
+                            end
+                            for i=1:GMFPPlotCount
+                                ploti=ploti+1;
+                                ax_ChannelLabels{1,ploti}='GMFP';
+                                ax_ChannelId{1,ploti}={'GMFP'};
+                                ax_XLim{1,ploti}=obj.inputs.GMFPPlotDisplayPeriod{1,i};
                                 ax_YLim{1,ploti}={str2num(obj.inputs.ButterflyPlotYLim)};
                             end
                             for i=1:MultiplotCount
@@ -3452,8 +3460,7 @@ classdef best_toolbox < handle
                                 ax_XLim{1,ploti}=obj.inputs.TopoplotDisplayPeriod{1,i};
                                 ax_YLim{1,ploti}={str2num(obj.inputs.TopoplotYLim)};
                             end
-                            
-                            
+
                             obj.app.pr.ax_ChannelLabels=ax_ChannelLabels;
                             %% Creating Experimental Conditions
                             for c=1:numel(fieldnames(obj.inputs.condsAll))
@@ -3567,7 +3574,7 @@ classdef best_toolbox < handle
                         end
                         if (strcmp(InputsFieldNames{iInputs},'ReferenceChannels')) || (strcmp(InputsFieldNames{iInputs},'ITI')) || (strcmp(InputsFieldNames{iInputs},'EMGDisplayChannels')) || (strcmp(InputsFieldNames{iInputs},'EMGTargetChannels')) || (strcmp(InputsFieldNames{iInputs},'Phase')) || (strcmp(InputsFieldNames{iInputs},'PhaseTolerance')) || (strcmp(InputsFieldNames{iInputs},'MontageChannels')) || (strcmp(InputsFieldNames{iInputs},'AmplitudeThreshold'))|| (strcmp(InputsFieldNames{iInputs},'TargetChannels')) || (strcmp(InputsFieldNames{iInputs},'EEGDisplayPeriod')) ...
                                 || (strcmp(InputsFieldNames{iInputs},'RealTimeChannelsMontage')) || (strcmp(InputsFieldNames{iInputs},'MontageWeights')) || (strcmp(InputsFieldNames{iInputs},'RecordingReference')) || (strcmp(InputsFieldNames{iInputs},'Rereference')) || (strcmp(InputsFieldNames{iInputs},'ReferenceChannels')) || (strcmp(InputsFieldNames{iInputs},'ImplicitReference')) || (strcmp(InputsFieldNames{iInputs},'ButterflyPlotMontageChannels')) || (strcmp(InputsFieldNames{iInputs},'ButterflyPlotMontageWeights')) || (strcmp(InputsFieldNames{iInputs},'ButterflyPlotDisplayPeriod'))...
-                                || (strcmp(InputsFieldNames{iInputs},'TopoplotMontageChannels')) || (strcmp(InputsFieldNames{iInputs},'TopoplotMontageWeights')) || (strcmp(InputsFieldNames{iInputs},'TopoplotDisplayPeriod')) || (strcmp(InputsFieldNames{iInputs},'MultiplotMontageChannels')) || (strcmp(InputsFieldNames{iInputs},'MultiplotMontageWeights'))  || (strcmp(InputsFieldNames{iInputs},'MultiplotDisplayPeriod')) || (strcmp(InputsFieldNames{iInputs},'BadChannels')) || (strcmp(InputsFieldNames{iInputs},'LastTrialToAverage')) || (strcmp(InputsFieldNames{iInputs},'SinglePlotMontageChannels'))|| (strcmp(InputsFieldNames{iInputs},'SinglePlotDisplayPeriod'))
+                                || (strcmp(InputsFieldNames{iInputs},'TopoplotMontageChannels')) || (strcmp(InputsFieldNames{iInputs},'TopoplotMontageWeights')) || (strcmp(InputsFieldNames{iInputs},'TopoplotDisplayPeriod')) || (strcmp(InputsFieldNames{iInputs},'MultiplotMontageChannels')) || (strcmp(InputsFieldNames{iInputs},'MultiplotMontageWeights'))  || (strcmp(InputsFieldNames{iInputs},'MultiplotDisplayPeriod')) || (strcmp(InputsFieldNames{iInputs},'BadChannels')) || (strcmp(InputsFieldNames{iInputs},'LastTrialToAverage')) || (strcmp(InputsFieldNames{iInputs},'SinglePlotMontageChannels'))|| (strcmp(InputsFieldNames{iInputs},'SinglePlotDisplayPeriod')) || (strcmp(InputsFieldNames{iInputs},'GMFPPlotDisplayPeriod'))
                             if (isempty(obj.inputs.(InputsFieldNames{iInputs})))
                                 disp donothing
                             else
@@ -4161,6 +4168,16 @@ classdef best_toolbox < handle
             end
         end
         function processTrial(obj)
+            switch obj.inputs.Protocol
+                case 'TEP Measurement Protocol'
+                    %Logic: When reset button is clicked, the
+                    %meanoftrialcounter goes 0 and resetmean click attrial
+                    %is stored and then following logic is applied
+                    if obj.inputs.LastTrialToAverageRelative ~= obj.inputs.LastTrialToAverage
+                        obj.inputs.LastTrialToAverageRelative=obj.inputs.LastTrialToAverageRelative+1;
+%                         obj.inputs.LastTrialToAverageA=obj.inputs.trial-obj.inputs.ResetMeanClickedAtTrial+1;
+                    end
+            end
         end
         function plotTrial(obj)
             try if istrue(obj.info.ReturnToTrial), return; end, catch, end
@@ -4227,6 +4244,8 @@ classdef best_toolbox < handle
                         obj.TEPMultiplot;
                     case 'TEPSinglePlot'
                         obj.TEPSinglePlot;
+                    case 'TEPGMFPPlot'
+                        obj.TEPGMFPPlot;
                         
                     case 'StatusTable'
                         obj.StatusTable;
@@ -4298,7 +4317,14 @@ classdef best_toolbox < handle
                                     switch char(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.stimMode}{1,i})
                                         case 'single_pulse'
                                             obj.magven.arm
-                                            obj.magven.setAmplitude(round(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,i}{1,4}));    
+                                            switch obj.inputs.trial
+                                                case 1
+                                                    obj.magven.setAmplitude(round(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,i}{1,4}));
+                                                otherwise
+                                                    if ~strcmp(obj.inputs.Protocol,'TEP Measurement Protocol')
+                                                        obj.magven.setAmplitude(round(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,i}{1,4}));
+                                                    end
+                                            end
                                             if obj.inputs.trial==1,  pause(1), end %This wait is required for first trial only otherwise time is tooshort to set intensity succesfully
                                         case 'paired_pulse'
                                             obj.magven.setPage('Main');
@@ -4355,13 +4381,14 @@ classdef best_toolbox < handle
                                             end
                                     end
                                 case 10 %neurofus
-                                    try 
-                                    obj.neurofus.arm;
-                                    obj.neurofus.global_power=obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.GlobalPower};
-                                    obj.neurofus.burst_length=obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.BurstLength};
-                                    obj.neurofus.period=obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.Period};
-                                    obj.neurofus.timer=obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.TreatmentTime};
-                                    obj.neurofus.focus=obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.Focus};
+                                    try
+                                        pause(0.1)
+                                        obj.neurofus.arm; pause(0.1);
+                                        obj.neurofus.global_power=obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.GlobalPower};drawnow;
+                                        obj.neurofus.focus=obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.Focus};drawnow;
+                                        obj.neurofus.timer=obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.TreatmentTime};drawnow;
+                                        obj.neurofus.period=obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.Period};drawnow;
+                                        obj.neurofus.burst_length=obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.BurstLength};drawnow;
                                     catch
                                         disp('NeuroFUS parameters are out of bound');
                                     end
@@ -4386,18 +4413,24 @@ classdef best_toolbox < handle
             obj.info.TimerAA=tic;
             %             for tt=1:obj.inputs.totalTrials
             while(obj.inputs.trial<=obj.inputs.totalTrials)
-% %                 obj.info.TimerAA=tic;
-% %                 obj.trigTrial;
-% %                 wait_period=obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.iti}-toc(obj.info.TimerAA);
-% %                 if wait_period>0 && wait_period<obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.iti}
-% %                     pause(wait_period)
-% %                 end
-% %                 obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.TotalITI}=toc(obj.info.TimerAA);
+                % %                 obj.info.TimerAA=tic;
+                % %                 obj.trigTrial;
+                % %                 wait_period=obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.iti}-toc(obj.info.TimerAA);
+                % %                 if wait_period>0 && wait_period<obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.iti}
+                % %                     pause(wait_period)
+                % %                 end
+                % %                 obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.TotalITI}=toc(obj.info.TimerAA);
+                try obj.StatusTitle;catch, end
                 obj.trigTrial;
                 obj.readTrial;
                 obj.plotTrial;
                 obj.prepTrial;
+                try obj.processTrial; catch, end
                 obj.saveRunTimeBackup;
+                try
+                catch
+                end
+                
                 wait_period=obj.inputs.trialMat{obj.inputs.trial-1,obj.inputs.colLabel.iti}-toc(obj.info.TimerAA);
                 if wait_period>0 && wait_period<obj.inputs.trialMat{obj.inputs.trial-1,obj.inputs.colLabel.iti}
                     pause(wait_period)
@@ -4453,8 +4486,17 @@ classdef best_toolbox < handle
             mkdir(fullfile(obj.app.par.GlobalSettings.DataBaseDirectory,exp_name,backupfolder));
             save(fullfile(obj.app.par.GlobalSettings.DataBaseDirectory,exp_name,backupfolder,obj.info.matfilstr),'BESTDataBackup','-v7.3','-nocompression');
         end
-        
-        
+        function StatusTitle(obj)
+            switch obj.inputs.Protocol
+                case 'TEP Measurement Protocol'
+                    TotalTrials=num2str(obj.inputs.totalTrials);
+                    CurrentTrial=num2str(obj.inputs.trial);
+                    LastTrialsToAverage=num2str(obj.inputs.LastTrialToAverage);
+                    LastTrialToAverageRelative=num2str(obj.inputs.LastTrialToAverageRelative);
+                    obj.app.pr.panel_1.Title=['Status                 Trials: ' CurrentTrial '/' TotalTrials '                 Trials to Mean:' LastTrialToAverageRelative '/' LastTrialsToAverage ];
+            end
+        end
+
         function saveFigures(obj)
             exp_name=obj.app.pmd.exp_title.editfield.String; exp_name(exp_name == ' ') = '_';
             subj_code=obj.app.pmd.sub_code.editfield.String; subj_code(subj_code == ' ') = '_';
@@ -4512,56 +4554,80 @@ classdef best_toolbox < handle
             try obj.sessions.(obj.app.info.event.current_session).(obj.app.info.event.current_measure_fullstr).Results=obj.inputs.Results; catch, end
         end
         function BESTData=SavingInFieldTripFormat (obj)
-            BESTData=struct;
-            %Label
-            BESTData.label=setdiff(unique(horzcat(obj.inputs.trialMat{:,obj.inputs.colLabel.chLab})),{'OsscillationPhase','OsscillationAmplitude','IADistribution','AmplitudeDistribution','TotalITIDistribution','StatusTable'})';
-            %Data
-            for i=1:obj.inputs.trial
-                for j=1:numel(BESTData.label)
-                    BESTData.trial{1,i}(j,:)=obj.inputs.rawData.(BESTData.label{j}).data(i,:);
+            try
+                BESTData=struct;
+                %Label
+                BESTData.label=setdiff(unique(horzcat(obj.inputs.trialMat{:,obj.inputs.colLabel.chLab})),{'OsscillationPhase','OsscillationAmplitude','IADistribution','AmplitudeDistribution','TotalITIDistribution','StatusTable'})';
+                %Data
+                for i=1:obj.inputs.trial
+                    for j=1:numel(BESTData.label)
+                        BESTData.trial{1,i}(j,:)=obj.inputs.rawData.(BESTData.label{j}).data(i,:);
+                    end
                 end
-            end
-            %Time
-            for i=1:obj.inputs.trial
-                for j=1:numel(BESTData.label)
+                %Time
+                for i=1:obj.inputs.trial
+                    for j=1:numel(BESTData.label)
+                        try
+                            BESTData.time{1,i}(1,:)=obj.inputs.rawData.(BESTData.label{j}).time(i,:);
+                            break;
+                        catch
+                        end
+                    end
+                end
+                %TrialInfo
+                try obj.inputs.trialMat(:,size(obj.inputs.trialMat,2)+1)=num2cell(obj.inputs.rawData.OsscillationPhase.data); obj.inputs.colLabel.MeasuredPhase=size(obj.inputs.trialMat,2); catch, end
+                for i=1:numel(fieldnames(obj.inputs.results))
                     try
-                        BESTData.time{1,i}(1,:)=obj.inputs.rawData.(BESTData.label{j}).time(i,:);
-                        break;
+                        resultschannels=fieldnames(obj.inputs.results);
+                        obj.inputs.trialMat(:,size(obj.inputs.trialMat,2)+1)=num2cell(obj.inputs.results.(resultschannels{i}).MEPAmplitude);
+                        chan=['MEPAmplitude' resultschannels{i}];
+                        obj.inputs.colLabel.(chan)=size(obj.inputs.trialMat,2);
                     catch
                     end
                 end
-            end
-            %TrialInfo
-            try obj.inputs.trialMat(:,size(obj.inputs.trialMat,2)+1)=num2cell(obj.inputs.rawData.OsscillationPhase.data); obj.inputs.colLabel.MeasuredPhase=size(obj.inputs.trialMat,2); catch, end
-            for i=1:numel(fieldnames(obj.inputs.results))
-                try
-                    resultschannels=fieldnames(obj.inputs.results);
-                    obj.inputs.trialMat(:,size(obj.inputs.trialMat,2)+1)=num2cell(obj.inputs.results.(resultschannels{i}).MEPAmplitude);
-                    chan=['MEPAmplitude' resultschannels{i}];
-                    obj.inputs.colLabel.(chan)=size(obj.inputs.trialMat,2);
-                catch
+                BESTData.trialinfomatrix=obj.inputs.trialMat;
+                FieldNames=fieldnames(obj.inputs.colLabel);
+                for i=1:100
+                    try
+                        BESTData.trialinfomatrix_label{i}=FieldNames{i};
+                    catch
+                        break;
+                    end
                 end
-            end
-            BESTData.trialinfomatrix=obj.inputs.trialMat;
-            FieldNames=fieldnames(obj.inputs.colLabel);
-            for i=1:100
-                try
-                    BESTData.trialinfomatrix_label{i}=FieldNames{i};
-                catch
-                    break;
+                try BESTData.label{strcmpi(BESTData.label,'OsscillationEEG'),1}='RealTimeTargetMontage'; catch, end
+                %BESTData.ChannelType
+                BESTData.ChannelUnits='All Channel units are uV';
+                BESTData.TimeUnits='ms';
+                BESTData.Parameters=obj.app.par.(obj.app.info.event.current_session).(obj.app.info.event.current_measure_fullstr);
+                BESTData.Results=obj.inputs.results;
+                BESTData.ExperimentName=obj.app.pmd.exp_title.editfield.String;
+                BESTData.SubjectID=obj.app.pmd.sub_code.editfield.String;
+                BESTData.SessionName=obj.app.info.event.current_session;
+                BESTData.ProtocolName=obj.app.info.event.current_measure_fullstr;
+                BESTData.TimeStamp=clock;
+            catch
+                BESTData=struct;
+                BESTData=obj.inputs.rawdata;                
+                %TrialInfo
+                BESTData.trialinfomatrix=obj.inputs.trialMat;
+                FieldNames=fieldnames(obj.inputs.colLabel);
+                for i=1:100
+                    try
+                        BESTData.trialinfomatrix_label{i}=FieldNames{i};
+                    catch
+                        break;
+                    end
                 end
+                BESTData.ChannelUnits='All Channel units are uV';
+                BESTData.TimeUnits='ms';
+                BESTData.Parameters=obj.app.par.(obj.app.info.event.current_session).(obj.app.info.event.current_measure_fullstr);
+                try BESTData.Results=obj.inputs.results; catch, end
+                BESTData.ExperimentName=obj.app.pmd.exp_title.editfield.String;
+                BESTData.SubjectID=obj.app.pmd.sub_code.editfield.String;
+                BESTData.SessionName=obj.app.info.event.current_session;
+                BESTData.ProtocolName=obj.app.info.event.current_measure_fullstr;
+                BESTData.TimeStamp=clock;
             end
-            try BESTData.label{strcmpi(BESTData.label,'OsscillationEEG'),1}='RealTimeTargetMontage'; catch, end
-            %BESTData.ChannelType
-            BESTData.ChannelUnits='All Channel units are uV';
-            BESTData.TimeUnits='ms';
-            BESTData.Parameters=obj.app.par.(obj.app.info.event.current_session).(obj.app.info.event.current_measure_fullstr);
-            BESTData.Results=obj.inputs.results;
-            BESTData.ExperimentName=obj.app.pmd.exp_title.editfield.String; 
-            BESTData.SubjectID=obj.app.pmd.sub_code.editfield.String; 
-            BESTData.SessionName=obj.app.info.event.current_session; 
-            BESTData.ProtocolName=obj.app.info.event.current_measure_fullstr; 
-            BESTData.TimeStamp=clock;
         end
         function completed(obj)
             questdlg('This Protocol has been Completed or Stopped, click Okay to continue.','Status','Okay','Okay');
@@ -4859,9 +4925,10 @@ classdef best_toolbox < handle
             obj.boot_inputdevice;
             %obj.bossbox.bb.sample_and_hold_period=5/1000; %5ms
             obj.bootTrial;
+            obj.inputs.LastTrialToAverageRelative=1;
             obj.stimLoop;
             obj.saveFigures;
-            %obj.SavingTerminal;
+            obj.SavingTerminal;
             obj.save;
             obj.completed;
             obj.StopRecordingDataPrompt
@@ -4914,7 +4981,7 @@ classdef best_toolbox < handle
             %Takes obj.inputs.rawdata.time and obj.inputs.rawdata.trial and
             %rereference them and demean them, take time locked average of
             %required trials
-            if obj.inputs.trial~=1
+            if obj.inputs.trial~=1 && ~istrue(obj.inputs.stop_event)
                 if strcmp(obj.inputs.AvgRereference,'yes')
                     cfg=[];
                     cfg.reref=obj.inputs.AvgRereference;
@@ -4931,7 +4998,7 @@ classdef best_toolbox < handle
                     obj.inputs.rawdata.trial{1,obj.inputs.trial}=rawdata_preprocessed.trial{1,1};
                 end
                 cfg=[];
-                TempTrials=obj.inputs.trial-obj.inputs.LastTrialToAverage+1:1:obj.inputs.trial;
+                TempTrials=obj.inputs.trial-obj.inputs.LastTrialToAverageRelative+1:1:obj.inputs.trial;
                 cfg.trials=TempTrials(TempTrials>1);
                 cfg.channel=setdiff(obj.inputs.rawdata.label, obj.inputs.BadChannels');
                 obj.inputs.rawdata_timelockedaverage=ft_timelockanalysis(cfg,obj.inputs.rawdata);
@@ -6314,7 +6381,7 @@ classdef best_toolbox < handle
                 %Get YLimits
                 ylim(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.YLim}{1,obj.inputs.chLab_idx}{1,1});
                 %plot the data
-                try delete(obj.app.pr.ax.(ax).UserData.h1),delete(obj.app.pr.ax.(ax).UserData.h2); catch, end
+                try delete(obj.app.pr.ax.(ax).UserData.h1); delete(obj.app.pr.ax.(ax).UserData.h2); catch, end
                 %Plot All channels
                 obj.app.pr.ax.(ax).UserData.h1=plot(obj.inputs.rawdata_timelockedaverage.time,obj.inputs.rawdata_timelockedaverage.avg,'LineWidth',0.2,'Color','k');
                 %Plot the Trget Channels with more Line Width
@@ -6442,19 +6509,44 @@ classdef best_toolbox < handle
                 ylim(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.YLim}{1,obj.inputs.chLab_idx}{1,1});
                 %plot the data
                 obj.app.pr.ax.(ax).ColorOrderIndex = 1;
-                try delete(obj.app.pr.ax.(ax).Children);catch, end
+                try
+                    for i=1:length(fieldnames(obj.app.pr.ax.(ax).UserData))
+                        temp_handle=['h' num2str(i)];
+                        delete(obj.app.pr.ax.(ax).UserData.(temp_handle));
+                    end
+                catch
+                end
                 for i=1:numel(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx})
-                    obj.app.pr.ax.(ax).UserData=plot(obj.inputs.rawdata_timelockedaverage.time,obj.inputs.rawdata_timelockedaverage.avg((strcmp(obj.inputs.rawdata.label,obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}{1,i})),:),'LineWidth',2,'DisplayName',obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}{1,i});
+                    temp_handle=['h' num2str(i)];
+                    obj.app.pr.ax.(ax).UserData.(temp_handle)=plot(obj.inputs.rawdata_timelockedaverage.time,obj.inputs.rawdata_timelockedaverage.avg((strcmp(obj.inputs.rawdata.label,obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}{1,i})),:),'LineWidth',2,'DisplayName',obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}{1,i});
                     hold on;
                 end
-                
-                cfg=[];
-                cfg.method='power';
-                gmf = ft_globalmeanfield(cfg, obj.inputs.rawdata_timelockedaverage)
-                plot(gmf.time,gmf.avg);
                 legend
             catch
                 disp('TEPSinglePlot Exception Handling');
+            end
+        end
+        function TEPGMFPPlot(obj)
+            try
+                ax=['ax' num2str(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.axesno}{1,obj.inputs.chLab_idx})];
+                axes(obj.app.pr.ax.(ax)), hold on,
+                %delete the plot child if exist on the axes
+                %Get XLimits
+                xlim(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.XLim}{1,obj.inputs.chLab_idx}{1,1});
+                %Get YLimits
+                YL=obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.YLim}{1,obj.inputs.chLab_idx}{1,1};
+                ylim([0 YL(2)]);
+                %plot the data
+%               ylim([0 200]);  
+                obj.app.pr.ax.(ax).ColorOrderIndex = 1;                
+                cfg=[];
+                cfg.method='amplitude';
+                gmf = ft_globalmeanfield(cfg, obj.inputs.rawdata_timelockedaverage);
+                try delete(obj.app.pr.ax.(ax).UserData.h1); catch, end
+%                 ylim auto
+                obj.app.pr.ax.(ax).UserData.h1=plot(gmf.time,gmf.avg,'LineWidth',2,'Color','b');
+            catch
+                disp('TEPGMFPPlot Exception Handling');
             end
         end
         function StatusTable(obj)
@@ -6602,6 +6694,7 @@ classdef best_toolbox < handle
         function boot_neurofus(obj)
             obj.neurofus=neurofus(obj.app.par.hardware_settings.(char(obj.inputs.output_device)).comport);
             obj.neurofus.connect;
+            pause(2);
             obj.neurofus.arm;
         end
         function boot_fieldtrip(obj)
