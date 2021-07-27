@@ -10601,7 +10601,7 @@ r1= uiextras.HBox( 'Parent', v,'Spacing', 5, 'Padding', 5 );
                 case 'MEP Dose Response Curve Single Pulse'
                     MotorThresholdHuntingCallback
                 case 'MEP Dose Response Curve Paired Pulse'
-                    MotorThresholdHuntingCallback
+                    PairedPulse
                 case 'TMS Evoked EEG Potentials'
                     MotorThresholdHuntingCallback
                 case 'rsEEG Measurement'
@@ -10755,6 +10755,25 @@ r1= uiextras.HBox( 'Parent', v,'Spacing', 5, 'Padding', 5 );
                 uimenu(ui_menu,'label','export as MATLAB Figure','Callback',@obj.pr_FigureExport,'Tag',obj.pr.ax_no);
                 figThresholdTrace.UIContextMenu=ui_menu;
                 
+            end
+            
+            function PairedPulse
+                obj.pr.axesno=9;
+                obj.pr.ax_ChannelLabels={'FDIr','FDIr','FDIr','FDIr','FDIr','FDIr','FDIr','FDIr','FDIr'};
+                obj.bst.inputs.Protocol='SICI Dose Response Curve';
+                obj.pr.ax_measures={'MEP_Measurement','MEP_Measurement','MEP_Measurement','MEP_Measurement','MEP_Measurement','MEP_Measurement','MEP_Measurement','MEP_Measurement','MEP_Measurement'};
+                obj.resultsPanel;
+                obj.fig.main.Widths=[-1.15 0 -3.35 0];obj.pr.panel_1.Title='Resting-state EEG Measurement';
+                % top left - meps
+                fig=openfig('C:\Users\BNP Lab\Dropbox (sync2brain)\UH_BESTWebinar\PairedPulseMEPMeas\PairedPulseMEPMeas\1.fig');
+                figThresholdTrace=gca;
+                %delete(figThresholdTrace.Children(52)); delete(figThresholdTrace.Children(52)); delete(figThresholdTrace.Children(61-2))
+                delete(obj.pr.clab.ax1.Children)
+                cont=uicontainer('Parent',   obj.pr.clab.ax1);
+                figThresholdTrace.Parent   =cont;                
+                figThresholdTrace.Position=[0.15 0.15 0.80 0.8];
+                close(fig)
+%                 obj.pr.clab.ax1.Title='FDIr MEPs';
             end
         end
 
