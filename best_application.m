@@ -211,7 +211,7 @@ classdef best_application < handle
             obj.pmd.suffixprotocol = uimenu(m,'label','Add Suffix','Callback',@(~,~)obj.cb_measure_suffix);
             mu5 = uimenu(m,'label','Move Up','Callback',@(~,~)obj.cb_pmd_lb_measures_moveup);
             mu6 = uimenu(m,'label','Move Down','Callback',@(~,~)obj.cb_pmd_lb_measures_movedown);
-            obj.pmd.lb_measure_menu_loadresults=uimenu(m,'label','Load Results','Callback',@(~,~)obj.cb_pmd_lb_measure_menu_loadresult);
+            obj.pmd.lb_measure_menu_loadresults=uimenu(m,'label','Load Results','Callback',@(~,~)obj.LoadResults);
             obj.pmd.renameprotocol = uimenu(m,'label','Rename Protocol','Callback',@(~,~)obj.cb_measure_rename);
             uimenu(m,'label','Edit Custom Function','Callback',@(~,~)obj.cb_custom_function);
             obj.pmd.lb_measures.listbox=uicontrol( 'Style','listbox','Parent', ProtocolListBox ,'KeyPressFcn',@(~,~)obj.cb_pmd_lb_measure_keypressfcn,'FontSize',11,'String',obj.pmd.lb_measures.string,'uicontextmenu',m,'Callback',@(~,~)obj.cb_measure_listbox);
@@ -8356,7 +8356,7 @@ r1= uiextras.HBox( 'Parent', v,'Spacing', 5, 'Padding', 5 );
                 obj.hw.device_added2.listbox.String=obj.hw.device_added2_listbox.string;
                 obj.hw.device_added1.listbox.String=obj.hw.device_added1_listbox.string;
                 drawnow
-                pause(1);
+                pause(3);
                 obj.cb_session_listbox;
                 obj.protect_experiment;
                 drawnow;
@@ -8384,7 +8384,7 @@ r1= uiextras.HBox( 'Parent', v,'Spacing', 5, 'Padding', 5 );
                 %             drawnow;
                 
             catch e
-                errordlg('You have tried to load a wrong or corrupt file. Try again with correct file.','BEST Toolbox');
+                errordlg('You may have tried to load a wrong or corrupt file. Try again with correct file.','BEST Toolbox');
                 rethrow(e)
             end
             
@@ -10437,5 +10437,170 @@ r1= uiextras.HBox( 'Parent', v,'Spacing', 5, 'Padding', 5 );
                 end
             end
         end
+        function LoadResults(obj)
+            switch obj.pmd.lb_measures.listbox.String{obj.pmd.lb_measures.listbox.Value}
+                case 'MEP Motor Threshold Hunting'
+                    MotorThresholdHuntingCallback
+                case 'MEP Dose Response Curve Single Pulse'
+                    MotorThresholdHuntingCallback
+                case 'MEP Dose Response Curve Paired Pulse'
+                    MotorThresholdHuntingCallback
+                case 'TMS Evoked EEG Potentials'
+                    MotorThresholdHuntingCallback
+                case 'rsEEG Measurement'
+                    RSEEG
+                case 'Realtime Closedloop EEGTMS protocol'
+                    MotorThresholdHuntingCallback
+            end
+            
+            function MotorThresholdHuntingCallback
+                obj.pr.axesno=2;
+                obj.pr.ax_ChannelLabels={'APBr','APBr'};
+                obj.bst.inputs.Protocol='MEP Threshold Hunting';
+                obj.pr.ax_measures={'MEP_Measurement','Motor Threshold Hunting'};
+                obj.resultsPanel;
+                obj.fig.main.Widths=[-1.15 0 -3.35 0];obj.pr.panel_1.Title='MEP Threshold Estimation';
+                % top left - meps
+                fig=openfig('C:\Users\BNP Lab\Dropbox (sync2brain)\UH_BESTWebinar\TMSThresholdHunting\BEST_MUSAI_S04_Figure1_MEP_Measurement_APBr_20210412_160310.fig');
+                figThresholdTrace=gca;
+                %delete(figThresholdTrace.Children(52)); delete(figThresholdTrace.Children(52)); delete(figThresholdTrace.Children(61-2))
+                delete(obj.pr.clab.ax1.Children)
+                cont=uicontainer('Parent',   obj.pr.clab.ax1);
+                figThresholdTrace.Parent   =cont;
+                
+                figThresholdTrace.Position=[0.15 0.15 0.80 0.8];
+                close(fig)
+                figThresholdTrace.YLim=[-400 400];
+                figThresholdTrace.YTick=[-400 -300 -200 -100 0 100 200 300 400];
+                figThresholdTrace.XTick=[-50 -15 0 15 50 75 100 ];
+                obj.pr.clab.ax1.Title='MEP Traces (APB right hand)';
+                obj.pr.axesno=1;
+                obj.pr.ax_no=['ax' num2str(obj.pr.axesno)];
+                ui_menu=uicontextmenu(obj.fig.handle);
+                uimenu(ui_menu,'label','reset Mean MEP Plot','Callback',@obj.pr_ResetMEPMeanPlot,'Tag',obj.pr.ax_no);
+                uimenu(ui_menu,'label','set Y-axis limits','Callback',@obj.pr_SetYAxisLimits,'Tag',obj.pr.ax_no);
+                uimenu(ui_menu,'label','set X-axis limits','Callback',@obj.pr_SetXAxisLimits,'Tag',obj.pr.ax_no);
+                uimenu(ui_menu,'label','set Font size','Callback',@obj.pr_FontSize,'Tag',obj.pr.ax_no);
+                uimenu(ui_menu,'label','Y auto-fit','Callback',@obj.pr_AutoFit,'Tag',obj.pr.ax_no);
+                uimenu(ui_menu,'label','X auto-fit','Callback',@obj.pr_XAutoFit,'Tag',obj.pr.ax_no);
+                uimenu(ui_menu,'label','export as MATLAB Figure','Callback',@obj.pr_FigureExport,'Tag',obj.pr.ax_no);
+                figThresholdTrace.UIContextMenu=ui_menu;
+                %% testing feature
+                % top right - threshold trace
+                fig=openfig('C:\Users\BNP Lab\Dropbox (sync2brain)\UH_BESTWebinar\TMSThresholdHunting\BEST_MUSAI_S04_Figure2_Motor Threshold Hunting_APBr_20210412_160310.fig');
+                figThresholdTrace=gca;
+                %delete(obj.pr.clab.ax2.Children)
+                cont=uicontainer('Parent',   obj.pr.clab.ax2);
+                figThresholdTrace.Parent   =cont;
+                figThresholdTrace.Position=[0.1 0.15 0.89 0.85];
+                close(fig)
+                figThresholdTrace.XTick=[1:2:100];
+                obj.pr.clab.ax2.Title='Threshold Trace (APB right hand)';
+                obj.pr.axesno=2;
+                obj.pr.ax_no=['ax' num2str(obj.pr.axesno)];
+                ui_menu=uicontextmenu(obj.fig.handle);
+                uimenu(ui_menu,'label','reset Mean MEP Plot','Callback',@obj.pr_ResetMEPMeanPlot,'Tag',obj.pr.ax_no);
+                uimenu(ui_menu,'label','set Y-axis limits','Callback',@obj.pr_SetYAxisLimits,'Tag',obj.pr.ax_no);
+                uimenu(ui_menu,'label','set X-axis limits','Callback',@obj.pr_SetXAxisLimits,'Tag',obj.pr.ax_no);
+                uimenu(ui_menu,'label','set Font size','Callback',@obj.pr_FontSize,'Tag',obj.pr.ax_no);
+                uimenu(ui_menu,'label','Y auto-fit','Callback',@obj.pr_AutoFit,'Tag',obj.pr.ax_no);
+                uimenu(ui_menu,'label','X auto-fit','Callback',@obj.pr_XAutoFit,'Tag',obj.pr.ax_no);
+                uimenu(ui_menu,'label','export as MATLAB Figure','Callback',@obj.pr_FigureExport,'Tag',obj.pr.ax_no);
+                figThresholdTrace.UIContextMenu=ui_menu;
+            end
+            function RSEEG
+                obj.pr.axesno=4;
+                obj.pr.ax_ChannelLabels={'rsEEG Measurement','rsEEG Measurement','rsEEG Measurement','rsEEG Measurement'};
+                obj.bst.inputs.Protocol='Resting-state EEG Measurement';
+                obj.pr.ax_measures={'MEP_Measurement','MEP_Measurement','MEP_Measurement','MEP_Measurement'};
+                obj.resultsPanel;
+                obj.fig.main.Widths=[-1.15 0 -3.35 0];obj.pr.panel_1.Title='Resting-state EEG Measurement';
+                % top left - meps
+                fig=openfig('C:\Users\BNP Lab\Dropbox (sync2brain)\UH_BESTWebinar\rsEEGMeasurement\one.fig');
+                figThresholdTrace=gca;
+                %delete(figThresholdTrace.Children(52)); delete(figThresholdTrace.Children(52)); delete(figThresholdTrace.Children(61-2))
+                delete(obj.pr.clab.ax1.Children)
+                cont=uicontainer('Parent',   obj.pr.clab.ax1);
+                figThresholdTrace.Parent   =cont;                
+                figThresholdTrace.Position=[0.15 0.15 0.80 0.8];
+                close(fig)
+                legend('Fractal','Original');
+                obj.pr.clab.ax1.Title='Fractal and Original Power Spectrum - C3 Hjorth Montage';
+                obj.pr.axesno=1;
+                obj.pr.ax_no=['ax' num2str(obj.pr.axesno)];
+                ui_menu=uicontextmenu(obj.fig.handle);
+                uimenu(ui_menu,'label','set Y-axis limits','Callback',@obj.pr_SetYAxisLimits,'Tag',obj.pr.ax_no);
+                uimenu(ui_menu,'label','set X-axis limits','Callback',@obj.pr_SetXAxisLimits,'Tag',obj.pr.ax_no);
+                uimenu(ui_menu,'label','set Font size','Callback',@obj.pr_FontSize,'Tag',obj.pr.ax_no);
+                uimenu(ui_menu,'label','Y auto-fit','Callback',@obj.pr_AutoFit,'Tag',obj.pr.ax_no);
+                uimenu(ui_menu,'label','X auto-fit','Callback',@obj.pr_XAutoFit,'Tag',obj.pr.ax_no);
+                uimenu(ui_menu,'label','export as MATLAB Figure','Callback',@obj.pr_FigureExport,'Tag',obj.pr.ax_no);
+                figThresholdTrace.UIContextMenu=ui_menu;
+                %% testing feature
+                % top right - threshold trace
+                fig=openfig('C:\Users\BNP Lab\Dropbox (sync2brain)\UH_BESTWebinar\rsEEGMeasurement\two.fig');
+                figThresholdTrace=gca;
+                delete(obj.pr.clab.ax2.Children)
+                cont=uicontainer('Parent',   obj.pr.clab.ax2);
+                figThresholdTrace.Parent   =cont;
+                figThresholdTrace.Position=[0.1 0.15 0.89 0.85];
+                close(fig)
+                obj.pr.clab.ax2.Title='Oscillation Power Spectrum - C3 Hjorth Montage';
+                obj.pr.axesno=2;
+                obj.pr.ax_no=['ax' num2str(obj.pr.axesno)];
+                ui_menu=uicontextmenu(obj.fig.handle);
+                uimenu(ui_menu,'label','set Y-axis limits','Callback',@obj.pr_SetYAxisLimits,'Tag',obj.pr.ax_no);
+                uimenu(ui_menu,'label','set X-axis limits','Callback',@obj.pr_SetXAxisLimits,'Tag',obj.pr.ax_no);
+                uimenu(ui_menu,'label','set Font size','Callback',@obj.pr_FontSize,'Tag',obj.pr.ax_no);
+                uimenu(ui_menu,'label','Y auto-fit','Callback',@obj.pr_AutoFit,'Tag',obj.pr.ax_no);
+                uimenu(ui_menu,'label','X auto-fit','Callback',@obj.pr_XAutoFit,'Tag',obj.pr.ax_no);
+                uimenu(ui_menu,'label','export as MATLAB Figure','Callback',@obj.pr_FigureExport,'Tag',obj.pr.ax_no);
+                figThresholdTrace.UIContextMenu=ui_menu;
+                %%
+                % top right - threshold trace
+                fig=openfig('C:\Users\BNP Lab\Dropbox (sync2brain)\UH_BESTWebinar\rsEEGMeasurement\three.fig');
+                figThresholdTrace=gca;
+                %delete(obj.pr.clab.ax2.Children)
+                cont=uicontainer('Parent',   obj.pr.clab.ax3);
+                figThresholdTrace.Parent   =cont;
+                figThresholdTrace.Position=[0.1 0.15 0.89 0.85];
+                close(fig)
+                obj.pr.clab.ax3.Title='Oscillation/Fractal Change - C3 Hjorth Montage';
+                obj.pr.axesno=3;
+                obj.pr.ax_no=['ax' num2str(obj.pr.axesno)];
+                ui_menu=uicontextmenu(obj.fig.handle);
+                uimenu(ui_menu,'label','set Y-axis limits','Callback',@obj.pr_SetYAxisLimits,'Tag',obj.pr.ax_no);
+                uimenu(ui_menu,'label','set X-axis limits','Callback',@obj.pr_SetXAxisLimits,'Tag',obj.pr.ax_no);
+                uimenu(ui_menu,'label','set Font size','Callback',@obj.pr_FontSize,'Tag',obj.pr.ax_no);
+                uimenu(ui_menu,'label','Y auto-fit','Callback',@obj.pr_AutoFit,'Tag',obj.pr.ax_no);
+                uimenu(ui_menu,'label','X auto-fit','Callback',@obj.pr_XAutoFit,'Tag',obj.pr.ax_no);
+                uimenu(ui_menu,'label','export as MATLAB Figure','Callback',@obj.pr_FigureExport,'Tag',obj.pr.ax_no);
+                figThresholdTrace.UIContextMenu=ui_menu;
+                %%
+                %%
+                % top right - threshold trace
+                fig=openfig('C:\Users\BNP Lab\Dropbox (sync2brain)\UH_BESTWebinar\rsEEGMeasurement\three.fig');
+                figThresholdTrace=gca;
+                %delete(obj.pr.clab.ax2.Children)
+                cont=uicontainer('Parent',   obj.pr.clab.ax3);
+                figThresholdTrace.Parent   =cont;
+                figThresholdTrace.Position=[0.1 0.15 0.89 0.85];
+                close(fig)
+                obj.pr.clab.ax3.Title='Oscillation/Fractal Change - C3 Hjorth Montage';
+                obj.pr.axesno=3;
+                obj.pr.ax_no=['ax' num2str(obj.pr.axesno)];
+                ui_menu=uicontextmenu(obj.fig.handle);
+                uimenu(ui_menu,'label','set Y-axis limits','Callback',@obj.pr_SetYAxisLimits,'Tag',obj.pr.ax_no);
+                uimenu(ui_menu,'label','set X-axis limits','Callback',@obj.pr_SetXAxisLimits,'Tag',obj.pr.ax_no);
+                uimenu(ui_menu,'label','set Font size','Callback',@obj.pr_FontSize,'Tag',obj.pr.ax_no);
+                uimenu(ui_menu,'label','Y auto-fit','Callback',@obj.pr_AutoFit,'Tag',obj.pr.ax_no);
+                uimenu(ui_menu,'label','X auto-fit','Callback',@obj.pr_XAutoFit,'Tag',obj.pr.ax_no);
+                uimenu(ui_menu,'label','export as MATLAB Figure','Callback',@obj.pr_FigureExport,'Tag',obj.pr.ax_no);
+                figThresholdTrace.UIContextMenu=ui_menu;
+                
+            end
+        end
+
+        
     end
 end

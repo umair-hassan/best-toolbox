@@ -161,6 +161,7 @@ classdef neurofus < handle
             obj.process_command(key,value,carriage);
             errorOrSuccess=1;
             deviceResponse=[]
+            pause(0.1)
             obj.extrafield=2;
         end
         %% system_state
