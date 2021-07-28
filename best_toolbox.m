@@ -3967,10 +3967,7 @@ classdef best_toolbox < handle
                         if isempty(obj.rapid), obj.boot_rapid; end
                     case 5 % boss box controlled magven
                         obj.inputs.output_device={uniqueOutputDevices{i}};
-                        if isempty(obj.magven), obj.boot_magven; else, obj.magven.arm;
-                            obj.magven.setPage('Main');
-                            obj.magven.setMode('Standard','00',2,0,1,1);
-                        end
+                        if isempty(obj.magven), obj.boot_magven; end
                         if isempty(obj.bossbox), obj.boot_bossbox; end
                     case 6% boss box controlled magstim
                         if isempty(obj.magven), obj.boot_magstim; end
@@ -3989,9 +3986,8 @@ classdef best_toolbox < handle
                     case 10 %neurofus
                         obj.neurofus=[];
                         obj.inputs.output_device={uniqueOutputDevices{i}};
-                        if isempty(obj.bossbox), obj.boot_bossbox; end
                         if isempty(obj.neurofus), obj.boot_neurofus; end
-                        
+                        if isempty(obj.bossbox), obj.boot_bossbox; end
                 end
             end
         end
@@ -4386,8 +4382,8 @@ classdef best_toolbox < handle
                                     end
                                 case 10 %neurofus
                                     try
-                                        pause(0.3)
-                                        obj.neurofus.arm; pause(0.3);
+                                        pause(0.1)
+                                        obj.neurofus.arm; pause(0.1);
                                         obj.neurofus.global_power=obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.GlobalPower};drawnow;
                                         obj.neurofus.focus=obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.Focus};drawnow;
                                         obj.neurofus.timer=obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.TreatmentTime};drawnow;
@@ -4426,7 +4422,7 @@ classdef best_toolbox < handle
                 % %                 obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.TotalITI}=toc(obj.info.TimerAA);
                 try obj.StatusTitle;catch, end
                 obj.trigTrial;
-                try obj.readTrial;catch, end
+                obj.readTrial;
                 obj.plotTrial;
                 obj.prepTrial;
                 try obj.processTrial; catch, end
@@ -4669,7 +4665,7 @@ classdef best_toolbox < handle
             obj.bootTrial;
             obj.stimLoop;
             obj.saveFigures;
-            try obj.SavingTerminal; catch, end
+            obj.SavingTerminal;
             obj.save;
             obj.completed;
             obj.StopRecordingDataPrompt
@@ -4805,9 +4801,9 @@ classdef best_toolbox < handle
                 case 2 %FFT
                     obj.fieldtrip.fft(obj.inputs.rawData.EEG,obj.inputs.input_device);
             end
-            try PeakFrequency=obj.inputs.results.PeakFrequency; catch, end
-            try APeriodicComponentPercentile=obj.inputs.results.APeriodicComponentPercentile;
-            SavingTerminal; catch, end
+            PeakFrequency=obj.inputs.results.PeakFrequency;
+            APeriodicComponentPercentile=obj.inputs.results.APeriodicComponentPercentile;
+            SavingTerminal;
             obj.saveFigures;
             obj.save;
             obj.completed;
@@ -6669,9 +6665,9 @@ classdef best_toolbox < handle
         function boot_magven(obj)
             obj.magven=magventure(obj.app.par.hardware_settings.(char(obj.inputs.output_device)).comport);
             obj.magven.connect;
+            %obj.magven.setPage('Main');
+            %obj.magven.setMode('Standard','00',2,0,1,1); %Future Release: Desirable but has bugs at the moment from MAGIC side
             obj.magven.arm;
-            obj.magven.setPage('Main');
-            obj.magven.setMode('Standard','00',2,0,1,1); %Future Release: Desirable but has bugs at the moment from MAGIC side
         end
         function boot_magstim(obj)
             obj.magStim=magstim(obj.app.par.hardware_settings.(obj.inputs.output_device).comport);
@@ -6699,8 +6695,7 @@ classdef best_toolbox < handle
             obj.neurofus=neurofus(obj.app.par.hardware_settings.(char(obj.inputs.output_device)).comport);
             obj.neurofus.connect;
             pause(2);
-            obj.neurofus.trigger_mode=1;
-            obj.bossbox.bb.sendPulse(4)
+            obj.neurofus.arm;
         end
         function boot_fieldtrip(obj)
             obj.fieldtrip=best_fieldtrip(obj);
