@@ -86,7 +86,7 @@ classdef best_sync2brain_bossdevice <handle
                     % 6 samples = 12 ms is the delay in the loop due to the low pass Nyquist filters
                     % the N20 will be 22 ms delayed and will have a 11
                     % samples delay
-                    obj.bb.alpha.offset_samples = 6+11;
+                    obj.bb.alpha.offset_samples =25% 6%+11;
                     %here i have to add the offset and make sure the filter offset is corrected
                 case 2 % Theta
                     obj.bb.theta.phase_target(1) = obj.best_toolbox.inputs.trialMat{obj.best_toolbox.inputs.trial,obj.best_toolbox.inputs.colLabel.phase}{1,1};
@@ -101,7 +101,7 @@ classdef best_sync2brain_bossdevice <handle
             obj.bb.configure_time_port_marker(cell2mat(time_port_marker_vector'))
             %% Starting
             if obj.best_toolbox.inputs.trial==1 && obj.best_toolbox.inputs.ReturnToTrialStatus==0
-                    pause(1*60)
+%                     pause(1*60)
             end
             obj.bb.min_inter_trig_interval = 0;
             obj.bb.alpha.amplitude_min(1)=NaN;
@@ -297,7 +297,7 @@ classdef best_sync2brain_bossdevice <handle
             addsignal(obj.FileScope.sc, [getsignalid(obj.bb.tg, 'OSC/alpha/IA'),getsignalid(obj.bb.tg, 'QLY/Logical Operator2'), getsignalid(obj.bb.tg, 'MRK/mrk_masked')]); 
             obj.FileScope.sc.FileName = 'IAFileScope.dat';
             obj.FileScope.sc.AutoRestart='on';
-            pause(15); %Taking 15 second pause so that EEG can be stablized well before starting buffer
+            %%%pause(15); %Taking 15 second pause so that EEG can be stablized well before starting buffer
             start(obj.FileScope.sc);
             
 
