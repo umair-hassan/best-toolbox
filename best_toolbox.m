@@ -3967,10 +3967,7 @@ classdef best_toolbox < handle
                         if isempty(obj.rapid), obj.boot_rapid; end
                     case 5 % boss box controlled magven
                         obj.inputs.output_device={uniqueOutputDevices{i}};
-                        if isempty(obj.magven), obj.boot_magven; else, obj.magven.arm;
-                            obj.magven.setPage('Main');
-                            obj.magven.setMode('Standard','00',2,0,1,1);
-                        end
+                        if isempty(obj.magven), obj.boot_magven; end
                         if isempty(obj.bossbox), obj.boot_bossbox; end
                     case 6% boss box controlled magstim
                         if isempty(obj.magven), obj.boot_magstim; end
@@ -4320,6 +4317,8 @@ classdef best_toolbox < handle
                                 case {1,5} % pc or bb controlled magven
                                     switch char(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.stimMode}{1,i})
                                         case 'single_pulse'
+%                                             obj.magven.setPage('Main');pause(1); 
+%                                             obj.magven.setMode('Standard','00',2,2,1,0); %Future Release: Desirable but has bugs at the moment from MAGIC side
                                             obj.magven.arm
                                             switch obj.inputs.trial
                                                 case 1
@@ -4331,9 +4330,10 @@ classdef best_toolbox < handle
                                             end
                                             if obj.inputs.trial==1,  pause(1), end %This wait is required for first trial only otherwise time is tooshort to set intensity succesfully
                                         case 'paired_pulse'
-                                            obj.magven.setPage('Main');
-                                            obj.magven.setMode('Dual','00',2,obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,i}{1,6},1,1); %('mode','currentDirection', burstPulses, ipiValue in ms, BARatioValue, varargin);
-                                            obj.magven.arm;
+%                                             obj.magven.disarm;
+%                                             obj.magven.setPage('Main');
+%                                             obj.magven.setMode('Dual','00',2,obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,i}{1,6},1,0); %('mode','currentDirection', burstPulses, ipiValue in ms, BARatioValue, varargin);
+%                                             obj.magven.arm;
                                             obj.magven.setAmplitude([obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,i}{1,5} obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,i}{1,4}]);
                                             disp('Paired Pulse Trial is Prepared');
                                             drawnow;
@@ -6667,11 +6667,25 @@ classdef best_toolbox < handle
         end
         
         function boot_magven(obj)
+            delete(instrfindall)
             obj.magven=magventure(obj.app.par.hardware_settings.(char(obj.inputs.output_device)).comport);
-            obj.magven.connect;
-            obj.magven.arm;
-            obj.magven.setPage('Main');
-            obj.magven.setMode('Standard','00',2,0,1,1); %Future Release: Desirable but has bugs at the moment from MAGIC side
+            obj.magven.connect; 
+            try
+                switch char(obj.inputs.trialMat{1,obj.inputs.colLabel.stimMode}{1,1})
+                    case 'single_pulse'
+                        obj.magven.setPage('Main');pause(2);
+                        obj.magven.setMode('Standard','00',2,2,1,0);pause(2); %Future Release: Desirable but has bugs at the moment from MAGIC side
+                        obj.magven.arm;
+                        obj.magven.setAmplitude(round(obj.inputs.trialMat{1,obj.inputs.colLabel.si}{1,1}{1,4}));
+                    case 'paired_pulse'
+                        obj.magven.setPage('Main');pause(2);
+                        obj.magven.setMode('Dual','00',2,obj.inputs.trialMat{1,obj.inputs.colLabel.si}{1,1}{1,6},1,0); pause(2);%('mode','currentDirection', burstPulses, ipiValue in ms, BARatioValue, varargin);
+                        obj.magven.arm;
+                        obj.magven.setAmplitude([obj.inputs.trialMat{1,obj.inputs.colLabel.si}{1,1}{1,5} obj.inputs.trialMat{1,obj.inputs.colLabel.si}{1,1}{1,4}]);
+                end
+            catch
+                obj.magven.arm;
+            end
         end
         function boot_magstim(obj)
             obj.magStim=magstim(obj.app.par.hardware_settings.(obj.inputs.output_device).comport);

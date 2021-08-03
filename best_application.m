@@ -248,6 +248,7 @@ classdef best_application < handle
             try
                 if strcmp(obj.pmd.RunStopButton.String,'Stop')
                     uiresume;
+                    try obj.bst.bossbox.bb.stop; catch, end
                     obj.bst.inputs.stop_event=1;
                     obj.pmd.RunStopButton.Enable='off';
                     obj.pmd.PauseUnpauseButton.Enable='off';
@@ -291,14 +292,39 @@ classdef best_application < handle
                         case 'Psychometric Threshold Hunting Protocol'
                             obj.bst.best_psychmth;
                         case 'rTMS Intervention Protocol'
-                            b=bossdevice;
-                            freq=1/18.7;
-                            betaburst18Hz=[0 1 0; freq 1 0;2*freq 1 0;3*freq 1 0; 4*freq 1 0;5*freq 1 0;6*freq 1 0;7*freq 1 0;8*freq 1 0;9*freq 1 0;10*freq 1 0;11*freq 1 0;12*freq 1 0;13*freq 1 0;14*freq 1 0;15*freq 1 0;16*freq 1 0;17*freq 1 0];
-                            b.configure_time_port_marker(betaburst18Hz);
-                            for i=1:10
-                                b.manualTrigger;
-                                pause(5)
+                            iPulses=3;IPI=0.02;iBursts=10;IBI=0.2;iTrains=10;ITI=2;
+                            burst=0;
+                            for i=2:iPulses
+                                burst(i)=burst(i-1)+IPI;
                             end
+                            %creating train
+                            train=burst;
+                            for i=2:iBursts
+                                train(numel(train)+1)=train(end)+IBI;
+                                for j=2:iPulses
+                                    train(numel(train)+1)=train(end)+IPI;
+                                end
+                            end
+                            % creating protocol
+                            protocol=train;
+                            for i=2:iTrains
+                                protocol(numel(protocol)+1)=protocol(end)+ITI;
+                                for j=2:iPulses
+                                    protocol(numel(protocol)+1)=protocol(end)+IPI;
+                                end
+                                for k=2:iBursts
+                                    protocol(numel(protocol)+1)=protocol(end)+IBI;
+                                    for l=2:iPulses
+                                        protocol(numel(protocol)+1)=protocol(end)+IPI;
+                                    end
+                                end
+                            end
+                            X=protocol;
+                            temp=ones(300,3);
+                            temp(:,1)=X';
+                            b=bossdevice;
+                            b.configure_time_port_marker(temp);
+                            b.manualTrigger
                         case 'rs EEG Measurement Protocol'
                             obj.bst.best_rseeg;
                         case 'TEP Hotspot Search Protocol'
@@ -4701,7 +4727,7 @@ r1= uiextras.HBox( 'Parent', v,'Spacing', 5, 'Padding', 5 );
                     pulse_frequency=num2str(1/str2num(IPI));
                     burst_frequency=num2str(1/str2num(IBI));
                     train_frequency=num2str(1/str2num(ITI));
-                 TableData(1,:)={iPulses,'0.0556','18',iBursts,IBI,burst_frequency,iTrains,ITI,train_frequency,'Single Pulse','MagProX100','30','%MSO','0'};   
+                 TableData(1,:)={iPulses,IPI,pulse_frequency,iBursts,IBI,burst_frequency,iTrains,ITI,train_frequency,'Single Pulse','MagProX100','50','%MSO','0'};   
                 end
 
                 
@@ -5237,6 +5263,7 @@ r1= uiextras.HBox( 'Parent', v,'Spacing', 5, 'Padding', 5 );
                     end
                     X=protocol; Y=ones(1,numel(X))/2;
                     
+                   
                     stem(X,Y,'Marker','none','LineWidth',1.25,'Color','k'); set(gca,'Color', 'none')
                     ylim([-0.5 1]); yticks([]); xlim([min(X)-0.1 max(X)+0.2]);
                     xlabel('Time (s)');
@@ -7715,8 +7742,11 @@ r1= uiextras.HBox( 'Parent', v,'Spacing', 5, 'Padding', 5 );
             n.timer=400000;
             pause(1)
             for i=1:20
+                if strcmp(obj.pmd.RunStopButton.String,'Run')
+                else
                 b.sendPulse(4)
                 pause(4+rand);
+                end
             end
         end
         
@@ -11321,13 +11351,13 @@ r1= uiextras.HBox( 'Parent', v,'Spacing', 5, 'Padding', 5 );
                     MotorThresholdHuntingCallback
                 case 'rsEEG Measurement'
                     RSEEG
-                case 'Realtime Closedloop EEGTMS'
+                case 'Realtime EEG triggered TMS'
                     EEGTMS
             end
             
             function MotorThresholdHuntingCallback
                 obj.pr.axesno=2;
-                obj.pr.ax_ChannelLabels={'APBr','APBr'};
+                obj.pr.ax_ChannelLabels={'FDIr','FDIr'};
                 obj.bst.inputs.Protocol='MEP Threshold Hunting';
                 obj.pr.ax_measures={'MEP_Measurement','Motor Threshold Hunting'};
                 obj.resultsPanel;
@@ -11345,7 +11375,7 @@ r1= uiextras.HBox( 'Parent', v,'Spacing', 5, 'Padding', 5 );
                 figThresholdTrace.YLim=[-300 300];
                 figThresholdTrace.YTick=[-400 -300 -200 -100 0 100 200 300 400];
                 figThresholdTrace.XTick=[-50 -15 0 15 50 75 100 ];
-                obj.pr.clab.ax1.Title='MEP Traces (APB right hand)';
+                obj.pr.clab.ax1.Title='MEP Traces';
                 obj.pr.axesno=1;
                 obj.pr.ax_no=['ax' num2str(obj.pr.axesno)];
                 ui_menu=uicontextmenu(obj.fig.handle);
@@ -11368,9 +11398,9 @@ r1= uiextras.HBox( 'Parent', v,'Spacing', 5, 'Padding', 5 );
                 figThresholdTrace.Position=[0.1 0.15 0.89 0.85];
                 close(fig)
                 figThresholdTrace.XTick=[1:2:100];
-                figThresholdTrace.YTickLabel={'62','64','66','68','58','60'};
-                figThresholdTrace.Children(1).String={'Trials Averaged:20, Threshold (%MSO):60'};
-                obj.pr.clab.ax2.Title='Threshold Trace (APB right hand)';
+                figThresholdTrace.YTickLabel={'72','74','76','78','80','82','84','86','88','90','92','94','46','48','50','52','54','56','58','60','62','64','66','68','70',};
+                figThresholdTrace.Children(1).String={'Trials Averaged:20, Threshold (%MSO):64'};
+                obj.pr.clab.ax2.Title='Threshold Trace';
                 obj.pr.axesno=2;
                 obj.pr.ax_no=['ax' num2str(obj.pr.axesno)];
                 ui_menu=uicontextmenu(obj.fig.handle);
@@ -11666,10 +11696,10 @@ drawnow
             function EEGTMS
                  obj.pr.axesno=4;
                 obj.pr.ax_ChannelLabels={'FDIr','FDIr','FDIr','FDIr'};
-                obj.bst.inputs.Protocol='Real-Time Closed-loop EEG triggered TMS';
+                obj.bst.inputs.Protocol='Realtime EEG triggered TMS';
                 obj.pr.ax_measures={'MEP_Measurement','MEP_Measurement','MEP_Measurement','MEP_Measurement'};
                 obj.resultsPanel;
-                obj.fig.main.Widths=[-1.15 0 -3.35 0];obj.pr.panel_1.Title='Real-Time Closed-loop EEG triggered TMS';
+                obj.fig.main.Widths=[-1.15 0 -3.35 0];obj.pr.panel_1.Title='Real-Time EEG triggered TMS';
                 % top left - meps
                 %%
                 a = 0.15; b = pi; phase_peak= a.*randn(100,1) + b; phase_peak=phase_peak-pi;
