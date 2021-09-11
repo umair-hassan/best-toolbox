@@ -5,7 +5,7 @@ Brain Electrophysiological recording and STimulation (BEST) Toolbox, is a MATLAB
 To download BEST Toolbox, visit the pre-release-0.1 tree: https://github.com/umair-hassan/best-toolbox/releases
 
 # WIKI
-Further information on using Toolbox can be found on the Wiki: best-toolbox.org
+Further information on using Toolbox can be found on the Wiki: http://best-toolbox.org/
 
 # REPORT A BUG
 If you find a bug in BEST Toolbox, please let us know via the Issues tab: https://github.com/umair-hassan/BEST-Toolbox/issues
