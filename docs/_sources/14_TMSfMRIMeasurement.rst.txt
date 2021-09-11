@@ -9,7 +9,7 @@
 TMS fMRI Measurement
 ============================================
 
-TMS fMRI Measurement Protocol of the BEST Toolbox allows to deliver TTL output signal in order to trigger TMS or any other device connected with the TTL output of a purpose built Arduino. The embedded system of Arduino is programmed to read in the MRI Volume triggers as inputs and perform book keeping of the triggers in order to precisely deliver the TMS pulse in between the MRI Volumes.
+TMS fMRI Measurement Protocol of the BEST Toolbox allows to deliver TTL output signal in order to trigger TMS or any other device connected with the TTL output of an Arduino and LM555 Timer IC (circuit attached at the page end). The embedded system of the microcontrolling circuit is programmed to read in the MRI Volume triggers as inputs and perform book keeping of the triggers in order to precisely deliver the TMS pulse in between the MRI Volumes.
 
 Parameters Syntax
 ---------------------------------------------
@@ -65,3 +65,5 @@ An instance of the filled stimulation parameters panel is shown below.
 .. figure:: figures/fig8_tmsfmri_starting.png
     :align: center
 
+.. figure:: figures/Figure9MicrocontrollingCircuitTMSfMRI.png
+    :align: center
