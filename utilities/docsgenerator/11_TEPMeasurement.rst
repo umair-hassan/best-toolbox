@@ -108,9 +108,11 @@ Creating Conditions Using Stimulation Parameters Designer
 
 The Target Channels and Stimulation Trigger pattern can be defined in an interactive Stimulation Parameters Designer comprising of a tabular and graphical view. Following video illustrates that how conditions can be created using the intuitive designer. Note that the example below is associated to Motor Threshold Hunting however exactly same procedure applies for the MEP Measurement Protocol to create various measuring conditions.
 
-.. youtube:: nY-j2WL1dk4&t=1s
+* `Video  <https://youtu.be/BBIosn9JgpQ>`_
 
 Starting the Protocol
 --------------------------------------------------------
 
 To start this Protocol, just press the “Run” button at the bottom of the “Experiment Controller”. The measurement can be stopped, paused/unpaused. In order to check if all the parameters have been setup correctly, pressing the “Compile” button would prompt the results of compiled code whether its good to go or not.
+
+* `Click here to visit a summarized YouTube tutorial  <https://www.youtube.com/watch?v=nY-j2WL1dk4>`_

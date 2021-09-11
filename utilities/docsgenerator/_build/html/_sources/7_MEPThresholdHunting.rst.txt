@@ -136,7 +136,7 @@ An instance of the filled stimulation parameters panel is shown below.
 .. figure:: figures/fig6_MEPThresholdstarting_the_protocol.png
     :align: center
 
-
+* `Click here to visit a summarized YouTube tutorial  <https://www.youtube.com/watch?v=nY-j2WL1dk4>`_
 
 
 References
