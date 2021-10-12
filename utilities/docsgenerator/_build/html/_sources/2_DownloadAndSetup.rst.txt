@@ -12,7 +12,7 @@ Download & Setup
 MATLAB Version
 ===========================================
 
-The BEST Toolbox application is compatible with any MATLAB version older than r2006, however MATLAB version should exactly be r2017b when the BEST Toolbox is to be used in conjunction with the bossdevice.
+The BEST Toolbox application is compatible with any MATLAB version older than r2006, however MATLAB version should exactly be r2017b when the BEST Toolbox is to be used in conjunction with the bossdevice. The verification and validation of the toolbox has also been performed in r2017b and therefore release 2017b is recommended while getting started with the BEST Toolbox.
 
 Download BEST Toolbox Repository
 --------------------------------------------
@@ -26,13 +26,13 @@ Required APIs & MATLAB Toolboxes
 
 BEST Toolbox is dependent on following APIs and MATLAB Toolboxes:
 
-* `Bossdevice API <https://api.sync2brain.com/>`_  (also part of BEST Toolbox repository – no download required)
+* `Bossdevice release 2017 API <https://api.sync2brain.com/>`_  (also part of BEST Toolbox repository – no download required)
 
 * `MAGIC <https://github.com/nigelrogasch/MAGIC>`_  (also part of BEST Toolbox repository – no download required)
 
 * FieldTrip Toolbox (download required)
 
-Additionally if the BEST Toolbox is intended to be used with bossdevice then please setup the bossdevice API as instructed on its website `here <https://api.sync2brain.com/>`_.  Generally, this will require following MathWorks products:
+Additionally if the BEST Toolbox is intended to be used with bossdevice firmware 2017b then please setup the bossdevice API for firmware 2017b as instructed on its website `here <https://api.sync2brain.com/>`_.  Generally, this will require following MathWorks products:
 
 * Simulink Real-Time
 

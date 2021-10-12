@@ -22,22 +22,24 @@ The BEST toolbox interfaces with a large variety of recording and stimulation de
 Hardware Interfaces
 =============================================
 
-BEST Toolbox is currently optimized for bossdevice  (`sync2brain <https://sync2brain.com>`_) , a data processing and control system implemented as Simulink© Real-Time model on a high performance computer system receiving a digital real-time data stream from an EEG system such such as:
+BEST Toolbox is currently optimized for bossdevice firmware relase 2017b (`sync2brain <https://sync2brain.com>`_) , a data processing and control system implemented as Simulink© Real-Time model on a high performance computer system receiving a digital real-time data stream from an EEG system such such as:
 
 * NeurOne TESLA (Bittium, FL)
 
 * actiCHamp Plus (BrainProducts, DE)
 
-* CED 1400 (Power and Micro)
+* CED 1400 (Power and Micro, currently only for EMG modality)
 
 Additionaly a native implementation of following buffers is also part of the toolbox.
 
-* FieldTrip Real-Time Buffer
+* FieldTrip Real-Time Buffer )
+
+You may consult developers of BEST Toolbox at github discussions forum for questions specific hardware interfaces. 
 
 Input Devices
 ---------------------------------------------
 
-The bossdevice and FieldTrip real-time buffer in turn allows the BEST Toolbox to interface with a wide variety of hardware and streaming platforms. Including but not limited to followings:
+The bossdevice firmware release 2017b and FieldTrip real-time buffer in turn allows the BEST Toolbox to interface with a wide variety of hardware and streaming platforms. Including but not limited to followings:
 
 * Java
 
