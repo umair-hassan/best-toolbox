@@ -15,6 +15,12 @@ classdef bossdevice_oscillation
         lpf_fir_coeffs % Nyquist filter before decimating the signal from 5 kHz to the sample rate of the oscillation
         bpf_fir_coeffs % band pass filter coefficients
         offset_samples
+        % Underprogress
+        sample_rate
+        epoch_length
+        edge_length
+        hilbert_window_length
+        ar_model_order
     end
    
     methods
@@ -118,6 +124,52 @@ classdef bossdevice_oscillation
                 obj.amplitude_max = 1e6 * ones(size(obj.amplitude_max));
             end
         end
+        %% sample_rate
+        function obj = set.sample_rate(obj,Fs)
+            %assert bounds
+            setparam(obj.tg, ['OSC/' obj.name], 'output_sample_time', Fs)
+        end
+        
+        function sample_rate = get.sample_rate(obj)
+            sample_rate = getparam(obj.tg, ['OSC/' obj.name], 'output_sample_time');
+        end
+        %% epoch_length
+        function obj = set.epoch_length(obj,epoch_length)
+            %assert bounds
+            setparam(obj.tg, ['OSC/' obj.name], 'window_length', epoch_length)
+        end
+        
+        function epoch_length = get.epoch_length(obj)
+            epoch_length = getparam(obj.tg, ['OSC/' obj.name], 'window_length');
+        end
+        %% edge_length
+        function obj = set.edge_length(obj,edge_length)
+            %assert bounds
+            setparam(obj.tg, ['OSC/' obj.name], 'edge_samples', edge_length)
+        end
+        
+        function edge_length = get.edge_length(obj)
+            edge_length = getparam(obj.tg, ['OSC/' obj.name], 'edge_samples');
+        end
+        %% hilbert_window_length
+        function obj = set.hilbert_window_length(obj,hilbert_window_length)
+            %assert bounds
+            setparam(obj.tg, ['OSC/' obj.name], 'hilbert_window_samples', hilbert_window_length)
+        end
+        
+        function hilbert_window_length = get.hilbert_window_length(obj)
+            hilbert_window_length = getparam(obj.tg, ['OSC/' obj.name], 'hilbert_window_samples');
+        end
+        %% ar_model_order
+        function obj = set.ar_model_order(obj,ar_model_order)
+            %assert bounds
+            setparam(obj.tg, ['OSC/' obj.name], 'ar_model_order', ar_model_order)
+        end
+        
+        function ar_model_order = get.ar_model_order(obj)
+            ar_model_order = getparam(obj.tg, ['OSC/' obj.name], 'ar_model_order');
+        end
+
         
     end
 end

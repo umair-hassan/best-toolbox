@@ -20,6 +20,8 @@ classdef bossdevice < handle
         sample_and_hold_period
         eeg_channels
         aux_channels
+        num_eeg_channels
+        num_aux_channels
         StreamFromFile
     end
     
@@ -202,11 +204,27 @@ classdef bossdevice < handle
             setparam(obj.tg, 'UDP', 'eeg_channels', interval);
         end
         
+        function num_eeg_channels = get.num_eeg_channels(obj)
+            num_eeg_channels = getparam(obj.tg, 'UDP', 'eeg_channels');
+        end
+        
+        function obj = set.num_eeg_channels(obj, interval)
+            setparam(obj.tg, 'UDP', 'eeg_channels', interval);
+        end
+        
         function aux_channels = get.aux_channels(obj)
             aux_channels = getparam(obj.tg, 'UDP', 'aux_channels');
         end
         
         function obj = set.aux_channels(obj, duration)
+            setparam(obj.tg, 'UDP', 'aux_channels', duration);
+        end
+        
+        function num_aux_channels = get.num_aux_channels(obj)
+            num_aux_channels = getparam(obj.tg, 'UDP', 'aux_channels');
+        end
+        
+        function obj = set.num_aux_channels(obj, duration)
             setparam(obj.tg, 'UDP', 'aux_channels', duration);
         end
         
