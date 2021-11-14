@@ -4586,6 +4586,12 @@ classdef best_toolbox < handle
                         obj.inputs.trialMat(:,size(obj.inputs.trialMat,2)+1)=num2cell(obj.inputs.results.(resultschannels{i}).MEPAmplitude);
                         chan=['MEPAmplitude' resultschannels{i}];
                         obj.inputs.colLabel.(chan)=size(obj.inputs.trialMat,2);
+                        try 
+                        obj.inputs.trialMat(:,size(obj.inputs.trialMat,2)+1)=num2cell(obj.inputs.results.(resultschannels{i}).MEPLatency);
+                        chan=['MEPLatency' resultschannels{i}];
+                        obj.inputs.colLabel.(chan)=size(obj.inputs.trialMat,2);
+                        catch
+                        end
                     catch
                     end
                 end
@@ -5269,6 +5275,13 @@ classdef best_toolbox < handle
             maxx=max(obj.inputs.rawData.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).data(obj.inputs.trial,obj.inputs.mep_onset_samples:obj.inputs.mep_offset_samples));
             minn=min(obj.inputs.rawData.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).data(obj.inputs.trial,obj.inputs.mep_onset_samples:obj.inputs.mep_offset_samples));
             obj.inputs.results.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).MEPAmplitude(obj.inputs.trial,1)=abs(maxx)+abs(minn);
+            try obj.mep_latency, catch, end
+        end
+        function mep_latency(obj)
+            %MEP Latency=MEP Search Window Onset + (MEPStartFromSearchWindowOnset)
+            MEPStartFromSearchWindowOnset=find(obj.inputs.rawData.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).data(obj.inputs.trial,obj.inputs.mep_onset_samples:obj.inputs.mep_offset_samples)>70);
+            MEPStartFromSearchWindowOnset=MEPStartFromSearchWindowOnset(1);
+            obj.inputs.results.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).MEPLatency(obj.inputs.trial,1)=(obj.inputs.mep_onset_samples+MEPStartFromSearchWindowOnset)/5000;
         end
         function mep_scat_plot(obj)
             ax=['ax' num2str(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.axesno}{1,obj.inputs.chLab_idx})];
