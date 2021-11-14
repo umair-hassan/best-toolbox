@@ -31,7 +31,7 @@ classdef best_application < handle
     methods
         %% BEST
         function obj=best_application()
-            obj.Version=15072021;
+            obj.Version=15112021;
             obj.close_previous;
             obj.create_gui;
             
