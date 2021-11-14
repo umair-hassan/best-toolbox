@@ -3019,13 +3019,13 @@ r1= uiextras.HBox( 'Parent', v,'Spacing', 5, 'Padding', 5 );
                         expModr2.Widths=[150 -2];
                         
                         expModr4=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
-                        uicontrol( 'Style','text','Parent', expModr4,'String','EMG Preinvervation Search Window (ms):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-                        obj.pi.mep.EMGPreinvervationSearchWindow=uicontrol( 'Style','edit','Parent', expModr4 ,'FontSize',11,'Tag','EMGPreinvervationSearchWindow','callback',@cb_par_saving);
+                        uicontrol( 'Style','text','Parent', expModr4,'String','EMG Preinervation Search Window (ms):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                        obj.pi.mep.EMGPreinervationSearchWindow=uicontrol( 'Style','edit','Parent', expModr4 ,'FontSize',11,'Tag','EMGPreinervationSearchWindow','callback',@cb_par_saving);
                         expModr4.Widths=[150 -2];
                         
                         expModr4=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
-                        uicontrol( 'Style','text','Parent', expModr4,'String','EMG Preinvervation Amplitude (uV):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-                        obj.pi.mep.EMGPreinvervationAmplitude=uicontrol( 'Style','edit','Parent', expModr4 ,'FontSize',11,'Tag','EMGPreinvervationAmplitude','callback',@cb_par_saving);
+                        uicontrol( 'Style','text','Parent', expModr4,'String','EMG Preinervation Amplitude (uV):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                        obj.pi.mep.EMGPreinervationAmplitude=uicontrol( 'Style','edit','Parent', expModr4 ,'FontSize',11,'Tag','EMGPreinervationAmplitude','callback',@cb_par_saving);
                         expModr4.Widths=[150 -2];
                         
                         expModvBox.Heights=[ 45 45 45 45 45 45];
@@ -3172,8 +3172,8 @@ r1= uiextras.HBox( 'Parent', v,'Spacing', 5, 'Padding', 5 );
             obj.info.defaults.Enable={'on'};
             obj.info.defaults.ProtocolStatus={'created'};
             obj.info.defaults.ProtocolOnset='1';
-            obj.info.defaults.EMGPreinvervationSearchWindow='-50 -5';
-            obj.info.defaults.EMGPreinvervationAmplitude='200';
+            obj.info.defaults.EMGPreinervationSearchWindow='-50 -5';
+            obj.info.defaults.EMGPreinervationAmplitude='200';
             si=[30 40 50 60 70 80];
             for idefaults=1:6
                 cond=['cond' num2str(idefaults)];
@@ -3403,13 +3403,13 @@ r1= uiextras.HBox( 'Parent', v,'Spacing', 5, 'Padding', 5 );
                         expModr4.Widths=[150 -2 30 -2];
                         
                         expModr4=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
-                        uicontrol( 'Style','text','Parent', expModr4,'String','EMG Preinvervation Search Window (ms):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-                        obj.pi.drc.EMGPreinvervationSearchWindow=uicontrol( 'Style','edit','Parent', expModr4 ,'FontSize',11,'Tag','EMGPreinvervationSearchWindow','callback',@cb_par_saving);
+                        uicontrol( 'Style','text','Parent', expModr4,'String','EMG Preinervation Search Window (ms):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                        obj.pi.drc.EMGPreinervationSearchWindow=uicontrol( 'Style','edit','Parent', expModr4 ,'FontSize',11,'Tag','EMGPreinervationSearchWindow','callback',@cb_par_saving);
                         expModr4.Widths=[150 -2];
                         
                         expModr4=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
-                        uicontrol( 'Style','text','Parent', expModr4,'String','EMG Preinvervation Amplitude (uV):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-                        obj.pi.drc.EMGPreinvervationAmplitude=uicontrol( 'Style','edit','Parent', expModr4 ,'FontSize',11,'Tag','EMGPreinvervationAmplitude','callback',@cb_par_saving);
+                        uicontrol( 'Style','text','Parent', expModr4,'String','EMG Preinervation Amplitude (uV):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
+                        obj.pi.drc.EMGPreinervationAmplitude=uicontrol( 'Style','edit','Parent', expModr4 ,'FontSize',11,'Tag','EMGPreinervationAmplitude','callback',@cb_par_saving);
                         expModr4.Widths=[150 -2];
                         
                         expModvBox.Heights=[45 45 45 45 45 30 35 45 45];
@@ -3563,8 +3563,8 @@ r1= uiextras.HBox( 'Parent', v,'Spacing', 5, 'Padding', 5 );
             obj.info.defaults.Handles.UserData='Reserved for Future Use';
             obj.info.defaults.Enable={'on'};
             obj.info.defaults.ProtocolStatus={'created'};
-            obj.info.defaults.EMGPreinvervationSearchWindow='-50 -5';
-            obj.info.defaults.EMGPreinvervationAmplitude='200';
+            obj.info.defaults.EMGPreinervationSearchWindow='-50 -5';
+            obj.info.defaults.EMGPreinervationAmplitude='200';
             si=[30 40 50 60 70 80];
             for idefaults=1:6
                 cond=['cond' num2str(idefaults)];
@@ -3787,12 +3787,12 @@ r1= uiextras.HBox( 'Parent', v,'Spacing', 5, 'Padding', 5 );
                         
                         expModr4=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
                         uicontrol( 'Style','text','Parent', expModr4,'String','EMG Preinvervation Search Window (ms):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-                        obj.pi.mth.EMGPreinvervationSearchWindow=uicontrol( 'Style','edit','Parent', expModr4 ,'FontSize',11,'Tag','EMGPreinvervationSearchWindow','callback',@cb_par_saving);
+                        obj.pi.mth.EMGPreinervationSearchWindow=uicontrol( 'Style','edit','Parent', expModr4 ,'FontSize',11,'Tag','EMGPreinervationSearchWindow','callback',@cb_par_saving);
                         expModr4.Widths=[150 -2];
                         
                         expModr4=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
                         uicontrol( 'Style','text','Parent', expModr4,'String','EMG Preinvervation Amplitude (uV):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-                        obj.pi.mth.EMGPreinvervationAmplitude=uicontrol( 'Style','edit','Parent', expModr4 ,'FontSize',11,'Tag','EMGPreinvervationAmplitude','callback',@cb_par_saving);
+                        obj.pi.mth.EMGPreinervationAmplitude=uicontrol( 'Style','edit','Parent', expModr4 ,'FontSize',11,'Tag','EMGPreinervationAmplitude','callback',@cb_par_saving);
                         expModr4.Widths=[150 -2];
                         
                         expModvBox.Heights=[30 45 45 45 45 45 45 45];
@@ -3937,8 +3937,8 @@ r1= uiextras.HBox( 'Parent', v,'Spacing', 5, 'Padding', 5 );
             obj.info.defaults.NoOfTrialsToAverage='10';
             obj.info.defaults.MotorThreshold='NaN';
             obj.info.defaults.ThresholdMethod=1;
-            obj.info.defaults.EMGPreinvervationSearchWindow='-50 -5';
-            obj.info.defaults.EMGPreinvervationAmplitude='200';
+            obj.info.defaults.EMGPreinervationSearchWindow='-50 -5';
+            obj.info.defaults.EMGPreinervationAmplitude='200';
             %             obj.info.defaults.ColThresholdLevelUnits='uV';
             obj.info.defaults.ProtocolStatus={'created'};
             %             obj.info.defaults.condsAll.cond1.ColThresholdLevelUnits='uV';

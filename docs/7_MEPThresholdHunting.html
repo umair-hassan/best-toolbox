@@ -116,6 +116,8 @@
 <li class="toctree-l3"><a class="reference internal" href="#amplitude-assignment-period">7.1.18. Amplitude Assignment Period</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#eeg-extraction-period">7.1.19. EEG Extraction Period</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#eeg-display-period">7.1.20. EEG Display Period</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#emg-preinervation-search-window">7.1.21. EMG Preinervation Search Window</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#emg-preinervation-amplitude">7.1.22. EMG Preinervation Amplitude</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#creating-conditions-using-stimulation-parameters-designer">7.2. Creating Conditions Using Stimulation Parameters Designer</a></li>
@@ -290,6 +292,15 @@
 <div class="section" id="eeg-display-period">
 <h3><span class="section-number">7.1.20. </span>EEG Display Period<a class="headerlink" href="#eeg-display-period" title="Permalink to this headline">¶</a></h3>
 <p>[min max] in ms</p>
+</div>
+<div class="section" id="emg-preinervation-search-window">
+<h3><span class="section-number">7.1.21. </span>EMG Preinervation Search Window<a class="headerlink" href="#emg-preinervation-search-window" title="Permalink to this headline">¶</a></h3>
+<p>[min max] in ms. Default is [-50 -5] i.e. 50 ms before stimulation to 5 ms before stimulation. The preinveration search window is used to measure amplitude of EMG in this duration to provide checks for quality control and Active Motor Threshold hunting.</p>
+</div>
+<div class="section" id="emg-preinervation-amplitude">
+<h3><span class="section-number">7.1.22. </span>EMG Preinervation Amplitude<a class="headerlink" href="#emg-preinervation-amplitude" title="Permalink to this headline">¶</a></h3>
+<p>[amplitude] in uV. Default is [200] i.e. The trials having EMG amplitude of  or greater than 200uV during the preinervation search window period are considered bad and rejected and replaced immediately.</p>
+<p>For Active motor threshold hunting, this parameter can also be used to provide range of max and min [min max] e.g. [100 300] uV amplitude as user-defined acceptable range of EMG muscle activity e.g. 10-30% Maximum Voluntary Contraction (MVC) action.</p>
 </div>
 </div>
 <div class="section" id="creating-conditions-using-stimulation-parameters-designer">

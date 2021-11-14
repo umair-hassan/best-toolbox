@@ -118,6 +118,17 @@ EEG Display Period
 
 [min max] in ms
 
+EMG Preinervation Search Window
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[min max] in ms. Default is [-50 -5] i.e. 50 ms before stimulation to 5 ms before stimulation. The preinveration search window is used to measure amplitude of EMG in this duration to provide checks for quality control and Active Motor Threshold hunting. 
+
+EMG Preinervation Amplitude
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[amplitude] in uV. Default is [200] i.e. The trials having EMG amplitude of  or greater than 200uV during the preinervation search window period are considered bad and rejected and replaced immediately.
+
+For Active motor threshold hunting, this parameter can also be used to provide range of max and min [min max] e.g. [100 300] uV amplitude as user-defined acceptable range of EMG muscle activity e.g. 10-30% Maximum Voluntary Contraction (MVC) action. 
+
+
 Creating Conditions Using Stimulation Parameters Designer
 ---------------------------------------------------------------------
 
