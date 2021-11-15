@@ -22,7 +22,7 @@ The BEST toolbox interfaces with a large variety of recording and stimulation de
 Hardware Interfaces
 =============================================
 
-BEST Toolbox is currently optimized for bossdevice firmware relase 2017b (`sync2brain <https://sync2brain.com>`_) , a data processing and control system implemented as Simulink© Real-Time model on a high performance computer system receiving a digital real-time data stream from an EEG system such such as:
+BEST Toolbox is currently optimized for bossdevice firmware relase 2017b |sync2brain| , a data processing and control system implemented as Simulink© Real-Time model on a high performance computer system receiving a digital real-time data stream from an EEG system such such as:
 
 * NeurOne TESLA (Bittium, FL)
 
@@ -32,7 +32,7 @@ BEST Toolbox is currently optimized for bossdevice firmware relase 2017b (`sync2
 
 Additionaly a native implementation of following buffers is also part of the toolbox.
 
-* FieldTrip Real-Time Buffer )
+* FieldTrip Real-Time Buffer 
 
 You may consult developers of BEST Toolbox at github discussions forum for questions specific hardware interfaces. 
 
@@ -85,12 +85,12 @@ The bossdevice firmware release 2017b and FieldTrip real-time buffer in turn all
 
 * TOBI
 
-The details about implementation of FieldTrip real-time buffer can be found `here <https://www.fieldtriptoolbox.org/development/realtime/implementation/>`_. 
+The details about implementation of FieldTrip real-time buffer can be found |fieldtrip_buffer| `here <https://www.fieldtriptoolbox.org/development/realtime/implementation/>`_. 
 
 Output Devices
 ----------------------------------------------
 
-BEST Toolbox is integrated with `MAGIC toolbox <https://github.com/nigelrogasch/MAGIC/>`_  and `neuroFUS open source APIs <https://github.com/umair-hassan/neurofus-api/>`_  in order to control and interact directly with the TMS devices that accepts TTL input for triggering and features API to set the device parameters:
+BEST Toolbox is integrated with |MAGIC toolbox| and |neuroFUS open source APIs|  in order to control and interact directly with the TMS devices that accepts TTL input for triggering and features API to set the device parameters:
 
 * MagVenture (TMS)
 
@@ -108,3 +108,18 @@ BEST Toolbox is integrated with `MAGIC toolbox <https://github.com/nigelrogasch/
 In addition, it can also trigger any stimulation devices that can receive a TTL input trigger.
 
 
+.. |sync2brain| raw:: html
+   
+   <a href="https://sync2brain.com/" target="_blank">sync2brain.</a>
+   
+ .. |fieldtrip_buffer| raw:: html
+   
+   <a href="https://www.fieldtriptoolbox.org/development/realtime/implementation/" target="_blank">here.</a>
+   
+.. |MAGIC toolbox| raw:: html
+   
+   <a href="https://github.com/nigelrogasch/MAGIC/" target="_blank">MAGIC toolbox</a>
+
+.. |neuroFUS open source APIs| raw:: html
+   
+   <a href="https://github.com/umair-hassan/neurofus-api/" target="_blank">neuroFUS open source APIs</a>

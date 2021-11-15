@@ -18,13 +18,22 @@ Download BEST Toolbox Repository
 --------------------------------------------
 
 
-The latest repository of BEST Toolbox released version can be downloaded from `here <https://github.com/umair-hassan/best-toolbox/releases>`_
+The latest repository of BEST Toolbox released version can be downloaded from |location_link1|.
+
+
+.. |location_link1| raw:: html
+
+   <a href="https://github.com/umair-hassan/best-toolbox/releases" target="_blank">here</a>
 
 
 Sign up for BEST Toolbox Newsletter
 --------------------------------------------
 
-To sign up for the BEST toolbox newsletter to be informed about updates, please click `here <https://forms.gle/eURXqdzFx5jqFHDW9>`_
+To sign up for the BEST toolbox newsletter to be informed about updates, please click |location_link2|.
+
+.. |location_link2| raw:: html
+
+   <a href="https://forms.gle/eURXqdzFx5jqFHDW9" target="_blank">here</a>
 
 
 Required APIs & MATLAB Toolboxes
@@ -33,9 +42,10 @@ Required APIs & MATLAB Toolboxes
 
 BEST Toolbox is dependent on following APIs and MATLAB Toolboxes:
 
-* `Bossdevice release 2017 API <https://api.sync2brain.com/>`_  (also part of BEST Toolbox repository – no download required)
+* |Bossdevice release 2017 API| (also part of BEST Toolbox repository – no download required)
 
-* `MAGIC <https://github.com/nigelrogasch/MAGIC>`_  (also part of BEST Toolbox repository – no download required)
+* |MAGIC| (also part of BEST Toolbox repository – no download required)
+
 
 * FieldTrip Toolbox (download required)
 
@@ -66,5 +76,16 @@ After downloading BEST Toolbox from the branch as instructed above, perform the 
 
 FieldTrip Toolbox
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-In order to setup FieldTrip properly please follow the tutorial given `here <https://www.fieldtriptoolbox.org/faq/should_i_add_fieldtrip_with_all_subdirectories_to_my_matlab_path/>`__
+In order to setup FieldTrip properly please follow the tutorial given |FieldTripPageLink|
 
+.. |Bossdevice release 2017 API| raw:: html
+   
+   <a href="https://usermanual.sync2brain.com/" target="_blank">Bossdevice release 2017 API</a>
+   
+.. |MAGIC| raw:: html
+   
+   <a href="https://github.com/nigelrogasch/MAGIC" target="_blank">MAGIC</a>
+   
+.. |FieldTripPageLink| raw:: html
+   
+   <a href="https://www.fieldtriptoolbox.org/faq/should_i_add_fieldtrip_with_all_subdirectories_to_my_matlab_path/" target="_blank">here.</a>
