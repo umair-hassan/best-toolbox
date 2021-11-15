@@ -180,19 +180,20 @@
 <p>The BEST toolbox interfaces with a large variety of recording and stimulation devices to analyze data and set stimulation parameters on-the-fly, thereby enabling closed-loop protocols and real-time applications. Its growing functionality includes e.g., TMS motor hotspot search, automated motor threshold estimation, measurement of motor evoked potentials (MEP) and TMS-evoked EEG potentials (TEP), dose-response curves, paired-pulse and dual-coil TMS, rTMS interventions, real-time EEG-triggered stimulation, concurrent TMS-fMRI, etc.</p>
 <div class="section" id="hardware-interfaces">
 <h2>Hardware Interfaces<a class="headerlink" href="#hardware-interfaces" title="Permalink to this headline">¶</a></h2>
-<p>BEST Toolbox is currently optimized for bossdevice  (<a class="reference external" href="https://sync2brain.com">sync2brain</a>) , a data processing and control system implemented as Simulink© Real-Time model on a high performance computer system receiving a digital real-time data stream from an EEG system such such as:</p>
+<p>BEST Toolbox is currently optimized for bossdevice firmware relase 2017b <a href="https://sync2brain.com/" target="_blank">sync2brain.</a> , a data processing and control system implemented as Simulink© Real-Time model on a high performance computer system receiving a digital real-time data stream from an EEG system such such as:</p>
 <ul class="simple">
 <li><p>NeurOne TESLA (Bittium, FL)</p></li>
 <li><p>actiCHamp Plus (BrainProducts, DE)</p></li>
-<li><p>CED 1400 (Power and Micro)</p></li>
+<li><p>CED 1400 (Power and Micro, currently only for EMG modality)</p></li>
 </ul>
 <p>Additionaly a native implementation of following buffers is also part of the toolbox.</p>
 <ul class="simple">
 <li><p>FieldTrip Real-Time Buffer</p></li>
 </ul>
+<p>You may consult developers of BEST Toolbox at github discussions forum for questions specific hardware interfaces.</p>
 <div class="section" id="input-devices">
 <h3>Input Devices<a class="headerlink" href="#input-devices" title="Permalink to this headline">¶</a></h3>
-<p>The bossdevice and FieldTrip real-time buffer in turn allows the BEST Toolbox to interface with a wide variety of hardware and streaming platforms. Including but not limited to followings:</p>
+<p>The bossdevice firmware release 2017b and FieldTrip real-time buffer in turn allows the BEST Toolbox to interface with a wide variety of hardware and streaming platforms. Including but not limited to followings:</p>
 <ul class="simple">
 <li><p>Java</p></li>
 <li><p>Python</p></li>
@@ -217,17 +218,18 @@
 <li><p>TMSI</p></li>
 <li><p>TOBI</p></li>
 </ul>
-<p>The details about implementation of FieldTrip real-time buffer can be found <a class="reference external" href="https://www.fieldtriptoolbox.org/development/realtime/implementation/">here</a>.</p>
+<p>The details about implementation of FieldTrip real-time buffer can be found <a href="https://www.fieldtriptoolbox.org/development/realtime/implementation/" target="_blank">here.</a></p>
 </div>
 <div class="section" id="output-devices">
 <h3>Output Devices<a class="headerlink" href="#output-devices" title="Permalink to this headline">¶</a></h3>
-<p>BEST Toolbox is integrated with MAGIC toolbox in order to control and interact directly with the TMS devices that accepts TTL input for triggering and features API to set the device parameters:</p>
+<p>BEST Toolbox is integrated with <a href="https://github.com/nigelrogasch/MAGIC/" target="_blank">MAGIC toolbox</a> and <a href="https://github.com/umair-hassan/neurofus-api/" target="_blank">neuroFUS open source APIs</a>  in order to control and interact directly with the TMS devices that accepts TTL input for triggering and features API to set the device parameters:</p>
 <ul class="simple">
-<li><p>MagVenture</p></li>
-<li><p>MagStim</p></li>
-<li><p>BiStim</p></li>
-<li><p>Rapid</p></li>
-<li><p>DuoMag</p></li>
+<li><p>MagVenture (TMS)</p></li>
+<li><p>MagStim (TMS)</p></li>
+<li><p>BiStim (TMS)</p></li>
+<li><p>Rapid (TMS)</p></li>
+<li><p>DuoMag (TMS)</p></li>
+<li><p>neuroFUS (TUS)</p></li>
 </ul>
 <p>In addition, it can also trigger any stimulation devices that can receive a TTL input trigger.</p>
 <div class="toctree-wrapper compound">
