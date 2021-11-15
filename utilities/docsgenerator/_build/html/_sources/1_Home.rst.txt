@@ -85,8 +85,7 @@ The bossdevice firmware release 2017b and FieldTrip real-time buffer in turn all
 
 * TOBI
 
-The details about implementation of FieldTrip real-time buffer can be found |fieldtrip_buffer| `here <https://www.fieldtriptoolbox.org/development/realtime/implementation/>`_. 
-
+The details about implementation of FieldTrip real-time buffer can be found |fieldtrip_buffer| 
 Output Devices
 ----------------------------------------------
 
@@ -112,7 +111,8 @@ In addition, it can also trigger any stimulation devices that can receive a TTL 
    
    <a href="https://sync2brain.com/" target="_blank">sync2brain.</a>
    
- .. |fieldtrip_buffer| raw:: html
+   
+.. |fieldtrip_buffer| raw:: html
    
    <a href="https://www.fieldtriptoolbox.org/development/realtime/implementation/" target="_blank">here.</a>
    
