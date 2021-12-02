@@ -24,7 +24,7 @@ classdef best_toolbox < handle
     properties (Hidden)
         
         magven
-        magStim
+        magstim
         bistim
         rapid
         digitimer
@@ -3999,9 +3999,33 @@ classdef best_toolbox < handle
         function trigTrial(obj)
             switch obj.app.par.hardware_settings.(char(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.outputDevices}{1,1})).slct_device
                 case 1 % pc controlled magven
+                    switch obj.inputs.BrainState
+                        case 1
+                            obj.magven.fire;
+                        case 2
+                            error('BEST Toolbox Error: Host PC triggered Stimulation devices are not possible for Brain State dependent stimulation');
+                    end
                 case 2 % pc controlled magstim
+                    switch obj.inputs.BrainState
+                        case 1
+                            obj.magstim.fire;
+                        case 2
+                            error('BEST Toolbox Error: Host PC triggered Stimulation devices are not possible for Brain State dependent stimulation');
+                    end
                 case 3 % pc controlled bistim
+                    switch obj.inputs.BrainState
+                        case 1
+                            obj.bistim.fire;
+                        case 2
+                            error('BEST Toolbox Error: Host PC triggered Stimulation devices are not possible for Brain State dependent stimulation');
+                    end
                 case 4 % pc controlled rapid
+                    switch obj.inputs.BrainState
+                        case 1
+                            obj.rapid.fire;
+                        case 2
+                            error('BEST Toolbox Error: Host PC triggered Stimulation devices are not possible for Brain State dependent stimulation');
+                    end
                 case {5,6,7,8,10} %bossbox controlled stimulator
                     switch obj.inputs.BrainState
                         case 1
