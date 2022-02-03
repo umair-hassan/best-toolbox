@@ -6,16 +6,36 @@
 
 
 ============================================
-Presentations
+Presentations & Citation
 ============================================
 
-* `Latest presentation of the BEST Toolbox is available at the yotube link here  <https://www.youtube.com/watch?v=Bs-gXgtUK7o&t=155s>`_
+If you use this method, and/or want to refer to our approach, examples, and discussion points, please cite the following paper:
+
+* `Hassan, U., Pillen, S., Zrenner, C. and Bergmann, T.O., 2022. The Brain Electrophysiological recording & STimulation (BEST) toolbox. Brain Stimulation, 15(1), pp.109-115.  <https://www.sciencedirect.com/science/article/pii/S1935861X21008329>`_
+
+
+Achievements 
+-------------------------------------------------
+* `The BEST toolbox made it to the cover of Brain Stimulation 2022nd 1st Issue.  <https://www.sciencedirect.com/science/article/pii/S1935861X22000134>`_
+
+
+Upcoming Events
+-------------------------------------------------
+
+* `Detailed presentation of the BEST Toolbox is available at the yotube link here  <https://www.youtube.com/watch?v=Bs-gXgtUK7o&t=155s>`_
 
 We are considering and/or concretely planning to have BEST Toolbox workshops/webinars/posters in
 
-* `2021 (Dec), 4th International Brain Stimulation Conference (Poster)  <https://www.elsevier.com/events/conferences/international-brain-stimulation-conference/submit-abstract>`_
+* `2022 (Apr), National Center for Neuromodulation for Rehab Seminar Series, Medical University of South Carolina, Department of Psychiatry &  Behavioral Sciences, Brain Stimulation Laboratory. <http://best-toolbox.org/16_Workshops.html>`_
 
-----
+* `2022 (Jun),  47th Annual Conference of Psychology and the Brain at the Albert-Ludwigs University of Freiburg. <https://pug2022.de/en/>`_
+
+* `2022 (Jul),  Transcranial Brain Stimulation: Best Practice Course, Mainz & Göttingen. <https://nibs-course.com/>`_
+
+
+
+Past Events
+-------------------------------------------------
 
 Previous BEST Toolbox presentations took place at:
 

@@ -19,7 +19,7 @@ import sphinx_rtd_theme
 # -- Project information -----------------------------------------------------
 
 project = 'BEST Toolbox Wiki'
-copyright = '2021, www.best-toolbox.org '
+copyright = '2022, www.best-toolbox.org '
 author = 'Umair Hassan'
 
 # The full version, including alpha/beta/rc tags
@@ -51,9 +51,17 @@ exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 #
 #html_theme = "maisie"
 html_theme = "sphinx_rtd_theme"
+html_static_path = ['_static']
+html_theme_options = {
+    # Toc options
+    'sticky_navigation': True,
+	'logo_only': False,
+}
+
+html_logo = "best_toolbox_wiki_logo.jpeg"
+
 
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = ['_static']

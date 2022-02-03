@@ -3,6 +3,30 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
+.. toctree::
+   :numbered:
+   :hidden:
+   
+   1_Home
+   2_DownloadAndSetup
+   3_StartBESTToolboxApplication
+   4_DesignExperiment
+   5_HardwareConfiguration
+   6_MEPHotspotSearch
+   7_MEPThresholdHunting
+   8_MEPDoseResponseCurve
+   9_MEPMeasurement
+   10_rsEEGMeasurement
+   11_TEPMeasurement
+   12_rTMSIntervention
+   13_TUSIntervention
+   14_TMSfMRIMeasurement
+   14_ERPMeasurement
+   15_SensoryThresholdHunting
+   15_IssuesBugsRequests
+   16_Workshops
+   17_About Us
+
 ============================================
 Introduction to BEST Toolbox
 ============================================
@@ -122,26 +146,3 @@ In addition, it can also trigger any stimulation devices that can receive a TTL 
    <a href="https://github.com/umair-hassan/neurofus-api/" target="_blank">neuroFUS open source APIs</a>
 
 
-.. toctree::
-   :numbered:
-   :hidden:
-   
-   1_Home
-   2_DownloadAndSetup
-   3_StartBESTToolboxApplication
-   4_DesignExperiment
-   5_HardwareConfiguration
-   6_MEPHotspotSearch
-   7_MEPThresholdHunting
-   8_MEPDoseResponseCurve
-   9_MEPMeasurement
-   10_rsEEGMeasurement
-   11_TEPMeasurement
-   12_rTMSIntervention
-   13_TUSIntervention
-   14_TMSfMRIMeasurement
-   14_ERPMeasurement
-   15_SensoryThresholdHunting
-   15_IssuesBugsRequests
-   16_Workshops
-   17_About Us
