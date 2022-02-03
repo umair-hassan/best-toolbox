@@ -58,7 +58,7 @@ html_theme_options = {
 	'logo_only': False,
 }
 
-html_logo = "best_toolbox_wiki_logo.jpeg"
+html_logo = "best_toolbox_wiki_logo_original.jpeg"
 
 
 
