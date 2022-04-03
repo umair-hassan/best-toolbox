@@ -66,3 +66,7 @@ An instance of the filled stimulation parameters panel is shown below.
 
 .. figure:: figures/fig5_MEPHotspotStarting_the_Protocol.png
     :align: center
+MEP amplitude estimation procedure
+--------------------------------------------------------
+
+MEP amplitude estimation follows procedure described in Bergmann et al, Journal of Neuroscience 2019. 

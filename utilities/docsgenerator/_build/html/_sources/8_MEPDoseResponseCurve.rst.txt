@@ -152,3 +152,8 @@ Starting the Protocol
 To start this Protocol, just press the “Run” button at the bottom of the “Experiment Controller”. The measurement can be stopped, paused/unpaused. In order to check if all the parameters have been setup correctly, pressing the “Compile” button would prompt the results of compiled code whether its good to go or not.
 
 * `Click here to visit a summarized YouTube tutorial  <https://www.youtube.com/watch?v=nY-j2WL1dk4>`_
+
+MEP amplitude estimation procedure
+--------------------------------------------------------
+
+MEP amplitude estimation follows procedure described in Bergmann et al, Journal of Neuroscience 2019. 

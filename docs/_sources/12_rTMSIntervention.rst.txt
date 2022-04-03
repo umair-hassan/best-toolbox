@@ -12,7 +12,7 @@ rTMS Intervention
 
 .. important::
 
-    This page is not fully ready yet.
+    This protocol is being refactored and improved continuously, so documentation and software may not be completely synchronized.  
 
 Parameters Syntax
 -------------------------------------------

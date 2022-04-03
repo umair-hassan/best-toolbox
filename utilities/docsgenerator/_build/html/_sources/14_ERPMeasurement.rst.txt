@@ -9,6 +9,10 @@
 ERP Measurement
 ============================================
 
+.. important::
+
+    This protocol is being refactored and improved continuously, so documentation and software may not be completely synchronized.  
+
 Event Related EEG Potentials (ERP) measurement Protocol of the BEST Toolbox, trigger the stimulating device on trial by trial basis in a given inter-trial-interval against set of stimulation intensity conditions and presents you online results of ERPs in order to visualize the ERP shape and quality of data being collected.
 
 Parameters Syntax

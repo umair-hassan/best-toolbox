@@ -150,6 +150,11 @@ An instance of the filled stimulation parameters panel is shown below.
 * `Click here to visit a summarized YouTube tutorial  <https://www.youtube.com/watch?v=nY-j2WL1dk4>`_
 
 
+MEP amplitude estimation procedure
+--------------------------------------------------------
+
+MEP amplitude estimation follows procedure described in Bergmann et al, Journal of Neuroscience 2019. 
+
 References
 --------------------------------------------
 

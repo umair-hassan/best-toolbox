@@ -9,6 +9,10 @@
 rsEEG Measurement
 ============================================
 
+.. important::
+
+    This protocol is being refactored and improved continuously, so documentation and software may not be completely synchronized.  
+
 resting state EEG Measurement has been introduced in the BEST Toolbox in order to estimate individual’s EEG Peak Frequency so that the Brain State dependent protocols can be fed with this necessary information of personalizing the measurement to the subject. As an outcome the user obtains various Power spectrum and measures of Signal to Noise Ration (SNR) so that informed decision can be made about the Brain State dependent protocol.
 
 Parameters Syntax

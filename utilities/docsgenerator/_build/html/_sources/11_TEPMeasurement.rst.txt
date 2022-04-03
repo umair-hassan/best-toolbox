@@ -7,6 +7,11 @@
 TEP Measurement
 ============================================
 
+.. important::
+
+    This protocol is being refactored and improved continuously, so documentation and software may not be completely synchronized.  
+
+
 TMS Evoked EEG Potentials (TEP) measurement Protocol of the BEST Toolbox, trigger the stimulating device on trial by trial basis in a given inter-trial-interval against set of stimulation intensity conditions and presents you online results of TEPs (Butterfly plots, Topographical plots, Multiplot, Global mean field power) in order to visualize the TEP shape and quality of data being collected.
 
 Parameters Syntax
