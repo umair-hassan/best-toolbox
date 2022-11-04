@@ -10,4 +10,5 @@ Further information on using Toolbox can be found on the Wiki: https://best-tool
 # REPORT A BUG
 If you find a bug in BEST Toolbox, please let us know via the Issues tab: https://github.com/umair-hassan/BEST-Toolbox/issues
 
+  [![HitCount](https://hits.dwyl.com/umair-hassan/best-toolbox.svg?style=flat-square)](http://hits.dwyl.com/umair-hassan/best-toolbox)
 
