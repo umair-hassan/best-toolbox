@@ -1,6 +1,6 @@
 # Setting up a TCP/IP Connection Between MATLAB 2017b and MATLAB 2024a
 
-This guide explains how to establish a TCP/IP connection between MATLAB 2017b (Client) and MATLAB 2024a (Server) on the same computer or over a network.
+This guide explains how to establish a TCP/IP connection between MATLAB 2017b (Client) and MATLAB 2024a (Server) on the same computer or over a network. Before running this, initiliaze the bossdevice in Matlab 2024 version using b=bossdevice command. 
 
 ---
 
