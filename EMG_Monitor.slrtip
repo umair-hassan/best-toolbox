@@ -1,0 +1,24 @@
+
+  <Object type="Desktop.Xpc.Designer.InstrumentPanel, Desktop.Xpc.Designer, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" name="EMG_Monitor" children="Controls">
+    <Object type="MW.Instruments.Scope, mwio, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" name="Time (s)" children="Controls">
+      <Property name="Signals">
+        <Item type="MW.Instruments.Signal, mwio, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">QLY/Aux1/EMG,    EMG</Item>
+        <Item type="MW.Instruments.Signal, mwio, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">QLY/Aux1/EMG Threshold Lower,  Lower Threshold</Item>
+        <Item type="MW.Instruments.Signal, mwio, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">QLY/Aux1/EMG Threshold Upper,  Upper Threshold</Item>
+      </Property>
+      <Property name="TargetName">bossdevice</Property>
+      <Property name="NumSamples">2500</Property>
+      <Property name="TriggerMode">REPEATED</Property>
+      <Property name="YAxesLimits">100, -100</Property>
+      <Property name="TriggerSlope">FALLING</Property>
+      <Property name="PreTriggerViewing">99</Property>
+      <Property name="IsYTickVisible">True</Property>
+      <Property name="IsTimeTickVisible">True</Property>
+      <Property name="BorderStyle">Fixed3D</Property>
+      <Property name="Font">Segoe UI, 12.75pt</Property>
+      <Property name="Location">0, -2</Property>
+      <Property name="Name">Time (s)</Property>
+      <Property name="Size">1608, 809</Property>
+    </Object>
+    <Property name="ClientSize">1920, 1080</Property>
+  </Object>

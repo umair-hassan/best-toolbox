@@ -1,0 +1,19 @@
+
+  <Object type="Desktop.Xpc.Designer.InstrumentPanel, Desktop.Xpc.Designer, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" name="EMG_Monitor" children="Controls">
+    <Object type="MW.Instruments.Scope, mwio, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" name="Time (s)" children="Controls">
+      <Property name="Signals">
+        <Item type="MW.Instruments.Signal, mwio, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">spf_signal,  spf_signal:1</Item>
+      </Property>
+      <Property name="TargetName">bossdevice</Property>
+      <Property name="TriggerMode">REPEATED</Property>
+      <Property name="YAxesLimits">100, -100</Property>
+      <Property name="TriggerSlope">FALLING</Property>
+      <Property name="IsYTickVisible">True</Property>
+      <Property name="IsTimeTickVisible">False</Property>
+      <Property name="Font">Segoe UI, 13pt</Property>
+      <Property name="Location">47, 12</Property>
+      <Property name="Name">Time (s)</Property>
+      <Property name="Size">1402, 629</Property>
+    </Object>
+    <Property name="ClientSize">1920, 1080</Property>
+  </Object>
