@@ -31,7 +31,7 @@ classdef best_application < handle
     methods
         %% BEST
         function obj=best_application()
-            obj.Version=15112021;
+            obj.Version=15072021;
             obj.close_previous;
             obj.create_gui;
             
@@ -156,7 +156,7 @@ classdef best_application < handle
             obj.pmd.sub_code.editfield=uicontrol( 'Style','edit','Parent', pmd_hbox_sub_code ,'String','Subject1','FontSize',11,'Callback',@(~,~)obj.cb_pmd_sub_code_editfield);
             obj.pmd.sub_code.btn=uicontrol( 'Parent', pmd_hbox_sub_code ,'Style','PushButton','String','...','FontWeight','Bold','Callback',@obj.opendir );
             set( pmd_hbox_sub_code, 'Widths', [120 -0.7 -0.09]);
-            
+           
             % session title edit box: third horizontal row on first panel
             pmd_hbox_session_title = uix.HBox( 'Parent', pmd_vbox, 'Spacing', 5, 'Padding', 5  );
             uicontrol( 'Style','text','Parent', pmd_hbox_session_title,'String','Session Title:','FontSize',11,'HorizontalAlignment','left' ,'Units','normalized');
@@ -918,6 +918,18 @@ classdef best_application < handle
                 return
             end
         end
+        
+        
+        
+        function cb_pmd_age_code_editfield(obj)
+            if(isvarname(obj.pmd.age_code.editfield.String)==0)
+                errordlg('Subject is an invalid string. Characters found in your string are not allowed by your operating system as filename. Please use a meaningful string that is not starting with a numeric character or space charachet and do not contain any special characters to proceed.','BEST Toolbox');
+                obj.pmd.age_code.editfield.String=[];
+                return
+            end
+        end
+        
+        
         function cb_pmd_lb_measure_menu_loadresult(obj)
             if ~isfield(obj.bst.sessions,obj.info.event.current_session) || numel(obj.pmd.lb_measures.listbox.String)==0 %only sessions tree is added, add tree of measure here as well
                 errordlg('No results exist for this measurement, Please collect the data if you wish to see the results for this particular measure.','BEST Toolbox');
@@ -3018,17 +3030,7 @@ r1= uiextras.HBox( 'Parent', v,'Spacing', 5, 'Padding', 5 );
                         obj.pi.mep.EMGXLimit=uicontrol( 'Style','edit','Parent', expModr2 ,'FontSize',11,'Tag','EMGXLimit','callback',@cb_par_saving);
                         expModr2.Widths=[150 -2];
                         
-                        expModr4=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
-                        uicontrol( 'Style','text','Parent', expModr4,'String','EMG Preinervation Search Window (ms):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-                        obj.pi.mep.EMGPreinervationSearchWindow=uicontrol( 'Style','edit','Parent', expModr4 ,'FontSize',11,'Tag','EMGPreinervationSearchWindow','callback',@cb_par_saving);
-                        expModr4.Widths=[150 -2];
-                        
-                        expModr4=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
-                        uicontrol( 'Style','text','Parent', expModr4,'String','EMG Preinervation Amplitude (uV):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-                        obj.pi.mep.EMGPreinervationAmplitude=uicontrol( 'Style','edit','Parent', expModr4 ,'FontSize',11,'Tag','EMGPreinervationAmplitude','callback',@cb_par_saving);
-                        expModr4.Widths=[150 -2];
-                        
-                        expModvBox.Heights=[ 45 45 45 45 45 45];
+                        expModvBox.Heights=[ 45 45 45 45];
                     case 2
                         expModvBox=uix.VBox( 'Parent', DisplayParametersPanel, 'Spacing', 0, 'Padding', 0  );
                         
@@ -3064,7 +3066,7 @@ r1= uiextras.HBox( 'Parent', v,'Spacing', 5, 'Padding', 5 );
             function cb_SetHeights
                 switch obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).BrainState
                     case 1
-                        set(obj.pi.mep.r0v1,'Heights',[40 60 310 -1 55]);
+                        set(obj.pi.mep.r0v1,'Heights',[40 60 220 -1 55]);
                     case 2
                         set(obj.pi.mep.r0v1,'Heights',[-0.6 -6 -5 -2 -1.1]);
                         set(obj.pi.mep.r0,'Widths',[-2 -3]);
@@ -3172,8 +3174,6 @@ r1= uiextras.HBox( 'Parent', v,'Spacing', 5, 'Padding', 5 );
             obj.info.defaults.Enable={'on'};
             obj.info.defaults.ProtocolStatus={'created'};
             obj.info.defaults.ProtocolOnset='1';
-            obj.info.defaults.EMGPreinervationSearchWindow='-50 -5';
-            obj.info.defaults.EMGPreinervationAmplitude='200';
             si=[30 40 50 60 70 80];
             for idefaults=1:6
                 cond=['cond' num2str(idefaults)];
@@ -3402,17 +3402,7 @@ r1= uiextras.HBox( 'Parent', v,'Spacing', 5, 'Padding', 5 );
                         obj.pi.drc.ResponseFunctionDenominator=uicontrol( 'Style','edit','Parent', expModr4 ,'FontSize',11,'Tag','ResponseFunctionDenominator','callback',@cb_par_saving);
                         expModr4.Widths=[150 -2 30 -2];
                         
-                        expModr4=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
-                        uicontrol( 'Style','text','Parent', expModr4,'String','EMG Preinervation Search Window (ms):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-                        obj.pi.drc.EMGPreinervationSearchWindow=uicontrol( 'Style','edit','Parent', expModr4 ,'FontSize',11,'Tag','EMGPreinervationSearchWindow','callback',@cb_par_saving);
-                        expModr4.Widths=[150 -2];
-                        
-                        expModr4=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
-                        uicontrol( 'Style','text','Parent', expModr4,'String','EMG Preinervation Amplitude (uV):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-                        obj.pi.drc.EMGPreinervationAmplitude=uicontrol( 'Style','edit','Parent', expModr4 ,'FontSize',11,'Tag','EMGPreinervationAmplitude','callback',@cb_par_saving);
-                        expModr4.Widths=[150 -2];
-                        
-                        expModvBox.Heights=[45 45 45 45 45 30 35 45 45];
+                        expModvBox.Heights=[45 45 45 45 45 30 35];
                     case 2
                         expModvBox=uix.VBox( 'Parent', DisplayParametersPanel, 'Spacing', 0, 'Padding', 0  );
                         
@@ -3465,7 +3455,7 @@ r1= uiextras.HBox( 'Parent', v,'Spacing', 5, 'Padding', 5 );
             function cb_SetHeights
                 switch obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).BrainState
                     case 1
-                        set(obj.pi.drc.r0v1,'Heights',[40 60 430 -1 55])
+                        set(obj.pi.drc.r0v1,'Heights',[40 60 340 -1 55])
                     case 2
                         set(obj.pi.drc.r0v1,'Heights',[-0.6 -7 -7 0 -1]);
                 end
@@ -3563,8 +3553,6 @@ r1= uiextras.HBox( 'Parent', v,'Spacing', 5, 'Padding', 5 );
             obj.info.defaults.Handles.UserData='Reserved for Future Use';
             obj.info.defaults.Enable={'on'};
             obj.info.defaults.ProtocolStatus={'created'};
-            obj.info.defaults.EMGPreinervationSearchWindow='-50 -5';
-            obj.info.defaults.EMGPreinervationAmplitude='200';
             si=[30 40 50 60 70 80];
             for idefaults=1:6
                 cond=['cond' num2str(idefaults)];
@@ -3785,17 +3773,7 @@ r1= uiextras.HBox( 'Parent', v,'Spacing', 5, 'Padding', 5 );
                         obj.pi.mth.NoOfTrialsToAverage=uicontrol( 'Style','edit','Parent', expModr4 ,'FontSize',11,'Tag','NoOfTrialsToAverage','callback',@cb_par_saving);
                         expModr4.Widths=[150 -2];
                         
-                        expModr4=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
-                        uicontrol( 'Style','text','Parent', expModr4,'String','EMG Preinvervation Search Window (ms):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-                        obj.pi.mth.EMGPreinervationSearchWindow=uicontrol( 'Style','edit','Parent', expModr4 ,'FontSize',11,'Tag','EMGPreinervationSearchWindow','callback',@cb_par_saving);
-                        expModr4.Widths=[150 -2];
-                        
-                        expModr4=uiextras.HBox( 'Parent', expModvBox,'Spacing', 5, 'Padding', 5 );
-                        uicontrol( 'Style','text','Parent', expModr4,'String','EMG Preinvervation Amplitude (uV):','FontSize',11,'HorizontalAlignment','left','Units','normalized');
-                        obj.pi.mth.EMGPreinervationAmplitude=uicontrol( 'Style','edit','Parent', expModr4 ,'FontSize',11,'Tag','EMGPreinervationAmplitude','callback',@cb_par_saving);
-                        expModr4.Widths=[150 -2];
-                        
-                        expModvBox.Heights=[30 45 45 45 45 45 45 45];
+                        expModvBox.Heights=[30 45 45 45 45 45];
                     case 2
                         expModvBox=uix.VBox( 'Parent', DisplayParametersPanel, 'Spacing', 0, 'Padding', 0  );
                         
@@ -3840,7 +3818,7 @@ r1= uiextras.HBox( 'Parent', v,'Spacing', 5, 'Padding', 5 );
             function cb_SetHeights
                 switch obj.par.(obj.info.event.current_session).(obj.info.event.current_measure_fullstr).BrainState
                     case 1
-                        set(obj.pi.mth.r0v1,'Heights',[40 60 390 -1 55]);
+                        set(obj.pi.mth.r0v1,'Heights',[40 60 290 -1 55]);
                     case 2
                         set(obj.pi.mth.r0v1,'Heights',[-0.7 -7 -5 -0 -1.2])%[40 390 390 -1 55])
                         set(obj.pi.mth.r0,'Widths',[-2 -3]);
@@ -3937,8 +3915,6 @@ r1= uiextras.HBox( 'Parent', v,'Spacing', 5, 'Padding', 5 );
             obj.info.defaults.NoOfTrialsToAverage='10';
             obj.info.defaults.MotorThreshold='NaN';
             obj.info.defaults.ThresholdMethod=1;
-            obj.info.defaults.EMGPreinervationSearchWindow='-50 -5';
-            obj.info.defaults.EMGPreinervationAmplitude='200';
             %             obj.info.defaults.ColThresholdLevelUnits='uV';
             obj.info.defaults.ProtocolStatus={'created'};
             %             obj.info.defaults.condsAll.cond1.ColThresholdLevelUnits='uV';
@@ -5991,8 +5967,8 @@ r1= uiextras.HBox( 'Parent', v,'Spacing', 5, 'Padding', 5 );
             obj.info.defaults.GMFPPlotDisplayPeriod='{{[-100 300]}}';
             obj.info.defaults.EEGExtractionPeriod='-100 300';
             obj.info.defaults.LastTrialToAverage=1;
-            obj.info.defaults.ButterflyPlotYLim='-200 200';
-            obj.info.defaults.GMFPPlotYLim='-200 200';
+            obj.info.defaults.ButterflyPlotYLim='-100 100';
+            obj.info.defaults.GMFPPlotYLim='-100 100';
             obj.info.defaults.TopoplotYLim='-20 20';
             obj.info.defaults.MultiplotYLim='-20 20';
             obj.info.defaults.TrialsPerCondition='10';
@@ -9173,8 +9149,7 @@ r1= uiextras.HBox( 'Parent', v,'Spacing', 5, 'Padding', 5 );
             subj_code=obj.pmd.sub_code.editfield.String;
             subj_code(subj_code == ' ') = '_';
             save_str=[exp_name '_' subj_code];
-            obj.bst.info.save_str=save_str;
-            
+            obj.bst.info.save_str=save_str;            
             %             variable_saved.(save_str).ExperimentName=exp_name;
             %             variable_saved.(save_str).SubjectCode=subj_code;
             %             variable_saved.(save_str).Parameters=obj.par;
@@ -9241,6 +9216,7 @@ r1= uiextras.HBox( 'Parent', v,'Spacing', 5, 'Padding', 5 );
                     end
                 end
             end
+            try obj.bst.bossbox.SoundScope=[]; catch, end
             %             obj.bst.info.save_buffer.(save_str)=variable_saved.(save_str);
             % % %
             % %
@@ -11383,6 +11359,12 @@ r1= uiextras.HBox( 'Parent', v,'Spacing', 5, 'Padding', 5 );
                     DRC
                 case 'MEP Dose Response Curve Paired Pulse'
                     PairedPulse
+                case 'MEP Measurement SICI'
+                    SICICallback
+                case 'MEP Measurement ICF'
+                    ICFCallback
+                case 'MEP Measurement SAI'
+                    SAICallback
                 case 'TMS Evoked EEG Potentials'
                     MotorThresholdHuntingCallback
                 case 'rsEEG Measurement'
@@ -11449,6 +11431,102 @@ r1= uiextras.HBox( 'Parent', v,'Spacing', 5, 'Padding', 5 );
                 uimenu(ui_menu,'label','export as MATLAB Figure','Callback',@obj.pr_FigureExport,'Tag',obj.pr.ax_no);
                 figThresholdTrace.UIContextMenu=ui_menu;
                 drawnow
+            end
+            function SICICallback
+                obj.pr.axesno=2;
+                obj.pr.ax_ChannelLabels={'TS Alone','CS+TS'};
+                obj.bst.inputs.Protocol='MEP Measurement SICI';
+                obj.pr.ax_measures={'MEP_Measurement','MEP_Measurement'};
+                obj.resultsPanel;
+                obj.fig.main.Widths=[-1.15 0 -3.35 0];obj.pr.panel_1.Title='MEP Measurement SICI';
+                
+                fig=openfig('C:\Users\control\Desktop\BESTToolboxWebinar\SICI\1.fig');
+                figThresholdTrace=gca;
+                figThresholdTrace.YLim=[-5000 5000];
+                %delete(figThresholdTrace.Children(52)); delete(figThresholdTrace.Children(52)); delete(figThresholdTrace.Children(61-2))
+                delete(obj.pr.clab.ax1.Children)
+                cont=uicontainer('Parent',   obj.pr.clab.ax1);
+                figThresholdTrace.Parent   =cont;                
+                figThresholdTrace.Position=[0.15 0.15 0.80 0.8];
+                close(fig)
+                drawnow
+                
+                %%
+                fig=openfig('C:\Users\control\Desktop\BESTToolboxWebinar\SICI\2.fig');
+                figThresholdTrace=gca;
+                figThresholdTrace.YLim=[-5000 5000];
+                %delete(figThresholdTrace.Children(52)); delete(figThresholdTrace.Children(52)); delete(figThresholdTrace.Children(61-2))
+                delete(obj.pr.clab.ax2.Children)
+                cont=uicontainer('Parent',   obj.pr.clab.ax2);
+                figThresholdTrace.Parent   =cont;                
+                figThresholdTrace.Position=[0.15 0.15 0.80 0.8];
+                close(fig)
+                drawnow
+
+            end
+            function ICFCallback
+                obj.pr.axesno=2;
+                obj.pr.ax_ChannelLabels={'TS Alone','CS+TS'};
+                obj.bst.inputs.Protocol='MEP Measurement ICF';
+                obj.pr.ax_measures={'MEP_Measurement','MEP_Measurement'};
+                obj.resultsPanel;
+                obj.fig.main.Widths=[-1.15 0 -3.35 0];obj.pr.panel_1.Title='MEP Measurement ICF';
+                
+                fig=openfig('C:\Users\control\Desktop\BESTToolboxWebinar\ICF\1.fig');
+                figThresholdTrace=gca;
+                figThresholdTrace.YLim=[-5000 5000];
+                %delete(figThresholdTrace.Children(52)); delete(figThresholdTrace.Children(52)); delete(figThresholdTrace.Children(61-2))
+                delete(obj.pr.clab.ax1.Children)
+                cont=uicontainer('Parent',   obj.pr.clab.ax1);
+                figThresholdTrace.Parent   =cont;                
+                figThresholdTrace.Position=[0.15 0.15 0.80 0.8];
+                close(fig)
+                drawnow
+                
+                %%
+                fig=openfig('C:\Users\control\Desktop\BESTToolboxWebinar\ICF\2.fig');
+                figThresholdTrace=gca;
+                figThresholdTrace.YLim=[-5000 5000];
+                %delete(figThresholdTrace.Children(52)); delete(figThresholdTrace.Children(52)); delete(figThresholdTrace.Children(61-2))
+                delete(obj.pr.clab.ax2.Children)
+                cont=uicontainer('Parent',   obj.pr.clab.ax2);
+                figThresholdTrace.Parent   =cont;                
+                figThresholdTrace.Position=[0.15 0.15 0.80 0.8];
+                close(fig)
+                drawnow
+
+            end
+            function SAICallback
+                obj.pr.axesno=2;
+                obj.pr.ax_ChannelLabels={'TS Alone','CS+TS'};
+                obj.bst.inputs.Protocol='MEP Measurement SICI';
+                obj.pr.ax_measures={'MEP_Measurement','MEP_Measurement'};
+                obj.resultsPanel;
+                obj.fig.main.Widths=[-1.15 0 -3.35 0];obj.pr.panel_1.Title='MEP Measurement SAI';
+                
+                fig=openfig('C:\Users\control\Desktop\BESTToolboxWebinar\SAI\1.fig');
+                figThresholdTrace=gca;
+                figThresholdTrace.Children(end-5).String=[];
+                %delete(figThresholdTrace.Children(52)); delete(figThresholdTrace.Children(52)); delete(figThresholdTrace.Children(61-2))
+                delete(obj.pr.clab.ax1.Children)
+                cont=uicontainer('Parent',   obj.pr.clab.ax1);
+                figThresholdTrace.Parent   =cont;                
+                figThresholdTrace.Position=[0.15 0.15 0.80 0.8];
+                close(fig)
+                drawnow
+                
+                %%
+                fig=openfig('C:\Users\control\Desktop\BESTToolboxWebinar\SAI\2.fig');
+                figThresholdTrace=gca;
+                figThresholdTrace.Children(end-5).String=[]
+                %delete(figThresholdTrace.Children(52)); delete(figThresholdTrace.Children(52)); delete(figThresholdTrace.Children(61-2))
+                delete(obj.pr.clab.ax2.Children)
+                cont=uicontainer('Parent',   obj.pr.clab.ax2);
+                figThresholdTrace.Parent   =cont;                
+                figThresholdTrace.Position=[0.15 0.15 0.80 0.8];
+                close(fig)
+                drawnow
+
             end
             function RSEEG
                 obj.pr.axesno=4;

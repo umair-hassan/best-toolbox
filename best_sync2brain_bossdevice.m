@@ -8,6 +8,7 @@ classdef best_sync2brain_bossdevice <handle
         IPScope
         FileScope
         EEGScope
+        SoundScope
     end
     
     methods
@@ -22,8 +23,7 @@ classdef best_sync2brain_bossdevice <handle
             obj.bb.beta.ignore; pause(0.1)
             obj.bb.alpha.ignore; pause(0.1)
             setparam(obj.bb.tg, 'QLY', 'eeg_artifact_threshold', [1e6 1e6])
-            MI=2;
-            setparam(obj.bb.tg, 'QLY', 'inst_freq_max_instability', [1e6 1e6 1 1 1e6 1e6])
+            %setparam(obj.bb.tg, 'QLY', 'inst_freq_max_instability', [1e6 1e6 1 1 1e6 1e6])
             setparam(obj.bb.tg, 'VIS/IF Stability', 'refline_2',100);
             try setparam(obj.bb.tg, 'AlphaPower/AlphaPowerWindow', 'Value',[8 14]); catch, end
             %% Setting Num of EEG & AUX Channels
@@ -74,7 +74,53 @@ classdef best_sync2brain_bossdevice <handle
         
         function multiPulse(obj,time_port_marker_vector)
             obj.bb.configure_time_port_marker(cell2mat(time_port_marker_vector'));
-            obj.bb.manualTrigger;
+            
+            if contains(obj.best_toolbox.app.info.event.current_measure_fullstr,'_volume') && obj.best_toolbox.inputs.trialMat{obj.best_toolbox.inputs.trial,obj.best_toolbox.inputs.colLabel.ConditionMarker}==1
+                %% volume start
+                Fs = 5e4; % sample at 50 times the PRF; this is not the frequency of the square wave
+                dt = 1/Fs;
+                T = 400; % duration 400
+                t = (0:dt:T-dt);
+                PRF = 1000;
+                % PRF 1000Hz & 50% DC
+                on_time  = 5e-4;
+                off_time = 5e-4;
+                repeats  = T*1000; %ms
+                % create time axis
+                t_on  = 0:dt:on_time-dt;
+                t_off = 0:dt:off_time-dt;
+                % create a square wave pulse with a single on-off
+                %sig_on = repmat(0.2, 1, length(t_on)); % changed temporarily to avoid clipping whne saving the audio files
+                sig_on    = ones(1, length(t_on));
+                sig_off   = zeros(1, length(t_off));
+                sig_block = [sig_on, sig_off];
+                % replicate on-off for the number of repeats
+                signal = repmat(sig_block, [1, repeats]);
+                SNR=rand(size(signal))*0.2;
+                signal=signal+SNR;
+                obj.SoundScope.Sound1=audioplayer(signal/2, Fs);
+                play(obj.SoundScope.Sound1)
+                pause(0.390)
+                obj.bb.manualTrigger;
+                pause(0.01)
+                delete(obj.SoundScope.Sound1)
+% % % Commented on 01.03.2022 pre validation
+% %                 try
+% %                     if isempty(obj.SoundScope.Sound1),obj.SoundScope.Sound1=audioplayer(signal/3, Fs);end
+% %                 catch
+% %                     obj.SoundScope.Sound1=audioplayer(signal/3, Fs);
+% %                 end
+% %                 obj.SoundScope.Sound2=audioplayer(signal, Fs);
+% %                 play(obj.SoundScope.Sound1)
+% %                 play(obj.SoundScope.Sound2)
+% %                 pause(0.39)
+% %                 obj.bb.manualTrigger;
+% %                 pause(0.1)
+% %                 delete(obj.SoundScope.Sound2)
+                %% volume end
+            else
+                obj.bb.manualTrigger;
+            end
         end
         
         function armPulse(obj)
@@ -86,7 +132,7 @@ classdef best_sync2brain_bossdevice <handle
                     % 6 samples = 12 ms is the delay in the loop due to the low pass Nyquist filters
                     % the N20 will be 22 ms delayed and will have a 11
                     % samples delay
-                    obj.bb.alpha.offset_samples = 6+11;
+                    obj.bb.alpha.offset_samples = 11;
                     %here i have to add the offset and make sure the filter offset is corrected
                 case 2 % Theta
                     obj.bb.theta.phase_target(1) = obj.best_toolbox.inputs.trialMat{obj.best_toolbox.inputs.trial,obj.best_toolbox.inputs.colLabel.phase}{1,1};
@@ -101,7 +147,8 @@ classdef best_sync2brain_bossdevice <handle
             obj.bb.configure_time_port_marker(cell2mat(time_port_marker_vector'))
             %% Starting
             if obj.best_toolbox.inputs.trial==1 && obj.best_toolbox.inputs.ReturnToTrialStatus==0
-                    pause(1*60)
+                      %%pause(1*60) %250222
+% %                       pause(1*15)
             end
             obj.bb.min_inter_trig_interval = 0;
             obj.bb.alpha.amplitude_min(1)=NaN;
@@ -153,7 +200,10 @@ classdef best_sync2brain_bossdevice <handle
 %                 try AmplitudeClean=AmplitudeClean(1,end-obj.best_toolbox.inputs.AmplitudeAssignmentPeriod*60*5000:end); catch, end
                 
                 AmplitudeClean=obj.FileScope.IA(1, :);
-                try AmplitudeClean=AmplitudeClean(1,end-obj.best_toolbox.inputs.AmplitudeAssignmentPeriod*60*5000:end); catch, end
+                %%% try
+                %%% AmplitudeClean=AmplitudeClean(1,end-obj.best_toolbox.inputs.AmplitudeAssignmentPeriod*60*5000:end);
+                %%% catch, end %250222
+                try AmplitudeClean=AmplitudeClean(1,end-1*60*5000:end); catch, end
                 AmplitudeSorted = sort(AmplitudeClean);
                 plot(obj.FileScope.hAmplitudeDistributionAxes, AmplitudeSorted)
 
@@ -198,10 +248,13 @@ classdef best_sync2brain_bossdevice <handle
 %                     obj.bb.arm;
 %                 end
                 %% Disarming
-                if obj.best_toolbox.inputs.trial>=2 && (toc(obj.best_toolbox.info.TimerAA)>4.5)
+                if obj.best_toolbox.inputs.trial>=2 && (toc(obj.best_toolbox.info.TimerAA)>5.5)
                     obj.bb.configure_time_port_marker([0 1 12]);
                     obj.bb.disarm;
+                    obj.bb.triggers_remaining = 1;
+                    obj.bb.configure_time_port_marker([0 1 20]);
                     obj.bb.manualTrigger;
+                    obj.bb.triggers_remaining = 1;
                     exit_flag=2;
                     obj.best_toolbox.info.ReturnToTrial=true;
                     obj.best_toolbox.inputs.ReturnToTrialStatus=1;
@@ -297,10 +350,8 @@ classdef best_sync2brain_bossdevice <handle
             addsignal(obj.FileScope.sc, [getsignalid(obj.bb.tg, 'OSC/alpha/IA'),getsignalid(obj.bb.tg, 'QLY/Logical Operator2'), getsignalid(obj.bb.tg, 'MRK/mrk_masked')]); 
             obj.FileScope.sc.FileName = 'IAFileScope.dat';
             obj.FileScope.sc.AutoRestart='on';
-            pause(5); %Taking 15 second pause so that EEG can be stablized well before starting buffer
+            pause(1); %Taking 15 second pause so that EEG can be stablized well before starting buffer
             start(obj.FileScope.sc);
-            
-
             obj.FileScope.sc1 = addscope(obj.bb.tg, 'host', 101);
             addsignal(obj.FileScope.sc1, getsignalid(obj.bb.tg, 'AlphaPower/scale to per Hz') + int32(0:1023));
             obj.FileScope.sc1.NumSamples=2;
@@ -457,9 +508,9 @@ classdef best_sync2brain_bossdevice <handle
             AuxSignalID = getsignalid(obj.bb.tg, 'UDP/raw_eeg') + int32(0:obj.bb.eeg_channels-1);
             MrkSignalID = getsignalid(obj.bb.tg, 'MRK/mrk_masked');
             addsignal(obj.EEGScope, AuxSignalID);
-            obj.EEGScope.NumSamples = round(NumSamples/10);
-            obj.EEGScope.NumPrePostSamples = round(NumPrePostSamples/10);
-            obj.EEGScope.Decimation = 10;
+            obj.EEGScope.NumSamples = NumSamples;
+            obj.EEGScope.NumPrePostSamples = NumPrePostSamples;
+            obj.EEGScope.Decimation = 1;
             obj.EEGScope.TriggerMode = 'Signal';
             obj.EEGScope.TriggerSignal = getsignalid(obj.bb.tg, 'gen_running'); %Remove it in Future Release
             obj.EEGScope.TriggerSignal = MrkSignalID;
@@ -468,8 +519,6 @@ classdef best_sync2brain_bossdevice <handle
             %% Starting Scope
             obj.EEGScopeStart;
         end
-        
-        
         
         function EMGScopeStart(obj)
             start(obj.EMGScope);
@@ -490,7 +539,7 @@ classdef best_sync2brain_bossdevice <handle
         
         function EEGScopeStart(obj)
             start(obj.EEGScope);
-            %while ~strcmpi(obj.EEGScope.Status,'Ready for being Triggered'), disp('EEG Scope is started'); drawnow, end
+            while ~strcmpi(obj.EEGScope.Status,'Ready for being Triggered'), disp('EEG Scope is started'); drawnow, end
         end
         
         function IAScopeStart(obj)
@@ -671,10 +720,10 @@ classdef best_sync2brain_bossdevice <handle
             obj.EEGScopeStart;
         end
         function [Time, Data]=EEGFieldTripScopeRead(obj)
-            while strcmpi(obj.EEGScope.Status,'Acquiring'), drawnow,obj.EEGScope.Status,if obj.best_toolbox.inputs.stop_event==1, break, end ,end
+            while ~strcmpi(obj.EEGScope.Status,'finished'), drawnow, if obj.best_toolbox.inputs.stop_event==1, break, end ,end
             Data=obj.EEGScope.Data(:,:)';
             Time=(obj.EEGScope.Time-obj.EEGScope.Time(1)+(obj.EEGScope.Time(2)-obj.EEGScope.Time(1)))';
-            Time=[(Time*1000)+obj.best_toolbox.inputs.EEGExtractionPeriod(1)]; 
+            Time=(Time*1000)+obj.best_toolbox.inputs.EEGExtractionPeriod(1); 
             %% Interpolating Data to remove pulse artefact
             %use sample and hold period of bossdevice
             %% end of interpolation
@@ -753,3 +802,4 @@ classdef best_sync2brain_bossdevice <handle
         end
     end
 end
+

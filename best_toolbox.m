@@ -2314,7 +2314,7 @@ classdef best_toolbox < handle
                         if (strcmp(InputsFieldNames{iInputs},'ReferenceChannels')) || (strcmp(InputsFieldNames{iInputs},'ITI')) || (strcmp(InputsFieldNames{iInputs},'EMGDisplayChannels')) || (strcmp(InputsFieldNames{iInputs},'EMGTargetChannels')) || (strcmp(InputsFieldNames{iInputs},'Phase')) || (strcmp(InputsFieldNames{iInputs},'PhaseTolerance')) || (strcmp(InputsFieldNames{iInputs},'MontageChannels')) || (strcmp(InputsFieldNames{iInputs},'AmplitudeThreshold'))|| (strcmp(InputsFieldNames{iInputs},'TargetChannels')) || (strcmp(InputsFieldNames{iInputs},'EEGDisplayPeriod')) ...
                                 || (strcmp(InputsFieldNames{iInputs},'RealTimeChannelsMontage')) || (strcmp(InputsFieldNames{iInputs},'MontageWeights')) || (strcmp(InputsFieldNames{iInputs},'RecordingReference'))
                             if (isempty(obj.inputs.(InputsFieldNames{iInputs})))
-                                disp donothing
+                                
                             else
                                 try
                                     obj.inputs.(InputsFieldNames{iInputs})=eval(obj.inputs.(InputsFieldNames{iInputs}));
@@ -4005,10 +4005,17 @@ classdef best_toolbox < handle
                 case {5,6,7,8,10} %bossbox controlled stimulator
                     switch obj.inputs.BrainState
                         case 1
+                            try
+                                if strcmp(obj.app.par.hardware_settings.(char(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.outputDevices}{1,1})).device_name,'NeuroFUSCOM6')
+%                                     obj.neurofus.trigger_mode=1;
+                                    obj.neurofus.system_state=1;
+                                end
+                            catch
+                            end
                             obj.bossbox.multiPulse(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.tpm});
                             %                             obj.bossbox.EEGScopeTrigger;
                         case 2
-                            
+%                             try  obj.neurofus.system_state=1; catch, end
                             obj.bossbox.armPulse;
                             obj.bossbox.bb.triggers_remaining
                     end
@@ -4388,11 +4395,11 @@ classdef best_toolbox < handle
                                     try
                                         pause(0.3)
                                         obj.neurofus.arm; pause(0.3);
-                                        obj.neurofus.global_power=obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.GlobalPower};drawnow;
-                                        obj.neurofus.focus=obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.Focus};drawnow;
                                         obj.neurofus.timer=obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.TreatmentTime};drawnow;
                                         obj.neurofus.period=obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.Period};drawnow;
                                         obj.neurofus.burst_length=obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.BurstLength};drawnow;
+                                        obj.neurofus.global_power=obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.GlobalPower};drawnow;
+                                        obj.neurofus.focus=obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.Focus};drawnow;
                                     catch
                                         disp('NeuroFUS parameters are out of bound');
                                     end
@@ -4427,10 +4434,14 @@ classdef best_toolbox < handle
                 try obj.StatusTitle;catch, end
                 obj.trigTrial;
                 try obj.readTrial;catch, end
-                obj.plotTrial;
+                if contains(obj.app.info.event.current_measure_fullstr,'PlotOff')
+                    disp('plotting is turned off')
+                else
+                    obj.plotTrial;
+                end
                 obj.prepTrial;
                 try obj.processTrial; catch, end
-                obj.saveRunTimeBackup;
+%                 obj.saveRunTimeBackup;
                 try
                 catch
                 end
@@ -4488,7 +4499,7 @@ classdef best_toolbox < handle
             BESTDataBackup.Session=session;
             BESTDataBackup.Measure=measure;
             mkdir(fullfile(obj.app.par.GlobalSettings.DataBaseDirectory,exp_name,backupfolder));
-            save(fullfile(obj.app.par.GlobalSettings.DataBaseDirectory,exp_name,backupfolder,obj.info.matfilstr),'BESTDataBackup','-v7.3','-nocompression');
+%             save(fullfile(obj.app.par.GlobalSettings.DataBaseDirectory,exp_name,backupfolder,obj.info.matfilstr),'BESTDataBackup','-v7.3','-nocompression');
         end
         function StatusTitle(obj)
             switch obj.inputs.Protocol
@@ -4586,12 +4597,6 @@ classdef best_toolbox < handle
                         obj.inputs.trialMat(:,size(obj.inputs.trialMat,2)+1)=num2cell(obj.inputs.results.(resultschannels{i}).MEPAmplitude);
                         chan=['MEPAmplitude' resultschannels{i}];
                         obj.inputs.colLabel.(chan)=size(obj.inputs.trialMat,2);
-                        try 
-                        obj.inputs.trialMat(:,size(obj.inputs.trialMat,2)+1)=num2cell(obj.inputs.results.(resultschannels{i}).MEPLatency);
-                        chan=['MEPLatency' resultschannels{i}];
-                        obj.inputs.colLabel.(chan)=size(obj.inputs.trialMat,2);
-                        catch
-                        end
                     catch
                     end
                 end
@@ -4617,7 +4622,8 @@ classdef best_toolbox < handle
                 BESTData.TimeStamp=clock;
             catch
                 BESTData=struct;
-                BESTData=obj.inputs.rawdata;                
+                %BESTData=obj.inputs.rawdata;
+                BESTData=obj.inputs.rawData;
                 %TrialInfo
                 BESTData.trialinfomatrix=obj.inputs.trialMat;
                 FieldNames=fieldnames(obj.inputs.colLabel);
@@ -4731,6 +4737,18 @@ classdef best_toolbox < handle
 %             obj.save;
             obj.factorizeConditionsExtended 
             obj.planTrials
+            %% temporary patch for ITI
+            try
+            temp101=load('conditionmatrix.mat');
+            for i101=1:size(temp101.conditionmatrix,1)
+                obj.inputs.trialMat(i101,:)=obj.inputs.condMat(temp101.conditionmatrix(i101,1),:);
+                obj.inputs.trialMat{i101,4}=temp101.conditionmatrix(i101,2);
+            end
+            obj.inputs.trialMat(i101+1:end,:)=[]
+            warning('Condition matrix was replaced mannualy')
+            catch,
+            end
+            %%
             obj.app.resultsPanel;
             obj.boot_outputdevice;
             obj.boot_inputdevice;
@@ -4923,8 +4941,6 @@ classdef best_toolbox < handle
             obj.boot_inputdevice;
         end
         function best_tep(obj)
-            %obj.StartBossdeviceStreaming
-            %obj.StartRecordDataPrompt
             obj.StartBossdeviceStreaming
             obj.StartRecordDataPrompt
             obj.info.ReturnToTrial=false;
@@ -4933,7 +4949,7 @@ classdef best_toolbox < handle
             obj.app.resultsPanel;
             obj.boot_outputdevice;
             obj.boot_inputdevice;
-            %obj.bossbox.bb.sample_and_hold_period=5/1000; %5ms
+%             obj.bossbox.bb.sample_and_hold_period=5/1000; %5ms
             obj.bootTrial;
             obj.inputs.LastTrialToAverageRelative=1;
             obj.stimLoop;
@@ -5000,10 +5016,26 @@ classdef best_toolbox < handle
                     elseif isa(obj.inputs.AvgReferenceChannels,'cell')
                         cfg.refchannel=setdiff(obj.inputs.rawdata.label, obj.inputs.BadChannels');
                     end
-                    if obj.inputs.EEGExtractionPeriod(1)< -5
-                        cfg.demean='yes';cfg.baselinewindow=[obj.inputs.EEGExtractionPeriod(1) -5]; %Fieldtrip recommends this to be in seconds if the data.time{1,N}  is in seconds, if thats in ms than this in ms;
+                    if obj.inputs.EEGExtractionPeriod(1)< -10
+                        cfg.demean='yes'
+                        cfg.baselinewindow=[obj.inputs.EEGExtractionPeriod(1) -10]; %Fieldtrip recommends this to be in seconds if the data.time{1,N}  is in seconds, if thats in ms than this in ms;
                     end
                     cfg.trials=obj.inputs.trial;
+%                     cfg.hpfilter      = 'yes';
+%                     cfg.hpfiltord     = 1;
+%                     cfg.hpfreq        =  5.0000e-04;
+                    rawdata_preprocessed=ft_preprocessing(cfg,obj.inputs.rawdata);
+                    obj.inputs.rawdata.trial{1,obj.inputs.trial}=rawdata_preprocessed.trial{1,1};
+                else
+                    cfg=[];
+                     if obj.inputs.EEGExtractionPeriod(1)< -10
+                        cfg.demean='yes'
+                        cfg.baselinewindow=[obj.inputs.EEGExtractionPeriod(1) -10]; %Fieldtrip recommends this to be in seconds if the data.time{1,N}  is in seconds, if thats in ms than this in ms;
+                    end
+                    cfg.trials=obj.inputs.trial;
+%                     cfg.hpfilter      = 'yes';
+%                     cfg.hpfiltord     = 1;
+%                     cfg.hpfreq        =  5.0000e-04;
                     rawdata_preprocessed=ft_preprocessing(cfg,obj.inputs.rawdata);
                     obj.inputs.rawdata.trial{1,obj.inputs.trial}=rawdata_preprocessed.trial{1,1};
                 end
@@ -5275,13 +5307,6 @@ classdef best_toolbox < handle
             maxx=max(obj.inputs.rawData.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).data(obj.inputs.trial,obj.inputs.mep_onset_samples:obj.inputs.mep_offset_samples));
             minn=min(obj.inputs.rawData.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).data(obj.inputs.trial,obj.inputs.mep_onset_samples:obj.inputs.mep_offset_samples));
             obj.inputs.results.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).MEPAmplitude(obj.inputs.trial,1)=abs(maxx)+abs(minn);
-            try obj.mep_latency, catch, end
-        end
-        function mep_latency(obj)
-            %MEP Latency=MEP Search Window Onset + (MEPStartFromSearchWindowOnset)
-            MEPStartFromSearchWindowOnset=find(obj.inputs.rawData.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).data(obj.inputs.trial,obj.inputs.mep_onset_samples:obj.inputs.mep_offset_samples)>70);
-            MEPStartFromSearchWindowOnset=MEPStartFromSearchWindowOnset(1);
-            obj.inputs.results.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).MEPLatency(obj.inputs.trial,1)=(obj.inputs.mep_onset_samples+MEPStartFromSearchWindowOnset)/5000;
         end
         function mep_scat_plot(obj)
             ax=['ax' num2str(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.axesno}{1,obj.inputs.chLab_idx})];
@@ -6372,7 +6397,7 @@ classdef best_toolbox < handle
             
             delete(fh); pause(0.1);
         end
-        function TEPButterflyPlot(obj)
+         function TEPButterflyPlot(obj)
             try
 % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                 if strcmp(obj.inputs.AvgRereference,'yes')
 % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %                     cfg=[];
@@ -6727,6 +6752,8 @@ classdef best_toolbox < handle
             obj.neurofus.connect;
             pause(2);
             obj.neurofus.trigger_mode=1;
+            obj.neurofus.ramp_mode = 2; % tukey ramp (1=linear, 2=tukey, 3=log, 4=exponential)
+            obj.neurofus.ramp_length = 10000; % set in micro seconds
             obj.bossbox.bb.sendPulse(4)
         end
         function boot_fieldtrip(obj)
