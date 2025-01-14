@@ -50,6 +50,7 @@ classdef neurofus < handle
             P.DataBits = 8;
             P.Parity = 'none';
             obj.port = P;
+
         end
         function [errorOrSuccess, deviceStatus] = connect(obj)
             %% Check Input Validity
@@ -151,9 +152,10 @@ classdef neurofus < handle
             focus = obj.focus;
         end
         function obj = set.focus(obj, focus)
-            %obj.extrafield=2;
             % Documentation goes here
             %assert
+            %obj.extrafield=2;
+            if obj.extrafield~=2, obj.extrafield=2; end
             carriage        ='CR';
             key             ='FOCUS';
             value           =num2str(focus);
@@ -162,7 +164,6 @@ classdef neurofus < handle
             errorOrSuccess=1;
             deviceResponse=[]
             pause(0.1)
-            obj.extrafield=2;
         end
         %% system_state
         function system_state = get.system_state(obj)
