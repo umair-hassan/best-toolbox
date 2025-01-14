@@ -4055,7 +4055,6 @@ classdef best_toolbox < handle
                                 EMGChannelIndex=EMGChannelIndex-obj.bossbox.bb.eeg_channels;
                                 [obj.inputs.rawData.(unique_chLab{1,i}).time(obj.inputs.trial,:), obj.inputs.rawData.(unique_chLab{1,i}).data(obj.inputs.trial,:)]=obj.bossbox.EMGScopeRead(EMGChannelIndex);
                                 %% Paired Pulse Trigger Onset Correction
-                                % Modified by Saman Apr 9, 2024
                                 if strcmp(char(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.stimMode}{1,1}),'paired_pulse')
                                     sh1 = obj.inputs.rawData.(unique_chLab{1,i}).data(obj.inputs.trial,:);
                                     sh2 = round(-5*obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,1}{1,6});                                  
@@ -4165,7 +4164,7 @@ classdef best_toolbox < handle
                 disp entered--------------------------------------------------------====================
                 
                 obj.inputs.chLab_idx=i;
-                (obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.measures}{1,i});
+                (obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.measures}{1,i})
                 switch (obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.measures}{1,i})
                     case 'MEP_Measurement'
                         if strcmpi(obj.inputs.Protocol,'MEP Dose Response Curve Protocol')
@@ -4290,20 +4289,15 @@ classdef best_toolbox < handle
                         for i=1:numel(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.outputDevices})
                             switch obj.app.par.hardware_settings.(char(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.outputDevices}{1,i})).slct_device
                                 case {1,5} % pc or bb controlled magven
-                                    obj.bossbox.bb.disarm;
                                     switch char(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.stimMode}{1,i})
                                         case 'single_pulse'
                                             obj.magven.arm
-                                            obj.magven.setAmplitude(round(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,i}{1,4}));
+                                            obj.magven.setAmplitude(round(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,i}{1,4}));    
                                             if obj.inputs.trial==1,  pause(1), end %This wait is required for first trial only otherwise time is tooshort to set intensity succesfully
                                         case 'paired_pulse'
-                                            % change made on 10 june 2024
-                                            % change made on 11 july 2024
-                                            % by Saman
-                                            % obj.magven.disarm;
                                             obj.magven.setPage('Main');
-                                            obj.magven.setMode('Dual','01',2,obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,i}{1,6},1,0); %('mode','currentDirection', burstPulses, ipiValue in ms, BARatioValue, varargin);
-                                            % obj.magven.setIPI(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,i}{1,6},'00',2,1,0)
+%                                             obj.magven.setMode('Dual','00',2,obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,i}{1,6},1,1); %('mode','currentDirection', burstPulses, ipiValue in ms, BARatioValue, varargin);
+                                          obj.magven.setMode('Dual','01',2,obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,i}{1,6},1,1); %('mode','currentDirection', burstPulses, ipiValue in ms, BARatioValue, varargin);
                                             obj.magven.arm;
                                             obj.magven.setAmplitude([obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,i}{1,5} obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.si}{1,i}{1,4}]);
                                             disp('Paired Pulse Trial is Prepared');
@@ -4382,96 +4376,24 @@ classdef best_toolbox < handle
                 obj.inputs.trial=obj.inputs.trial+1;
             end
         end
-%         function stimLoop(obj)
-%             obj.inputs.ReturnToTrialStatus=0;
-%             obj.info.TimerAA=tic;
-%             %             for tt=1:obj.inputs.totalTrials
-%             while(obj.inputs.trial<=obj.inputs.totalTrials)
-% % %                 obj.info.TimerAA=tic;
-% % %                 obj.trigTrial;
-% % %                 wait_period=obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.iti}-toc(obj.info.TimerAA);
-% % %                 if wait_period>0 && wait_period<obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.iti}
-% % %                     pause(wait_period)
-% % %                 end
-% % %                 obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.TotalITI}=toc(obj.info.TimerAA);
-%                 obj.trigTrial;
-%                 obj.readTrial;
-%                 obj.plotTrial;
-%                 obj.prepTrial;
-%                 obj.saveRunTimeBackup;
-%                 wait_period=obj.inputs.trialMat{obj.inputs.trial-1,obj.inputs.colLabel.iti}-toc(obj.info.TimerAA);
-%                 if wait_period>0 && wait_period<obj.inputs.trialMat{obj.inputs.trial-1,obj.inputs.colLabel.iti}
-%                     pause(wait_period)
-%                 end
-%                 obj.inputs.trialMat{obj.inputs.trial-1,obj.inputs.colLabel.TotalITI}=toc(obj.info.TimerAA);
-%                 obj.info.TimerAA=tic;
-%                 if(obj.inputs.stop_event==1)
-%                     disp('returned after the execution')
-%                     obj.inputs.stop_event=0;
-%                     break;
-%                 end
-%                 drawnow;
-%                 disp('................................................');
-%             end
-%             %% below is the old one
-% %             for tt=1:obj.inputs.totalTrials
-% %                 obj.info.TimerAA=tic;
-% %                 obj.trigTrial;
-% %                 obj.readTrial;
-% %                 obj.plotTrial;
-% %                 obj.prepTrial;
-% %                 obj.saveRunTimeBackup;
-% %                 wait_period=obj.inputs.trialMat{obj.inputs.trial-1,obj.inputs.colLabel.iti}-toc(obj.info.TimerAA);
-% %                 if wait_period>0 && wait_period<obj.inputs.trialMat{obj.inputs.trial-1,obj.inputs.colLabel.iti}
-% %                     pause(wait_period)
-% %                 end
-% %                 if(obj.inputs.stop_event==1)
-% %                     disp('returned after the execution')
-% %                     obj.inputs.stop_event=0;
-% %                     break;
-% %                 end
-% %                 disp('................................................');
-% %                 obj.inputs.trialMat{obj.inputs.trial-1,obj.inputs.colLabel.TotalITI}=toc(obj.info.TimerAA);
-% %             end
-%         end
- function stimLoop(obj)
+        function stimLoop(obj)
             obj.inputs.ReturnToTrialStatus=0;
             obj.info.TimerAA=tic;
             %             for tt=1:obj.inputs.totalTrials
             while(obj.inputs.trial<=obj.inputs.totalTrials)
-                % %                 obj.info.TimerAA=tic;
-                % %                 obj.trigTrial;
-                % %                 wait_period=obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.iti}-toc(obj.info.TimerAA);
-                % %                 if wait_period>0 && wait_period<obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.iti}
-                % %                     pause(wait_period)
-                % %                 end
-                % %                 obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.TotalITI}=toc(obj.info.TimerAA);
-                try obj.StatusTitle;catch, end
+% %                 obj.info.TimerAA=tic;
+% %                 obj.trigTrial;
+% %                 wait_period=obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.iti}-toc(obj.info.TimerAA);
+% %                 if wait_period>0 && wait_period<obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.iti}
+% %                     pause(wait_period)
+% %                 end
+% %                 obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.TotalITI}=toc(obj.info.TimerAA);
                 obj.trigTrial;
-                
-                try obj.readTrial;catch, end
-                if contains(obj.app.info.event.current_measure_fullstr,'PlotOff')
-                    disp('plotting is turned off')
-                else
-                    obj.plotTrial;
-                end
-                
-                % change made on 9 apr 2024
-                while (obj.bossbox.bb.triggers_remaining~=0)
-                    pause(0.1); drawnow;
-                end
+                obj.readTrial;
+                obj.plotTrial;
                 obj.prepTrial;
-                
-                try obj.processTrial; catch, end
-%                 obj.saveRunTimeBackup;
-                try
-                catch
-                end
-                
-                
-                xx = toc(obj.info.TimerAA);
-                
-                wait_period=obj.inputs.trialMat{obj.inputs.trial-1,obj.inputs.colLabel.iti}-xx;
+                obj.saveRunTimeBackup;
+                wait_period=obj.inputs.trialMat{obj.inputs.trial-1,obj.inputs.colLabel.iti}-toc(obj.info.TimerAA);
                 if wait_period>0 && wait_period<obj.inputs.trialMat{obj.inputs.trial-1,obj.inputs.colLabel.iti}
                     pause(wait_period)
                 end
@@ -5461,25 +5383,6 @@ classdef best_toolbox < handle
                     %%  Complicated Response Function case
                     switch obj.inputs.DoseFunction
                         case 1 %TS
-                            %%% this is added, but works
-                            for a=1:numel(obj.inputs.ResponseFunctionNumerator)
-                                DoseValuesIndices(a)={find(vertcat(obj.inputs.trialMat{:,obj.inputs.colLabel.ConditionMarker})==obj.inputs.ResponseFunctionNumerator(a))};
-                            end
-                            DoseValuesIndices=vertcat(DoseValuesIndices{:});
-                            for b=1:numel(DoseValuesIndices)
-                                for c=1:numel(obj.inputs.trialMat{DoseValuesIndices(b),obj.inputs.colLabel.StimulationType})
-                                    if strcmp(obj.inputs.trialMat{DoseValuesIndices(b),obj.inputs.colLabel.StimulationType}{1,c},'Condition') || strcmp(obj.inputs.trialMat{DoseValuesIndices(b),obj.inputs.colLabel.StimulationType}{1,c},'Test'), ConditionStimulationIndex=1; break;end
-                                end
-                                DoseValues(b,1)=obj.inputs.trialMat{DoseValuesIndices(b),obj.inputs.colLabel.si}{1,1}{1,ConditionStimulationIndex};
-                            end
-                                %% TS Alone Values
-                                for a=1:numel(obj.inputs.ResponseFunctionDenominator)
-                                    TSAloneValuesIndices(a)={find(vertcat(obj.inputs.trialMat{:,obj.inputs.colLabel.ConditionMarker})==obj.inputs.ResponseFunctionDenominator(a))};
-                                end
-                                TSAloneValuesIndices=vertcat(TSAloneValuesIndices{:}); 
-                                ResponseValues=obj.inputs.results.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).MEPAmplitude(DoseValuesIndices,1);
-                                TSAloneCond=mean(obj.inputs.results.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).MEPAmplitude(TSAloneValuesIndices,1));
-                            %%% until here
                         case 2 %CS
                             %% Dose Values
                                 for a=1:numel(obj.inputs.ResponseFunctionNumerator)
@@ -5488,10 +5391,9 @@ classdef best_toolbox < handle
                                 DoseValuesIndices=vertcat(DoseValuesIndices{:});                                
                                 for b=1:numel(DoseValuesIndices)
                                     for c=1:numel(obj.inputs.trialMat{DoseValuesIndices(b),obj.inputs.colLabel.StimulationType})
-                                        if strcmp(obj.inputs.trialMat{DoseValuesIndices(b),obj.inputs.colLabel.StimulationType}{1,c},'Condition') || strcmp(obj.inputs.trialMat{DoseValuesIndices(b),obj.inputs.colLabel.StimulationType}{1,c},'Test'), ConditionStimulationIndex=2; break;end  
+                                        if strcmp(obj.inputs.trialMat{DoseValuesIndices(b),obj.inputs.colLabel.StimulationType}{1,c},'Condition'), ConditionStimulationIndex=c; break;end
                                     end
-                                    DoseValues(b,1)=obj.inputs.trialMat{DoseValuesIndices(b),obj.inputs.colLabel.si}{1,1}{1,ConditionStimulationIndex};
-%                                     DoseValues(b,1)=obj.inputs.trialMat{DoseValuesIndices(b),obj.inputs.colLabel.si}{1,1}{1,2};
+                                    DoseValues(b,1)=obj.inputs.trialMat{DoseValuesIndices(b),obj.inputs.colLabel.si}{1,ConditionStimulationIndex}{1,1};
                                 end
                                 %% TS Alone Values
                                 for a=1:numel(obj.inputs.ResponseFunctionDenominator)
@@ -5499,7 +5401,7 @@ classdef best_toolbox < handle
                                 end
                                 TSAloneValuesIndices=vertcat(TSAloneValuesIndices{:}); 
                                 ResponseValues=obj.inputs.results.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).MEPAmplitude(DoseValuesIndices,1);
-                                TSAloneCond=mean(obj.inputs.results.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).MEPAmplitude(TSAloneValuesIndices,1));
+                                TSAloneCond=mean(obj.inputs.results.(obj.inputs.trialMat{obj.inputs.trial,obj.inputs.colLabel.chLab}{1,obj.inputs.chLab_idx}).MEPAmplitude(TSAloneValuesIndices,1));                               
                         case 3 %ISI
                         case 4 %Paired-CS
                     end
@@ -6596,7 +6498,6 @@ classdef best_toolbox < handle
             %obj.magven.setMode('Standard','00',2,0,1,1); %Future Release: Desirable but has bugs at the moment from MAGIC side
             obj.magven.arm;
         end
-        
         function boot_magstim(obj)
             obj.magStim=magstim(obj.app.par.hardware_settings.(obj.inputs.output_device).comport);
             obj.magStim.connect;

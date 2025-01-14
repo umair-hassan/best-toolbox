@@ -18,13 +18,29 @@ classdef best_sync2brain_bossdevice <handle
             obj.bb.calibration_mode = 'no';
             obj.bb.armed = 'no';
             obj.bb.sample_and_hold_period=0;
-            obj.bb.theta.ignore; pause(0.1)
-            obj.bb.beta.ignore; pause(0.1)
-            obj.bb.alpha.ignore; pause(0.1)
-            setparam(obj.bb.tg, 'QLY', 'eeg_artifact_threshold', [1e6 1e6])
-            MI=2;
+            obj.bb.theta.ignore; pause(0.1);
+            obj.bb.beta.ignore; pause(0.1);
+            obj.bb.alpha.ignore; pause(0.1);
+            obj.bb.triggers_remaining = 0;
+            
+            % % Saman
+            try
+                setparam(obj.bb.tg, 'STFTSpindle4', 'rms_threshold',  best_toolbox.app.par.spindle_parameters(1));
+                setparam(obj.bb.tg, 'STFTSpindle4', 'crr_threshold',  best_toolbox.app.par.spindle_parameters(2));
+                setparam(obj.bb.tg, 'STFTSpindle4', 'sigma_threshold',best_toolbox.app.par.spindle_parameters(3));
+            catch
+                setparam(obj.bb.tg, 'STFTSpindle4', 'rms_threshold', 0);
+                setparam(obj.bb.tg, 'STFTSpindle4', 'crr_threshold', 0);
+                setparam(obj.bb.tg, 'STFTSpindle4', 'sigma_threshold', 0);
+            end
+%             setparam(obj.bb.tg, 'STFTSpindle4', 'rms_threshold', 6.42);
+%             setparam(obj.bb.tg, 'STFTSpindle4', 'crr_threshold', 0.7);
+%             setparam(obj.bb.tg, 'STFTSpindle4', 'sigma_threshold', 0.2);
+            setparam(obj.bb.tg, 'QLY', 'eeg_artifact_threshold', [1e6 1e6]);
             setparam(obj.bb.tg, 'QLY', 'inst_freq_max_instability', [1e6 1e6 1 1 1e6 1e6])
             setparam(obj.bb.tg, 'VIS/IF Stability', 'refline_2',100);
+            % %
+            
             try setparam(obj.bb.tg, 'AlphaPower/AlphaPowerWindow', 'Value',[8 14]); catch, end
             %% Setting Num of EEG & AUX Channels
             % these depends on Protocol for NeurOne, for ACS we can particularly ask the user to define Num of Aux and EEG Channels being streamed
@@ -42,7 +58,7 @@ classdef best_sync2brain_bossdevice <handle
                     for iMontageChannels=1:numel(obj.best_toolbox.inputs.RealTimeChannelsMontage)
                         MontageChannelsIndicies(iMontageChannels)=find(strcmp(obj.best_toolbox.app.par.hardware_settings.(InputDevice).NeurOneProtocolChannelLabels,obj.best_toolbox.inputs.RealTimeChannelsMontage{iMontageChannels}));
                     end
-                    SpatialFilterWeights(MontageChannelsIndicies)=[1 -0.25 -0.25 -0.25 -0.25]'; %obj.best_toolbox.inputs.MontageWeights;
+                    SpatialFilterWeights(MontageChannelsIndicies)= obj.best_toolbox.inputs.MontageWeights;
                 end
                 
                 %% Setting Spatial Filter
@@ -101,13 +117,14 @@ classdef best_sync2brain_bossdevice <handle
             obj.bb.configure_time_port_marker(cell2mat(time_port_marker_vector'))
             %% Starting
             if obj.best_toolbox.inputs.trial==1 && obj.best_toolbox.inputs.ReturnToTrialStatus==0
-                    pause(1*60)
+                    pause(1*5)
             end
-            obj.bb.min_inter_trig_interval = 0;
-            obj.bb.alpha.amplitude_min(1)=NaN;
-            obj.bb.alpha.amplitude_max(1)=NaN;
+            obj.bb.min_inter_trig_interval = obj.best_toolbox.inputs.trialMat{obj.best_toolbox.inputs.trial,obj.best_toolbox.inputs.colLabel.iti}; % need to change this
+            obj.bb.alpha.amplitude_min(1)=0;%NaN;
+            obj.bb.alpha.amplitude_max(1)=1e6;%NaN;
             obj.bb.arm;
-            exit_flag=0;
+
+            exit_flag=2; 
             if strcmp(obj.best_toolbox.inputs.trialMat{obj.best_toolbox.inputs.trial,obj.best_toolbox.inputs.colLabel.IAUnit},'Percentile')
                 AmpMin=obj.best_toolbox.inputs.trialMat{obj.best_toolbox.inputs.trial,obj.best_toolbox.inputs.colLabel.IAPercentile}{1,1}/100;
                 AmpMax=obj.best_toolbox.inputs.trialMat{obj.best_toolbox.inputs.trial,obj.best_toolbox.inputs.colLabel.IAPercentile}{1,2}/100;
@@ -297,12 +314,12 @@ classdef best_sync2brain_bossdevice <handle
             addsignal(obj.FileScope.sc, [getsignalid(obj.bb.tg, 'OSC/alpha/IA'),getsignalid(obj.bb.tg, 'QLY/Logical Operator2'), getsignalid(obj.bb.tg, 'MRK/mrk_masked')]); 
             obj.FileScope.sc.FileName = 'IAFileScope.dat';
             obj.FileScope.sc.AutoRestart='on';
-            pause(5); %Taking 15 second pause so that EEG can be stablized well before starting buffer
+            pause(15); %Taking 15 second pause so that EEG can be stablized well before starting buffer
             start(obj.FileScope.sc);
             
 
             obj.FileScope.sc1 = addscope(obj.bb.tg, 'host', 101);
-            addsignal(obj.FileScope.sc1, getsignalid(obj.bb.tg, 'AlphaPower/scale to per Hz') + int32(0:1023));
+            addsignal(obj.FileScope.sc1, getsignalid(obj.bb.tg, 'OSC/alpha/IA') + int32(0:1023)); 
             obj.FileScope.sc1.NumSamples=2;
             %obj.FileScope.sc1.NumPrePostSamples=1;
             obj.FileScope.sc1.TriggerMode = 'Signal';
@@ -490,7 +507,7 @@ classdef best_sync2brain_bossdevice <handle
         
         function EEGScopeStart(obj)
             start(obj.EEGScope);
-            %while ~strcmpi(obj.EEGScope.Status,'Ready for being Triggered'), disp('EEG Scope is started'); drawnow, end
+            while ~strcmpi(obj.EEGScope.Status,'Ready for being Triggered'), disp('EEG Scope is started'); drawnow, end
         end
         
         function IAScopeStart(obj)
@@ -671,10 +688,10 @@ classdef best_sync2brain_bossdevice <handle
             obj.EEGScopeStart;
         end
         function [Time, Data]=EEGFieldTripScopeRead(obj)
-            while strcmpi(obj.EEGScope.Status,'Acquiring'), drawnow,obj.EEGScope.Status,if obj.best_toolbox.inputs.stop_event==1, break, end ,end
+            while ~strcmpi(obj.EEGScope.Status,'finished'), drawnow, if obj.best_toolbox.inputs.stop_event==1, break, end ,end
             Data=obj.EEGScope.Data(:,:)';
             Time=(obj.EEGScope.Time-obj.EEGScope.Time(1)+(obj.EEGScope.Time(2)-obj.EEGScope.Time(1)))';
-            Time=[(Time*1000)+obj.best_toolbox.inputs.EEGExtractionPeriod(1)]; 
+            Time=(Time*1000)+obj.best_toolbox.inputs.EEGExtractionPeriod(1); 
             %% Interpolating Data to remove pulse artefact
             %use sample and hold period of bossdevice
             %% end of interpolation
@@ -753,3 +770,4 @@ classdef best_sync2brain_bossdevice <handle
         end
     end
 end
+
