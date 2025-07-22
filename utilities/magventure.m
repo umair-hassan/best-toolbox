@@ -90,7 +90,7 @@ classdef magventure < handle
             % Outputs:
             % deviceResponse: is the response that is sent back by the
             % device to the port indicating current information about the device
-            % errorOrSuccess: is a boolean value indicating succecc = 0 or error = 1
+            % errorOrSuccess: is a boolean value indicating success = 0 or error = 1
             % in performing the desired task
         %% Reconnect the stimulator
             self.disconnect();

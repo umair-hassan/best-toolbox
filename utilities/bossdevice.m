@@ -307,7 +307,7 @@ classdef bossdevice < handle
 %             assert(strcmp(obj.scope_emg.Status, 'Ready for being Triggered'), 'host scope did not reach status ''Ready for being Triggered''');
 %             pause(0.1)
             setparam(obj.tg, 'CTL', 'gen_manual_trigger', 1)
-%             pause(0.1)
+%             pause(0.1);
             setparam(obj.tg, 'CTL', 'gen_manual_trigger', 0)
         end
         
